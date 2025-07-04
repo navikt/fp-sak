@@ -3,9 +3,6 @@ package no.nav.foreldrepenger.behandling.steg.anke;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import no.nav.foreldrepenger.behandling.anke.AnkeVurderingTjeneste;
 import no.nav.foreldrepenger.behandlingskontroll.AksjonspunktResultat;
 import no.nav.foreldrepenger.behandlingskontroll.BehandleStegResultat;
@@ -28,8 +25,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 @FagsakYtelseTypeRef
 @ApplicationScoped
 public class AnkeSteg implements BehandlingSteg {
-
-    private static final Logger LOG = LoggerFactory.getLogger(AnkeSteg.class);
 
     private BehandlingRepository behandlingRepository;
     private AnkeVurderingTjeneste ankeVurderingTjeneste;

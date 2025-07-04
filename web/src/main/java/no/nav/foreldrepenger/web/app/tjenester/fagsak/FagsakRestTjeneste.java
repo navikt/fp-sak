@@ -77,12 +77,10 @@ import no.nav.vedtak.sikkerhet.abac.beskyttet.ResourceType;
 public class FagsakRestTjeneste {
 
     static final String BASE_PATH = "/fagsak";
-    private static final String FAGSAK_PART_PATH = "";
     public static final String FAGSAK_PATH = BASE_PATH;
     private static final String FAGSAK_FULL_PART_PATH = "/full";
     public static final String FAGSAK_FULL_PATH = BASE_PATH + FAGSAK_FULL_PART_PATH;
     private static final String STATUS_PART_PATH = "/status";
-    public static final String STATUS_PATH = BASE_PATH + STATUS_PART_PATH;
     private static final String SOK_PART_PATH = "/sok";
     public static final String SOK_PATH = BASE_PATH + SOK_PART_PATH;
     private static final String ENDRE_UTLAND_PART_PATH = "/endre-utland";

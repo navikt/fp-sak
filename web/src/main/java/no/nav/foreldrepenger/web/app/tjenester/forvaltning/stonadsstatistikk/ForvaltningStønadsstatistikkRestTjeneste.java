@@ -6,7 +6,6 @@ import java.time.LocalDate;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-import jakarta.persistence.EntityManager;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import jakarta.ws.rs.BeanParam;
@@ -42,21 +41,18 @@ public class ForvaltningStønadsstatistikkRestTjeneste {
     private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
     private BehandlingsresultatRepository behandlingsresultatRepository;
     private ProsessTaskTjeneste taskTjeneste;
-    private EntityManager entityManager;
 
     @Inject
     public ForvaltningStønadsstatistikkRestTjeneste(StønadsstatistikkTjeneste stønadsstatistikkTjeneste,
                                                     BehandlingRepository behandlingRepository,
                                                     SkjæringstidspunktTjeneste skjæringstidspunktTjeneste,
                                                     BehandlingsresultatRepository behandlingsresultatRepository,
-                                                    ProsessTaskTjeneste taskTjeneste,
-                                                    EntityManager entityManager) {
+                                                    ProsessTaskTjeneste taskTjeneste) {
         this.stønadsstatistikkTjeneste = stønadsstatistikkTjeneste;
         this.behandlingRepository = behandlingRepository;
         this.skjæringstidspunktTjeneste = skjæringstidspunktTjeneste;
         this.behandlingsresultatRepository = behandlingsresultatRepository;
         this.taskTjeneste = taskTjeneste;
-        this.entityManager = entityManager;
     }
 
     ForvaltningStønadsstatistikkRestTjeneste() {

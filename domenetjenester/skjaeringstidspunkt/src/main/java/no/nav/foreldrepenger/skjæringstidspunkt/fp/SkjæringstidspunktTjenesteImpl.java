@@ -9,9 +9,6 @@ import java.util.function.BiFunction;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
 import no.nav.foreldrepenger.behandling.YtelseMaksdatoTjeneste;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
@@ -47,8 +44,6 @@ import no.nav.vedtak.konfig.Tid;
 @FagsakYtelseTypeRef(FagsakYtelseType.FORELDREPENGER)
 @ApplicationScoped
 public class SkjæringstidspunktTjenesteImpl implements SkjæringstidspunktTjeneste {
-
-    private static final Logger LOG = LoggerFactory.getLogger(SkjæringstidspunktTjenesteImpl.class);
 
     private static final Period MAX_STØNADSPERIODE = Period.ofYears(3);
 

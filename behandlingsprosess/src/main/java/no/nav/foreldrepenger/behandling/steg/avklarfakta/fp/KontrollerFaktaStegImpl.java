@@ -37,7 +37,6 @@ import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 class KontrollerFaktaStegImpl implements KontrollerFaktaSteg {
 
     private KontrollerFaktaTjeneste tjeneste;
-    private BehandlingRepositoryProvider repositoryProvider;
     private BehandlingRepository behandlingRepository;
     private BehandlingsresultatRepository behandlingsresultatRepository;
     private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
@@ -55,7 +54,6 @@ class KontrollerFaktaStegImpl implements KontrollerFaktaSteg {
         this.behandlingsresultatRepository = repositoryProvider.getBehandlingsresultatRepository();
         this.familieGrunnlagRepository = repositoryProvider.getFamilieHendelseRepository();
         this.skjæringstidspunktTjeneste = skjæringstidspunktTjeneste;
-        this.repositoryProvider = repositoryProvider;
         this.tjeneste = tjeneste;
     }
 

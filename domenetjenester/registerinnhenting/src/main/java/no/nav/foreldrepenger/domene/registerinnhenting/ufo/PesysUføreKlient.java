@@ -6,9 +6,6 @@ import java.util.Optional;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.ws.rs.core.UriBuilder;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import no.nav.vedtak.felles.integrasjon.rest.RestClient;
 import no.nav.vedtak.felles.integrasjon.rest.RestClientConfig;
 import no.nav.vedtak.felles.integrasjon.rest.RestConfig;
@@ -24,8 +21,6 @@ import no.nav.vedtak.felles.integrasjon.rest.TokenFlow;
 @RestClientConfig(tokenConfig = TokenFlow.ADAPTIVE, endpointProperty = "ufore.rs.url", endpointDefault = "http://pensjon-pen.pensjondeployer/api/sak/harUforegrad",
     scopesProperty = "ufore.scopes", scopesDefault = "api://prod-fss.pensjondeployer.pensjon-pen/.default")
 public class PesysUføreKlient {
-
-    private static final Logger LOG = LoggerFactory.getLogger(PesysUføreKlient.class);
 
     private static final String HEADER_FNR = "fnr";
 

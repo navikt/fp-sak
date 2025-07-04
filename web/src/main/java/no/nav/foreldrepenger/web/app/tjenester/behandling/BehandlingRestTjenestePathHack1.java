@@ -17,9 +17,6 @@ import jakarta.ws.rs.core.HttpHeaders;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.headers.Header;
@@ -53,8 +50,6 @@ import no.nav.vedtak.sikkerhet.abac.beskyttet.ResourceType;
 @Path(BehandlingRestTjenestePathHack1.BASE_PATH)
 @Produces(MediaType.APPLICATION_JSON)
 public class BehandlingRestTjenestePathHack1 {
-
-    private static final Logger LOG = LoggerFactory.getLogger(BehandlingRestTjenestePathHack1.class);
 
     static final String BASE_PATH = "/behandling";
     private static final String BEHANDLING_PART_PATH = "";

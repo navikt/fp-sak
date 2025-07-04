@@ -21,21 +21,16 @@ import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioM
 import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
 import no.nav.foreldrepenger.domene.json.StandardJsonConfig;
 import no.nav.foreldrepenger.domene.personopplysning.PersonopplysningTjeneste;
-import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
-import no.nav.foreldrepenger.skjæringstidspunkt.es.SkjæringstidspunktTjenesteImpl;
 
 class AdopsjonsvilkårEngangsstønadTest extends EntityManagerAwareTest {
 
     private BehandlingRepositoryProvider repositoryProvider;
 
-    private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
     private AdopsjonsvilkårOversetter oversetter;
 
     @BeforeEach
     void setUp() {
         repositoryProvider = new BehandlingRepositoryProvider(getEntityManager());
-        skjæringstidspunktTjeneste = new SkjæringstidspunktTjenesteImpl(repositoryProvider
-        );
         var personopplysningTjeneste = new PersonopplysningTjeneste(repositoryProvider.getPersonopplysningRepository());
         oversetter = new AdopsjonsvilkårOversetter(repositoryProvider, personopplysningTjeneste);
     }

@@ -21,7 +21,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.SvangerskapspengerRepository;
-import no.nav.foreldrepenger.behandlingslager.uttak.UttaksperiodegrenseRepository;
 import no.nav.foreldrepenger.dbstoette.CdiDbAwareTest;
 
 @CdiDbAwareTest
@@ -32,9 +31,6 @@ class VurderSøknadsfristStegTest {
 
     @Inject
     private BehandlingRepository behandlingRepository;
-
-    @Inject
-    private UttaksperiodegrenseRepository uttaksperiodegrenseRepository;
 
     @Inject
     private SvangerskapspengerRepository svangerskapspengerRepository;
@@ -55,8 +51,7 @@ class VurderSøknadsfristStegTest {
         em.flush();
         em.clear();
 
-        fastsettUttaksgrunnlagOgVurderSøknadsfristSteg = new VurderSøknadsfristSteg(uttaksperiodegrenseRepository,
-                førsteLovligeUttaksdatoTjeneste);
+        fastsettUttaksgrunnlagOgVurderSøknadsfristSteg = new VurderSøknadsfristSteg(førsteLovligeUttaksdatoTjeneste);
     }
 
     @Test

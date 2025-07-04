@@ -5,8 +5,6 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 
-import java.time.LocalDate;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -27,7 +25,6 @@ import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioM
 import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
 
 class ForeslåBehandlingsresultatTjenesteTest extends EntityManagerAwareTest {
-    private static final LocalDate SKJÆRINGSTIDSPUNKT = LocalDate.now();
 
     private BehandlingRepositoryProvider repositoryProvider;
 

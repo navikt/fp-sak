@@ -3,9 +3,6 @@ package no.nav.foreldrepenger.skjæringstidspunkt.fp;
 import java.time.LocalDate;
 import java.util.Optional;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseGrunnlagEntitet;
@@ -20,8 +17,6 @@ import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.opptjeningsperiode.Oppt
 import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.opptjeningsperiode.fp.RegelFastsettOpptjeningsperiode;
 
 public class SkjæringstidspunktUtils {
-
-    private static final Logger LOG = LoggerFactory.getLogger(SkjæringstidspunktUtils.class);
 
     private SkjæringstidspunktUtils() {
     }

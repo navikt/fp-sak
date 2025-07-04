@@ -13,7 +13,6 @@ import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
-import no.nav.foreldrepenger.behandlingslager.uttak.UttaksperiodegrenseRepository;
 
 @BehandlingStegRef(BehandlingStegType.SØKNADSFRIST_FORELDREPENGER)
 @BehandlingTypeRef
@@ -22,17 +21,14 @@ import no.nav.foreldrepenger.behandlingslager.uttak.UttaksperiodegrenseRepositor
 public class VurderSøknadsfristSteg implements BehandlingSteg {
 
     private FørsteLovligeUttaksdatoTjeneste førsteLovligeUttaksdatoTjeneste;
-    private UttaksperiodegrenseRepository uttaksperiodegrenseRepository;
 
     public VurderSøknadsfristSteg() {
         // For CDI
     }
 
     @Inject
-    public VurderSøknadsfristSteg(UttaksperiodegrenseRepository uttaksperiodegrenseRepository,
-                                  FørsteLovligeUttaksdatoTjeneste førsteLovligeUttaksdatoTjeneste) {
+    public VurderSøknadsfristSteg(FørsteLovligeUttaksdatoTjeneste førsteLovligeUttaksdatoTjeneste) {
         this.førsteLovligeUttaksdatoTjeneste = førsteLovligeUttaksdatoTjeneste;
-        this.uttaksperiodegrenseRepository = uttaksperiodegrenseRepository;
     }
 
     @Override

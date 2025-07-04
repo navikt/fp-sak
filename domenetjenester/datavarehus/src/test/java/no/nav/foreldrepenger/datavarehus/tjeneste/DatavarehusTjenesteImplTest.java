@@ -30,7 +30,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.MottattDokument;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.anke.AnkeRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.MottatteDokumentRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.SvangerskapspengerRepository;
@@ -59,14 +58,10 @@ class DatavarehusTjenesteImplTest {
     private MottattDokument mottattDokument;
 
     private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
-    private BehandlingRepositoryProvider repositoryProvider;
-    private BehandlingRepository behandlingRepository;
 
     @BeforeEach
-    public void setUp(EntityManager entityManager) {
-        repositoryProvider = new BehandlingRepositoryProvider(entityManager);
-        behandlingRepository = new BehandlingRepository(entityManager);
-        skjæringstidspunktTjeneste = new SkjæringstidspunktTjenesteImpl(repositoryProvider);
+    void setUp(EntityManager entityManager) {
+        skjæringstidspunktTjeneste = new SkjæringstidspunktTjenesteImpl(new BehandlingRepositoryProvider(entityManager));
     }
 
     private DatavarehusTjenesteImpl nyDatavarehusTjeneste(BehandlingRepositoryProvider repositoryProvider) {

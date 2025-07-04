@@ -21,8 +21,6 @@ import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioF
 import no.nav.foreldrepenger.dbstoette.CdiDbAwareTest;
 import no.nav.foreldrepenger.domene.personopplysning.PersonopplysningTjeneste;
 import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.RegelKjønn;
-import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
-import no.nav.foreldrepenger.skjæringstidspunkt.es.SkjæringstidspunktTjenesteImpl;
 
 @CdiDbAwareTest
 class AdopsjonsvilkårOversetterTest {
@@ -35,12 +33,8 @@ class AdopsjonsvilkårOversetterTest {
     @Inject
     private BehandlingRepositoryProvider repositoryProvider;
 
-    private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
-
     @BeforeEach
     void oppsett() {
-        skjæringstidspunktTjeneste = new SkjæringstidspunktTjenesteImpl(repositoryProvider
-        );
         adopsjonsoversetter = new AdopsjonsvilkårOversetter(repositoryProvider, personopplysningTjeneste);
     }
 
