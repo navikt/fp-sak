@@ -88,7 +88,6 @@ class VedtaksHendelseObserverTest extends EntityManagerAwareTest {
 
         vedtaksHendelseObserver.observerBehandlingVedtakEvent(esYtelse);
 
-        var captor = ArgumentCaptor.forClass(ProsessTaskData.class);
         verifyNoInteractions(taskTjeneste);
     }
 

@@ -156,11 +156,6 @@ public class FaktaUttakHistorikkinnslagTjeneste {
         }
         return builder.toString();
     }
-    private String mapGraderingAktivitetType(OppgittPeriodeEntitet periode) {
-        return Optional.ofNullable(periode.getGraderingAktivitetType())
-            .map(Enum::name)
-            .orElse(null);
-    }
 
     private String prefixUttakType(OppgittPeriodeEntitet periode) {
         if (periode.isUtsettelse()) {

@@ -84,7 +84,6 @@ class StønadskontoMigreringTask implements ProsessTaskHandler {
 
     private void håndterBeregning(Stønadskontoberegning kontoberegning, boolean dryRun) {
         var input = kontoberegning.getRegelInput();
-        var stønadsdager = Stønadsdager.instance(null);
         var endret  = false;
         if (dryRun) {
             // DO som logging
@@ -122,6 +121,7 @@ class StønadskontoMigreringTask implements ProsessTaskHandler {
         }
     }
 
+    @SuppressWarnings("unused")
     private void etterpopuler(Stønadskontoberegning kontoberegning, StønadskontoType stønadskontoType, int dager) {
         var finnesAllerede = kontoberegning.getStønadskontoer().stream().map(Stønadskonto::getStønadskontoType).anyMatch(stønadskontoType::equals);
         if (!finnesAllerede && dager > 0) {

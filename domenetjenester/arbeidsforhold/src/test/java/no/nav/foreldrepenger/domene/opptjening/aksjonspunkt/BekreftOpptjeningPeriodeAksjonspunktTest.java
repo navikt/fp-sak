@@ -68,7 +68,7 @@ class BekreftOpptjeningPeriodeAksjonspunktTest {
 
 
     @BeforeEach
-    public void oppsett(EntityManager entityManager) {
+    void oppsett(EntityManager entityManager) {
         behandlingRepository = new BehandlingRepository(entityManager);
         fagsakRepository = new FagsakRepository(entityManager);
         var tjeneste = mock(VirksomhetTjeneste.class);
@@ -180,7 +180,6 @@ class BekreftOpptjeningPeriodeAksjonspunktTest {
 
     @Test
     void skal_lagre_ned_delvis_godkjent_arbeid() {
-        var iDag = LocalDate.now();
         var behandling = opprettBehandling();
 
         var avtale1Fom = LocalDate.of(2022,12,1);

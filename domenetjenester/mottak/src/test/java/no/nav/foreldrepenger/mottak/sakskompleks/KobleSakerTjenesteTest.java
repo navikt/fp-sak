@@ -110,7 +110,7 @@ class KobleSakerTjenesteTest extends EntityManagerAwareTest {
         // Oppsett
         settOppPDLStrukturer(true);
 
-        var behandlingMor = opprettBehandlingMorSøkerFødselTermin(LocalDate.now().plusWeeks(15), FAR_AKTØR_ID);
+        opprettBehandlingMorSøkerFødselTermin(LocalDate.now().plusWeeks(15), FAR_AKTØR_ID);
         var behandlingFar = opprettBehandlingMedOppgittFødselOgBehandlingType(LocalDate.now(), MOR_AKTØR_ID);
 
         var morsSak = kobleSakTjeneste.finnRelatertFagsakDersomRelevant(behandlingFar);
@@ -123,7 +123,7 @@ class KobleSakerTjenesteTest extends EntityManagerAwareTest {
         // Oppsett
         settOppPDLStrukturer(true);
 
-        var behandlingMor = opprettBehandlingMorSøkerFødselTermin(LocalDate.now().plusWeeks(16), FAR_AKTØR_ID);
+        opprettBehandlingMorSøkerFødselTermin(LocalDate.now().plusWeeks(16), FAR_AKTØR_ID);
         var behandlingFar = opprettBehandlingMedOppgittFødselOgBehandlingType(LocalDate.now().minusWeeks(30), MOR_AKTØR_ID);
 
         var morsSak = kobleSakTjeneste.finnRelatertFagsakDersomRelevant(behandlingFar);
@@ -152,7 +152,7 @@ class KobleSakerTjenesteTest extends EntityManagerAwareTest {
         // Oppsett
         settOppPDLStrukturer(true);
 
-        var behandlingMor1 = opprettBehandlingMorSøkerFødselTermin(LocalDate.now().minusYears(1), FAR_AKTØR_ID);
+        opprettBehandlingMorSøkerFødselTermin(LocalDate.now().minusYears(1), FAR_AKTØR_ID);
         var behandlingMor2 = opprettBehandlingMorSøkerFødselTermin(LocalDate.now(), FAR_AKTØR_ID);
         var behandlingFar = opprettBehandlingMedOppgittFødselOgBehandlingType(LocalDate.now().plusWeeks(1), MOR_AKTØR_ID);
 
@@ -183,7 +183,7 @@ class KobleSakerTjenesteTest extends EntityManagerAwareTest {
         // Oppsett
         settOppPDLStrukturer(false);
 
-        @SuppressWarnings("unused") var behandlingMor = opprettBehandlingMorSøkerFødselTermin(LocalDate.now(), null);
+        opprettBehandlingMorSøkerFødselTermin(LocalDate.now(), null);
         var behandlingFar = opprettBehandlingMedOppgittTerminOgBehandlingType(LocalDate.now(), null);
 
         var morsSak = kobleSakTjeneste.finnRelatertFagsakDersomRelevant(behandlingFar);
@@ -211,7 +211,7 @@ class KobleSakerTjenesteTest extends EntityManagerAwareTest {
         // Oppsett
         settOppPDLSurrogatiStrukturer();
 
-        var behandlingMor = opprettBehandlingMorSøkerFødselTerminBekreftetFødsel(LocalDate.now().minusWeeks(8), null);
+        opprettBehandlingMorSøkerFødselTerminBekreftetFødsel(LocalDate.now().minusWeeks(8), null);
         var behandlingFar = opprettBehandlingMedAdopsjonAvEktefellesBarn(LocalDate.now().plusWeeks(8), MOR_AKTØR_ID);
 
         var morsSak = kobleSakTjeneste.finnRelatertFagsakDersomRelevant(behandlingFar);

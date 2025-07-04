@@ -46,7 +46,7 @@ public class VilkårsgrunnlagXmlTjenesteImpl extends VilkårsgrunnlagXmlTjeneste
                                                    Optional<SøknadEntitet> søknad, Optional<LocalDate> familieHendelseDato) {
         Vilkaarsgrunnlag vilkaarsgrunnlag = null;
         if (VilkårType.SØKERSOPPLYSNINGSPLIKT.equals(vilkårFraBehandling.getVilkårType())) {
-            vilkaarsgrunnlag = lagVilkaarsgrunnlagForSøkersopplysningsplikt(behandling, søknad);
+            vilkaarsgrunnlag = lagVilkaarsgrunnlagForSøkersopplysningsplikt(søknad);
         } else if (VilkårType.MEDLEMSKAPSVILKÅRET.equals(vilkårFraBehandling.getVilkårType())) {
             vilkaarsgrunnlag = lagVilkaarsgrunnlagForMedlemskapsvilkåret(vilkårFraBehandling);
         } else if (VilkårType.FØDSELSVILKÅRET_MOR.equals(vilkårFraBehandling.getVilkårType()) || VilkårType.FØDSELSVILKÅRET_FAR_MEDMOR.equals(vilkårFraBehandling.getVilkårType())) {
@@ -174,7 +174,7 @@ public class VilkårsgrunnlagXmlTjenesteImpl extends VilkårsgrunnlagXmlTjeneste
         return vilkårgrunnlag;
     }
 
-    private Vilkaarsgrunnlag lagVilkaarsgrunnlagForSøkersopplysningsplikt(Behandling behandling, Optional<SøknadEntitet> optionalSøknad) {
+    private Vilkaarsgrunnlag lagVilkaarsgrunnlagForSøkersopplysningsplikt(Optional<SøknadEntitet> optionalSøknad) {
         boolean komplettSøknad;
         boolean elektroniskSøknad;
         if (optionalSøknad.isEmpty()) {

@@ -134,10 +134,10 @@ public class SaldoerDtoTjeneste {
 
     private boolean harTrekkdagerEtterNesteSak(BehandlingReferanse ref, NesteSakGrunnlagEntitet nesteSakGrunnlag) {
         var nesteSakFom = nesteSakGrunnlag.getStartdato();
-        return uttakTjeneste.hentHvisEksisterer(ref.behandlingId()).map(u -> {
-            //Bruker opprinnelige uttak fra reglene for at minsterett saldo ikke skal forsvinne hvis saksbehandler fjerner alle trekkdager etter ny sak i AP
-            return u.getOpprinneligPerioder().stream().anyMatch(p -> p.harTrekkdager() && !p.getTom().isBefore(nesteSakFom));
-        }).orElse(false);
+        //Bruker opprinnelige uttak fra reglene for at minsterett saldo ikke skal forsvinne hvis saksbehandler fjerner alle trekkdager etter ny sak i AP
+        return uttakTjeneste.hentHvisEksisterer(ref.behandlingId())
+            .map(u -> u.getOpprinneligPerioder().stream().anyMatch(p -> p.harTrekkdager() && !p.getTom().isBefore(nesteSakFom)))
+            .orElse(false);
     }
 
     private StønadskontoDto foreldrepengerFlerbarnsdagerDto(SaldoUtregning saldoUtregning) {

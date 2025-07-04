@@ -228,8 +228,8 @@ class VurderMedlemskapvilkårStegTest {
             .kvinne(søkerAktørId, SivilstandType.GIFT)
             .personstatus(PersonstatusType.BOSA)
             .statsborgerskap(Landkoder.NOR)
-            .adresse(AdresseType.BOSTEDSADRESSE, new AdressePeriode(Gyldighetsperiode.innenfor(termindato.minusYears(2), termindato.plusYears(2)),
-                Adresseinfo.builder(AdresseType.BOSTEDSADRESSE).medLand(Landkoder.NOR).build()))
+            .adresse(new AdressePeriode(Gyldighetsperiode.innenfor(termindato.minusYears(2), termindato.plusYears(2)),
+                                        Adresseinfo.builder(AdresseType.BOSTEDSADRESSE).medLand(Landkoder.NOR).build()))
             .build();
         scenario.medRegisterOpplysninger(søker);
         return scenario;

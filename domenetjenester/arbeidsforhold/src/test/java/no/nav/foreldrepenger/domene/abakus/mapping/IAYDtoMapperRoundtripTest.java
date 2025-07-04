@@ -78,7 +78,7 @@ class IAYDtoMapperRoundtripTest {
     private final ArbeidsforholdRefDto arbeidsforholdId = new ArbeidsforholdRefDto(InternArbeidsforholdRef.nyRef().getReferanse(),
             "aaregRef");
 
-    private final IAYFraDtoMapper fraDtoMapper = new IAYFraDtoMapper(aktørId);
+    private final IAYFraDtoMapper fraDtoMapper = new IAYFraDtoMapper();
 
     @Test
     void roundtrip_mapping_dto_til_grunnlag() {
@@ -142,7 +142,6 @@ class IAYDtoMapperRoundtripTest {
         var dtoInntekt = dto.getRegister().getInntekt().getFirst().getUtbetalinger();
         assertThat(fpsakInntekt.getFirst().getArbeidsgiver().getIdentifikator()).isEqualTo(dtoInntekt.getFirst().getUtbetaler().getIdent());
         assertThat(fpsakInntekt.getFirst().getInntektsKilde().getKode()).isEqualTo(dtoInntekt.getFirst().getKilde().getKode());
-        var x = fpsakInntekt.getFirst().getAlleInntektsposter().stream().findFirst().orElseThrow();
         assertThat(fpsakInntekt.getFirst().getAlleInntektsposter().stream().findFirst().orElseThrow().getInntektYtelseType().getKode()).isEqualTo(InntektYtelseType.FORELDREPENGER.getKode());
 
         // Assert ytelse

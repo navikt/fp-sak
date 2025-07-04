@@ -25,7 +25,6 @@ public abstract class PersonopplysningXmlTjeneste {
 
     public void setPersonopplysninger(Vedtak vedtak, BehandlingReferanse ref, Skjæringstidspunkt skjæringstidspunkt) {
         Object personopplysninger = null;
-        var stp = skjæringstidspunkt.getSkjæringstidspunktHvisUtledet().orElse(null);
         var personopplysningerAggregat = personopplysningTjeneste.hentPersonopplysningerHvisEksisterer(ref);
         if (personopplysningerAggregat.isPresent()) {
             personopplysninger = lagPersonopplysning(personopplysningerAggregat.get(), ref.behandlingId(), ref.aktørId(), skjæringstidspunkt);//Implementeres i hver subklasse

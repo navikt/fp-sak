@@ -47,7 +47,7 @@ class BeregningsresultatRepositoryTest {
     void lagreOgHentBeregningsresultatFPAggregat() {
         // Arrange
         var behandling = opprettBehandling();
-        var beregningsresultat = buildBeregningsresultatFP(false, LocalDate.now());
+        var beregningsresultat = buildBeregningsresultatFP(false);
 
         // Act
         beregningsresultatRepository.lagre(behandling, beregningsresultat);
@@ -63,7 +63,7 @@ class BeregningsresultatRepositoryTest {
     void lagreOgHentUtbetBeregningsresultatFPAggregatNårUTBETIkkeEksisterer() {
         // Arrange
         var behandling = opprettBehandling();
-        var bgBeregningsresultatFP = buildBeregningsresultatFP(false, LocalDate.now());
+        var bgBeregningsresultatFP = buildBeregningsresultatFP(false);
 
         // Act
         beregningsresultatRepository.lagre(behandling, bgBeregningsresultatFP);
@@ -78,9 +78,8 @@ class BeregningsresultatRepositoryTest {
     void lagreOgHentUtbetBeregningsresultatFPAggregatNårUTBETEksisterer() {
         // Arrange
         var behandling = opprettBehandling();
-        var bgBeregningsresultatFP = buildBeregningsresultatFP(false, LocalDate.now());
-        var utbetBeregningsresultatFP = buildBeregningsresultatFP(false,
-            LocalDate.now().plusDays(1));
+        var bgBeregningsresultatFP = buildBeregningsresultatFP(false);
+        var utbetBeregningsresultatFP = buildBeregningsresultatFP(false);
 
         // Act
         beregningsresultatRepository.lagre(behandling, bgBeregningsresultatFP);
@@ -98,7 +97,7 @@ class BeregningsresultatRepositoryTest {
     void lagreOgHenteBeregningsresultatFP() {
         // Arrange
         var behandling = opprettBehandling();
-        var beregningsresultat = buildBeregningsresultatFP(false, LocalDate.now());
+        var beregningsresultat = buildBeregningsresultatFP(false);
 
         // Act
         beregningsresultatRepository.lagre(behandling, beregningsresultat);
@@ -117,9 +116,8 @@ class BeregningsresultatRepositoryTest {
     void lagreOgHenteUtbetBeregningsresultatFP() {
         // Arrange
         var behandling = opprettBehandling();
-        var bgBeregningsresultatFP = buildBeregningsresultatFP(false, LocalDate.now());
-        var utbetBeregningsresultatFP = buildBeregningsresultatFP(false,
-            LocalDate.now().plusDays(1));
+        var bgBeregningsresultatFP = buildBeregningsresultatFP(false);
+        var utbetBeregningsresultatFP = buildBeregningsresultatFP(false);
 
         // Act
         beregningsresultatRepository.lagre(behandling, bgBeregningsresultatFP);
@@ -139,7 +137,7 @@ class BeregningsresultatRepositoryTest {
     void lagreOgHenteBeregningsresultatFPMedPrivatpersonSomArbeidsgiver() {
         // Arrange
         var behandling = opprettBehandling();
-        var beregningsresultat = buildBeregningsresultatFP(true, LocalDate.now());
+        var beregningsresultat = buildBeregningsresultatFP(true);
 
         // Act
         beregningsresultatRepository.lagre(behandling, beregningsresultat);
@@ -168,7 +166,7 @@ class BeregningsresultatRepositoryTest {
     void lagreBeregningsresultatFPOgUnderliggendeTabellerMedEndringsdatoLikDagensDato() {
         // Arrange
         var behandling = opprettBehandling();
-        var beregningsresultat = buildBeregningsresultatFP(false, LocalDate.now());
+        var beregningsresultat = buildBeregningsresultatFP(false);
 
         // Act
         beregningsresultatRepository.lagre(behandling, beregningsresultat);
@@ -224,7 +222,7 @@ class BeregningsresultatRepositoryTest {
     void lagreBeregningsresultatFPOgFeriepenger() {
         // Arrange
         var behandling = opprettBehandling();
-        var beregningsresultat = buildBeregningsresultatFP(false, LocalDate.now());
+        var beregningsresultat = buildBeregningsresultatFP(false);
         var feriepenger = BeregningsresultatFeriepenger.builder()
             .medFeriepengerPeriodeFom(LocalDate.now())
             .medFeriepengerPeriodeTom(LocalDate.now())
@@ -282,7 +280,7 @@ class BeregningsresultatRepositoryTest {
         // Arrange
         var behandling = opprettBehandling();
         var behandling2 = opprettBehandling();
-        var beregningsresultat = buildBeregningsresultatFP(false, LocalDate.now());
+        var beregningsresultat = buildBeregningsresultatFP(false);
 
         // Act
         beregningsresultatRepository.lagre(behandling, beregningsresultat);
@@ -303,7 +301,7 @@ class BeregningsresultatRepositoryTest {
     void slettBeregningsresultatFPOgKobling() {
         // Arrange
         var behandling = opprettBehandling();
-        var beregningsresultat = buildBeregningsresultatFP(false, LocalDate.now());
+        var beregningsresultat = buildBeregningsresultatFP(false);
         beregningsresultatRepository.lagre(behandling, beregningsresultat);
 
         var koblingOpt = beregningsresultatRepository.hentBeregningsresultatAggregat(
@@ -362,11 +360,6 @@ class BeregningsresultatRepositoryTest {
     }
 
     private BeregningsresultatEntitet buildBeregningsresultatFP(boolean medPrivatpersonArbeidsgiver) {
-        return buildBeregningsresultatFP(medPrivatpersonArbeidsgiver, null);
-    }
-
-    private BeregningsresultatEntitet buildBeregningsresultatFP(boolean medPrivatpersonArbeidsgiver,
-                                                                LocalDate endringsdato) {
         var builder = BeregningsresultatEntitet.builder()
             .medRegelInput("clob1")
             .medRegelSporing("clob2");

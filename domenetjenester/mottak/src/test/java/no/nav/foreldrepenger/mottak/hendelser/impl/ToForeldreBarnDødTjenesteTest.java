@@ -55,7 +55,6 @@ class ToForeldreBarnDødTjenesteTest {
     void skal_velge_behandling_f1_når_f1_har_aktivt_uttak() {
         // Arrange Foreldre1 (F1) har aktivt uttak nå, og velges automatisk
         var uttakF1 = new ForeldrepengerUttak(lagPerioderMedFullUtbetaling(LocalDate.now().minusDays(15)));
-        var uttakF2 = new ForeldrepengerUttak(lagPerioderMedFullUtbetaling(LocalDate.now()));
 
         when(uttakTjeneste.hentHvisEksisterer(Mockito.eq(behandlingF1.getId()))).thenReturn(Optional.of(uttakF1));
 

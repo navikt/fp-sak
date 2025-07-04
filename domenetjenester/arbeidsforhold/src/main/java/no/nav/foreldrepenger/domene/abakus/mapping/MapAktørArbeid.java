@@ -63,7 +63,7 @@ public class MapAktørArbeid {
 
         private InntektArbeidYtelseAggregatBuilder registerData;
 
-        MapFraDto(AktørId søkerAktørId, InntektArbeidYtelseAggregatBuilder registerData) {
+        MapFraDto(InntektArbeidYtelseAggregatBuilder registerData) {
             this.registerData = registerData;
         }
 
