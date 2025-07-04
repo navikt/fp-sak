@@ -1,5 +1,6 @@
 package no.nav.foreldrepenger.domene.uttak.saldo;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -73,19 +74,18 @@ public class StønadskontoSaldoTjeneste {
         var sisteSøknadOpprettetTidspunktAnnenpart = fpGrunnlag.getAnnenpart()
             .map(Annenpart::søknadOpprettetTidspunkt)
             .orElse(null);
+        var sammenhengendeUttakTomDato = UtsettelseCore2021.kreverSammenhengendeUttakTilOgMed();
+        var annenpartEøs = fpGrunnlag.getEøsUttakGrunnlag().isPresent();
         if (!stønadskontoer.isEmpty() && !perioderSøker.isEmpty()) {
             var perioderAnnenpart = perioderAnnenpart(fpGrunnlag);
-            if (fpGrunnlag.getEøsUttakGrunnlag().isPresent()) {
-                tapendeBehandling = true; // EØS uttak er alltid tapende behandling
-            }
             var kontoer  = KontoerGrunnlagBygger.byggGrunnlag(uttakInput, stønadskontoer).build();
             return SaldoUtregningGrunnlag.forUtregningAvHeleUttaket(perioderSøker,
                 tapendeBehandling, perioderAnnenpart, kontoer, søknadOpprettetTidspunkt,
-                sisteSøknadOpprettetTidspunktAnnenpart, UtsettelseCore2021.kreverSammenhengendeUttakTilOgMed());
+                sisteSøknadOpprettetTidspunktAnnenpart, sammenhengendeUttakTomDato, annenpartEøs);
         }
         return SaldoUtregningGrunnlag.forUtregningAvHeleUttaket(List.of(), tapendeBehandling,
-            List.of(), new Kontoer.Builder().build(), søknadOpprettetTidspunkt, sisteSøknadOpprettetTidspunktAnnenpart,
-            UtsettelseCore2021.kreverSammenhengendeUttakTilOgMed());
+            List.of(), new Kontoer.Builder().build(), søknadOpprettetTidspunkt, sisteSøknadOpprettetTidspunktAnnenpart, sammenhengendeUttakTomDato,
+            annenpartEøs);
     }
 
     public boolean erNegativSaldoPåNoenKonto(UttakInput uttakInput) {
