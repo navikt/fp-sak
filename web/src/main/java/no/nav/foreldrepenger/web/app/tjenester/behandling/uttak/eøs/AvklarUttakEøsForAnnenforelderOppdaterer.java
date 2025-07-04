@@ -80,9 +80,9 @@ public class AvklarUttakEøsForAnnenforelderOppdaterer implements AksjonspunktOp
         var linjer = new ArrayList<HistorikkinnslagLinjeBuilder>();
         linjer.add(new HistorikkinnslagLinjeBuilder().tekst("Registerer uttaksperioder for annen forelder i EØS"));
         for (var periode : dto.getPerioder()) {
-            var foramat = String.format("%s - %s: Forbrukt %s dager av %s", periode.fom(), periode.tom(),  periode.trekkdager(),
-                periode.trekkonto().getNavn().toLowerCase());
-            linjer.add(new HistorikkinnslagLinjeBuilder().tekst(foramat));
+            linjer.add(new HistorikkinnslagLinjeBuilder()
+                .tekst(String.format("%s - %s: Forbrukt", periode.fom(), periode.tom()))
+                .bold(String.format("%s dager av %s", periode.trekkdager(), periode.trekkonto().getNavn().toLowerCase())));
         }
         return new Historikkinnslag.Builder()
             .medAktør(HistorikkAktør.SAKSBEHANDLER)
