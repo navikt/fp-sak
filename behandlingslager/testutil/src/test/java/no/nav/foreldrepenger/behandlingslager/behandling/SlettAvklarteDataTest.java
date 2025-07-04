@@ -10,7 +10,6 @@ import org.junit.jupiter.api.Test;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.UidentifisertBarnEntitet;
-import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.AbstractTestScenario;
@@ -21,14 +20,12 @@ import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
 class SlettAvklarteDataTest extends EntityManagerAwareTest {
 
     private BehandlingRepository behandlingRepository;
-    private MedlemskapRepository medlemskapRepository;
     private FamilieHendelseRepository familieHendelseRepository;
 
     @BeforeEach
     void setUp() {
         var entityManager = getEntityManager();
         behandlingRepository = new BehandlingRepository(entityManager);
-        medlemskapRepository = new MedlemskapRepository(entityManager);
         familieHendelseRepository = new FamilieHendelseRepository(entityManager);
     }
 

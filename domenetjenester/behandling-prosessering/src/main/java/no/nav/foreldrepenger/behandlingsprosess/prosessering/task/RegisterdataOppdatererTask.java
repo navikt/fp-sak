@@ -3,9 +3,6 @@ package no.nav.foreldrepenger.behandlingsprosess.prosessering.task;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import no.nav.foreldrepenger.behandlingslager.behandling.EndringsresultatSnapshot;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingLåsRepository;
@@ -26,8 +23,6 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 @ProsessTask("behandlingskontroll.registerdataOppdaterBehandling")
 @FagsakProsesstaskRekkefølge(gruppeSekvens = true)
 public class RegisterdataOppdatererTask extends BehandlingProsessTask {
-
-    private static final Logger LOG = LoggerFactory.getLogger(RegisterdataOppdatererTask.class);
 
     private BehandlingProsesseringTjeneste behandlingProsesseringTjeneste;
     private RegisterdataEndringshåndterer registerdataOppdaterer;
