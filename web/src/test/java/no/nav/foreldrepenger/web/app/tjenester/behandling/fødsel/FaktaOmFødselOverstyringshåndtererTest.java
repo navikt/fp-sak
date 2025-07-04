@@ -24,7 +24,7 @@ import static no.nav.foreldrepenger.behandlingslager.behandling.historikk.Histor
 import static org.assertj.core.api.Assertions.assertThat;
 
 @CdiDbAwareTest
-public class FaktaOmFødselOverstyringshåndtererTest {
+class FaktaOmFødselOverstyringshåndtererTest {
 
     @Inject
     private BehandlingRepositoryProvider repositoryProvider;
@@ -38,7 +38,7 @@ public class FaktaOmFødselOverstyringshåndtererTest {
     private FaktaOmFødselOverstyringshåndterer oppdaterer;
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         oppdaterer = new FaktaOmFødselOverstyringshåndterer(historikkinnslagRepository, faktaFødselTjeneste, familieHendelseTjeneste);
     }
 

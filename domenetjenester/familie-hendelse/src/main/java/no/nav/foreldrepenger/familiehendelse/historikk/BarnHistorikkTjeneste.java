@@ -16,9 +16,12 @@ import static no.nav.foreldrepenger.familiehendelse.modell.FødselStatus.safeGet
 @ApplicationScoped
 public class BarnHistorikkTjeneste {
 
+    private BarnHistorikkTjeneste() {
+    }
+
     public static void lagHistorikkForBarn(Historikkinnslag.Builder historikkinnslag,
-                                    FamilieHendelseGrunnlagEntitet grunnlag,
-                                    BarnInfoProvider barnInfo) {
+                                           FamilieHendelseGrunnlagEntitet grunnlag,
+                                           BarnInfoProvider barnInfo) {
         var oppdatertFødselStatus = barnInfo.getBarn().stream().map(FødselStatus::new).toList();
         var gjeldendeFødselStatus = grunnlag.getGjeldendeBarna().stream().map(FødselStatus::new).toList();
 
