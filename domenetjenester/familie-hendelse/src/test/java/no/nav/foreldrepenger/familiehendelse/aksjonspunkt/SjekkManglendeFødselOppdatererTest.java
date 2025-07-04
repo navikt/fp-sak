@@ -1,11 +1,11 @@
 package no.nav.foreldrepenger.familiehendelse.aksjonspunkt;
 
+import static java.time.LocalDate.now;
+import static no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon.SJEKK_MANGLENDE_FØDSEL;
 import static no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagLinjeBuilder.format;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.mockito.Mockito.mock;
-
-import static java.time.LocalDate.now;
 
 import java.time.LocalDate;
 import java.util.Collections;
@@ -22,9 +22,6 @@ import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterParameter;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.OverhoppKontroll;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
-
-import static no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon.SJEKK_MANGLENDE_FØDSEL;
-
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.UidentifisertBarn;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioFarSøkerEngangsstønad;
@@ -34,6 +31,7 @@ import no.nav.foreldrepenger.familiehendelse.FamilieHendelseTjeneste;
 import no.nav.foreldrepenger.familiehendelse.aksjonspunkt.dto.SjekkManglendeFødselAksjonspunktDto;
 import no.nav.foreldrepenger.familiehendelse.aksjonspunkt.dto.DokumentertBarnDto;
 import no.nav.foreldrepenger.familiehendelse.event.FamiliehendelseEventPubliserer;
+import no.nav.foreldrepenger.familiehendelse.modell.FødselStatus;
 import no.nav.foreldrepenger.skjæringstidspunkt.OpplysningsPeriodeTjeneste;
 import no.nav.vedtak.exception.FunksjonellException;
 
@@ -369,7 +367,7 @@ class SjekkManglendeFødselOppdatererTest extends EntityManagerAwareTest {
         assertThat(barn1).isEqualTo(barn2);
     }
 
-    private SjekkManglendeFødselOppdaterer.FødselStatus lagFødselStatus(LocalDate fødselsdato, LocalDate dødsdato) {
-        return new SjekkManglendeFødselOppdaterer.FødselStatus(new DokumentertBarnDto(fødselsdato, dødsdato));
+    private FødselStatus lagFødselStatus(LocalDate fødselsdato, LocalDate dødsdato) {
+        return new FødselStatus(new DokumentertBarnDto(fødselsdato, dødsdato));
     }
 }
