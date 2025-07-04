@@ -139,7 +139,7 @@ class BehandlingskontrollEventPublisererTest {
     @Test
     void skal_fyre_event_behandling_status_endring_ved_prosessering() {
         // Arrange
-        var scenario = TestScenario.forEngangsstønad();;
+        var scenario = TestScenario.forEngangsstønad();
 
         var behandling = scenario.lagre(serviceProvider);
 

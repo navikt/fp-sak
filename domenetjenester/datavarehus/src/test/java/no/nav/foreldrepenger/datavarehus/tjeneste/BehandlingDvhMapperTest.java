@@ -173,7 +173,7 @@ class BehandlingDvhMapperTest {
 
     @Test
     void skal_mappe_til_behandling_dvh_vedtatt() {
-        var mottattTidspunkt = lagMottattDokument(DokumentTypeId.SØKNAD_ENGANGSSTØNAD_FØDSEL);;
+        var mottattTidspunkt = lagMottattDokument(DokumentTypeId.SØKNAD_ENGANGSSTØNAD_FØDSEL);
         var scenario = opprettFørstegangssøknadScenario();
         var behandling = byggBehandling(scenario, BehandlingResultatType.AVSLÅTT, true);
 

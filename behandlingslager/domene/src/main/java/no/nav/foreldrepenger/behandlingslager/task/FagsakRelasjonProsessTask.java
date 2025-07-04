@@ -6,8 +6,6 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakLås;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakLåsRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjon;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjonRepository;
-import no.nav.foreldrepenger.behandlingslager.laas.FagsakRelasjonLås;
-import no.nav.foreldrepenger.behandlingslager.laas.FagsakRelasjonLåsRepository;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskHandler;
 
@@ -16,12 +14,10 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskHandler;
  */
 public abstract class FagsakRelasjonProsessTask implements ProsessTaskHandler {
 
-    private FagsakRelasjonLåsRepository fagsakRelasjonLåsRepository;
     private FagsakLåsRepository fagsakLåsRepository;
     private FagsakRelasjonRepository fagsakRelasjonRepository;
 
-    protected FagsakRelasjonProsessTask(FagsakLåsRepository fagsakLåsRepository, FagsakRelasjonLåsRepository relasjonLåsRepository, FagsakRelasjonRepository fagsakRelasjonRepository) {
-        this.fagsakRelasjonLåsRepository = relasjonLåsRepository;
+    protected FagsakRelasjonProsessTask(FagsakLåsRepository fagsakLåsRepository, FagsakRelasjonRepository fagsakRelasjonRepository) {
         this.fagsakLåsRepository = fagsakLåsRepository;
         this.fagsakRelasjonRepository = fagsakRelasjonRepository;
     }
@@ -37,12 +33,11 @@ public abstract class FagsakRelasjonProsessTask implements ProsessTaskHandler {
         // Låser i samme rekkefølge som andre tasks som kan finne på å gjøre noe med Fagsakrelasjon
         var fagsak1Lås = fagsakRelasjon.map(FagsakRelasjon::getFagsakNrEn).map(fagsakLåsRepository::taLås);
         var fagsak2Lås = fagsakRelasjon.flatMap(FagsakRelasjon::getFagsakNrTo).map(fagsakLåsRepository::taLås);
-        var reLås = fagsakRelasjon.map(fr -> fagsakRelasjonLåsRepository.taLås(fagsakId)).orElse(null);
         fagsakRelasjon = fagsakRelasjonRepository.finnRelasjonForHvisEksisterer(fagsakId);
 
-        prosesser(prosessTaskData, fagsakRelasjon, reLås, fagsak1Lås, fagsak2Lås);
+        prosesser(prosessTaskData, fagsakRelasjon, fagsak1Lås, fagsak2Lås);
     }
 
-    protected abstract void prosesser(ProsessTaskData prosessTaskData, Optional<FagsakRelasjon> relasjon, FagsakRelasjonLås relasjonLås, Optional<FagsakLås> fagsak1Lås, Optional<FagsakLås> fagsak2Lås);
+    protected abstract void prosesser(ProsessTaskData prosessTaskData, Optional<FagsakRelasjon> relasjon, Optional<FagsakLås> fagsak1Lås, Optional<FagsakLås> fagsak2Lås);
 
 }

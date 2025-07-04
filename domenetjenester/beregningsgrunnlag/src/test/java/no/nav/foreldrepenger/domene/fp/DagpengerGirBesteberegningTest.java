@@ -18,7 +18,6 @@ import no.nav.foreldrepenger.domene.iay.modell.kodeverk.Arbeidskategori;
 import no.nav.foreldrepenger.domene.iay.modell.kodeverk.RelatertYtelseTilstand;
 import no.nav.foreldrepenger.domene.opptjening.OpptjeningAktiviteter;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
-import no.nav.foreldrepenger.domene.tid.VirkedagUtil;
 import no.nav.foreldrepenger.domene.typer.Beløp;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 
@@ -172,7 +171,6 @@ class DagpengerGirBesteberegningTest {
     @Test
     void åpent_sykepengevedtak_skal_ikke_gi_besteberegning() {
         // Act
-        var localDate = VirkedagUtil.tomVirkedag(LocalDate.of(2021, 6, 7));
         var mandagSTP = STP.minusDays(1);
         var periode = DatoIntervallEntitet.fraOgMedTilOgMed(mandagSTP.minusDays(30), mandagSTP.minusDays(3));
         var ytelseBuilder = lagYtelse(RelatertYtelseType.SYKEPENGER, periode, RelatertYtelseTilstand.ÅPEN);

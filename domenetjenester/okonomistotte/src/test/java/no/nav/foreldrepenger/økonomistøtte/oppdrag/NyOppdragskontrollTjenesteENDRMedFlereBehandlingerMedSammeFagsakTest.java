@@ -310,7 +310,6 @@ public class NyOppdragskontrollTjenesteENDRMedFlereBehandlingerMedSammeFagsakTes
         var originaltOppdrag = OppdragMedPositivKvitteringTestUtil.opprett(nyOppdragskontrollTjeneste, builder.build());
 
         // Første Revurdering
-        var førsteEndringsdato = b1Periode_1.getBeregningsresultatPeriodeFom();
         var beregningsresultatFørsteRevurderingFP = buildEmptyBeregningsresultatFP();
         var b2Periode_1 = buildBeregningsresultatPeriode(beregningsresultatFørsteRevurderingFP, 1, 10);
         //Andel for arbeidsgiver i periode#1
@@ -327,7 +326,6 @@ public class NyOppdragskontrollTjenesteENDRMedFlereBehandlingerMedSammeFagsakTes
         var oppdragRevurdering = OppdragMedPositivKvitteringTestUtil.opprett(nyOppdragskontrollTjeneste, builder2.build());
 
         // Andre Revurdering
-        var andreEndringsdato = b2Periode_1.getBeregningsresultatPeriodeFom();
         var beregningsresultatAndreRevurderingFP = buildEmptyBeregningsresultatFP();
         var b3Periode_1 = buildBeregningsresultatPeriode(beregningsresultatAndreRevurderingFP, 1, 10);
         //Andel for bruker i periode#1
@@ -472,7 +470,6 @@ public class NyOppdragskontrollTjenesteENDRMedFlereBehandlingerMedSammeFagsakTes
         var originaltOppdrag = OppdragMedPositivKvitteringTestUtil.opprett(nyOppdragskontrollTjeneste, builder.build());
 
         // Første Revurdering
-        var førsteEndringsdato = b1Periode_1.getBeregningsresultatPeriodeFom();
         var beregningsresultatFørsteRevurderingFP = buildEmptyBeregningsresultatFP();
         var b2Periode_1 = buildBeregningsresultatPeriode(beregningsresultatFørsteRevurderingFP, 1, 10);
         //Andel for arbeidsgiver#2 i periode#1
@@ -486,7 +483,6 @@ public class NyOppdragskontrollTjenesteENDRMedFlereBehandlingerMedSammeFagsakTes
         var oppdragRevurdering = OppdragMedPositivKvitteringTestUtil.opprett(nyOppdragskontrollTjeneste, builder2.build());
 
         // Andre Revurdering
-        var andreEndringsdato = b1Periode_1.getBeregningsresultatPeriodeFom();
         var beregningsresultatAndreRevurderingFP = buildEmptyBeregningsresultatFP();
         var b3Periode_1 = buildBeregningsresultatPeriode(beregningsresultatAndreRevurderingFP, 1, 10);
         //Andel for bruker i periode#1
@@ -974,7 +970,6 @@ public class NyOppdragskontrollTjenesteENDRMedFlereBehandlingerMedSammeFagsakTes
         var originaltOppdrag = OppdragMedPositivKvitteringTestUtil.opprett(nyOppdragskontrollTjeneste, builder.build());
 
         // Første Revurdering
-        var førsteEndringsdato = b1Periode_1.getBeregningsresultatPeriodeFom();
         var beregningsresultatFørsteRevurderingFP = buildEmptyBeregningsresultatFP();
 
         var b2Periode_1 = buildBeregningsresultatPeriode(beregningsresultatFørsteRevurderingFP, 1, 40);
@@ -990,7 +985,6 @@ public class NyOppdragskontrollTjenesteENDRMedFlereBehandlingerMedSammeFagsakTes
         var oppdragRevurdering = OppdragMedPositivKvitteringTestUtil.opprett(nyOppdragskontrollTjeneste, builder2.build());
 
         // Andre Revurdering
-        var andreEndringsdato = b1Periode_1.getBeregningsresultatPeriodeFom();
         var beregningsresultatAndreRevurderingFP = buildEmptyBeregningsresultatFP();
 
         var b3Periode_1 = buildBeregningsresultatPeriode(beregningsresultatAndreRevurderingFP, 1, 31);

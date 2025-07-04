@@ -42,8 +42,6 @@ import no.nav.fpsak.tidsserie.LocalDateInterval;
 @ExtendWith(MockitoExtension.class)
 class StønadsperiodeInnhenterTest extends EntityManagerAwareTest {
 
-
-
     private static final AktørId AKTØR_ID_MOR = AktørId.dummy();
     private static final AktørId MEDF_AKTØR_ID = AktørId.dummy();
 
@@ -52,7 +50,6 @@ class StønadsperiodeInnhenterTest extends EntityManagerAwareTest {
 
     private static final LocalDate FH_DATO_ELDRE = VirkedagUtil.fomVirkedag(FH_DATO.minusYears(2));
     private static final LocalDate FH_DATO_YNGRE = VirkedagUtil.fomVirkedag(FH_DATO.plusWeeks(45));
-
 
     private BehandlingRepositoryProvider repositoryProvider;
     private FagsakRelasjonTjeneste fagsakRelasjonTjeneste;
@@ -318,50 +315,6 @@ class StønadsperiodeInnhenterTest extends EntityManagerAwareTest {
             .medVedtakstidspunkt(LocalDateTime.now().minusMonths(2))
             .medVedtakResultatType(VedtakResultatType.INNVILGET);
         return scenarioFar.lagre(repositoryProvider);
-    }
-
-    private Behandling lagBehandlingFPAdopsjonMor(AktørId medfAktørId, LocalDate omsorgsovertakelsedato) {
-        var scenario = ScenarioMorSøkerForeldrepenger.forAdopsjon();
-        scenario.medSøknadHendelse()
-            .medAdopsjon(
-                scenario.medSøknadHendelse().getAdopsjonBuilder().medOmsorgsovertakelseDato(omsorgsovertakelsedato));
-        if (medfAktørId != null) {
-            scenario.medSøknadAnnenPart()
-                .medAktørId(medfAktørId)
-                .medNavn("Seig Pinne")
-                .medType(SøknadAnnenPartType.FAR);
-        }
-        scenario.medBehandlingsresultat(
-            Behandlingsresultat.builder().medBehandlingResultatType(BehandlingResultatType.INNVILGET));
-        scenario.medBehandlingVedtak()
-            .medVedtakstidspunkt(LocalDateTime.now().minusMonths(2))
-            .medVedtakResultatType(VedtakResultatType.INNVILGET);
-        var behandling = scenario.lagre(repositoryProvider);
-        avsluttBehandling(behandling);
-
-        return behandling;
-    }
-
-    private Behandling lagBehandlingFPAdopsjonFar(AktørId medfAktørId, LocalDate omsorgsovertakelsedato) {
-        var scenario = ScenarioFarSøkerForeldrepenger.forAdopsjon();
-        scenario.medSøknadHendelse()
-            .medAdopsjon(
-                scenario.medSøknadHendelse().getAdopsjonBuilder().medOmsorgsovertakelseDato(omsorgsovertakelsedato));
-        if (medfAktørId != null) {
-            scenario.medSøknadAnnenPart()
-                .medAktørId(medfAktørId)
-                .medNavn("Seig Pinne")
-                .medType(SøknadAnnenPartType.FAR);
-        }
-        scenario.medBehandlingsresultat(
-            Behandlingsresultat.builder().medBehandlingResultatType(BehandlingResultatType.INNVILGET));
-        scenario.medBehandlingVedtak()
-            .medVedtakstidspunkt(LocalDateTime.now().minusMonths(2))
-            .medVedtakResultatType(VedtakResultatType.INNVILGET);
-        var behandling = scenario.lagre(repositoryProvider);
-        avsluttBehandling(behandling);
-
-        return behandling;
     }
 
     private Behandling lagBehandlingSVP(AktørId aktørId) {

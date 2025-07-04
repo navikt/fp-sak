@@ -1,7 +1,6 @@
 package no.nav.foreldrepenger.behandling.revurdering.ytelse.fp;
 
 import java.time.Period;
-import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;

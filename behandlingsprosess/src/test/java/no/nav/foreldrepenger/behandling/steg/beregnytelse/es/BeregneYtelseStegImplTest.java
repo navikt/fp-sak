@@ -16,8 +16,6 @@ import no.nav.foreldrepenger.behandlingskontroll.BehandlingSteg;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
-import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
-import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingsresultatRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningSats;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningSatsType;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.EngangsstønadBeregning;
@@ -38,7 +36,6 @@ class BeregneYtelseStegImplTest {
 
     private BehandlingRepositoryProvider repositoryProvider;
     private BehandlingRepository behandlingRepository;
-    private BehandlingsresultatRepository behandlingsresultatRepository;
     private SatsRepository satsRepository;
 
     @Inject
@@ -62,7 +59,6 @@ class BeregneYtelseStegImplTest {
         beregningRepository = new EngangsstønadBeregningRepository(em);
         repositoryProvider = new BehandlingRepositoryProvider(em);
         behandlingRepository = repositoryProvider.getBehandlingRepository();
-        behandlingsresultatRepository = repositoryProvider.getBehandlingsresultatRepository();
         skjæringstidspunktTjeneste = new SkjæringstidspunktTjenesteImpl(repositoryProvider);
         entityManager.persist(fagsak.getNavBruker());
         entityManager.persist(fagsak);
@@ -115,10 +111,6 @@ class BeregneYtelseStegImplTest {
         var beregning = beregningResultat.get();
         assertThat(beregning.getSatsVerdi()).isEqualTo(sats2017.getVerdi());
         assertThat(beregning.getBeregnetTilkjentYtelse()).isEqualTo(sats2017.getVerdi() * antallBarn);
-    }
-
-    private Behandlingsresultat getBehandlingsresultat(Behandling behandling) {
-        return behandlingsresultatRepository.hentHvisEksisterer(behandling.getId()).orElse(null);
     }
 
     @Test

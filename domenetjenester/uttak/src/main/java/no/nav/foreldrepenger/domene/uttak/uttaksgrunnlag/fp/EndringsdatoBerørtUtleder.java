@@ -51,11 +51,9 @@ public final class EndringsdatoBerørtUtleder {
         }
         var berørtUttak = berørtUttakOpt.get();
         // Endring fra en søknadsperiode eller fra start?
-        var endringsdato = utløsendeBehandlingYtelseFordeling.getGjeldendeEndringsdatoHvisEksisterer()
-            .orElseGet(() -> {
-                //mangler endringsdato ved utsatt oppstart behandlinger.
-                return finnMinAktivDato(utløsendeUttak, berørtUttak).orElseThrow();
-            });
+        var endringsdato = utløsendeBehandlingYtelseFordeling.getGjeldendeEndringsdatoHvisEksisterer().orElseGet(() ->
+            //mangler endringsdato ved utsatt oppstart behandlinger.
+            finnMinAktivDato(utløsendeUttak, berørtUttak).orElseThrow());
 
         Set<LocalDate> berørtBehovDatoer = new HashSet<>();
         if (UtregnetStønadskontoTjeneste.harEndretStrukturEllerRedusertAntallStønadsdager(

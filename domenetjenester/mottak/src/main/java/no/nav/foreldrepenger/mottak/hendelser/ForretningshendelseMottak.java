@@ -198,11 +198,6 @@ public class ForretningshendelseMottak {
         //fagsakTjeneste.hentBehandlingerMedÅpentAksjonspunkt(fagsak).stream().map(this::opprettLosProsessTask).forEach(taskGruppe::addNesteSekvensiell);
     }
 
-    private boolean erIkkeMerketPrioritert(Fagsak f) {
-        var markeringer = fagsakEgenskapRepository.finnFagsakMarkeringer(f.getId());
-        return markeringer.isEmpty() || markeringer.stream().noneMatch(FagsakMarkering::erPrioritert);
-    }
-
     private ProsessTaskData opprettOppdaterEnhetTask(Behandling behandling) {
         var prosessTaskData = ProsessTaskData.forProsessTask(OppdaterBehandlendeEnhetTask.class);
         prosessTaskData.setBehandling(behandling.getSaksnummer().getVerdi(), behandling.getFagsakId(), behandling.getId());

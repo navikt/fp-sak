@@ -87,13 +87,5 @@ public enum InntektYtelseType implements Kodeverdi {
         return ytelseType;
     }
 
-    private boolean erOrdinærYtelse() {
-        return kategori == Kategori.YTELSE;
-    }
-
-    private boolean erNæringsYtelse() {
-        return kategori == Kategori.NÆRING;
-    }
-
     public enum Kategori { YTELSE, NÆRING, TRYGD }
 }
