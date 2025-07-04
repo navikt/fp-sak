@@ -14,7 +14,7 @@ import no.nav.foreldrepenger.behandling.aksjonspunkt.BekreftetAksjonspunktDto;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktKodeDefinisjon;
 
 @JsonTypeName(AksjonspunktKodeDefinisjon.SJEKK_MANGLENDE_FØDSEL_KODE)
-public class SjekkManglendeFodselDto extends BekreftetAksjonspunktDto {
+public class SjekkManglendeFødselAksjonspunktDto extends BekreftetAksjonspunktDto {
 
     @NotNull
     @JsonProperty("erBarnFødt")
@@ -26,11 +26,11 @@ public class SjekkManglendeFodselDto extends BekreftetAksjonspunktDto {
     @JsonAlias("uidentifiserteBarn")
     private List<DokumentertBarnDto> barn;
 
-    SjekkManglendeFodselDto() {
+    SjekkManglendeFødselAksjonspunktDto() {
         //For Jackson
     }
 
-    public SjekkManglendeFodselDto(String begrunnelse, Boolean dokumentasjonForeligger, List<DokumentertBarnDto> barn) {
+    public SjekkManglendeFødselAksjonspunktDto(String begrunnelse, Boolean dokumentasjonForeligger, List<DokumentertBarnDto> barn) {
         super(begrunnelse);
         this.erBarnFødt = dokumentasjonForeligger;
         this.barn = barn;

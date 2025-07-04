@@ -37,7 +37,7 @@ public class AksjonspunktUtlederForForeldrepengerFødsel extends AksjonspunktUtl
     @Override
     protected List<AksjonspunktUtlederResultat> utledAksjonspunkterForTerminbekreftelse(AksjonspunktUtlederInput param) {
         if (farSøkerOgMorIkkeRett(param) || erSøkerRegistrertArbeidstakerMedLøpendeArbeidsforholdIAARegisteret(param) == NEI) {
-            return AksjonspunktUtlederResultat.opprettListeForAksjonspunkt(AksjonspunktDefinisjon.AVKLAR_TERMINBEKREFTELSE);
+            return AksjonspunktUtlederResultat.opprettListeForAksjonspunkt(AksjonspunktDefinisjon.SJEKK_TERMINBEKREFTELSE);
         }
         return List.of();
     }
