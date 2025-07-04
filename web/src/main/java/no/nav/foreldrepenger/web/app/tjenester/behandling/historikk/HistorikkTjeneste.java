@@ -1,16 +1,11 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.historikk;
 
-import java.net.URI;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-import jakarta.ws.rs.core.UriBuilder;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagDokumentLink;
@@ -26,8 +21,6 @@ import no.nav.foreldrepenger.web.app.tjenester.behandling.historikk.Historikkinn
 
 @ApplicationScoped
 public class HistorikkTjeneste {
-
-    private static final Logger LOG = LoggerFactory.getLogger(HistorikkTjeneste.class);
 
     private HistorikkinnslagRepository historikkinnslagRepository;
     private BehandlingRepository behandlingRepository;

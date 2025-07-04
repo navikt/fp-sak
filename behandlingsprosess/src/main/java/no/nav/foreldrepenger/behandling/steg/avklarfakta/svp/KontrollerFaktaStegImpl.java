@@ -34,7 +34,6 @@ import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 class KontrollerFaktaStegImpl implements KontrollerFaktaSteg {
 
     private KontrollerFaktaTjeneste tjeneste;
-    private BehandlingRepositoryProvider repositoryProvider;
     private BehandlingRepository behandlingRepository;
     private BehandlingsresultatRepository behandlingsresultatRepository;
     private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
@@ -47,7 +46,6 @@ class KontrollerFaktaStegImpl implements KontrollerFaktaSteg {
     KontrollerFaktaStegImpl(BehandlingRepositoryProvider repositoryProvider,
             SkjæringstidspunktTjeneste skjæringstidspunktTjeneste,
             @FagsakYtelseTypeRef(FagsakYtelseType.SVANGERSKAPSPENGER) KontrollerFaktaTjeneste tjeneste) {
-        this.repositoryProvider = repositoryProvider;
         this.behandlingRepository = repositoryProvider.getBehandlingRepository();
         this.behandlingsresultatRepository = repositoryProvider.getBehandlingsresultatRepository();
         this.skjæringstidspunktTjeneste = skjæringstidspunktTjeneste;

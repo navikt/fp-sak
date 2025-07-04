@@ -8,9 +8,6 @@ import java.util.Optional;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import no.nav.foreldrepenger.behandling.FamilieHendelseDato;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseGrunnlagEntitet;
 import no.nav.foreldrepenger.konfig.Environment;
@@ -30,8 +27,6 @@ public class BotidCore2024 {
 
     public static final Period FORUTGÅENDE_MEDLEMSKAP_TIDSPERIODE = Period.ofMonths(12);
 
-
-    private static final Logger LOG = LoggerFactory.getLogger(BotidCore2024.class);
     private static final Environment ENV = Environment.current();
 
     private static final String PROP_NAME_DATO = "dato.for.botid";

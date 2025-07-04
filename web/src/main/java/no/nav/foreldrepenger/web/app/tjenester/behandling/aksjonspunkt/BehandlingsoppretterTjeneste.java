@@ -8,9 +8,6 @@ import java.util.Set;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import no.nav.foreldrepenger.behandling.revurdering.RevurderingTjeneste;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
@@ -30,8 +27,6 @@ import no.nav.vedtak.exception.FunksjonellException;
 
 @ApplicationScoped
 public class BehandlingsoppretterTjeneste {
-
-    private static final Logger LOG = LoggerFactory.getLogger(BehandlingsoppretterTjeneste.class);
 
     private BehandlingRepository behandlingRepository;
     private MottatteDokumentRepository mottatteDokumentRepository;

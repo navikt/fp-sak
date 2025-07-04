@@ -1,6 +1,5 @@
 package no.nav.foreldrepenger.domene.personopplysning;
 
-import java.time.LocalDate;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -29,12 +28,9 @@ import no.nav.foreldrepenger.domene.tid.SimpleLocalDateInterval;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.PersonIdent;
 import no.nav.fpsak.tidsserie.LocalDateInterval;
-import no.nav.vedtak.konfig.Tid;
 
 @ApplicationScoped
 public class PersonopplysningInnhenter {
-
-    private static final LocalDate FIKTIV_FOM = LocalDate.of(1900,1,1);
 
     private PersoninfoAdapter personinfoAdapter;
 
@@ -184,7 +180,6 @@ public class PersonopplysningInnhenter {
     }
 
     private void mapInfoTilEntitet(Personinfo personinfo, PersonInformasjonBuilder informasjonBuilder, boolean lagreIHistoriskeTabeller) {
-        var periode = getPeriode(personinfo.getFødselsdato(), Tid.TIDENES_ENDE);
         var builder = informasjonBuilder.getPersonopplysningBuilder(personinfo.getAktørId())
             .medKjønn(personinfo.getKjønn())
             .medFødselsdato(personinfo.getFødselsdato())
@@ -202,10 +197,6 @@ public class PersonopplysningInnhenter {
         if (lagreIHistoriskeTabeller || informasjonBuilder.harIkkeFåttPersonstatusHistorikk(personinfo.getAktørId())) {
             mapPersonstatus(personinfo.getPersonstatus(), informasjonBuilder, personinfo.getAktørId());
         }
-    }
-
-    private DatoIntervallEntitet getPeriode(LocalDate fom, LocalDate tom) {
-        return DatoIntervallEntitet.fraOgMedTilOgMed(fom, tom != null ? tom : Tid.TIDENES_ENDE);
     }
 
     private void leggTilEktefelle(Personinfo søkerPersonInfo, PersonInformasjonBuilder informasjonBuilder, Map<PersonIdent, Personinfo> innhentet) {

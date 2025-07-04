@@ -39,11 +39,10 @@ class Oppdragslinje150EntityTest {
     private static final Saksnummer SAKSID = new Saksnummer("700");
     private static final Boolean VENTERKVITTERING = true;
     private static final Long TASKID = 52L;
-    private static final String FORVENTET_EXCEPTION = "forventet exception";
     private static final Long BEHANDLINGID = 321L;
 
     @BeforeEach
-    public void setup() {
+    void setup() {
         oppdragslinje150Builder = Oppdragslinje150.builder();
         oppdragslinje150 = null;
     }

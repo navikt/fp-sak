@@ -45,7 +45,6 @@ public class PersonopplysningGrunnlagDiff {
     private final Set<AktørId> søkersBarnUnion;
     private final Set<AktørId> søkersBarnSnitt;
     private final Set<AktørId> søkersBarnDiff;
-    private final Set<AktørId> personerSnitt;
 
     public PersonopplysningGrunnlagDiff(AktørId søker, PersonopplysningGrunnlagEntitet grunnlag1, PersonopplysningGrunnlagEntitet grunnlag2) {
         this.søkerAktørId = søker;
@@ -53,7 +52,6 @@ public class PersonopplysningGrunnlagDiff {
         this.grunnlag2 = grunnlag2;
         søkersBarnUnion = finnAlleBarn();
         søkersBarnSnitt = finnFellesBarn();
-        personerSnitt = fellesAktører();
         annenPartAktørId = finnAnnenPart();
         søkersBarnDiff = søkersBarnUnion.stream().filter(barn -> !søkersBarnSnitt.contains(barn)).collect(Collectors.toSet());
     }
@@ -210,14 +208,6 @@ public class PersonopplysningGrunnlagDiff {
         var barn1 = finnBarnaFor(grunnlag1, søkerAktørId);
         var barn2 = finnBarnaFor(grunnlag2, søkerAktørId);
         return barn2.stream().filter(barn1::contains).collect(Collectors.toSet());
-    }
-
-    private Set<AktørId> fellesAktører() {
-        var første = registerVersjon(grunnlag1).map(PersonInformasjonEntitet::getPersonopplysninger).orElse(Collections.emptyList()).stream().map(PersonopplysningEntitet::getAktørId).collect(Collectors.toSet());
-        return registerVersjon(grunnlag2).map(PersonInformasjonEntitet::getPersonopplysninger).orElse(Collections.emptyList()).stream()
-            .map(PersonopplysningEntitet::getAktørId)
-            .filter(første::contains)
-            .collect(Collectors.toSet());
     }
 
     private Optional<AktørId> finnAnnenPart() {

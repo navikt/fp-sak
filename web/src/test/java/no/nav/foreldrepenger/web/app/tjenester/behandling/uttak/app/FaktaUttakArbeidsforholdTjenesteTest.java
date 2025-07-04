@@ -19,7 +19,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
 import no.nav.foreldrepenger.behandlingslager.uttak.UttakArbeidType;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
-import no.nav.foreldrepenger.behandlingslager.virksomhet.Virksomhet;
 import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
@@ -30,9 +29,6 @@ import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto.Arbeidsforho
 @ExtendWith(MockitoExtension.class)
 class FaktaUttakArbeidsforholdTjenesteTest extends EntityManagerAwareTest {
 
-    private static final String NAVN = "Person Navn";
-    private static final LocalDate FØDSEL = LocalDate.of(2000, 1, 1);
-
     @Test
     void skalReturnereArbeidsforhold() {
         var scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
@@ -40,8 +36,6 @@ class FaktaUttakArbeidsforholdTjenesteTest extends EntityManagerAwareTest {
 
         var virksomhetOrgnr1 = "123";
         var virksomhetOrgnr2 = "456";
-        var virksomhet1 = lagVirksomhet(virksomhetOrgnr1, "navn");
-        var virksomhet2 = lagVirksomhet(virksomhetOrgnr2, "navn2");
 
         var aktørId = AktørId.dummy();
         var virksomhet123 = Arbeidsgiver.virksomhet(virksomhetOrgnr1);
@@ -101,13 +95,6 @@ class FaktaUttakArbeidsforholdTjenesteTest extends EntityManagerAwareTest {
         var arbeidsforhold = FaktaUttakArbeidsforholdTjeneste.hentArbeidsforhold(input);
 
         assertThat(arbeidsforhold).isEmpty();
-    }
-
-    private Virksomhet lagVirksomhet(String orgnr, String navn) {
-        return new Virksomhet.Builder()
-            .medOrgnr(orgnr)
-            .medNavn(navn)
-            .build();
     }
 
 }
