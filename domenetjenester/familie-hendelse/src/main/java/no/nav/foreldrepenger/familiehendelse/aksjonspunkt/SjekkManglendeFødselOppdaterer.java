@@ -107,7 +107,7 @@ public class SjekkManglendeFødselOppdaterer implements AksjonspunktOppdaterer<S
     private List<? extends UidentifisertBarn> utledFødselsdata(SjekkManglendeFodselDto dto, FamilieHendelseGrunnlagEntitet grunnlag) {
         var termindato = grunnlag.getGjeldendeTerminbekreftelse().map(TerminbekreftelseEntitet::getTermindato);
 
-        var barn = dto.getBarn().stream().map(FødselStatus::new).sorted().toList();
+        var barn = dto.getBarn().stream().map(FødselStatus::new).toList();
 
         var fødselsdato = barn.stream().map(UidentifisertBarn::getFødselsdato).min(Comparator.naturalOrder());
         if (termindato.isPresent() && fødselsdato.isPresent()) {
