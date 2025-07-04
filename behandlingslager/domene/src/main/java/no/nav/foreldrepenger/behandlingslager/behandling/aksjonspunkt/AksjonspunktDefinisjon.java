@@ -44,8 +44,11 @@ public enum AksjonspunktDefinisjon implements Kodeverdi {
 
     // Gruppe : 500
 
-    AVKLAR_TERMINBEKREFTELSE(AksjonspunktKodeDefinisjon.AVKLAR_TERMINBEKREFTELSE_KODE,
+    SJEKK_TERMINBEKREFTELSE(AksjonspunktKodeDefinisjon.SJEKK_TERMINBEKREFTELSE_KODE,
             AksjonspunktType.MANUELL, "Avklar terminbekreftelse", BehandlingStegType.SØKERS_RELASJON_TIL_BARN, VurderingspunktType.INN,
+            VilkårType.FØDSELSVILKÅRET_MOR, SkjermlenkeType.FAKTA_OM_FOEDSEL, ENTRINN, EnumSet.of(ES, FP)),
+    SJEKK_MANGLENDE_FØDSEL(AksjonspunktKodeDefinisjon.SJEKK_MANGLENDE_FØDSEL_KODE,
+            AksjonspunktType.MANUELL, "Sjekk manglende fødsel", BehandlingStegType.SØKERS_RELASJON_TIL_BARN, VurderingspunktType.INN,
             VilkårType.FØDSELSVILKÅRET_MOR, SkjermlenkeType.FAKTA_OM_FOEDSEL, ENTRINN, EnumSet.of(ES, FP)),
     AVKLAR_ADOPSJONSDOKUMENTAJON(AksjonspunktKodeDefinisjon.AVKLAR_ADOPSJONSDOKUMENTAJON_KODE,
             AksjonspunktType.MANUELL, "Avklar adopsjonsdokumentasjon", BehandlingStegType.SØKERS_RELASJON_TIL_BARN, VurderingspunktType.INN,
@@ -95,9 +98,6 @@ public enum AksjonspunktDefinisjon implements Kodeverdi {
     VARSEL_REVURDERING_MANUELL( // Kun ES
             AksjonspunktKodeDefinisjon.VARSEL_REVURDERING_MANUELL_KODE, AksjonspunktType.MANUELL, "Varsel om revurdering opprettet manuelt",
             BehandlingStegType.VARSEL_REVURDERING, VurderingspunktType.UT, UTEN_VILKÅR, UTEN_SKJERMLENKE, ENTRINN, EnumSet.of(ES)),
-    SJEKK_MANGLENDE_FØDSEL(AksjonspunktKodeDefinisjon.SJEKK_MANGLENDE_FØDSEL_KODE,
-            AksjonspunktType.MANUELL, "Sjekk manglende fødsel", BehandlingStegType.SØKERS_RELASJON_TIL_BARN, VurderingspunktType.INN,
-            VilkårType.FØDSELSVILKÅRET_MOR, SkjermlenkeType.FAKTA_OM_FOEDSEL, ENTRINN, EnumSet.of(ES, FP)),
     FORESLÅ_VEDTAK_MANUELT(AksjonspunktKodeDefinisjon.FORESLÅ_VEDTAK_MANUELT_KODE,
             AksjonspunktType.MANUELL, "Foreslå vedtak manuelt", BehandlingStegType.FORESLÅ_VEDTAK, VurderingspunktType.UT, UTEN_VILKÅR, SkjermlenkeType.VEDTAK,
             ENTRINN, EnumSet.of(ES, FP, SVP)),
@@ -509,8 +509,8 @@ public enum AksjonspunktDefinisjon implements Kodeverdi {
 
 
     private static final Map<AksjonspunktDefinisjon, Set<AksjonspunktDefinisjon>> UTELUKKENDE_AP_MAP = Map.ofEntries(
-        Map.entry(AksjonspunktDefinisjon.SJEKK_MANGLENDE_FØDSEL, Set.of(AksjonspunktDefinisjon.AVKLAR_TERMINBEKREFTELSE)),
-        Map.entry(AksjonspunktDefinisjon.AVKLAR_TERMINBEKREFTELSE, Set.of(AksjonspunktDefinisjon.SJEKK_MANGLENDE_FØDSEL))
+        Map.entry(AksjonspunktDefinisjon.SJEKK_MANGLENDE_FØDSEL, Set.of(AksjonspunktDefinisjon.SJEKK_TERMINBEKREFTELSE)),
+        Map.entry(AksjonspunktDefinisjon.SJEKK_TERMINBEKREFTELSE, Set.of(AksjonspunktDefinisjon.SJEKK_MANGLENDE_FØDSEL))
         /* TODO: Vurder om disse skal tas med
         , Map.entry(AksjonspunktDefinisjon.FORESLÅ_VEDTAK, Set.of(AksjonspunktDefinisjon.FORESLÅ_VEDTAK_MANUELT))
         , Map.entry(AksjonspunktDefinisjon.FORESLÅ_VEDTAK_MANUELT, Set.of(AksjonspunktDefinisjon.FORESLÅ_VEDTAK))
