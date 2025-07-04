@@ -28,7 +28,7 @@ class BehandlingModellTest {
 
     @ParameterizedTest
     @MethodSource("parameters")
-    public void skal_sjekke_alle_definerte_behandlingsteg_konfigurasjoner_har_matchende_steg_implementasjoner(
+    void skal_sjekke_alle_definerte_behandlingsteg_konfigurasjoner_har_matchende_steg_implementasjoner(
         BehandlingTypeYtelseType tuple) {
         var behandlingType = tuple.behandlingType();
         var ytelseType = tuple.ytelseType();

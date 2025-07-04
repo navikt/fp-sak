@@ -46,7 +46,7 @@ class FagsakTjenesteTest {
     private final LocalDate forelderFødselsdato = LocalDate.of(1990, JANUARY, 1);
 
     @BeforeEach
-    public void oppsett(EntityManager entityManager) {
+    void oppsett(EntityManager entityManager) {
         brukerRepository = new NavBrukerRepository(entityManager);
         behandlingRepository = new BehandlingRepository(entityManager);
         personopplysningRepository = new PersonopplysningRepository(entityManager);

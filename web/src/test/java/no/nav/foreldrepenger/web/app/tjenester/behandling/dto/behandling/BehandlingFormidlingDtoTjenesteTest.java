@@ -57,7 +57,7 @@ class BehandlingFormidlingDtoTjenesteTest {
     private BehandlingFormidlingDtoTjeneste tjeneste;
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         tjeneste = new BehandlingFormidlingDtoTjeneste(repositoryProvider, beregningTjeneste, skjæringstidspunktTjeneste,
             behandlingDokumentRepository, relatertBehandlingTjeneste, uttakTjeneste, dekningsgradTjeneste, utregnetStønadskontoTjeneste,
             medlemTjeneste, vergeRepository);

@@ -49,7 +49,7 @@ class UttakPeriodeEndringDtoTjenesteTest {
     private FpUttakRepository fpUttakRepository;
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         fpUttakRepository = repositoryProvider.getFpUttakRepository();
         dato = LocalDate.of(2018, 8, 1);
         var scenario = ScenarioMorSøkerForeldrepenger.forFødsel();

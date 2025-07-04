@@ -44,7 +44,7 @@ class IverksetteVedtakStegYtelseTest {
     private Behandling behandling;
 
     @BeforeEach
-    public void setup() {
+    void setup() {
         behandlingVedtakRepository = repositoryProvider.getBehandlingVedtakRepository();
         iverksetteVedtakSteg = new IverksetteVedtakStegFelles(repositoryProvider, opprettProsessTaskIverksett,
                 vurderBehandlingerUnderIverksettelse);

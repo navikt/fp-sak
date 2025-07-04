@@ -56,7 +56,7 @@ class BeregneYtelseStegImplTest {
     private BeregningSats sats2017;
 
     @BeforeEach
-    public void oppsett(EntityManager em) {
+    void oppsett(EntityManager em) {
         entityManager = em;
         satsRepository = new SatsRepository(em);
         beregningRepository = new EngangsstønadBeregningRepository(em);

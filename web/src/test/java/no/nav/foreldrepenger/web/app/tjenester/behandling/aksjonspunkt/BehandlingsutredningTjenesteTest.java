@@ -48,7 +48,7 @@ class BehandlingsutredningTjenesteTest {
     private Long behandlingId;
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         behandlingRepository = repositoryProvider.getBehandlingRepository();
         var behandling = ScenarioMorSøkerEngangsstønad
                 .forFødsel()

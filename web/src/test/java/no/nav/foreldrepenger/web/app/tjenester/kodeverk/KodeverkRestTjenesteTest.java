@@ -24,7 +24,7 @@ class KodeverkRestTjenesteTest {
     private HentKodeverkTjeneste hentKodeverkTjeneste;
 
     @BeforeEach
-    public void before() {
+    void before() {
         hentKodeverkTjeneste = new HentKodeverkTjeneste();
     }
 

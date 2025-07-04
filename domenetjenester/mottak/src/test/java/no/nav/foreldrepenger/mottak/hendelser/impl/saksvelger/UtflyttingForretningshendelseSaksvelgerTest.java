@@ -59,7 +59,7 @@ class UtflyttingForretningshendelseSaksvelgerTest {
     private UtflyttingForretningshendelseSaksvelger saksvelger;
 
     @BeforeEach
-    public void before() {
+    void before() {
         when(repositoryProvider.getFagsakRepository()).thenReturn(fagsakRepository);
         when(repositoryProvider.getBehandlingRepository()).thenReturn(behandlingRepository);
         lenient().when(repositoryProvider.getBeregningsresultatRepository()).thenReturn(beregningsresultatRepository);

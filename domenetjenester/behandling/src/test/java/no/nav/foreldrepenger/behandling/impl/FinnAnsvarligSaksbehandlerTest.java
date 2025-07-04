@@ -16,7 +16,7 @@ class FinnAnsvarligSaksbehandlerTest {
     private Behandling behandling;
 
     @BeforeEach
-    public void setup() {
+    void setup() {
         var scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
         behandling = scenario.lagMocked();
     }

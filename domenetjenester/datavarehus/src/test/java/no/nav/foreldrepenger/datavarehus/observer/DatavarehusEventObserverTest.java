@@ -33,7 +33,7 @@ class DatavarehusEventObserverTest {
     private DatavarehusEventObserver datavarehusEventObserver;
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         datavarehusEventObserver = new DatavarehusEventObserver(datavarehusTjeneste);
     }
 

@@ -30,7 +30,7 @@ class VarselRevurderingStegImplTest {
     private static final LocalDate BEHANDLINGSTID_FRIST = LocalDate.now().plusWeeks(6);
 
     @BeforeEach
-    public void setup() {
+    void setup() {
         var fagsak = FagsakBuilder.nyEngangstønadForMor().build();
         behandlingBuilder = Behandling.nyBehandlingFor(fagsak, BehandlingType.REVURDERING).medBehandlingstidFrist(BEHANDLINGSTID_FRIST);
 

@@ -82,7 +82,7 @@ class InntektsmeldingTjenesteTest {
     private Arbeidsgiver arbeidsgiver2;
 
     @BeforeEach
-    public void setUp(EntityManager entityManager) {
+    void setUp(EntityManager entityManager) {
         fagsakRepository = new FagsakRepository(entityManager);
         repositoryProvider = new IAYRepositoryProvider(entityManager);
         behandlingRepository = repositoryProvider.getBehandlingRepository();

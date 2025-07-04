@@ -44,7 +44,7 @@ class GrensesnittavstemmingBatchTjenesteTest {
     private final List<Oppdrag110> oppdragsliste = new ArrayList<>();
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         grensesnittavstemmingApplikasjonTjeneste = new GrensesnittavstemmingBatchTjeneste(økonomiRepository,
             grensesnittavstemmingJmsProducer);
         when(økonomiRepository.hentOppdrag110ForPeriodeOgFagområde(Mockito.any(), Mockito.any(),

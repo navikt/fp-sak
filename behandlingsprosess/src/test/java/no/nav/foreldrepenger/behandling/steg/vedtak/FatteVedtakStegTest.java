@@ -114,7 +114,7 @@ class FatteVedtakStegTest {
     private FagsakRelasjonTjeneste fagsakRelasjonTjeneste;
 
     @BeforeEach
-    public void oppsett() {
+    void oppsett() {
         var personinfoAdapter = Mockito.mock(PersoninfoAdapter.class);
         var personopplysningTjeneste = Mockito.mock(PersonopplysningTjeneste.class);
 

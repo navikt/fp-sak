@@ -66,7 +66,7 @@ class FødselForretningshendelseSaksvelgerTest {
     private FødselForretningshendelseSaksvelger saksvelger;
 
     @BeforeEach
-    public void before() {
+    void before() {
         lenient().when(repositoryProvider.getFagsakRepository()).thenReturn(fagsakRepository);
         lenient().when(repositoryProvider.getBehandlingRepository()).thenReturn(behandlingRepository);
         lenient().when(repositoryProvider.getBehandlingsresultatRepository()).thenReturn(behandlingsresultatRepository);

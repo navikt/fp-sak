@@ -26,7 +26,7 @@ import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeKlassifi
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeStatusLinje;
 import no.nav.foreldrepenger.økonomistøtte.oppdrag.mapper.TilkjentYtelseMapper;
 
-public class NyOppdragskontrollTjenesteFeriepengerMedFlereRevurderingerTest extends NyOppdragskontrollTjenesteTestBase {
+class NyOppdragskontrollTjenesteFeriepengerMedFlereRevurderingerTest extends NyOppdragskontrollTjenesteTestBase {
 
     @BeforeEach
     public void setUp() {

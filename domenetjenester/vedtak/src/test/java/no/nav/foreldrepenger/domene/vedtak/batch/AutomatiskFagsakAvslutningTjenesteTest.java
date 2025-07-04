@@ -31,7 +31,7 @@ class AutomatiskFagsakAvslutningTjenesteTest {
     private FagsakRelasjonTjeneste fagsakRelasjonTjeneste;
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         taskTjeneste = spy(ProsessTaskTjeneste.class);
         automatiskFagsakAvslutningTjeneste = new AutomatiskFagsakAvslutningTjeneste(taskTjeneste, fagsakRelasjonTjeneste);
     }

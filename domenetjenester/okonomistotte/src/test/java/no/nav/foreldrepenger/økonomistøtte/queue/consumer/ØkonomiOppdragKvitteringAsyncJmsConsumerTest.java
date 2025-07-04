@@ -39,7 +39,7 @@ class ØkonomiOppdragKvitteringAsyncJmsConsumerTest {
     private ØkonomiOppdragKvitteringAsyncJmsConsumer kvitteringAsyncJmsConsumer;
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         var mockDefaultDatabaseOppePreconditionChecker = mock(DatabasePreconditionChecker.class);
         var jmsKonfig = mock(ØkonomioppdragJmsConsumerKonfig.class);
         when(jmsKonfig.getJmsKonfig()).thenReturn(new JmsKonfig("test", 1234,"test", "test", "test", "test", "test", null ));

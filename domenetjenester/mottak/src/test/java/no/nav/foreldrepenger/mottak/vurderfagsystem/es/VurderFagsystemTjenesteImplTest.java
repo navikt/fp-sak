@@ -86,7 +86,7 @@ class VurderFagsystemTjenesteImplTest {
     private VurderFagsystemTjeneste tjenesteES;
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         lenient().when(repositoryProvider.getBehandlingRepository()).thenReturn(behandlingRepositoryMock);
         lenient().when(repositoryProvider.getFamilieHendelseRepository()).thenReturn(grunnlagRepository);
         lenient().when(repositoryProvider.getFagsakRepository()).thenReturn(fagsakRepositoryMock);

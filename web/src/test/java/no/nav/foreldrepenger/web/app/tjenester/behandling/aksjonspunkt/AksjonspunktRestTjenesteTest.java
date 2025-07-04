@@ -55,7 +55,7 @@ class AksjonspunktRestTjenesteTest {
     private AksjonspunktRestTjeneste aksjonspunktRestTjeneste;
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         when(behandling.getUuid()).thenReturn(UUID.randomUUID());
         when(behandlingRepository.hentBehandling(anyLong())).thenReturn(behandling);
         when(behandlingRepository.hentBehandling(any(UUID.class))).thenReturn(behandling);

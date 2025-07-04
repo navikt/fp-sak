@@ -42,7 +42,7 @@ class ToForeldreBarnDødTjenesteTest {
     private Behandling behandlingF2;
 
     @BeforeEach
-    public void oppsett() {
+    void oppsett() {
         var scenarioF1 = ScenarioMorSøkerForeldrepenger.forFødsel();
         scenarioF1.medBehandlingsresultat(Behandlingsresultat.builderForInngangsvilkår().medBehandlingResultatType(BehandlingResultatType.INNVILGET));
         var scenarioF2 = ScenarioFarSøkerForeldrepenger.forFødsel();

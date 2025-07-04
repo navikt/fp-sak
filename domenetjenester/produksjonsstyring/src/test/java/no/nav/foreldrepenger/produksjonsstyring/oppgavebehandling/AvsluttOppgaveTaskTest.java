@@ -16,7 +16,7 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 
 @ExtendWith(MockitoExtension.class)
-public class AvsluttOppgaveTaskTest  {
+class AvsluttOppgaveTaskTest  {
 
     private OppgaveTjeneste oppgaveTjeneste;
 

@@ -52,7 +52,7 @@ class HendelserRestTjenesteTest {
     private ProsessTaskTjeneste taskTjeneste;
 
     @BeforeEach
-    public void before(EntityManager entityManager) {
+    void before(EntityManager entityManager) {
         hendelsemottakRepository = new HendelsemottakRepository(entityManager);
         hendelserRestTjeneste = new HendelserRestTjeneste(sorteringRepository, hendelsemottakRepository,
             taskTjeneste);

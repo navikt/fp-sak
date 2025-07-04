@@ -29,7 +29,7 @@ class KlageNfpStegTest {
     private OrganisasjonsEnhet enhet = new OrganisasjonsEnhet("4806", "NFP Drammen");
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         behandlendeEnhetTjeneste = mock(BehandlendeEnhetTjeneste.class);
         var behandlingRepositoryMock = mock(BehandlingRepository.class);
         when(behandlendeEnhetTjeneste.finnBehandlendeEnhetFor(any(Fagsak.class))).thenReturn(enhet);

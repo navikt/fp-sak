@@ -20,7 +20,7 @@ import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.KodeStatusLi
 import no.nav.foreldrepenger.økonomistøtte.OppdragMedPositivKvitteringTestUtil;
 import no.nav.foreldrepenger.økonomistøtte.oppdrag.mapper.TilkjentYtelseMapper;
 
-public class OppdragskontrollTjenesteImplSVPTest extends NyOppdragskontrollTjenesteTestBase {
+class OppdragskontrollTjenesteImplSVPTest extends NyOppdragskontrollTjenesteTestBase {
 
     @Override
     @BeforeEach

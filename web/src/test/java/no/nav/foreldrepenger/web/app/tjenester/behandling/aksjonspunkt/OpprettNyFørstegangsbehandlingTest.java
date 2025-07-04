@@ -106,7 +106,7 @@ class OpprettNyFørstegangsbehandlingTest {
     }
 
     @BeforeEach
-    public void setup(EntityManager em) {
+    void setup(EntityManager em) {
         mottatteDokumentTjeneste = mock(MottatteDokumentTjeneste.class);
         lenient().when(mottatteDokumentTjeneste.lagreMottattDokumentPåFagsak(any(MottattDokument.class))).thenReturn(MOTTATT_DOKUMENT_ID);
 

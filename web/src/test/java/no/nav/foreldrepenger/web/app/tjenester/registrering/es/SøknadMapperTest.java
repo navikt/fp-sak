@@ -29,7 +29,7 @@ class SøknadMapperTest {
     private SøknadMapper ytelseSøknadMapper;
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         personinfoAdapter = mock(PersoninfoAdapter.class);
         ytelseSøknadMapper = new YtelseSøknadMapper(personinfoAdapter);
     }

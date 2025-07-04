@@ -60,7 +60,7 @@ class PersoninfoAdapterTest {
     private Personinfo mockPersoninfo;
 
     @BeforeEach
-    public void setup() {
+    void setup() {
         var kjerneinfoSøker = lagHentPersonResponseForSøker();
         var kjerneinfobarn = lagHentPersonResponseForBarn();
 
