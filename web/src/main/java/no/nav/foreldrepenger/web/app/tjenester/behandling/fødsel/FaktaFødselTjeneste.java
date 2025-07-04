@@ -97,7 +97,7 @@ public class FaktaFødselTjeneste {
 
     private static void oppdaterBarnData(OverstyringFaktaOmFødselDto dto, FamilieHendelseBuilder oppdatere) {
         // Filtrer bort barn uten fødselsdato. Dette skjer ved overstyring av kun termindato når barn ikke er født ennå.
-        oppdatere.tilbakestillBarn().medAntallBarn(dto.getAntallBarn());
+        oppdatere.tilbakestillBarn().medAntallBarn(dto.getBarn().size());
         dto.getBarn()
             .stream()
             .filter(b -> b.getFødselsdato() != null)

@@ -17,14 +17,11 @@ import no.nav.foreldrepenger.familiehendelse.rest.BarnInfoProvider;
 @JsonTypeName(AksjonspunktKodeDefinisjon.OVERSTYRING_AV_FAKTA_OM_FØDSEL_KODE)
 public class OverstyringFaktaOmFødselDto extends OverstyringAksjonspunktDto implements BarnInfoProvider {
 
-    @JsonProperty("termindato")
     private LocalDate termindato;
 
     @NotNull
-    @JsonProperty("erBarnFødt")
     private Boolean erBarnFødt;
 
-    @JsonProperty("barn")
     private List<DokumentertBarnDto> barn;
 
     public OverstyringFaktaOmFødselDto(String begrunnelse, LocalDate termindato, List<DokumentertBarnDto> barn, Boolean erBarnFødt) {
@@ -53,21 +50,15 @@ public class OverstyringFaktaOmFødselDto extends OverstyringAksjonspunktDto imp
         return barn;
     }
 
-    public int getAntallBarn() {
-        return barn.size();
-    }
-
-    @JsonIgnore
     @Override
+    @JsonIgnore
     public String getAvslagskode() {
-        //Brukes ikke
         return null;
     }
 
-    @JsonIgnore
     @Override
+    @JsonIgnore
     public boolean getErVilkarOk() {
-        //Brukes ikke
         return false;
     }
 
