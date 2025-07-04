@@ -56,7 +56,7 @@ class EngangsstønadReguleringTaskTest {
     private EngangsstønadReguleringTask task;
 
     @BeforeEach
-    public void setUp(EntityManager entityManager) {
+    void setUp(EntityManager entityManager) {
         var repositoryProvider = new BehandlingRepositoryProvider(entityManager);
         engangsstønadBeregningRepository = new EngangsstønadBeregningRepository(entityManager);
         satsRepository = new SatsRepository(entityManager);

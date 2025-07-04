@@ -44,7 +44,7 @@ class VurderSøknadsfristStegTest {
     private VurderSøknadsfristSteg fastsettUttaksgrunnlagOgVurderSøknadsfristSteg;
 
     @BeforeEach
-    public void setup(EntityManager em) {
+    void setup(EntityManager em) {
 
         svpHelper = new SvpHelper(repositoryProvider, svangerskapspengerRepository);
         behandling = svpHelper.lagreBehandling();
@@ -88,7 +88,7 @@ class VurderSøknadsfristStegTest {
     void aksjonspunkt_når_søkt_for_sent(EntityManager em) {
         var behovFraDato = LocalDate.of(2019, Month.MAY, 5);
         var søknadMotattt = LocalDate.of(2019, Month.NOVEMBER, 3);
-        var tidligstMottatt = LocalDate.of(2019, Month.SEPTEMBER, 3);;
+        var tidligstMottatt = LocalDate.of(2019, Month.SEPTEMBER, 3);
         var termindato = LocalDate.of(2019, Month.JULY, 1);
         svpHelper.lagreTerminbekreftelse(termindato, behandling.getId());
         svpHelper.lagreIngenTilrettelegging(behandling, behovFraDato, tidligstMottatt);

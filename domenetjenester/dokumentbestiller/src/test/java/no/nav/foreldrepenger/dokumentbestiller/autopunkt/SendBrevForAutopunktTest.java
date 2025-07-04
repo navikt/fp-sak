@@ -45,7 +45,7 @@ class SendBrevForAutopunktTest {
     private Behandling behandling;
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         var scenario = ScenarioMorSøkerForeldrepenger.forFødsel().medDefaultBekreftetTerminbekreftelse();
         var repositoryProvider = scenario.mockBehandlingRepositoryProvider();
         scenario.leggTilAksjonspunkt(AksjonspunktDefinisjon.VENT_PÅ_SØKNAD, BehandlingStegType.REGISTRER_SØKNAD);

@@ -34,7 +34,7 @@ class AdopsjonsvilkårOversetterTest {
     private BehandlingRepositoryProvider repositoryProvider;
 
     @BeforeEach
-    public void oppsett() {
+    void oppsett() {
         adopsjonsoversetter = new AdopsjonsvilkårOversetter(repositoryProvider, personopplysningTjeneste);
     }
 

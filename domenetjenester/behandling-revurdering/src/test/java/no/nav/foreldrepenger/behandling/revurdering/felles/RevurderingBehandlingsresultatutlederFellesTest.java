@@ -32,7 +32,7 @@ class RevurderingBehandlingsresultatutlederFellesTest {
     private BehandlingRepositoryProvider repositoryProvider;
 
     @BeforeEach
-    public void setUp(EntityManager entityManager) {
+    void setUp(EntityManager entityManager) {
         behandlingRepository = new BehandlingRepository(entityManager);
         repositoryProvider = new BehandlingRepositoryProvider(entityManager);
     }

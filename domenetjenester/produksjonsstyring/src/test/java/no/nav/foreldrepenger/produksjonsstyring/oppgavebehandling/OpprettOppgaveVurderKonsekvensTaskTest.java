@@ -32,7 +32,7 @@ class OpprettOppgaveVurderKonsekvensTaskTest {
     private BehandlendeEnhetTjeneste behandlendeEnhetTjeneste;
 
     @BeforeEach
-    public void before() {
+    void before() {
         oppgaveTjeneste = mock(OppgaveTjeneste.class);
         repositoryProvider = mock(BehandlingRepositoryProvider.class);
         låsRepository = mock(FagsakLåsRepository.class);

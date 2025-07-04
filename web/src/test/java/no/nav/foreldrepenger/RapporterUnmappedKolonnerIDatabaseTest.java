@@ -49,7 +49,7 @@ class RapporterUnmappedKolonnerIDatabaseTest {
     private static EntityManagerFactory entityManagerFactory;
 
     @BeforeAll
-    public static void setup() {
+    static void setup() {
 
         Map<String, Object> configuration = new HashMap<>();
 
@@ -61,7 +61,7 @@ class RapporterUnmappedKolonnerIDatabaseTest {
     }
 
     @AfterAll
-    public static void teardown() {
+    static void teardown() {
         entityManagerFactory.close();
     }
 

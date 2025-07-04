@@ -49,7 +49,7 @@ class AksjonspunktUtlederForForeldrepengerFødselNårHovedsøkerErFarMedmorTest 
     private final InntektArbeidYtelseTjeneste iayTjeneste = new AbakusInMemoryInntektArbeidYtelseTjeneste();
 
     @BeforeEach
-    public void oppsett() {
+    void oppsett() {
         repositoryProvider = new BehandlingRepositoryProvider(getEntityManager());
         familieHendelseTjeneste = new FamilieHendelseTjeneste(null, repositoryProvider.getFamilieHendelseRepository());
     }

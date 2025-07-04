@@ -48,7 +48,7 @@ class EntityTest {
     private EntityManager em = entityManagerFactory.createEntityManager();
 
     @AfterAll
-    public static void teardown() {
+    static void teardown() {
         System.clearProperty("hibernate.hbm2ddl.auto");
     }
 

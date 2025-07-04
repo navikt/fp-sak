@@ -104,7 +104,7 @@ class RevurderingBehandlingsresultatutlederTest {
     private final LocalDate endringsdato = LocalDate.now().minusMonths(3);
 
     @BeforeEach
-    public void setup() {
+    void setup() {
         revurderingBehandlingsresultatutleder = new RevurderingBehandlingsresultatutlederFelles(repositoryProvider, grunnlagRepositoryProvider,
             beregningTjeneste, medlemTjeneste, dekningsgradTjeneste, uttakTjeneste);
 

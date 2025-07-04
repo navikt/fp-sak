@@ -38,7 +38,7 @@ class MapUttakResultatFraVLTilRegelTest {
     private Behandlingsresultat behandlingresultat;
 
     @BeforeEach
-    public void setup() {
+    void setup() {
         var fagsak = FagsakBuilder.nyForeldrepengerForMor().build();
         behandling = Behandling.forFørstegangssøknad(fagsak).build();
         behandlingresultat = Behandlingsresultat.opprettFor(behandling);
