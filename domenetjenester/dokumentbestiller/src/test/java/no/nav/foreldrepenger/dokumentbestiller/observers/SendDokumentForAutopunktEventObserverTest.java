@@ -47,7 +47,7 @@ class SendDokumentForAutopunktEventObserverTest {
     private Long behandlingId = 1L;
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
 
         var autopunktDefinisjonIngenSøknad = AksjonspunktDefinisjon.VENT_PÅ_SØKNAD;
         var autopunktDefinisjonTidligSøknad = AksjonspunktDefinisjon.VENT_PGA_FOR_TIDLIG_SØKNAD;

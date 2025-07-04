@@ -58,7 +58,7 @@ class StønadsperiodeTjenesteTest {
     private StønadsperiodeTjeneste stønadsperiodeTjeneste;
 
     @BeforeEach
-    public void setup() {
+    void setup() {
         stønadsperiodeTjeneste = new StønadsperiodeTjeneste(fagsakRelasjonTjeneste, behandlingRepository,
             fpUttakRepository, beregningsresultatRepository, skjæringstidspunktTjeneste);
     }

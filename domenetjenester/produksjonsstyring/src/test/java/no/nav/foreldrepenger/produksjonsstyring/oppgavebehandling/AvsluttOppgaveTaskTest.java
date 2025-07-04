@@ -26,7 +26,7 @@ public class AvsluttOppgaveTaskTest  {
     private ProsessTaskTjeneste taskTjeneste;
 
     @BeforeEach
-    public void setup() {
+    void setup() {
         oppgaveTjeneste = new OppgaveTjeneste(null, null, oppgaveRestKlient, taskTjeneste, null);
     }
 

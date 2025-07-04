@@ -33,7 +33,7 @@ class StartpunktTjenesteImplTest {
     private EndringsresultatSjekker endringsresultatSjekker;
 
     @BeforeEach
-    public void before() {
+    void before() {
         endringsresultatSjekker = mock(EndringsresultatSjekker.class);
 
         var familietjeneste = mock(FamilieHendelseTjeneste.class);

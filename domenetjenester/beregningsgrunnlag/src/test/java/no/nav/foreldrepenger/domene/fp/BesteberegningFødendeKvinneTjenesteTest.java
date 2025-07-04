@@ -75,7 +75,7 @@ class BesteberegningFødendeKvinneTjenesteTest {
     private AbakusInMemoryInntektArbeidYtelseTjeneste inntektArbeidYtelseTjeneste;
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         var behandling = ScenarioMorSøkerForeldrepenger.forFødsel().lagMocked();
         behandlingReferanse = BehandlingReferanse.fra(behandling);
         inntektArbeidYtelseTjeneste = new AbakusInMemoryInntektArbeidYtelseTjeneste();

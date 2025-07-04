@@ -49,7 +49,7 @@ class OppdaterFagsakStatusTjenesteTest {
 
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         var scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
         scenario.medBekreftetHendelse().medFødselsDato(LocalDate.now().minusDays(1));
         behandling = scenario.lagMocked();
