@@ -65,7 +65,7 @@ class SendInformasjonsbrevBatchTjenesteTest {
     ProsessTaskData taskData;
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         taskData = ProsessTaskData.forProsessTask(BatchRunnerTask.class);
         tjeneste = new SendInformasjonsbrevBatchTjeneste(repository, taskTjenesteMock);
         taskData.setProperty(BatchTjeneste.FOM_KEY, fom.toString());

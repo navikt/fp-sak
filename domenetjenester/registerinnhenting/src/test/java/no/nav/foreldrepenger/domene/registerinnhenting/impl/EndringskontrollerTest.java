@@ -241,7 +241,7 @@ class EndringskontrollerTest {
         var scenario = ScenarioFarSøkerForeldrepenger.forFødsel()
             .medFødselAdopsjonsdato(List.of(fdato))
             .medBehandlingType(BehandlingType.FØRSTEGANGSSØKNAD)
-            .leggTilAksjonspunkt(AksjonspunktDefinisjon.AVKLAR_TERMINBEKREFTELSE, BehandlingStegType.KONTROLLER_FAKTA);
+            .leggTilAksjonspunkt(AksjonspunktDefinisjon.SJEKK_TERMINBEKREFTELSE, BehandlingStegType.KONTROLLER_FAKTA);
         scenario.medSøknadHendelse().medAntallBarn(1).medTerminbekreftelse(scenario.medSøknadHendelse().getTerminbekreftelseBuilder()
             .medTermindato(LocalDate.now().minusDays(5))
             .medUtstedtDato(LocalDate.now().minusMonths(1))
@@ -257,13 +257,13 @@ class EndringskontrollerTest {
 
         forceOppdaterBehandlingSteg(behandling, BehandlingStegType.SØKERS_RELASJON_TIL_BARN, BehandlingStegStatus.INNGANG, BehandlingStegStatus.UTFØRT);
 
-        assertThat(behandling.getAksjonspunktFor(AksjonspunktDefinisjon.AVKLAR_TERMINBEKREFTELSE).erÅpentAksjonspunkt()).isTrue();
+        assertThat(behandling.getAksjonspunktFor(AksjonspunktDefinisjon.SJEKK_TERMINBEKREFTELSE).erÅpentAksjonspunkt()).isTrue();
 
         var startpunktSRB = StartpunktType.OPPTJENING;
         when(startpunktTjenesteMock.utledStartpunktForDiffBehandlingsgrunnlag(any(), any(), any(EndringsresultatDiff.class))).thenReturn(startpunktSRB);
         when(behandlingModellTjenesteMock.erStegAEtterStegB(any(), any(), any(), any())).thenReturn(false); // Opptjening er etter SRTB
         when(behandlingModellTjenesteMock.skalAksjonspunktLøsesIEllerEtterSteg(FagsakYtelseType.FORELDREPENGER, BehandlingType.FØRSTEGANGSSØKNAD,
-            BehandlingStegType.SØKERS_RELASJON_TIL_BARN, AksjonspunktDefinisjon.AVKLAR_TERMINBEKREFTELSE)).thenReturn(true);
+            BehandlingStegType.SØKERS_RELASJON_TIL_BARN, AksjonspunktDefinisjon.SJEKK_TERMINBEKREFTELSE)).thenReturn(true);
         when(behandlingskontrollTjenesteMock.initBehandlingskontroll(any(), any())).thenReturn(new BehandlingskontrollKontekst(behandling, lås));
 
         // Blir ikke reutledet
@@ -277,7 +277,7 @@ class EndringskontrollerTest {
         // Assert
         assertThat(behandling.getAktivtBehandlingSteg()).isEqualTo(BehandlingStegType.SØKERS_RELASJON_TIL_BARN);
         verify(aksjonspunktkontrollTjenesteMock).lagreAksjonspunkterAvbrutt(any(), any(), any());
-        assertThat(behandling.getAksjonspunktMedDefinisjonOptional(AksjonspunktDefinisjon.AVKLAR_TERMINBEKREFTELSE)).hasValueSatisfying(Aksjonspunkt::erAvbrutt);
+        assertThat(behandling.getAksjonspunktMedDefinisjonOptional(AksjonspunktDefinisjon.SJEKK_TERMINBEKREFTELSE)).hasValueSatisfying(Aksjonspunkt::erAvbrutt);
     }
 
     @Test
@@ -287,7 +287,7 @@ class EndringskontrollerTest {
         var scenario = ScenarioFarSøkerForeldrepenger.forFødsel()
             .medFødselAdopsjonsdato(List.of(fdato))
             .medBehandlingType(BehandlingType.FØRSTEGANGSSØKNAD)
-            .leggTilAksjonspunkt(AksjonspunktDefinisjon.AVKLAR_TERMINBEKREFTELSE, BehandlingStegType.KONTROLLER_FAKTA);
+            .leggTilAksjonspunkt(AksjonspunktDefinisjon.SJEKK_TERMINBEKREFTELSE, BehandlingStegType.KONTROLLER_FAKTA);
         scenario.medSøknadHendelse().medAntallBarn(1).medTerminbekreftelse(scenario.medSøknadHendelse().getTerminbekreftelseBuilder()
             .medTermindato(LocalDate.now().minusDays(5))
             .medUtstedtDato(LocalDate.now().minusMonths(1))
@@ -302,7 +302,7 @@ class EndringskontrollerTest {
 
         forceOppdaterBehandlingSteg(behandling, BehandlingStegType.SØKERS_RELASJON_TIL_BARN, BehandlingStegStatus.INNGANG, BehandlingStegStatus.UTFØRT);
 
-        assertThat(behandling.getAksjonspunktFor(AksjonspunktDefinisjon.AVKLAR_TERMINBEKREFTELSE).erÅpentAksjonspunkt()).isTrue();
+        assertThat(behandling.getAksjonspunktFor(AksjonspunktDefinisjon.SJEKK_TERMINBEKREFTELSE).erÅpentAksjonspunkt()).isTrue();
 
         var startpunktSRB = StartpunktType.OPPTJENING;
         when(startpunktTjenesteMock.utledStartpunktForDiffBehandlingsgrunnlag(any(), any(), any(EndringsresultatDiff.class))).thenReturn(startpunktSRB);
@@ -311,7 +311,7 @@ class EndringskontrollerTest {
         // Blir ikke reutledet
         when(kontrollerFaktaTjenesteMock.utledAksjonspunkterFomSteg(any(), any(), any())).thenReturn(Collections.emptyList());
         when(totrinnRepositoryMock.hentTotrinnaksjonspunktvurderinger(any()))
-            .thenReturn(List.of(new Totrinnsvurdering.Builder(behandling, AksjonspunktDefinisjon.AVKLAR_TERMINBEKREFTELSE).medGodkjent(false).build()));
+            .thenReturn(List.of(new Totrinnsvurdering.Builder(behandling, AksjonspunktDefinisjon.SJEKK_TERMINBEKREFTELSE).medGodkjent(false).build()));
 
         var endringskontroller = endringskontroller();
 
@@ -322,7 +322,7 @@ class EndringskontrollerTest {
         // Assert
         assertThat(behandling.getAktivtBehandlingSteg()).isEqualTo(BehandlingStegType.SØKERS_RELASJON_TIL_BARN);
         verify(aksjonspunktkontrollTjenesteMock, times(0)).lagreAksjonspunkterAvbrutt(any(), any(), any());
-        assertThat(behandling.getAksjonspunktMedDefinisjonOptional(AksjonspunktDefinisjon.AVKLAR_TERMINBEKREFTELSE)).hasValueSatisfying(Aksjonspunkt::erOpprettet);
+        assertThat(behandling.getAksjonspunktMedDefinisjonOptional(AksjonspunktDefinisjon.SJEKK_TERMINBEKREFTELSE)).hasValueSatisfying(Aksjonspunkt::erOpprettet);
     }
 
     @Test

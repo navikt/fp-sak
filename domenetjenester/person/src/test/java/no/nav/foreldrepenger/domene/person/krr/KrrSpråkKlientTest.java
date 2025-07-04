@@ -21,7 +21,8 @@ class KrrSpråkKlientTest {
     private final RestClient restClient = Mockito.mock(RestClient.class);
 
     @BeforeEach
-    public void setup() { krrSpråkKlient = new KrrSpråkKlient(restClient);
+    void setup() {
+        krrSpråkKlient = new KrrSpråkKlient(restClient);
     }
 
     @Test

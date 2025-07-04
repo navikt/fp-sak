@@ -47,7 +47,7 @@ class BehandlingFlytkontrollTest {
     private final Fagsak fagsakAnnenPart = mock(Fagsak.class);
 
     @BeforeEach
-    public void setup() {
+    void setup() {
         when(behandling.getFagsak()).thenReturn(fagsak);
         when(behandling.getId()).thenReturn(BEHANDLING_ID);
         when(behandlingBerørt.getId()).thenReturn(BERØRT_ID);

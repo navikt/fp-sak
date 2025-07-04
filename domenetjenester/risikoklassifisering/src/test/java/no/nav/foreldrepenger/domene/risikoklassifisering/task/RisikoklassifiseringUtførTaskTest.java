@@ -59,7 +59,7 @@ class RisikoklassifiseringUtførTaskTest {
     private Behandling behandling;
 
     @BeforeEach
-    public void init(){
+    void init(){
         risikoklassifiseringUtførTask = new RisikoklassifiseringUtførTask(risikovurderingTjeneste, behandlingRepository, skjæringstidspunktTjeneste,
             opplysningsPeriodeTjeneste, personopplysningRepository);
     }

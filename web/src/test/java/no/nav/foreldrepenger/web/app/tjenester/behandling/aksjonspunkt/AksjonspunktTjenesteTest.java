@@ -36,7 +36,7 @@ import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.AbstractT
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerEngangsstønad;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
 import no.nav.foreldrepenger.dbstoette.CdiDbAwareTest;
-import no.nav.foreldrepenger.familiehendelse.aksjonspunkt.dto.BekreftTerminbekreftelseAksjonspunktDto;
+import no.nav.foreldrepenger.familiehendelse.aksjonspunkt.dto.SjekkTerminbekreftelseAksjonspunktDto;
 import no.nav.foreldrepenger.familiehendelse.aksjonspunkt.dto.OmsorgsvilkårAksjonspunktDto;
 import no.nav.vedtak.sikkerhet.kontekst.IdentType;
 import no.nav.vedtak.sikkerhet.kontekst.KontekstHolder;
@@ -72,11 +72,11 @@ class AksjonspunktTjenesteTest {
     void skal_sette_aksjonspunkt_til_utført_og_lagre_behandling() {
         // Arrange
         // Bruker BekreftTerminbekreftelseAksjonspunktDto som konkret case
-        var scenario = lagScenarioMedAksjonspunkt(AksjonspunktDefinisjon.AVKLAR_TERMINBEKREFTELSE);
+        var scenario = lagScenarioMedAksjonspunkt(AksjonspunktDefinisjon.SJEKK_TERMINBEKREFTELSE);
         var behandling = scenario.lagre(repositoryProvider);
         var lås = new BehandlingLås(behandling.getId());
 
-        var dto = new BekreftTerminbekreftelseAksjonspunktDto(BEGRUNNELSE, TERMINDATO, UTSTEDTDATO, 1);
+        var dto = new SjekkTerminbekreftelseAksjonspunktDto(BEGRUNNELSE, TERMINDATO, UTSTEDTDATO, 1);
 
         // Act
         aksjonspunktTjeneste.bekreftAksjonspunkter(singletonList(dto), behandling, lås);
@@ -111,11 +111,11 @@ class AksjonspunktTjenesteTest {
         // Arrange
         // Bruker BekreftTerminbekreftelseAksjonspunktDto som konkret case
         var aksjonspunktTjenesteImpl = aksjonspunktTjeneste;
-        var scenario = lagScenarioMedAksjonspunkt(AksjonspunktDefinisjon.AVKLAR_TERMINBEKREFTELSE);
+        var scenario = lagScenarioMedAksjonspunkt(AksjonspunktDefinisjon.SJEKK_TERMINBEKREFTELSE);
         var behandling = scenario.lagre(repositoryProvider);
         var behandlingSpy = spy(behandling);
 
-        var dto = new BekreftTerminbekreftelseAksjonspunktDto(BEGRUNNELSE, TERMINDATO, UTSTEDTDATO, 1);
+        var dto = new SjekkTerminbekreftelseAksjonspunktDto(BEGRUNNELSE, TERMINDATO, UTSTEDTDATO, 1);
 
         KontekstHolder.setKontekst(RequestKontekst.forRequest("IDENT", "IDENT", IdentType.InternBruker, null, UUID.randomUUID(), Set.of()));
 
@@ -133,7 +133,7 @@ class AksjonspunktTjenesteTest {
         // Arrange
         // Bruker BekreftTerminbekreftelseAksjonspunktDto som konkret case
         var aksjonspunktTjenesteImpl = aksjonspunktTjeneste;
-        var scenario = lagScenarioMedAksjonspunkt(AksjonspunktDefinisjon.AVKLAR_TERMINBEKREFTELSE);
+        var scenario = lagScenarioMedAksjonspunkt(AksjonspunktDefinisjon.SJEKK_TERMINBEKREFTELSE);
         var behandling = scenario.lagre(repositoryProvider);
         var behandlingSpy = spy(behandling);
 
@@ -149,12 +149,12 @@ class AksjonspunktTjenesteTest {
     @Test
     void skal_sette_totrinn_når_revurdering_ap_medfører_endring_i_grunnlag() {
         // Arrange
-        var førstegangsbehandling = opprettFørstegangsbehandlingMedAksjonspunkt(AksjonspunktDefinisjon.AVKLAR_TERMINBEKREFTELSE);
+        var førstegangsbehandling = opprettFørstegangsbehandlingMedAksjonspunkt(AksjonspunktDefinisjon.SJEKK_TERMINBEKREFTELSE);
         AksjonspunktTestSupport.setTilUtført(førstegangsbehandling.getAksjonspunkter().iterator().next(), BEGRUNNELSE);
         var revurdering = opprettRevurderingsbehandlingMedAksjonspunkt(førstegangsbehandling,
-                AksjonspunktDefinisjon.AVKLAR_TERMINBEKREFTELSE);
+                AksjonspunktDefinisjon.SJEKK_TERMINBEKREFTELSE);
         var lås = new BehandlingLås(revurdering.getId());
-        var dto = new BekreftTerminbekreftelseAksjonspunktDto(BEGRUNNELSE, LocalDate.now(), LocalDate.now(), 2);
+        var dto = new SjekkTerminbekreftelseAksjonspunktDto(BEGRUNNELSE, LocalDate.now(), LocalDate.now(), 2);
 
         // Act
         aksjonspunktTjeneste.bekreftAksjonspunkter(singletonList(dto), revurdering, lås);

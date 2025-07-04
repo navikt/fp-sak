@@ -43,7 +43,7 @@ class ØkonomioppdragMapperTest {
     private ØkonomioppdragMapper økonomioppdragMapper;
 
     @BeforeEach
-    public void setup() {
+    void setup() {
         oppdragskontroll = OppdragTestDataHelper.oppdragskontrollUtenOppdrag();
         økonomioppdragMapper = new ØkonomioppdragMapper();
     }

@@ -49,7 +49,7 @@ class StartpunktUtlederYtelseFordelingTest extends EntityManagerAwareTest {
     private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
 
     @BeforeEach
-    public void oppsett() {
+    void oppsett() {
         var entityManager = getEntityManager();
         repositoryProvider = new BehandlingRepositoryProvider(entityManager);
         søknadRepository = new SøknadRepository(entityManager, new BehandlingRepository(entityManager));

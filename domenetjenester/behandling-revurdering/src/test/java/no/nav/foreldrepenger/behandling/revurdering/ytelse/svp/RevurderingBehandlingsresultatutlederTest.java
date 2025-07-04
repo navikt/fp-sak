@@ -121,12 +121,12 @@ class RevurderingBehandlingsresultatutlederTest {
     private final LocalDate endringsdato = LocalDate.now().minusMonths(3);
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         var scenario = ScenarioMorSøkerSvangerskapspenger.forSvangerskapspenger();
         scenario.medBehandlingVedtak()
                 .medVedtakstidspunkt(LocalDateTime.now())
                 .medVedtakResultatType(VedtakResultatType.INNVILGET);
-        scenario.leggTilAksjonspunkt(AksjonspunktDefinisjon.AVKLAR_TERMINBEKREFTELSE,
+        scenario.leggTilAksjonspunkt(AksjonspunktDefinisjon.SJEKK_TERMINBEKREFTELSE,
                 BehandlingStegType.KONTROLLER_FAKTA);
         behandlingSomSkalRevurderes = scenario.lagre(repositoryProvider);
         repositoryProvider.getOpptjeningRepository()

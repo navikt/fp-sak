@@ -40,7 +40,7 @@ class OpptjeningForBeregningTjenesteTest {
     private BehandlingReferanse behandlingReferanse;
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         var behandling= ScenarioMorSøkerForeldrepenger.forFødsel().lagMocked();
         var opptjeningsperioderTjeneste = mock(OpptjeningsperioderUtenOverstyringTjeneste.class);
         behandlingReferanse = BehandlingReferanse.fra(behandling);

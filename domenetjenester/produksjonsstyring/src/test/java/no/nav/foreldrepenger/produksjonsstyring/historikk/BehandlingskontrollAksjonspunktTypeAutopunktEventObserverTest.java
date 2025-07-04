@@ -55,7 +55,7 @@ class BehandlingskontrollAksjonspunktTypeAutopunktEventObserverTest {
     private LocalDate localDate = LocalDate.now().plus(Period.parse(PERIODE));
 
     @BeforeEach
-    public void setup() {
+    void setup() {
         lenient().when(manuellpunkt.getAksjonspunktDefinisjon()).thenReturn(AksjonspunktDefinisjon.MANUELL_VURDERING_AV_OMSORGSVILKÅRET);
 
         lenient().when(autopunkt.getAksjonspunktDefinisjon()).thenReturn(AksjonspunktDefinisjon.AUTO_MANUELT_SATT_PÅ_VENT);

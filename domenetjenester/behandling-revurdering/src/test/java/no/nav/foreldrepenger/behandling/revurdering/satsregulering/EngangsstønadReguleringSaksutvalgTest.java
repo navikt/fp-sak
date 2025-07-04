@@ -38,7 +38,7 @@ class EngangsstønadReguleringSaksutvalgTest {
 
 
     @BeforeEach
-    public void setUp(EntityManager entityManager) {
+    void setUp(EntityManager entityManager) {
         satsRepository = new SatsRepository(entityManager);
         tjeneste = new EngangsstønadFinnSakerTask(new SatsReguleringRepository(entityManager), new SatsRepository(entityManager), taskTjeneste);
     }

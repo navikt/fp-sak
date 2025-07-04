@@ -104,7 +104,7 @@ class RevurderingBehandlingsresultatutlederTest {
     private final LocalDate endringsdato = LocalDate.now().minusMonths(3);
 
     @BeforeEach
-    public void setup() {
+    void setup() {
         revurderingBehandlingsresultatutleder = new RevurderingBehandlingsresultatutlederFelles(repositoryProvider, grunnlagRepositoryProvider,
             beregningTjeneste, medlemTjeneste, dekningsgradTjeneste, uttakTjeneste);
 
@@ -121,7 +121,7 @@ class RevurderingBehandlingsresultatutlederTest {
             .medDefaultFordeling(endringsdato)
             .medAvklarteUttakDatoer(new AvklarteUttakDatoerEntitet.Builder().medOpprinneligEndringsdato(endringsdato).build());
         scenario.medBehandlingVedtak().medVedtakstidspunkt(LocalDateTime.now()).medVedtakResultatType(VedtakResultatType.INNVILGET);
-        scenario.leggTilAksjonspunkt(AksjonspunktDefinisjon.AVKLAR_TERMINBEKREFTELSE, BehandlingStegType.KONTROLLER_FAKTA);
+        scenario.leggTilAksjonspunkt(AksjonspunktDefinisjon.SJEKK_TERMINBEKREFTELSE, BehandlingStegType.KONTROLLER_FAKTA);
         var førstegangsbehandling = scenario.lagre(repositoryProvider);
         opptjeningRepository.lagreOpptjeningsperiode(førstegangsbehandling, LocalDate.now().minusYears(1), LocalDate.now(), false);
         revurderingTestUtil.avsluttBehandling(førstegangsbehandling);

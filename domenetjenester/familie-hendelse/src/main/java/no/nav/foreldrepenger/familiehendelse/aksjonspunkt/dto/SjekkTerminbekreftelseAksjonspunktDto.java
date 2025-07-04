@@ -11,9 +11,8 @@ import com.fasterxml.jackson.annotation.JsonTypeName;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.BekreftetAksjonspunktDto;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktKodeDefinisjon;
 
-@JsonTypeName(AksjonspunktKodeDefinisjon.AVKLAR_TERMINBEKREFTELSE_KODE)
-public class BekreftTerminbekreftelseAksjonspunktDto extends BekreftetAksjonspunktDto {
-
+@JsonTypeName(AksjonspunktKodeDefinisjon.SJEKK_TERMINBEKREFTELSE_KODE)
+public class SjekkTerminbekreftelseAksjonspunktDto extends BekreftetAksjonspunktDto {
 
     @NotNull
     private LocalDate utstedtdato;
@@ -26,16 +25,11 @@ public class BekreftTerminbekreftelseAksjonspunktDto extends BekreftetAksjonspun
     @Max(9)
     private int antallBarn;
 
-    BekreftTerminbekreftelseAksjonspunktDto() {
+    SjekkTerminbekreftelseAksjonspunktDto() {
         // For Jackson
     }
 
-    public BekreftTerminbekreftelseAksjonspunktDto(
-                                                    String begrunnelse,
-                                                    LocalDate termindato,
-                                                    LocalDate utstedtdato,
-                                                    int antallBarn) {
-
+    public SjekkTerminbekreftelseAksjonspunktDto(String begrunnelse, LocalDate termindato, LocalDate utstedtdato, int antallBarn) {
         super(begrunnelse);
         this.termindato = termindato;
         this.utstedtdato = utstedtdato;
@@ -53,6 +47,4 @@ public class BekreftTerminbekreftelseAksjonspunktDto extends BekreftetAksjonspun
     public int getAntallBarn() {
         return antallBarn;
     }
-
-
 }

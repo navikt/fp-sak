@@ -50,7 +50,7 @@ class EtterkontrollEventObserverTest {
     private FamilieHendelseRepository familieHendelseRepository;
 
     @BeforeEach
-    public void setUp(EntityManager entityManager) {
+    void setUp(EntityManager entityManager) {
         repositoryProvider = new BehandlingRepositoryProvider(entityManager);
         etterkontrollRepository = new EtterkontrollRepository(entityManager);
         familieHendelseRepository = new FamilieHendelseRepository(entityManager);

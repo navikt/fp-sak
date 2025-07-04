@@ -38,7 +38,7 @@ class AdopsjonsvilkårOversetterTest {
     private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
 
     @BeforeEach
-    public void oppsett() {
+    void oppsett() {
         skjæringstidspunktTjeneste = new SkjæringstidspunktTjenesteImpl(repositoryProvider
         );
         adopsjonsoversetter = new AdopsjonsvilkårOversetter(repositoryProvider, personopplysningTjeneste);

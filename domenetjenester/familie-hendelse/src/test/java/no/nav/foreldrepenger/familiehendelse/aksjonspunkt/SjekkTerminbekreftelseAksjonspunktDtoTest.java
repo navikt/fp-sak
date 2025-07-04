@@ -7,9 +7,9 @@ import java.time.LocalDate;
 import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.domene.json.StandardJsonConfig;
-import no.nav.foreldrepenger.familiehendelse.aksjonspunkt.dto.BekreftTerminbekreftelseAksjonspunktDto;
+import no.nav.foreldrepenger.familiehendelse.aksjonspunkt.dto.SjekkTerminbekreftelseAksjonspunktDto;
 
-class BekreftTerminbekreftelseAksjonspunktDtoTest {
+class SjekkTerminbekreftelseAksjonspunktDtoTest {
 
     @Test
     void test_av_json_mapping() {
@@ -17,7 +17,7 @@ class BekreftTerminbekreftelseAksjonspunktDtoTest {
 
         var json = StandardJsonConfig.toJson(terminbekreftelseAksjonspunktDto);
 
-        var objektFraJson =  StandardJsonConfig.fromJson(json, BekreftTerminbekreftelseAksjonspunktDto.class);
+        var objektFraJson =  StandardJsonConfig.fromJson(json, SjekkTerminbekreftelseAksjonspunktDto.class);
 
         assertThat(objektFraJson.getAntallBarn()).isEqualTo(terminbekreftelseAksjonspunktDto.getAntallBarn());
         assertThat(objektFraJson.getTermindato()).isEqualTo(terminbekreftelseAksjonspunktDto.getTermindato());
@@ -25,8 +25,8 @@ class BekreftTerminbekreftelseAksjonspunktDtoTest {
         assertThat(objektFraJson.getBegrunnelse()).isEqualTo(terminbekreftelseAksjonspunktDto.getBegrunnelse());
     }
 
-    private BekreftTerminbekreftelseAksjonspunktDto bekreftFødselAksjonspunktDto() {
-        return new BekreftTerminbekreftelseAksjonspunktDto("Test", LocalDate.now().plusDays(30), LocalDate.now().minusDays(10), 1);
+    private SjekkTerminbekreftelseAksjonspunktDto bekreftFødselAksjonspunktDto() {
+        return new SjekkTerminbekreftelseAksjonspunktDto("Test", LocalDate.now().plusDays(30), LocalDate.now().minusDays(10), 1);
     }
 
 }

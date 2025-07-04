@@ -1,7 +1,7 @@
 package no.nav.foreldrepenger.familiehendelse.kontrollerfakta.fødsel;
 
 import static no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon.AUTO_VENT_PÅ_FØDSELREGISTRERING;
-import static no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon.AVKLAR_TERMINBEKREFTELSE;
+import static no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon.SJEKK_TERMINBEKREFTELSE;
 import static no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon.SJEKK_MANGLENDE_FØDSEL;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -49,7 +49,7 @@ class AksjonspunktUtlederForForeldrepengerFødselNårHovedsøkerErFarMedmorTest 
     private final InntektArbeidYtelseTjeneste iayTjeneste = new AbakusInMemoryInntektArbeidYtelseTjeneste();
 
     @BeforeEach
-    public void oppsett() {
+    void oppsett() {
         repositoryProvider = new BehandlingRepositoryProvider(getEntityManager());
         familieHendelseTjeneste = new FamilieHendelseTjeneste(null, repositoryProvider.getFamilieHendelseRepository());
     }
@@ -99,7 +99,7 @@ class AksjonspunktUtlederForForeldrepengerFødselNårHovedsøkerErFarMedmorTest 
         var utledeteAksjonspunkter = apUtleder.utledAksjonspunkterFor(lagInput(behandling, LocalDate.now()));
 
         assertThat(utledeteAksjonspunkter).hasSize(1);
-        assertThat(utledeteAksjonspunkter.getFirst().aksjonspunktDefinisjon()).isEqualTo(AVKLAR_TERMINBEKREFTELSE);;
+        assertThat(utledeteAksjonspunkter.getFirst().aksjonspunktDefinisjon()).isEqualTo(SJEKK_TERMINBEKREFTELSE);;
     }
 
     @Test
@@ -110,7 +110,7 @@ class AksjonspunktUtlederForForeldrepengerFødselNårHovedsøkerErFarMedmorTest 
         var utledeteAksjonspunkter = apUtleder.utledAksjonspunkterFor(lagInputMedMinsterettFar(behandling, LocalDate.now()));
 
         assertThat(utledeteAksjonspunkter).hasSize(1);
-        assertThat(utledeteAksjonspunkter.getFirst().aksjonspunktDefinisjon()).isEqualTo(AVKLAR_TERMINBEKREFTELSE);
+        assertThat(utledeteAksjonspunkter.getFirst().aksjonspunktDefinisjon()).isEqualTo(SJEKK_TERMINBEKREFTELSE);
     }
 
     @Test
@@ -160,7 +160,7 @@ class AksjonspunktUtlederForForeldrepengerFødselNårHovedsøkerErFarMedmorTest 
         var apUtleder = Mockito.spy(new AksjonspunktUtlederForForeldrepengerFødsel(iayTjeneste, familieHendelseTjeneste,
             repositoryProvider.getYtelsesFordelingRepository()));
         var utledeteAksjonspunkter = apUtleder.utledAksjonspunkterFor(param);
-        assertThat(utledeteAksjonspunkter).containsExactly(AksjonspunktUtlederResultat.opprettForAksjonspunkt(AVKLAR_TERMINBEKREFTELSE));
+        assertThat(utledeteAksjonspunkter).containsExactly(AksjonspunktUtlederResultat.opprettForAksjonspunkt(SJEKK_TERMINBEKREFTELSE));
     }
 
     @Test
@@ -171,7 +171,7 @@ class AksjonspunktUtlederForForeldrepengerFødselNårHovedsøkerErFarMedmorTest 
         var apUtleder = Mockito.spy(new AksjonspunktUtlederForForeldrepengerFødsel(iayTjeneste, familieHendelseTjeneste,
             repositoryProvider.getYtelsesFordelingRepository()));
         var utledeteAksjonspunkter = apUtleder.utledAksjonspunkterFor(param);
-        assertThat(utledeteAksjonspunkter).containsExactly(AksjonspunktUtlederResultat.opprettForAksjonspunkt(AVKLAR_TERMINBEKREFTELSE));
+        assertThat(utledeteAksjonspunkter).containsExactly(AksjonspunktUtlederResultat.opprettForAksjonspunkt(SJEKK_TERMINBEKREFTELSE));
     }
 
     private Behandling opprettBehandlingFarSøkerFødselRegistrertIPDL(LocalDate fødseldato, int antallBarnSøknad, int antallBarnPDL) {

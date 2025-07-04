@@ -35,7 +35,7 @@ class EnhetsTjenesteTest {
     private EnhetsTjeneste enhetsTjeneste;
 
     @BeforeEach
-    public void oppsett() {
+    void oppsett() {
         enhetsTjeneste = new EnhetsTjeneste(rutingKlient);
     }
 

@@ -30,7 +30,7 @@ class OmsorgsvilkårOppdatererTest extends EntityManagerAwareTest {
     private HistorikkinnslagRepository historikkinnslagRepository;
 
     @BeforeEach
-    public void setup() {
+    void setup() {
         repositoryProvider = new BehandlingRepositoryProvider(getEntityManager());
         historikkinnslagRepository = repositoryProvider.getHistorikkinnslagRepository();
     }

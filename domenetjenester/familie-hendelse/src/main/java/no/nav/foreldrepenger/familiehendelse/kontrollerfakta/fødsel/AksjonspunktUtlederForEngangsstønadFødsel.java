@@ -1,6 +1,6 @@
 package no.nav.foreldrepenger.familiehendelse.kontrollerfakta.fødsel;
 
-import static no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon.AVKLAR_TERMINBEKREFTELSE;
+import static no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon.SJEKK_TERMINBEKREFTELSE;
 
 import java.util.List;
 
@@ -29,6 +29,6 @@ public class AksjonspunktUtlederForEngangsstønadFødsel extends AksjonspunktUtl
 
     @Override
     protected List<AksjonspunktUtlederResultat> utledAksjonspunkterForTerminbekreftelse(AksjonspunktUtlederInput param) {
-        return AksjonspunktUtlederResultat.opprettListeForAksjonspunkt(AVKLAR_TERMINBEKREFTELSE);
+        return AksjonspunktUtlederResultat.opprettListeForAksjonspunkt(SJEKK_TERMINBEKREFTELSE);
     }
 }

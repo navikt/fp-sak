@@ -31,7 +31,7 @@ class FinnEndringerIUtbetaltYtelseTest {
     private BeregningsresultatPeriode bgBrPeriode;
 
     @BeforeEach
-    public void setup() {
+    void setup() {
         bgBrPeriode = lagBeregningsresultatPeriode();
     }
 

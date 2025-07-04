@@ -126,7 +126,7 @@ class ForeslåVedtakTjenesteTest {
     @Test
     void foreslåVedtakManueltDersomAksjonspunktLøstAvSaksbehandler() {
         // Arrange
-        var ap = AksjonspunktTestSupport.leggTilAksjonspunkt(behandling, AksjonspunktDefinisjon.AVKLAR_TERMINBEKREFTELSE);
+        var ap = AksjonspunktTestSupport.leggTilAksjonspunkt(behandling, AksjonspunktDefinisjon.SJEKK_TERMINBEKREFTELSE);
         ap.setEndretAv("saksbehandler");
         AksjonspunktTestSupport.setTilUtført(ap, "begrunnelse");
 

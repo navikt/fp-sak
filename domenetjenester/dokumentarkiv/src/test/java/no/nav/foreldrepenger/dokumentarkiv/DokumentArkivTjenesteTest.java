@@ -59,7 +59,7 @@ class DokumentArkivTjenesteTest {
     private Long DOKUMENT_ID = 66L;
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         dokumentApplikasjonTjeneste = new DokumentArkivTjeneste(saf);
         dokumentApplikasjonTjeneste.emptyCache(SAF_SAK.getVerdi());
     }

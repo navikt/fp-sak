@@ -65,7 +65,7 @@ class BehandlingÅrsakTjenesteTest {
     private BehandlingÅrsakTjeneste tjeneste;
 
     @BeforeEach
-    public void setup() {
+    void setup() {
         when(skjæringstidspunktTjeneste.getSkjæringstidspunkter(any())).thenReturn(skjæringstidspunkt);
         tjeneste = new BehandlingÅrsakTjeneste(utledere, endringsresultatSjekker, historikkinnslagTjeneste,
             skjæringstidspunktTjeneste);

@@ -38,7 +38,7 @@ class GrunnbelopReguleringSaksutvalgTest {
 
 
     @BeforeEach
-    public void setUp(EntityManager entityManager) {
+    void setUp(EntityManager entityManager) {
         satsRepository = new SatsRepository(entityManager);
         tjeneste = new GrunnbeløpFinnSakerTask(new SatsReguleringRepository(entityManager), taskTjeneste, satsRepository);
     }

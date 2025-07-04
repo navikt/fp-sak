@@ -33,7 +33,7 @@ class BarnBorteEndringIdentifisererTest {
     private BehandlingRepositoryProvider repositoryProvider;
 
     @BeforeEach
-    public void setup(EntityManager em) {
+    void setup(EntityManager em) {
         repositoryProvider = new BehandlingRepositoryProvider(em);
         endringIdentifiserer = new BarnBorteEndringIdentifiserer(repositoryProvider);
         personopplysningRepository = new PersonopplysningRepository(em);

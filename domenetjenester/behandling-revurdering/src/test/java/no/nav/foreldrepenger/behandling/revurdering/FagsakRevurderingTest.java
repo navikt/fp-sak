@@ -43,7 +43,7 @@ class FagsakRevurderingTest {
     private Saksnummer fagsakMedFlereBehSaksnr = new Saksnummer("299999");
 
     @BeforeEach
-    public void opprettBehandlinger() {
+    void opprettBehandlinger() {
         fagsak = FagsakBuilder.nyEngangstønadForMor().medSaksnummer(fagsakSaksnummer).build();
         behandling = Behandling.forFørstegangssøknad(fagsak).build();
 

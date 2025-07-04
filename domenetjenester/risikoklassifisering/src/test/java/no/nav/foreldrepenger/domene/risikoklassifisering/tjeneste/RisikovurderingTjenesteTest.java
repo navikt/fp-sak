@@ -39,7 +39,7 @@ class RisikovurderingTjenesteTest {
     private BehandlingReferanse referanse;
 
     @BeforeEach
-    public void setup() {
+    void setup() {
         var scenarioFørstegang = ScenarioMorSøkerForeldrepenger.forFødsel();
         behandling = scenarioFørstegang.lagMocked();
         risikovurderingTjeneste = new RisikovurderingTjeneste(fpriskTjeneste, prosessTaskTjeneste);

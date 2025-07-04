@@ -41,7 +41,7 @@ class MilSivReguleringSaksutvalgSVPTest {
     private LocalDate cutoff;
 
     @BeforeEach
-    public void setUp(EntityManager entityManager) {
+    void setUp(EntityManager entityManager) {
         var satsRepo = new SatsRepository(entityManager);
         nySats = satsRepo.finnEksaktSats(BeregningSatsType.GRUNNBELØP, LocalDate.now()).getVerdi();
         cutoff = satsRepo.finnEksaktSats(BeregningSatsType.GRUNNBELØP, LocalDate.now()).getPeriode().getFomDato();

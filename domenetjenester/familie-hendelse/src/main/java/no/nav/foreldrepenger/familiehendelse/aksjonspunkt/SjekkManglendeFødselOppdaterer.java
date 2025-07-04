@@ -25,15 +25,15 @@ import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinns
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.SkjermlenkeType;
 import no.nav.foreldrepenger.familiehendelse.FamilieHendelseTjeneste;
-import no.nav.foreldrepenger.familiehendelse.aksjonspunkt.dto.SjekkManglendeFodselDto;
+import no.nav.foreldrepenger.familiehendelse.aksjonspunkt.dto.SjekkManglendeFødselAksjonspunktDto;
 import no.nav.foreldrepenger.familiehendelse.historikk.BarnHistorikkTjeneste;
 import no.nav.foreldrepenger.familiehendelse.modell.FødselStatus;
 import no.nav.foreldrepenger.skjæringstidspunkt.OpplysningsPeriodeTjeneste;
 import no.nav.vedtak.exception.FunksjonellException;
 
 @ApplicationScoped
-@DtoTilServiceAdapter(dto = SjekkManglendeFodselDto.class, adapter = AksjonspunktOppdaterer.class)
-public class SjekkManglendeFødselOppdaterer implements AksjonspunktOppdaterer<SjekkManglendeFodselDto> {
+@DtoTilServiceAdapter(dto = SjekkManglendeFødselAksjonspunktDto.class, adapter = AksjonspunktOppdaterer.class)
+public class SjekkManglendeFødselOppdaterer implements AksjonspunktOppdaterer<SjekkManglendeFødselAksjonspunktDto> {
 
     private FamilieHendelseTjeneste familieHendelseTjeneste;
     private OpplysningsPeriodeTjeneste opplysningsPeriodeTjeneste;
@@ -56,7 +56,7 @@ public class SjekkManglendeFødselOppdaterer implements AksjonspunktOppdaterer<S
     }
 
     @Override
-    public OppdateringResultat oppdater(SjekkManglendeFodselDto dto, AksjonspunktOppdaterParameter param) {
+    public OppdateringResultat oppdater(SjekkManglendeFødselAksjonspunktDto dto, AksjonspunktOppdaterParameter param) {
         valider(dto);
 
         var behandlingId = param.getBehandlingId();
@@ -90,7 +90,7 @@ public class SjekkManglendeFødselOppdaterer implements AksjonspunktOppdaterer<S
         }
     }
 
-    private void valider(SjekkManglendeFodselDto dto) {
+    private void valider(SjekkManglendeFødselAksjonspunktDto dto) {
         if (Boolean.TRUE.equals(dto.getErBarnFødt())) {
             if (dto.getBarn() == null || dto.getBarn().isEmpty()) {
                 throw new FunksjonellException("FP-076343", "Mangler barn", "Oppgi mellom 1 og 9 barn");
@@ -104,7 +104,7 @@ public class SjekkManglendeFødselOppdaterer implements AksjonspunktOppdaterer<S
         }
     }
 
-    private List<? extends UidentifisertBarn> utledFødselsdata(SjekkManglendeFodselDto dto, FamilieHendelseGrunnlagEntitet grunnlag) {
+    private List<? extends UidentifisertBarn> utledFødselsdata(SjekkManglendeFødselAksjonspunktDto dto, FamilieHendelseGrunnlagEntitet grunnlag) {
         var termindato = grunnlag.getGjeldendeTerminbekreftelse().map(TerminbekreftelseEntitet::getTermindato);
 
         var barn = dto.getBarn().stream().map(FødselStatus::new).toList();
@@ -129,7 +129,7 @@ public class SjekkManglendeFødselOppdaterer implements AksjonspunktOppdaterer<S
         return Optional.of(grunnlag.getOverstyrtVersjon().filter(o -> !o.getBarna().isEmpty()).isPresent());
     }
 
-    private void opprettHistorikkinnslag(SjekkManglendeFodselDto dto,
+    private void opprettHistorikkinnslag(SjekkManglendeFødselAksjonspunktDto dto,
                                          BehandlingReferanse behandlingReferanse,
                                          FamilieHendelseGrunnlagEntitet grunnlag,
                                          Behandling behandling) {

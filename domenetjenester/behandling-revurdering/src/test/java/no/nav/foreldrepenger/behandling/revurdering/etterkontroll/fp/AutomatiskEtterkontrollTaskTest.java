@@ -84,7 +84,7 @@ class AutomatiskEtterkontrollTaskTest {
     private EntityManager entityManager;
 
     @BeforeEach
-    public void setUp(EntityManager entityManager) {
+    void setUp(EntityManager entityManager) {
         this.entityManager = entityManager;
         repositoryProvider = new BehandlingRepositoryProvider(entityManager);
         etterkontrollRepository = new EtterkontrollRepository(entityManager);
