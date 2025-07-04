@@ -24,7 +24,7 @@ import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioF
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerEngangsstønad;
 import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
 import no.nav.foreldrepenger.familiehendelse.FamilieHendelseTjeneste;
-import no.nav.foreldrepenger.familiehendelse.aksjonspunkt.dto.SjekkTerminbekreftelseDto;
+import no.nav.foreldrepenger.familiehendelse.aksjonspunkt.dto.SjekkTerminbekreftelseAksjonspunktDto;
 import no.nav.foreldrepenger.skjæringstidspunkt.OpplysningsPeriodeTjeneste;
 
 class SjekkTerminbekreftelseOppdatererTest extends EntityManagerAwareTest {
@@ -66,7 +66,7 @@ class SjekkTerminbekreftelseOppdatererTest extends EntityManagerAwareTest {
         scenario.leggTilAksjonspunkt(AKSJONSPUNKT_DEF, BehandlingStegType.SØKERS_RELASJON_TIL_BARN);
         var behandling = scenario.lagre(repositoryProvider);
         // Dto
-        var dto = new SjekkTerminbekreftelseDto("begrunnelse",
+        var dto = new SjekkTerminbekreftelseAksjonspunktDto("begrunnelse",
             avklartTermindato, avklartUtstedtDato, avklartAntallBarn);
         var aksjonspunkt = behandling.getAksjonspunktFor(dto.getAksjonspunktDefinisjon());
         // Act
@@ -104,7 +104,7 @@ class SjekkTerminbekreftelseOppdatererTest extends EntityManagerAwareTest {
         scenario.leggTilAksjonspunkt(AKSJONSPUNKT_DEF, BehandlingStegType.SØKERS_RELASJON_TIL_BARN);
         var behandling = scenario.lagre(repositoryProvider);
         // Dto
-        var dto = new SjekkTerminbekreftelseDto("begrunnelse",
+        var dto = new SjekkTerminbekreftelseAksjonspunktDto("begrunnelse",
             opprinneligTermindato, opprinneligUtstedtDato, opprinneligAntallBarn);
         var aksjonspunkt = behandling.getAksjonspunktFor(dto.getAksjonspunktDefinisjon());
         // Act
@@ -135,7 +135,7 @@ class SjekkTerminbekreftelseOppdatererTest extends EntityManagerAwareTest {
         scenario.leggTilAksjonspunkt(AKSJONSPUNKT_DEF, BehandlingStegType.SØKERS_RELASJON_TIL_BARN);
 
         var behandling = scenario.lagre(repositoryProvider);
-        var dto = new SjekkTerminbekreftelseDto(
+        var dto = new SjekkTerminbekreftelseAksjonspunktDto(
             "Begrunnelse", now.plusDays(30), now.minusDays(3), 1);
         var aksjonspunkt = behandling.getAksjonspunktFor(dto.getAksjonspunktDefinisjon());
         // Act
@@ -168,7 +168,7 @@ class SjekkTerminbekreftelseOppdatererTest extends EntityManagerAwareTest {
         scenario.leggTilAksjonspunkt(AKSJONSPUNKT_DEF, BehandlingStegType.SØKERS_RELASJON_TIL_BARN);
 
         var behandling = scenario.lagre(repositoryProvider);
-        var dto = new SjekkTerminbekreftelseDto("Begrunnelse", now.plusDays(30), now.minusDays(3), 2);
+        var dto = new SjekkTerminbekreftelseAksjonspunktDto("Begrunnelse", now.plusDays(30), now.minusDays(3), 2);
         var aksjonspunkt = behandling.getAksjonspunktMedDefinisjonOptional(dto.getAksjonspunktDefinisjon()).get();
         // Act
         var oppdaterer = new SjekkTerminbekreftelseOppdaterer(historikkRepository, mock(OpplysningsPeriodeTjeneste.class), familieHendelseTjeneste);

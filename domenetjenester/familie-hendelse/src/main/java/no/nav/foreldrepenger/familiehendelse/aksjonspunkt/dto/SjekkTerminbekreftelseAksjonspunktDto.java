@@ -12,7 +12,7 @@ import no.nav.foreldrepenger.behandling.aksjonspunkt.BekreftetAksjonspunktDto;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktKodeDefinisjon;
 
 @JsonTypeName(AksjonspunktKodeDefinisjon.SJEKK_TERMINBEKREFTELSE_KODE)
-public class SjekkTerminbekreftelseDto extends BekreftetAksjonspunktDto {
+public class SjekkTerminbekreftelseAksjonspunktDto extends BekreftetAksjonspunktDto {
 
     @NotNull
     private LocalDate utstedtdato;
@@ -25,11 +25,11 @@ public class SjekkTerminbekreftelseDto extends BekreftetAksjonspunktDto {
     @Max(9)
     private int antallBarn;
 
-    SjekkTerminbekreftelseDto() {
+    SjekkTerminbekreftelseAksjonspunktDto() {
         // For Jackson
     }
 
-    public SjekkTerminbekreftelseDto(String begrunnelse, LocalDate termindato, LocalDate utstedtdato, int antallBarn) {
+    public SjekkTerminbekreftelseAksjonspunktDto(String begrunnelse, LocalDate termindato, LocalDate utstedtdato, int antallBarn) {
         super(begrunnelse);
         this.termindato = termindato;
         this.utstedtdato = utstedtdato;

@@ -21,12 +21,12 @@ import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinns
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.SkjermlenkeType;
 import no.nav.foreldrepenger.familiehendelse.FamilieHendelseTjeneste;
-import no.nav.foreldrepenger.familiehendelse.aksjonspunkt.dto.SjekkTerminbekreftelseDto;
+import no.nav.foreldrepenger.familiehendelse.aksjonspunkt.dto.SjekkTerminbekreftelseAksjonspunktDto;
 import no.nav.foreldrepenger.skjæringstidspunkt.OpplysningsPeriodeTjeneste;
 
 @ApplicationScoped
-@DtoTilServiceAdapter(dto = SjekkTerminbekreftelseDto.class, adapter = AksjonspunktOppdaterer.class)
-public class SjekkTerminbekreftelseOppdaterer implements AksjonspunktOppdaterer<SjekkTerminbekreftelseDto> {
+@DtoTilServiceAdapter(dto = SjekkTerminbekreftelseAksjonspunktDto.class, adapter = AksjonspunktOppdaterer.class)
+public class SjekkTerminbekreftelseOppdaterer implements AksjonspunktOppdaterer<SjekkTerminbekreftelseAksjonspunktDto> {
 
 
     private HistorikkinnslagRepository historikkinnslagRepository;
@@ -47,7 +47,7 @@ public class SjekkTerminbekreftelseOppdaterer implements AksjonspunktOppdaterer<
     }
 
     @Override
-    public OppdateringResultat oppdater(SjekkTerminbekreftelseDto dto, AksjonspunktOppdaterParameter param) {
+    public OppdateringResultat oppdater(SjekkTerminbekreftelseAksjonspunktDto dto, AksjonspunktOppdaterParameter param) {
         var behandlingReferanse = param.getRef();
         var behandlingId = behandlingReferanse.behandlingId();
         var grunnlag = familieHendelseTjeneste.hentAggregat(behandlingId);
@@ -96,7 +96,7 @@ public class SjekkTerminbekreftelseOppdaterer implements AksjonspunktOppdaterer<
         return builder.build();
     }
 
-    private Historikkinnslag lagHistorikkinnslag(SjekkTerminbekreftelseDto dto,
+    private Historikkinnslag lagHistorikkinnslag(SjekkTerminbekreftelseAksjonspunktDto dto,
                                                  BehandlingReferanse behandlingReferanse,
                                                  FamilieHendelseGrunnlagEntitet grunnlag,
                                                  boolean erEndret) {

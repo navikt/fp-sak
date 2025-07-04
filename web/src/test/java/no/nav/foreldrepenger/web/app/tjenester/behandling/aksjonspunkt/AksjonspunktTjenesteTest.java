@@ -36,7 +36,7 @@ import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.AbstractT
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerEngangsstønad;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
 import no.nav.foreldrepenger.dbstoette.CdiDbAwareTest;
-import no.nav.foreldrepenger.familiehendelse.aksjonspunkt.dto.SjekkTerminbekreftelseDto;
+import no.nav.foreldrepenger.familiehendelse.aksjonspunkt.dto.SjekkTerminbekreftelseAksjonspunktDto;
 import no.nav.foreldrepenger.familiehendelse.aksjonspunkt.dto.OmsorgsvilkårAksjonspunktDto;
 import no.nav.vedtak.sikkerhet.kontekst.IdentType;
 import no.nav.vedtak.sikkerhet.kontekst.KontekstHolder;
@@ -76,7 +76,7 @@ class AksjonspunktTjenesteTest {
         var behandling = scenario.lagre(repositoryProvider);
         var lås = new BehandlingLås(behandling.getId());
 
-        var dto = new SjekkTerminbekreftelseDto(BEGRUNNELSE, TERMINDATO, UTSTEDTDATO, 1);
+        var dto = new SjekkTerminbekreftelseAksjonspunktDto(BEGRUNNELSE, TERMINDATO, UTSTEDTDATO, 1);
 
         // Act
         aksjonspunktTjeneste.bekreftAksjonspunkter(singletonList(dto), behandling, lås);
@@ -115,7 +115,7 @@ class AksjonspunktTjenesteTest {
         var behandling = scenario.lagre(repositoryProvider);
         var behandlingSpy = spy(behandling);
 
-        var dto = new SjekkTerminbekreftelseDto(BEGRUNNELSE, TERMINDATO, UTSTEDTDATO, 1);
+        var dto = new SjekkTerminbekreftelseAksjonspunktDto(BEGRUNNELSE, TERMINDATO, UTSTEDTDATO, 1);
 
         KontekstHolder.setKontekst(RequestKontekst.forRequest("IDENT", "IDENT", IdentType.InternBruker, null, UUID.randomUUID(), Set.of()));
 
@@ -154,7 +154,7 @@ class AksjonspunktTjenesteTest {
         var revurdering = opprettRevurderingsbehandlingMedAksjonspunkt(førstegangsbehandling,
                 AksjonspunktDefinisjon.SJEKK_TERMINBEKREFTELSE);
         var lås = new BehandlingLås(revurdering.getId());
-        var dto = new SjekkTerminbekreftelseDto(BEGRUNNELSE, LocalDate.now(), LocalDate.now(), 2);
+        var dto = new SjekkTerminbekreftelseAksjonspunktDto(BEGRUNNELSE, LocalDate.now(), LocalDate.now(), 2);
 
         // Act
         aksjonspunktTjeneste.bekreftAksjonspunkter(singletonList(dto), revurdering, lås);
