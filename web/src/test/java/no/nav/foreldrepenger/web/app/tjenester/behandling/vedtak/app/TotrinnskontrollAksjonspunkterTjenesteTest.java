@@ -1,4 +1,4 @@
-package no.nav.foreldrepenger.web.app.tjenester.behandling.vedtak;
+package no.nav.foreldrepenger.web.app.tjenester.behandling.vedtak.app;
 
 import static no.nav.foreldrepenger.behandlingslager.behandling.InternalManipulerBehandling.forceOppdaterBehandlingSteg;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -17,8 +17,10 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
+import no.nav.foreldrepenger.behandlingskontroll.BehandlingModellTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktTestSupport;
@@ -29,11 +31,12 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallTy
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerEngangsstønad;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
+import no.nav.foreldrepenger.dbstoette.CdiDbAwareTest;
 import no.nav.foreldrepenger.domene.vedtak.TotrinnTjeneste;
-import no.nav.foreldrepenger.web.app.tjenester.behandling.vedtak.app.TotrinnsaksjonspunktDtoTjeneste;
-import no.nav.foreldrepenger.web.app.tjenester.behandling.vedtak.app.TotrinnskontrollAksjonspunkterTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.vedtak.dto.TotrinnskontrollAksjonspunkterDto;
+import no.nav.foreldrepenger.web.app.tjenester.behandling.vedtak.dto.TotrinnskontrollSkjermlenkeContextDto;
 
+@CdiDbAwareTest
 class TotrinnskontrollAksjonspunkterTjenesteTest {
 
     private static final BehandlingStegType STEG_KONTROLLER_FAKTA = BehandlingStegType.KONTROLLER_FAKTA;
@@ -48,7 +51,8 @@ class TotrinnskontrollAksjonspunkterTjenesteTest {
 
     @BeforeEach
     public void oppsett() {
-        totrinnskontrollAksjonspunkterTjeneste = new TotrinnskontrollAksjonspunkterTjeneste(totrinnsaksjonspunktDtoTjeneste, totrinnTjeneste);
+        totrinnskontrollAksjonspunkterTjeneste = new TotrinnskontrollAksjonspunkterTjeneste(totrinnsaksjonspunktDtoTjeneste, totrinnTjeneste,
+            new BehandlingModellTjeneste());
     }
 
     @Test
@@ -449,6 +453,41 @@ class TotrinnskontrollAksjonspunkterTjenesteTest {
             assertThat(førsteTotrinnskontrollAksjonspunkt.getTotrinnskontrollGodkjent()).isFalse();
 
         });
+
+    }
+
+    @Test
+    void skal_sortere_basert_på_behandlingsrekkefølge() {
+        var aksjonspunktDefs = List.of(AksjonspunktDefinisjon.FASTSETT_UTTAKPERIODER, AksjonspunktDefinisjon.KONTROLLER_ANNENPART_EØS, //Samme skjermlenke, samme steg, samme vurderingspunkt
+            AksjonspunktDefinisjon.VURDER_MEDLEMSKAPSVILKÅRET, AksjonspunktDefinisjon.OVERSTYRING_AV_AVKLART_STARTDATO, //Ulik skjermlenke, samme steg, ulik vurderingspunkt
+            AksjonspunktDefinisjon.OVERSTYRING_AV_RETT_OG_OMSORG, AksjonspunktDefinisjon.VURDER_UTTAK_DOKUMENTASJON);
+
+        var dtos = aksjonspunktDefs.stream()
+            .map(ad -> new TotrinnskontrollSkjermlenkeContextDto(ad.getSkjermlenkeType().getKode(),
+                List.of(opprettTotrinnskontrollAksjonspunkterDto(Optional.of(ad), Optional.empty()))))
+            .toList();
+
+        var sortert = TotrinnskontrollAksjonspunkterTjeneste.sorterPåBehandlingsrekkefølge(new BehandlingModellTjeneste(), FagsakYtelseType.FORELDREPENGER,
+            BehandlingType.FØRSTEGANGSSØKNAD, dtos);
+
+        assertThat(sortert).hasSize(6);
+        assertThat(sortert.getFirst().getSkjermlenkeType()).isEqualTo(AksjonspunktDefinisjon.VURDER_MEDLEMSKAPSVILKÅRET.getSkjermlenkeType().getKode());
+        assertThat(sortert.getFirst().getTotrinnskontrollAksjonspunkter()).hasSize(1);
+
+        assertThat(sortert.get(1).getSkjermlenkeType()).isEqualTo(AksjonspunktDefinisjon.OVERSTYRING_AV_AVKLART_STARTDATO.getSkjermlenkeType().getKode());
+        assertThat(sortert.get(1).getTotrinnskontrollAksjonspunkter()).hasSize(1);
+
+        assertThat(sortert.get(2).getSkjermlenkeType()).isEqualTo(AksjonspunktDefinisjon.OVERSTYRING_AV_RETT_OG_OMSORG.getSkjermlenkeType().getKode());
+        assertThat(sortert.get(2).getTotrinnskontrollAksjonspunkter()).hasSize(1);
+
+        assertThat(sortert.get(3).getSkjermlenkeType()).isEqualTo(AksjonspunktDefinisjon.VURDER_UTTAK_DOKUMENTASJON.getSkjermlenkeType().getKode());
+        assertThat(sortert.get(3).getTotrinnskontrollAksjonspunkter()).hasSize(1);
+
+        assertThat(sortert.get(4).getSkjermlenkeType()).isEqualTo(AksjonspunktDefinisjon.FASTSETT_UTTAKPERIODER.getSkjermlenkeType().getKode());
+        assertThat(sortert.get(4).getTotrinnskontrollAksjonspunkter()).hasSize(1);
+
+        assertThat(sortert.get(5).getSkjermlenkeType()).isEqualTo(AksjonspunktDefinisjon.FASTSETT_UTTAKPERIODER.getSkjermlenkeType().getKode());
+        assertThat(sortert.get(5).getTotrinnskontrollAksjonspunkter()).hasSize(1);
 
     }
 

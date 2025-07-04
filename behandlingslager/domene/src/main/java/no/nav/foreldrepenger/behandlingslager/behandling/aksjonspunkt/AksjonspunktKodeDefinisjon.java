@@ -28,11 +28,13 @@ public class AksjonspunktKodeDefinisjon {
     public static final String AVKLAR_ADOPSJONSDOKUMENTAJON_KODE = "5004";
     public static final String AVKLAR_OM_ADOPSJON_GJELDER_EKTEFELLES_BARN_KODE = "5005";
     public static final String AVKLAR_OM_SØKER_ER_MANN_SOM_ADOPTERER_ALENE_KODE = "5006";
-    public static final String AVKLAR_TERMINBEKREFTELSE_KODE = "5001";
     public static final String AVKLAR_VILKÅR_FOR_OMSORGSOVERTAKELSE_KODE = "5008";
     public static final String AVKLAR_VILKÅR_FOR_FORELDREANSVAR_KODE = "5054";
     public static final String AVKLAR_VERGE_KODE = "5030";
     public static final String AVKLAR_OM_SØKER_HAR_MOTTATT_STØTTE_KODE = "5031";
+
+    public static final String SJEKK_TERMINBEKREFTELSE_KODE = "5001";
+    public static final String SJEKK_MANGLENDE_FØDSEL_KODE = "5027";
 
     public static final String FATTER_VEDTAK_KODE = "5016";
 
@@ -65,8 +67,6 @@ public class AksjonspunktKodeDefinisjon {
 
     public static final String VARSEL_REVURDERING_MANUELL_KODE = "5026";
     public static final String KONTROLLER_REVURDERINGSBEHANDLING_VARSEL_VED_UGUNST_KODE = "5055";
-
-    public static final String SJEKK_MANGLENDE_FØDSEL_KODE = "5027";
 
     public static final String VENT_PÅ_SCANNING_KODE = "7007";
     public static final String VENT_PGA_FOR_TIDLIG_SØKNAD_KODE = "7008";

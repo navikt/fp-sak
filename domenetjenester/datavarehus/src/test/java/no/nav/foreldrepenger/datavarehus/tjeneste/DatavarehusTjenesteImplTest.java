@@ -74,7 +74,7 @@ class DatavarehusTjenesteImplTest {
     void lagreNedBehandling() {
         var scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
         scenario.leggTilAksjonspunkt(AKSJONSPUNKT_DEF, BehandlingStegType.SØKERS_RELASJON_TIL_BARN);
-        scenario.leggTilAksjonspunkt(AksjonspunktDefinisjon.AVKLAR_TERMINBEKREFTELSE, BehandlingStegType.SØKERS_RELASJON_TIL_BARN);
+        scenario.leggTilAksjonspunkt(AksjonspunktDefinisjon.SJEKK_TERMINBEKREFTELSE, BehandlingStegType.SØKERS_RELASJON_TIL_BARN);
         scenario.medBehandlendeEnhet(BEHANDLENDE_ENHET);
         var behandling = scenario.lagMocked();
         forceOppdaterBehandlingSteg(behandling, BEHANDLING_STEG_TYPE);
@@ -95,7 +95,7 @@ class DatavarehusTjenesteImplTest {
     void lagreNedBehandlingMedMottattSøknadDokument() {
         var scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
         scenario.leggTilAksjonspunkt(AKSJONSPUNKT_DEF, BehandlingStegType.SØKERS_RELASJON_TIL_BARN);
-        scenario.leggTilAksjonspunkt(AksjonspunktDefinisjon.AVKLAR_TERMINBEKREFTELSE, BehandlingStegType.SØKERS_RELASJON_TIL_BARN);
+        scenario.leggTilAksjonspunkt(AksjonspunktDefinisjon.SJEKK_TERMINBEKREFTELSE, BehandlingStegType.SØKERS_RELASJON_TIL_BARN);
         scenario.medBehandlendeEnhet(BEHANDLENDE_ENHET);
         var behandling = scenario.lagMocked();
         forceOppdaterBehandlingSteg(behandling, BEHANDLING_STEG_TYPE);
@@ -121,6 +121,28 @@ class DatavarehusTjenesteImplTest {
         assertThat(captor.getValue().getBehandlingId()).isEqualTo(behandling.getId());
         assertThat(captor.getValue().getBehandlingUuid()).isEqualTo(behandling.getUuid());
         assertThat(captor.getValue().getMottattTid()).isEqualTo(mottattDokument.getMottattTidspunkt());
+    }
+
+    @Test
+    void lagreNedBehandlingMedId() {
+        var scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
+        scenario.leggTilAksjonspunkt(AKSJONSPUNKT_DEF, BehandlingStegType.SØKERS_RELASJON_TIL_BARN);
+        scenario.leggTilAksjonspunkt(AksjonspunktDefinisjon.SJEKK_TERMINBEKREFTELSE, BehandlingStegType.SØKERS_RELASJON_TIL_BARN);
+        scenario.medBehandlendeEnhet(BEHANDLENDE_ENHET);
+
+        var behandling = scenario.lagMocked();
+        forceOppdaterBehandlingSteg(behandling, BEHANDLING_STEG_TYPE);
+        behandling.setAnsvarligBeslutter(ANSVARLIG_BESLUTTER);
+        behandling.setAnsvarligSaksbehandler(ANSVARLIG_SAKSBEHANDLER);
+
+        var captor = ArgumentCaptor.forClass(BehandlingDvh.class);
+        DatavarehusTjeneste datavarehusTjeneste = nyDatavarehusTjeneste(scenario.mockBehandlingRepositoryProvider());
+        // Act
+        datavarehusTjeneste.lagreNedBehandling(behandling.getId());
+
+        verify(datavarehusRepository).lagre(captor.capture());
+        assertThat(captor.getValue().getBehandlingId()).isEqualTo(behandling.getId());
+        assertThat(captor.getValue().getBehandlingUuid()).isEqualTo(behandling.getUuid());
     }
 
 }
