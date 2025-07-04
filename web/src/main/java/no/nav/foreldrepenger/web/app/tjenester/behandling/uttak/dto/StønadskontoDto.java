@@ -1,5 +1,6 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 public record StønadskontoDto(SaldoerDto.SaldoVisningStønadskontoType stonadskontotype, int maxDager, int saldo,
@@ -7,6 +8,6 @@ public record StønadskontoDto(SaldoerDto.SaldoVisningStønadskontoType stonadsk
                               KontoReduksjoner kontoReduksjoner) {
 
     public record KontoUtvidelser(int prematurdager, int flerbarnsdager) {}
-    public record KontoReduksjoner(int annenForelderEøsUttak) {}
+    public record KontoReduksjoner(BigDecimal annenForelderEøsUttak) {}
 
 }

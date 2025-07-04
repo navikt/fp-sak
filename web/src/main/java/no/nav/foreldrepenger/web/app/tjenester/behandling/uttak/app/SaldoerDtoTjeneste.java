@@ -10,7 +10,6 @@ import static no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto.Saldo
 import static no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto.StønadskontoDto.KontoReduksjoner;
 import static no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto.StønadskontoDto.KontoUtvidelser;
 
-import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.EnumMap;
@@ -142,7 +141,7 @@ public class SaldoerDtoTjeneste {
             if (!totaltTrekkdager.merEnn0()) {
                 return Optional.empty();
             }
-            return Optional.of(new KontoReduksjoner(totaltTrekkdager.decimalValue().setScale(0, RoundingMode.DOWN).intValue()));
+            return Optional.of(new KontoReduksjoner(totaltTrekkdager.decimalValue()));
         });
     }
 
