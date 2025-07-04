@@ -3,9 +3,7 @@ package no.nav.foreldrepenger.web.app.tjenester.behandling.fødsel.aksjonspunkt;
 import java.time.LocalDate;
 import java.util.List;
 
-import com.fasterxml.jackson.annotation.JsonAlias;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 
 import jakarta.validation.constraints.NotNull;
