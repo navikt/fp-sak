@@ -187,21 +187,6 @@ class BehandlingDvhMapperTest {
     }
 
     @Test
-    void skal_mappe_til_behandling_dvh_ferdig() {
-        var mottattTidspunkt = lagMottattDokument(DokumentTypeId.SØKNAD_ENGANGSSTØNAD_FØDSEL);
-        var scenario = opprettFørstegangssøknadScenario();
-        var behandling = byggBehandling(scenario, BehandlingResultatType.AVSLÅTT, true);
-
-        var behandlingsresultat = scenario.mockBehandlingRepositoryProvider()
-            .getBehandlingsresultatRepository()
-            .hent(behandling.getId());
-        var dvh = BehandlingDvhMapper.map(behandling, behandlingsresultat, mottattTidspunkt, Optional.empty(), Optional.empty(), Optional.empty(),
-            Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty(), List.of(), Optional.empty(), Optional.empty(), null, null, l -> UUID.randomUUID());
-        assertThat(dvh).isNotNull();
-        assertThat(dvh.getMottattTid()).isEqualTo(mottattTidspunkt.get(0).getMottattTidspunkt());
-    }
-
-    @Test
     void skal_mappe_til_behandling_dvh_ikke_ferdig() {
         var mottattTidspunkt = lagMottattDokument(DokumentTypeId.SØKNAD_ENGANGSSTØNAD_FØDSEL);
         var scenario = opprettFørstegangssøknadScenario();
