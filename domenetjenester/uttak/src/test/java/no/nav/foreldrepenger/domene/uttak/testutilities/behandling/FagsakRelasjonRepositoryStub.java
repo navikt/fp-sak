@@ -11,6 +11,7 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakLås;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjon;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjonRepository;
+import no.nav.foreldrepenger.behandlingslager.laas.FagsakRelasjonLås;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.Stønadskontoberegning;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 
@@ -110,6 +111,7 @@ class FagsakRelasjonRepositoryStub extends FagsakRelasjonRepository {
     @Override
     public void oppdaterMedAvsluttningsdato(FagsakRelasjon relasjon,
                                             LocalDate avsluttningsdato,
+                                            FagsakRelasjonLås lås,
                                             Optional<FagsakLås> fagsak1Lås,
                                             Optional<FagsakLås> fagsak2Lås) {
         throw new IkkeImplementertForTestException();

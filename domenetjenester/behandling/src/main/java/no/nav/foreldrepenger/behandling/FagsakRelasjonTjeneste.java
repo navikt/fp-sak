@@ -15,6 +15,7 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakLås;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjon;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjonRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
+import no.nav.foreldrepenger.behandlingslager.laas.FagsakRelasjonLås;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.Stønadskontoberegning;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 
@@ -89,11 +90,9 @@ public class FagsakRelasjonTjeneste {
         return fagsakRepository.finnEksaktFagsak(fagsakId);
     }
 
-    public void oppdaterMedAvslutningsdato(FagsakRelasjon relasjon,
-                                           LocalDate avsluttningsdato,
-                                           Optional<FagsakLås> fagsak1Lås,
-                                           Optional<FagsakLås> fagsak2Lås) {
-        fagsakRelasjonRepository.oppdaterMedAvsluttningsdato(relasjon, avsluttningsdato, fagsak1Lås, fagsak2Lås);
+    public void oppdaterMedAvslutningsdato(FagsakRelasjon relasjon, LocalDate avsluttningsdato, FagsakRelasjonLås lås,
+                                           Optional<FagsakLås> fagsak1Lås, Optional<FagsakLås> fagsak2Lås) {
+        fagsakRelasjonRepository.oppdaterMedAvsluttningsdato(relasjon, avsluttningsdato, lås, fagsak1Lås, fagsak2Lås);
     }
 
     public void nullstillOverstyrtStønadskontoberegning(Fagsak fagsak) {
