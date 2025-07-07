@@ -41,7 +41,7 @@ class TilbakekrevingRestTjenesteTest {
     private TilbakekrevingRestTjeneste tilbakekrevingRestTjeneste;
 
     @BeforeEach
-    public void setup() {
+    void setup() {
         tilbakekrevingRestTjeneste = new TilbakekrevingRestTjeneste(behandlingRepository, tilbakekrevingRepository, fpOppdragRestKlient);
         lenient().when(behandlingRepository.hentBehandling((Long) Mockito.any())).thenAnswer(invocation -> lagBehandling());
         when(behandlingRepository.hentBehandling((UUID) Mockito.any())).thenAnswer(invocation -> lagBehandling());

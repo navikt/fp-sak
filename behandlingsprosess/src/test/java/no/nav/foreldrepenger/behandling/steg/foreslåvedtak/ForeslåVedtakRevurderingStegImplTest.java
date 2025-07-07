@@ -74,7 +74,7 @@ class ForeslåVedtakRevurderingStegImplTest {
     private BehandlingskontrollKontekst kontekstRevurdering;
 
     @BeforeEach
-    public void before() {
+    void before() {
         when(repositoryProvider.getBehandlingRepository()).thenReturn(behandlingRepository);
         when(repositoryProvider.getBehandlingsresultatRepository()).thenReturn(behandlingsresultatRepository);
 

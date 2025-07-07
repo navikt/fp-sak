@@ -58,7 +58,7 @@ class KompletthetskontrollerTest {
     private MottattDokument mottattDokument;
 
     @BeforeEach
-    public void oppsett() {
+    void oppsett() {
         var scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
         behandling = scenario.lagMocked();
         kompletthetskontroller = new Kompletthetskontroller(dokumentmottakerFelles, mottatteDokumentTjeneste, behandlingProsesseringTjeneste, skjæringstidspunktTjeneste, kompletthetsjekker);

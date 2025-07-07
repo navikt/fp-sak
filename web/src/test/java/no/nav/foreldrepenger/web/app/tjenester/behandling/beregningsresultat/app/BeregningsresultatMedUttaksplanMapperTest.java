@@ -57,7 +57,7 @@ class BeregningsresultatMedUttaksplanMapperTest {
     private BeregningsresultatMedUttaksplanMapper beregningsresultatMedUttaksplanMapper;
 
     @BeforeEach
-    public void before() {
+    void before() {
         beregningsresultatMedUttaksplanMapper = new BeregningsresultatMedUttaksplanMapper(inntektArbeidYtelseTjenesteMock);
     }
 

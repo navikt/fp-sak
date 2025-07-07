@@ -142,7 +142,7 @@ class VedtakXmlTest {
     private FatteVedtakXmlTjeneste fpSakVedtakXmlTjeneste;
 
     @BeforeEach
-    public void oppsett() {
+    void oppsett() {
         var skjæringstidspunktTjeneste = mock(SkjæringstidspunktTjeneste.class);
         var stp = Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(LocalDate.now()).build();
         Mockito.lenient().when(skjæringstidspunktTjeneste.getSkjæringstidspunkter(Mockito.any())).thenReturn(stp);

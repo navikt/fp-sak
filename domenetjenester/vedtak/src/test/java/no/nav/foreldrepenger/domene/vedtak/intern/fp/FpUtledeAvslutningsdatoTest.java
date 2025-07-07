@@ -93,7 +93,7 @@ class FpUtledeAvslutningsdatoTest {
     private Behandling behandling;
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         when(stønadskontoSaldoTjeneste.finnSaldoUtregning(any(UttakInput.class))).thenReturn(saldoUtregning);
 
         var maksDatoUttakTjeneste = new MaksDatoUttakTjenesteImpl(fpUttakRepository,

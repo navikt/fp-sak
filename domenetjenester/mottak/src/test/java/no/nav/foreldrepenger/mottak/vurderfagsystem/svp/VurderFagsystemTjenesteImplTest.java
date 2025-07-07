@@ -62,7 +62,7 @@ class VurderFagsystemTjenesteImplTest {
     private MottatteDokumentTjeneste mottatteDokumentTjeneste;
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         var repositoryProvider = mock(BehandlingRepositoryProvider.class);
         lenient().when(repositoryProvider.getFamilieHendelseRepository()).thenReturn(grunnlagRepository);
         lenient().when(repositoryProvider.getFagsakRepository()).thenReturn(fagsakRepository);

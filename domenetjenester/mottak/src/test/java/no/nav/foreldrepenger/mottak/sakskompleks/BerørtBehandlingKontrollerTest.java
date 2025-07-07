@@ -87,7 +87,7 @@ class BerørtBehandlingKontrollerTest {
     private Behandling berørtFeriepenger;
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
 
         clearInvocations(behandlingsoppretter, behandlingProsesseringTjeneste);
 

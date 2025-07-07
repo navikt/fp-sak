@@ -70,7 +70,7 @@ class FagsakTjenesteTest {
     }
 
     @BeforeEach
-    public void oppsett() {
+    void oppsett() {
         var prosesseringAsynkTjeneste = mock(ProsesseringAsynkTjeneste.class);
         tjeneste = new FagsakTjeneste(fagsakRepository, behandlingRepository, prosesseringAsynkTjeneste, personinfoAdapter, null, hendelseTjeneste);
     }

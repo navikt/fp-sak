@@ -62,7 +62,7 @@ class SvpUtledeAvslutningsdatoTest {
     private Behandling behandling;
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         var maksDatoUttakTjeneste = new MaksDatoUttakTjenesteImpl(svpUttakRepository);
 
         when(repositoryProvider.getBehandlingRepository()).thenReturn(behandlingRepository);

@@ -32,7 +32,7 @@ class HentOppdragMedPositivKvitteringTest {
     private Saksnummer saksnummer;
 
     @BeforeEach
-    public void setup() {
+    void setup() {
         behandling = Behandling.nyBehandlingFor(
             Fagsak.opprettNy(FagsakYtelseType.ENGANGSTØNAD, NavBruker.opprettNyNB(AktørId.dummy()), new Saksnummer("123456789")),
             BehandlingType.FØRSTEGANGSSØKNAD).build();

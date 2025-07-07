@@ -42,7 +42,7 @@ class VedtakFattetTjenesteTest {
     private PersoninfoAdapter personinfoAdapter;
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         tjeneste = new VedtakFattetTjeneste(feedRepository, personinfoAdapter);
     }
 

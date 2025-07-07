@@ -69,7 +69,7 @@ class FødselForretningshendelseHåndtererESTest {
     private PersoninfoAdapter personinfoAdapter;
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         håndtererFelles = new ForretningshendelseHåndtererFelles(historikkinnslagTjeneste, kompletthetskontroller,
             behandlingProsesseringTjeneste, behandlingsoppretter, familieHendelseTjeneste, personinfoAdapter, køKontroller);
         håndterer = new FødselForretningshendelseHåndtererImpl(håndtererFelles, Period.ofDays(60), skjæringstidspunktTjeneste, beregningRepository);

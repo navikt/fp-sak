@@ -33,7 +33,7 @@ class VurderFagsystemFellesTjenesteTest {
             VurderFagsystemTestUtils.ÅPEN_SAKSNUMMER_1);
 
     @BeforeEach
-    public void setup() {
+    void setup() {
         vurderFagsystemFellesTjeneste = new VurderFagsystemFellesTjeneste(fagsakTjenesteMock, null, null);
     }
 

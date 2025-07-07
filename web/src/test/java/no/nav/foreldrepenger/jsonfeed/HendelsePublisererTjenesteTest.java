@@ -72,7 +72,7 @@ class HendelsePublisererTjenesteTest {
     private BehandlingRepositoryProvider repositoryProvider;
 
     @BeforeEach
-    public void setUp(EntityManager entityManager) {
+    void setUp(EntityManager entityManager) {
         feedRepository = new FeedRepository(entityManager);
         repositoryProvider = new BehandlingRepositoryProvider(entityManager);
         when(personinfoAdapter.hentFnr(any())).thenReturn(Optional.of(new PersonIdent(FNR)));

@@ -55,7 +55,7 @@ class KøKontrollerTest {
     private KøKontroller køKontroller;
 
     @BeforeEach
-    public void oppsett() {
+    void oppsett() {
         when(behandlingRepositoryProvider.getBehandlingRepository()).thenReturn(behandlingRepository);
         when(behandlingRepositoryProvider.getSøknadRepository()).thenReturn(søknadRepository);
         when(behandlingRepositoryProvider.getYtelsesFordelingRepository()).thenReturn(ytelsesFordelingRepository);

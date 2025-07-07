@@ -27,7 +27,7 @@ class AutomatiskFagsakAvslutningBatchTjenesteTest {
 
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         behandlingRepository = Mockito.mock(BehandlingRepository.class);
         fagsakRepository = Mockito.mock(FagsakRepository.class);
         fagsakAvslutningTjeneste = Mockito.mock(AutomatiskFagsakAvslutningTjeneste.class);

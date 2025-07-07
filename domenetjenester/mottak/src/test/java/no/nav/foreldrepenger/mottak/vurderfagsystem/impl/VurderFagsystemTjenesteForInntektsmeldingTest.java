@@ -91,7 +91,7 @@ class VurderFagsystemTjenesteForInntektsmeldingTest {
     private final Fagsak fpFagsakUdefinert = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, lagNavBruker());
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         lenient().when(fagsakTjenesteMock.hentJournalpost(any())).thenReturn(Optional.empty());
         var repositoryProvider = mock(BehandlingRepositoryProvider.class);
         lenient().when(repositoryProvider.getBehandlingRepository()).thenReturn(behandlingRepositoryMock);

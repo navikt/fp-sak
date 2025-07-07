@@ -32,7 +32,7 @@ class ØkonomiOppdragKøTjenesteTest {
 
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         oppdragKøTjeneste = new ØkonomiOppdragKøTjeneste(økonomiRepository, økonomiJmsProducer);
     }
 

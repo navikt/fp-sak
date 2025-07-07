@@ -37,7 +37,7 @@ class VurderFeilutbetalingOppdatererTest {
     private Behandling behandling;
 
     @BeforeEach
-    public void setup() {
+    void setup() {
         var scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
         this.behandling = scenario.lagMocked();
         when(behandlingRepository.hentBehandling(behandling.getId())).thenReturn(behandling);

@@ -53,7 +53,7 @@ class DødfødselForretningshendelseSaksvelgerTest {
     private DødfødselForretningshendelseSaksvelger saksvelger;
 
     @BeforeEach
-    public void before() {
+    void before() {
         when(repositoryProvider.getFagsakRepository()).thenReturn(fagsakRepository);
         when(repositoryProvider.getBehandlingRepository()).thenReturn(behandlingRepository);
         saksvelger = new DødfødselForretningshendelseSaksvelger(repositoryProvider, familieHendelseTjeneste, historikkinnslagTjeneste);

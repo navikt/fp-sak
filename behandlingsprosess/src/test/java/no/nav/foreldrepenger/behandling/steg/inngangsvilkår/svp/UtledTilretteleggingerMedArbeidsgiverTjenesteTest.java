@@ -53,7 +53,7 @@ class UtledTilretteleggingerMedArbeidsgiverTjenesteTest {
             iayTjeneste, inntektsmeldingTjeneste);
 
     @BeforeEach
-    public void oppsett() {
+    void oppsett() {
         this.behandling = ScenarioMorSøkerSvangerskapspenger.forSvangerskapspenger().lagMocked();
         this.skjæringstidspunkt = Skjæringstidspunkt.builder()
                 .medUtledetSkjæringstidspunkt(SKJÆRINGSTIDSPUNKT)

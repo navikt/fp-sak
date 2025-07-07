@@ -20,7 +20,7 @@ class ApplicationServiceStarterTest {
     private Controllable service;
 
     @BeforeEach
-    public void setup() {
+    void setup() {
         serviceStarter = new ApplicationServiceStarter(service);
     }
 

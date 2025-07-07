@@ -18,7 +18,7 @@ class BeregningsresultatAndelTest {
     private BeregningsresultatPeriode periode;
 
     @BeforeEach
-    public void oppsett() {
+    void oppsett() {
         var beregningsresultat = BeregningsresultatEntitet.builder().medRegelInput("clob1").medRegelSporing("clob2").build();
         periode = BeregningsresultatPeriode.builder()
             .medBeregningsresultatPeriodeFomOgTom(LocalDate.of(2018, 8, 22), LocalDate.of(2018, 9, 22))

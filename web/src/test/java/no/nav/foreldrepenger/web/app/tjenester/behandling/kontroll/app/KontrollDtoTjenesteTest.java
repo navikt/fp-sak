@@ -31,7 +31,7 @@ class KontrollDtoTjenesteTest {
     private BehandlingReferanse referanse;
 
     @BeforeEach
-    public void setup() {
+    void setup() {
         var scenarioKlage = ScenarioMorSøkerForeldrepenger.forFødsel();
         behandling = scenarioKlage.lagMocked();
         referanse = BehandlingReferanse.fra(behandling);

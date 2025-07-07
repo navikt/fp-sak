@@ -71,7 +71,7 @@ class KontrollerFaktaStegImplTest {
     }
 
     @BeforeEach
-    public void oppsett() {
+    void oppsett() {
         var scenario = byggBehandlingMedMorSøkerSVP();
         scenario.medBruker(aktørId, NavBrukerKjønn.KVINNE);
         var builder = new MedlemskapPerioderBuilder();

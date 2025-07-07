@@ -50,7 +50,7 @@ class TotrinnskontrollAksjonspunkterTjenesteTest {
     private Behandlingsresultat behandlingsresultat;
 
     @BeforeEach
-    public void oppsett() {
+    void oppsett() {
         totrinnskontrollAksjonspunkterTjeneste = new TotrinnskontrollAksjonspunkterTjeneste(totrinnsaksjonspunktDtoTjeneste, totrinnTjeneste,
             new BehandlingModellTjeneste());
     }

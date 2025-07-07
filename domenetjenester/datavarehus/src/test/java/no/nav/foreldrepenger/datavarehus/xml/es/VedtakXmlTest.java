@@ -101,7 +101,7 @@ class VedtakXmlTest {
     private FatteVedtakXmlTjeneste tjeneste;
 
     @BeforeEach
-    public void oppsett(EntityManager em) {
+    void oppsett(EntityManager em) {
         entityManager = em;
         repositoryProvider = new BehandlingRepositoryProvider(em);
         behandlingRepository = repositoryProvider.getBehandlingRepository();

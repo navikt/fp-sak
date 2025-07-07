@@ -17,7 +17,7 @@ import no.nav.foreldrepenger.domene.uttak.input.FamilieHendelse;
  * - ikrafttredelse-konfig ikke satt (eller lik lovdato), før lovdato, etter lovdato
  * - familihendelse dagens dato eller før/etter ikrafttredelse skal virke som ønsket, inklusive overgang
  */
-public class UttakCore2024Test {
+class UttakCore2024Test {
 
     private static final LocalDate IKRAFT1 = LocalDate.of(2024, Month.JULY, 1);
     private static final LocalDate IKRAFT2 = LocalDate.of(2024, Month.AUGUST, 2);

@@ -59,7 +59,7 @@ class UttakOverstyringshåndtererTest {
     private UttakOverstyringshåndterer oppdaterer;
 
     @BeforeEach
-    public void setup() {
+    void setup() {
         oppdaterer = new UttakOverstyringshåndterer(fastettePerioderTjeneste, uttakTjeneste,
             uttakInputTjeneste, mock(HistorikkinnslagRepository.class));
     }

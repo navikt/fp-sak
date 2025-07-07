@@ -42,7 +42,7 @@ class SamletInngangsvilkårStegImplTest {
     private InngangsvilkårFellesTjeneste inngangsvilkårFellesTjeneste;
 
     @BeforeEach
-    public void before() {
+    void before() {
         inngangsvilkårFellesTjeneste = new InngangsvilkårFellesTjeneste(regelOrkestrerer);
         when(ivTjeneste.erInngangsvilkår(any())).thenReturn(true);
     }

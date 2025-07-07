@@ -103,8 +103,7 @@ class SendBrevForAutopunktTest {
     }
 
     @Test
-
-    public void skalBareSendeBrevForSøknadIkkeMottattFørsteGang() {
+    void skalBareSendeBrevForSøknadIkkeMottattFørsteGang() {
         var scenarioMorSøkerForeldrepenger = ScenarioMorSøkerForeldrepenger.forFødsel()
                 .medDefaultBekreftetTerminbekreftelse();
         scenarioMorSøkerForeldrepenger.leggTilAksjonspunkt(AksjonspunktDefinisjon.VENT_PÅ_SØKNAD, BehandlingStegType.REGISTRER_SØKNAD);

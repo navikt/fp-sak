@@ -43,7 +43,7 @@ class SimulerInntrekkSjekkeTjenesteTest {
     private ArgumentCaptor<Historikkinnslag> historikkInnslagCaptor = ArgumentCaptor.forClass(Historikkinnslag.class);
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         simuleringIntegrasjonTjeneste = mock(SimuleringIntegrasjonTjeneste.class);
         simulerOppdragTjeneste = mock(SimulerOppdragTjeneste.class);
         tilbakekrevingRepository = mock(TilbakekrevingRepository.class);

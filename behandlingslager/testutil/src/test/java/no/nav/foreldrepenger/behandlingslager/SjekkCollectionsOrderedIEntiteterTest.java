@@ -55,7 +55,7 @@ class SjekkCollectionsOrderedIEntiteterTest {
 
     @ParameterizedTest
     @MethodSource("parameters")
-    public void sjekk_alle_lister_er_ordered(Class<?> entityClass) {
+    void sjekk_alle_lister_er_ordered(Class<?> entityClass) {
         for (var f : entityClass.getDeclaredFields()) {
             if (Collection.class.isAssignableFrom(f.getType())) {
                 if (!Modifier.isStatic(f.getModifiers())) {

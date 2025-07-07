@@ -27,7 +27,7 @@ class Oppdrag110EntityTest {
     private static final String FORVENTET_EXCEPTION = "forventet exception";
 
     @BeforeEach
-    public void setup() {
+    void setup() {
         oppdrag110Builder = Oppdrag110.builder();
         oppdrag110 = null;
     }

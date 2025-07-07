@@ -34,7 +34,7 @@ class FaktaUttakHistorikkinnslagTjenesteTest {
     private Behandling behandling;
 
     @BeforeEach
-    public void setup() {
+    void setup() {
         var scenarioFarSøkerForeldrepenger = ScenarioFarSøkerForeldrepenger.forFødsel();
         behandling = scenarioFarSøkerForeldrepenger.lagMocked();
         historikkinnslagRepository = scenarioFarSøkerForeldrepenger.mockBehandlingRepositoryProvider().getHistorikkinnslagRepository();

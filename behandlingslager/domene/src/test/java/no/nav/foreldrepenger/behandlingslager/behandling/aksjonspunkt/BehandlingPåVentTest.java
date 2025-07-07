@@ -15,7 +15,7 @@ class BehandlingPåVentTest {
     private Fagsak fagsak;
 
     @BeforeEach
-    public void setup() {
+    void setup() {
         fagsak = Fagsak.opprettNy(FagsakYtelseType.ENGANGSTØNAD, null);
     }
 

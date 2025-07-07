@@ -84,7 +84,7 @@ class DokumentmottakerInntektsmeldingTest {
     private DokumentmottakerFelles dokumentmottakerFelles;
 
     @BeforeEach
-    public void oppsett() {
+    void oppsett() {
         dokumentmottakerFelles = new DokumentmottakerFelles(repositoryProvider, behandlingRevurderingTjeneste, taskTjeneste, behandlendeEnhetTjeneste,
                 historikkinnslagTjeneste, mottatteDokumentTjeneste, behandlingsoppretter, mock(TomtUttakTjeneste.class));
 

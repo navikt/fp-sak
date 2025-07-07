@@ -66,7 +66,7 @@ class DokumentRestTjenesteTest {
     private DokumentRestTjeneste tjeneste;
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         tjeneste = new DokumentRestTjeneste(dokumentArkivTjeneste, inntektsmeldingTjeneste, fagsakRepository, mottatteDokumentRepository,
                 virksomhetTjeneste, behandlingRepository);
     }

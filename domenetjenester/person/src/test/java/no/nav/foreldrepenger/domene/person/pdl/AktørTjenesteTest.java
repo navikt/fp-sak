@@ -27,7 +27,7 @@ class AktørTjenesteTest {
     private final PersonIdent fnr = new PersonIdent(new FiktiveFnr().nesteKvinneFnr());
 
     @BeforeEach
-    public void setup() {
+    void setup() {
         aktørTjeneste = new AktørTjeneste(pdlMock);
     }
 
