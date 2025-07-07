@@ -12,6 +12,7 @@ import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakLås;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjon;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
+import no.nav.foreldrepenger.behandlingslager.laas.FagsakRelasjonLås;
 
 @ApplicationScoped
 public class OppdaterAvslutningsdatoFagsakRelasjon {
@@ -33,6 +34,7 @@ public class OppdaterAvslutningsdatoFagsakRelasjon {
 
     public void oppdaterFagsakRelasjonAvslutningsdato(FagsakRelasjon relasjon,
                                                       Long fagsakId,
+                                                      FagsakRelasjonLås lås,
                                                       Optional<FagsakLås> fagsak1Lås,
                                                       Optional<FagsakLås> fagsak2Lås,
                                                       FagsakYtelseType ytelseType) {
@@ -40,7 +42,7 @@ public class OppdaterAvslutningsdatoFagsakRelasjon {
             .orElseThrow(() -> new IllegalStateException("Ingen implementasjoner av UtledeAvslutningsdatoFagsak funnet for ytelse: " + ytelseType.getKode()));
 
         var avslutningsdato = utlederAvslutningsdato.utledAvslutningsdato(fagsakId, relasjon);
-        fagsakRelasjonTjeneste.oppdaterMedAvslutningsdato(relasjon, avslutningsdato, fagsak1Lås, fagsak2Lås);
+        fagsakRelasjonTjeneste.oppdaterMedAvslutningsdato(relasjon, avslutningsdato, lås, fagsak1Lås, fagsak2Lås);
     }
 
 }
