@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -140,7 +141,7 @@ public class FaktaFødselTjeneste {
             .map(
                 barn -> {
                     var barnDto = new DokumentertBarnDto(barn.getFødselsdato(), barn.getDødsdato().orElse(null));
-                    var barnNummer = dto.getBarn().indexOf(barn) + 1;
+                    var barnNummer = getBarnNummer(barn, dto.getBarn());
                     return new FødselStatus(barnDto, barnNummer);
                 })
             .toList();
@@ -149,7 +150,7 @@ public class FaktaFødselTjeneste {
             .getBarna()
             .stream()
             .map(barn -> new FødselStatus(new DokumentertBarnDto(barn.getFødselsdato(), barn.getDødsdato().orElse(null)),
-                familieHendelse.getGjeldendeVersjon().getBarna().indexOf(barn) + 1))
+                getBarnNummer(barn, familieHendelse.getGjeldendeVersjon().getBarna())))
             .toList();
 
         return dtoFødselStatus.size() != grunnlagBarnFødselStatus.size() ||
@@ -270,27 +271,29 @@ public class FaktaFødselTjeneste {
         return gjeldendeBarn;
     }
 
-    private static boolean erSammeBarn(FødselDto.BarnHendelseData barn1, FødselDto.BarnHendelseData barn2) {
-        return Objects.equals(barn1.fødselsdato(), barn2.fødselsdato()) &&
-            Objects.equals(barn1.dødsdato(), barn2.dødsdato());
+    private static boolean erSammeBarn(FødselDto.BarnHendelseData bekreftetBarn, FødselDto.BarnHendelseData overstyrtBarn) {
+        return Objects.equals(bekreftetBarn.fødselsdato(), overstyrtBarn.fødselsdato()) &&
+            Objects.equals(bekreftetBarn.dødsdato(), overstyrtBarn.dødsdato());
     }
 
-    private static ArrayList<FødselDto.Gjeldende.GjeldendeBarn> sorterRiktigRekkefølgerPåGjeldendeBarn(ArrayList<FødselDto.Gjeldende.GjeldendeBarn> gjeldendeBarn) {
-        var ikkeOverstyrteBarn = gjeldendeBarn.stream().filter(b -> b.kilde() == Kilde.FOLKEREGISTER).toList();
+    private static List<FødselDto.Gjeldende.GjeldendeBarn> sorterRiktigRekkefølgerPåGjeldendeBarn(ArrayList<FødselDto.Gjeldende.GjeldendeBarn> gjeldendeBarn) {
+        var folkeregisterBarn = gjeldendeBarn.stream().filter(b -> b.kilde() == Kilde.FOLKEREGISTER).toList();
         var overstyrteBarn = gjeldendeBarn.stream()
             .filter(b -> b.kilde() != Kilde.FOLKEREGISTER)
             .sorted(Comparator.comparingInt(barn -> barn.barn().barnNummer()))
             .toList();
-        gjeldendeBarn = new ArrayList<>(ikkeOverstyrteBarn);
-        gjeldendeBarn.addAll(overstyrteBarn);
-        return gjeldendeBarn;
+        return Stream.concat(folkeregisterBarn.stream(), overstyrteBarn.stream()).toList();
     }
 
     private List<FødselDto.BarnHendelseData> getBarn(FamilieHendelseEntitet familieHendelse) {
         return familieHendelse == null ? Collections.emptyList() : familieHendelse.getBarna()
             .stream()
             .map(barn -> new FødselDto.BarnHendelseData(barn.getFødselsdato(), barn.getDødsdato().orElse(null),
-                familieHendelse.getBarna().indexOf(barn) + 1))
+                getBarnNummer(barn, familieHendelse.getBarna())))
             .toList();
+    }
+
+    private static <T> int getBarnNummer(T barn, List<T> barnListe) {
+        return barnListe.indexOf(barn) + 1;
     }
 }

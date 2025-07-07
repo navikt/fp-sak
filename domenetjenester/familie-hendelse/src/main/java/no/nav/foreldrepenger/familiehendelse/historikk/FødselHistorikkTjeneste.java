@@ -14,9 +14,9 @@ import static no.nav.foreldrepenger.behandlingslager.behandling.historikk.Histor
 import static no.nav.foreldrepenger.familiehendelse.modell.FødselStatus.safeGet;
 
 @ApplicationScoped
-public class BarnHistorikkTjeneste {
+public class FødselHistorikkTjeneste {
 
-    private BarnHistorikkTjeneste() {
+    private FødselHistorikkTjeneste() {
     }
 
     public static void lagHistorikkForBarn(Historikkinnslag.Builder historikkinnslag,
@@ -36,10 +36,10 @@ public class BarnHistorikkTjeneste {
         if (!oppdatertFødselStatus.equals(gjeldendeFødselStatus)) {
             var lengsteListeStørrelse = Math.max(oppdatertFødselStatus.size(), gjeldendeFødselStatus.size());
             for (int i = 0; i < lengsteListeStørrelse; i++) {
-                var til = safeGet(oppdatertFødselStatus, i).map(FødselStatus::formaterLevetid);
+                var til = safeGet(oppdatertFødselStatus, i).map(FødselStatus::formaterLevetid).orElse(null);
                 var fra = safeGet(gjeldendeFødselStatus, i).map(FødselStatus::formaterLevetid).orElse(null);
                 var barn = lengsteListeStørrelse > 1 ? "Barn " + (i + 1) : "Barn";
-                historikkinnslag.addLinje(fraTilEquals(barn, fra, til.orElse(null)));
+                historikkinnslag.addLinje(fraTilEquals(barn, fra, til));
             }
         }
     }

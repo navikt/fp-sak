@@ -1,4 +1,4 @@
-package no.nav.foreldrepenger.web.app.tjenester.behandling.fødsel;
+package no.nav.foreldrepenger.web.app.tjenester.behandling.fødsel.aksjonspunkt;
 
 import jakarta.inject.Inject;
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
@@ -12,8 +12,8 @@ import no.nav.foreldrepenger.dbstoette.CdiDbAwareTest;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.familiehendelse.FamilieHendelseTjeneste;
 import no.nav.foreldrepenger.familiehendelse.aksjonspunkt.dto.DokumentertBarnDto;
-import no.nav.foreldrepenger.web.app.tjenester.behandling.fødsel.aksjonspunkt.OverstyringFaktaOmFødselDto;
-import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.overstyring.FaktaOmFødselOverstyringshåndterer;
+import no.nav.foreldrepenger.web.app.tjenester.behandling.fødsel.FaktaFødselTjeneste;
+import no.nav.foreldrepenger.web.app.tjenester.behandling.fødsel.overstyring.FaktaOmFødselOverstyringshåndterer;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 

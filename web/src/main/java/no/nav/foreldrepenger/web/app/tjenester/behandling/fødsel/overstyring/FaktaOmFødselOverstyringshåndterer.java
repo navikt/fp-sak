@@ -1,4 +1,4 @@
-package no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.overstyring;
+package no.nav.foreldrepenger.web.app.tjenester.behandling.fødsel.overstyring;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -14,7 +14,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinns
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.SkjermlenkeType;
 import no.nav.foreldrepenger.familiehendelse.FamilieHendelseTjeneste;
-import no.nav.foreldrepenger.familiehendelse.historikk.BarnHistorikkTjeneste;
+import no.nav.foreldrepenger.familiehendelse.historikk.FødselHistorikkTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.fødsel.FaktaFødselTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.fødsel.aksjonspunkt.OverstyringFaktaOmFødselDto;
 
@@ -80,7 +80,7 @@ public class FaktaOmFødselOverstyringshåndterer implements Overstyringshåndte
         }
 
         if (Boolean.TRUE.equals(dtoErBarnetFødt)) {
-            BarnHistorikkTjeneste.lagHistorikkForBarn(historikkinnslag, familieHendelse, dto);
+            FødselHistorikkTjeneste.lagHistorikkForBarn(historikkinnslag, familieHendelse, dto);
         }
 
         var gjeldendeTerminDato = familieHendelse.getGjeldendeVersjon().getTermindato().orElse(null);

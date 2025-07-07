@@ -26,7 +26,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.SkjermlenkeType;
 import no.nav.foreldrepenger.familiehendelse.FamilieHendelseTjeneste;
 import no.nav.foreldrepenger.familiehendelse.aksjonspunkt.dto.SjekkManglendeFødselAksjonspunktDto;
-import no.nav.foreldrepenger.familiehendelse.historikk.BarnHistorikkTjeneste;
+import no.nav.foreldrepenger.familiehendelse.historikk.FødselHistorikkTjeneste;
 import no.nav.foreldrepenger.familiehendelse.modell.FødselStatus;
 import no.nav.foreldrepenger.skjæringstidspunkt.OpplysningsPeriodeTjeneste;
 import no.nav.vedtak.exception.FunksjonellException;
@@ -145,7 +145,7 @@ public class SjekkManglendeFødselOppdaterer implements AksjonspunktOppdaterer<S
         }
 
         if (Boolean.TRUE.equals(dto.getErBarnFødt())) {
-            BarnHistorikkTjeneste.lagHistorikkForBarn(historikkinnslag, grunnlag, dto);
+            FødselHistorikkTjeneste.lagHistorikkForBarn(historikkinnslag, grunnlag, dto);
         }
 
         historikkinnslag.addLinje(dto.getBegrunnelse());
