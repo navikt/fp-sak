@@ -126,6 +126,7 @@ public class OpplysningsPeriodeTjeneste {
             default -> throw new IllegalStateException("Utvikler-feil: mangler ytelsetype " + ytelseType);
         };
     }
+
     public LocalDate utledFikspunktForRegisterInnhentingFraFamilieHendelse(Long behandlingId) {
         return familieGrunnlagRepository.hentAggregatHvisEksisterer(behandlingId)
             .map(OpplysningsPeriodeTjeneste::utledFikspunktForRegisterInnhentingFraFamilieHendelse)

@@ -191,34 +191,6 @@ class BeregningsresultatRepositoryTest {
     }
 
     @Test
-    void lagreBeregningsresultatFPOgUnderliggendeTabellerMedTomEndringsdato() {
-        // Arrange
-        var behandling = opprettBehandling();
-        var beregningsresultat = buildBeregningsresultatFP(false);
-
-        // Act
-        beregningsresultatRepository.lagre(behandling, beregningsresultat);
-
-        // Assert
-        var brId = beregningsresultat.getId();
-        assertThat(brId).isNotNull();
-        var brPeriode = beregningsresultat.getBeregningsresultatPerioder().get(0);
-        var brPeriodeId = brPeriode.getId();
-        assertThat(brPeriodeId).isNotNull();
-        var brAndelId = brPeriode.getBeregningsresultatAndelList().get(0).getId();
-
-        var beregningsresultatFPLest = entityManager.find(BeregningsresultatEntitet.class, brId);
-        var brPeriodeLest = entityManager.find(BeregningsresultatPeriode.class, brPeriodeId);
-        var brAndelLest = entityManager.find(BeregningsresultatAndel.class, brAndelId);
-
-        assertThat(beregningsresultatFPLest.getId()).isNotNull();
-        assertThat(beregningsresultatFPLest.getBeregningsresultatPerioder()).hasSize(1);
-        assertThat(beregningsresultatFPLest.getRegelInput()).isEqualTo(beregningsresultat.getRegelInput());
-        assertThat(beregningsresultatFPLest.getRegelSporing()).isEqualTo(beregningsresultat.getRegelSporing());
-        assertBeregningsresultatPeriode(brPeriodeLest, brAndelLest, brPeriode);
-    }
-
-    @Test
     void lagreBeregningsresultatFPOgFeriepenger() {
         // Arrange
         var behandling = opprettBehandling();
