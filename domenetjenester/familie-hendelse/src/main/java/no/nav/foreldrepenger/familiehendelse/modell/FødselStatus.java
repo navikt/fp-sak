@@ -22,10 +22,14 @@ public class FødselStatus implements UidentifisertBarn, Comparable<FødselStatu
         this.barnNummer = barn.getBarnNummer();
     }
 
-    public FødselStatus(DokumentertBarnDto barn) {
+    public FødselStatus(DokumentertBarnDto barn, Integer barnNummer) {
         this.fødselsdato = barn.getFødselsdato();
         this.dødsdato = barn.getDødsdato().orElse(null);
-        this.barnNummer = 0;
+        this.barnNummer = barnNummer;
+    }
+
+    public FødselStatus(DokumentertBarnDto barn) {
+        this(barn, 0);
     }
 
     @Override
@@ -38,6 +42,11 @@ public class FødselStatus implements UidentifisertBarn, Comparable<FødselStatu
         return Optional.ofNullable(dødsdato);
     }
 
+    @Override
+    public Integer getBarnNummer() {
+        return barnNummer;
+    }
+
     public String formaterLevetid() {
         return getDødsdato().map(d -> String.format("f. %s - d. %s", fødselsdato.format(DATE_FORMATTER), d.format(DATE_FORMATTER)))
             .orElseGet(() -> String.format("f. %s", fødselsdato.format(DATE_FORMATTER)));
@@ -45,11 +54,6 @@ public class FødselStatus implements UidentifisertBarn, Comparable<FødselStatu
 
     public static Optional<FødselStatus> safeGet(List<FødselStatus> list, int index) {
         return (index < list.size()) ? Optional.ofNullable(list.get(index)) : Optional.empty();
-    }
-
-    @Override
-    public Integer getBarnNummer() {
-        return barnNummer;
     }
 
     @Override
