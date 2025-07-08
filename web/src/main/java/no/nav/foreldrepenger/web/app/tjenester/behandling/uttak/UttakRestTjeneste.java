@@ -38,8 +38,8 @@ import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto.BehandlingMe
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto.SaldoerDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto.SvangerskapspengerUttakResultatDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto.UttakResultatPerioderDto;
-import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.eøs.AvklarUttakEøsForAnnenforelderDto;
-import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.eøs.AvklarUttakEøsForAnnenforelderTjeneste;
+import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.eøs.EøsUttakDto;
+import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.eøs.EøsUttakTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.fakta.FaktaUttakPeriodeDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.fakta.FaktaUttakPeriodeDtoTjeneste;
 import no.nav.foreldrepenger.web.server.abac.AppAbacAttributtType;
@@ -81,7 +81,7 @@ public class UttakRestTjeneste {
     private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
     private DokumentasjonVurderingBehovDtoTjeneste dokumentasjonVurderingBehovDtoTjeneste;
     private FaktaUttakPeriodeDtoTjeneste faktaUttakPeriodeDtoTjeneste;
-    private AvklarUttakEøsForAnnenforelderTjeneste avklarUttakEøsForAnnenforelderTjeneste;
+    private EøsUttakTjeneste eøsUttakTjeneste;
 
     @Inject
     public UttakRestTjeneste(BehandlingRepository behandlingRepository,
@@ -92,7 +92,7 @@ public class UttakRestTjeneste {
                              SkjæringstidspunktTjeneste skjæringstidspunktTjeneste,
                              DokumentasjonVurderingBehovDtoTjeneste dokumentasjonVurderingBehovDtoTjeneste,
                              FaktaUttakPeriodeDtoTjeneste faktaUttakPeriodeDtoTjeneste,
-                             AvklarUttakEøsForAnnenforelderTjeneste avklarUttakEøsForAnnenforelderTjeneste) {
+                             EøsUttakTjeneste eøsUttakTjeneste) {
         this.uttakInputTjeneste = uttakInputTjeneste;
         this.behandlingRepository = behandlingRepository;
         this.uttakResultatPerioderDtoTjeneste = uttakResultatPerioderDtoTjeneste;
@@ -101,7 +101,7 @@ public class UttakRestTjeneste {
         this.skjæringstidspunktTjeneste = skjæringstidspunktTjeneste;
         this.dokumentasjonVurderingBehovDtoTjeneste = dokumentasjonVurderingBehovDtoTjeneste;
         this.faktaUttakPeriodeDtoTjeneste = faktaUttakPeriodeDtoTjeneste;
-        this.avklarUttakEøsForAnnenforelderTjeneste = avklarUttakEøsForAnnenforelderTjeneste;
+        this.eøsUttakTjeneste = eøsUttakTjeneste;
     }
 
     public UttakRestTjeneste() {
@@ -194,8 +194,8 @@ public class UttakRestTjeneste {
     @Path(FAKTA_UTTAK_ANNENPART_EØS_PART_PATH)
     @Operation(description = "Hent eøs uttaksperioder for annenpart registert i EØS", tags = "uttak")
     @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK, sporingslogg = false)
-    public List<AvklarUttakEøsForAnnenforelderDto.EøsUttakPeriodeDto> hentAnnenpartPerioder(@TilpassetAbacAttributt(supplierClass = UuidAbacDataSupplier.class) @NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
-        return avklarUttakEøsForAnnenforelderTjeneste.annenpartsPerioder(uuidDto);
+    public List<EøsUttakDto.EøsUttakPeriodeDto> hentAnnenpartPerioder(@TilpassetAbacAttributt(supplierClass = UuidAbacDataSupplier.class) @NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
+        return eøsUttakTjeneste.annenpartsPerioder(uuidDto);
     }
 
     private Behandling hentBehandling(UuidDto uuidDto) {

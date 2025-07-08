@@ -19,7 +19,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode
 import no.nav.foreldrepenger.validering.ValidKodeverk;
 
 @JsonTypeName(AksjonspunktKodeDefinisjon.AVKLAR_UTTAK_I_EØS_FOR_ANNENPART)
-public class AvklarUttakEøsForAnnenforelderDto extends BekreftetAksjonspunktDto {
+public class EøsUttakDto extends BekreftetAksjonspunktDto {
 
     @Valid
     @NotNull
