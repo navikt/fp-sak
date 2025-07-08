@@ -1,5 +1,6 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.eøs;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -80,9 +81,10 @@ public class AvklarUttakEøsForAnnenforelderOppdaterer implements AksjonspunktOp
         var linjer = new ArrayList<HistorikkinnslagLinjeBuilder>();
         linjer.add(new HistorikkinnslagLinjeBuilder().tekst("Registerer uttaksperioder for annen forelder i EØS"));
         for (var periode : dto.getPerioder()) {
+            var trekkdager = new Trekkdager(periode.trekkdager());
             linjer.add(new HistorikkinnslagLinjeBuilder()
                 .tekst(String.format("%s - %s: Forbrukt", periode.fom(), periode.tom()))
-                .bold(String.format("%s dager av %s", periode.trekkdager(), periode.trekkonto().getNavn().toLowerCase())));
+                .bold(String.format("%s dager av %s", trekkdager, periode.trekkonto().getNavn().toLowerCase())));
         }
         return new Historikkinnslag.Builder()
             .medAktør(HistorikkAktør.SAKSBEHANDLER)
