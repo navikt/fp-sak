@@ -75,10 +75,6 @@ public class FaktaUttakAksjonspunktUtleder {
             .map(AvklarteUttakDatoerEntitet::getFørsteUttaksdato)
             .filter(fud -> !avklartStartdatLikFørsteDagIPerioder(perioder, erMor, fud))
             .ifPresent(fud -> list.add(FAKTA_UTTAK_MANUELT_SATT_STARTDATO_ULIK_SØKNAD_STARTDATO));
-
-        if (ytelseFordelingAggregat.avklartAnnenForelderHarRettEØS()) {
-            list.add(AksjonspunktDefinisjon.AVKLAR_UTTAK_I_EØS_FOR_ANNENPART);
-        }
         return list;
     }
 
