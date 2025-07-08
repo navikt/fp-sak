@@ -15,16 +15,12 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.OppgittRettighetEntitet;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioFarSøkerForeldrepenger;
 import no.nav.foreldrepenger.dbstoette.CdiDbAwareTest;
-import no.nav.foreldrepenger.domene.ytelsefordeling.YtelseFordelingTjeneste;
 
 @CdiDbAwareTest
 class EøsUttakAnnenpartTjenesteTest {
 
     @Inject
     private EøsUttakAnnenpartTjeneste tjeneste;
-
-    @Inject
-    private YtelseFordelingTjeneste ytelseFordelingTjeneste;
 
     @Inject
     private EøsUttakRepository eøsUttakRepository;
