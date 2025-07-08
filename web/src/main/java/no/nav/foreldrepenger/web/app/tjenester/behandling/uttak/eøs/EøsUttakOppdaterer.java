@@ -22,20 +22,20 @@ import no.nav.foreldrepenger.behandlingslager.uttak.fp.Trekkdager;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 
 @ApplicationScoped
-@DtoTilServiceAdapter(dto = AvklarUttakEøsForAnnenforelderDto.class, adapter = AksjonspunktOppdaterer.class)
-public class AvklarUttakEøsForAnnenforelderOppdaterer implements AksjonspunktOppdaterer<AvklarUttakEøsForAnnenforelderDto> {
+@DtoTilServiceAdapter(dto = EøsUttakDto.class, adapter = AksjonspunktOppdaterer.class)
+public class EøsUttakOppdaterer implements AksjonspunktOppdaterer<EøsUttakDto> {
 
     private final EøsUttakRepository eøsUttakRepository;
     private final HistorikkinnslagRepository historikkinnslagRepository;
 
     @Inject
-    public AvklarUttakEøsForAnnenforelderOppdaterer(EøsUttakRepository eøsUttakRepository, HistorikkinnslagRepository historikkinnslagRepository) {
+    public EøsUttakOppdaterer(EøsUttakRepository eøsUttakRepository, HistorikkinnslagRepository historikkinnslagRepository) {
         this.eøsUttakRepository = eøsUttakRepository;
         this.historikkinnslagRepository = historikkinnslagRepository;
     }
 
     @Override
-    public OppdateringResultat oppdater(AvklarUttakEøsForAnnenforelderDto dto, AksjonspunktOppdaterParameter param) {
+    public OppdateringResultat oppdater(EøsUttakDto dto, AksjonspunktOppdaterParameter param) {
         var behandlingId = param.getBehandlingId();
         if (dto.getPerioder().isEmpty()) {
             historikkinnslagRepository.lagre(historikkinnslagIngenPerioder(dto, param));
@@ -49,13 +49,13 @@ public class AvklarUttakEøsForAnnenforelderOppdaterer implements AksjonspunktOp
         return OppdateringResultat.utenTransisjon().build();
     }
 
-    private List<EøsUttaksperiodeEntitet> tilPerioderEntitet(List<AvklarUttakEøsForAnnenforelderDto.EøsUttakPeriodeDto> perioder) {
+    private List<EøsUttaksperiodeEntitet> tilPerioderEntitet(List<EøsUttakDto.EøsUttakPeriodeDto> perioder) {
         return perioder.stream()
-            .map(AvklarUttakEøsForAnnenforelderOppdaterer::tilPeriodeEntitet)
+            .map(EøsUttakOppdaterer::tilPeriodeEntitet)
             .toList();
     }
 
-    private static EøsUttaksperiodeEntitet tilPeriodeEntitet(AvklarUttakEøsForAnnenforelderDto.EøsUttakPeriodeDto p) {
+    private static EøsUttaksperiodeEntitet tilPeriodeEntitet(EøsUttakDto.EøsUttakPeriodeDto p) {
         return new EøsUttaksperiodeEntitet.Builder()
             .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(p.fom(), p.tom()))
             .medTrekkdager(new Trekkdager(p.trekkdager()))
@@ -63,7 +63,7 @@ public class AvklarUttakEøsForAnnenforelderOppdaterer implements AksjonspunktOp
             .build();
     }
 
-    private static Historikkinnslag historikkinnslagIngenPerioder(AvklarUttakEøsForAnnenforelderDto dto,
+    private static Historikkinnslag historikkinnslagIngenPerioder(EøsUttakDto dto,
                                                                   AksjonspunktOppdaterParameter param) {
         return new Historikkinnslag.Builder()
             .medAktør(HistorikkAktør.SAKSBEHANDLER)
@@ -75,7 +75,7 @@ public class AvklarUttakEøsForAnnenforelderOppdaterer implements AksjonspunktOp
             .build();
     }
 
-    private static Historikkinnslag historikkinnslagRegistreringAvUttaksperioder(AvklarUttakEøsForAnnenforelderDto dto,
+    private static Historikkinnslag historikkinnslagRegistreringAvUttaksperioder(EøsUttakDto dto,
                                                                                  AksjonspunktOppdaterParameter param) {
         var linjer = new ArrayList<HistorikkinnslagLinjeBuilder>();
         linjer.add(new HistorikkinnslagLinjeBuilder().tekst("Registerer uttaksperioder for annen forelder i EØS"));
