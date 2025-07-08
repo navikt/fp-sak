@@ -16,7 +16,6 @@ import org.slf4j.LoggerFactory;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.OppdateringResultat;
 import no.nav.foreldrepenger.behandling.revurdering.ytelse.UttakInputTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
-import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.AvklarteUttakDatoerEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelseFordelingAggregat;
@@ -141,7 +140,7 @@ class FaktaUttakFellesTjeneste {
         var input = uttakInputtjeneste.lagInput(behandlingId);
         var perioder = hentGjeldendeFordeling(behandlingId);
         var reutlededAp = utleder.utledAksjonspunkterFor(input, perioder);
-        if (!reutlededAp.stream().filter(ap -> ap != AksjonspunktDefinisjon.AVKLAR_UTTAK_I_EØS_FOR_ANNENPART).toList().isEmpty()) {
+        if (!reutlededAp.isEmpty()) {
             LOG.info("Lagrede perioder fører til at aksjonspunkt reutledes {}", reutlededAp);
             throw new FaktaOmUttakReutledetAksjonspunkt();
         }

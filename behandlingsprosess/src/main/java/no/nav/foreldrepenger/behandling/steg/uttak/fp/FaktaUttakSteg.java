@@ -1,6 +1,7 @@
 package no.nav.foreldrepenger.behandling.steg.uttak.fp;
 
 import java.util.List;
+import java.util.stream.Stream;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -14,10 +15,6 @@ import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
-import no.nav.foreldrepenger.behandlingslager.behandling.eøs.EøsUttakRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.domene.uttak.fakta.uttak.FaktaUttakAksjonspunktUtleder;
@@ -34,22 +31,19 @@ public class FaktaUttakSteg implements UttakSteg {
     private UttakInputTjeneste uttakInputTjeneste;
     private BehandlingRepository behandlingRepository;
     private YtelseFordelingTjeneste ytelseFordelingTjeneste;
-    private EøsUttakRepository eøsUttakRepository;
-    private HistorikkinnslagRepository historikkinnslagRepository;
+    private EøsUttakAnnenpartTjeneste eøsUttakAnnenpartTjeneste;
 
     @Inject
     public FaktaUttakSteg(FaktaUttakAksjonspunktUtleder faktaUttakAksjonspunktUtleder,
                           UttakInputTjeneste uttakInputTjeneste,
                           BehandlingRepository behandlingRepository,
                           YtelseFordelingTjeneste ytelseFordelingTjeneste,
-                          EøsUttakRepository eøsUttakRepository,
-                          HistorikkinnslagRepository historikkinnslagRepository) {
+                          EøsUttakAnnenpartTjeneste eøsUttakAnnenpartTjeneste) {
         this.faktaUttakAksjonspunktUtleder = faktaUttakAksjonspunktUtleder;
         this.uttakInputTjeneste = uttakInputTjeneste;
         this.behandlingRepository = behandlingRepository;
         this.ytelseFordelingTjeneste = ytelseFordelingTjeneste;
-        this.eøsUttakRepository = eøsUttakRepository;
-        this.historikkinnslagRepository = historikkinnslagRepository;
+        this.eøsUttakAnnenpartTjeneste = eøsUttakAnnenpartTjeneste;
     }
 
     FaktaUttakSteg() {
@@ -60,30 +54,16 @@ public class FaktaUttakSteg implements UttakSteg {
     public BehandleStegResultat utførSteg(BehandlingskontrollKontekst kontekst) {
         var uttakInput = uttakInputTjeneste.lagInput(kontekst.getBehandlingId());
         var ytelseFordelingAggregat = ytelseFordelingTjeneste.hentAggregat(kontekst.getBehandlingId());
+        var behandlingReferanse = uttakInput.getBehandlingReferanse();
         if (!ytelseFordelingAggregat.avklartAnnenForelderHarRettEØS()) {
-            fjernEøsUttak(kontekst);
+            eøsUttakAnnenpartTjeneste.fjernEøsUttak(behandlingReferanse);
         }
-        var faktaUttakAP = utledAp(uttakInput);
-        return BehandleStegResultat.utførtMedAksjonspunkter(faktaUttakAP);
+        var faktaUttakAP = utledFaktaUttakAp(uttakInput);
+        var eøsUttakAP = eøsUttakAnnenpartTjeneste.utledUttakIEøsForAnnenpartAP(behandlingReferanse);;
+        return BehandleStegResultat.utførtMedAksjonspunkter(Stream.concat(faktaUttakAP.stream(), eøsUttakAP.stream()).toList());
     }
 
-    private void fjernEøsUttak(BehandlingskontrollKontekst kontekst) {
-        var behandlingId = kontekst.getBehandlingId();
-        eøsUttakRepository.hentGrunnlag(behandlingId).filter(g -> !g.getPerioder().isEmpty()).ifPresent(grunnlag -> {
-            historikkinnslagRepository.lagre(historikkinnslagForFjerningAvEøsUttak(kontekst, behandlingId));
-            eøsUttakRepository.deaktiverAktivtGrunnlagHvisFinnes(behandlingId);
-        });
-    }
-
-    private static Historikkinnslag historikkinnslagForFjerningAvEøsUttak(BehandlingskontrollKontekst kontekst, Long behandlingId) {
-        return new Historikkinnslag.Builder().medAktør(HistorikkAktør.VEDTAKSLØSNINGEN)
-            .medBehandlingId(behandlingId)
-            .medFagsakId(kontekst.getFagsakId())
-            .medTittel("Ryddet bort annen forelders uttak i eøs ettersom avklart rettighetstype tilsier at dette ikke lenger er en EØS-sak")
-            .build();
-    }
-
-    private List<AksjonspunktDefinisjon> utledAp(UttakInput uttakInput) {
+    private List<AksjonspunktDefinisjon> utledFaktaUttakAp(UttakInput uttakInput) {
         var behandlingId = uttakInput.getBehandlingReferanse().behandlingId();
         if (harÅpentOverstyringAp(behandlingId)) {
             return List.of();

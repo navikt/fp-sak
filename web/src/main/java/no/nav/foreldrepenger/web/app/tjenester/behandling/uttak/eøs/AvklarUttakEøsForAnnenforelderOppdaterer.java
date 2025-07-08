@@ -1,6 +1,5 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.eøs;
 
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -70,7 +69,7 @@ public class AvklarUttakEøsForAnnenforelderOppdaterer implements AksjonspunktOp
             .medAktør(HistorikkAktør.SAKSBEHANDLER)
             .medFagsakId(param.getFagsakId())
             .medBehandlingId(param.getBehandlingId())
-            .medTittel(SkjermlenkeType.FAKTA_OM_UTTAK)
+            .medTittel(SkjermlenkeType.FAKTA_UTTAK_EØS)
             .addLinje("Avklart at annen forelder ikke har uttak i EØS")
             .addLinje(dto.getBegrunnelse())
             .build();
@@ -90,7 +89,7 @@ public class AvklarUttakEøsForAnnenforelderOppdaterer implements AksjonspunktOp
             .medAktør(HistorikkAktør.SAKSBEHANDLER)
             .medFagsakId(param.getFagsakId())
             .medBehandlingId(param.getBehandlingId())
-            .medTittel(SkjermlenkeType.FAKTA_OM_UTTAK)
+            .medTittel(SkjermlenkeType.FAKTA_UTTAK_EØS)
             .medLinjer(linjer)
             .addLinje(dto.getBegrunnelse())
             .build();
