@@ -8,11 +8,11 @@ import jakarta.validation.constraints.Size;
 
 import com.fasterxml.jackson.annotation.JsonTypeName;
 
-import no.nav.foreldrepenger.behandling.aksjonspunkt.BekreftetAksjonspunktDto;
+import no.nav.foreldrepenger.behandling.aksjonspunkt.OverstyringAksjonspunktDto;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktKodeDefinisjon;
 
-@JsonTypeName(AksjonspunktKodeDefinisjon.AVKLAR_UTTAK_I_EØS_FOR_ANNENPART_KODE)
-public class EøsUttakDto extends BekreftetAksjonspunktDto {
+@JsonTypeName(AksjonspunktKodeDefinisjon.OVERSTYRING_UTTAK_I_EØS_FOR_ANNENPART_KODE)
+public class OverstyringEøsUttakDto extends OverstyringAksjonspunktDto {
 
     @Valid
     @NotNull
@@ -21,5 +21,15 @@ public class EøsUttakDto extends BekreftetAksjonspunktDto {
 
     public List<EøsUttakPeriodeDto> getPerioder() {
         return perioder;
+    }
+
+    @Override
+    public String getAvslagskode() {
+        return null;
+    }
+
+    @Override
+    public boolean getErVilkarOk() {
+        return false;
     }
 }
