@@ -261,7 +261,7 @@ public enum AksjonspunktDefinisjon implements Kodeverdi {
         BehandlingStegType.VURDER_MEDLEMSKAPVILKÅR, VurderingspunktType.UT, VilkårType.MEDLEMSKAPSVILKÅRET_FORUTGÅENDE, SkjermlenkeType.FAKTA_OM_MEDLEMSKAP,
         TOTRINN, EnumSet.of(ES)),
     AVKLAR_UTTAK_I_EØS_FOR_ANNENPART(
-        AksjonspunktKodeDefinisjon.AVKLAR_UTTAK_I_EØS_FOR_ANNENPART, AksjonspunktType.MANUELL, "Avklar uttak i EØS for annen forelder",
+        AksjonspunktKodeDefinisjon.AVKLAR_UTTAK_I_EØS_FOR_ANNENPART_KODE, AksjonspunktType.MANUELL, "Avklar uttak i EØS for annen forelder",
         BehandlingStegType.FAKTA_UTTAK_DOKUMENTASJON, VurderingspunktType.INN, UTEN_VILKÅR, SkjermlenkeType.FAKTA_UTTAK_EØS, TOTRINN, EnumSet.of(FP)),
 
     // Gruppe : 600
@@ -310,9 +310,12 @@ public enum AksjonspunktDefinisjon implements Kodeverdi {
         BehandlingStegType.KONTROLLER_OMSORG_RETT, VurderingspunktType.UT, UTEN_VILKÅR, SkjermlenkeType.FAKTA_OMSORG_OG_RETT,
         TOTRINN, EnumSet.of(FP)),
 
-    OVERSTYRING_AV_FORUTGÅENDE_MEDLEMSKAPSVILKÅR(AksjonspunktKodeDefinisjon.OVERSTYRING_AV_FORUTGÅENDE_MEDLEMSKAPSVILKÅR_KODE, AksjonspunktType.OVERSTYRING,
-        "Overstyring av vilkår forutgående medlemskap", BehandlingStegType.VURDER_MEDLEMSKAPVILKÅR, VurderingspunktType.UT, VilkårType.MEDLEMSKAPSVILKÅRET_FORUTGÅENDE,
-        SkjermlenkeType.PUNKT_FOR_MEDLEMSKAP, TOTRINN, EnumSet.of(ES)),
+    OVERSTYRING_AV_FORUTGÅENDE_MEDLEMSKAPSVILKÅR(AksjonspunktKodeDefinisjon.OVERSTYRING_AV_FORUTGÅENDE_MEDLEMSKAPSVILKÅR_KODE,
+        AksjonspunktType.OVERSTYRING, "Overstyring av vilkår forutgående medlemskap", BehandlingStegType.VURDER_MEDLEMSKAPVILKÅR,
+        VurderingspunktType.UT, VilkårType.MEDLEMSKAPSVILKÅRET_FORUTGÅENDE, SkjermlenkeType.PUNKT_FOR_MEDLEMSKAP, TOTRINN, EnumSet.of(ES)),
+    OVERSTYRING_AV_UTTAK_I_EØS_FOR_ANNENPART(AksjonspunktKodeDefinisjon.OVERSTYRING_UTTAK_I_EØS_FOR_ANNENPART_KODE, AksjonspunktType.OVERSTYRING,
+        "Overstyr uttak i EØS for annen forelder", BehandlingStegType.FAKTA_UTTAK_DOKUMENTASJON, VurderingspunktType.INN, UTEN_VILKÅR,
+        SkjermlenkeType.FAKTA_UTTAK_EØS, TOTRINN, EnumSet.of(FP)),
 
     // Gruppe : 700
 

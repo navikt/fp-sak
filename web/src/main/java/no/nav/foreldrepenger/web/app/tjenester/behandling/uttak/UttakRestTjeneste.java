@@ -38,7 +38,7 @@ import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto.BehandlingMe
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto.SaldoerDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto.SvangerskapspengerUttakResultatDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto.UttakResultatPerioderDto;
-import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.eøs.EøsUttakDto;
+import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.eøs.EøsUttakPeriodeDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.eøs.EøsUttakTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.fakta.FaktaUttakPeriodeDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.fakta.FaktaUttakPeriodeDtoTjeneste;
@@ -194,7 +194,7 @@ public class UttakRestTjeneste {
     @Path(FAKTA_UTTAK_ANNENPART_EØS_PART_PATH)
     @Operation(description = "Hent eøs uttaksperioder for annenpart registert i EØS", tags = "uttak")
     @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK, sporingslogg = false)
-    public List<EøsUttakDto.EøsUttakPeriodeDto> hentAnnenpartPerioder(@TilpassetAbacAttributt(supplierClass = UuidAbacDataSupplier.class) @NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
+    public List<EøsUttakPeriodeDto> hentAnnenpartPerioder(@TilpassetAbacAttributt(supplierClass = UuidAbacDataSupplier.class) @NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
         return eøsUttakTjeneste.annenpartsPerioder(uuidDto);
     }
 

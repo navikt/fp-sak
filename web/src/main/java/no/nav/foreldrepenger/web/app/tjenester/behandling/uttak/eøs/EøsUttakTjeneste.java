@@ -16,17 +16,17 @@ public class EøsUttakTjeneste {
     private BehandlingRepository behandlingRepository;
     private EøsUttakRepository eøsUttakRepository;
 
-    public EøsUttakTjeneste() {
-        // CDI
-    }
-
     @Inject
     public EøsUttakTjeneste(BehandlingRepository behandlingRepository, EøsUttakRepository eøsUttakRepository) {
         this.behandlingRepository = behandlingRepository;
         this.eøsUttakRepository = eøsUttakRepository;
     }
 
-    public List<EøsUttakDto.EøsUttakPeriodeDto> annenpartsPerioder(UuidDto uuidDto) {
+    EøsUttakTjeneste() {
+        // CDI
+    }
+
+    public List<EøsUttakPeriodeDto> annenpartsPerioder(UuidDto uuidDto) {
         var behandlingId = behandlingRepository.hentBehandling(uuidDto.getBehandlingUuid()).getId();
         var grunnlagOpt = eøsUttakRepository.hentGrunnlag(behandlingId);
         return grunnlagOpt.stream()
@@ -35,8 +35,8 @@ public class EøsUttakTjeneste {
             .toList();
     }
 
-    private EøsUttakDto.EøsUttakPeriodeDto tilDto(EøsUttaksperiodeEntitet periode) {
-        return new EøsUttakDto.EøsUttakPeriodeDto(
+    private EøsUttakPeriodeDto tilDto(EøsUttaksperiodeEntitet periode) {
+        return new EøsUttakPeriodeDto(
             periode.getPeriode().getFomDato(),
             periode.getPeriode().getTomDato(),
             periode.getTrekkdager().decimalValue(),
