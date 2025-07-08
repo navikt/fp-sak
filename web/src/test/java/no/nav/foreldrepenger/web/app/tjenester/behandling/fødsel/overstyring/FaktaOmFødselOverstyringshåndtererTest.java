@@ -1,6 +1,16 @@
-package no.nav.foreldrepenger.web.app.tjenester.behandling.fødsel.aksjonspunkt;
+package no.nav.foreldrepenger.web.app.tjenester.behandling.fødsel.overstyring;
+
+import static no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagLinjeBuilder.format;
+import static org.assertj.core.api.Assertions.assertThat;
+
+import java.time.LocalDate;
+import java.util.List;
 
 import jakarta.inject.Inject;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagLinje;
@@ -13,15 +23,7 @@ import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.familiehendelse.FamilieHendelseTjeneste;
 import no.nav.foreldrepenger.familiehendelse.aksjonspunkt.dto.DokumentertBarnDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.fødsel.FaktaFødselTjeneste;
-import no.nav.foreldrepenger.web.app.tjenester.behandling.fødsel.overstyring.FaktaOmFødselOverstyringshåndterer;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-
-import java.time.LocalDate;
-import java.util.List;
-
-import static no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagLinjeBuilder.format;
-import static org.assertj.core.api.Assertions.assertThat;
+import no.nav.foreldrepenger.web.app.tjenester.behandling.fødsel.aksjonspunkt.OverstyringFaktaOmFødselDto;
 
 @CdiDbAwareTest
 class FaktaOmFødselOverstyringshåndtererTest {
