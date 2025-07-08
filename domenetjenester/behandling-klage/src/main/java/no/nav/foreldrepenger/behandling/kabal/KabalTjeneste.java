@@ -199,7 +199,7 @@ public class KabalTjeneste {
         if (verge.flatMap(VergeEntitet::getVergeOrganisasjon).isPresent()) {
             var vergeOrganisasjon = verge.flatMap(VergeEntitet::getVergeOrganisasjon).orElseThrow();
             var partId = new TilKabalDto.PartId(TilKabalDto.PartsType.VIRKSOMHET, vergeOrganisasjon.getOrganisasjonsnummer());
-            return new TilKabalDto.Fullmektig(partId, vergeOrganisasjon.getNavn());
+            return new TilKabalDto.Fullmektig(partId, null);
         } else if (verge.flatMap(VergeEntitet::getBruker).isPresent()) {
             var vergeBruker = verge.flatMap(VergeEntitet::getBruker).orElseThrow();
             return new TilKabalDto.Fullmektig(utledPartId(vergeBruker.getAktørId()), null);
