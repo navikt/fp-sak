@@ -46,7 +46,7 @@ class OppdaterEtterAordningenFristBeregningTaskTest extends EntityManagerAwareTe
         scenario.leggTilAksjonspunkt(AksjonspunktDefinisjon.FASTSETT_BEREGNINGSGRUNNLAG_ARBEIDSTAKER_FRILANS, BehandlingStegType.FORESLÅ_BEREGNINGSGRUNNLAG);
         scenario.leggTilVilkår(VilkårType.OPPTJENINGSPERIODEVILKÅR, VilkårUtfallType.OPPFYLT);
         var behandling = scenario.lagre(repositoryProvider);
-        repositoryProvider.getBehandlingRepository().oppdaterSistOppdatertTidspunkt(behandling, LocalDateTime.now().minusWeeks(4).minusDays(1));
+        repositoryProvider.getBehandlingRepository().oppdaterSistOppdatertTidspunkt(behandling, LocalDateTime.now().minusMonths(1).withDayOfMonth(3));
         repositoryProvider.getOpptjeningRepository().lagreOpptjeningsperiode(behandling, LocalDate.now().minusMonths(10), LocalDate.now().minusMonths(1).withDayOfMonth(15), false);
         forceOppdaterBehandlingSteg(behandling, BehandlingStegType.FORESLÅ_BEREGNINGSGRUNNLAG);
         var lås = repositoryProvider.getBehandlingRepository().taSkriveLås(behandling.getId());
@@ -70,7 +70,7 @@ class OppdaterEtterAordningenFristBeregningTaskTest extends EntityManagerAwareTe
         scenario.leggTilAksjonspunkt(AksjonspunktDefinisjon.FASTSETT_BEREGNINGSGRUNNLAG_ARBEIDSTAKER_FRILANS, BehandlingStegType.FORESLÅ_BEREGNINGSGRUNNLAG);
         scenario.leggTilVilkår(VilkårType.OPPTJENINGSPERIODEVILKÅR, VilkårUtfallType.OPPFYLT);
         var behandling = scenario.lagre(repositoryProvider);
-        repositoryProvider.getBehandlingRepository().oppdaterSistOppdatertTidspunkt(behandling, LocalDateTime.now().minusWeeks(4).minusDays(1));
+        repositoryProvider.getBehandlingRepository().oppdaterSistOppdatertTidspunkt(behandling, LocalDateTime.now().minusMonths(1).withDayOfMonth(3));
         repositoryProvider.getOpptjeningRepository().lagreOpptjeningsperiode(behandling, LocalDate.now().minusMonths(10), LocalDate.now().minusMonths(1).withDayOfMonth(15), false);
         forceOppdaterBehandlingSteg(behandling, BehandlingStegType.FORESLÅ_BEREGNINGSGRUNNLAG);
         var lås = repositoryProvider.getBehandlingRepository().taSkriveLås(behandling.getId());
@@ -95,7 +95,7 @@ class OppdaterEtterAordningenFristBeregningTaskTest extends EntityManagerAwareTe
         scenario.leggTilAksjonspunkt(AksjonspunktDefinisjon.VURDER_ARBEIDSFORHOLD_INNTEKTSMELDING, BehandlingStegType.KONTROLLER_FAKTA_ARBEIDSFORHOLD_INNTEKTSMELDING);
         var behandling = scenario.lagre(repositoryProvider);
         forceOppdaterBehandlingSteg(behandling, BehandlingStegType.VURDER_KOMPLETT_BEH);
-        repositoryProvider.getBehandlingRepository().oppdaterSistOppdatertTidspunkt(behandling, LocalDateTime.now().minusWeeks(4).minusDays(1));
+        repositoryProvider.getBehandlingRepository().oppdaterSistOppdatertTidspunkt(behandling, LocalDateTime.now().minusMonths(1).withDayOfMonth(3));
         forceOppdaterBehandlingSteg(behandling, BehandlingStegType.KONTROLLER_FAKTA_ARBEIDSFORHOLD_INNTEKTSMELDING);
         var lås = repositoryProvider.getBehandlingRepository().taSkriveLås(behandling.getId());
         repositoryProvider.getBehandlingRepository().lagre(behandling, lås);
@@ -117,7 +117,7 @@ class OppdaterEtterAordningenFristBeregningTaskTest extends EntityManagerAwareTe
             .medBehandlingType(BehandlingType.FØRSTEGANGSSØKNAD);
         scenario.leggTilAksjonspunkt(AksjonspunktDefinisjon.VURDER_PERMISJON_UTEN_SLUTTDATO, BehandlingStegType.VURDER_ARB_FORHOLD_PERMISJON);
         var behandling = scenario.lagre(repositoryProvider);
-        repositoryProvider.getBehandlingRepository().oppdaterSistOppdatertTidspunkt(behandling, LocalDateTime.now().minusWeeks(4).minusDays(1));
+        repositoryProvider.getBehandlingRepository().oppdaterSistOppdatertTidspunkt(behandling, LocalDateTime.now().minusMonths(1).withDayOfMonth(3));
         forceOppdaterBehandlingSteg(behandling, BehandlingStegType.VURDER_ARB_FORHOLD_PERMISJON);
         var lås = repositoryProvider.getBehandlingRepository().taSkriveLås(behandling.getId());
         repositoryProvider.getBehandlingRepository().lagre(behandling, lås);
