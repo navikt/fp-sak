@@ -2,10 +2,14 @@ package no.nav.foreldrepenger.web.app.tjenester.behandling.dto.behandling;
 
 import static no.nav.foreldrepenger.web.app.rest.ResourceLinks.get;
 
+import java.util.Objects;
 import java.util.Optional;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.DekningsgradTjeneste;
@@ -27,14 +31,17 @@ import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadReposito
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtak;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtakRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.verge.VergeRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.Rettighetstype;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Språkkode;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.StønadskontoType;
 import no.nav.foreldrepenger.domene.medlem.MedlemTjeneste;
 import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagGrunnlag;
 import no.nav.foreldrepenger.domene.prosess.BeregningTjeneste;
 import no.nav.foreldrepenger.domene.uttak.Uttak;
 import no.nav.foreldrepenger.domene.uttak.UttakTjeneste;
 import no.nav.foreldrepenger.domene.uttak.beregnkontoer.UtregnetStønadskontoTjeneste;
+import no.nav.foreldrepenger.domene.ytelsefordeling.YtelseFordelingTjeneste;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.aksjonspunkt.AksjonspunktRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.arbeidsforhold.InntektArbeidYtelseRestTjeneste;
@@ -63,6 +70,8 @@ import no.nav.foreldrepenger.web.app.tjenester.formidling.tilkjentytelse.Tilkjen
 @ApplicationScoped
 public class BehandlingFormidlingDtoTjeneste {
 
+    private static final Logger LOG = LoggerFactory.getLogger(BehandlingFormidlingDtoTjeneste.class);
+
     private BeregningTjeneste beregningTjeneste;
     private UttakTjeneste uttakTjeneste;
     private UtregnetStønadskontoTjeneste utregnetStønadskontoTjeneste;
@@ -76,6 +85,7 @@ public class BehandlingFormidlingDtoTjeneste {
     private DekningsgradTjeneste dekningsgradTjeneste;
     private MedlemTjeneste medlemTjeneste;
     private VergeRepository vergeRepository;
+    private YtelseFordelingTjeneste ytelseFordelingTjeneste;
 
     @Inject
     public BehandlingFormidlingDtoTjeneste(BehandlingRepositoryProvider repositoryProvider,
@@ -87,7 +97,8 @@ public class BehandlingFormidlingDtoTjeneste {
                                            DekningsgradTjeneste dekningsgradTjeneste,
                                            UtregnetStønadskontoTjeneste utregnetStønadskontoTjeneste,
                                            MedlemTjeneste medlemTjeneste,
-                                           VergeRepository vergeRepository) {
+                                           VergeRepository vergeRepository,
+                                           YtelseFordelingTjeneste ytelseFordelingTjeneste) {
         this.beregningTjeneste = beregningTjeneste;
         this.uttakTjeneste = uttakTjeneste;
         this.utregnetStønadskontoTjeneste = utregnetStønadskontoTjeneste;
@@ -101,6 +112,7 @@ public class BehandlingFormidlingDtoTjeneste {
         this.dekningsgradTjeneste = dekningsgradTjeneste;
         this.medlemTjeneste = medlemTjeneste;
         this.vergeRepository = vergeRepository;
+        this.ytelseFordelingTjeneste = ytelseFordelingTjeneste;
     }
 
     BehandlingFormidlingDtoTjeneste() {
@@ -230,6 +242,7 @@ public class BehandlingFormidlingDtoTjeneste {
                         var avslagsårsak = medlemTjeneste.hentAvslagsårsak(behandling.getId());
                         dto.setMedlemskapOpphørsårsak(avslagsårsak.orElse(null));
                     });
+                    dto.setRettigheter(utledRettigheter(behandling));
                 }
 
                 dto.leggTil(get(FormidlingRestTjeneste.UTSATT_START_PATH, "utsatt-oppstart", uuidDto));
@@ -243,6 +256,51 @@ public class BehandlingFormidlingDtoTjeneste {
             .ifPresent(dto::setOriginalBehandlingUuid);
 
         return dto;
+    }
+
+    private BehandlingFormidlingDto.Rettigheter utledRettigheter(Behandling behandling) {
+
+        try {
+            var opprinnelig = opprinneligRettighetstype(behandling);
+            var gjeldende = gjeldendeRettighetstype(behandling);
+
+            if (gjeldende != opprinnelig) {
+                LOG.info("Rettighetstype endret fra {} til {}", opprinnelig, gjeldende);
+            }
+
+            return new BehandlingFormidlingDto.Rettigheter(opprinnelig, gjeldende);
+        } catch (Exception e) {
+            LOG.info("Feil ved utledning av rettighetstype", e);
+            return null;
+        }
+    }
+
+    private Rettighetstype opprinneligRettighetstype(Behandling behandling) {
+        if (behandling.erRevurdering()) {
+            var originalBehandlingId = behandling.getOriginalBehandlingId().orElseThrow();
+            return gjeldendeRettighetstype(behandlingRepository.hentBehandling(originalBehandlingId));
+        }
+        var yfa = ytelseFordelingTjeneste.hentAggregat(behandling.getId());
+        return yfa.getOppgittRettighet().rettighetstype(behandling.getRelasjonsRolleType());
+    }
+
+    private Rettighetstype gjeldendeRettighetstype(Behandling behandling) {
+        var stønadskontoberegning = utregnetStønadskontoTjeneste.gjeldendeKontoutregning(BehandlingReferanse.fra(behandling));
+        var yfa = ytelseFordelingTjeneste.hentAggregat(behandling.getId());
+        var relasjonsRolleType = behandling.getRelasjonsRolleType();
+        if (stønadskontoberegning.keySet().stream().anyMatch(stønadskontoType -> stønadskontoType.equals(StønadskontoType.FORELDREPENGER))) {
+            if (yfa.robustHarAleneomsorg(relasjonsRolleType)) {
+                return Rettighetstype.ALENEOMSORG;
+            }
+            if (relasjonsRolleType.erFarEllerMedMor()) {
+                if (Objects.equals(yfa.getMorUføretrygdAvklaring(), Boolean.TRUE)) {
+                    return Rettighetstype.BARE_FAR_RETT_MOR_UFØR;
+                }
+                return Rettighetstype.BARE_FAR_RETT;
+            }
+            return Rettighetstype.BARE_MOR_RETT;
+        }
+        return yfa.avklartAnnenForelderHarRettEØS() ? Rettighetstype.BEGGE_RETT_EØS : Rettighetstype.BEGGE_RETT;
     }
 
     private Optional<Uttak> hentUttakAnnenpartForeldrepengerHvisEksisterer(Behandling søkersBehandling) {

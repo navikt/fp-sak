@@ -12,6 +12,7 @@ import jakarta.persistence.Table;
 import jakarta.persistence.Version;
 
 import no.nav.foreldrepenger.behandlingslager.BaseEntitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
 import no.nav.foreldrepenger.behandlingslager.diff.ChangeTracked;
 import no.nav.vedtak.felles.jpa.converters.BooleanToStringConverter;
 
@@ -148,6 +149,22 @@ public class OppgittRettighetEntitet extends BaseEntitet {
         return Objects.equals(morUføretrygd, rett.morMottarUføretrygd) ? rett :
             new OppgittRettighetEntitet(rett.harAnnenForeldreRett, rett.harAleneomsorgForBarnet, morUføretrygd, rett.annenForelderRettEØS,
                 rett.annenForelderOppholdEØS);
+    }
+
+    public Rettighetstype rettighetstype(RelasjonsRolleType relasjonsRolleType) {
+        if (getAnnenForelderRettEØS()) {
+            return Rettighetstype.BEGGE_RETT_EØS;
+        }
+        if (getHarAleneomsorgForBarnet()) {
+            return Rettighetstype.ALENEOMSORG;
+        }
+        if (getHarAnnenForeldreRett()) {
+            return Rettighetstype.BEGGE_RETT;
+        }
+        if (relasjonsRolleType.erFarEllerMedMor() && getMorMottarUføretrygd()) {
+            return Rettighetstype.BARE_FAR_RETT_MOR_UFØR;
+        }
+        return relasjonsRolleType.erFarEllerMedMor() ? Rettighetstype.BARE_FAR_RETT : Rettighetstype.BARE_MOR_RETT;
     }
 
     @Override

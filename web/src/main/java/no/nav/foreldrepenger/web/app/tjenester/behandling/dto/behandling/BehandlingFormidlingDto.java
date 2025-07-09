@@ -8,6 +8,7 @@ import java.util.UUID;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.Avslagsårsak;
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.Rettighetstype;
 import no.nav.foreldrepenger.web.app.rest.ResourceLink;
 
 /**
@@ -36,6 +37,9 @@ public class BehandlingFormidlingDto extends BehandlingDto {
 
     @JsonProperty("medlemskapFom")
     private LocalDate medlemskapFom;
+    
+    @JsonProperty("rettigheter")
+    private Rettigheter rettigheter;
 
     public List<ResourceLink> getFormidlingRessurser() {
         return formidlingRessurser;
@@ -79,5 +83,17 @@ public class BehandlingFormidlingDto extends BehandlingDto {
 
     public void setMedlemskapFom(LocalDate medlemskapFom) {
         this.medlemskapFom = medlemskapFom;
+    }
+
+    public Rettigheter getRettigheter() {
+        return rettigheter;
+    }
+
+    public void setRettigheter(Rettigheter rettigheter) {
+        this.rettigheter = rettigheter;
+    }
+
+     public record Rettigheter(Rettighetstype opprinnelig,  //søknad eller forrige vedtak
+                               Rettighetstype gjeldende) {
     }
 }

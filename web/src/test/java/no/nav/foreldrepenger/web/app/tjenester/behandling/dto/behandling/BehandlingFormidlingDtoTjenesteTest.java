@@ -1,6 +1,11 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.dto.behandling;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import jakarta.inject.Inject;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandling.DekningsgradTjeneste;
 import no.nav.foreldrepenger.behandling.RelatertBehandlingTjeneste;
@@ -12,13 +17,8 @@ import no.nav.foreldrepenger.domene.medlem.MedlemTjeneste;
 import no.nav.foreldrepenger.domene.prosess.BeregningTjeneste;
 import no.nav.foreldrepenger.domene.uttak.UttakTjeneste;
 import no.nav.foreldrepenger.domene.uttak.beregnkontoer.UtregnetStønadskontoTjeneste;
+import no.nav.foreldrepenger.domene.ytelsefordeling.YtelseFordelingTjeneste;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
-
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-
-
-import static org.assertj.core.api.Assertions.assertThat;
 
 
 @CdiDbAwareTest
@@ -54,13 +54,16 @@ class BehandlingFormidlingDtoTjenesteTest {
     @Inject
     private VergeRepository vergeRepository;
 
+    @Inject
+    private YtelseFordelingTjeneste ytelseFordelingTjeneste;
+
     private BehandlingFormidlingDtoTjeneste tjeneste;
 
     @BeforeEach
     void setUp() {
         tjeneste = new BehandlingFormidlingDtoTjeneste(repositoryProvider, beregningTjeneste, skjæringstidspunktTjeneste,
             behandlingDokumentRepository, relatertBehandlingTjeneste, uttakTjeneste, dekningsgradTjeneste, utregnetStønadskontoTjeneste,
-            medlemTjeneste, vergeRepository);
+            medlemTjeneste, vergeRepository, ytelseFordelingTjeneste);
     }
 
 
