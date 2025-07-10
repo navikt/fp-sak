@@ -268,7 +268,8 @@ public class BehandlingFormidlingDtoTjeneste {
             var gjeldende = gjeldendeRettighetstype(behandling);
 
             if (gjeldende != opprinnelig) {
-                LOG.info("Rettighetstype endret fra {} til {}", opprinnelig, gjeldende);
+                LOG.info("Rettighetstype endret fra {} til {} - {} - {}", opprinnelig, gjeldende, behandling.getType(),
+                    behandling.getRelasjonsRolleType());
             }
 
             return new BehandlingFormidlingDto.Rettigheter(opprinnelig, gjeldende);
