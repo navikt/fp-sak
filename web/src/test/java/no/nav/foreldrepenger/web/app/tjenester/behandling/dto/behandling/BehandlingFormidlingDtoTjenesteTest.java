@@ -11,6 +11,7 @@ import no.nav.foreldrepenger.behandling.DekningsgradTjeneste;
 import no.nav.foreldrepenger.behandling.RelatertBehandlingTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.dokument.BehandlingDokumentRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
+import no.nav.foreldrepenger.behandlingslager.behandling.ufore.UføretrygdRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.verge.VergeRepository;
 import no.nav.foreldrepenger.dbstoette.CdiDbAwareTest;
 import no.nav.foreldrepenger.domene.medlem.MedlemTjeneste;
@@ -57,13 +58,16 @@ class BehandlingFormidlingDtoTjenesteTest {
     @Inject
     private YtelseFordelingTjeneste ytelseFordelingTjeneste;
 
+    @Inject
+    private UføretrygdRepository uføretrygdRepository;
+
     private BehandlingFormidlingDtoTjeneste tjeneste;
 
     @BeforeEach
     void setUp() {
         tjeneste = new BehandlingFormidlingDtoTjeneste(repositoryProvider, beregningTjeneste, skjæringstidspunktTjeneste,
             behandlingDokumentRepository, relatertBehandlingTjeneste, uttakTjeneste, dekningsgradTjeneste, utregnetStønadskontoTjeneste,
-            medlemTjeneste, vergeRepository, ytelseFordelingTjeneste);
+            medlemTjeneste, vergeRepository, ytelseFordelingTjeneste, uføretrygdRepository);
     }
 
 

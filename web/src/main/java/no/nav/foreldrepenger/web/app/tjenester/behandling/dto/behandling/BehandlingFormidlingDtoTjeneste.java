@@ -2,7 +2,6 @@ package no.nav.foreldrepenger.web.app.tjenester.behandling.dto.behandling;
 
 import static no.nav.foreldrepenger.web.app.rest.ResourceLinks.get;
 
-import java.util.Objects;
 import java.util.Optional;
 
 import jakarta.enterprise.context.ApplicationScoped;
@@ -28,6 +27,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.ufore.UføretrygdRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtak;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtakRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.verge.VergeRepository;
@@ -86,6 +86,7 @@ public class BehandlingFormidlingDtoTjeneste {
     private MedlemTjeneste medlemTjeneste;
     private VergeRepository vergeRepository;
     private YtelseFordelingTjeneste ytelseFordelingTjeneste;
+    private UføretrygdRepository uføretrygdRepository;
 
     @Inject
     public BehandlingFormidlingDtoTjeneste(BehandlingRepositoryProvider repositoryProvider,
@@ -98,7 +99,8 @@ public class BehandlingFormidlingDtoTjeneste {
                                            UtregnetStønadskontoTjeneste utregnetStønadskontoTjeneste,
                                            MedlemTjeneste medlemTjeneste,
                                            VergeRepository vergeRepository,
-                                           YtelseFordelingTjeneste ytelseFordelingTjeneste) {
+                                           YtelseFordelingTjeneste ytelseFordelingTjeneste,
+                                           UføretrygdRepository uføretrygdRepository) {
         this.beregningTjeneste = beregningTjeneste;
         this.uttakTjeneste = uttakTjeneste;
         this.utregnetStønadskontoTjeneste = utregnetStønadskontoTjeneste;
@@ -113,6 +115,7 @@ public class BehandlingFormidlingDtoTjeneste {
         this.medlemTjeneste = medlemTjeneste;
         this.vergeRepository = vergeRepository;
         this.ytelseFordelingTjeneste = ytelseFordelingTjeneste;
+        this.uføretrygdRepository = uføretrygdRepository;
     }
 
     BehandlingFormidlingDtoTjeneste() {
@@ -293,7 +296,7 @@ public class BehandlingFormidlingDtoTjeneste {
                 return Rettighetstype.ALENEOMSORG;
             }
             if (relasjonsRolleType.erFarEllerMedMor()) {
-                if (Objects.equals(yfa.getMorUføretrygdAvklaring(), Boolean.TRUE)) {
+                if (yfa.morMottarUføretrygd(uføretrygdRepository.hentGrunnlag(behandling.getId()).orElse(null))) {
                     return Rettighetstype.BARE_FAR_RETT_MOR_UFØR;
                 }
                 return Rettighetstype.BARE_FAR_RETT;
