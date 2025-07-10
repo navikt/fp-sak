@@ -1062,9 +1062,12 @@ class SaldoerDtoTjenesteTest extends EntityManagerAwareTest {
         assertThat(dto.stonadskontoer().get(SaldoerDto.SaldoVisningStønadskontoType.FORELDREPENGER_FØR_FØDSEL).saldo()).isEqualTo(15);
         assertThat(dto.stonadskontoer().get(SaldoerDto.SaldoVisningStønadskontoType.FORELDREPENGER_FØR_FØDSEL).kontoReduksjoner()).isNull();
         assertThat(dto.stonadskontoer().get(SaldoerDto.SaldoVisningStønadskontoType.MØDREKVOTE).saldo()).isEqualTo(0);
-        assertThat(dto.stonadskontoer().get(SaldoerDto.SaldoVisningStønadskontoType.MØDREKVOTE).kontoReduksjoner().annenForelderEøsUttak()).isEqualTo(75);
+        assertThat(dto.stonadskontoer().get(SaldoerDto.SaldoVisningStønadskontoType.MØDREKVOTE).kontoReduksjoner().annenForelderEøsUttak()).isEqualTo(
+            new Trekkdager(75).decimalValue());
         assertThat(dto.stonadskontoer().get(SaldoerDto.SaldoVisningStønadskontoType.FELLESPERIODE).saldo()).isEqualTo(80 - 20 - 10);
-        assertThat(dto.stonadskontoer().get(SaldoerDto.SaldoVisningStønadskontoType.FELLESPERIODE).kontoReduksjoner().annenForelderEøsUttak()).isEqualTo(20);
+        assertThat(
+            dto.stonadskontoer().get(SaldoerDto.SaldoVisningStønadskontoType.FELLESPERIODE).kontoReduksjoner().annenForelderEøsUttak()).isEqualTo(
+            new Trekkdager(20).decimalValue());
         assertThat(dto.stonadskontoer().get(SaldoerDto.SaldoVisningStønadskontoType.FEDREKVOTE).saldo()).isEqualTo(75);
         assertThat(dto.stonadskontoer().get(SaldoerDto.SaldoVisningStønadskontoType.FEDREKVOTE).kontoReduksjoner()).isNull();
     }
