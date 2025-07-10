@@ -110,10 +110,10 @@ class FagsakRelasjonRepositoryStub extends FagsakRelasjonRepository {
 
     @Override
     public void oppdaterMedAvsluttningsdato(FagsakRelasjon relasjon,
-                                                                LocalDate avsluttningsdato,
-                                                                FagsakRelasjonLås lås,
-                                                                Optional<FagsakLås> fagsak1Lås,
-                                                                Optional<FagsakLås> fagsak2Lås) {
+                                            LocalDate avsluttningsdato,
+                                            FagsakRelasjonLås lås,
+                                            Optional<FagsakLås> fagsak1Lås,
+                                            Optional<FagsakLås> fagsak2Lås) {
         throw new IkkeImplementertForTestException();
     }
 

@@ -1,6 +1,5 @@
 package no.nav.foreldrepenger.behandling.kabal;
 
-import java.util.Objects;
 import java.util.Optional;
 
 import jakarta.enterprise.context.ApplicationScoped;

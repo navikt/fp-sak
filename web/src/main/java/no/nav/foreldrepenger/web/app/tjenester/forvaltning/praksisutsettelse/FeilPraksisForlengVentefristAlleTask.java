@@ -1,7 +1,6 @@
 package no.nav.foreldrepenger.web.app.tjenester.forvaltning.praksisutsettelse;
 
 import java.time.LocalDateTime;
-import java.util.Comparator;
 
 import jakarta.enterprise.context.Dependent;
 import jakarta.inject.Inject;
@@ -19,7 +18,9 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 class FeilPraksisForlengVentefristAlleTask implements ProsessTaskHandler {
 
     private static final String FRA_BEHANDLING_ID = "frBehandlingId";
+    @SuppressWarnings("unused")
     private final FeilPraksisUtsettelseRepository utvalgRepository;
+    @SuppressWarnings("unused")
     private final ProsessTaskTjeneste prosessTaskTjeneste;
 
     @Inject

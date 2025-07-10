@@ -53,7 +53,7 @@ public class AutomatiskFagsakAvslutningTask extends FagsakRelasjonProsessTask {
     public void prosesser(ProsessTaskData prosessTaskData, Optional<FagsakRelasjon> relasjon, FagsakRelasjonLås relasjonLås, Optional<FagsakLås> fagsak1Lås, Optional<FagsakLås> fagsak2Lås) {
         var fagsakId = prosessTaskData.getFagsakId();
         // For å sikre at fagsaken hentes opp i cache - ellers dukker den opp via readonly-query og det blir problem.
-        var fagsak = fagsakRepository.finnEksaktFagsak(fagsakId);
+        fagsakRepository.finnEksaktFagsak(fagsakId);
 
         behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(fagsakId).ifPresent(behandling -> {
             var ytelseType = behandling.getFagsakYtelseType();
@@ -62,7 +62,6 @@ public class AutomatiskFagsakAvslutningTask extends FagsakRelasjonProsessTask {
                 oppdaterFagsakRelasjonAvslutningsdato(relasjon, relasjonLås, fagsak1Lås, fagsak2Lås, fagsakId, ytelseType);
             }
         });
-
     }
 
     private void oppdaterFagsakRelasjonAvslutningsdato(Optional<FagsakRelasjon> relasjon, FagsakRelasjonLås relasjonLås, Optional<FagsakLås> fagsak1Lås, Optional<FagsakLås> fagsak2Lås, Long fagsakId, FagsakYtelseType ytelseType) {

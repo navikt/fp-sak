@@ -142,8 +142,8 @@ class VurderFagsystemTjenesteForInntektsmeldingTest {
 
         when(fagsakTjenesteMock.finnFagsakerForAktør(any())).thenReturn(List.of(fsmock1, fsmock2));
 
-        var behandling1 = lagMockBehandling(1L, fsmock1);
-        var behandling2 = lagMockBehandling(2L, fsmock2);
+        var behandling1 = lagMockBehandling(1L);
+        var behandling2 = lagMockBehandling(2L);
         lenient().when(behandlingRepositoryMock.finnSisteAvsluttedeIkkeHenlagteBehandling(fsmock1.getId())).thenReturn(Optional.of(behandling1));
         lenient().when(behandlingRepositoryMock.finnSisteAvsluttedeIkkeHenlagteBehandling(fsmock2.getId())).thenReturn(Optional.of(behandling2));
         lenient().when(skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandling1.getId()))
@@ -171,8 +171,8 @@ class VurderFagsystemTjenesteForInntektsmeldingTest {
 
         when(fagsakTjenesteMock.finnFagsakerForAktør(any())).thenReturn(List.of(fsmock1, fsmock2));
 
-        var behandling1 = lagMockBehandling(1L, fsmock1);
-        var behandling2 = lagMockBehandling(2L, fsmock2);
+        var behandling1 = lagMockBehandling(1L);
+        var behandling2 = lagMockBehandling(2L);
         lenient().when(behandlingRepositoryMock.finnSisteAvsluttedeIkkeHenlagteBehandling(fsmock1.getId())).thenReturn(Optional.of(behandling1));
         lenient().when(behandlingRepositoryMock.finnSisteAvsluttedeIkkeHenlagteBehandling(fsmock2.getId())).thenReturn(Optional.of(behandling2));
         lenient().when(skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandling1.getId()))
@@ -200,8 +200,8 @@ class VurderFagsystemTjenesteForInntektsmeldingTest {
 
         when(fagsakTjenesteMock.finnFagsakerForAktør(any())).thenReturn(List.of(fsmock1, fsmock2));
 
-        var behandling1 = lagMockBehandling(1L, fsmock1);
-        var behandling2 = lagMockBehandling(2L, fsmock2);
+        var behandling1 = lagMockBehandling(1L);
+        var behandling2 = lagMockBehandling(2L);
         lenient().when(behandlingRepositoryMock.finnSisteAvsluttedeIkkeHenlagteBehandling(fsmock1.getId())).thenReturn(Optional.of(behandling1));
         lenient().when(behandlingRepositoryMock.finnSisteAvsluttedeIkkeHenlagteBehandling(fsmock2.getId())).thenReturn(Optional.of(behandling2));
         lenient().when(skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandling1.getId()))
@@ -231,7 +231,7 @@ class VurderFagsystemTjenesteForInntektsmeldingTest {
 
         when(fagsakTjenesteMock.finnFagsakerForAktør(any())).thenReturn(List.of(fsmock1));
 
-        var behandling1 = lagMockBehandling(1L, fsmock1);
+        var behandling1 = lagMockBehandling(1L);
         lenient().when(behandlingRepositoryMock.finnSisteAvsluttedeIkkeHenlagteBehandling(fsmock1.getId())).thenReturn(Optional.of(behandling1));
         lenient().when(skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandling1.getId()))
             .thenReturn(Skjæringstidspunkt.builder().medFørsteUttaksdato(LocalDate.now().minusMonths(12)).medUtledetSkjæringstidspunkt(LocalDate.now().minusMonths(12)).build());
@@ -256,7 +256,7 @@ class VurderFagsystemTjenesteForInntektsmeldingTest {
 
         when(fagsakTjenesteMock.finnFagsakerForAktør(any())).thenReturn(List.of(fsmock1));
 
-        var behandling1 = lagMockBehandling(1L, fsmock1);
+        var behandling1 = lagMockBehandling(1L);
         lenient().when(behandlingRepositoryMock.finnSisteAvsluttedeIkkeHenlagteBehandling(fsmock1.getId())).thenReturn(Optional.of(behandling1));
         lenient().when(skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandling1.getId()))
             .thenReturn(Skjæringstidspunkt.builder().medFørsteUttaksdato(LocalDate.now().minusMonths(12)).medUtledetSkjæringstidspunkt(LocalDate.now().minusMonths(12)).build());
@@ -285,7 +285,7 @@ class VurderFagsystemTjenesteForInntektsmeldingTest {
 
         when(fagsakTjenesteMock.finnFagsakerForAktør(any())).thenReturn(List.of(fsmock1));
 
-        var behandling1 = lagMockBehandling(1L, fsmock1);
+        var behandling1 = lagMockBehandling(1L);
         lenient().when(behandlingRepositoryMock.finnSisteAvsluttedeIkkeHenlagteBehandling(fsmock1.getId())).thenReturn(Optional.of(behandling1));
         lenient().when(skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandling1.getId()))
             .thenReturn(Skjæringstidspunkt.builder().medFørsteUttaksdato(LocalDate.now().minusMonths(12)).medUtledetSkjæringstidspunkt(LocalDate.now().minusMonths(12)).build());
@@ -308,7 +308,7 @@ class VurderFagsystemTjenesteForInntektsmeldingTest {
         return fagsak;
     }
 
-    private Behandling lagMockBehandling(Long id, Fagsak fagsak) {
+    private Behandling lagMockBehandling(Long id) {
         var behandling= mock(Behandling.class);
         lenient().when(behandling.getId()).thenReturn(id);
         lenient().when(behandling.getType()).thenReturn(BehandlingType.REVURDERING);

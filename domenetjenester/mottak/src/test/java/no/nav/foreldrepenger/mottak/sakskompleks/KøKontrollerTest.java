@@ -180,7 +180,7 @@ class KøKontrollerTest {
             .medOriginalBehandling(morFgBehandling, BehandlingÅrsakType.BERØRT_BEHANDLING).lagMocked();
         var morOppdatertBehandling = ScenarioMorSøkerForeldrepenger.forFødsel().medBehandlingType(BehandlingType.REVURDERING)
             .medOriginalBehandling(morBerørtBehandling, BehandlingÅrsakType.RE_ENDRING_FRA_BRUKER).lagMocked();
-        var farFgBehandling = ScenarioFarSøkerForeldrepenger.forFødsel().lagMocked();
+        ScenarioFarSøkerForeldrepenger.forFødsel().lagMocked();
         when(behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(morFgBehandling.getFagsakId()))
             .thenReturn(Optional.of(morBerørtBehandling));
         when(behandlingRepository.hentBehandling(morKøetBehandling.getId())).thenReturn(morKøetBehandling);

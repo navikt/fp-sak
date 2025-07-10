@@ -27,10 +27,6 @@ class FagsakBuilder {
         this.fagsakRelasjonBuilder = fagsakRelasjonBuilder;
     }
 
-    private FagsakBuilder(Fagsak fagsak) {
-        this.fagsak = fagsak;
-    }
-
     FagsakBuilder medSaksnummer(Saksnummer saksnummer) {
         validerFagsakIkkeSatt();
         this.saksnummer = saksnummer;

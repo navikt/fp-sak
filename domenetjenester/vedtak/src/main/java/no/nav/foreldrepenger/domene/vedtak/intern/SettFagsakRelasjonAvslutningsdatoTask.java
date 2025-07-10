@@ -39,5 +39,5 @@ public class SettFagsakRelasjonAvslutningsdatoTask extends FagsakRelasjonProsess
         var fagsakId = prosessTaskData.getFagsakId();
         relasjon.ifPresent(fagsakRelasjon -> oppdaterAvslutningsdatoFagsakRelasjon.oppdaterFagsakRelasjonAvslutningsdato(fagsakRelasjon, fagsakId, relasjonLås,
             fagsak1Lås, fagsak2Lås, fagsakRelasjon.getFagsakNrEn().getYtelseType()));
-        }
+    }
 }

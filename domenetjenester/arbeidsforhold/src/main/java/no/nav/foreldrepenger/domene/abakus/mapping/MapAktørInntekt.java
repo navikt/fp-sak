@@ -29,7 +29,7 @@ class MapAktørInntekt {
 
         private final InntektArbeidYtelseAggregatBuilder aggregatBuilder;
 
-        MapFraDto(AktørId søkerAktørId, InntektArbeidYtelseAggregatBuilder aggregatBuilder) {
+        MapFraDto(InntektArbeidYtelseAggregatBuilder aggregatBuilder) {
             this.aggregatBuilder = aggregatBuilder;
         }
 

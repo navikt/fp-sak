@@ -18,10 +18,8 @@ import no.nav.foreldrepenger.domene.typer.AktørId;
  */
 public class IAYFraDtoMapper {
 
-    private AktørId aktørId;
-
-    public IAYFraDtoMapper(AktørId aktørId) {
-        this.aktørId = aktørId;
+    public IAYFraDtoMapper() {
+        // sonar
     }
 
     /**
@@ -63,9 +61,9 @@ public class IAYFraDtoMapper {
         var registerBuilder = InntektArbeidYtelseAggregatBuilder.builderFor(Optional.empty(), register.getEksternReferanse(), tidspunkt,
                 VersjonType.REGISTER);
 
-        var aktørArbeid = new MapAktørArbeid.MapFraDto(aktørId, registerBuilder).map(register.getArbeid());
-        var aktørInntekt = new MapAktørInntekt.MapFraDto(aktørId, registerBuilder).map(register.getInntekt());
-        var aktørYtelse = new MapAktørYtelse.MapFraDto(aktørId, registerBuilder).map(register.getYtelse());
+        var aktørArbeid = new MapAktørArbeid.MapFraDto(registerBuilder).map(register.getArbeid());
+        var aktørInntekt = new MapAktørInntekt.MapFraDto(registerBuilder).map(register.getInntekt());
+        var aktørYtelse = new MapAktørYtelse.MapFraDto(registerBuilder).map(register.getYtelse());
 
         aktørArbeid.forEach(registerBuilder::leggTilAktørArbeid);
         aktørInntekt.forEach(registerBuilder::leggTilAktørInntekt);
@@ -95,7 +93,7 @@ public class IAYFraDtoMapper {
             var tidspunkt = overstyrt.getOpprettetTidspunkt().atZoneSameInstant(ZoneId.systemDefault()).toLocalDateTime();
             var saksbehandlerOverstyringer = InntektArbeidYtelseAggregatBuilder.builderFor(Optional.empty(), overstyrt.getEksternReferanse(),
                     tidspunkt, VersjonType.SAKSBEHANDLET);
-            var overstyrtAktørArbeid = new MapAktørArbeid.MapFraDto(aktørId, saksbehandlerOverstyringer).map(overstyrt.getArbeid());
+            var overstyrtAktørArbeid = new MapAktørArbeid.MapFraDto(saksbehandlerOverstyringer).map(overstyrt.getArbeid());
             overstyrtAktørArbeid.forEach(saksbehandlerOverstyringer::leggTilAktørArbeid);
             builder.medData(saksbehandlerOverstyringer);
         }

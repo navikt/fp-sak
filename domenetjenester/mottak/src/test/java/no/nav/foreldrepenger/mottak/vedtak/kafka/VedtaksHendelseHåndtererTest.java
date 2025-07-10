@@ -128,7 +128,7 @@ class VedtaksHendelseHåndtererTest extends EntityManagerAwareTest {
             lagBehandlingSVP(),
             periodeMedGrad("2020-03-01", "2020-03-31", 100),
             periodeMedGrad("2020-05-01", "2020-05-25", 100));
-        lagBeregningsgrunnlag(svp, LocalDate.parse("2020-03-01"), 100);
+        lagBeregningsgrunnlag(LocalDate.parse("2020-03-01"), 100);
 
         var ompYtelse = lagVedtakForPeriode(
             YtelseType.OMSORGSPENGER,
@@ -154,7 +154,7 @@ class VedtaksHendelseHåndtererTest extends EntityManagerAwareTest {
             lagBehandlingSVP(),
             periodeMedGrad("2020-03-01", "2020-03-31", 100),
             periodeMedGrad("2020-05-01", "2020-05-25", 50));
-        lagBeregningsgrunnlag(svp, LocalDate.parse("2020-03-01"), 50);
+        lagBeregningsgrunnlag(LocalDate.parse("2020-03-01"), 50);
 
         var ompYtelse = lagVedtakForPeriode(
             YtelseType.OMSORGSPENGER,
@@ -175,7 +175,7 @@ class VedtaksHendelseHåndtererTest extends EntityManagerAwareTest {
             lagBehandlingSVP(),
             periodeMedGrad("2020-03-01", "2020-03-31", 100),
             periodeMedGrad("2020-05-01", "2020-05-25", 60));
-        lagBeregningsgrunnlag(svp, LocalDate.parse("2020-03-01"), 60);
+        lagBeregningsgrunnlag(LocalDate.parse("2020-03-01"), 60);
 
         var ompYtelse = lagVedtakForPeriode(
             YtelseType.OMSORGSPENGER,
@@ -346,7 +346,7 @@ class VedtaksHendelseHåndtererTest extends EntityManagerAwareTest {
         return behandling;
     }
 
-    private void lagBeregningsgrunnlag(Behandling b, LocalDate stp, int utbetalingsgrad) {
+    private void lagBeregningsgrunnlag(LocalDate stp, int utbetalingsgrad) {
         var brutto = new BigDecimal(DAGSATS).multiply(new BigDecimal(260));
         var redusert = brutto.multiply(new BigDecimal(utbetalingsgrad)).divide(BigDecimal.TEN.multiply(BigDecimal.TEN), RoundingMode.HALF_UP);
         var dagsatsBruker = redusert.divide(BigDecimal.valueOf(260), 0, RoundingMode.HALF_UP).longValue();

@@ -99,7 +99,7 @@ class AksjonspunktUtlederForForeldrepengerFødselNårHovedsøkerErFarMedmorTest 
         var utledeteAksjonspunkter = apUtleder.utledAksjonspunkterFor(lagInput(behandling, LocalDate.now()));
 
         assertThat(utledeteAksjonspunkter).hasSize(1);
-        assertThat(utledeteAksjonspunkter.getFirst().aksjonspunktDefinisjon()).isEqualTo(SJEKK_TERMINBEKREFTELSE);;
+        assertThat(utledeteAksjonspunkter.getFirst().aksjonspunktDefinisjon()).isEqualTo(SJEKK_TERMINBEKREFTELSE);
     }
 
     @Test

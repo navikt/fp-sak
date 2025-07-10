@@ -54,7 +54,7 @@ public class KravperioderMapper {
             .entrySet()
             .stream()
             .filter(e -> sisteIMPrArbeidsforhold.containsKey(e.getKey()))
-            .map(e -> mapTilKravPrArbeidsforhold(referanse, stp, yrkesaktiviteter, sisteIMPrArbeidsforhold, e))
+            .map(e -> mapTilKravPrArbeidsforhold(stp, yrkesaktiviteter, sisteIMPrArbeidsforhold, e))
             .toList();
     }
 
@@ -75,7 +75,7 @@ public class KravperioderMapper {
         return grupperEneste(filtrerKunRefusjon(inntektsmeldinger));
     }
 
-    private static KravperioderPrArbeidsforholdDto mapTilKravPrArbeidsforhold(BehandlingReferanse referanse, Skjæringstidspunkt stp,
+    private static KravperioderPrArbeidsforholdDto mapTilKravPrArbeidsforhold(Skjæringstidspunkt stp,
                                                                               Collection<Yrkesaktivitet> yrkesaktiviteter,
                                                                               Map<Kravnøkkel, Inntektsmelding> sisteIMPrArbeidsforhold,
                                                                               Map.Entry<Kravnøkkel, List<Inntektsmelding>> e) {

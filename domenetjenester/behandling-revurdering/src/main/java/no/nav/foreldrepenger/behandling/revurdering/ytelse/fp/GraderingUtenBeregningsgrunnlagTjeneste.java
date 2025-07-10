@@ -43,7 +43,7 @@ public class GraderingUtenBeregningsgrunnlagTjeneste {
     }
 
     private static Optional<BeregningsgrunnlagPrStatusOgAndel> finnTilsvarendeAndelIPeriode(PeriodeMedGradering gradering, BeregningsgrunnlagPeriode periode) {
-        return periode.getBeregningsgrunnlagPrStatusOgAndelList().stream().filter((andel) -> bgAndelMatcherGraderingAndel(andel, gradering)).findFirst();
+        return periode.getBeregningsgrunnlagPrStatusOgAndelList().stream().filter(andel -> bgAndelMatcherGraderingAndel(andel, gradering)).findFirst();
     }
 
     private static boolean bgAndelMatcherGraderingAndel(BeregningsgrunnlagPrStatusOgAndel andel, PeriodeMedGradering periodeMedGradering) {
