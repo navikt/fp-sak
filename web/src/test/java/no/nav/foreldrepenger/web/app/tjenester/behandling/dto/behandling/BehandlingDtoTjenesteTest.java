@@ -15,6 +15,7 @@ import no.nav.foreldrepenger.behandling.DekningsgradTjeneste;
 import no.nav.foreldrepenger.behandling.FagsakRelasjonTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.EngangsstønadBeregningRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.dokument.BehandlingDokumentRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.eøs.EøsUttakRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.tilbakekreving.TilbakekrevingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.tilbakekreving.TilbakekrevingValg;
@@ -77,6 +78,9 @@ class BehandlingDtoTjenesteTest {
     @Inject
     private VedtaksbrevStatusUtleder vedtaksbrevStatusUtleder;
 
+    @Inject
+    private EøsUttakRepository eøsUttakRepository;
+
     private BehandlingDtoTjeneste tjeneste;
 
     @BeforeEach
@@ -85,7 +89,7 @@ class BehandlingDtoTjenesteTest {
             skjæringstidspunktTjeneste, mock(EngangsstønadBeregningRepository.class), behandlingDokumentRepository, mock(TotrinnTjeneste.class),
             dokumentasjonVurderingBehovDtoTjeneste, faktaUttakPeriodeDtoTjeneste, fagsakRelasjonTjeneste,
             new UtregnetStønadskontoTjeneste(fagsakRelasjonTjeneste, foreldrepengerUttakTjeneste), dekningsgradTjeneste, vergeRepository,
-            vedtaksbrevStatusUtleder);
+            vedtaksbrevStatusUtleder, eøsUttakRepository);
     }
 
     @Test
