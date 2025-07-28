@@ -174,14 +174,13 @@ public final class MapYrkesaktivitetTilOpptjeningsperiodeTjeneste {
         // Antar at det kan være overlapp i arbeidsavtalene med 0 prosent
         var nullprosentTidslinje = new LocalDateTimeline<>(nullprosentAvtaler.stream()
             .map(a -> new LocalDateSegment<>(a.getPeriode().getFomDato(), a.getPeriode().getTomDato(),a))
-            .collect(Collectors.toList()), StandardCombinators::coalesceLeftHandSide);
+            .toList(), StandardCombinators::coalesceLeftHandSide);
 
         // Kan vurdere å lage en tidslinje av ansettelsesperioder og blir da kvitt overlappende tilfelle (bruk coalesce). Se MapAnsettelses....
-        var nyListe = ansettelsesPerioder.stream()
+        return ansettelsesPerioder.stream()
             .flatMap(ap -> knekkVedNullProsent(ap, nullprosentTidslinje))
             .sorted(Comparator.comparing(p -> p.getPeriode().getFomDato()))
-            .collect(Collectors.toList());
-        return nyListe;
+            .toList();
     }
 
     // Skal beholde alle ansettelsesperioder men knekker dem ved å gjøre snitt og differanse - så konkatenere uten forsøk på compress.

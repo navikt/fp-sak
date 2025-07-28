@@ -1,6 +1,5 @@
 package no.nav.foreldrepenger.domene.uttak.fakta;
 
-import static java.util.stream.Collectors.toList;
 import static no.nav.foreldrepenger.domene.uttak.fakta.omsorg.AnnenForelderHarRettAksjonspunktUtleder.oppgittHarAnnenForeldreRett;
 
 import java.util.List;
@@ -54,7 +53,7 @@ public class OmsorgRettUttakTjeneste {
         return utledere.stream()
             .flatMap(utleder -> utleder.utledAksjonspunkterFor(input).stream())
             .distinct()
-            .collect(toList());
+            .toList();
     }
 
     public void avklarOmAnnenForelderHarRett(BehandlingReferanse ref) {

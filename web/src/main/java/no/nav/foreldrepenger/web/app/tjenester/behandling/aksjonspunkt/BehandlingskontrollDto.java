@@ -1,7 +1,5 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.aksjonspunkt;
 
-import static java.util.stream.Collectors.toList;
-
 import java.util.List;
 import java.util.Set;
 
@@ -32,7 +30,7 @@ public class BehandlingskontrollDto {
     public List<String> getAksjonspunkter() {
         return aksjonspunkter.stream()
             .map(a -> a.getAksjonspunktDefinisjon().getNavn())
-            .collect(toList());
+            .toList();
     }
 
 }

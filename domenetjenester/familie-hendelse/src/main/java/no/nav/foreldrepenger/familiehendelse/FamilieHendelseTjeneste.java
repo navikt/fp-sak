@@ -1,6 +1,5 @@
 package no.nav.foreldrepenger.familiehendelse;
 
-import static java.util.stream.Collectors.toList;
 import static no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseType.FØDSEL;
 import static no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseType.TERMIN;
 
@@ -224,7 +223,7 @@ public class FamilieHendelseTjeneste {
             .filter(rel -> rel.getAktørId().equals(ref.aktørId()) && rel.getRelasjonsrolle().equals(RelasjonsRolleType.BARN))
             .map(rel -> personopplysninger.getPersonopplysning(rel.getTilAktørId()))
             .filter(barn -> barn != null && erBarnRelatertTilSøknad(fødselsintervall, barn.getFødselsdato()))
-            .collect(toList());
+            .toList();
     }
 
     private boolean erBarnRelatertTilSøknad(List<LocalDateInterval> relasjonsintervall, LocalDate dato) {
