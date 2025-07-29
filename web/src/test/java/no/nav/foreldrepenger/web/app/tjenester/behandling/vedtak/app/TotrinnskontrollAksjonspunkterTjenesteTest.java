@@ -432,7 +432,7 @@ class TotrinnskontrollAksjonspunkterTjenesteTest {
             var totrinnskontrollAksjonspunkterDto1 = opprettTotrinnskontrollAksjonspunkterDto(Optional.of(aksjonspunktDefinisjon1), Optional.of(ttv1));
 
             when(totrinnTjeneste.hentTotrinnaksjonspunktvurderinger(behandling.getId())).thenReturn(List.of(ttv1));
-            when(totrinnsaksjonspunktDtoTjeneste.lagTotrinnskontrollAksjonspunktDto(eq(ttv1), eq(behandling)))
+            when(totrinnsaksjonspunktDtoTjeneste.lagTotrinnskontrollAksjonspunktDto(ttv1, behandling))
                 .thenReturn(totrinnskontrollAksjonspunkterDto1);
 
             // Act
