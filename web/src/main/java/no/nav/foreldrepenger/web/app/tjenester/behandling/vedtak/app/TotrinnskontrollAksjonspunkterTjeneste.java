@@ -2,7 +2,7 @@ package no.nav.foreldrepenger.web.app.tjenester.behandling.vedtak.app;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
+import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
 
@@ -47,7 +47,7 @@ public class TotrinnskontrollAksjonspunkterTjeneste {
     public List<TotrinnskontrollSkjermlenkeContextDto> hentTotrinnsSkjermlenkeContext(Behandling behandling, Behandlingsresultat behandlingsresultat) {
         var skjermlenkeContext = new ArrayList<TotrinnskontrollSkjermlenkeContextDto>();
         var aksjonspunkter = behandling.getAksjonspunkterMedTotrinnskontroll();
-        var skjermlenkeMap = new HashMap<SkjermlenkeType, List<TotrinnskontrollAksjonspunkterDto>>();
+        Map<SkjermlenkeType, List<TotrinnskontrollAksjonspunkterDto>> skjermlenkeMap = new EnumMap<>(SkjermlenkeType.class);
         var ttVurderinger = totrinnTjeneste.hentTotrinnaksjonspunktvurderinger(behandling.getId());
         // Behandling er ikkje i fatte vedtak og har ingen totrinnsvurderinger -> returnerer tom liste
         if (!BehandlingStatus.FATTER_VEDTAK.equals(behandling.getStatus()) && ttVurderinger.isEmpty()) {
@@ -76,7 +76,7 @@ public class TotrinnskontrollAksjonspunkterTjeneste {
     public List<TotrinnskontrollSkjermlenkeContextDto> hentTotrinnsvurderingSkjermlenkeContext(Behandling behandling, Behandlingsresultat behandlingsresultat) {
         var skjermlenkeContext = new ArrayList<TotrinnskontrollSkjermlenkeContextDto>();
         var totrinnaksjonspunktvurderinger = totrinnTjeneste.hentTotrinnaksjonspunktvurderinger(behandling.getId());
-        var skjermlenkeMap = new HashMap<SkjermlenkeType, List<TotrinnskontrollAksjonspunkterDto>>();
+        Map<SkjermlenkeType, List<TotrinnskontrollAksjonspunkterDto>> skjermlenkeMap = new EnumMap<>(SkjermlenkeType.class);
         for (var vurdering : totrinnaksjonspunktvurderinger) {
             lagTotrinnsaksjonspunkt(behandling, behandlingsresultat, skjermlenkeMap, vurdering);
         }
