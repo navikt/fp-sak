@@ -2,7 +2,6 @@ package no.nav.foreldrepenger.inngangsvilkaar;
 
 import static java.util.Collections.emptyList;
 import static java.util.Collections.emptyMap;
-import static java.util.stream.Collectors.toList;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -38,7 +37,7 @@ public class RegelOrkestrerer {
         var vilkårResultat = inngangsvilkårTjeneste.getBehandlingsresultat(ref.behandlingId()).getVilkårResultat();
         var matchendeVilkårPåBehandling = vilkårResultat.getVilkårene().stream()
             .filter(v -> vilkårHåndtertAvSteg.contains(v.getVilkårType()))
-            .collect(toList());
+            .toList();
         validerMaksEttVilkår(matchendeVilkårPåBehandling);
 
         var vilkår = matchendeVilkårPåBehandling.isEmpty() ? null : matchendeVilkårPåBehandling.get(0);

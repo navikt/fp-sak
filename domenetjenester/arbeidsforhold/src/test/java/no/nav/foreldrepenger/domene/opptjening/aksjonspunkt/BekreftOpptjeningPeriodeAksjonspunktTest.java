@@ -12,7 +12,6 @@ import java.time.LocalDate;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import jakarta.persistence.EntityManager;
 
@@ -245,7 +244,7 @@ class BekreftOpptjeningPeriodeAksjonspunktTest {
         var yrkesaktiviteter = filterSaksbehandlet.getYrkesaktiviteter();
         var ansettelsesperioder = yrkesaktiviteter.stream()
             .flatMap(y -> y.getAlleAktivitetsAvtaler().stream().filter(AktivitetsAvtale::erAnsettelsesPeriode))
-            .collect(Collectors.toList());
+            .toList();
 
         assertThat(yrkesaktiviteter).hasSize(1);
         assertThat(ansettelsesperioder).hasSize(2);

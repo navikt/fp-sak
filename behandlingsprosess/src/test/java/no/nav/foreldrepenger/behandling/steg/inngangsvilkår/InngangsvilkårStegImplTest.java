@@ -4,7 +4,6 @@ import static java.util.Collections.emptyList;
 import static java.util.Collections.emptyMap;
 import static java.util.Collections.singletonList;
 import static java.util.List.of;
-import static java.util.stream.Collectors.toList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -77,8 +76,8 @@ class InngangsvilkårStegImplTest {
         assertThat(stegResultat.getTransisjon().målSteg()).isEqualTo(BehandlingStegType.INNGANG_UTTAK);
 
         var vilkårResultat = behandling.getBehandlingsresultat().getVilkårResultat();
-        assertThat(vilkårResultat.getVilkårene().stream().map(Vilkår::getGjeldendeVilkårUtfall).collect(toList()))
-                .containsExactly(VilkårUtfallType.IKKE_OPPFYLT);
+        assertThat(vilkårResultat.getVilkårene().stream().map(Vilkår::getGjeldendeVilkårUtfall).toList())
+            .containsExactly(VilkårUtfallType.IKKE_OPPFYLT);
     }
 
     @Test
@@ -105,7 +104,7 @@ class InngangsvilkårStegImplTest {
         assertThat(stegResultat.getAksjonspunktListe()).contains(AksjonspunktDefinisjon.VURDER_OPPTJENINGSVILKÅRET);
 
         var vilkårResultat = behandling.getBehandlingsresultat().getVilkårResultat();
-        assertThat(vilkårResultat.getVilkårene().stream().map(Vilkår::getGjeldendeVilkårUtfall).collect(toList()))
+        assertThat(vilkårResultat.getVilkårene().stream().map(Vilkår::getGjeldendeVilkårUtfall).toList())
                 .containsExactly(VilkårUtfallType.IKKE_OPPFYLT);
     }
 
@@ -284,7 +283,7 @@ class InngangsvilkårStegImplTest {
 
         // Assert
         var vilkårResultat = behandling.getBehandlingsresultat().getVilkårResultat();
-        assertThat(vilkårResultat.getVilkårene().stream().map(Vilkår::getGjeldendeVilkårUtfall).collect(toList()))
+        assertThat(vilkårResultat.getVilkårene().stream().map(Vilkår::getGjeldendeVilkårUtfall).toList())
                 .containsExactly(VilkårUtfallType.IKKE_VURDERT);
         assertThat(behandling.getBehandlingsresultat().getBehandlingResultatType())
                 .isEqualTo(BehandlingResultatType.IKKE_FASTSATT);

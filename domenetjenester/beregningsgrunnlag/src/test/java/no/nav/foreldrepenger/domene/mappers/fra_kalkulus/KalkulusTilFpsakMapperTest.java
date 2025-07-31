@@ -10,7 +10,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 import no.nav.folketrygdloven.kalkulus.kodeverk.BeregningsgrunnlagTilstand;
 import no.nav.folketrygdloven.kalkulus.response.v1.beregningsgrunnlag.detaljert.FaktaAggregatDto;
@@ -53,11 +52,11 @@ class KalkulusTilFpsakMapperTest {
         assertThat(domenebg.getSkjæringstidspunkt()).isEqualTo(kontraktbg.getSkjæringstidspunkt());
         assertThat(domenebg.getGrunnbeløp().getVerdi()).isEqualTo(kontraktbg.getGrunnbeløp().verdi());
         assertThat(domenebg.getAktivitetStatuser().stream().map(BeregningsgrunnlagAktivitetStatus::getAktivitetStatus))
-            .containsAll(kontraktbg.getAktivitetStatuser().stream().map(KodeverkFraKalkulusMapper::mapAktivitetstatus).collect(Collectors.toList()));
+            .containsAll(kontraktbg.getAktivitetStatuser().stream().map(KodeverkFraKalkulusMapper::mapAktivitetstatus).toList());
         assertThat(domenebg.getBeregningsgrunnlagPerioder()).hasSameSizeAs(kontraktbg.getBeregningsgrunnlagPerioder());
         assertPerioder(domenebg.getBeregningsgrunnlagPerioder().stream()
-            .sorted(Comparator.comparing(bgp -> bgp.getPeriode().getFomDato())).collect(Collectors.toList()), kontraktbg.getBeregningsgrunnlagPerioder().stream()
-            .sorted(Comparator.comparing(bgp -> bgp.getPeriode().getFom())).collect(Collectors.toList()));
+            .sorted(Comparator.comparing(bgp -> bgp.getPeriode().getFomDato())).toList(), kontraktbg.getBeregningsgrunnlagPerioder().stream()
+            .sorted(Comparator.comparing(bgp -> bgp.getPeriode().getFom())).toList());
         if (kontraktBgg.getRegisterAktiviteter() != null) {
             assertThat(domeneBgg.getRegisterAktiviteter()).isNotNull();
             assertThat(domeneBgg.getRegisterAktiviteter().getSkjæringstidspunktOpptjening()).isEqualTo(kontraktBgg.getRegisterAktiviteter().getSkjæringstidspunktOpptjening());
@@ -105,11 +104,11 @@ class KalkulusTilFpsakMapperTest {
         assertThat(domenebg.getSkjæringstidspunkt()).isEqualTo(kontraktbg.getSkjæringstidspunkt());
         assertThat(domenebg.getGrunnbeløp().getVerdi()).isEqualTo(kontraktbg.getGrunnbeløp().verdi());
         assertThat(domenebg.getAktivitetStatuser().stream().map(BeregningsgrunnlagAktivitetStatus::getAktivitetStatus))
-            .containsAll(kontraktbg.getAktivitetStatuser().stream().map(KodeverkFraKalkulusMapper::mapAktivitetstatus).collect(Collectors.toList()));
+            .containsAll(kontraktbg.getAktivitetStatuser().stream().map(KodeverkFraKalkulusMapper::mapAktivitetstatus).toList());
         assertThat(domenebg.getBeregningsgrunnlagPerioder()).hasSameSizeAs(kontraktbg.getBeregningsgrunnlagPerioder());
         assertPerioder(domenebg.getBeregningsgrunnlagPerioder().stream()
-            .sorted(Comparator.comparing(bgp -> bgp.getPeriode().getFomDato())).collect(Collectors.toList()), kontraktbg.getBeregningsgrunnlagPerioder().stream()
-            .sorted(Comparator.comparing(bgp -> bgp.getPeriode().getFom())).collect(Collectors.toList()));
+            .sorted(Comparator.comparing(bgp -> bgp.getPeriode().getFomDato())).toList(), kontraktbg.getBeregningsgrunnlagPerioder().stream()
+            .sorted(Comparator.comparing(bgp -> bgp.getPeriode().getFom())).toList());
         if (kontraktBgg.getRegisterAktiviteter() != null) {
             assertThat(domeneBgg.getRegisterAktiviteter()).isNotNull();
             assertThat(domeneBgg.getRegisterAktiviteter().getSkjæringstidspunktOpptjening()).isEqualTo(kontraktBgg.getRegisterAktiviteter().getSkjæringstidspunktOpptjening());

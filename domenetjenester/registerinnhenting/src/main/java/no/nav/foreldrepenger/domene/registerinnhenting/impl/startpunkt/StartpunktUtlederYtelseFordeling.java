@@ -1,7 +1,5 @@
 package no.nav.foreldrepenger.domene.registerinnhenting.impl.startpunkt;
 
-import static java.util.stream.Collectors.toList;
-
 import java.util.List;
 import java.util.Objects;
 
@@ -90,7 +88,7 @@ class StartpunktUtlederYtelseFordeling implements StartpunktUtleder {
         }
         return perioder.stream()
             .filter(OppgittPeriodeEntitet::isGradert)
-            .collect(toList());
+            .toList();
     }
 
     private Boolean harBehandlingEndringssøknad(BehandlingReferanse referanse) {

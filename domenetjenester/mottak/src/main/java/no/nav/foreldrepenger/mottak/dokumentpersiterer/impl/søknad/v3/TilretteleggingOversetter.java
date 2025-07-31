@@ -160,7 +160,7 @@ public class TilretteleggingOversetter {
                         .build();
                 }
                 return opphold;
-            }).collect(Collectors.toList());
+            }).toList();
         var justertTilrettelegging = SvpTilretteleggingEntitet.Builder.fraEksisterende(eksisterendeTlr)
             .medBehovForTilretteleggingFom(nyFomListe.stream().map(TilretteleggingFOM::getFomDato).min(LocalDate::compareTo).orElse(null))
             .medTilretteleggingFraDatoer(nyFomListe)

@@ -1,7 +1,5 @@
 package no.nav.foreldrepenger.behandlingskontroll;
 
-import static java.util.stream.Collectors.toList;
-
 import java.util.List;
 import java.util.Optional;
 
@@ -109,7 +107,7 @@ public class BehandleStegResultat {
     private static List<AksjonspunktResultat> konverterTilAksjonspunktResultat(List<AksjonspunktDefinisjon> aksjonspunktListe) {
         return aksjonspunktListe.stream()
                 .map(AksjonspunktResultat::opprettForAksjonspunkt)
-                .collect(toList());
+                .toList();
     }
 
     public static BehandleStegResultat startet() {
