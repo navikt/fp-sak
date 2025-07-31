@@ -86,7 +86,7 @@ class AksjonspunktUtlederForTidligereMottattYtelseTest extends EntityManagerAwar
         var behandling = byggBehandlingTermin(scenario, aktørId, annenAktørId, TERMINDATO);
 
         var scenarioNy = ScenarioMorSøkerEngangsstønad.forFødsel();
-        var behandlingNy = byggBehandlingFødsel(scenarioNy, aktørId, annenAktørId, FØDSELSDATO.minusDays(2));
+        byggBehandlingFødsel(scenarioNy, aktørId, annenAktørId, FØDSELSDATO.minusDays(2));
 
         // Act
         var aksjonspunktResultater = utleder.utledAksjonspunkterFor(lagRef(behandling));

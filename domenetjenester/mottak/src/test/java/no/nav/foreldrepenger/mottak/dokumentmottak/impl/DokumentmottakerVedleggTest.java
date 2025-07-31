@@ -146,8 +146,6 @@ class DokumentmottakerVedleggTest {
 
         var mottattDokument = DokumentmottakTestUtil.byggMottattDokument(dokumentTypeId, behandling.getFagsakId(), "", now(), true, null);
 
-        var captor = ArgumentCaptor.forClass(ProsessTaskData.class);
-
         // Act
         dokumentmottaker.mottaDokument(mottattDokument, behandling.getFagsak(), null);
 

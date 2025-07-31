@@ -387,12 +387,12 @@ class VurderOmArenaYtelseSkalOpphøreTest extends EntityManagerAwareTest {
             .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(ytelserFom, ytelserTom))
             .medStatus(RelatertYtelseTilstand.LØPENDE)
             .medYtelseType(RelatertYtelseType.DAGPENGER);
-        byggYtelserAnvist(ytelserFom, ytelserTom, t1, ytelseBuilder).forEach(
+        byggYtelserAnvist(ytelserFom, t1, ytelseBuilder).forEach(
             ytelseBuilder::medYtelseAnvist);
         return ytelseBuilder;
     }
 
-    private List<YtelseAnvist> byggYtelserAnvist(LocalDate yaFom, @SuppressWarnings("unused") LocalDate yaTom, LocalDate t1, YtelseBuilder ytelseBuilder) {
+    private List<YtelseAnvist> byggYtelserAnvist(LocalDate yaFom, LocalDate t1, YtelseBuilder ytelseBuilder) {
         // Man må sende meldekort hver 2 uker.
         final long ytelseDagerMellomrom = 13;
         List<YtelseAnvist> ytelseAnvistList = new ArrayList<>();

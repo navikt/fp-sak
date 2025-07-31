@@ -23,7 +23,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import no.nav.foreldrepenger.behandlingskontroll.AksjonspunktkontrollTjeneste;
@@ -136,7 +135,6 @@ class EndringskontrollerTest {
 
         var startpunktBeregning = StartpunktType.BEREGNING;
         when(startpunktTjenesteMock.utledStartpunktForDiffBehandlingsgrunnlag(any(), any(), any(EndringsresultatDiff.class))).thenReturn(startpunktBeregning);
-        var skjæringstidspunktTjeneste = Mockito.mock(SkjæringstidspunktTjeneste.class);
         var endringskontroller = endringskontroller();
         when(behandlingModellTjenesteMock.erStegAEtterStegB(any(), any(), any(), any())).thenReturn(true); // Beregning før uttak
 

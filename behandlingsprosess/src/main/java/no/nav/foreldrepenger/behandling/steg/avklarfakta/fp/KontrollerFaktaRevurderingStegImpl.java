@@ -189,7 +189,7 @@ class KontrollerFaktaRevurderingStegImpl implements KontrollerFaktaSteg {
 
         // Undersøk behov for GRegulering. Med mindre vi allerede skal til BEREGNING eller tidligere steg
         if (startpunkt.getRangering() > StartpunktType.BEREGNING.getRangering()) {
-            var greguleringStartpunkt = utledBehovForGRegulering(ref, stp, revurdering);
+            var greguleringStartpunkt = utledBehovForGRegulering(stp, revurdering);
             startpunkt = startpunkt.getRangering() < greguleringStartpunkt.getRangering() ? startpunkt : greguleringStartpunkt;
         }
 
@@ -267,7 +267,7 @@ class KontrollerFaktaRevurderingStegImpl implements KontrollerFaktaSteg {
         return revurdering.getBehandlingÅrsaker().stream().map(BehandlingÅrsak::getBehandlingÅrsakType).anyMatch(etterkontrollTyper::contains);
     }
 
-    private StartpunktType utledBehovForGRegulering(BehandlingReferanse ref, Skjæringstidspunkt stp, Behandling revurdering) {
+    private StartpunktType utledBehovForGRegulering(Skjæringstidspunkt stp, Behandling revurdering) {
         var opprinneligBehandlingId = revurdering.getOriginalBehandlingId()
                 .orElseThrow(() -> new IllegalStateException("Revurdering skal ha en basisbehandling - skal ikke skje"));
         var opprinneligRef = BehandlingReferanse.fra(behandlingRepository.hentBehandling(opprinneligBehandlingId));

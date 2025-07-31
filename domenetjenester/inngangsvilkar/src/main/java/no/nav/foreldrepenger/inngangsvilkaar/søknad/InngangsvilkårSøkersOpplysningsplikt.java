@@ -22,10 +22,10 @@ public class InngangsvilkårSøkersOpplysningsplikt implements Inngangsvilkår {
 
     @Override
     public VilkårData vurderVilkår(BehandlingReferanse ref) {
-        return vurderOpplysningspliktOppfyltAutomatisk(ref);
+        return vurderOpplysningspliktOppfyltAutomatisk();
     }
 
-    private VilkårData vurderOpplysningspliktOppfyltAutomatisk(BehandlingReferanse ref) {
+    private VilkårData vurderOpplysningspliktOppfyltAutomatisk() {
         return new VilkårData(VilkårType.SØKERSOPPLYSNINGSPLIKT, VilkårUtfallType.OPPFYLT, List.of());
 
     }

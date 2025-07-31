@@ -632,7 +632,6 @@ class SøknadMapperTest {
 
     @Test
     void skal_mappe_og_lagre_oppgitt_opptjening_når_det_ikke_finnes_i_grunnlaget() {
-        var iayGrunnlag = mock(InntektArbeidYtelseGrunnlag.class);
         when(personinfoAdapter.hentBrukerKjønnForAktør(any(), any(AktørId.class))).thenReturn(Optional.of(kvinne));
         when(virksomhetTjeneste.hentOrganisasjon(any())).thenReturn(Virksomhet.getBuilder()
             .medOrgnr(KUNSTIG_ORG)

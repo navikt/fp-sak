@@ -104,17 +104,6 @@ class FagsakRepositoryTest extends EntityManagerAwareTest {
         return fagsak;
     }
 
-    private Fagsak opprettFagsak(AktørId aktørId) {
-        var bruker = NavBruker.opprettNyNB(aktørId);
-
-        // Opprett fagsak
-        var fagsak = Fagsak.opprettNy(FagsakYtelseType.ENGANGSTØNAD, bruker);
-        var navBrukerRepository = new NavBrukerRepository(getEntityManager());
-        navBrukerRepository.lagre(bruker);
-        fagsakRepository.opprettNy(fagsak);
-        return fagsak;
-    }
-
     private void opprettFagsakMedJournalpost(JournalpostId journalpostId, Saksnummer saksnummer, AktørId aktørId) {
         var fagsak = opprettFagsak(saksnummer, aktørId);
 

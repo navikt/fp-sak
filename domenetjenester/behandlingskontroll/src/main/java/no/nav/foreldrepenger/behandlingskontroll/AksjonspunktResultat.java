@@ -32,10 +32,6 @@ public class AksjonspunktResultat {
         this.målStatus = målStatus;
     }
 
-    private AksjonspunktResultat(AksjonspunktDefinisjon aksjonspunktDefinisjon) {
-        this(aksjonspunktDefinisjon, null, null, OPPRETTET);
-    }
-
     /**
      * Factory-metode direkte basert på {@link AksjonspunktDefinisjon}. Ingen frist
      * eller årsak.
