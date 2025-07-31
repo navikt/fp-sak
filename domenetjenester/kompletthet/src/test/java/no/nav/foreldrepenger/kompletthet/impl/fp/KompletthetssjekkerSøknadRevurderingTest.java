@@ -3,7 +3,6 @@ package no.nav.foreldrepenger.kompletthet.impl.fp;
 import static java.util.Collections.singleton;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -225,14 +224,14 @@ class KompletthetssjekkerSøknadRevurderingTest extends EntityManagerAwareTest {
 
         // Matcher med utsettelse:
         var dokumentListe = singleton(DokumentTypeId.DOK_INNLEGGELSE);
-        when(dokumentArkivTjeneste.hentDokumentTypeIdForSak(eq(behandling.getSaksnummer()), eq(søknadsDato))).thenReturn(dokumentListe);
+        when(dokumentArkivTjeneste.hentDokumentTypeIdForSak(behandling.getSaksnummer(), søknadsDato)).thenReturn(dokumentListe);
 
         // Act
         var manglendeVedlegg = kompletthetssjekker.utledAlleManglendeVedleggForForsendelse(lagRef(behandling));
 
         // Assert
         assertThat(manglendeVedlegg).isEmpty();
-        verify(dokumentArkivTjeneste).hentDokumentTypeIdForSak(eq(behandling.getSaksnummer()), eq(søknadsDato));
+        verify(dokumentArkivTjeneste).hentDokumentTypeIdForSak(behandling.getSaksnummer(), søknadsDato);
     }
 
     private BehandlingReferanse lagRef(Behandling behandling) {

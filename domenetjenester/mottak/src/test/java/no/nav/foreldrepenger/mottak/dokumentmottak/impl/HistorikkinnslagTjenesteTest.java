@@ -2,7 +2,6 @@ package no.nav.foreldrepenger.mottak.dokumentmottak.impl;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -51,7 +50,7 @@ class HistorikkinnslagTjenesteTest {
         var behandling = scenario.lagMocked();
         // Arrange
 
-        when(dokumentArkivTjeneste.hentJournalpostForSak(eq(JOURNALPOST_ID)))
+        when(dokumentArkivTjeneste.hentJournalpostForSak(JOURNALPOST_ID))
             .thenReturn(Optional.of(byggJournalpost(JOURNALPOST_ID, HOVEDDOKUMENT_DOKUMENT_ID, Collections.singletonList(VEDLEGG_DOKUMENT_ID))));
 
         // Act
@@ -81,7 +80,7 @@ class HistorikkinnslagTjenesteTest {
         var behandling = scenario.lagMocked();
         // Arrange
 
-        when(dokumentArkivTjeneste.hentJournalpostForSak(eq(JOURNALPOST_ID)))
+        when(dokumentArkivTjeneste.hentJournalpostForSak(JOURNALPOST_ID))
             .thenReturn(Optional.of(byggJournalpost(JOURNALPOST_ID, HOVEDDOKUMENT_DOKUMENT_ID, Collections.emptyList())));
 
         // Act
@@ -105,7 +104,7 @@ class HistorikkinnslagTjenesteTest {
         var behandling = scenario.lagMocked();
         // Arrange
 
-        when(dokumentArkivTjeneste.hentJournalpostForSak(eq(JOURNALPOST_ID)))
+        when(dokumentArkivTjeneste.hentJournalpostForSak(JOURNALPOST_ID))
             .thenReturn(Optional.of(byggJournalpost(JOURNALPOST_ID, HOVEDDOKUMENT_DOKUMENT_ID, Collections.emptyList())));
 
         // Act
@@ -130,7 +129,7 @@ class HistorikkinnslagTjenesteTest {
         var behandling = scenario.lagMocked();
         // Arrange
 
-        when(dokumentArkivTjeneste.hentJournalpostForSak(eq(JOURNALPOST_ID)))
+        when(dokumentArkivTjeneste.hentJournalpostForSak(JOURNALPOST_ID))
             .thenReturn(Optional.of(byggJournalpost(JOURNALPOST_ID, HOVEDDOKUMENT_DOKUMENT_ID, Collections.emptyList())));
 
         // Act

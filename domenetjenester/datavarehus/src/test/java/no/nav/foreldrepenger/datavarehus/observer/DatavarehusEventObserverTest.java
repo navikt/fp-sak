@@ -1,6 +1,5 @@
 package no.nav.foreldrepenger.datavarehus.observer;
 
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 
 import java.time.LocalDateTime;
@@ -62,7 +61,7 @@ class DatavarehusEventObserverTest {
         var event = new BehandlingVedtakEvent(vedtak, behandling);
 
         datavarehusEventObserver.observerBehandlingVedtakEvent(event);
-        verify(datavarehusTjeneste).lagreNedBehandling(eq(behandling), eq(vedtak));
+        verify(datavarehusTjeneste).lagreNedBehandling(behandling, vedtak);
     }
 
     private BehandlingVedtak byggVedtak() {
