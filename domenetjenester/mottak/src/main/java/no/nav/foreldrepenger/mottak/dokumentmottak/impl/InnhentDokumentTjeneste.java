@@ -1,6 +1,6 @@
 package no.nav.foreldrepenger.mottak.dokumentmottak.impl;
 
-import java.util.HashMap;
+import java.util.EnumMap;
 import java.util.Map;
 import java.util.Objects;
 
@@ -23,7 +23,7 @@ import no.nav.foreldrepenger.mottak.sakskompleks.KøKontroller;
 @Dependent
 public class InnhentDokumentTjeneste {
 
-    private static Map<DokumentTypeId, DokumentGruppe> DOKUMENTTYPE_TIL_GRUPPE = new HashMap<>();
+    private static Map<DokumentTypeId, DokumentGruppe> DOKUMENTTYPE_TIL_GRUPPE = new EnumMap<>(DokumentTypeId.class);
     static {
         // Søknad
         DokumentTypeId.getSøknadTyper().forEach(v -> DOKUMENTTYPE_TIL_GRUPPE.put(v, DokumentGruppe.SØKNAD));
@@ -40,7 +40,7 @@ public class InnhentDokumentTjeneste {
         DOKUMENTTYPE_TIL_GRUPPE.put(DokumentTypeId.KLAGE_ETTERSENDELSE, DokumentGruppe.KLAGE);
     }
 
-    private static Map<DokumentKategori, DokumentGruppe> DOKUMENTKATEGORI_TIL_GRUPPE = new HashMap<>();
+    private static Map<DokumentKategori, DokumentGruppe> DOKUMENTKATEGORI_TIL_GRUPPE = new EnumMap<>(DokumentKategori.class);
     static {
         DOKUMENTKATEGORI_TIL_GRUPPE.put(DokumentKategori.SØKNAD, DokumentGruppe.SØKNAD);
         DOKUMENTKATEGORI_TIL_GRUPPE.put(DokumentKategori.KLAGE_ELLER_ANKE, DokumentGruppe.KLAGE);

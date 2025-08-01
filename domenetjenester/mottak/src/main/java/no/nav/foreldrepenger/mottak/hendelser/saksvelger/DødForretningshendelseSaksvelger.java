@@ -1,7 +1,7 @@
 package no.nav.foreldrepenger.mottak.hendelser.saksvelger;
 
 import java.util.Collection;
-import java.util.HashMap;
+import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -43,7 +43,7 @@ public class DødForretningshendelseSaksvelger implements ForretningshendelseSak
 
     @Override
     public Map<BehandlingÅrsakType, List<Fagsak>> finnRelaterteFagsaker(DødForretningshendelse forretningshendelse) {
-        Map<BehandlingÅrsakType, List<Fagsak>> resultat = new HashMap<>();
+        Map<BehandlingÅrsakType, List<Fagsak>> resultat = new EnumMap<>(BehandlingÅrsakType.class);
 
         resultat.put(BehandlingÅrsakType.RE_HENDELSE_DØD_FORELDER, forretningshendelse.aktørIdListe().stream()
             .flatMap(aktørId -> fagsakRepository.hentForBruker(aktørId).stream())

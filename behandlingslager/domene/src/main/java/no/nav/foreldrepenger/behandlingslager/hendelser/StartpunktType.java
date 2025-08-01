@@ -5,7 +5,7 @@ import static java.util.stream.Collectors.toSet;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
+import java.util.EnumMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -50,7 +50,7 @@ public enum StartpunktType implements Kodeverdi {
         }
     }
 
-    static final Map<StartpunktType, Set<VilkårType>> VILKÅR_HÅNDTERT_INNEN_STARTPUNKT = new HashMap<>();
+    static final Map<StartpunktType, Set<VilkårType>> VILKÅR_HÅNDTERT_INNEN_STARTPUNKT = new EnumMap<>(StartpunktType.class);
     static {
         // Kontroller arbeidsforhold - ingen vilkår håndter før dette startpunktet
         VILKÅR_HÅNDTERT_INNEN_STARTPUNKT.put(StartpunktType.KONTROLLER_ARBEIDSFORHOLD,

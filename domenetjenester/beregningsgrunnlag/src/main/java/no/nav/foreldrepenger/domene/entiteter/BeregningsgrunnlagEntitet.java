@@ -10,7 +10,7 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.HashMap;
+import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -73,7 +73,7 @@ public class BeregningsgrunnlagEntitet extends BaseEntitet {
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "beregningsgrunnlag", cascade = CascadeType.PERSIST, orphanRemoval = true)
     @MapKey(name = "regelType")
-    private Map<BeregningsgrunnlagRegelType, BeregningsgrunnlagRegelSporing> regelSporingMap = new HashMap<>();
+    private Map<BeregningsgrunnlagRegelType, BeregningsgrunnlagRegelSporing> regelSporingMap = new EnumMap<>(BeregningsgrunnlagRegelType.class);
 
     @Embedded
     @AttributeOverride(name = "verdi", column = @Column(name = "grunnbeloep"))

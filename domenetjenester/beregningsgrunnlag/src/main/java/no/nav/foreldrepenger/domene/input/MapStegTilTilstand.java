@@ -1,6 +1,6 @@
 package no.nav.foreldrepenger.domene.input;
 
-import java.util.HashMap;
+import java.util.EnumMap;
 import java.util.Map;
 import java.util.Optional;
 
@@ -9,8 +9,8 @@ import no.nav.foreldrepenger.domene.modell.kodeverk.BeregningsgrunnlagTilstand;
 
 public final class MapStegTilTilstand {
 
-    private static final Map<BehandlingStegType, BeregningsgrunnlagTilstand> STEG_TILSTAND = new HashMap<>();
-    private static final Map<BehandlingStegType, BeregningsgrunnlagTilstand> STEG_UT_TILSTAND = new HashMap<>();
+    private static final Map<BehandlingStegType, BeregningsgrunnlagTilstand> STEG_TILSTAND = new EnumMap<>(BehandlingStegType.class);
+    private static final Map<BehandlingStegType, BeregningsgrunnlagTilstand> STEG_UT_TILSTAND = new EnumMap<>(BehandlingStegType.class);
 
     static {
         STEG_TILSTAND.put(BehandlingStegType.KONTROLLER_FAKTA_BEREGNING,
