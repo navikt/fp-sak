@@ -94,23 +94,13 @@ public class KabalHendelseHåndterer implements KafkaMessageHandler.KafkaStringM
     }
 
     private void handleMessageInternal(KabalHendelse mottattHendelse) {
-        var behandling = behandlingRepository.hentBehandling(UUID.fromString(mottattHendelse.kildeReferanse()));
+        var behandling = finnRelevantBehandling(mottattHendelse);
         if (behandling == null) {
-            LOG.warn("KABAL mottatt hendelse med ukjent referanse hendelse={}", mottattHendelse);
-            return;
-        }
-        if (BehandlingType.KLAGE.equals(behandling.getType()) && klageRepository.hentKlageResultatHvisEksisterer(behandling.getId()).isEmpty()) {
-            LOG.warn("KABAL mottatt hendelse for klage uten klageresultat hendelse={}", mottattHendelse);
-            return;
-        } else if (BehandlingType.ANKE.equals(behandling.getType()) && ankeRepository.hentAnkeResultat(behandling.getId()).isEmpty()) {
-            LOG.warn("KABAL mottatt hendelse for anke uten resultat hendelse={}", mottattHendelse);
-            return;
-        } else if (!BehandlingType.KLAGE.equals(behandling.getType()) && !BehandlingType.ANKE.equals(behandling.getType())) {
-            LOG.warn("KABAL mottatt hendelse for behandling som ikke er klage eller anke hendelse={} type={}", mottattHendelse, behandling.getType());
             return;
         }
         mottakRepository.registrerMottattHendelse(KABAL+ mottattHendelse.eventId());
 
+        // Håndter omgjøringskrav avsluttet. Omgjøringskrav har en kildereferanse hos oss, men ingen matchende behandling
         if (KabalHendelse.BehandlingEventType.OMGJOERINGSKRAVBEHANDLING_AVSLUTTET.equals(mottattHendelse.type())) {
             opprettVurderKonsekvens(behandling, VKY_OMGJØRINGSKRAV_TEKST);
             return;
@@ -146,6 +136,33 @@ public class KabalHendelseHåndterer implements KafkaMessageHandler.KafkaStringM
             KabalUtfall.DELVIS_MEDHOLD.equals(mottattHendelse.detaljer().ankeITrygderettenbehandlingOpprettet().utfall())) {
             opprettVurderKonsekvens(behandling, VKY_DELVIS_TEKST);
         }
+    }
+
+    private Behandling finnRelevantBehandling(KabalHendelse mottattHendelse) {
+        // Hendelse skal ha en kildereferanse som skal gi en behandling (fortrinnsvis underliggende klage)
+        var behandling = behandlingRepository.hentBehandling(UUID.fromString(mottattHendelse.kildeReferanse()));
+        if (behandling == null) {
+            LOG.warn("KABAL mottatt hendelse med ukjent referanse hendelse={}", mottattHendelse);
+            return null;
+        }
+        // Henlagt omgjøringskrav har ingen behandling hos oss, de andre variantene skal ha en klage eller anke
+        if (KabalHendelse.BehandlingEventType.BEHANDLING_FEILREGISTRERT.equals(mottattHendelse.type())
+            && KabalHendelse.BehandlingType.OMGJOERINGSKRAV.equals(mottattHendelse.detaljer().behandlingFeilregistrert().type())) {
+            LOG.info("KABAL henlagt omgjøringskrav hendelse={}", mottattHendelse);
+            return null;
+        }
+        // Sjekk om finnes matchende klage eller anke - evt ugyldig kildereferanse
+        if (BehandlingType.KLAGE.equals(behandling.getType()) && klageRepository.hentKlageResultatHvisEksisterer(behandling.getId()).isEmpty()) {
+            LOG.warn("KABAL mottatt hendelse for klage uten klageresultat hendelse={}", mottattHendelse);
+            return null;
+        } else if (BehandlingType.ANKE.equals(behandling.getType()) && ankeRepository.hentAnkeResultat(behandling.getId()).isEmpty()) {
+            LOG.warn("KABAL mottatt hendelse for anke uten resultat hendelse={}", mottattHendelse);
+            return null;
+        } else if (!BehandlingType.KLAGE.equals(behandling.getType()) && !BehandlingType.ANKE.equals(behandling.getType())) {
+            LOG.warn("KABAL mottatt hendelse for behandling som ikke er klage eller anke hendelse={} type={}", mottattHendelse, behandling.getType());
+            return null;
+        }
+        return behandling;
     }
 
     private void opprettVurderKonsekvens(Behandling behandling, String beskrivelse) {
