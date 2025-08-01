@@ -6,7 +6,6 @@ import java.time.LocalDateTime;
 import java.time.Month;
 import java.util.Collections;
 import java.util.EnumMap;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
@@ -213,7 +212,7 @@ public class InntektsmeldingOversetter implements MottattDokumentOversetter<Innt
 
     private void mapNaturalYtelser(InntektsmeldingWrapper wrapper, InntektsmeldingBuilder builder) {
         // Ved gjenopptakelse gjelder samme beløp
-        Map<NaturalYtelseType, BigDecimal> beløp = new HashMap<>();
+        Map<NaturalYtelseType, BigDecimal> beløp = new EnumMap<>(NaturalYtelseType.class);
         for (var detaljer : wrapper.getOpphørelseAvNaturalytelse()) {
             var naturalytelse = NaturalytelseKodeliste.fromValue(detaljer.getNaturalytelseType().getValue());
             var ytelseType = NaturalYtelseType.finnForKodeverkEiersKode(naturalytelse.value());

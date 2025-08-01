@@ -2,7 +2,7 @@ package no.nav.foreldrepenger.datavarehus.metrikker;
 
 import static no.nav.vedtak.log.metrics.MetricsUtil.REGISTRY;
 
-import java.util.HashMap;
+import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -13,7 +13,7 @@ import io.micrometer.core.instrument.Tag;
 public class DokumentMetrikker {
 
     private static final String DOKUMENT_METRIKK_NAVN = "fp.dokument.antall";
-    private static final Map<DokumentStatistikkRepository.Dokumenttype, AtomicLong> DOKUMENT_GAUGES = new HashMap<>();
+    private static final Map<DokumentStatistikkRepository.Dokumenttype, AtomicLong> DOKUMENT_GAUGES = new EnumMap<>(DokumentStatistikkRepository.Dokumenttype.class);
 
     DokumentMetrikker() {
         // CDI
