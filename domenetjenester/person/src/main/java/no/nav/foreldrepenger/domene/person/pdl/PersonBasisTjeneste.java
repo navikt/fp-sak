@@ -8,6 +8,10 @@ import java.util.Optional;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
+import no.nav.pdl.FolkeregisteridentifikatorResponseProjection;
+
+import no.nav.pdl.FolkeregisterpersonstatusResponseProjection;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -162,11 +166,25 @@ public class PersonBasisTjeneste {
             var query = new HentPersonQueryRequest();
             query.setIdent(aktørId.getId());
             var projection = new PersonResponseProjection()
+                .folkeregisteridentifikator(new FolkeregisteridentifikatorResponseProjection().status().identifikasjonsnummer())
+                .folkeregisterpersonstatus(new FolkeregisterpersonstatusResponseProjection().status())
                 .falskIdentitet(new FalskIdentitetResponseProjection().rettIdentitetErUkjent().rettIdentitetVedIdentifikasjonsnummer()
                     .rettIdentitetVedOpplysninger(new FalskIdentitetIdentifiserendeInformasjonResponseProjection().kjoenn().foedselsdato()
                         .personnavn(new PersonnavnResponseProjection().fornavn().mellomnavn().etternavn()).statsborgerskap()));
             var falskIdentitetPerson = pdlKlient.hentPerson(ytelseType, query, projection);
 
+            if (falskIdentitetPerson.getFolkeregisteridentifikator() != null) {
+                var identifikatorer = falskIdentitetPerson.getFolkeregisteridentifikator().stream()
+                    .map(p -> p.getIdentifikasjonsnummer().substring(p.getIdentifikasjonsnummer().length() - 5) + " " + p.getStatus())
+                    .toList();
+                LOG.info("Falsk identitet aktør {} har identer {}", aktørId, identifikatorer);
+            }
+            if (falskIdentitetPerson.getFolkeregisterpersonstatus() != null) {
+                var statuser = falskIdentitetPerson.getFolkeregisterpersonstatus().stream()
+                    .map(p -> p.getStatus())
+                    .toList();
+                LOG.info("Falsk identitet aktør {} har statuser {}", aktørId, statuser);
+            }
             if (Objects.equals(falskIdentitetPerson.getFalskIdentitet().getRettIdentitetErUkjent(), Boolean.TRUE)) {
                 LOG.info("Falsk identitet aktør {} har rettIdentitetErUkjent", aktørId);
             } else if (falskIdentitetPerson.getFalskIdentitet().getRettIdentitetVedIdentifikasjonsnummer() != null) {
@@ -178,8 +196,8 @@ public class PersonBasisTjeneste {
                 var fødselsdato = falskIdentitetPerson.getFalskIdentitet().getRettIdentitetVedOpplysninger().getFoedselsdato();
                 var navn = Optional.ofNullable(falskIdentitetPerson.getFalskIdentitet().getRettIdentitetVedOpplysninger().getPersonnavn())
                     .map(p -> Optional.ofNullable(p.getFornavn()).orElse("UtenFN")
-                        + Optional.ofNullable(p.getMellomnavn()).map(m -> leftPad(m)).orElse(("UtenMN"))
-                        + Optional.ofNullable(p.getEtternavn()).map(e -> "ETTERN").orElse(("UtenEN")))
+                        + leftPad(Optional.ofNullable(p.getMellomnavn()).orElse("UtenMN"))
+                        + leftPad(Optional.ofNullable(p.getEtternavn()).map(e -> "ETTERN").orElse("UtenEN")))
                     .orElse("UtenNavn");
                 LOG.info("Falsk identitet aktør {} har rettIdentitetVedOpplysninger navn {} fdato {} kjønn {} statsborger {}", aktørId, navn, fødselsdato, kjønn, statsborgerskap);
             } else {
