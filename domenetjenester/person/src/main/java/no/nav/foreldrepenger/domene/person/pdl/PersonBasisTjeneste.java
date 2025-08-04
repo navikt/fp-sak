@@ -158,7 +158,7 @@ public class PersonBasisTjeneste {
     }
 
     private void sjekkFalskIdentitet(Person person, FagsakYtelseType ytelseType, AktørId aktørId) {
-        if (person.getFalskIdentitet().getErFalsk()) {
+        if (person.getFalskIdentitet() != null && person.getFalskIdentitet().getErFalsk()) {
             var query = new HentPersonQueryRequest();
             query.setIdent(aktørId.getId());
             var projection = new PersonResponseProjection()
