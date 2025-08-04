@@ -72,15 +72,14 @@ public class SvpAvklartOpphold extends BaseCreateableEntitet {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         var that = (SvpAvklartOpphold) o;
-        return Objects.equals(oppholdPeriode.getFomDato(), that.oppholdPeriode.getFomDato()) &&
-            Objects.equals(oppholdPeriode.getTomDato(), that.oppholdPeriode.getTomDato()) &&
+        return Objects.equals(oppholdPeriode, that.oppholdPeriode) &&
             Objects.equals(svpOppholdÅrsak, that.svpOppholdÅrsak) &&
             Objects.equals(svpOppholdKilde, that.svpOppholdKilde);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(oppholdPeriode.getFomDato(), oppholdPeriode.getTomDato(), svpOppholdÅrsak, svpOppholdKilde);
+        return Objects.hash(oppholdPeriode, svpOppholdÅrsak, svpOppholdKilde);
     }
 
     @Override
