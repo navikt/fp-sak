@@ -23,8 +23,9 @@ public class SokefeltDto {
         this.searchString = saksnummer.getVerdi();
     }
 
-    public String getSearchString() {
-        return searchString;
+    public String getSearchStringNospaceOrEmpty() {
+        // fjerner alle space-tegn fra søkestrengen - også unicode-spaces
+        return searchString != null ? searchString.replaceAll("\\p{IsWhite_Space}", "") : "";
     }
 
 

@@ -167,7 +167,7 @@ public class FagsakRestTjeneste {
     @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK, sporingslogg = true)
     public List<FagsakSøkDto> sokFagsaker(@TilpassetAbacAttributt(supplierClass = SøkeFeltAbacDataSupplier.class)
         @Parameter(description = "Søkestreng kan være saksnummer, fødselsnummer eller D-nummer.") @Valid SokefeltDto søkestreng) {
-        return fagsakTjeneste.søkFagsakDto(søkestreng.getSearchString().trim());
+        return fagsakTjeneste.søkFagsakDto(søkestreng.getSearchStringNospaceOrEmpty());
     }
 
     public static class SøkeFeltAbacDataSupplier implements Function<Object, AbacDataAttributter> {
@@ -176,13 +176,13 @@ public class FagsakRestTjeneste {
         public AbacDataAttributter apply(Object obj) {
             var req = (SokefeltDto) obj;
             var attributter = AbacDataAttributter.opprett();
-            var søkestring = req.getSearchString() != null ? req.getSearchString().trim() : "";
+            var søkestring = req.getSearchStringNospaceOrEmpty();
             if (AktørId.erGyldigAktørId(søkestring)) {
                 attributter.leggTil(AppAbacAttributtType.AKTØR_ID, søkestring);
             } else if (PersonIdent.erGyldigFnr(søkestring)) {
                 attributter.leggTil(AppAbacAttributtType.FNR, søkestring);
             } else {
-                attributter.leggTil(AppAbacAttributtType.SAKSNUMMER, req.getSearchString());
+                attributter.leggTil(AppAbacAttributtType.SAKSNUMMER, søkestring);
             }
             return attributter;
         }
