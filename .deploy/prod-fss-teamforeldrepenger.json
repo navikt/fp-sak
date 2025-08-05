@@ -12,8 +12,8 @@
     "mem": "3072Mi"
   },
   "requests": {
-    "cpu": "500m",
-    "mem": "2816Mi"
+    "cpu": "250m",
+    "mem": "1300Mi"
   },
   "ingresses": [
     "https://fpsak-api.intern.nav.no",
