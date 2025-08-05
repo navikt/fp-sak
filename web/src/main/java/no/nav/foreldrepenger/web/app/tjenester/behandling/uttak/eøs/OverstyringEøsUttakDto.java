@@ -6,6 +6,7 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 
 import no.nav.foreldrepenger.behandling.aksjonspunkt.OverstyringAksjonspunktDto;
@@ -23,11 +24,13 @@ public class OverstyringEøsUttakDto extends OverstyringAksjonspunktDto {
         return perioder;
     }
 
+    @JsonIgnore
     @Override
     public String getAvslagskode() {
         return null;
     }
 
+    @JsonIgnore
     @Override
     public boolean getErVilkarOk() {
         return false;
