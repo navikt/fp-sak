@@ -21,7 +21,7 @@ import no.nav.foreldrepenger.behandlingslager.uttak.fp.Trekkdager;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 
 @Entity(name = "EøsUttaksperiode")
-@Table(name = "EOS_UTTAKSPERIODE") // TODO: Inkludere annenpart i navn? GR_ANNNEPART_EOS_UTTAKSPERIODE?
+@Table(name = "EOS_UTTAKSPERIODE")
 public class EøsUttaksperiodeEntitet extends BaseCreateableEntitet {
 
     @Id
