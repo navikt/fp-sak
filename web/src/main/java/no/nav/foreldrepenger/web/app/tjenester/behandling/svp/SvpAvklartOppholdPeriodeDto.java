@@ -15,6 +15,7 @@ public record SvpAvklartOppholdPeriodeDto(@NotNull LocalDate fom,
     public enum SvpOppholdKilde {
         SØKNAD,
         INNTEKTSMELDING,
-        REGISTRERT_AV_SAKSBEHANDLER
+        REGISTRERT_AV_SAKSBEHANDLER,
+        TIDLIGERE_VEDTAK
     }
 }

@@ -136,9 +136,10 @@ public class TilretteleggingOversetter {
                                                                                  SvpTilretteleggingEntitet eksisterendeTlr) {
         var nyFomListe = new ArrayList<>(nyTlR.getTilretteleggingFOMListe());
         var tidligsteNyFom = nyFomListe.stream().map(TilretteleggingFOM::getFomDato).min(LocalDate::compareTo).orElse(LocalDate.EPOCH);
-        var eksisterendeFOMSomSkalKopieres =  eksisterendeTlr.getTilretteleggingFOMListe().stream().filter(f -> f.getFomDato().isBefore(tidligsteNyFom)).toList();
+        var eksisterendeFOMSomSkalBeholdes =  eksisterendeTlr.getTilretteleggingFOMListe().stream().filter(f -> f.getFomDato().isBefore(tidligsteNyFom)).toList();
 
-        eksisterendeFOMSomSkalKopieres.forEach(eksFom ->
+        //Vi beholder innvilgede svangerskapspengeperioder som er før nyeste svangerskapspengeperiode
+        eksisterendeFOMSomSkalBeholdes.forEach(eksFom ->
             nyFomListe.add(new TilretteleggingFOM.Builder()
                 .fraEksisterende(eksFom)
                 .medTidligstMottattDato(Optional.ofNullable(eksFom.getTidligstMotattDato())
@@ -148,24 +149,24 @@ public class TilretteleggingOversetter {
 
         nyFomListe.sort(Comparator.comparing(TilretteleggingFOM::getFomDato));
 
-        var justerteOppholdsperioder = eksisterendeTlr.getAvklarteOpphold().stream()
-            .filter(opphold -> opphold.getFom().isBefore(tidligsteNyFom))
-            .map(opphold -> {
-                if (!opphold.getTom().isBefore(tidligsteNyFom)) {
-                    var eksisterendeKilde = opphold.getKilde() != null ? opphold.getKilde() : SvpOppholdKilde.REGISTRERT_AV_SAKSBEHANDLER;
-                    return SvpAvklartOpphold.Builder.nytt()
-                        .medKilde(eksisterendeKilde)
-                        .medOppholdÅrsak(opphold.getOppholdÅrsak())
-                        .medOppholdPeriode(opphold.getFom(), tidligsteNyFom.minusDays(1))
-                        .build();
-                }
-                return opphold;
-            }).toList();
+        //Vi beholder innvilgede oppholdsperioder som er før nyeste svangerskapspengeperiode
+        var eksisterendeOppholdSomSkalBeholdes = eksisterendeTlr.getAvklarteOpphold().stream()
+            .filter(eksOpphold -> eksOpphold.getFom().isBefore(tidligsteNyFom))
+            .map(eksOpphold ->
+                    SvpAvklartOpphold.Builder.nytt()
+                        .medKilde(SvpOppholdKilde.TIDLIGERE_VEDTAK)
+                        .medOppholdÅrsak(eksOpphold.getOppholdÅrsak())
+                        .medOppholdPeriode(eksOpphold.getFom(), eksOpphold.getTom())
+                        .build())
+            .toList();
+
         var justertTilrettelegging = SvpTilretteleggingEntitet.Builder.fraEksisterende(eksisterendeTlr)
             .medBehovForTilretteleggingFom(nyFomListe.stream().map(TilretteleggingFOM::getFomDato).min(LocalDate::compareTo).orElse(null))
             .medTilretteleggingFraDatoer(nyFomListe)
-            .medAvklarteOpphold(justerteOppholdsperioder);
+            .medAvklarteOpphold(eksisterendeOppholdSomSkalBeholdes);
+        //legger også til eventuelle nye oppholdsperioder
         nyTlR.getAvklarteOpphold().forEach(justertTilrettelegging::medAvklartOpphold);
+
         return justertTilrettelegging.build();
     }
 
