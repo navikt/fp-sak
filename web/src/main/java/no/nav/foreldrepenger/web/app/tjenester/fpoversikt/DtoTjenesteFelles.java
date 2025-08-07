@@ -145,23 +145,28 @@ class DtoTjenesteFelles {
         return åpenYtelseBehandling;
     }
 
-    Optional<Sak.FamilieHendelse> finnBekreftetSøknadFamilieHendelse(Long behandling) {
-        return familieHendelseTjeneste.finnAggregat(behandling).map(agg -> {
+    private Optional<Sak.FamilieHendelse> finnBekreftetSøknadFamilieHendelse(Long behandling) {
+        return familieHendelseTjeneste.finnAggregat(behandling).flatMap(agg -> {
             var versjon = agg.getBekreftetVersjon().orElseGet(agg::getSøknadVersjon);
             return tilDto(versjon);
         });
     }
 
-    Sak.FamilieHendelse finnGjeldendeFamilieHendelse(Long behandling) {
-        return familieHendelseTjeneste.finnAggregat(behandling).map(fhg -> tilDto(fhg.getGjeldendeVersjon())).orElse(null);
+    private Sak.FamilieHendelse finnGjeldendeFamilieHendelse(Long behandling) {
+        return familieHendelseTjeneste.finnAggregat(behandling).flatMap(fhg -> tilDto(fhg.getGjeldendeVersjon())).orElse(null);
     }
 
-    static Sak.FamilieHendelse tilDto(FamilieHendelseEntitet familieHendelse) {
+    private static Optional<Sak.FamilieHendelse> tilDto(FamilieHendelseEntitet familieHendelse) {
         var fødselsdato = familieHendelse.getBarna().stream().map(UidentifisertBarn::getFødselsdato).min(Comparator.naturalOrder()).orElse(null);
-        return new Sak.FamilieHendelse(fødselsdato,
-            familieHendelse.getTerminbekreftelse().map(TerminbekreftelseEntitet::getTermindato).orElse(null),
-            familieHendelse.getAntallBarn() == null ? 0 : familieHendelse.getAntallBarn(),
-            familieHendelse.getAdopsjon().map(AdopsjonEntitet::getOmsorgsovertakelseDato).orElse(null));
+        var termindato = familieHendelse.getTerminbekreftelse().map(TerminbekreftelseEntitet::getTermindato).orElse(null);
+        var omsorgsovertakelse = familieHendelse.getAdopsjon().map(AdopsjonEntitet::getOmsorgsovertakelseDato).orElse(null);
+        if (fødselsdato == null && termindato == null && omsorgsovertakelse == null) {
+            LOG.info("Familiehendelse uten fødselsdato, termindato eller omsorgsovertakelse: {}", familieHendelse);
+            return Optional.empty();
+        }
+        return Optional.of(
+            new Sak.FamilieHendelse(fødselsdato, termindato, familieHendelse.getAntallBarn() == null ? 0 : familieHendelse.getAntallBarn(),
+                omsorgsovertakelse));
     }
 
     Stream<BehandlingVedtak> finnVedtakForFagsak(Fagsak fagsak) {
