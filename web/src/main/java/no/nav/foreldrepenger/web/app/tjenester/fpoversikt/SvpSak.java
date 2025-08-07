@@ -26,17 +26,11 @@ record SvpSak(String saksnummer,
             }
         }
     }
-    public record OppholdPeriode(LocalDate fom, LocalDate tom, Årsak årsak, OppholdKilde kilde) {
+    public record OppholdPeriode(LocalDate fom, LocalDate tom, Årsak årsak) {
 
         public enum Årsak {
             FERIE,
             SYKEPENGER
-        }
-
-        public enum OppholdKilde {
-            SØKNAD,
-            SAKSBEHANDLER,
-            INNTEKTSMELDING
         }
     }
     public record Vedtak(LocalDateTime vedtakstidspunkt, Set<ArbeidsforholdUttak> arbeidsforhold, AvslagÅrsak avslagÅrsak) {

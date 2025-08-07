@@ -210,12 +210,7 @@ public class SvpDtoTjeneste {
                 case SYKEPENGER -> SvpSak.OppholdPeriode.Årsak.SYKEPENGER;
                 case FERIE -> SvpSak.OppholdPeriode.Årsak.FERIE;
             };
-            SvpSak.OppholdPeriode.OppholdKilde oppholdKilde = switch (o.getKilde()) {
-                case SØKNAD -> SvpSak.OppholdPeriode.OppholdKilde.SØKNAD;
-                case REGISTRERT_AV_SAKSBEHANDLER -> SvpSak.OppholdPeriode.OppholdKilde.SAKSBEHANDLER;
-                case null -> SvpSak.OppholdPeriode.OppholdKilde.SAKSBEHANDLER;
-            };
-            return new SvpSak.OppholdPeriode(o.getFom(), o.getTom(), oppholdÅrsak, oppholdKilde);
+            return new SvpSak.OppholdPeriode(o.getFom(), o.getTom(), oppholdÅrsak);
         }).collect(Collectors.toSet());
     }
 
@@ -235,7 +230,7 @@ public class SvpDtoTjeneste {
             .stream()
             .filter(utsettelse -> UtsettelseÅrsak.FERIE.equals(utsettelse.getÅrsak()))
             .map(utsettelse -> new SvpSak.OppholdPeriode(utsettelse.getPeriode().getFomDato(), utsettelse.getPeriode().getTomDato(),
-                SvpSak.OppholdPeriode.Årsak.FERIE, SvpSak.OppholdPeriode.OppholdKilde.INNTEKTSMELDING))
+                SvpSak.OppholdPeriode.Årsak.FERIE))
             .collect(Collectors.toSet());
     }
 
