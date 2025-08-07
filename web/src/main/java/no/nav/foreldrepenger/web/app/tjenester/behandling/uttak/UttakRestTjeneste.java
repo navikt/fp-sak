@@ -192,9 +192,9 @@ public class UttakRestTjeneste {
 
     @GET
     @Path(FAKTA_UTTAK_ANNENPART_EØS_PART_PATH)
-    @Operation(description = "Hent eøs uttaksperioder for annenpart registert i EØS", tags = "uttak")
+    @Operation(description = "Hent uttaksperioder for annenpart registert i EØS", tags = "uttak")
     @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK, sporingslogg = false)
-    public List<EøsUttakPeriodeDto> hentAnnenpartPerioder(@TilpassetAbacAttributt(supplierClass = UuidAbacDataSupplier.class) @NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
+    public List<EøsUttakPeriodeDto> hentAnnenpartPerioderIEøs(@TilpassetAbacAttributt(supplierClass = UuidAbacDataSupplier.class) @NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
         return eøsUttakTjeneste.annenpartsPerioder(uuidDto);
     }
 
