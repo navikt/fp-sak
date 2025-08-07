@@ -28,6 +28,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.beregning.Beregningsres
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.EngangsstønadBeregningRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.dokument.BehandlingDokumentRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.eøs.EøsUttakRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
@@ -126,6 +127,7 @@ public class BehandlingDtoTjeneste {
     private DekningsgradTjeneste dekningsgradTjeneste;
     private VedtaksbrevStatusUtleder vedtaksbrevStatusUtleder;
     private FamilieHendelseRepository familieHendelseRepository;
+    private EøsUttakRepository eøsUttakRepository;
 
 
     @Inject
@@ -143,7 +145,8 @@ public class BehandlingDtoTjeneste {
                                  UtregnetStønadskontoTjeneste utregnetStønadskontoTjeneste,
                                  DekningsgradTjeneste dekningsgradTjeneste,
                                  VergeRepository vergeRepository,
-                                 VedtaksbrevStatusUtleder vedtaksbrevStatusUtleder) {
+                                 VedtaksbrevStatusUtleder vedtaksbrevStatusUtleder,
+                                 EøsUttakRepository eøsUttakRepository) {
         this.beregningTjeneste = beregningTjeneste;
         this.uttakTjeneste = uttakTjeneste;
         this.engangsstønadBeregningRepository = engangsstønadBeregningRepository;
@@ -165,6 +168,7 @@ public class BehandlingDtoTjeneste {
         this.vergeRepository = vergeRepository;
         this.vedtaksbrevStatusUtleder = vedtaksbrevStatusUtleder;
         this.familieHendelseRepository = repositoryProvider.getFamilieHendelseRepository();
+        this.eøsUttakRepository = eøsUttakRepository;
 
     }
 
@@ -457,6 +461,10 @@ public class BehandlingDtoTjeneste {
                     if (!faktaUttakPeriodeDtoTjeneste.lagDtos(uuidDto).isEmpty() || behandling.harÅpentAksjonspunktMedType(
                         AksjonspunktDefinisjon.FAKTA_UTTAK_INGEN_PERIODER)) {
                         dto.leggTil(get(UttakRestTjeneste.FAKTA_UTTAK_PATH, "uttak-kontroller-fakta-perioder-v2", uuidDto));
+                    }
+                    if (behandling.harÅpentAksjonspunktMedType(AksjonspunktDefinisjon.AVKLAR_UTTAK_I_EØS_FOR_ANNENPART)
+                        || eøsUttakRepository.hentGrunnlag(behandling.getId()).isPresent()) {
+                        dto.leggTil(get(UttakRestTjeneste.FAKTA_UTTAK_EØS_PATH, "uttak-annen-forelder-eos", uuidDto));
                     }
                 }
                 var uttakResultat = uttakTjeneste.hentHvisEksisterer(behandling.getId());
