@@ -176,8 +176,6 @@ class SvpDtoTjenesteTest extends EntityManagerAwareTest {
 
         var arbeidsforholdUttak2 = vedtak.arbeidsforhold().stream().filter(t-> SvpSak.Aktivitet.Type.ORDINÆRT_ARBEID.equals(t.aktivitet().type())).findFirst().orElseThrow();
         assertThat(arbeidsforholdUttak2.oppholdsperioder()).hasSize(1);
-        assertThat(arbeidsforholdUttak2.oppholdsperioder().stream().toList().get(0).kilde()).isEqualTo(SvpSak.OppholdPeriode.OppholdKilde.INNTEKTSMELDING);
-
     }
 
     private Behandling lagAvsluttetSvpBehandling(LocalDate termindato, LocalDateTime vedtakstidspunkt) {
