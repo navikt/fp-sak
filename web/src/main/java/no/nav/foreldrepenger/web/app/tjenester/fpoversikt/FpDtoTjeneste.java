@@ -20,6 +20,9 @@ import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.DokumentTypeId;
 import no.nav.foreldrepenger.behandlingslager.behandling.MottattDokument;
+import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonopplysningEntitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonopplysningerAggregat;
+import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadEntitet;
@@ -153,8 +156,23 @@ public class FpDtoTjeneste {
     private Set<String> finnFødteBarn(Behandling behandling) {
         var ref = BehandlingReferanse.fra(behandling);
         return personopplysningTjeneste.hentPersonopplysningerHvisEksisterer(ref)
-            .map(pi -> pi.getBarna().stream().map(barn -> barn.getAktørId().getId()).collect(Collectors.toSet()))
+            .map(pi -> finnFødteBarn(behandling.getRelasjonsRolleType(), behandling.getAktørId(), pi))
             .orElse(Set.of());
+    }
+
+    private static Set<String> finnFødteBarn(RelasjonsRolleType relasjonsRolleType, AktørId søker, PersonopplysningerAggregat pi) {
+        return pi.getBarna()
+            .stream()
+            .filter(barn -> riktigRelasjon(søker, pi, barn, relasjonsRolleType))
+            .map(barn -> barn.getAktørId().getId())
+            .collect(Collectors.toSet());
+    }
+
+    private static boolean riktigRelasjon(AktørId søker,
+                                          PersonopplysningerAggregat pi,
+                                          PersonopplysningEntitet barn,
+                                          RelasjonsRolleType relasjonsRolleType) {
+        return pi.finnRelasjon(søker, barn.getAktørId()).stream().anyMatch(r -> r.getRelasjonsrolle() == relasjonsRolleType);
     }
 
     private FpSak.BrukerRolle finnBrukerRolle(Fagsak fagsak) {
