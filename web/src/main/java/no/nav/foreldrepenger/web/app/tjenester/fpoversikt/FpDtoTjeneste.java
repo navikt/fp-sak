@@ -172,7 +172,9 @@ public class FpDtoTjeneste {
                                           PersonopplysningerAggregat pi,
                                           PersonopplysningEntitet barn,
                                           RelasjonsRolleType relasjonsRolleType) {
-        return pi.finnRelasjon(søker, barn.getAktørId()).stream().anyMatch(r -> r.getRelasjonsrolle() == relasjonsRolleType);
+        return relasjonsRolleType == RelasjonsRolleType.UDEFINERT || pi.finnRelasjon(barn.getAktørId(), søker)
+            .stream()
+            .anyMatch(r -> r.getRelasjonsrolle() == relasjonsRolleType);
     }
 
     private FpSak.BrukerRolle finnBrukerRolle(Fagsak fagsak) {
