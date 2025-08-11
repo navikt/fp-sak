@@ -21,6 +21,10 @@
 			her. -->
 
 		<!-- Interne avhengigheter -->
+        <dependency>
+            <groupId>no.nav.foreldrepenger.felles</groupId>
+            <artifactId>felles-log</artifactId>
+        </dependency>
 		<dependency>
 			<!-- TODO: Fjern denne, dekk gjennom SPI (interfaces for Behandling, AP, Repo) -->
 			<groupId>no.nav.foreldrepenger</groupId>
