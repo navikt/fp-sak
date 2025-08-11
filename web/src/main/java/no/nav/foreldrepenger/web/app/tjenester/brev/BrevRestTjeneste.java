@@ -139,7 +139,7 @@ public class BrevRestTjeneste {
     }
 
     private static String utledBegrunnelse(DokumentMalType dokumentMal, DokumentMalType journalførSom) {
-        if (DokumentMalType.FRITEKSTBREV.equals(dokumentMal) || DokumentMalType.FRITEKSTBREV_HMTL.equals(dokumentMal)) {
+        if (DokumentMalType.FRITEKSTBREV.equals(dokumentMal) || DokumentMalType.VEDTAKSBREV_FRITEKST_HTML.equals(dokumentMal)) {
             Objects.requireNonNull(journalførSom, "journalførSom må være satt om FRITEKST brev brukes.");
             return journalførSom.getNavn() + " (" + dokumentMal.getNavn() + ")";
         }

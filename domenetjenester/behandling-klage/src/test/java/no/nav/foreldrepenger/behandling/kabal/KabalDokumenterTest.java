@@ -83,6 +83,32 @@ class KabalDokumenterTest {
     }
 
     @Test
+    void finnerVedtakFritektsFraBehandlingDokument() {
+        var behandlingId = 1234L;
+        var påKlagdBehandlingId = 4321L;
+        var journalpost = new JournalpostId("23456");
+
+        var behandlingDokument = BehandlingDokumentEntitet.Builder.ny().medBehandling(behandlingId).build();
+        var dokumentBestilt = new BehandlingDokumentBestiltEntitet.Builder()
+            .medDokumentMalType(DokumentMalType.VEDTAKSBREV_FRITEKST_HTML.getKode())
+            .medOpprinneligDokumentMal(DokumentMalType.FORELDREPENGER_INNVILGELSE.getKode())
+            .medBehandlingDokument(behandlingDokument)
+            .medBestillingUuid(UUID.randomUUID())
+            .medJournalpostId(journalpost)
+            .build();
+        behandlingDokument.leggTilBestiltDokument(dokumentBestilt);
+
+        when(behandlingDokumentRepository.hentHvisEksisterer(behandlingId)).thenReturn(Optional.empty());
+        when(behandlingDokumentRepository.hentHvisEksisterer(påKlagdBehandlingId)).thenReturn(Optional.of(behandlingDokument));
+
+        var dokumentReferanses = kabalTjeneste.finnDokumentReferanserForKlage(behandlingId, SAKSNR,
+            KlageResultatEntitet.builder().medKlageBehandlingId(behandlingId).medPåKlagdBehandlingId(påKlagdBehandlingId).build(), KlageHjemmel.ENGANGS);
+
+        sjekkResultat(dokumentReferanses, journalpost, TilKabalDto.DokumentReferanseType.OPPRINNELIG_VEDTAK);
+    }
+
+
+    @Test
     void finnerKlageDokumentFraMottatteDokumenter() {
         var behandlingId = 1234L;
         var journalpost = new JournalpostId("76543");

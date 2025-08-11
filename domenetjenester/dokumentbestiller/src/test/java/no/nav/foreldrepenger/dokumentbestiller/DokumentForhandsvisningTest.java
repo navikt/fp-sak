@@ -68,7 +68,7 @@ class DokumentForhandsvisningTest {
     void skal_hive_exception_hvis_fritekstbrev_mangler_fritekst() {
         assertThatThrownBy(() -> DokumentForhandsvisning.builder()
             .medBehandlingUuid(UUID.randomUUID())
-            .medDokumentMal(DokumentMalType.FRITEKSTBREV_HMTL)
+            .medDokumentMal(DokumentMalType.VEDTAKSBREV_FRITEKST_HTML)
             //.medFritekst()
             .medSaksnummer(new Saksnummer("123"))
             .medDokumentType(DokumentForhandsvisning.DokumentType.OVERSTYRT)
@@ -79,7 +79,7 @@ class DokumentForhandsvisningTest {
     void skal_ikke_hive_exception_hvis_fritekstbrev_har_innhold_i_fritekst() {
         var dokumentForhandsvisning = DokumentForhandsvisning.builder()
             .medBehandlingUuid(UUID.randomUUID())
-            .medDokumentMal(DokumentMalType.FRITEKSTBREV_HMTL)
+            .medDokumentMal(DokumentMalType.VEDTAKSBREV_FRITEKST_HTML)
             .medFritekst("Fritekst")
             .medSaksnummer(new Saksnummer("123"))
             .medDokumentType(DokumentForhandsvisning.DokumentType.OVERSTYRT)

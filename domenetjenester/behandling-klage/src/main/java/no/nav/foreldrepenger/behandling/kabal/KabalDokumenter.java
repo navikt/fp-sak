@@ -92,7 +92,14 @@ public class KabalDokumenter {
                 .forEach(d -> referanser.add(new TilKabalDto.DokumentReferanse(d.journalpostId().getVerdi(), TilKabalDto.DokumentReferanseType.ANNET)));
         }
 
+        validerReferanserInnholdOversendelsebrev(referanser);
         return referanser;
+    }
+
+    private void validerReferanserInnholdOversendelsebrev(List<TilKabalDto.DokumentReferanse> referanser) {
+        if (referanser.stream().noneMatch(r -> TilKabalDto.DokumentReferanseType.OVERSENDELSESBREV.equals(r.type()))) {
+            throw new IllegalStateException("Klage må ha minst ett oversendelsesbrev"); // TFP-6348: Obligatorisk i behandlingen, feil hvis mangler
+        }
     }
 
     List<TilKabalDto.DokumentReferanse> finnDokumentReferanserForAnke(long behandlingId, AnkeResultatEntitet resultat, boolean bleKlageBehandletKabal) {
@@ -176,7 +183,13 @@ public class KabalDokumenter {
     }
 
     private Predicate<BehandlingDokumentBestiltEntitet> erVedtakDokument() {
-        return d -> d.getDokumentMalType() != null && DokumentMalType.erVedtaksBrev(DokumentMalType.fraKode(d.getDokumentMalType()));
+        return d -> d.getDokumentMalType() != null &&
+            (DokumentMalType.erVedtaksBrev(DokumentMalType.fraKode(d.getDokumentMalType())) || erOverstyrtVedtaksbrev(d));
+    }
+
+    private static boolean erOverstyrtVedtaksbrev(BehandlingDokumentBestiltEntitet d) {
+        return DokumentMalType.erVedtakFritektsBrev(DokumentMalType.fraKode(d.getDokumentMalType())) && d.getOpprineligDokumentMal() != null
+            && DokumentMalType.erVedtaksBrev(DokumentMalType.fraKode(d.getOpprineligDokumentMal()));
     }
 
     private Predicate<BehandlingDokumentBestiltEntitet> erKlageAvvist() {

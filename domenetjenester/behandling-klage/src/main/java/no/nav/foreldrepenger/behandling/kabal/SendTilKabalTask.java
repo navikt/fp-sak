@@ -15,7 +15,7 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 
 @ApplicationScoped
-@ProsessTask(value = "kabal.sendtilkabal", prioritet = 2)
+@ProsessTask(value = "kabal.sendtilkabal", prioritet = 2, firstDelay=60) // TFP-6348: firstDelay endres, gir formidling tid slik at oversendelse er tilgjengelig ved oversendelse til KA
 @FagsakProsesstaskRekkefølge(gruppeSekvens = false)
 public class SendTilKabalTask extends BehandlingProsessTask {
 

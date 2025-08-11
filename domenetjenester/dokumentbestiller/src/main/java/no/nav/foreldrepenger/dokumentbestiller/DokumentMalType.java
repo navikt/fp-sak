@@ -12,7 +12,7 @@ import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
 public enum DokumentMalType implements Kodeverdi {
 
     FRITEKSTBREV("FRITEK"),
-    FRITEKSTBREV_HMTL("FRIHTM"),
+    VEDTAKSBREV_FRITEKST_HTML("FRIHTM"),
     ENGANGSSTØNAD_INNVILGELSE("INNVES"),
     ENGANGSSTØNAD_AVSLAG("AVSLES"),
     FORELDREPENGER_INNVILGELSE("INVFOR"),
@@ -58,6 +58,8 @@ public enum DokumentMalType implements Kodeverdi {
     @Deprecated ANKE_OPPHEVET("ANKOPP"),
     @Deprecated KLAGE_STADFESTET("KGESTA"),
     @Deprecated KLAGE_HJEMSENDT("KGEHJE");
+
+    public static final Set<DokumentMalType> VEDTAK_FRITEKTBREV_TYPER = Set.of(FRITEKSTBREV, VEDTAKSBREV_FRITEKST_HTML);
 
     public static final Set<DokumentMalType> VEDTAKSBREV = Set.of(ENGANGSSTØNAD_INNVILGELSE, ENGANGSSTØNAD_AVSLAG, FORELDREPENGER_INNVILGELSE,
         FORELDREPENGER_AVSLAG, FORELDREPENGER_OPPHØR, FORELDREPENGER_ANNULLERT, SVANGERSKAPSPENGER_INNVILGELSE, SVANGERSKAPSPENGER_AVSLAG,
@@ -114,6 +116,10 @@ public enum DokumentMalType implements Kodeverdi {
         return ad.get();
     }
 
+    public static boolean erVedtakFritektsBrev(DokumentMalType brev) {
+        return VEDTAK_FRITEKTBREV_TYPER.contains(brev);
+    }
+
     public static boolean erVedtaksBrev(DokumentMalType brev) {
         return VEDTAKSBREV.contains(brev);
     }
@@ -128,7 +134,7 @@ public enum DokumentMalType implements Kodeverdi {
 
     private static String utledDokumentTittel(DokumentMalType mal) {
         return switch (mal) {
-            case FRITEKSTBREV, FRITEKSTBREV_HMTL-> "Fritekstbrev";
+            case FRITEKSTBREV, VEDTAKSBREV_FRITEKST_HTML -> "Fritekstbrev";
             case ENGANGSSTØNAD_INNVILGELSE -> "Innvilget engangsstønad";
             case ENGANGSSTØNAD_AVSLAG -> "Avslag engangsstønad";
             case FORELDREPENGER_INNVILGELSE -> "Innvilgelsesbrev foreldrepenger";
