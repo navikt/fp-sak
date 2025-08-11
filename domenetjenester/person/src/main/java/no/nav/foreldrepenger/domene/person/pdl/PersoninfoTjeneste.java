@@ -29,6 +29,7 @@ import no.nav.pdl.Doedsfall;
 import no.nav.pdl.DoedsfallResponseProjection;
 import no.nav.pdl.Foedselsdato;
 import no.nav.pdl.FoedselsdatoResponseProjection;
+import no.nav.pdl.FolkeregisteridentifikatorResponseProjection;
 import no.nav.pdl.ForelderBarnRelasjon;
 import no.nav.pdl.ForelderBarnRelasjonResponseProjection;
 import no.nav.pdl.ForelderBarnRelasjonRolle;
@@ -104,6 +105,7 @@ public class PersoninfoTjeneste {
         query.setIdent(personIdent.getIdent());
 
         var projection = new PersonResponseProjection()
+            .folkeregisteridentifikator(new FolkeregisteridentifikatorResponseProjection().identifikasjonsnummer())
             .navn(new NavnResponseProjection().fornavn().mellomnavn().etternavn())
             .foedselsdato(new FoedselsdatoResponseProjection().foedselsdato())
             .doedsfall(new DoedsfallResponseProjection().doedsdato())
@@ -118,6 +120,8 @@ public class PersoninfoTjeneste {
         }
 
         var person = pdlKlient.hentPerson(ytelseType, query, projection);
+
+        pdlKlient.sjekkPersonFalskIdentitet(ytelseType, aktørId, person.getFolkeregisteridentifikator());
 
         var fødselsdato = person.getFoedselsdato().stream()
             .map(Foedselsdato::getFoedselsdato)
@@ -182,6 +186,7 @@ public class PersoninfoTjeneste {
     private static String leftPad(String navn) {
         return Optional.ofNullable(navn).map(n -> " " + navn).orElse("");
     }
+
     private static NavBrukerKjønn mapKjønn(Person person) {
         var kode = person.getKjoenn().stream()
             .map(Kjoenn::getKjoenn)
