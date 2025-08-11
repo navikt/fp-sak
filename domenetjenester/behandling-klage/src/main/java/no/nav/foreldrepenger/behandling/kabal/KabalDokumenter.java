@@ -16,7 +16,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.DokumentKategori;
 import no.nav.foreldrepenger.behandlingslager.behandling.DokumentTypeId;
 import no.nav.foreldrepenger.behandlingslager.behandling.MottattDokument;
-import no.nav.foreldrepenger.behandlingslager.behandling.anke.AnkeResultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.dokument.BehandlingDokumentBestiltEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.dokument.BehandlingDokumentEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.dokument.BehandlingDokumentRepository;
@@ -102,28 +101,6 @@ public class KabalDokumenter {
         }
     }
 
-    List<TilKabalDto.DokumentReferanse> finnDokumentReferanserForAnke(long behandlingId, AnkeResultatEntitet resultat, boolean bleKlageBehandletKabal) {
-        List<TilKabalDto.DokumentReferanse> referanser = new ArrayList<>();
-
-        opprettReferanseFraMottattDokument(behandlingId, erKlageEllerAnkeDokument(), referanser, TilKabalDto.DokumentReferanseType.BRUKERS_KLAGE);
-
-        if (!bleKlageBehandletKabal) {
-            resultat.getPåAnketKlageBehandlingId()
-                .ifPresent(b -> opprettReferanseFraMottattDokument(b, erKlageEllerAnkeDokument(), referanser,
-                    TilKabalDto.DokumentReferanseType.BRUKERS_KLAGE));
-
-            resultat.getPåAnketKlageBehandlingId()
-                .ifPresent(b -> opprettReferanseFraBestilltDokument(b, erKlageOversendtBrevSent(), referanser,
-                    TilKabalDto.DokumentReferanseType.OVERSENDELSESBREV));
-
-            resultat.getPåAnketKlageBehandlingId()
-                .ifPresent(b -> opprettReferanseFraBestilltDokument(b, erKlageVedtakDokument(), referanser,
-                    TilKabalDto.DokumentReferanseType.KLAGE_VEDTAK));
-        }
-
-        return referanser;
-    }
-
     private void opprettReferanseFraMottattDokument(long behandlingId,
                                                     Predicate<MottattDokument> mottattDokumentPredicate,
                                                     List<TilKabalDto.DokumentReferanse> referanser,
@@ -194,10 +171,6 @@ public class KabalDokumenter {
 
     private Predicate<BehandlingDokumentBestiltEntitet> erKlageAvvist() {
         return d -> d.getDokumentMalType() != null && DokumentMalType.KLAGE_AVVIST.equals(DokumentMalType.fraKode(d.getDokumentMalType()));
-    }
-
-    private Predicate<BehandlingDokumentBestiltEntitet> erKlageVedtakDokument() {
-        return d -> d.getDokumentMalType() != null && DokumentMalType.erKlageVedtaksBrev(DokumentMalType.fraKode(d.getDokumentMalType()));
     }
 
     public void lagHistorikkinnslagForBrevSendt(Behandling behandling, JournalpostId journalpostId) {

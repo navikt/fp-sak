@@ -65,10 +65,6 @@ public enum DokumentMalType implements Kodeverdi {
         FORELDREPENGER_AVSLAG, FORELDREPENGER_OPPHØR, FORELDREPENGER_ANNULLERT, SVANGERSKAPSPENGER_INNVILGELSE, SVANGERSKAPSPENGER_AVSLAG,
         SVANGERSKAPSPENGER_OPPHØR);
 
-    public static final Set<DokumentMalType> KLAGE_VEDTAKSBREV = Set.of(KLAGE_STADFESTET, KLAGE_AVVIST, KLAGE_HJEMSENDT, KLAGE_OMGJORT,
-        KLAGE_AVVIST_DOK, KLAGE_AVVIST_FRITEKST, KLAGE_HJEMSENDT_DOK, KLAGE_HJEMSENDT_FRITEKST, KLAGE_OMGJORT_DOK, KLAGE_OMGJORT_FRITEKST,
-        KLAGE_STADFESTET_DOK, KLAGE_STADFESTET_FRITEKST);
-
     public static final Set<DokumentMalType> MANUELLE_BREV = Set.of(INNHENTE_OPPLYSNINGER, VARSEL_OM_REVURDERING, FORLENGET_SAKSBEHANDLINGSTID_MEDL,
         FORLENGET_SAKSBEHANDLINGSTID_MEDL_FORUTGÅENDE, FORLENGET_SAKSBEHANDLINGSTID, ETTERLYS_INNTEKTSMELDING);
 
@@ -122,10 +118,6 @@ public enum DokumentMalType implements Kodeverdi {
 
     public static boolean erVedtaksBrev(DokumentMalType brev) {
         return VEDTAKSBREV.contains(brev);
-    }
-
-    public static boolean erKlageVedtaksBrev(DokumentMalType brev) {
-        return KLAGE_VEDTAKSBREV.contains(brev);
     }
 
     public static boolean erOversendelsesBrev(DokumentMalType brev) {
