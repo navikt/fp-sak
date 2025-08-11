@@ -149,9 +149,9 @@ public class HentKodeverkTjeneste {
     }
 
     private static Collection<? extends Kodeverdi> filtrerPeriodeResultat(Collection<PeriodeResultatÅrsak> values) {
-        if (ENV.isProd()) { // TODO: TFP-6302 aktiver etter test
+        if (ENV.isProd()) {
             return values.stream()
-                .filter(PeriodeResultatÅrsak.ANNEN_FORELDER_UTTAK_EØS::equals)
+                .filter(other -> !PeriodeResultatÅrsak.ANNEN_FORELDER_UTTAK_EØS.equals(other))
                 .collect(Collectors.toSet());
         }
         return values;
