@@ -62,6 +62,7 @@ public class FaktaUttakSteg implements UttakSteg {
         }
         var faktaUttakAP = utledFaktaUttakAp(uttakInput);
 
+        // TODO (TFP-6302): Fjerne denne når EØS uttak prodsettes
         if (ENV.isProd()) {
             return BehandleStegResultat.utførtMedAksjonspunkter(faktaUttakAP);
         }
