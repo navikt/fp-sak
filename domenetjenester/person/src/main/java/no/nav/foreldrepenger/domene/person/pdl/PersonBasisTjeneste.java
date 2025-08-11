@@ -65,7 +65,7 @@ public class PersonBasisTjeneste {
         var person = pdlKlient.hentPerson(ytelseType, query, projection);
 
         if (person.getFolkeregisteridentifikator() == null || person.getFolkeregisteridentifikator().isEmpty()) {
-            pdlKlient.sjekkPersonFalskIdentitet(ytelseType, aktørId);
+            pdlKlient.sjekkUtenIdentifikatorFalskIdentitet(ytelseType, aktørId);
         }
 
         return new PersoninfoVisning(aktørId, personIdent, mapNavnVisning(person, aktørId), getDiskresjonskode(person));
@@ -85,7 +85,7 @@ public class PersonBasisTjeneste {
         var person = pdlKlient.hentPerson(ytelseType, query, projection);
 
         if (person.getFolkeregisteridentifikator() == null || person.getFolkeregisteridentifikator().isEmpty()) {
-            pdlKlient.sjekkPersonFalskIdentitet(ytelseType, aktørId);
+            pdlKlient.sjekkUtenIdentifikatorFalskIdentitet(ytelseType, aktørId);
         }
 
         var fødselsdato = person.getFoedselsdato().stream()

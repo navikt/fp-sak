@@ -122,7 +122,7 @@ public class PersoninfoTjeneste {
         var person = pdlKlient.hentPerson(ytelseType, query, projection);
 
         if (person.getFolkeregisteridentifikator() == null || person.getFolkeregisteridentifikator().isEmpty()) {
-            pdlKlient.sjekkPersonFalskIdentitet(ytelseType, aktørId);
+            pdlKlient.sjekkUtenIdentifikatorFalskIdentitet(ytelseType, aktørId);
         }
 
         var fødselsdato = person.getFoedselsdato().stream()
@@ -182,11 +182,7 @@ public class PersoninfoTjeneste {
     }
 
     static String mapNavn(Navn navn) {
-        return navn.getFornavn() + leftPad(navn.getMellomnavn()) + leftPad(navn.getEtternavn());
-    }
-
-    private static String leftPad(String navn) {
-        return Optional.ofNullable(navn).map(n -> " " + navn).orElse("");
+        return navn.getFornavn() + PdlKlientLogCause.leftPad(navn.getMellomnavn()) + PdlKlientLogCause.leftPad(navn.getEtternavn());
     }
 
     private static NavBrukerKjønn mapKjønn(Person person) {

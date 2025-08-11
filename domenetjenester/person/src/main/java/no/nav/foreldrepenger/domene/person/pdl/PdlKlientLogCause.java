@@ -4,7 +4,6 @@ package no.nav.foreldrepenger.domene.person.pdl;
 import static java.net.HttpURLConnection.HTTP_NOT_FOUND;
 
 import java.net.SocketTimeoutException;
-import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -20,8 +19,6 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.pdl.FalskIdentitetIdentifiserendeInformasjonResponseProjection;
 import no.nav.pdl.FalskIdentitetResponseProjection;
-import no.nav.pdl.Folkeregisteridentifikator;
-import no.nav.pdl.FolkeregisteridentifikatorResponseProjection;
 import no.nav.pdl.Folkeregisterpersonstatus;
 import no.nav.pdl.FolkeregisterpersonstatusResponseProjection;
 import no.nav.pdl.HentPersonQueryRequest;
@@ -83,11 +80,10 @@ public class PdlKlientLogCause {
     }
 
     // Man kan tenke seg å hente rett ident eller navn/statsborgerskap fra falskIdentitet-informasjonen. Se an frekvens og innhold
-    public void sjekkPersonFalskIdentitet(FagsakYtelseType ytelseType, AktørId aktørId) {
+    public void sjekkUtenIdentifikatorFalskIdentitet(FagsakYtelseType ytelseType, AktørId aktørId) {
         var query = new HentPersonQueryRequest();
         query.setIdent(aktørId.getId());
         var projection = new PersonResponseProjection()
-            .folkeregisteridentifikator(new FolkeregisteridentifikatorResponseProjection().status().identifikasjonsnummer())
             .folkeregisterpersonstatus(new FolkeregisterpersonstatusResponseProjection().status())
             .falskIdentitet(new FalskIdentitetResponseProjection().erFalsk().rettIdentitetErUkjent().rettIdentitetVedIdentifikasjonsnummer()
                 .rettIdentitetVedOpplysninger(new FalskIdentitetIdentifiserendeInformasjonResponseProjection().kjoenn().foedselsdato()
@@ -96,15 +92,7 @@ public class PdlKlientLogCause {
         var falskIdentitetPerson = hentPerson(ytelseType, query, projection);
 
         if (falskIdentitetPerson.getFalskIdentitet() != null && falskIdentitetPerson.getFalskIdentitet().getErFalsk()) {
-            // Skal mangler personidentifikator, ha opphørt personstatus og kanskje informasjon i falskIdentitet
-            if (falskIdentitetPerson.getFolkeregisteridentifikator() != null) {
-                var identifikatorer = falskIdentitetPerson.getFolkeregisteridentifikator().stream()
-                    .map(p -> p.getIdentifikasjonsnummer().substring(p.getIdentifikasjonsnummer().length() - 5) + " " + p.getStatus())
-                    .toList();
-                if (!identifikatorer.isEmpty()) {
-                    LOG.warn("Falsk identitet aktør {} har identer {}", aktørId, identifikatorer);
-                }
-            }
+            // Skal mangle personidentifikator, ha opphørt personstatus og kanskje informasjon i falskIdentitet
             if (falskIdentitetPerson.getFolkeregisterpersonstatus() != null) {
                 var statuser = falskIdentitetPerson.getFolkeregisterpersonstatus().stream()
                     .map(Folkeregisterpersonstatus::getStatus)
@@ -136,7 +124,7 @@ public class PdlKlientLogCause {
         }
     }
 
-    private static String leftPad(String navn) {
+    public static String leftPad(String navn) {
         return Optional.ofNullable(navn).map(n -> " " + navn).orElse("");
     }
 
