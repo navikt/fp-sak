@@ -48,7 +48,7 @@ public class OverstyrUttakResultatValidator {
     private void validerSaldo(List<ForeldrepengerUttakPeriode> perioder, UttakInput uttakInput) {
         var saldoUtregning = stønadskontoSaldoTjeneste.finnSaldoUtregning(uttakInput, map(perioder));
         ForeldrepengerGrunnlag fpGrunnlag = uttakInput.getYtelsespesifiktGrunnlag();
-        new SaldoValidering(saldoUtregning, harAnnenpart(fpGrunnlag), fpGrunnlag.isBerørtBehandling()).utfør(perioder);
+        new SaldoValidering(saldoUtregning, harAnnenpart(fpGrunnlag), fpGrunnlag.isTapendeBehandling()).utfør(perioder);
     }
 
     private boolean harAnnenpart(ForeldrepengerGrunnlag fpGrunnlag) {
