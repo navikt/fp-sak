@@ -66,6 +66,7 @@ public class KabalDokumenter {
 
         opprettReferanseFraBestilltDokument(behandlingId, erKlageOversendtBrevSent(), referanser,
             TilKabalDto.DokumentReferanseType.OVERSENDELSESBREV);
+        validerReferanserInnholdPåkrevdOversendelsebrev(referanser);
 
         resultat.getPåKlagdBehandlingId()
             .ifPresent(b -> opprettReferanseFraBestilltDokument(b, erVedtakDokument(), referanser,
@@ -90,12 +91,10 @@ public class KabalDokumenter {
             utgåendeTilbake.stream().filter(d -> d.tittel().startsWith("Varsel tilbakebetaling"))
                 .forEach(d -> referanser.add(new TilKabalDto.DokumentReferanse(d.journalpostId().getVerdi(), TilKabalDto.DokumentReferanseType.ANNET)));
         }
-
-        validerReferanserInnholdOversendelsebrev(referanser);
         return referanser;
     }
 
-    private void validerReferanserInnholdOversendelsebrev(List<TilKabalDto.DokumentReferanse> referanser) {
+    private void validerReferanserInnholdPåkrevdOversendelsebrev(List<TilKabalDto.DokumentReferanse> referanser) {
         if (referanser.stream().noneMatch(r -> TilKabalDto.DokumentReferanseType.OVERSENDELSESBREV.equals(r.type()))) {
             throw new IllegalStateException("Klage må ha minst ett oversendelsesbrev"); // TFP-6348: Obligatorisk i behandlingen, feil hvis mangler
         }
