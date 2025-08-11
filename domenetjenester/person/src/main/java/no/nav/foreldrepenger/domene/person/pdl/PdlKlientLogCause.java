@@ -83,14 +83,7 @@ public class PdlKlientLogCause {
     }
 
     // Man kan tenke seg å hente rett ident eller navn/statsborgerskap fra falskIdentitet-informasjonen. Se an frekvens og innhold
-    public void sjekkPersonFalskIdentitet(FagsakYtelseType ytelseType, AktørId aktørId, List<Folkeregisteridentifikator> folkeregisteridentifikatorer) {
-        var identer = Optional.ofNullable(folkeregisteridentifikatorer).orElseGet(List::of).stream()
-            .map(Folkeregisteridentifikator::getIdentifikasjonsnummer)
-            .filter(Objects::nonNull)
-            .toList();
-        if (!identer.isEmpty()) {
-            return;
-        }
+    public void sjekkPersonFalskIdentitet(FagsakYtelseType ytelseType, AktørId aktørId) {
         var query = new HentPersonQueryRequest();
         query.setIdent(aktørId.getId());
         var projection = new PersonResponseProjection()
