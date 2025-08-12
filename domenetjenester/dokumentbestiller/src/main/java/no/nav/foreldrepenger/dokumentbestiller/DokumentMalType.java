@@ -59,7 +59,7 @@ public enum DokumentMalType implements Kodeverdi {
     @Deprecated KLAGE_STADFESTET("KGESTA"),
     @Deprecated KLAGE_HJEMSENDT("KGEHJE");
 
-    public static final Set<DokumentMalType> VEDTAKBREV_FRITEKT_TYPER = Set.of(FRITEKSTBREV, VEDTAKSBREV_FRITEKST_HTML);
+    public static final Set<DokumentMalType> VEDTAKBREV_FRITEKST_TYPER = Set.of(FRITEKSTBREV, VEDTAKSBREV_FRITEKST_HTML);
 
     public static final Set<DokumentMalType> VEDTAKSBREV = Set.of(ENGANGSSTØNAD_INNVILGELSE, ENGANGSSTØNAD_AVSLAG, FORELDREPENGER_INNVILGELSE,
         FORELDREPENGER_AVSLAG, FORELDREPENGER_OPPHØR, FORELDREPENGER_ANNULLERT, SVANGERSKAPSPENGER_INNVILGELSE, SVANGERSKAPSPENGER_AVSLAG,
@@ -113,7 +113,7 @@ public enum DokumentMalType implements Kodeverdi {
     }
 
     public static boolean erVedtakFritektsBrev(DokumentMalType brev) {
-        return VEDTAKBREV_FRITEKT_TYPER.contains(brev);
+        return VEDTAKBREV_FRITEKST_TYPER.contains(brev);
     }
 
     public static boolean erVedtaksBrev(DokumentMalType brev) {
