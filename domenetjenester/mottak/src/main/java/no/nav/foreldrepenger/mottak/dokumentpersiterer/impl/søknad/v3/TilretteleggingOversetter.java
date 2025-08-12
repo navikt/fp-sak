@@ -132,7 +132,7 @@ public class TilretteleggingOversetter {
         return tilrettelegging.getArbeidsgiver().map(Arbeidsgiver::getIdentifikator).orElseGet(() -> tilrettelegging.getArbeidType().getKode());
     }
 
-    private SvpTilretteleggingEntitet oppdaterEksisterendeTlrMedNyeFomsOgOpphold(SvpTilretteleggingEntitet nyTlR,
+    SvpTilretteleggingEntitet oppdaterEksisterendeTlrMedNyeFomsOgOpphold(SvpTilretteleggingEntitet nyTlR,
                                                                                  SvpTilretteleggingEntitet eksisterendeTlr) {
         var nyFomListe = new ArrayList<>(nyTlR.getTilretteleggingFOMListe());
         var tidligsteNyFom = nyFomListe.stream().map(TilretteleggingFOM::getFomDato).min(LocalDate::compareTo).orElse(LocalDate.EPOCH);
