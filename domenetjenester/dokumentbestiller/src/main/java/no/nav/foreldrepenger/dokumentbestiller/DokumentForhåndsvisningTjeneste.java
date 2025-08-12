@@ -110,7 +110,7 @@ public class DokumentForhåndsvisningTjeneste extends AbstractDokumentBestillerT
         // (gjelderAutomatiskBrev == null || Boolean.FALSE.equals(gjelderAutomatiskBrev))
         if (DokumentForhandsvisning.DokumentType.OVERSTYRT.equals(brevType) && Vedtaksbrev.FRITEKST.equals(resultatBrev)) {
             var fritekstMal = dokumentBehandlingTjeneste.hentMellomlagretOverstyring(behandlingId).isPresent()
-                ? DokumentMalType.FRITEKSTBREV_HMTL
+                ? DokumentMalType.VEDTAKSBREV_FRITEKST_HTML
                 : DokumentMalType.FRITEKSTBREV;
 
             LOG.info("Utledere maltype for fritekst: {}", fritekstMal);
