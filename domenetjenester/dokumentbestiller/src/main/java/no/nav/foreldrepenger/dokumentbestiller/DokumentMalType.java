@@ -11,8 +11,8 @@ import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
 
 public enum DokumentMalType implements Kodeverdi {
 
-    FRITEKSTBREV("FRITEK"),
-    VEDTAKSBREV_FRITEKST_HTML("FRIHTM"),
+    FRITEKSTBREV("FRITEK"), // Tidligere overstyring av vedtaksbrev (bare forhåndsvisning av eldre vedtak)
+    VEDTAKSBREV_FRITEKST_HTML("FRIHTM"), // Ny og oppdatert overstyring av vedtaksbrev, med HTML
     ENGANGSSTØNAD_INNVILGELSE("INNVES"),
     ENGANGSSTØNAD_AVSLAG("AVSLES"),
     FORELDREPENGER_INNVILGELSE("INVFOR"),
@@ -59,7 +59,7 @@ public enum DokumentMalType implements Kodeverdi {
     @Deprecated KLAGE_STADFESTET("KGESTA"),
     @Deprecated KLAGE_HJEMSENDT("KGEHJE");
 
-    public static final Set<DokumentMalType> VEDTAK_FRITEKTBREV_TYPER = Set.of(FRITEKSTBREV, VEDTAKSBREV_FRITEKST_HTML);
+    public static final Set<DokumentMalType> VEDTAKBREV_FRITEKT_TYPER = Set.of(FRITEKSTBREV, VEDTAKSBREV_FRITEKST_HTML);
 
     public static final Set<DokumentMalType> VEDTAKSBREV = Set.of(ENGANGSSTØNAD_INNVILGELSE, ENGANGSSTØNAD_AVSLAG, FORELDREPENGER_INNVILGELSE,
         FORELDREPENGER_AVSLAG, FORELDREPENGER_OPPHØR, FORELDREPENGER_ANNULLERT, SVANGERSKAPSPENGER_INNVILGELSE, SVANGERSKAPSPENGER_AVSLAG,
@@ -113,7 +113,7 @@ public enum DokumentMalType implements Kodeverdi {
     }
 
     public static boolean erVedtakFritektsBrev(DokumentMalType brev) {
-        return VEDTAK_FRITEKTBREV_TYPER.contains(brev);
+        return VEDTAKBREV_FRITEKT_TYPER.contains(brev);
     }
 
     public static boolean erVedtaksBrev(DokumentMalType brev) {
