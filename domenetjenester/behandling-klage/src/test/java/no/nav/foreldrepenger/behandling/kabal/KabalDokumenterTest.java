@@ -67,9 +67,10 @@ class KabalDokumenterTest {
 
     @Test
     void hivExceptionHvisOversendelsesbrevMangler() {
+        // Det finnes en dokumentBehandlingEntitet for oversendelsebrev-malen, men formidling ikke har rukket å produsert brevet og kvittert med journalpostId.
+        // Dvs entitet finnes men at journalpostId er null - bør gi exception
         var behandlingId = 1234L;
-        var journalpost = new JournalpostId("12345");
-        var behandlingDokument = opprettBehandlingDokumentEntitet(behandlingId, journalpost, DokumentMalType.FORELDREPENGER_INNVILGELSE);
+        var behandlingDokument = opprettBehandlingDokumentEntitet(behandlingId, null, DokumentMalType.KLAGE_OVERSENDT);
         when(behandlingDokumentRepository.hentHvisEksisterer(behandlingId)).thenReturn(Optional.of(behandlingDokument));
 
         var klageResultatEntitet = KlageResultatEntitet.builder().medKlageBehandlingId(behandlingId).build();
@@ -81,9 +82,10 @@ class KabalDokumenterTest {
     void finnerVedtakFraBehandlingDokument() {
         var behandlingId = 1234L;
         var påKlagdBehandlingId = 4321L;
-        var journalpost = new JournalpostId("23456");
-        var behandlingDokument = opprettBehandlingDokumentEntitet(påKlagdBehandlingId, journalpost, DokumentMalType.FORELDREPENGER_INNVILGELSE);
-        var behandlingDokumentKlageOversendt = opprettBehandlingDokumentEntitet(behandlingId, journalpost, DokumentMalType.KLAGE_OVERSENDT);
+        var journalpost1 = new JournalpostId("12345");
+        var journalpost2 = new JournalpostId("67890");
+        var behandlingDokument = opprettBehandlingDokumentEntitet(påKlagdBehandlingId, journalpost1, DokumentMalType.FORELDREPENGER_INNVILGELSE);
+        var behandlingDokumentKlageOversendt = opprettBehandlingDokumentEntitet(behandlingId, journalpost2, DokumentMalType.KLAGE_OVERSENDT);
         when(behandlingDokumentRepository.hentHvisEksisterer(behandlingId)).thenReturn(Optional.of(behandlingDokumentKlageOversendt));
         when(behandlingDokumentRepository.hentHvisEksisterer(påKlagdBehandlingId)).thenReturn(Optional.of(behandlingDokument));
 
@@ -91,9 +93,9 @@ class KabalDokumenterTest {
             KlageResultatEntitet.builder().medKlageBehandlingId(behandlingId).medPåKlagdBehandlingId(påKlagdBehandlingId).build(), KlageHjemmel.ENGANGS);
 
         assertThat(dokumentReferanses).hasSize(2);
-        assertThat(dokumentReferanses.get(0).journalpostId()).isEqualTo(journalpost.getVerdi());
+        assertThat(dokumentReferanses.get(0).journalpostId()).isEqualTo(journalpost2.getVerdi());
         assertThat(dokumentReferanses.get(0).type()).isEqualTo(TilKabalDto.DokumentReferanseType.OVERSENDELSESBREV);
-        assertThat(dokumentReferanses.get(1).journalpostId()).isEqualTo(journalpost.getVerdi());
+        assertThat(dokumentReferanses.get(1).journalpostId()).isEqualTo(journalpost1.getVerdi());
         assertThat(dokumentReferanses.get(1).type()).isEqualTo(TilKabalDto.DokumentReferanseType.OPPRINNELIG_VEDTAK);
     }
 
@@ -101,17 +103,18 @@ class KabalDokumenterTest {
     void finnerVedtakFritektsFraBehandlingDokument() {
         var behandlingId = 1234L;
         var påKlagdBehandlingId = 4321L;
-        var journalpost = new JournalpostId("23456");
+        var journalpost1 = new JournalpostId("12345");
+        var journalpost2 = new JournalpostId("67890");
         var behandlingDokument = BehandlingDokumentEntitet.Builder.ny().medBehandling(behandlingId).build();
         var dokumentBestilt = new BehandlingDokumentBestiltEntitet.Builder()
             .medDokumentMalType(DokumentMalType.VEDTAKSBREV_FRITEKST_HTML.getKode())
             .medOpprinneligDokumentMal(DokumentMalType.FORELDREPENGER_INNVILGELSE.getKode())
             .medBehandlingDokument(behandlingDokument)
             .medBestillingUuid(UUID.randomUUID())
-            .medJournalpostId(journalpost)
+            .medJournalpostId(journalpost1)
             .build();
         behandlingDokument.leggTilBestiltDokument(dokumentBestilt);
-        var behandlingDokumentKlageOversendt = opprettBehandlingDokumentEntitet(behandlingId, journalpost, DokumentMalType.KLAGE_OVERSENDT);
+        var behandlingDokumentKlageOversendt = opprettBehandlingDokumentEntitet(behandlingId, journalpost2, DokumentMalType.KLAGE_OVERSENDT);
         when(behandlingDokumentRepository.hentHvisEksisterer(behandlingId)).thenReturn(Optional.of(behandlingDokumentKlageOversendt));
         when(behandlingDokumentRepository.hentHvisEksisterer(påKlagdBehandlingId)).thenReturn(Optional.of(behandlingDokument));
 
@@ -119,9 +122,9 @@ class KabalDokumenterTest {
             KlageResultatEntitet.builder().medKlageBehandlingId(behandlingId).medPåKlagdBehandlingId(påKlagdBehandlingId).build(), KlageHjemmel.ENGANGS);
 
         assertThat(dokumentReferanses).hasSize(2);
-        assertThat(dokumentReferanses.get(0).journalpostId()).isEqualTo(journalpost.getVerdi());
+        assertThat(dokumentReferanses.get(0).journalpostId()).isEqualTo(journalpost2.getVerdi());
         assertThat(dokumentReferanses.get(0).type()).isEqualTo(TilKabalDto.DokumentReferanseType.OVERSENDELSESBREV);
-        assertThat(dokumentReferanses.get(1).journalpostId()).isEqualTo(journalpost.getVerdi());
+        assertThat(dokumentReferanses.get(1).journalpostId()).isEqualTo(journalpost1.getVerdi());
         assertThat(dokumentReferanses.get(1).type()).isEqualTo(TilKabalDto.DokumentReferanseType.OPPRINNELIG_VEDTAK);
     }
 
@@ -129,9 +132,10 @@ class KabalDokumenterTest {
     @Test
     void finnerKlageDokumentFraMottatteDokumenter() {
         var behandlingId = 1234L;
-        var journalpost = new JournalpostId("76543");
-        var dokumentMottatt = opprettMottattDokument(DokumentTypeId.KLAGE_DOKUMENT, behandlingId, journalpost);
-        var behandlingDokumentKlageOversendt = opprettBehandlingDokumentEntitet(behandlingId, journalpost, DokumentMalType.KLAGE_OVERSENDT);
+        var journalpost1 = new JournalpostId("12345");
+        var journalpost2 = new JournalpostId("67890");
+        var dokumentMottatt = opprettMottattDokument(DokumentTypeId.KLAGE_DOKUMENT, behandlingId, journalpost1);
+        var behandlingDokumentKlageOversendt = opprettBehandlingDokumentEntitet(behandlingId, journalpost2, DokumentMalType.KLAGE_OVERSENDT);
         when(behandlingDokumentRepository.hentHvisEksisterer(behandlingId)).thenReturn(Optional.of(behandlingDokumentKlageOversendt));
         when(mottatteDokumentRepository.hentMottatteDokument(behandlingId)).thenReturn(List.of(dokumentMottatt));
 
@@ -139,9 +143,9 @@ class KabalDokumenterTest {
             KlageResultatEntitet.builder().medKlageBehandlingId(behandlingId).build(), KlageHjemmel.ENGANGS);
 
         assertThat(dokumentReferanses).hasSize(2);
-        assertThat(dokumentReferanses.get(0).journalpostId()).isEqualTo(journalpost.getVerdi());
+        assertThat(dokumentReferanses.get(0).journalpostId()).isEqualTo(journalpost2.getVerdi());
         assertThat(dokumentReferanses.get(0).type()).isEqualTo(TilKabalDto.DokumentReferanseType.OVERSENDELSESBREV);
-        assertThat(dokumentReferanses.get(1).journalpostId()).isEqualTo(journalpost.getVerdi());
+        assertThat(dokumentReferanses.get(1).journalpostId()).isEqualTo(journalpost1.getVerdi());
         assertThat(dokumentReferanses.get(1).type()).isEqualTo(TilKabalDto.DokumentReferanseType.BRUKERS_KLAGE);
     }
 
@@ -149,9 +153,10 @@ class KabalDokumenterTest {
     void finnerSøknadDokumentFraMottatteDokumenter() {
         var behandlingId = 1234L;
         var påKlagdBehandling = 5432L;
-        var journalpost = new JournalpostId("87654");
-        var dokumentMottatt = opprettMottattDokument(DokumentTypeId.SØKNAD_FORELDREPENGER_FØDSEL, påKlagdBehandling, journalpost);
-        var behandlingDokumentKlageOversendt = opprettBehandlingDokumentEntitet(behandlingId, journalpost, DokumentMalType.KLAGE_OVERSENDT);
+        var journalpost1 = new JournalpostId("12345");
+        var journalpost2 = new JournalpostId("67890");
+        var dokumentMottatt = opprettMottattDokument(DokumentTypeId.SØKNAD_FORELDREPENGER_FØDSEL, påKlagdBehandling, journalpost1);
+        var behandlingDokumentKlageOversendt = opprettBehandlingDokumentEntitet(behandlingId, journalpost2, DokumentMalType.KLAGE_OVERSENDT);
         when(behandlingDokumentRepository.hentHvisEksisterer(behandlingId)).thenReturn(Optional.of(behandlingDokumentKlageOversendt));
         when(mottatteDokumentRepository.hentMottatteDokument(påKlagdBehandling)).thenReturn(List.of(dokumentMottatt));
         when(mottatteDokumentRepository.hentMottatteDokument(behandlingId)).thenReturn(List.of());
@@ -160,9 +165,9 @@ class KabalDokumenterTest {
             KlageResultatEntitet.builder().medKlageBehandlingId(behandlingId).medPåKlagdBehandlingId(påKlagdBehandling).build(), KlageHjemmel.ENGANGS);
 
         assertThat(dokumentReferanses).hasSize(2);
-        assertThat(dokumentReferanses.get(0).journalpostId()).isEqualTo(journalpost.getVerdi());
+        assertThat(dokumentReferanses.get(0).journalpostId()).isEqualTo(journalpost2.getVerdi());
         assertThat(dokumentReferanses.get(0).type()).isEqualTo(TilKabalDto.DokumentReferanseType.OVERSENDELSESBREV);
-        assertThat(dokumentReferanses.get(1).journalpostId()).isEqualTo(journalpost.getVerdi());
+        assertThat(dokumentReferanses.get(1).journalpostId()).isEqualTo(journalpost1.getVerdi());
         assertThat(dokumentReferanses.get(1).type()).isEqualTo(TilKabalDto.DokumentReferanseType.BRUKERS_SOEKNAD);
     }
 
