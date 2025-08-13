@@ -236,12 +236,12 @@ public class SvpDtoTjeneste {
             //Noe er feil siden vi har tidligere vedtak som kilde, men ingen tidligere behandling. Men skal vi kaste exception?
             throw new IllegalStateException("SvpDtoTjeneste: Fant ikke opprinnelig behandling for opphold med kilde TIDLIGERE_VEDTAK i behandling " + behandling.getId());
         }
-        SvpSak.OppholdPeriode.OppholdKilde oppholdKilde;
+        SvpOppholdKilde oppholdKilde;
 
         while (gjeldendeBehandling != null) {
             oppholdKilde = finnKildeFraForrigeBehandling(gjeldendeBehandling, gjeldendeOpphold);
-            if (!SvpSak.OppholdPeriode.OppholdKilde.TIDLIGERE_VEDTAK.equals(oppholdKilde)) {
-                return oppholdKilde != null ? oppholdKilde : SvpSak.OppholdPeriode.OppholdKilde.SAKSBEHANDLER;
+            if (!SvpOppholdKilde.TIDLIGERE_VEDTAK.equals(oppholdKilde)) {
+                return oppholdKilde != null ? mapOppholdKilde(oppholdKilde) : SvpSak.OppholdPeriode.OppholdKilde.SAKSBEHANDLER;
             }
             gjeldendeBehandling = gjeldendeBehandling.getOriginalBehandlingId()
                 .map(orgBehId -> felles.finnBehandling(orgBehId))
@@ -251,7 +251,7 @@ public class SvpDtoTjeneste {
         return SvpSak.OppholdPeriode.OppholdKilde.SAKSBEHANDLER;
     }
 
-    private SvpSak.OppholdPeriode.OppholdKilde finnKildeFraForrigeBehandling(Behandling origbehandling, SvpAvklartOpphold gjeldendeOpphold) {
+    private SvpOppholdKilde finnKildeFraForrigeBehandling(Behandling origbehandling, SvpAvklartOpphold gjeldendeOpphold) {
             return svangerskapspengerRepository.hentGrunnlag(origbehandling.getId())
                 .map(grunnlag -> grunnlag.getGjeldendeVersjon().getTilretteleggingListe())
                 .orElse(Collections.emptyList())
@@ -260,7 +260,7 @@ public class SvpDtoTjeneste {
                 .filter(forrigeOpphold -> forrigeOpphold.getFom().equals(gjeldendeOpphold.getFom()) && forrigeOpphold.getTom()
                     .equals(gjeldendeOpphold.getTom()) && forrigeOpphold.getOppholdÅrsak() == gjeldendeOpphold.getOppholdÅrsak())
                 .findFirst()
-                .map(opphold -> mapOppholdKilde(opphold.getKilde()))
+                .map(SvpAvklartOpphold::getKilde)
                 .orElse(null);
     }
 
@@ -268,7 +268,7 @@ public class SvpDtoTjeneste {
         return switch (kilde) {
             case SØKNAD -> SvpSak.OppholdPeriode.OppholdKilde.SØKNAD;
             case REGISTRERT_AV_SAKSBEHANDLER -> SvpSak.OppholdPeriode.OppholdKilde.SAKSBEHANDLER;
-            case TIDLIGERE_VEDTAK -> SvpSak.OppholdPeriode.OppholdKilde.TIDLIGERE_VEDTAK;
+            case TIDLIGERE_VEDTAK -> throw new IllegalStateException("SvpDtoTjeneste: TIDLIGERE_VEDTAK skal ikke mappes til fpoversikt");
         };
     }
 

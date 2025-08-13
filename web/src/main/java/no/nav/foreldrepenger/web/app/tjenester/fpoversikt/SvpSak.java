@@ -36,8 +36,7 @@ record SvpSak(String saksnummer,
         public enum OppholdKilde {
             SØKNAD,
             SAKSBEHANDLER,
-            INNTEKTSMELDING,
-            TIDLIGERE_VEDTAK
+            INNTEKTSMELDING
         }
     }
     public record Vedtak(LocalDateTime vedtakstidspunkt, Set<ArbeidsforholdUttak> arbeidsforhold, AvslagÅrsak avslagÅrsak) {
