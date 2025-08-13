@@ -124,59 +124,6 @@ class PersonopplysningerForUttakImplTest {
         assertThat(personopplysninger.ektefelleHarSammeBosted(ref, stp)).isTrue();
     }
 
-    @Test
-    void skal_returnere_at_annenpart_er_uten_norsk_id() {
-        var personopplysningTjeneste = mock(PersonopplysningTjeneste.class);
-        var personopplysninger = new PersonopplysningerForUttakImpl(personopplysningTjeneste);
-
-        var behandling = ScenarioFarSøkerForeldrepenger.forFødsel().lagre(new UttakRepositoryStubProvider());
-        var ref = BehandlingReferanse.fra(behandling);
-
-        var personopplysningGrunnlagBuilder = PersonopplysningGrunnlagBuilder.oppdatere(Optional.empty())
-            .medOppgittAnnenPart(new OppgittAnnenPartBuilder().medAktørId(null).medUtenlandskFnr("123").build());
-        var personopplysningerAggregat = new PersonopplysningerAggregat(personopplysningGrunnlagBuilder.build(),
-            behandling.getAktørId());
-        when(personopplysningTjeneste.hentPersonopplysninger(ref)).thenReturn(personopplysningerAggregat);
-
-        assertThat(personopplysninger.oppgittAnnenpartUtenNorskID(ref)).isTrue();
-    }
-
-    @Test
-    void skal_returnere_at_annenpart_ikke_er_uten_norsk_id_hvis_ukjent_annenpart() {
-        var personopplysningTjeneste = mock(PersonopplysningTjeneste.class);
-        var personopplysninger = new PersonopplysningerForUttakImpl(personopplysningTjeneste);
-
-        var behandling = ScenarioFarSøkerForeldrepenger.forFødsel().lagre(new UttakRepositoryStubProvider());
-        var ref = BehandlingReferanse.fra(behandling);
-
-        var personopplysningGrunnlagBuilder = PersonopplysningGrunnlagBuilder.oppdatere(Optional.empty())
-
-            //Ukjent forelder lagres slik i db
-            .medOppgittAnnenPart(new OppgittAnnenPartBuilder().medAktørId(null).medUtenlandskFnrLand(null).medUtenlandskFnr(null).build());
-        var personopplysningerAggregat = new PersonopplysningerAggregat(personopplysningGrunnlagBuilder.build(),
-            behandling.getAktørId());
-        when(personopplysningTjeneste.hentPersonopplysninger(ref)).thenReturn(personopplysningerAggregat);
-
-        assertThat(personopplysninger.oppgittAnnenpartUtenNorskID(ref)).isFalse();
-    }
-
-    @Test
-    void skal_returnere_at_annenpart_ikke_er_uten_norsk_id() {
-        var personopplysningTjeneste = mock(PersonopplysningTjeneste.class);
-        var personopplysninger = new PersonopplysningerForUttakImpl(personopplysningTjeneste);
-
-        var behandling = ScenarioFarSøkerForeldrepenger.forFødsel().lagre(new UttakRepositoryStubProvider());
-        var ref = BehandlingReferanse.fra(behandling);
-
-        var personopplysningGrunnlagBuilder = PersonopplysningGrunnlagBuilder.oppdatere(Optional.empty())
-            .medOppgittAnnenPart(new OppgittAnnenPartBuilder().medAktørId(AktørId.dummy()).medAktørId(AktørId.dummy()).build());
-        var personopplysningerAggregat = new PersonopplysningerAggregat(personopplysningGrunnlagBuilder.build(),
-            behandling.getAktørId());
-        when(personopplysningTjeneste.hentPersonopplysninger(ref)).thenReturn(personopplysningerAggregat);
-
-        assertThat(personopplysninger.oppgittAnnenpartUtenNorskID(ref)).isFalse();
-    }
-
     private PersonopplysningerAggregat personOpplysningerMedDødsdato(LocalDate dødsdato, Behandling behandling) {
         var personInformasjonBuilder = PersonInformasjonBuilder.oppdater(Optional.empty(),
             PersonopplysningVersjonType.REGISTRERT);

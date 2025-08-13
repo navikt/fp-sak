@@ -1,14 +1,7 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.aksjonspunkt;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterParameter;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterer;
@@ -16,19 +9,16 @@ import no.nav.foreldrepenger.behandling.aksjonspunkt.DtoTilServiceAdapter;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.OppdateringResultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagLinjeBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
 import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.SkjermlenkeType;
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.Rettighetstype;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.app.FaktaOmsorgRettTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto.AvklarAleneomsorgVurderingDto;
-import no.nav.vedtak.exception.FunksjonellException;
 
 @ApplicationScoped
 @DtoTilServiceAdapter(dto = AvklarAleneomsorgVurderingDto.class, adapter = AksjonspunktOppdaterer.class)
 public class BekreftAleneomsorgOppdaterer implements AksjonspunktOppdaterer<AvklarAleneomsorgVurderingDto> {
-
-    private static final Logger LOG = LoggerFactory.getLogger(BekreftAleneomsorgOppdaterer.class);
 
     private FaktaOmsorgRettTjeneste faktaOmsorgRettTjeneste;
     private HistorikkinnslagRepository historikkRepository;
@@ -45,31 +35,12 @@ public class BekreftAleneomsorgOppdaterer implements AksjonspunktOppdaterer<Avkl
 
     @Override
     public OppdateringResultat oppdater(AvklarAleneomsorgVurderingDto dto, AksjonspunktOppdaterParameter param) {
-        // Må ha valgt aleneomsorg = true, annenForelderRett = true, eller annenForelderRettEØS = true, eller valgt uføretrygd true/false
-        if (måVelgeUføre(dto, param.getRef().relasjonRolle()) && dto.getAnnenforelderMottarUføretrygd() == null) {
-            LOG.warn("Avklar aleneomsorg: får inn denne Dto'en som gir feil {}", dto);
-            throw new FunksjonellException("FP-093924", "Avkreftet aleneomsorg mangler verdi for annen forelder rett eller uføretrygd.",
-                "Angi om annen forelder har rett eller om annen forelder mottar uføretrygd.");
-        }
-        var totrinn = faktaOmsorgRettTjeneste.totrinnForAleneomsorg(param, dto.getAleneomsorg());
+        var nyRettighetstype = utledRettighetstype(param.getRef().relasjonRolle(), dto);
+        var totrinn = faktaOmsorgRettTjeneste.totrinnForRettighetsavklaring(param, nyRettighetstype);
 
+        var historikkinnslagLinjer = faktaOmsorgRettTjeneste.aleneomsorgAvklaringHistorikkLinjer(nyRettighetstype, dto.getBegrunnelse());
 
-        List<HistorikkinnslagLinjeBuilder> historikkinnslagLinjer = new ArrayList<>();
-        var aleneomsorglinje = faktaOmsorgRettTjeneste.aleneomsorgHistorikkLinje(param, dto.getAleneomsorg());
-        aleneomsorglinje.ifPresent(historikkinnslagLinjer::add);
-
-        faktaOmsorgRettTjeneste.oppdaterAleneomsorg(param, dto.getAleneomsorg());
-        if (!dto.getAleneomsorg() && dto.getAnnenforelderHarRett() != null) {
-            // Inntil videre ...
-            totrinn = totrinn || faktaOmsorgRettTjeneste.totrinnForAnnenforelderRett(param, dto.getAnnenforelderHarRett(),
-                dto.getAnnenforelderMottarUføretrygd(), dto.getAnnenForelderHarRettEØS());
-            historikkinnslagLinjer.addAll(faktaOmsorgRettTjeneste.annenforelderRettHistorikkLinjer(param, dto.getAnnenforelderHarRett(),
-                dto.getAnnenforelderMottarUføretrygd(), dto.getAnnenForelderHarRettEØS()));
-            faktaOmsorgRettTjeneste.oppdaterAnnenforelderRett(param, dto.getAnnenforelderHarRett(), dto.getAnnenforelderMottarUføretrygd(),
-                dto.getAnnenForelderHarRettEØS());
-        }
-        var omsorgRettLinje = faktaOmsorgRettTjeneste.omsorgRettHistorikkLinje(param, dto.getBegrunnelse());
-        omsorgRettLinje.ifPresent(historikkinnslagLinjer::add);
+        faktaOmsorgRettTjeneste.avklarRettighet(param, nyRettighetstype);
 
         historikkRepository.lagre(new Historikkinnslag.Builder().medAktør(HistorikkAktør.SAKSBEHANDLER)
             .medFagsakId(param.getFagsakId())
@@ -81,9 +52,18 @@ public class BekreftAleneomsorgOppdaterer implements AksjonspunktOppdaterer<Avkl
         return OppdateringResultat.utenTransisjon().medTotrinnHvis(totrinn).build();
     }
 
-    private static boolean måVelgeUføre(AvklarAleneomsorgVurderingDto dto, RelasjonsRolleType relasjonsRolleType) {
-        return relasjonsRolleType != RelasjonsRolleType.MORA && !(Objects.equals(dto.getAleneomsorg(), Boolean.TRUE) || Objects.equals(dto.getAnnenforelderHarRett(), Boolean.TRUE) || Objects.equals(
-            dto.getAnnenForelderHarRettEØS(), Boolean.TRUE));
+    private Rettighetstype utledRettighetstype(RelasjonsRolleType relasjonsRolleType,
+                                               AvklarAleneomsorgVurderingDto dto) {
+        if (dto.getAleneomsorg()) {
+            return Rettighetstype.ALENEOMSORG;
+        } else if (Boolean.TRUE.equals(dto.getAnnenforelderHarRett())) {
+            return Rettighetstype.BEGGE_RETT;
+        } else if (Boolean.TRUE.equals(dto.getAnnenforelderMottarUføretrygd())) {
+            return Rettighetstype.BARE_FAR_RETT_MOR_UFØR;
+        } else if (Boolean.TRUE.equals(dto.getAnnenForelderHarRettEØS())) {
+            return Rettighetstype.BEGGE_RETT_EØS;
+        } else {
+            return relasjonsRolleType.erFarEllerMedMor() ? Rettighetstype.BARE_FAR_RETT : Rettighetstype.BARE_MOR_RETT;
+        }
     }
-
 }
