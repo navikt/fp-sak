@@ -149,9 +149,9 @@ public class TilretteleggingOversetter {
 
         nyFomListe.sort(Comparator.comparing(TilretteleggingFOM::getFomDato));
 
-        //Vi beholder innvilgede oppholdsperioder som er før nyeste svangerskapspengeperiode
+        //Vi beholder innvilgede oppholdsperioder som er før nyeste svangerskapspengeperiode og ikke finnes i listen over nye oppholdsperioder
         var eksisterendeOppholdSomSkalBeholdes = eksisterendeTlr.getAvklarteOpphold().stream()
-            .filter(eksOpphold -> eksOpphold.getFom().isBefore(tidligsteNyFom))
+            .filter(eksOpphold -> eksOpphold.getFom().isBefore(tidligsteNyFom) && !finnesIListenOverNyeOpphold(nyTlR, eksOpphold))
             .map(eksOpphold ->
                     SvpAvklartOpphold.Builder.nytt()
                         .medKilde(SvpOppholdKilde.TIDLIGERE_VEDTAK)
@@ -168,6 +168,11 @@ public class TilretteleggingOversetter {
         nyTlR.getAvklarteOpphold().forEach(justertTilrettelegging::medAvklartOpphold);
 
         return justertTilrettelegging.build();
+    }
+
+    private boolean finnesIListenOverNyeOpphold(SvpTilretteleggingEntitet nyTlR, SvpAvklartOpphold eksOpphold) {
+        return nyTlR.getAvklarteOpphold().stream()
+            .anyMatch(nyOpphold -> nyOpphold.getFom().equals(eksOpphold.getFom()) && nyOpphold.getTom().equals(eksOpphold.getTom())&& nyOpphold.getOppholdÅrsak().equals(eksOpphold.getOppholdÅrsak()));
     }
 
     private void oversettArbeidsforhold(SvpTilretteleggingEntitet.Builder builder, Arbeidsforhold arbeidsforhold) {
