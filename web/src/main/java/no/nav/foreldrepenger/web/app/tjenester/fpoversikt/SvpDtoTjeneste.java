@@ -3,6 +3,7 @@ package no.nav.foreldrepenger.web.app.tjenester.fpoversikt;
 import static no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef.nullRef;
 import static no.nav.foreldrepenger.web.app.tjenester.fpoversikt.DtoTjenesteFelles.statusForSøknad;
 
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
@@ -19,6 +20,8 @@ import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.MottattDokument;
 import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.SvangerskapspengerRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.SvpAvklartOpphold;
+import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.SvpOppholdKilde;
 import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.SvpTilretteleggingEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.TilretteleggingFOM;
 import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.TilretteleggingType;
@@ -120,6 +123,7 @@ public class SvpDtoTjeneste {
         }
 
         var behandling = felles.finnBehandling(behandlingId);
+
         return uttak.map(u -> {
             var tilretteleggingListe = svangerskapspengerRepository.hentGrunnlag(behandlingId)
                 .orElseThrow()
@@ -193,7 +197,7 @@ public class SvpDtoTjeneste {
     }
 
     private Set<SvpSak.OppholdPeriode> finnAlleOppholdsperioderFraTlr(SvpTilretteleggingEntitet tilrettelegging, Behandling behandling) {
-        var oppholdspFraSaksbehandler = oppholdsperioderFraSøknadOgSaksbehandler(tilrettelegging);
+        var oppholdspFraSaksbehandler = oppholdsperioderFraSøknadOgSaksbehandler(tilrettelegging, behandling);
         Set<SvpSak.OppholdPeriode> alleOppholdForArbforhold = new HashSet<>(oppholdspFraSaksbehandler);
         //opphold fra inntektsmelding
         tilrettelegging.getArbeidsgiver().ifPresent(arbeidsgiver -> {
@@ -204,7 +208,7 @@ public class SvpDtoTjeneste {
         return alleOppholdForArbforhold;
     }
 
-    private static Set<SvpSak.OppholdPeriode> oppholdsperioderFraSøknadOgSaksbehandler(SvpTilretteleggingEntitet matchendeTilrettelegging) {
+    Set<SvpSak.OppholdPeriode> oppholdsperioderFraSøknadOgSaksbehandler(SvpTilretteleggingEntitet matchendeTilrettelegging, Behandling behandling) {
         return matchendeTilrettelegging.getAvklarteOpphold().stream().map(o -> {
             var oppholdÅrsak = switch (o.getOppholdÅrsak()) {
                 case SYKEPENGER -> SvpSak.OppholdPeriode.Årsak.SYKEPENGER;
@@ -213,10 +217,59 @@ public class SvpDtoTjeneste {
             SvpSak.OppholdPeriode.OppholdKilde oppholdKilde = switch (o.getKilde()) {
                 case SØKNAD -> SvpSak.OppholdPeriode.OppholdKilde.SØKNAD;
                 case REGISTRERT_AV_SAKSBEHANDLER -> SvpSak.OppholdPeriode.OppholdKilde.SAKSBEHANDLER;
+                case TIDLIGERE_VEDTAK -> utledOpprinneligKilde(behandling, o);
                 case null -> SvpSak.OppholdPeriode.OppholdKilde.SAKSBEHANDLER;
             };
-            return new SvpSak.OppholdPeriode(o.getFom(), o.getTom(), oppholdÅrsak, oppholdKilde);
+            return new SvpSak.OppholdPeriode(o.getFom(), o.getTom(), oppholdÅrsak,oppholdKilde);
         }).collect(Collectors.toSet());
+    }
+
+    private SvpSak.OppholdPeriode.OppholdKilde utledOpprinneligKilde(Behandling behandling, SvpAvklartOpphold gjeldendeOpphold) {
+        if (behandling == null) {
+            //behandling skal ikke være null, noe er feil i koden
+            throw new IllegalStateException("SvpDtoTjeneste: Utviklerfeil for utledOpprinneligKilde: Ingen behandling, noe er feil i koden");
+        }
+        var gjeldendeBehandling = behandling.getOriginalBehandlingId()
+            .map(orgBehId -> felles.finnBehandling(orgBehId))
+            .orElse(null);
+        if (gjeldendeBehandling == null) {
+            //Noe er feil siden vi har tidligere vedtak som kilde, men ingen tidligere behandling. Men skal vi kaste exception?
+            throw new IllegalStateException("SvpDtoTjeneste: Fant ikke opprinnelig behandling for opphold med kilde TIDLIGERE_VEDTAK i behandling " + behandling.getId());
+        }
+        SvpOppholdKilde oppholdKilde;
+
+        while (gjeldendeBehandling != null) {
+            oppholdKilde = finnKildeFraForrigeBehandling(gjeldendeBehandling, gjeldendeOpphold);
+            if (!SvpOppholdKilde.TIDLIGERE_VEDTAK.equals(oppholdKilde)) {
+                return oppholdKilde != null ? mapOppholdKilde(oppholdKilde) : SvpSak.OppholdPeriode.OppholdKilde.SAKSBEHANDLER;
+            }
+            gjeldendeBehandling = gjeldendeBehandling.getOriginalBehandlingId()
+                .map(orgBehId -> felles.finnBehandling(orgBehId))
+                .orElse(null);
+        }
+        //Hvis vi ikke finner noen tidligere behandlinger, så setter vi saksbehandler som kilde slik at bruker kan ta kontakt med oss om noe er feil.
+        return SvpSak.OppholdPeriode.OppholdKilde.SAKSBEHANDLER;
+    }
+
+    private SvpOppholdKilde finnKildeFraForrigeBehandling(Behandling origbehandling, SvpAvklartOpphold gjeldendeOpphold) {
+            return svangerskapspengerRepository.hentGrunnlag(origbehandling.getId())
+                .map(grunnlag -> grunnlag.getGjeldendeVersjon().getTilretteleggingListe())
+                .orElse(Collections.emptyList())
+                .stream()
+                .flatMap(forrige -> forrige.getAvklarteOpphold().stream())
+                .filter(forrigeOpphold -> forrigeOpphold.getFom().equals(gjeldendeOpphold.getFom()) && forrigeOpphold.getTom()
+                    .equals(gjeldendeOpphold.getTom()) && forrigeOpphold.getOppholdÅrsak() == gjeldendeOpphold.getOppholdÅrsak())
+                .findFirst()
+                .map(SvpAvklartOpphold::getKilde)
+                .orElse(null);
+    }
+
+    private SvpSak.OppholdPeriode.OppholdKilde mapOppholdKilde(SvpOppholdKilde kilde) {
+        return switch (kilde) {
+            case SØKNAD -> SvpSak.OppholdPeriode.OppholdKilde.SØKNAD;
+            case REGISTRERT_AV_SAKSBEHANDLER -> SvpSak.OppholdPeriode.OppholdKilde.SAKSBEHANDLER;
+            case TIDLIGERE_VEDTAK -> throw new IllegalStateException("SvpDtoTjeneste: TIDLIGERE_VEDTAK skal ikke mappes til fpoversikt");
+        };
     }
 
     private Set<SvpSak.OppholdPeriode> oppholdsperioderFraIM(Behandling behandling,
@@ -271,29 +324,30 @@ public class SvpDtoTjeneste {
     private Set<SvpSak.Søknad> finnSvpSøknader(Optional<Behandling> åpenYtelseBehandling, List<MottattDokument> mottatteSøknader) {
         return mottatteSøknader.stream().map(md -> {
             var behandlingId = md.getBehandlingId();
+            var behandling = felles.finnBehandling(behandlingId);
             var status = statusForSøknad(åpenYtelseBehandling, behandlingId);
-            var tilrettelegginger = finnTilrettelegginger(behandlingId);
+            var tilrettelegginger = finnTilrettelegginger(behandling);
             return new SvpSak.Søknad(status, md.getMottattTidspunkt(), tilrettelegginger);
         }).collect(Collectors.toSet());
     }
 
-    private Set<SvpSak.Søknad.Tilrettelegging> finnTilrettelegginger(Long behandlingId) {
-        return svangerskapspengerRepository.hentGrunnlag(behandlingId)
-            .map(svpGrunnlag -> svpGrunnlag.getOpprinneligeTilrettelegginger()
-                .getTilretteleggingListe()
-                .stream()
-                .map(this::map)
-                .collect(Collectors.toSet()))
+    private Set<SvpSak.Søknad.Tilrettelegging> finnTilrettelegginger(Behandling behandling) {
+        return svangerskapspengerRepository.hentGrunnlag(behandling.getId())
+                .map(svpGrunnlag -> svpGrunnlag.getOpprinneligeTilrettelegginger()
+                    .getTilretteleggingListe()
+                    .stream()
+                    .map(ot -> map(ot, behandling))
+                    .collect(Collectors.toSet()))
             .orElse(Set.of());
     }
 
-    private SvpSak.Søknad.Tilrettelegging map(SvpTilretteleggingEntitet tl) {
+    private SvpSak.Søknad.Tilrettelegging map(SvpTilretteleggingEntitet tl, Behandling behandling) {
         var aktivitet = utledAktivitet(tl);
         var perioder = tl.getTilretteleggingFOMListe().stream().map(tFom -> {
             SvpSak.TilretteleggingType tilretteleggingType = mapTilretteleggingType(tFom.getType());
             return new SvpSak.Søknad.Tilrettelegging.Periode(tFom.getFomDato(), tilretteleggingType, tFom.getStillingsprosent());
         }).collect(Collectors.toSet());
-        Set<SvpSak.OppholdPeriode> oppholdsperioder = oppholdsperioderFraSøknadOgSaksbehandler(tl);
+        Set<SvpSak.OppholdPeriode> oppholdsperioder = oppholdsperioderFraSøknadOgSaksbehandler(tl, behandling);
         return new SvpSak.Søknad.Tilrettelegging(aktivitet, tl.getBehovForTilretteleggingFom(), tl.getOpplysningerOmRisikofaktorer().orElse(null),
             tl.getOpplysningerOmTilretteleggingstiltak().orElse(null), perioder, oppholdsperioder);
     }

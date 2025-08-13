@@ -8,11 +8,10 @@ import java.util.Collections;
 
 import jakarta.inject.Inject;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import no.nav.foreldrepenger.behandling.revurdering.ytelse.UttakInputTjeneste;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingTypeRef;
+import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.aktør.AdresseType;
 import no.nav.foreldrepenger.behandlingslager.aktør.Adresseinfo;
@@ -28,23 +27,12 @@ import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeType;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Landkoder;
-import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioFarSøkerForeldrepenger;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
 import no.nav.foreldrepenger.dbstoette.CdiDbAwareTest;
 import no.nav.foreldrepenger.domene.typer.AktørId;
-import no.nav.foreldrepenger.domene.uttak.fakta.OmsorgRettUttakTjeneste;
 
 @CdiDbAwareTest
 class KontrollerOmsorgRettFørstegangsbehandlingStegTest {
-
-    private static final AktørId FAR_AKTØR_ID = AktørId.dummy();
-
-    private Behandling behandling;
-    @Inject
-    private BehandlingRepositoryProvider repositoryProvider;
-
-    @Inject
-    private RyddOmsorgRettTjeneste ryddOmsorgRettTjeneste;
 
     @Inject
     @FagsakYtelseTypeRef(FagsakYtelseType.FORELDREPENGER)
@@ -52,50 +40,19 @@ class KontrollerOmsorgRettFørstegangsbehandlingStegTest {
     private KontrollerOmsorgRettFørstegangsbehandlingSteg steg;
 
     @Inject
-    private UttakInputTjeneste uttakInputTjeneste;
-
-    @Inject
-    private OmsorgRettUttakTjeneste tjeneste;
-
-    private static ScenarioFarSøkerForeldrepenger opprettBehandlingForFarSomSøker() {
-        var scenario = ScenarioFarSøkerForeldrepenger.forFødselMedGittAktørId(FAR_AKTØR_ID);
-        scenario.medSøknadHendelse().medFødselsDato(LocalDate.now());
-
-        var personInformasjon = scenario
-                .opprettBuilderForRegisteropplysninger()
-                .medPersonas()
-                .mann(FAR_AKTØR_ID, SivilstandType.SAMBOER).statsborgerskap(Landkoder.NOR)
-                .build();
-
-        scenario.medRegisterOpplysninger(personInformasjon);
-
-        var rettighet = OppgittRettighetEntitet.beggeRett();
-        scenario.medOppgittRettighet(rettighet);
-        var now = LocalDate.now();
-        scenario.medFordeling(new OppgittFordelingEntitet(Collections.singletonList(OppgittPeriodeBuilder.ny()
-                .medPeriodeType(UttakPeriodeType.FEDREKVOTE)
-                .medPeriode(now.plusWeeks(8), now.plusWeeks(12))
-                .build()), true));
-        return scenario;
-    }
-
-    @BeforeEach
-    void oppsett() {
-        var scenario = opprettBehandlingForFarSomSøker();
-        behandling = scenario.lagre(repositoryProvider);
-        steg = new KontrollerOmsorgRettFørstegangsbehandlingSteg(uttakInputTjeneste, tjeneste, ryddOmsorgRettTjeneste);
-    }
+    private BehandlingRepositoryProvider repositoryProvider;
 
     @Test
     void skal_utledede_aksjonspunkt_basert_på_fakta_om_foreldrepenger_til_mor() {
         // oppsett
-        byggBehandingMedMorSøkerTypeOgHarAleneOmsorgOgAnnenforelderHarIkkeRett();
+        var behandling = byggBehandingMedMorSøkerTypeOgHarAleneOmsorgOgAnnenforelderHarIkkeRett();
 
-        var input = uttakInputTjeneste.lagInput(behandling);
-        var resultat = tjeneste.utledAksjonspunkter(input);
+        var resultat = steg.utførSteg(
+            new BehandlingskontrollKontekst(behandling, repositoryProvider.getBehandlingLåsRepository().taLås(behandling.getId())));
 
         // Assert
-        assertThat(resultat).containsExactlyInAnyOrder(MANUELL_KONTROLL_AV_OM_BRUKER_HAR_ALENEOMSORG);
+        assertThat(resultat.getAksjonspunktResultater().getFirst().getAksjonspunktDefinisjon()).isEqualTo(
+            MANUELL_KONTROLL_AV_OM_BRUKER_HAR_ALENEOMSORG);
 
     }
 
@@ -109,47 +66,40 @@ class KontrollerOmsorgRettFørstegangsbehandlingStegTest {
         var builderForRegisteropplysninger = scenario.opprettBuilderForRegisteropplysninger();
 
         var bostedsadresse = Adresseinfo.builder(AdresseType.BOSTEDSADRESSE)
-            .medAdresselinje1("Portveien 2").medPostnummer("7000").medLand(Landkoder.NOR)
+            .medAdresselinje1("Portveien 2")
+            .medPostnummer("7000")
+            .medLand(Landkoder.NOR)
             .build();
 
-        var annenPrt = builderForRegisteropplysninger
-                .medPersonas()
-                .mann(AKTØR_ID_FAR, SivilstandType.GIFT)
-                .bostedsadresse(new AdressePeriode(null, bostedsadresse))
-                .relasjonTil(AKTØR_ID_MOR, RelasjonsRolleType.EKTE, true)
-                .build();
+        var annenPrt = builderForRegisteropplysninger.medPersonas()
+            .mann(AKTØR_ID_FAR, SivilstandType.GIFT)
+            .bostedsadresse(new AdressePeriode(null, bostedsadresse))
+            .relasjonTil(AKTØR_ID_MOR, RelasjonsRolleType.EKTE, true)
+            .build();
         scenario.medRegisterOpplysninger(annenPrt);
 
-        var søker = builderForRegisteropplysninger
-                .medPersonas()
-                .kvinne(AKTØR_ID_MOR, SivilstandType.GIFT)
-                .bostedsadresse(new AdressePeriode(null, bostedsadresse))
-                .statsborgerskap(Landkoder.NOR)
-                .relasjonTil(AKTØR_ID_FAR, RelasjonsRolleType.EKTE, true)
-                .build();
+        var søker = builderForRegisteropplysninger.medPersonas()
+            .kvinne(AKTØR_ID_MOR, SivilstandType.GIFT)
+            .bostedsadresse(new AdressePeriode(null, bostedsadresse))
+            .statsborgerskap(Landkoder.NOR)
+            .relasjonTil(AKTØR_ID_FAR, RelasjonsRolleType.EKTE, true)
+            .build();
 
         scenario.medRegisterOpplysninger(søker);
 
-        scenario.medSøknadAnnenPart()
-                .medAktørId(AKTØR_ID_FAR);
+        scenario.medSøknadAnnenPart().medAktørId(AKTØR_ID_FAR);
 
         scenario.medSøknad();
         scenario.medOppgittRettighet(rettighet);
         var hendelseBuilder = scenario.medSøknadHendelse();
         var termindato = LocalDate.now().plusDays(35);
-        hendelseBuilder.medTerminbekreftelse(hendelseBuilder.getTerminbekreftelseBuilder()
-                .medNavnPå("asdf")
-                .medUtstedtDato(LocalDate.now())
-                .medTermindato(termindato));
+        hendelseBuilder.medTerminbekreftelse(
+            hendelseBuilder.getTerminbekreftelseBuilder().medNavnPå("asdf").medUtstedtDato(LocalDate.now()).medTermindato(termindato));
 
         scenario.medFordeling(new OppgittFordelingEntitet(Collections.singletonList(
-                OppgittPeriodeBuilder.ny()
-                        .medPeriode(termindato, termindato.plusWeeks(6))
-                        .medPeriodeType(UttakPeriodeType.FORELDREPENGER)
-                        .build()),
-                true));
+            OppgittPeriodeBuilder.ny().medPeriode(termindato, termindato.plusWeeks(6)).medPeriodeType(UttakPeriodeType.FORELDREPENGER).build()),
+            true));
 
-        behandling = scenario.lagre(repositoryProvider);
-        return behandling;
+        return scenario.lagre(repositoryProvider);
     }
 }

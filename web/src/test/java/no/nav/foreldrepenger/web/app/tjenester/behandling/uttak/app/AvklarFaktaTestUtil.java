@@ -10,7 +10,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.Ytelses
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittFordelingEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeType;
-import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
+import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioFarSøkerForeldrepenger;
 import no.nav.foreldrepenger.behandlingslager.uttak.Uttaksperiodegrense;
 import no.nav.foreldrepenger.behandlingslager.uttak.UttaksperiodegrenseRepository;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto.AvklarAnnenforelderHarRettDto;
@@ -20,7 +20,7 @@ public class AvklarFaktaTestUtil {
     private AvklarFaktaTestUtil() {
     }
 
-    public static AvklarAnnenforelderHarRettDto opprettDtoAvklarAnnenforelderharIkkeRett() {
+    public static AvklarAnnenforelderHarRettDto opprettDtoAvklarAnnenforelderHarRett() {
         var dto = new AvklarAnnenforelderHarRettDto("Har rett");
         dto.setAnnenforelderHarRett(true);
         return dto;
@@ -46,11 +46,10 @@ public class AvklarFaktaTestUtil {
         new UttaksperiodegrenseRepository(entityManager).lagre(behandlingId, uttaksperiodegrense);
     }
 
-    public static ScenarioMorSøkerForeldrepenger opprettScenarioMorSøkerForeldrepenger() {
-        var scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
+    public static ScenarioFarSøkerForeldrepenger opprettScenarioFarSøkerForeldrepenger(OppgittRettighetEntitet rettighet) {
+        var scenario = ScenarioFarSøkerForeldrepenger.forFødsel();
         scenario.medSøknad();
         scenario.medSøknadHendelse().medFødselsDato(LocalDate.now());
-        var rettighet = OppgittRettighetEntitet.aleneomsorg();
         scenario.medOppgittRettighet(rettighet);
         return scenario;
     }

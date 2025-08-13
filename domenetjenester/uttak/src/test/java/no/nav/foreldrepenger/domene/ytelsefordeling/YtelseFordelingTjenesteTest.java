@@ -8,6 +8,7 @@ import java.util.List;
 
 import org.junit.jupiter.api.Test;
 
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.Rettighetstype;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeType;
@@ -25,7 +26,7 @@ class YtelseFordelingTjenesteTest {
         var scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
         var behandling = scenario.lagre(repositoryProvider);
 
-        tjeneste.bekreftAnnenforelderHarRett(behandling.getId(), false, null, null);
+        tjeneste.avklarRettighet(behandling.getId(), Rettighetstype.BARE_MOR_RETT);
 
         var perioderAnnenforelderHarRett = tjeneste.hentAggregat(behandling.getId()).getAnnenForelderRettAvklaring();
 
@@ -37,7 +38,7 @@ class YtelseFordelingTjenesteTest {
         var scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
         var behandling = scenario.lagre(repositoryProvider);
 
-        tjeneste.bekreftAnnenforelderHarRett(behandling.getId(), true, null, null);
+        tjeneste.avklarRettighet(behandling.getId(), Rettighetstype.BEGGE_RETT);
 
         var perioderAnnenforelderHarRett = tjeneste.hentAggregat(behandling.getId()).getAnnenForelderRettAvklaring();
 
