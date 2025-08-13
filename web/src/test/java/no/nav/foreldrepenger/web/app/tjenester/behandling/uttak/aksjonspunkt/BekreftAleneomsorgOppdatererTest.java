@@ -40,7 +40,6 @@ class BekreftAleneomsorgOppdatererTest extends EntityManagerAwareTest {
     @Test
     void bekrefter_aleneomsorg_ikke_totrinn() {
         // Arrange
-        var oppdatertAleneOmsorg = true;
 
         // Behandling
         var scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
@@ -55,7 +54,7 @@ class BekreftAleneomsorgOppdatererTest extends EntityManagerAwareTest {
         var behandling = scenario.getBehandling();
         // Dto
         var dto = new AvklarAleneomsorgVurderingDto("begrunnelse.");
-        dto.setAleneomsorg(oppdatertAleneOmsorg);
+        dto.setAleneomsorg(true);
         dto.setAnnenforelderHarRett(true);
         var aksjonspunkt = behandling.getAksjonspunktFor(dto.getAksjonspunktDefinisjon());
         // Act
@@ -145,7 +144,7 @@ class BekreftAleneomsorgOppdatererTest extends EntityManagerAwareTest {
     }
 
     @Test
-    void skal_generere_trippelt_historikkinnslag_ved_avklaring_av_aleneomsorg_og_ikke_rett() {
+    void skal_generere_historikkinnslag_ved_avklaring_av_aleneomsorg_og_ikke_rett() {
         // Arrange
         var annenpart = AktørId.dummy();
         var oppdatertAleneOmsorg = false;
@@ -181,10 +180,11 @@ class BekreftAleneomsorgOppdatererTest extends EntityManagerAwareTest {
 
         assertThat(ytelseFordelingTjeneste.hentAggregat(behandling.getId()).getMorUføretrygdAvklaring()).isTrue();
 
-        assertThat(historikkinnslag.getFirst().getLinjer()).hasSize(4);
+        assertThat(historikkinnslag.getFirst().getLinjer()).hasSize(5);
         assertThat(historikkinnslag.getFirst().getLinjer().get(0).getTekst()).contains("Søker har ikke aleneomsorg for barnet");
         assertThat(historikkinnslag.getFirst().getLinjer().get(1).getTekst()).contains("Annen forelder har ikke rett");
-        assertThat(historikkinnslag.getFirst().getLinjer().get(2).getTekst()).contains("Mor mottar uføretrygd");
-        assertThat(historikkinnslag.getFirst().getLinjer().get(3).getTekst()).isEqualTo(dto.getBegrunnelse());
+        assertThat(historikkinnslag.getFirst().getLinjer().get(2).getTekst()).contains("Annen forelder har opptjent rett fra land i EØS");
+        assertThat(historikkinnslag.getFirst().getLinjer().get(3).getTekst()).contains("Mor mottar uføretrygd");
+        assertThat(historikkinnslag.getFirst().getLinjer().get(4).getTekst()).isEqualTo(dto.getBegrunnelse());
     }
 }

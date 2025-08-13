@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.Rettighetstype;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelsesFordelingRepository;
 import no.nav.foreldrepenger.domene.uttak.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
 import no.nav.foreldrepenger.domene.uttak.testutilities.behandling.UttakRepositoryStubProvider;
@@ -19,30 +20,17 @@ class BekreftFaktaForAleneomsorgAksjonspunktTest {
     void skal_lagre_ned_bekreftet_aksjonspunkt_aleneomsorg() {
         var behandling = opprettBehandling();
         var behandlingId = behandling.getId();
-        ytelseFordelingTjeneste.aksjonspunktBekreftFaktaForAleneomsorg(behandlingId, false);
+        ytelseFordelingTjeneste.avklarRettighet(behandlingId, Rettighetstype.BEGGE_RETT);
 
-        var perioderAleneOmsorg = ytelsesFordelingRepository.hentAggregat(
-            behandlingId).getAleneomsorgAvklaring();
-        assertThat(perioderAleneOmsorg)
-            .isNotNull()
-            .isFalse();
+        var aleneomsorgAvklaring = ytelsesFordelingRepository.hentAggregat(behandlingId).getAleneomsorgAvklaring();
+        assertThat(aleneomsorgAvklaring).isNotNull().isFalse();
 
-        var yfa = ytelsesFordelingRepository.hentAggregat(behandlingId);
-        var perioderAnnenforelderHarRettOptional = yfa.getAnnenForelderRettAvklaring();
-        assertThat(perioderAnnenforelderHarRettOptional).isNull();
+        ytelseFordelingTjeneste.avklarRettighet(behandlingId, Rettighetstype.ALENEOMSORG);
+        aleneomsorgAvklaring = ytelsesFordelingRepository.hentAggregat(behandlingId).getAleneomsorgAvklaring();
+        assertThat(aleneomsorgAvklaring).isNotNull().isTrue();
 
-        //må legge inn etter endret til har aleneomsorg
-        ytelseFordelingTjeneste.aksjonspunktBekreftFaktaForAleneomsorg(behandlingId, true);
-        perioderAleneOmsorg = ytelsesFordelingRepository.hentAggregat(behandlingId).getAleneomsorgAvklaring();
-        assertThat(perioderAleneOmsorg)
-            .isNotNull()
-            .isTrue();
-
-        perioderAnnenforelderHarRettOptional = ytelsesFordelingRepository.hentAggregat(behandlingId)
-            .getAnnenForelderRettAvklaring();
-        assertThat(perioderAnnenforelderHarRettOptional)
-            .isNotNull()
-            .isFalse();
+        var annenForelderRettAvklaring = ytelsesFordelingRepository.hentAggregat(behandlingId).getAnnenForelderRettAvklaring();
+        assertThat(annenForelderRettAvklaring).isNotNull().isFalse();
     }
 
     private Behandling opprettBehandling() {
