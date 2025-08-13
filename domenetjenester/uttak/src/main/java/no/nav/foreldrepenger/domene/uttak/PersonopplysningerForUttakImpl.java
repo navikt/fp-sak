@@ -95,17 +95,6 @@ public class PersonopplysningerForUttakImpl implements PersonopplysningerForUtta
         return harSammeAdresseSomBarn(personopplysningerAggregat, forPeriode);
     }
 
-    @Override
-    public boolean oppgittAnnenpartUtenNorskID(BehandlingReferanse ref) {
-        var personopplysningerAggregat = personopplysningTjeneste.hentPersonopplysninger(ref);
-        var opt = personopplysningerAggregat.getOppgittAnnenPart();
-        if (opt.isEmpty()) {
-            return false;
-        }
-        var oppgittAnnenpart = opt.get();
-        return oppgittAnnenpart.getAktørId() == null && oppgittAnnenpart.getUtenlandskPersonident() != null;
-    }
-
     private boolean erIkkeDød(PersonopplysningerAggregat personopplysningerAggregat, PersonRelasjonEntitet rel) {
         return personopplysningerAggregat.getPersonopplysning(rel.getTilAktørId()).getDødsdato() == null;
     }
