@@ -34,7 +34,7 @@ import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagKobling;
 import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagKoblingRepository;
 import no.nav.foreldrepenger.domene.fp.BesteberegningFødendeKvinneTjeneste;
 import no.nav.foreldrepenger.domene.mappers.KalkulusInputTjeneste;
-import no.nav.foreldrepenger.domene.mappers.fra_kalkulus_til_domene.KalkulusTilFpsakMapper;
+import no.nav.foreldrepenger.domene.mappers.fra_kalkulus.KalkulusTilFpsakMapper;
 import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagGrunnlag;
 import no.nav.foreldrepenger.domene.output.BeregningsgrunnlagVilkårOgAkjonspunktResultat;
 import no.nav.foreldrepenger.domene.typer.Beløp;

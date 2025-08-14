@@ -58,9 +58,7 @@ import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlag;
 import no.nav.foreldrepenger.domene.iay.modell.InntektsmeldingAggregat;
 import no.nav.foreldrepenger.domene.iay.modell.Inntektspost;
 import no.nav.foreldrepenger.domene.iay.modell.kodeverk.InntektsKilde;
-import no.nav.foreldrepenger.domene.json.StandardJsonConfig;
 import no.nav.foreldrepenger.domene.mappers.KalkulusInputTjeneste;
-import no.nav.foreldrepenger.domene.mappers.til_kalkulator.BeregningsgrunnlagInputProvider;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.typer.Beløp;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
@@ -88,7 +86,6 @@ public class ForvaltningBeregningRestTjeneste {
     private FagsakRepository fagsakRepository;
     private ProsessTaskTjeneste taskTjeneste;
     private BehandlingRepository behandlingRepository;
-    private BeregningsgrunnlagInputProvider beregningsgrunnlagInputProvider;
     private BeregningsgrunnlagRepository beregningsgrunnlagRepository;
     private InntektArbeidYtelseTjeneste iayTjeneste;
     private SatsRepository satsRepository;
@@ -98,7 +95,6 @@ public class ForvaltningBeregningRestTjeneste {
     public ForvaltningBeregningRestTjeneste(ProsessTaskTjeneste taskTjeneste,
                                             BehandlingRepository behandlingRepository,
                                             FagsakRepository fagsakRepository,
-                                            BeregningsgrunnlagInputProvider beregningsgrunnlagInputProvider,
                                             BeregningsgrunnlagRepository beregningsgrunnlagRepository,
                                             InntektArbeidYtelseTjeneste iayTjeneste,
                                             SatsRepository satsRepository,
@@ -106,7 +102,6 @@ public class ForvaltningBeregningRestTjeneste {
         this.taskTjeneste = taskTjeneste;
         this.behandlingRepository = behandlingRepository;
         this.fagsakRepository = fagsakRepository;
-        this.beregningsgrunnlagInputProvider = beregningsgrunnlagInputProvider;
         this.beregningsgrunnlagRepository = beregningsgrunnlagRepository;
         this.iayTjeneste = iayTjeneste;
         this.satsRepository = satsRepository;
@@ -237,40 +232,6 @@ public class ForvaltningBeregningRestTjeneste {
         task.setBehandling(behandling.getSaksnummer().getVerdi(), behandling.getFagsakId(), behandling.getId());
         taskTjeneste.lagre(task);
         return Response.ok().build();
-    }
-
-    @POST
-    @Path("/hentRefusjonskravperioderInput")
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
-    @Operation(description = "Henter input for beregning", tags = "FORVALTNING-beregning")
-    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.DRIFT, sporingslogg = true)
-    public Response hentRefusjonskravperioderInput(@BeanParam @Valid ForvaltningBehandlingIdDto dto) {
-        var behandling = getBehandling(dto);
-        var inputTjeneste = beregningsgrunnlagInputProvider.getTjeneste(behandling.getFagsakYtelseType());
-        var beregningsgrunnlagInput = inputTjeneste.lagInput(BehandlingReferanse.fra(behandling));
-        if (beregningsgrunnlagInput == null) {
-            return Response.noContent().build();
-        }
-        var json = StandardJsonConfig.toJson(beregningsgrunnlagInput.getKravPrArbeidsgiver());
-        return Response.ok(json).build();
-    }
-
-    @POST
-    @Path("/hentBeregningsgrunnlagInputLegacy")
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
-    @Operation(description = "Henter input for beregning (legacy, avvikles når vi ikke lenger beregner noen saker i fpsak)", tags = "FORVALTNING-beregning")
-    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.DRIFT, sporingslogg = true)
-    public Response hentBeregningsgrunnlagInputLegacy(@BeanParam @Valid ForvaltningBehandlingIdDto dto) {
-        var behandling = getBehandling(dto);
-        var inputTjeneste = beregningsgrunnlagInputProvider.getTjeneste(behandling.getFagsakYtelseType());
-        var beregningsgrunnlagInput = inputTjeneste.lagInput(BehandlingReferanse.fra(behandling));
-        var kalkulatorInputDto = MapTilKalkulatorInput.map(beregningsgrunnlagInput);
-        if (kalkulatorInputDto == null) {
-            return Response.noContent().build();
-        }
-        return Response.ok(kalkulatorInputDto).build();
     }
 
     @POST
