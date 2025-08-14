@@ -10,6 +10,7 @@ import org.junit.jupiter.api.Test;
 import no.nav.foreldrepenger.behandling.DekningsgradTjeneste;
 import no.nav.foreldrepenger.behandling.RelatertBehandlingTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.dokument.BehandlingDokumentRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.eøs.EøsUttakRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.ufore.UføretrygdRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.verge.VergeRepository;
@@ -61,13 +62,16 @@ class BehandlingFormidlingDtoTjenesteTest {
     @Inject
     private UføretrygdRepository uføretrygdRepository;
 
+    @Inject
+    private EøsUttakRepository eøsUttakRepository;
+
     private BehandlingFormidlingDtoTjeneste tjeneste;
 
     @BeforeEach
     void setUp() {
         tjeneste = new BehandlingFormidlingDtoTjeneste(repositoryProvider, beregningTjeneste, skjæringstidspunktTjeneste,
             behandlingDokumentRepository, relatertBehandlingTjeneste, uttakTjeneste, dekningsgradTjeneste, utregnetStønadskontoTjeneste,
-            medlemTjeneste, vergeRepository, ytelseFordelingTjeneste, uføretrygdRepository);
+            medlemTjeneste, vergeRepository, ytelseFordelingTjeneste, uføretrygdRepository, eøsUttakRepository);
     }
 
 

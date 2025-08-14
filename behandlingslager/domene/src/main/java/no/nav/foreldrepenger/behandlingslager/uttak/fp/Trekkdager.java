@@ -50,7 +50,11 @@ public class Trekkdager implements Comparable<Trekkdager> {
     }
 
     public boolean merEnn0() {
-        return decimalValue().compareTo(BigDecimal.ZERO) > 0;
+        return compareTo(ZERO) > 0;
+    }
+
+    public boolean mindreEnn0() {
+        return compareTo(ZERO) < 0;
     }
 
     @Override
