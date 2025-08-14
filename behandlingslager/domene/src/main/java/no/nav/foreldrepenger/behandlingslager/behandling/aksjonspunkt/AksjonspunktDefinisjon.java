@@ -309,6 +309,9 @@ public enum AksjonspunktDefinisjon implements Kodeverdi {
     OVERSTYRING_AV_RETT_OG_OMSORG(AksjonspunktKodeDefinisjon.OVERSTYRING_AV_RETT_OG_OMSORG_KODE, AksjonspunktType.OVERSTYRING, "Overstyr rett og omsorg",
         BehandlingStegType.KONTROLLER_OMSORG_RETT, VurderingspunktType.UT, UTEN_VILKÅR, SkjermlenkeType.FAKTA_OMSORG_OG_RETT,
         TOTRINN, EnumSet.of(FP)),
+    OVERSTYRING_AV_FAKTA_OM_FØDSEL(AksjonspunktKodeDefinisjon.OVERSTYRING_AV_FAKTA_OM_FØDSEL_KODE, AksjonspunktType.OVERSTYRING, "Overstyr fakta om fødsel",
+        BehandlingStegType.SØKERS_RELASJON_TIL_BARN, VurderingspunktType.INN, UTEN_VILKÅR, SkjermlenkeType.FAKTA_OM_FOEDSEL,
+        TOTRINN, EnumSet.of(ES, FP)),
 
     OVERSTYRING_AV_FORUTGÅENDE_MEDLEMSKAPSVILKÅR(AksjonspunktKodeDefinisjon.OVERSTYRING_AV_FORUTGÅENDE_MEDLEMSKAPSVILKÅR_KODE,
         AksjonspunktType.OVERSTYRING, "Overstyring av vilkår forutgående medlemskap", BehandlingStegType.VURDER_MEDLEMSKAPVILKÅR,
