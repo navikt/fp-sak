@@ -13,6 +13,7 @@ import java.util.stream.Collectors;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
+import org.jboss.weld.exceptions.IllegalStateException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -64,7 +65,6 @@ import no.nav.foreldrepenger.domene.modell.kodeverk.AktivitetStatus;
 import no.nav.foreldrepenger.domene.modell.kodeverk.BeregningsgrunnlagTilstand;
 import no.nav.foreldrepenger.domene.modell.typer.FaktaVurdering;
 import no.nav.foreldrepenger.domene.prosess.BeregningTjeneste;
-import no.nav.foreldrepenger.domene.prosess.BeregningsgrunnlagKopierOgLagreTjeneste;
 import no.nav.foreldrepenger.domene.registerinnhenting.BehandlingÅrsakTjeneste;
 import no.nav.foreldrepenger.domene.registerinnhenting.StartpunktTjeneste;
 import no.nav.foreldrepenger.domene.typer.Beløp;
@@ -95,7 +95,6 @@ class KontrollerFaktaRevurderingStegImpl implements KontrollerFaktaSteg {
     private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
     private BehandlingsresultatRepository behandlingsresultatRepository;
     private MottatteDokumentTjeneste mottatteDokumentTjeneste;
-    private BeregningsgrunnlagKopierOgLagreTjeneste beregningsgrunnlagKopierOgLagreTjeneste;
     private BeregningTjeneste beregningTjeneste;
     private ForeldrepengerUttakTjeneste uttakTjeneste;
     private KopierForeldrepengerUttaktjeneste kopierForeldrepengerUttaktjeneste;
@@ -110,7 +109,6 @@ class KontrollerFaktaRevurderingStegImpl implements KontrollerFaktaSteg {
 
     @Inject
     KontrollerFaktaRevurderingStegImpl(BehandlingRepositoryProvider repositoryProvider,
-                                       BeregningsgrunnlagKopierOgLagreTjeneste beregningsgrunnlagKopierOgLagreTjeneste,
                                        SkjæringstidspunktTjeneste skjæringstidspunktTjeneste,
                                        @FagsakYtelseTypeRef(FagsakYtelseType.FORELDREPENGER) KontrollerFaktaTjeneste tjeneste,
                                        @FagsakYtelseTypeRef(FagsakYtelseType.FORELDREPENGER) StartpunktTjeneste startpunktTjeneste,
@@ -122,7 +120,6 @@ class KontrollerFaktaRevurderingStegImpl implements KontrollerFaktaSteg {
                                        DekningsgradTjeneste dekningsgradTjeneste, FagsakRelasjonTjeneste fagsakRelasjonTjeneste,
                                        SatsRepository satsRepository) {
         this.repositoryProvider = repositoryProvider;
-        this.beregningsgrunnlagKopierOgLagreTjeneste = beregningsgrunnlagKopierOgLagreTjeneste;
         this.skjæringstidspunktTjeneste = skjæringstidspunktTjeneste;
         this.behandlingRepository = repositoryProvider.getBehandlingRepository();
         this.tjeneste = tjeneste;
@@ -375,8 +372,8 @@ class KontrollerFaktaRevurderingStegImpl implements KontrollerFaktaSteg {
         kopierOpptjeningVedBehov(origBehandling, revurdering);
 
         if (StartpunktType.BEREGNING_FORESLÅ.equals(revurdering.getStartpunkt())) {
-            beregningsgrunnlagKopierOgLagreTjeneste.kopierResultatForGRegulering(finnBehandlingSomHarKjørtBeregning(origBehandling).getId(),
-                    revurdering.getId(), stp.getFørsteUttaksdatoGrunnbeløp());
+            // TODO erstatt med kall til kalkulus
+            throw new IllegalStateException("Ikke implementert");
         }
 
         if (StartpunktType.UTTAKSVILKÅR.equals(revurdering.getStartpunkt()) || StartpunktType.TILKJENT_YTELSE.equals(revurdering.getStartpunkt())) {

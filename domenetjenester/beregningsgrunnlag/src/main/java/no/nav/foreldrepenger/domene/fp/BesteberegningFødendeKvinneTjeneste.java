@@ -27,7 +27,7 @@ import no.nav.foreldrepenger.behandlingslager.ytelse.RelatertYtelseType;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.iay.modell.AktørYtelse;
 import no.nav.foreldrepenger.domene.iay.modell.YtelseFilter;
-import no.nav.foreldrepenger.domene.mappers.input.MapTilYtelsegrunnlagDto;
+import no.nav.foreldrepenger.domene.mappers.til_kalkulus.MapTilYtelsegrunnlagDto;
 import no.nav.foreldrepenger.domene.modell.BeregningAktivitetAggregat;
 import no.nav.foreldrepenger.domene.modell.Beregningsgrunnlag;
 import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagGrunnlag;
