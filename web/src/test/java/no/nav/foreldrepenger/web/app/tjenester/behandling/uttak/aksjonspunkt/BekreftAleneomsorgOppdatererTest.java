@@ -183,7 +183,7 @@ class BekreftAleneomsorgOppdatererTest extends EntityManagerAwareTest {
         assertThat(historikkinnslag.getFirst().getLinjer()).hasSize(5);
         assertThat(historikkinnslag.getFirst().getLinjer().get(0).getTekst()).contains("Søker har ikke aleneomsorg for barnet");
         assertThat(historikkinnslag.getFirst().getLinjer().get(1).getTekst()).contains("Annen forelder har ikke rett");
-        assertThat(historikkinnslag.getFirst().getLinjer().get(2).getTekst()).contains("Annen forelder har opptjent rett fra land i EØS");
+        assertThat(historikkinnslag.getFirst().getLinjer().get(2).getTekst()).contains("Annen forelder har mottatt pengestøtte tilsvarende foreldrepenger fra land i EØS");
         assertThat(historikkinnslag.getFirst().getLinjer().get(3).getTekst()).contains("Mor mottar uføretrygd");
         assertThat(historikkinnslag.getFirst().getLinjer().get(4).getTekst()).isEqualTo(dto.getBegrunnelse());
     }
