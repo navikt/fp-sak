@@ -1,5 +1,7 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.eøs;
 
+import static no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagLinjeBuilder.DATE_FORMATTER;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -88,7 +90,8 @@ public class EøsUttakFellesTjeneste {
         linjer.add(new HistorikkinnslagLinjeBuilder().tekst("Registerert uttak for annen forelder i EØS"));
         for (var periode : perioder) {
             var trekkdager = new Trekkdager(periode.trekkdager());
-            linjer.add(new HistorikkinnslagLinjeBuilder().tekst(String.format("%s - %s: Trekker", periode.fom(), periode.tom()))
+            linjer.add(new HistorikkinnslagLinjeBuilder()
+                .tekst(String.format("%s - %s: Trekker", DATE_FORMATTER.format(periode.fom()), DATE_FORMATTER.format(periode.tom())))
                 .bold(String.format("%s dager av %s", trekkdager, periode.trekkonto().getNavn().toLowerCase())));
         }
         return new Historikkinnslag.Builder().medAktør(HistorikkAktør.SAKSBEHANDLER)
