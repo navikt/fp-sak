@@ -85,7 +85,7 @@ public class FaktaOmsorgRettTjeneste {
         linjer.add(new HistorikkinnslagLinjeBuilder().bold(til));
 
         if (vurdertEøs) {
-            linjer.add(new HistorikkinnslagLinjeBuilder().til("Annen forelder har opptjent rett fra land i EØS",
+            linjer.add(new HistorikkinnslagLinjeBuilder().til("Annen forelder har mottatt pengestøtte tilsvarende foreldrepenger fra land i EØS",
                 nyRettighetstype.equals(Rettighetstype.BEGGE_RETT_EØS)));
         }
         if (vurdertUfør) {
