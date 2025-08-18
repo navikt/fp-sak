@@ -138,6 +138,10 @@ public class BehandlingRevurderingTjeneste {
         return behandlinger;
     }
 
+    public Optional<Behandling> finnÅpenBehandlingMedforelder(Fagsak fagsak) {
+        return finnFagsakPåMedforelder(fagsak).flatMap(fs -> finnÅpenYtelsesbehandling(fs.getId()));
+    }
+
     public Optional<Behandling> finnKøetBehandlingMedforelder(Fagsak fagsak) {
         return finnFagsakPåMedforelder(fagsak).flatMap(fs -> finnKøetYtelsesbehandling(fs.getId()));
     }
