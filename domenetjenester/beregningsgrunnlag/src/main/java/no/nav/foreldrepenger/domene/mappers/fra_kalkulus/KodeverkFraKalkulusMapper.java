@@ -221,7 +221,6 @@ public class KodeverkFraKalkulusMapper {
             case UDEFINERT -> BeregningsgrunnlagPeriodeRegelType.UDEFINERT;
             case OPPDATER_GRUNNLAG_SVP -> BeregningsgrunnlagPeriodeRegelType.OPPDATER_GRUNNLAG_SVP;
             case FASTSETT2 -> BeregningsgrunnlagPeriodeRegelType.FASTSETT2;
-            case FINN_GRADERING_VED_TILKOMMET_INNTEKT -> throw new IllegalArgumentException(ukjentKodeFeil("beregningsgrunnlagPeriodeRegelType", type.getKode()));
         };
     }
 }
