@@ -6,11 +6,13 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.eøs.EøsUttakRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.domene.ytelsefordeling.YtelseFordelingTjeneste;
 
 @ApplicationScoped
@@ -19,14 +21,17 @@ public class EøsUttakAnnenpartTjeneste {
     private EøsUttakRepository eøsUttakRepository;
     private HistorikkinnslagRepository historikkinnslagRepository;
     private YtelseFordelingTjeneste ytelseFordelingTjeneste;
+    private BehandlingRepository behandlingRepository;
 
     @Inject
     public EøsUttakAnnenpartTjeneste(EøsUttakRepository eøsUttakRepository,
                                      HistorikkinnslagRepository historikkinnslagRepository,
-                                     YtelseFordelingTjeneste ytelseFordelingTjeneste) {
+                                     YtelseFordelingTjeneste ytelseFordelingTjeneste,
+                                     BehandlingRepository behandlingRepository) {
         this.eøsUttakRepository = eøsUttakRepository;
         this.historikkinnslagRepository = historikkinnslagRepository;
         this.ytelseFordelingTjeneste = ytelseFordelingTjeneste;
+        this.behandlingRepository = behandlingRepository;
     }
 
     EøsUttakAnnenpartTjeneste() {
@@ -50,9 +55,12 @@ public class EøsUttakAnnenpartTjeneste {
         var avklartAnnenForelderHarRettEØS = ytelseFordelingTjeneste.hentAggregat(ref.behandlingId()).avklartAnnenForelderHarRettEØS();
 
         var førstegangsbehandlingMedAvklartRettIEøs = !erRevurdering && avklartAnnenForelderHarRettEØS;
+        var eøsGrunnlag = eøsUttakRepository.hentGrunnlag(ref.behandlingId());
         var revurderingMedAvklartRettIEøsUtenEøsUttakGrunnlag =
-            erRevurdering && avklartAnnenForelderHarRettEØS && eøsUttakRepository.hentGrunnlag(ref.behandlingId()).isEmpty(); //Eldre behandlinger har ikke eøsuttakgrunnlag
-        return førstegangsbehandlingMedAvklartRettIEøs || revurderingMedAvklartRettIEøsUtenEøsUttakGrunnlag;
+            erRevurdering && avklartAnnenForelderHarRettEØS && eøsGrunnlag.isEmpty(); //Eldre behandlinger har ikke eøsuttakgrunnlag
+        var behandling = behandlingRepository.hentBehandling(ref.behandlingId());
+        var endringssøknadMedEøs = behandling.harBehandlingÅrsak(BehandlingÅrsakType.RE_ENDRING_FRA_BRUKER) && eøsGrunnlag.isPresent();
+        return førstegangsbehandlingMedAvklartRettIEøs || revurderingMedAvklartRettIEøsUtenEøsUttakGrunnlag || endringssøknadMedEøs;
     }
 
     private static Historikkinnslag historikkinnslagForFjerningAvEøsUttak(BehandlingReferanse ref) {
