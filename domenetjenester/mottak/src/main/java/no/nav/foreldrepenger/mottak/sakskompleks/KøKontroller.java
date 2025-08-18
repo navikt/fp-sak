@@ -92,7 +92,14 @@ public class KøKontroller {
         behandlingProsesseringTjeneste.opprettTasksForStartBehandling(behandling);
     }
 
+    // Ta høyde for ikke-køet revurdering og køet førstegangsbehandling. Ikke forutsett køing utelukkende bak berørt eller annenpart.
+    // Koden as-is forutsetter en-og-en berørt (disse setter andre i kø).
     public void håndterSakskompleks(Fagsak fagsak) {
+        var aktivBehandling = behandlingRevurderingTjeneste.finnÅpenYtelsesbehandling(fagsak.getId());
+        var aktivBehandlingMedforelder = behandlingRevurderingTjeneste.finnÅpenBehandlingMedforelder(fagsak);
+        if (aktivBehandling.isPresent() || aktivBehandlingMedforelder.isPresent()) {
+            return;
+        }
         var køetBehandling = behandlingRevurderingTjeneste.finnKøetYtelsesbehandling(fagsak.getId());
         var køetBehandlingMedforelder = behandlingRevurderingTjeneste.finnKøetBehandlingMedforelder(fagsak);
         var køetBerørt = sjekkKøetBerørt(køetBehandling, køetBehandlingMedforelder);
@@ -121,6 +128,7 @@ public class KøKontroller {
         return ts1.isPresent() ? behandling1 : behandling2;
     }
 
+    // OBS: Filter i tilfelle førstegang - de har ikke behandlingsårsak (dvs førstegang eller årsak endring)
     private Optional<Behandling> finnTidligsteSøknad(Optional<Behandling> behandling1, Optional<Behandling> behandling2) {
         var ts1 = behandling1.filter(b -> b.harBehandlingÅrsak(BehandlingÅrsakType.RE_ENDRING_FRA_BRUKER))
             .flatMap(b -> søknadRepository.hentSøknadHvisEksisterer(b.getId())).map(SøknadEntitet::getMottattDato);

@@ -15,6 +15,7 @@ import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.Response;
 
 import org.slf4j.Logger;
@@ -25,11 +26,17 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import no.nav.foreldrepenger.behandlingskontroll.AksjonspunktkontrollTjeneste;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollTjeneste;
+import no.nav.foreldrepenger.behandlingslager.behandling.SpesialBehandling;
+import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
+import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Venteårsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakProsessTaskRepository;
+import no.nav.foreldrepenger.behandlingsprosess.prosessering.BehandlingProsesseringTjeneste;
 import no.nav.foreldrepenger.poststed.PostnummerSynkroniseringTjeneste;
 import no.nav.foreldrepenger.produksjonsstyring.oppgavebehandling.OppgaveTjeneste;
+import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.BehandlingAbacSuppliers;
+import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.BehandlingIdDto;
 import no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.BehandlingAksjonspunktDto;
 import no.nav.vedtak.felles.prosesstask.rest.dto.ProsessTaskIdDto;
 import no.nav.vedtak.sikkerhet.abac.AbacDataAttributter;
@@ -52,6 +59,7 @@ public class ForvaltningTekniskRestTjeneste {
     private PostnummerSynkroniseringTjeneste postnummerTjeneste;
     private FagsakProsessTaskRepository fagsakProsessTaskRepository;
     private AksjonspunktkontrollTjeneste aksjonspunktkontrollTjeneste;
+    private BehandlingProsesseringTjeneste behandlingProsesseringTjeneste;
 
     public ForvaltningTekniskRestTjeneste() {
         // For CDI
@@ -63,13 +71,15 @@ public class ForvaltningTekniskRestTjeneste {
                                           OppgaveTjeneste oppgaveTjeneste,
                                           PostnummerSynkroniseringTjeneste postnummerTjeneste,
                                           BehandlingskontrollTjeneste behandlingskontrollTjeneste,
-                                          AksjonspunktkontrollTjeneste aksjonspunktkontrollTjeneste) {
+                                          AksjonspunktkontrollTjeneste aksjonspunktkontrollTjeneste,
+                                          BehandlingProsesseringTjeneste behandlingProsesseringTjeneste) {
         this.behandlingRepository = repositoryProvider.getBehandlingRepository();
         this.behandlingskontrollTjeneste = behandlingskontrollTjeneste;
         this.oppgaveTjeneste = oppgaveTjeneste;
         this.postnummerTjeneste = postnummerTjeneste;
         this.fagsakProsessTaskRepository = fagsakProsessTaskRepository;
         this.aksjonspunktkontrollTjeneste = aksjonspunktkontrollTjeneste;
+        this.behandlingProsesseringTjeneste = behandlingProsesseringTjeneste;
     }
 
     @POST
@@ -135,6 +145,29 @@ public class ForvaltningTekniskRestTjeneste {
         } else {
             aksjonspunktkontrollTjeneste.lagreAksjonspunkterAvbrutt(behandling, lås, List.of(aksjonspunkt));
         }
+        behandlingRepository.lagre(behandling, lås);
+        return Response.ok().build();
+    }
+
+    @POST
+    @Path("/sett-behandling-koet")
+    @Consumes(APPLICATION_JSON)
+    @Produces(APPLICATION_JSON)
+    @Operation(description = "Setter behandling som køet", tags = "FORVALTNING-teknisk", responses = {
+        @ApiResponse(responseCode = "200", description = "Aksjonspunkt avbrutt."),
+        @ApiResponse(responseCode = "400", description = "Fant ikke aktuelt aksjonspunkt."),
+        @ApiResponse(responseCode = "500", description = "Feilet pga ukjent feil.")
+    })
+    @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.DRIFT, sporingslogg = true)
+    public Response setBehandlingKøet(@TilpassetAbacAttributt(supplierClass = BehandlingAbacSuppliers.BehandlingIdAbacDataSupplier.class)
+                                          @NotNull @QueryParam("behandlingUuid") @Valid BehandlingIdDto dto) {
+        var behandlingId = dto.getBehandlingUuid();
+        var lås = behandlingRepository.taSkriveLås(dto.getBehandlingUuid());
+        var behandling = behandlingRepository.hentBehandling(behandlingId);
+        if (behandling == null || behandling.erKøet() || SpesialBehandling.erSpesialBehandling(behandling)) {
+            return Response.status(Response.Status.BAD_REQUEST).build();
+        }
+        behandlingProsesseringTjeneste.settBehandlingPåVentUtenSteg(behandling, AksjonspunktDefinisjon.AUTO_KØET_BEHANDLING, null, Venteårsak.VENT_ÅPEN_BEHANDLING);
         behandlingRepository.lagre(behandling, lås);
         return Response.ok().build();
     }
