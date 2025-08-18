@@ -22,6 +22,13 @@ public interface BeregningTjeneste {
 
     void lagre(BeregningsgrunnlagGrunnlag beregningsgrunnlagGrunnlag, BehandlingReferanse referanse);
 
+    /**
+     * Kopieringen er normalt sett "til og med", men pga spesialbehandling for g-regulering kopierer "FORESLÅTT" bare til dette steget.
+     * FORESLÅTT steget må deretter kjøres av fpsak. For alle andre steg er kopieringen til og med angitt tilstand.
+     * @param revurdering - behandlingen vi skal kopiere et grunnlag til
+     * @param originalbehandling - behandlingen vi skal kopiere et grunnlag fra
+     * @param tilstand tilstanden vi skal kopiere
+     */
     void kopier(BehandlingReferanse revurdering, BehandlingReferanse originalbehandling, BeregningsgrunnlagTilstand tilstand);
 
     /**
