@@ -11,7 +11,7 @@ import no.nav.foreldrepenger.behandling.aksjonspunkt.BekreftetAksjonspunktDto;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktKodeDefinisjon;
 
 @JsonTypeName(AksjonspunktKodeDefinisjon.SJEKK_MANGLENDE_FØDSEL_KODE)
-public class SjekkManglendeFødselAksjonspunktDto extends BekreftetAksjonspunktDto {
+public class SjekkManglendeFødselAksjonspunktDto extends BekreftetAksjonspunktDto implements BarnInfoProvider {
 
     @NotNull
     private Boolean erBarnFødt;
@@ -33,6 +33,7 @@ public class SjekkManglendeFødselAksjonspunktDto extends BekreftetAksjonspunktD
         return erBarnFødt;
     }
 
+    @Override
     public List<DokumentertBarnDto> getBarn() {
         return barn;
     }
