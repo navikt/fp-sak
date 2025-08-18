@@ -1,7 +1,6 @@
 package no.nav.foreldrepenger.produksjonsstyring.behandlinghendelse;
 
 import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.enterprise.context.Dependent;
 import jakarta.inject.Inject;
 
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakProsesstaskRekkefølge;

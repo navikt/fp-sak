@@ -1,6 +1,6 @@
 package no.nav.foreldrepenger.behandlingslager.behandling.historikk;
 
-import static no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagLinjeBuilder.DATE_FORMATTER;
+import static no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagLinjeBuilder.format;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
@@ -23,7 +23,7 @@ class HistorikkinnslagLinjeBuilderTest {
 
         assertThat(tekst).isEqualTo("__" + ARBEIDSFORHOLDINFO + "__");
         assertThat(tall).isEqualTo("__" + verdi + "__");
-        assertThat(dato).isEqualTo("__" + DATE_FORMATTER.format(idag) + "__");
+        assertThat(dato).isEqualTo("__" + format(idag) + "__");
     }
 
     @Test
@@ -70,7 +70,7 @@ class HistorikkinnslagLinjeBuilderTest {
         var til = LocalDate.now();
         var linje = new HistorikkinnslagLinjeBuilder().fraTil(hva, null, til).tilTekst();
 
-        assertThat(linje).isEqualTo("__" + hva + "__ er satt til __" + DATE_FORMATTER.format(til) + "__");
+        assertThat(linje).isEqualTo("__" + hva + "__ er satt til __" + format(til) + "__");
     }
 
     @Test

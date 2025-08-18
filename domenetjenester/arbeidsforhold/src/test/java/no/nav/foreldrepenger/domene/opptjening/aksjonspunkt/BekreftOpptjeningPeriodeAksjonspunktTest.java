@@ -12,7 +12,6 @@ import java.time.LocalDate;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import jakarta.persistence.EntityManager;
 
@@ -68,7 +67,7 @@ class BekreftOpptjeningPeriodeAksjonspunktTest {
 
 
     @BeforeEach
-    public void oppsett(EntityManager entityManager) {
+    void oppsett(EntityManager entityManager) {
         behandlingRepository = new BehandlingRepository(entityManager);
         fagsakRepository = new FagsakRepository(entityManager);
         var tjeneste = mock(VirksomhetTjeneste.class);
@@ -180,7 +179,6 @@ class BekreftOpptjeningPeriodeAksjonspunktTest {
 
     @Test
     void skal_lagre_ned_delvis_godkjent_arbeid() {
-        var iDag = LocalDate.now();
         var behandling = opprettBehandling();
 
         var avtale1Fom = LocalDate.of(2022,12,1);
@@ -246,7 +244,7 @@ class BekreftOpptjeningPeriodeAksjonspunktTest {
         var yrkesaktiviteter = filterSaksbehandlet.getYrkesaktiviteter();
         var ansettelsesperioder = yrkesaktiviteter.stream()
             .flatMap(y -> y.getAlleAktivitetsAvtaler().stream().filter(AktivitetsAvtale::erAnsettelsesPeriode))
-            .collect(Collectors.toList());
+            .toList();
 
         assertThat(yrkesaktiviteter).hasSize(1);
         assertThat(ansettelsesperioder).hasSize(2);

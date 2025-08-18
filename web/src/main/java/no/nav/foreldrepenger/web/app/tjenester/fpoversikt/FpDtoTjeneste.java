@@ -20,6 +20,11 @@ import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.DokumentTypeId;
 import no.nav.foreldrepenger.behandlingslager.behandling.MottattDokument;
+import no.nav.foreldrepenger.behandlingslager.behandling.eøs.EøsUttakRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.eøs.EøsUttaksperiodeEntitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonopplysningEntitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonopplysningerAggregat;
+import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadEntitet;
@@ -27,6 +32,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadReposito
 import no.nav.foreldrepenger.behandlingslager.behandling.ufore.UføretrygdRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtak;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeEntitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeType;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.Årsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Dekningsgrad;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
@@ -55,6 +61,7 @@ public class FpDtoTjeneste {
     private UføretrygdRepository uføretrygdRepository;
     private DtoTjenesteFelles felles;
     private SøknadRepository søknadRepository;
+    private EøsUttakRepository eøsUttakRepository;
 
     @Inject
     public FpDtoTjeneste(BehandlingRepositoryProvider repositoryProvider,
@@ -63,7 +70,7 @@ public class FpDtoTjeneste {
                          YtelseFordelingTjeneste ytelseFordelingTjeneste,
                          UføretrygdRepository uføretrygdRepository,
                          DtoTjenesteFelles felles,
-                         DekningsgradTjeneste dekningsgradTjeneste) {
+                         DekningsgradTjeneste dekningsgradTjeneste, EøsUttakRepository eøsUttakRepository) {
         this.behandlingRepository = repositoryProvider.getBehandlingRepository();
         this.dekningsgradTjeneste = dekningsgradTjeneste;
         this.foreldrepengerUttakTjeneste = foreldrepengerUttakTjeneste;
@@ -72,6 +79,7 @@ public class FpDtoTjeneste {
         this.uføretrygdRepository = uføretrygdRepository;
         this.felles = felles;
         this.søknadRepository = repositoryProvider.getSøknadRepository();
+        this.eøsUttakRepository = eøsUttakRepository;
     }
 
     FpDtoTjeneste() {
@@ -153,8 +161,25 @@ public class FpDtoTjeneste {
     private Set<String> finnFødteBarn(Behandling behandling) {
         var ref = BehandlingReferanse.fra(behandling);
         return personopplysningTjeneste.hentPersonopplysningerHvisEksisterer(ref)
-            .map(pi -> pi.getBarna().stream().map(barn -> barn.getAktørId().getId()).collect(Collectors.toSet()))
+            .map(pi -> finnFødteBarn(behandling.getRelasjonsRolleType(), behandling.getAktørId(), pi))
             .orElse(Set.of());
+    }
+
+    private static Set<String> finnFødteBarn(RelasjonsRolleType relasjonsRolleType, AktørId søker, PersonopplysningerAggregat pi) {
+        return pi.getBarna()
+            .stream()
+            .filter(barn -> riktigRelasjon(søker, pi, barn, relasjonsRolleType))
+            .map(barn -> barn.getAktørId().getId())
+            .collect(Collectors.toSet());
+    }
+
+    private static boolean riktigRelasjon(AktørId søker,
+                                          PersonopplysningerAggregat pi,
+                                          PersonopplysningEntitet barn,
+                                          RelasjonsRolleType relasjonsRolleType) {
+        return relasjonsRolleType == RelasjonsRolleType.UDEFINERT || pi.finnRelasjon(barn.getAktørId(), søker)
+            .stream()
+            .anyMatch(r -> r.getRelasjonsrolle() == relasjonsRolleType);
     }
 
     private FpSak.BrukerRolle finnBrukerRolle(Fagsak fagsak) {
@@ -212,14 +237,7 @@ public class FpDtoTjeneste {
     }
 
     private static FpSak.Søknad.Periode tilDto(OppgittPeriodeEntitet periode) {
-        var konto = switch (periode.getPeriodeType()) {
-            case FELLESPERIODE -> Konto.FELLESPERIODE;
-            case MØDREKVOTE -> Konto.MØDREKVOTE;
-            case FEDREKVOTE -> Konto.FEDREKVOTE;
-            case FORELDREPENGER -> Konto.FORELDREPENGER;
-            case FORELDREPENGER_FØR_FØDSEL -> Konto.FORELDREPENGER_FØR_FØDSEL;
-            case UDEFINERT -> null;
-        };
+        var konto = map(periode.getPeriodeType());
         var utsettelseÅrsak = finnUtsettelseÅrsak(periode.getÅrsak());
         var oppholdÅrsak = finnOppholdÅrsak(periode.getÅrsak());
         var overføringÅrsak = finnOverføringÅrsak(periode.getÅrsak());
@@ -321,7 +339,18 @@ public class FpDtoTjeneste {
         var uttaksperioder = finnUttaksperioder(behandlingId);
         var behandling = behandlingRepository.hentBehandling(behandlingId);
         var dekningsgrad = dekningsgradTjeneste.finnGjeldendeDekningsgradHvisEksisterer(BehandlingReferanse.fra(behandling));
-        return new FpSak.Vedtak(vedtak.getVedtakstidspunkt(), uttaksperioder, dekningsgrad.map(FpDtoTjeneste::tilDekningsgradDto).orElse(null));
+        var annenpartEøsUttaksperioder = eøsUttakRepository.hentGrunnlag(behandlingId)
+            .stream()
+            .flatMap(g -> g.getSaksbehandlerPerioderEntitet().getPerioder().stream())
+            .map(this::map)
+            .toList();
+        return new FpSak.Vedtak(vedtak.getVedtakstidspunkt(), uttaksperioder, dekningsgrad.map(FpDtoTjeneste::tilDekningsgradDto).orElse(null),
+            annenpartEøsUttaksperioder);
+    }
+
+    private FpSak.Vedtak.EøsUttaksperiode map(EøsUttaksperiodeEntitet p) {
+        return new FpSak.Vedtak.EøsUttaksperiode(p.getPeriode().getFomDato(), p.getPeriode().getTomDato(), p.getTrekkdager().decimalValue(),
+            map(p.getTrekkonto()));
     }
 
     private List<FpSak.Uttaksperiode> finnUttaksperioder(Long behandlingId) {
@@ -344,14 +373,7 @@ public class FpDtoTjeneste {
             var arbeidsgiver = a.getArbeidsgiver().map(arb -> new Arbeidsgiver(arb.getIdentifikator())).orElse(null);
             var arbeidsforholdId = Optional.ofNullable(a.getArbeidsforholdRef()).map(InternArbeidsforholdRef::getReferanse).orElse(null);
             var trekkdager = a.getTrekkdager().decimalValue();
-            var konto = switch (a.getTrekkonto()) {
-                case FELLESPERIODE -> Konto.FELLESPERIODE;
-                case MØDREKVOTE -> Konto.MØDREKVOTE;
-                case FEDREKVOTE -> Konto.FEDREKVOTE;
-                case FORELDREPENGER -> Konto.FORELDREPENGER;
-                case FORELDREPENGER_FØR_FØDSEL -> Konto.FORELDREPENGER_FØR_FØDSEL;
-                case UDEFINERT -> null;
-            };
+            var konto = map(a.getTrekkonto());
             var arbeidstidsprosent = a.isSøktGraderingForAktivitetIPeriode() ? a.getArbeidsprosent() : BigDecimal.ZERO;
             return new FpSak.Uttaksperiode.UttaksperiodeAktivitet(new UttakAktivitet(aktivitetType, arbeidsgiver, arbeidsforholdId), konto,
                 trekkdager, arbeidstidsprosent);
@@ -388,6 +410,17 @@ public class FpDtoTjeneste {
         return new FpSak.Uttaksperiode(periode.getFom(), periode.getTom(), utsettelseÅrsak, oppholdÅrsak, overføringÅrsak,
             samtidigUttaksprosent == null ? null : samtidigUttaksprosent.decimalValue(), periode.isFlerbarnsdager(),
             map(periode.getMorsAktivitet()), resultat);
+    }
+
+    private static Konto map(UttakPeriodeType trekkonto) {
+        return switch (trekkonto) {
+            case FELLESPERIODE -> Konto.FELLESPERIODE;
+            case MØDREKVOTE -> Konto.MØDREKVOTE;
+            case FEDREKVOTE -> Konto.FEDREKVOTE;
+            case FORELDREPENGER -> Konto.FORELDREPENGER;
+            case FORELDREPENGER_FØR_FØDSEL -> Konto.FORELDREPENGER_FØR_FØDSEL;
+            case UDEFINERT -> null;
+        };
     }
 
     private static FpSak.Uttaksperiode.Resultat.Årsak tilResultatÅrsak(ForeldrepengerUttakPeriode periode) {

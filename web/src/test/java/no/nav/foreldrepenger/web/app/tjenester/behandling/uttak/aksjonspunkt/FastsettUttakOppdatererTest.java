@@ -145,7 +145,6 @@ class FastsettUttakOppdatererTest {
             .medPeriodeResultatÅrsak(PeriodeResultatÅrsak.KVOTE_ELLER_OVERFØRT_KVOTE)
             .build();
         FastsetteUttakDto dto = new FastsetteUttakDto.FastsetteUttakPerioderDto(List.of(dtoPeriode));
-        var aksjonspunkt = behandling.getAksjonspunktMedDefinisjonOptional(dto.getAksjonspunktDefinisjon());
         var resultat = oppdaterer.oppdater(dto, new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling), dto));
 
         var avbrutt = resultat.getEkstraAksjonspunktResultat()

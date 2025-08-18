@@ -78,6 +78,7 @@ public class VurderFormkrafNkSteg implements BehandlingSteg {
                 var tilKabalTask = ProsessTaskData.forProsessTask(SendTilKabalTask.class);
                 tilKabalTask.setBehandling(behandling.getSaksnummer().getVerdi(), behandling.getFagsakId(), behandling.getId());
                 tilKabalTask.setProperty(SendTilKabalTask.HJEMMEL_KEY, klageHjemmel.getKode());
+                tilKabalTask.setNesteKjøringEtter(LocalDateTime.now().plusSeconds(60)); // TFP-6348: gir formidling tid slik at oversendelse er tilgjengelig ved oversendelse til KA
                 taskTjeneste.lagre(tilKabalTask);
                 var frist = LocalDateTime.now().plusYears(3);
                 var apVent = AksjonspunktResultat.opprettForAksjonspunktMedFrist(AksjonspunktDefinisjon.AUTO_VENT_PÅ_KABAL_KLAGE, Venteårsak.VENT_KABAL, frist);

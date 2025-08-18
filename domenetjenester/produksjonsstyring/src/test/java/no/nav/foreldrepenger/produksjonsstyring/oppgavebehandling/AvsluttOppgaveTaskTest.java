@@ -1,6 +1,5 @@
 package no.nav.foreldrepenger.produksjonsstyring.oppgavebehandling;
 
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -39,7 +38,7 @@ class AvsluttOppgaveTaskTest  {
         AvsluttOppgaveTask.setOppgaveId(taskData, oppgaveId);
         var task = new AvsluttOppgaveTask(oppgaveTjeneste);
 
-        Mockito.doNothing().when(oppgaveRestKlient).ferdigstillOppgave(eq(oppgaveId));
+        Mockito.doNothing().when(oppgaveRestKlient).ferdigstillOppgave(oppgaveId);
 
         // Act
         task.doTask(taskData);

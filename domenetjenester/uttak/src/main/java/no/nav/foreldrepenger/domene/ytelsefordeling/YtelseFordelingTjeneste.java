@@ -91,34 +91,18 @@ public class YtelseFordelingTjeneste {
         ytelsesFordelingRepository.lagre(behandlingId, yfBuilder.build());
     }
 
-    public void aksjonspunktBekreftFaktaForAleneomsorg(Long behandlingId, boolean aleneomsorg) {
-        var avklartRettighet = ytelsesFordelingRepository.hentAggregatHvisEksisterer(behandlingId)
-            .flatMap(YtelseFordelingAggregat::getAvklartRettighet)
-            .orElse(null);
-        var ytelseFordelingBuilder = ytelsesFordelingRepository.opprettBuilder(behandlingId);
-        if (aleneomsorg) {
-            avklartRettighet = OppgittRettighetEntitet.kopiAleneomsorgIkkeRettAnnenForelder(avklartRettighet);
-        } else {
-            avklartRettighet = OppgittRettighetEntitet.kopiIkkeAleneomsorg(avklartRettighet);
-        }
-        ytelseFordelingBuilder.medAvklartRettighet(avklartRettighet);
-        ytelsesFordelingRepository.lagre(behandlingId, ytelseFordelingBuilder.build());
-    }
-
-    public void bekreftAnnenforelderHarRett(Long behandlingId, boolean annenforelderHarRett, Boolean annenForelderHarRettEØS, Boolean annenforelderMottarUføretrygd) {
-        var avklartRettighet = ytelsesFordelingRepository.hentAggregatHvisEksisterer(behandlingId)
-            .flatMap(YtelseFordelingAggregat::getAvklartRettighet)
-            .orElse(null);
-        avklartRettighet = OppgittRettighetEntitet.kopiAnnenForelderRett(avklartRettighet, annenforelderHarRett);
-        var ytelseFordelingAggregatBuilder = ytelsesFordelingRepository.opprettBuilder(behandlingId);
-        if (annenForelderHarRettEØS != null) {
-            avklartRettighet = OppgittRettighetEntitet.kopiAnnenForelderRettEØS(avklartRettighet, annenForelderHarRettEØS);
-        }
-        if (annenforelderMottarUføretrygd != null) {
-            avklartRettighet = OppgittRettighetEntitet.kopiMorUføretrygd(avklartRettighet, annenforelderMottarUføretrygd);
-        }
-        ytelseFordelingAggregatBuilder.medAvklartRettighet(avklartRettighet);
-        ytelsesFordelingRepository.lagre(behandlingId, ytelseFordelingAggregatBuilder.build());
+    public void avklarRettighet(Long behandlingId, Rettighetstype rettighetstype) {
+        var avklartRettighet = switch (rettighetstype) {
+            case ALENEOMSORG -> OppgittRettighetEntitet.aleneomsorg();
+            case BEGGE_RETT -> OppgittRettighetEntitet.beggeRett();
+            case BEGGE_RETT_EØS -> new OppgittRettighetEntitet(false, false, false , true, false);
+            case BARE_MOR_RETT, BARE_FAR_RETT -> OppgittRettighetEntitet.bareSøkerRett();
+            case BARE_FAR_RETT_MOR_UFØR -> new OppgittRettighetEntitet(false, false, true, false, false);
+        };
+        var nyYfa = ytelsesFordelingRepository.opprettBuilder(behandlingId)
+            .medAvklartRettighet(avklartRettighet)
+            .build();
+        ytelsesFordelingRepository.lagre(behandlingId, nyYfa);
     }
 
     public void overstyrRettighet(Long behandlingId, Rettighetstype rettighetstype) {

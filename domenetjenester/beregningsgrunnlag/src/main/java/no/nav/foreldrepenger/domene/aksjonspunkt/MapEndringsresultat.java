@@ -4,7 +4,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 import no.nav.folketrygdloven.kalkulus.felles.v1.Aktør;
 import no.nav.folketrygdloven.kalkulus.felles.v1.Beløp;
@@ -69,7 +68,7 @@ public class MapEndringsresultat {
         if (refusjonperiodeEndringer == null) {
             return null;
         }
-        return refusjonperiodeEndringer.stream().map(MapEndringsresultat::mapRefusjonPeriodeEndring).collect(Collectors.toList());
+        return refusjonperiodeEndringer.stream().map(MapEndringsresultat::mapRefusjonPeriodeEndring).toList();
     }
 
     private static RefusjonoverstyringPeriodeEndring mapRefusjonPeriodeEndring(no.nav.folketrygdloven.kalkulus.response.v1.håndtering.RefusjonoverstyringPeriodeEndring r) {
@@ -120,7 +119,7 @@ public class MapEndringsresultat {
         return erTidsbegrensetArbeidsforholdEndringer == null ? null :
             erTidsbegrensetArbeidsforholdEndringer.stream()
                 .map(MapEndringsresultat::mapErTidsbegrensetArbeidsforholdEndring)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     private static ErTidsbegrensetArbeidsforholdEndring mapErTidsbegrensetArbeidsforholdEndring(no.nav.folketrygdloven.kalkulus.response.v1.håndtering.ErTidsbegrensetArbeidsforholdEndring erTidsbegrensetArbeidsforholdEndring) {
@@ -135,7 +134,7 @@ public class MapEndringsresultat {
     private static List<ErMottattYtelseEndring> mapTilErMottattYtelseEndringer(List<no.nav.folketrygdloven.kalkulus.response.v1.håndtering.ErMottattYtelseEndring> erMottattYtelseEndringer) {
         return erMottattYtelseEndringer == null ? null : erMottattYtelseEndringer.stream()
             .map(MapEndringsresultat::mapErMottattYtelseEndring)
-            .collect(Collectors.toList());
+            .toList();
     }
 
     private static ErMottattYtelseEndring mapErMottattYtelseEndring(no.nav.folketrygdloven.kalkulus.response.v1.håndtering.ErMottattYtelseEndring erMottattYtelseEndring) {
@@ -152,7 +151,7 @@ public class MapEndringsresultat {
 
     private static List<RefusjonskravGyldighetEndring> mapTilRefusjonskravGyldighetEndringer(List<no.nav.folketrygdloven.kalkulus.response.v1.håndtering.RefusjonskravGyldighetEndring> vurderRefusjonskravGyldighetEndringer) {
         return vurderRefusjonskravGyldighetEndringer == null ? null : vurderRefusjonskravGyldighetEndringer.stream().map(MapEndringsresultat::mapRefusjonskravGyldighetEndring)
-            .collect(Collectors.toList());
+            .toList();
     }
 
     private static RefusjonskravGyldighetEndring mapRefusjonskravGyldighetEndring(no.nav.folketrygdloven.kalkulus.response.v1.håndtering.RefusjonskravGyldighetEndring refusjonskravGyldighetEndring) {
@@ -174,7 +173,7 @@ public class MapEndringsresultat {
 
     private static List<BeregningsgrunnlagPeriodeEndring> mapTilPeriodeEndringer(List<no.nav.folketrygdloven.kalkulus.response.v1.håndtering.BeregningsgrunnlagPeriodeEndring> beregningsgrunnlagPeriodeEndringer) {
         return beregningsgrunnlagPeriodeEndringer == null ? null :
-            beregningsgrunnlagPeriodeEndringer.stream().map(MapEndringsresultat::mapTilPeriodeEndring).collect(Collectors.toList());
+            beregningsgrunnlagPeriodeEndringer.stream().map(MapEndringsresultat::mapTilPeriodeEndring).toList();
     }
 
     private static BeregningsgrunnlagPeriodeEndring mapTilPeriodeEndring(no.nav.folketrygdloven.kalkulus.response.v1.håndtering.BeregningsgrunnlagPeriodeEndring beregningsgrunnlagPeriodeEndring) {
@@ -185,7 +184,7 @@ public class MapEndringsresultat {
     }
 
     private static List<BeregningsgrunnlagPrStatusOgAndelEndring> mapAndelEndringer(List<no.nav.folketrygdloven.kalkulus.response.v1.håndtering.BeregningsgrunnlagPrStatusOgAndelEndring> beregningsgrunnlagPrStatusOgAndelEndringer) {
-        return beregningsgrunnlagPrStatusOgAndelEndringer.stream().map(MapEndringsresultat::mapAndelEndring).collect(Collectors.toList());
+        return beregningsgrunnlagPrStatusOgAndelEndringer.stream().map(MapEndringsresultat::mapAndelEndring).toList();
     }
 
     private static BeregningsgrunnlagPrStatusOgAndelEndring mapAndelEndring(no.nav.folketrygdloven.kalkulus.response.v1.håndtering.BeregningsgrunnlagPrStatusOgAndelEndring beregningsgrunnlagPrStatusOgAndelEndring) {

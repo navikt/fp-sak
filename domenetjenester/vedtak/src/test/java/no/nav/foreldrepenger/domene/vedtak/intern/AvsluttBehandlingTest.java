@@ -105,7 +105,7 @@ class AvsluttBehandlingTest {
         var vedtak = repositoryProvider.getBehandlingVedtakRepository()
                 .hentForBehandling(behandling.getId());
         verify(vedtak).setIverksettingStatus(IverksettingStatus.IVERKSATT);
-        verify(repositoryProvider.getBehandlingVedtakRepository()).lagre(Mockito.eq(vedtak), any(BehandlingLås.class));
+        verify(repositoryProvider.getBehandlingVedtakRepository()).lagre(eq(vedtak), any(BehandlingLås.class));
     }
 
     @Test
@@ -189,12 +189,12 @@ class AvsluttBehandlingTest {
     }
 
     private void verifiserKallTilFortsettBehandling(Behandling behandling) {
-        verify(behandlingProsesseringTjeneste).opprettTasksForFortsettBehandling(eq(behandling));
+        verify(behandlingProsesseringTjeneste).opprettTasksForFortsettBehandling(behandling);
 
     }
 
     private void verifiserIkkeKallTilFortsettBehandling(Behandling behandling) {
-        verify(behandlingProsesseringTjeneste, times(0)).opprettTasksForFortsettBehandling(eq(behandling));
+        verify(behandlingProsesseringTjeneste, times(0)).opprettTasksForFortsettBehandling(behandling);
     }
 
 

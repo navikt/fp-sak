@@ -101,7 +101,7 @@ class DokumentBestillingTest {
     @Test
     void exception_builder_friteksthtml_uten_journalfør_som_satt() {
         var behandlingUuid = UUID.randomUUID();
-        var dokumentMal = DokumentMalType.FRITEKSTBREV_HMTL;
+        var dokumentMal = DokumentMalType.VEDTAKSBREV_FRITEKST_HTML;
 
         var bestillingBuilder = DokumentBestilling.builder()
             .medBehandlingUuid(behandlingUuid)
@@ -115,7 +115,7 @@ class DokumentBestillingTest {
     @Test
     void ok_builder_friteksthtml_med_journalfør_som() {
         var behandlingUuid = UUID.randomUUID();
-        var dokumentMal = DokumentMalType.FRITEKSTBREV_HMTL;
+        var dokumentMal = DokumentMalType.VEDTAKSBREV_FRITEKST_HTML;
         var journalførSom = DokumentMalType.FORELDREPENGER_INNVILGELSE;
 
         var bestilling = DokumentBestilling.builder()

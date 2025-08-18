@@ -2,7 +2,6 @@ package no.nav.foreldrepenger.behandlingslager.testutilities.behandling.personop
 
 import java.time.LocalDate;
 
-import no.nav.foreldrepenger.behandlingslager.aktør.AdresseType;
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBrukerKjønn;
 import no.nav.foreldrepenger.behandlingslager.aktør.OppholdstillatelseType;
 import no.nav.foreldrepenger.behandlingslager.aktør.PersonstatusType;
@@ -112,10 +111,10 @@ public class Personas {
 
 
     public Personas bostedsadresse(AdressePeriode adresseBuilder) {
-        return adresse(AdresseType.BOSTEDSADRESSE, adresseBuilder);
+        return adresse(adresseBuilder);
     }
 
-    public Personas adresse(AdresseType adresseType, AdressePeriode adresseBuilder) {
+    public Personas adresse(AdressePeriode adresseBuilder) {
         var ap = adresseBuilder.gyldighetsperiode() != null ? adresseBuilder :
             new AdressePeriode(Gyldighetsperiode.innenfor(LocalDate.of(2000, 1, 1), Tid.TIDENES_ENDE), adresseBuilder.adresse());
 

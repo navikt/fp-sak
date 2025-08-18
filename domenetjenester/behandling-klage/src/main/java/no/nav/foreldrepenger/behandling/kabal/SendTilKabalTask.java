@@ -1,6 +1,5 @@
 package no.nav.foreldrepenger.behandling.kabal;
 
-import java.util.Objects;
 import java.util.Optional;
 
 import jakarta.enterprise.context.ApplicationScoped;
@@ -16,7 +15,7 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 
 @ApplicationScoped
-@ProsessTask(value = "kabal.sendtilkabal", prioritet = 2, maxFailedRuns = 1)
+@ProsessTask(value = "kabal.sendtilkabal", prioritet = 2)
 @FagsakProsesstaskRekkefølge(gruppeSekvens = false)
 public class SendTilKabalTask extends BehandlingProsessTask {
 

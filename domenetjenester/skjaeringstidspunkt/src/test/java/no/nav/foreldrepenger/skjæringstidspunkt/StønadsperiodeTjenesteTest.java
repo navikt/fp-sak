@@ -137,7 +137,6 @@ class StønadsperiodeTjenesteTest {
     void skal_returnere_stp_periode_ved_tidlig_fødsel_og_ikke_søkt_fra_start() {
         // Arrange
         var skjæringsdato = VirkedagUtil.fomVirkedag(LocalDate.now().minusDays(30));
-        var bekreftetfødselsdato = skjæringsdato.plusWeeks(2);
         var termindato = skjæringsdato.plusWeeks(2);
 
         var førstegangScenario = ScenarioMorSøkerForeldrepenger.forFødsel()

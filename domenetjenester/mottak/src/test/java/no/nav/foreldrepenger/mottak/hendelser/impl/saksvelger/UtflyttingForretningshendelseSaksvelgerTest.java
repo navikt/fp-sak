@@ -72,7 +72,6 @@ class UtflyttingForretningshendelseSaksvelgerTest {
         var aktørId = AktørId.dummy();
         var fagsak = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, null);
         when(fagsakRepository.hentForBruker(aktørId)).thenReturn(singletonList(fagsak));
-        var behandling = Behandling.forFørstegangssøknad(fagsak).build();
         when(behandlingRepository.harÅpenOrdinærYtelseBehandlingerForFagsakId(any())).thenReturn(true);
         var hendelse = new UtflyttingForretningshendelse(singletonList(aktørId), UTFLYTTINGSDATO, Endringstype.OPPRETTET);
 

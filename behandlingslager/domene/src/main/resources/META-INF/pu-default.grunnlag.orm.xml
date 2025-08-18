@@ -16,6 +16,9 @@
     <sequence-generator name="SEQ_GR_AKTIVITETSKRAV_ARBEID" allocation-size="50" sequence-name="SEQ_GR_AKTIVITETSKRAV_ARBEID" />
     <sequence-generator name="SEQ_AKTIVITETSKRAV_ARBEID_PERIODER" allocation-size="50" sequence-name="SEQ_AKTIVITETSKRAV_ARBEID_PERIODER" />
     <sequence-generator name="SEQ_AKTIVITETSKRAV_ARBEID_PERIODE" allocation-size="50" sequence-name="SEQ_AKTIVITETSKRAV_ARBEID_PERIODE" />
+    <sequence-generator name="SEQ_GR_EOS_UTTAK" allocation-size="50" sequence-name="SEQ_GR_EOS_UTTAK" />
+    <sequence-generator name="SEQ_GR_EOS_UTTAKSPERIODER" allocation-size="50" sequence-name="SEQ_GR_EOS_UTTAKSPERIODER" />
+    <sequence-generator name="SEQ_GR_EOS_UTTAKSPERIODE" allocation-size="50" sequence-name="SEQ_GR_EOS_UTTAKSPERIODE" />
 
     <!-- Andre grunnlag -->
     <entity class="no.nav.foreldrepenger.behandlingslager.behandling.pleiepenger.PleiepengerGrunnlagEntitet"/>
@@ -29,6 +32,11 @@
     <entity class="no.nav.foreldrepenger.behandlingslager.behandling.aktivitetskrav.AktivitetskravGrunnlagEntitet"/>
     <entity class="no.nav.foreldrepenger.behandlingslager.behandling.aktivitetskrav.AktivitetskravArbeidPerioderEntitet"/>
     <entity class="no.nav.foreldrepenger.behandlingslager.behandling.aktivitetskrav.AktivitetskravArbeidPeriodeEntitet"/>
+
+
+    <entity class="no.nav.foreldrepenger.behandlingslager.behandling.eøs.EøsUttakGrunnlagEntitet"/>
+    <entity class="no.nav.foreldrepenger.behandlingslager.behandling.eøs.EøsUttaksperioderEntitet"/>
+    <entity class="no.nav.foreldrepenger.behandlingslager.behandling.eøs.EøsUttaksperiodeEntitet"/>
 
 
 </entity-mappings>

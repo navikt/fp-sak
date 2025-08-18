@@ -16,7 +16,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.DokumentKategori;
 import no.nav.foreldrepenger.behandlingslager.behandling.DokumentTypeId;
 import no.nav.foreldrepenger.behandlingslager.behandling.MottattDokument;
-import no.nav.foreldrepenger.behandlingslager.behandling.anke.AnkeResultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.dokument.BehandlingDokumentBestiltEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.dokument.BehandlingDokumentEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.dokument.BehandlingDokumentRepository;
@@ -67,6 +66,7 @@ public class KabalDokumenter {
 
         opprettReferanseFraBestilltDokument(behandlingId, erKlageOversendtBrevSent(), referanser,
             TilKabalDto.DokumentReferanseType.OVERSENDELSESBREV);
+        validerReferanserInnholderPåkrevdOversendelsebrev(referanser);
 
         resultat.getPåKlagdBehandlingId()
             .ifPresent(b -> opprettReferanseFraBestilltDokument(b, erVedtakDokument(), referanser,
@@ -91,30 +91,13 @@ public class KabalDokumenter {
             utgåendeTilbake.stream().filter(d -> d.tittel().startsWith("Varsel tilbakebetaling"))
                 .forEach(d -> referanser.add(new TilKabalDto.DokumentReferanse(d.journalpostId().getVerdi(), TilKabalDto.DokumentReferanseType.ANNET)));
         }
-
         return referanser;
     }
 
-    List<TilKabalDto.DokumentReferanse> finnDokumentReferanserForAnke(long behandlingId, AnkeResultatEntitet resultat, boolean bleKlageBehandletKabal) {
-        List<TilKabalDto.DokumentReferanse> referanser = new ArrayList<>();
-
-        opprettReferanseFraMottattDokument(behandlingId, erKlageEllerAnkeDokument(), referanser, TilKabalDto.DokumentReferanseType.BRUKERS_KLAGE);
-
-        if (!bleKlageBehandletKabal) {
-            resultat.getPåAnketKlageBehandlingId()
-                .ifPresent(b -> opprettReferanseFraMottattDokument(b, erKlageEllerAnkeDokument(), referanser,
-                    TilKabalDto.DokumentReferanseType.BRUKERS_KLAGE));
-
-            resultat.getPåAnketKlageBehandlingId()
-                .ifPresent(b -> opprettReferanseFraBestilltDokument(b, erKlageOversendtBrevSent(), referanser,
-                    TilKabalDto.DokumentReferanseType.OVERSENDELSESBREV));
-
-            resultat.getPåAnketKlageBehandlingId()
-                .ifPresent(b -> opprettReferanseFraBestilltDokument(b, erKlageVedtakDokument(), referanser,
-                    TilKabalDto.DokumentReferanseType.KLAGE_VEDTAK));
+    private void validerReferanserInnholderPåkrevdOversendelsebrev(List<TilKabalDto.DokumentReferanse> referanser) {
+        if (referanser.stream().noneMatch(r -> TilKabalDto.DokumentReferanseType.OVERSENDELSESBREV.equals(r.type()))) {
+            throw new IllegalStateException("Klage må ha minst ett oversendelsesbrev"); // TFP-6348: Obligatorisk i behandlingen, feil hvis mangler
         }
-
-        return referanser;
     }
 
     private void opprettReferanseFraMottattDokument(long behandlingId,
@@ -176,15 +159,17 @@ public class KabalDokumenter {
     }
 
     private Predicate<BehandlingDokumentBestiltEntitet> erVedtakDokument() {
-        return d -> d.getDokumentMalType() != null && DokumentMalType.erVedtaksBrev(DokumentMalType.fraKode(d.getDokumentMalType()));
+        return d -> d.getDokumentMalType() != null &&
+            (DokumentMalType.erVedtaksBrev(DokumentMalType.fraKode(d.getDokumentMalType())) || erOverstyrtVedtaksbrev(d));
+    }
+
+    private static boolean erOverstyrtVedtaksbrev(BehandlingDokumentBestiltEntitet d) {
+        return DokumentMalType.erVedtakFritektsBrev(DokumentMalType.fraKode(d.getDokumentMalType())) && d.getOpprineligDokumentMal() != null
+            && DokumentMalType.erVedtaksBrev(DokumentMalType.fraKode(d.getOpprineligDokumentMal()));
     }
 
     private Predicate<BehandlingDokumentBestiltEntitet> erKlageAvvist() {
         return d -> d.getDokumentMalType() != null && DokumentMalType.KLAGE_AVVIST.equals(DokumentMalType.fraKode(d.getDokumentMalType()));
-    }
-
-    private Predicate<BehandlingDokumentBestiltEntitet> erKlageVedtakDokument() {
-        return d -> d.getDokumentMalType() != null && DokumentMalType.erKlageVedtaksBrev(DokumentMalType.fraKode(d.getDokumentMalType()));
     }
 
     public void lagHistorikkinnslagForBrevSendt(Behandling behandling, JournalpostId journalpostId) {

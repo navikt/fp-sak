@@ -46,7 +46,6 @@ import no.nav.foreldrepenger.domene.iay.modell.InntektsmeldingAggregat;
 import no.nav.foreldrepenger.domene.iay.modell.InntektsmeldingBuilder;
 import no.nav.foreldrepenger.domene.iay.modell.OppgittOpptjeningBuilder;
 import no.nav.foreldrepenger.domene.iay.modell.VersjonType;
-import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.vedtak.exception.TekniskException;
 
@@ -98,8 +97,7 @@ public class AbakusInntektArbeidYtelseTjeneste implements InntektArbeidYtelseTje
 
     private InntektArbeidYtelseGrunnlag hentGrunnlagHvisEksisterer(Behandling behandling) {
         var request = initRequest(behandling);
-        var aktørId = behandling.getAktørId();
-        return hentOgMapGrunnlag(request, aktørId);
+        return hentOgMapGrunnlag(request);
     }
 
     @Override
@@ -128,8 +126,7 @@ public class AbakusInntektArbeidYtelseTjeneste implements InntektArbeidYtelseTje
         var behandling = behandlingRepository.hentBehandling(behandlingId);
         if (dto == null) {
             var request = initRequest(behandling, inntektArbeidYtelseGrunnlagUuid);
-            var aktørId = behandling.getAktørId();
-            var grunnlaget = hentOgMapGrunnlag(request, aktørId);
+            var grunnlaget = hentOgMapGrunnlag(request);
             if (grunnlaget == null || grunnlaget.getEksternReferanse() == null || !grunnlaget.getEksternReferanse()
                 .equals(inntektArbeidYtelseGrunnlagUuid)) {
                 throw new IllegalStateException("Fant ikke grunnlag med referanse=" + inntektArbeidYtelseGrunnlagUuid);
@@ -329,7 +326,7 @@ public class AbakusInntektArbeidYtelseTjeneste implements InntektArbeidYtelseTje
             KodeverkMapper.fraFagsakYtelseType(behandling.getFagsakYtelseType()), oppgittOpptjening);
     }
 
-    private InntektArbeidYtelseGrunnlag hentOgMapGrunnlag(InntektArbeidYtelseGrunnlagRequest request, AktørId aktørId) {
+    private InntektArbeidYtelseGrunnlag hentOgMapGrunnlag(InntektArbeidYtelseGrunnlagRequest request) {
         var dto = hentGrunnlag(request);
         var forespurtGrunnlagsRef = request.getGrunnlagReferanse() != null ? request.getGrunnlagReferanse()
                 : request.getSisteKjenteGrunnlagReferanse();
@@ -340,11 +337,11 @@ public class AbakusInntektArbeidYtelseTjeneste implements InntektArbeidYtelseTje
         if (dto == null) {
             return sisteGrunnlag;
         }
-        return mapOgCacheGrunnlag(dto, aktørId, request.getGrunnlagVersjon() == InntektArbeidYtelseGrunnlagRequest.GrunnlagVersjon.SISTE);
+        return mapOgCacheGrunnlag(dto, request.getGrunnlagVersjon() == InntektArbeidYtelseGrunnlagRequest.GrunnlagVersjon.SISTE);
     }
 
-    private InntektArbeidYtelseGrunnlag mapOgCacheGrunnlag(InntektArbeidYtelseGrunnlagDto grunnlagDto, AktørId aktørId, boolean isAktiv) {
-        var grunnlag = mapResult(aktørId, grunnlagDto, isAktiv);
+    private InntektArbeidYtelseGrunnlag mapOgCacheGrunnlag(InntektArbeidYtelseGrunnlagDto grunnlagDto, boolean isAktiv) {
+        var grunnlag = mapResult(grunnlagDto, isAktiv);
         requestCache.leggTil(grunnlag);
         return grunnlag;
     }
@@ -371,8 +368,8 @@ public class AbakusInntektArbeidYtelseTjeneste implements InntektArbeidYtelseTje
         return mapInntektsmeldinger.map(dummyBuilder, dto);
     }
 
-    private InntektArbeidYtelseGrunnlag mapResult(AktørId aktørId, InntektArbeidYtelseGrunnlagDto dto, boolean isAktiv) {
-        var inntektArbeidYtelseGrunnlag = new IAYFraDtoMapper(aktørId).mapTilGrunnlagInklusivRegisterdata(dto, isAktiv);
+    private InntektArbeidYtelseGrunnlag mapResult(InntektArbeidYtelseGrunnlagDto dto, boolean isAktiv) {
+        var inntektArbeidYtelseGrunnlag = new IAYFraDtoMapper().mapTilGrunnlagInklusivRegisterdata(dto, isAktiv);
         return new AbakusInntektArbeidYtelseGrunnlag(inntektArbeidYtelseGrunnlag, dto.getKoblingReferanse());
     }
 

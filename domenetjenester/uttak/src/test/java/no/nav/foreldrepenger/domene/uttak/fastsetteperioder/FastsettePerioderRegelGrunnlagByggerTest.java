@@ -418,9 +418,9 @@ class FastsettePerioderRegelGrunnlagByggerTest {
         assertThat(annenPartGrunnlag.getAktiviteter()).hasSize(1);
 
         var aktivitetMødrekvote = annenPartGrunnlag.getAktiviteter().stream().findFirst().orElseThrow();
-        assertThat(aktivitetMødrekvote.getAktivitetIdentifikator()).isEqualTo(forventetAktivitetIdentifikator);
-        assertThat(aktivitetMødrekvote.getStønadskontotype()).isEqualTo(Stønadskontotype.MØDREKVOTE);
-        assertThat(new Trekkdager(aktivitetMødrekvote.getTrekkdager().decimalValue())).isEqualTo(
+        assertThat(aktivitetMødrekvote.aktivitetIdentifikator()).isEqualTo(forventetAktivitetIdentifikator);
+        assertThat(aktivitetMødrekvote.stønadskontotype()).isEqualTo(Stønadskontotype.MØDREKVOTE);
+        assertThat(new Trekkdager(aktivitetMødrekvote.trekkdager().decimalValue())).isEqualTo(
             uttakMødrekvote.getAktiviteter().getFirst().getTrekkdager());
 
         var mappedFellesperiode = uttakPerioderAnnenPart.get(1);
@@ -429,9 +429,9 @@ class FastsettePerioderRegelGrunnlagByggerTest {
         assertThat(mappedFellesperiode.getAktiviteter()).hasSize(1);
 
         var aktivitetFellesperiode = mappedFellesperiode.getAktiviteter().stream().findFirst().orElseThrow();
-        assertThat(aktivitetFellesperiode.getAktivitetIdentifikator()).isEqualTo(forventetAktivitetIdentifikator);
-        assertThat(aktivitetFellesperiode.getStønadskontotype()).isEqualTo(Stønadskontotype.FELLESPERIODE);
-        assertThat(new Trekkdager(aktivitetFellesperiode.getTrekkdager().decimalValue())).isEqualTo(
+        assertThat(aktivitetFellesperiode.aktivitetIdentifikator()).isEqualTo(forventetAktivitetIdentifikator);
+        assertThat(aktivitetFellesperiode.stønadskontotype()).isEqualTo(Stønadskontotype.FELLESPERIODE);
+        assertThat(new Trekkdager(aktivitetFellesperiode.trekkdager().decimalValue())).isEqualTo(
             uttakFellesperiode.getAktiviteter().getFirst().getTrekkdager());
     }
 

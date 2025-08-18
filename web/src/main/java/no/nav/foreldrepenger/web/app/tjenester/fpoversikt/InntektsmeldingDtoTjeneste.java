@@ -83,7 +83,7 @@ class InntektsmeldingDtoTjeneste {
         return inntektsmeldingTjeneste.hentAlleInntektsmeldingerForFagsak(saksnummer)
             .stream()
             .map(i -> map(i, inntektsmeldinger.contains(i.getJournalpostId()), yrkesaktivitet))
-            .collect(Collectors.toList());
+            .toList();
     }
 
     private FpSakInntektsmeldingDto map(Inntektsmelding inntektsmelding, boolean erAktiv, Collection<Yrkesaktivitet> yrkesaktivitet) {

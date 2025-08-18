@@ -1,5 +1,7 @@
 package no.nav.foreldrepenger.familiehendelse.aksjonspunkt;
 
+import static no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagLinjeBuilder.fraTilEquals;
+
 import java.time.LocalDate;
 import java.util.Comparator;
 import java.util.List;
@@ -26,13 +28,10 @@ import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinns
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.SkjermlenkeType;
 import no.nav.foreldrepenger.familiehendelse.FamilieHendelseTjeneste;
-import no.nav.foreldrepenger.familiehendelse.aksjonspunkt.dto.SjekkManglendeFødselAksjonspunktDto;
 import no.nav.foreldrepenger.familiehendelse.aksjonspunkt.dto.DokumentertBarnDto;
+import no.nav.foreldrepenger.familiehendelse.aksjonspunkt.dto.SjekkManglendeFødselAksjonspunktDto;
 import no.nav.foreldrepenger.skjæringstidspunkt.OpplysningsPeriodeTjeneste;
 import no.nav.vedtak.exception.FunksjonellException;
-
-import static no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagLinjeBuilder.DATE_FORMATTER;
-import static no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagLinjeBuilder.fraTilEquals;
 
 @ApplicationScoped
 @DtoTilServiceAdapter(dto = SjekkManglendeFødselAksjonspunktDto.class, adapter = AksjonspunktOppdaterer.class)
@@ -211,8 +210,8 @@ public class SjekkManglendeFødselOppdaterer implements AksjonspunktOppdaterer<S
         }
 
         public String formaterLevetid() {
-            return getDødsdato().map(d -> String.format("f. %s - d. %s", fødselsdato.format(DATE_FORMATTER), d.format(DATE_FORMATTER)))
-                .orElseGet(() -> String.format("f. %s", fødselsdato.format(DATE_FORMATTER)));
+            return getDødsdato().map(d -> String.format("f. %s - d. %s", HistorikkinnslagLinjeBuilder.format(fødselsdato), HistorikkinnslagLinjeBuilder.format(d)))
+                .orElseGet(() -> String.format("f. %s", HistorikkinnslagLinjeBuilder.format(fødselsdato)));
         }
 
         @Override

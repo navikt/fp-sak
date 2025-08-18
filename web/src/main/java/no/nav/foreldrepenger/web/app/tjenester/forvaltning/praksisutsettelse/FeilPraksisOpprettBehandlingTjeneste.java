@@ -197,6 +197,7 @@ public class FeilPraksisOpprettBehandlingTjeneste {
             .toList();
     }
 
+    @SuppressWarnings("unused")
     private static Map<UttakAktivitetGruppering, Trekkdager> tapteDagerGradering(List<UttakResultatPeriodeEntitet> perioder) {
         return perioder.stream()
             .filter(p -> GraderingAvslagÅrsak.FOR_SEN_SØKNAD.equals(p.getGraderingAvslagÅrsak()) && p.getSamtidigUttaksprosent() == null)
@@ -213,7 +214,6 @@ public class FeilPraksisOpprettBehandlingTjeneste {
                 a.getTrekkdager().subtract(graderingForventetTrekkdager(periode, a))))
             .toList();
     }
-
 
     private static boolean feilPraksisGraderingAktivitet(UttakResultatPeriodeEntitet periode, UttakResultatPeriodeAktivitetEntitet aktivitet) {
         var forventetTrekkdager = graderingForventetTrekkdager(periode, aktivitet);

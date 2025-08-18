@@ -1,7 +1,7 @@
 package no.nav.foreldrepenger.ytelse.beregning.adapter;
 
 import java.util.Collections;
-import java.util.HashMap;
+import java.util.EnumMap;
 import java.util.Map;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.Inntektskategori;
@@ -38,7 +38,7 @@ final class InntektskategoriMapper {
         //"Statisk" klasse
     }
     static {
-        Map<Inntektskategori, no.nav.foreldrepenger.ytelse.beregning.regelmodell.beregningsgrunnlag.Inntektskategori> vLTilRegelMap = new HashMap<>();
+        Map<Inntektskategori, no.nav.foreldrepenger.ytelse.beregning.regelmodell.beregningsgrunnlag.Inntektskategori> vLTilRegelMap = new EnumMap<>(Inntektskategori.class);
         REGEL_TIL_VL_MAP.forEach((key, value) -> vLTilRegelMap.put(value, key)); //Initialiser reversert map
         VL_TIL_REGEL_MAP = Collections.unmodifiableMap(vLTilRegelMap);
     }

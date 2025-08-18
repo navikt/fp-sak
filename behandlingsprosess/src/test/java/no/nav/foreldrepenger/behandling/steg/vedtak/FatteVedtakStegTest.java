@@ -332,7 +332,7 @@ class FatteVedtakStegTest {
         when(skjæringstidspunktTjeneste.getSkjæringstidspunkter(ArgumentMatchers.any())).thenReturn(skjæringstidspunkt);
         var poXmlFelles = new PersonopplysningXmlFelles(personinfoAdapter);
         var personopplysningXmlTjeneste = new PersonopplysningXmlTjenesteImpl(poXmlFelles, repositoryProvider,
-                personopplysningTjeneste, iayTjeneste, mock(VergeRepository.class));;
+                personopplysningTjeneste, iayTjeneste, mock(VergeRepository.class));
         var vedtakXmlTjeneste = new VedtakXmlTjeneste(repositoryProvider, fagsakRelasjonTjeneste);
         VilkårsgrunnlagXmlTjeneste vilkårsgrunnlagXmlTjeneste = new VilkårsgrunnlagXmlTjenesteImpl(repositoryProvider);
         YtelseXmlTjeneste ytelseXmlTjeneste = new YtelseXmlTjenesteImpl(beregningRepository);

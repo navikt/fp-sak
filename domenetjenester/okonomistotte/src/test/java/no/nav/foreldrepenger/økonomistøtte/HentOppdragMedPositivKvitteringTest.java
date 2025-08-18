@@ -3,7 +3,6 @@ package no.nav.foreldrepenger.økonomistøtte;
 import static no.nav.foreldrepenger.økonomistøtte.OppdragTestDataHelper.oppdragskontrollMedOppdrag;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -45,8 +44,8 @@ class HentOppdragMedPositivKvitteringTest {
 
     private void mockRepository(Oppdragskontroll oppdragskontroll) {
         var økonomioppdragRepository = mock(ØkonomioppdragRepository.class);
-        when(økonomioppdragRepository.finnOppdragForBehandling(eq(behandling.getId()))).thenReturn(Optional.of(oppdragskontroll));
-        when(økonomioppdragRepository.finnAlleOppdragForSak(eq(saksnummer))).thenReturn(Collections.singletonList(oppdragskontroll));
+        when(økonomioppdragRepository.finnOppdragForBehandling(behandling.getId())).thenReturn(Optional.of(oppdragskontroll));
+        when(økonomioppdragRepository.finnAlleOppdragForSak(saksnummer)).thenReturn(Collections.singletonList(oppdragskontroll));
         hentOppdragMedPositivKvittering = new HentOppdragMedPositivKvittering(økonomioppdragRepository);
     }
 

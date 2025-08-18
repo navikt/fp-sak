@@ -3,7 +3,6 @@ package no.nav.foreldrepenger.behandling.steg.iverksettevedtak.es;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -109,7 +108,7 @@ class IverksetteVedtakStegFellesTest extends EntityManagerAwareTest {
         var resultat = utførSteg(behandling);
 
         // Assert
-        verify(opprettProsessTaskIverksett).opprettIverksettingTasks(eq(behandling));
+        verify(opprettProsessTaskIverksett).opprettIverksettingTasks(behandling);
         assertThat(resultat.getTransisjon().stegTransisjon()).isEqualTo(StegTransisjon.SUSPENDERT);
         assertThat(resultat.getAksjonspunktListe()).isEmpty();
         var behandlingVedtakOpt = behandlingVedtakRepository.hentForBehandlingHvisEksisterer(behandling.getId());

@@ -9,7 +9,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
@@ -28,8 +27,6 @@ import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
-
-import no.nav.foreldrepenger.domene.mappers.KalkulusInputTjeneste;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -62,9 +59,8 @@ import no.nav.foreldrepenger.domene.iay.modell.InntektsmeldingAggregat;
 import no.nav.foreldrepenger.domene.iay.modell.Inntektspost;
 import no.nav.foreldrepenger.domene.iay.modell.kodeverk.InntektsKilde;
 import no.nav.foreldrepenger.domene.json.StandardJsonConfig;
+import no.nav.foreldrepenger.domene.mappers.KalkulusInputTjeneste;
 import no.nav.foreldrepenger.domene.mappers.til_kalkulator.BeregningsgrunnlagInputProvider;
-import no.nav.foreldrepenger.domene.migrering.BeregningMigreringMapper;
-import no.nav.foreldrepenger.domene.migrering.MigrerBeregningSakTask;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.typer.Beløp;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
@@ -292,33 +288,6 @@ public class ForvaltningBeregningRestTjeneste {
         return Response.ok(kalkulatorInputDto).build();
     }
 
-
-    @POST
-    @Path("/migrerSak")
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
-    @Operation(description = "Migrerer en sak over til kalkulus", tags = "FORVALTNING-beregning")
-    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.DRIFT, sporingslogg = false)
-    public Response migrerSak(@TilpassetAbacAttributt(supplierClass = SaksnummerAbacSupplier.Supplier.class) @NotNull @QueryParam("saksnummer") @Valid SaksnummerDto dto) {
-        var migreringstask = ProsessTaskData.forProsessTask(MigrerBeregningSakTask.class);
-        migreringstask.setSaksnummer(dto.getVerdi());
-        taskTjeneste.lagre(migreringstask);
-        return Response.ok().build();
-    }
-
-    @POST
-    @Path("/hentMigreringInput")
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
-    @Operation(description = "Migrerer en sak over til kalkulus", tags = "FORVALTNING-beregning")
-    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.DRIFT, sporingslogg = false)
-    public Response hentMigreringInput(@BeanParam @Valid ForvaltningBehandlingIdDto dto) {
-        var behandling = behandlingRepository.hentBehandling(dto.getBehandlingUuid());
-        var grunnlag = beregningsgrunnlagRepository.hentBeregningsgrunnlagGrunnlagEntitet(behandling.getId()).orElseThrow();
-        var response = BeregningMigreringMapper.map(grunnlag, grunnlag.getBeregningsgrunnlag().map(BeregningsgrunnlagEntitet::getRegelSporinger)
-            .orElse(Map.of()), behandling.getAksjonspunkter());
-        return Response.ok(response).build();
-    }
 
     @POST
     @Path("/sjekkDiffInntektRegisterMotInntektsmelding")

@@ -4,7 +4,6 @@ import java.math.BigDecimal;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import no.nav.foreldrepenger.domene.arbeidsforhold.impl.HentBekreftetPermisjon;
@@ -44,7 +43,7 @@ class MapAnsettelsesPeriodeOgPermisjon {
             return ansettelsesPerioder.stream()
                 .flatMap(ap -> fjernPermisjon(ap, bekreftetPermisjon.getPeriode()))
                 .sorted(Comparator.comparing(p -> p.getPeriode().getFomDato()))
-                .collect(Collectors.toList());
+                .toList();
         }
         return ansettelsesPerioder;
     }

@@ -1,6 +1,5 @@
 package no.nav.foreldrepenger.behandlingslager.behandling;
 
-import static java.util.stream.Collectors.toList;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.LocalDate;
@@ -370,7 +369,7 @@ class BehandlingsgrunnlagEntitetTest extends EntityManagerAwareTest {
 
         var barna = personInformasjon.getRelasjoner().stream()
             .filter(e -> e.getAktørId().equals(forelderAktørId))
-            .collect(toList());
+            .toList();
 
         assertThat(barna).hasSize(1);
         assertThat(barna.get(0).getRelasjonsrolle()).isEqualTo(RelasjonsRolleType.BARN);
@@ -394,7 +393,7 @@ class BehandlingsgrunnlagEntitetTest extends EntityManagerAwareTest {
         assertThat(personInformasjon2).isPresent();
         barna = personInformasjon2.get().getRelasjoner().stream()
             .filter(e -> e.getAktørId().equals(forelderAktørId))
-            .collect(toList());
+            .toList();
 
         assertThat(barna).hasSize(1);
         assertThat(
@@ -416,7 +415,8 @@ class BehandlingsgrunnlagEntitetTest extends EntityManagerAwareTest {
         barna = hentSøkerPersonopplysninger(behandlingId)
             .getGjeldendeVersjon()
             .getRelasjoner().stream()
-            .filter(e -> e.getAktørId().equals(forelderAktørId)).collect(toList());
+            .filter(e -> e.getAktørId().equals(forelderAktørId))
+            .toList();
 
         assertThat(barna).hasSize(1);
         assertThat(barna.get(0).getTilAktørId()).isEqualTo(barnAktørId);
@@ -484,7 +484,7 @@ class BehandlingsgrunnlagEntitetTest extends EntityManagerAwareTest {
 
         var barna = personopplysningGrunnlag.getGjeldendeVersjon().getRelasjoner()
             .stream().filter(e -> e.getAktørId().equals(forelderAktørId))
-            .collect(toList());
+            .toList();
         assertThat(barna).hasSize(1);
         assertThat(barna.get(0).getRelasjonsrolle()).isEqualTo(RelasjonsRolleType.BARN);
         assertThat(barna.get(0).getTilAktørId()).isEqualTo(barnNummer1);
@@ -527,7 +527,7 @@ class BehandlingsgrunnlagEntitetTest extends EntityManagerAwareTest {
 
         barna = personInformasjon.getRelasjoner().stream()
             .filter(e -> e.getAktørId().equals(forelderAktørId))
-            .collect(toList());
+            .toList();
         assertThat(barna).hasSize(2);
 
         assertThat(barna.stream().map(PersonRelasjonEntitet::getRelasjonsrolle).collect(Collectors.toSet())).containsExactly(RelasjonsRolleType.BARN);

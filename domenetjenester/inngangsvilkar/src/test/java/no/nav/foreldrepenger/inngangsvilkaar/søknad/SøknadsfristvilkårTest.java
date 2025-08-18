@@ -102,11 +102,11 @@ class SøknadsfristvilkårTest extends EntityManagerAwareTest {
         // Act + assert
         assertOppfylt(mockPapirSøknad(mottattMandag, skjæringstidspunktMedOrginalFristLørdag));
         assertOppfylt(mockPapirSøknad(mottattTirsdag, skjæringstidspunktMedOrginalFristLørdag));
-        assertIkkeVurdertForSent(mockPapirSøknad(mottattOnsdag, skjæringstidspunktMedOrginalFristLørdag), 1);
-        assertIkkeVurdertForSent(mockPapirSøknad(mottattTorsdag, skjæringstidspunktMedOrginalFristLørdag), 2);
-        assertIkkeVurdertForSent(mockPapirSøknad(mottattFredag, skjæringstidspunktMedOrginalFristLørdag), 3);
-        assertIkkeVurdertForSent(mockPapirSøknad(mottattLørdag, skjæringstidspunktMedOrginalFristLørdag), 4);
-        assertIkkeVurdertForSent(mockPapirSøknad(mottattSøndag, skjæringstidspunktMedOrginalFristLørdag), 5);
+        assertIkkeVurdertForSent(mockPapirSøknad(mottattOnsdag, skjæringstidspunktMedOrginalFristLørdag));
+        assertIkkeVurdertForSent(mockPapirSøknad(mottattTorsdag, skjæringstidspunktMedOrginalFristLørdag));
+        assertIkkeVurdertForSent(mockPapirSøknad(mottattFredag, skjæringstidspunktMedOrginalFristLørdag));
+        assertIkkeVurdertForSent(mockPapirSøknad(mottattLørdag, skjæringstidspunktMedOrginalFristLørdag));
+        assertIkkeVurdertForSent(mockPapirSøknad(mottattSøndag, skjæringstidspunktMedOrginalFristLørdag));
 
     }
 
@@ -126,11 +126,11 @@ class SøknadsfristvilkårTest extends EntityManagerAwareTest {
         // Act + assert
         assertOppfylt(mockPapirSøknad(mottattMandag, skjæringstidspunktMedOrginalFristSøndag));
         assertOppfylt(mockPapirSøknad(mottattTirsdag, skjæringstidspunktMedOrginalFristSøndag));
-        assertIkkeVurdertForSent(mockPapirSøknad(mottattOnsdag, skjæringstidspunktMedOrginalFristSøndag), 1);
-        assertIkkeVurdertForSent(mockPapirSøknad(mottattTorsdag, skjæringstidspunktMedOrginalFristSøndag), 2);
-        assertIkkeVurdertForSent(mockPapirSøknad(mottattFredag, skjæringstidspunktMedOrginalFristSøndag), 3);
-        assertIkkeVurdertForSent(mockPapirSøknad(mottattLørdag, skjæringstidspunktMedOrginalFristSøndag), 4);
-        assertIkkeVurdertForSent(mockPapirSøknad(mottattSøndag, skjæringstidspunktMedOrginalFristSøndag), 5);
+        assertIkkeVurdertForSent(mockPapirSøknad(mottattOnsdag, skjæringstidspunktMedOrginalFristSøndag));
+        assertIkkeVurdertForSent(mockPapirSøknad(mottattTorsdag, skjæringstidspunktMedOrginalFristSøndag));
+        assertIkkeVurdertForSent(mockPapirSøknad(mottattFredag, skjæringstidspunktMedOrginalFristSøndag));
+        assertIkkeVurdertForSent(mockPapirSøknad(mottattLørdag, skjæringstidspunktMedOrginalFristSøndag));
+        assertIkkeVurdertForSent(mockPapirSøknad(mottattSøndag, skjæringstidspunktMedOrginalFristSøndag));
 
     }
 
@@ -150,11 +150,11 @@ class SøknadsfristvilkårTest extends EntityManagerAwareTest {
         // Act + assert
         assertOppfylt(mockPapirSøknad(mottattMandag, skjæringstidspunktMedOrginalFristFredag));
         assertOppfylt(mockPapirSøknad(mottattTirsdag, skjæringstidspunktMedOrginalFristFredag));
-        assertIkkeVurdertForSent(mockPapirSøknad(mottattOnsdag, skjæringstidspunktMedOrginalFristFredag), 1);
-        assertIkkeVurdertForSent(mockPapirSøknad(mottattTorsdag, skjæringstidspunktMedOrginalFristFredag), 2);
-        assertIkkeVurdertForSent(mockPapirSøknad(mottattFredag, skjæringstidspunktMedOrginalFristFredag), 3);
-        assertIkkeVurdertForSent(mockPapirSøknad(mottattLørdag, skjæringstidspunktMedOrginalFristFredag), 4);
-        assertIkkeVurdertForSent(mockPapirSøknad(mottattSøndag, skjæringstidspunktMedOrginalFristFredag), 5);
+        assertIkkeVurdertForSent(mockPapirSøknad(mottattOnsdag, skjæringstidspunktMedOrginalFristFredag));
+        assertIkkeVurdertForSent(mockPapirSøknad(mottattTorsdag, skjæringstidspunktMedOrginalFristFredag));
+        assertIkkeVurdertForSent(mockPapirSøknad(mottattFredag, skjæringstidspunktMedOrginalFristFredag));
+        assertIkkeVurdertForSent(mockPapirSøknad(mottattLørdag, skjæringstidspunktMedOrginalFristFredag));
+        assertIkkeVurdertForSent(mockPapirSøknad(mottattSøndag, skjæringstidspunktMedOrginalFristFredag));
 
     }
 
@@ -173,12 +173,12 @@ class SøknadsfristvilkårTest extends EntityManagerAwareTest {
 
         // Act + assert
         assertOppfylt(mockPapirSøknad(mottattMandag, skjæringstidspunktMedOrginalFristTorsdag));
-        assertIkkeVurdertForSent(mockPapirSøknad(mottattTirsdag, skjæringstidspunktMedOrginalFristTorsdag), 1);
-        assertIkkeVurdertForSent(mockPapirSøknad(mottattOnsdag, skjæringstidspunktMedOrginalFristTorsdag), 2);
-        assertIkkeVurdertForSent(mockPapirSøknad(mottattTorsdag, skjæringstidspunktMedOrginalFristTorsdag), 3);
-        assertIkkeVurdertForSent(mockPapirSøknad(mottattFredag, skjæringstidspunktMedOrginalFristTorsdag), 4);
-        assertIkkeVurdertForSent(mockPapirSøknad(mottattLørdag, skjæringstidspunktMedOrginalFristTorsdag), 5);
-        assertIkkeVurdertForSent(mockPapirSøknad(mottattSøndag, skjæringstidspunktMedOrginalFristTorsdag), 6);
+        assertIkkeVurdertForSent(mockPapirSøknad(mottattTirsdag, skjæringstidspunktMedOrginalFristTorsdag));
+        assertIkkeVurdertForSent(mockPapirSøknad(mottattOnsdag, skjæringstidspunktMedOrginalFristTorsdag));
+        assertIkkeVurdertForSent(mockPapirSøknad(mottattTorsdag, skjæringstidspunktMedOrginalFristTorsdag));
+        assertIkkeVurdertForSent(mockPapirSøknad(mottattFredag, skjæringstidspunktMedOrginalFristTorsdag));
+        assertIkkeVurdertForSent(mockPapirSøknad(mottattLørdag, skjæringstidspunktMedOrginalFristTorsdag));
+        assertIkkeVurdertForSent(mockPapirSøknad(mottattSøndag, skjæringstidspunktMedOrginalFristTorsdag));
 
     }
 
@@ -194,7 +194,7 @@ class SøknadsfristvilkårTest extends EntityManagerAwareTest {
         assertThat(data.aksjonspunktDefinisjoner()).isEmpty();
     }
 
-    private void assertIkkeVurdertForSent(Behandling behandling, int dagerForSent) {
+    private void assertIkkeVurdertForSent(Behandling behandling) {
         var data = new InngangsvilkårEngangsstønadSøknadsfrist(new SøknadsperiodeFristTjenesteImpl(repositoryProvider)).vurderVilkår(lagRef(behandling));
         assertThat(data.vilkårType()).isEqualTo(VilkårType.SØKNADSFRISTVILKÅRET);
         assertThat(data.utfallType()).isEqualTo(VilkårUtfallType.IKKE_VURDERT);

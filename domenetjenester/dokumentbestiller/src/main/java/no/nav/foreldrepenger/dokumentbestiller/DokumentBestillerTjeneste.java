@@ -52,9 +52,8 @@ public class DokumentBestillerTjeneste extends AbstractDokumentBestillerTjeneste
             journalførSom = endretVedtakOgKunEndringIFordeling(behandlingResultatType, behandlingResultat.getKonsekvenserForYtelsen())
                 ? DokumentMalType.ENDRING_UTBETALING
                 : dokumentMal;
-
             dokumentMal = dokumentBehandlingTjeneste.hentMellomlagretOverstyring(behandling.getId()).isPresent()
-                ? DokumentMalType.FRITEKSTBREV_HMTL
+                ? DokumentMalType.VEDTAKSBREV_FRITEKST_HTML
                 : DokumentMalType.FRITEKSTBREV;
         }
 

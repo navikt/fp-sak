@@ -8,6 +8,9 @@ import java.util.Optional;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBrukerKjønn;
 import no.nav.foreldrepenger.behandlingslager.aktør.PersoninfoArbeidsgiver;
 import no.nav.foreldrepenger.behandlingslager.aktør.PersoninfoBasis;
@@ -25,6 +28,7 @@ import no.nav.pdl.Doedsfall;
 import no.nav.pdl.DoedsfallResponseProjection;
 import no.nav.pdl.Foedselsdato;
 import no.nav.pdl.FoedselsdatoResponseProjection;
+import no.nav.pdl.FolkeregisteridentifikatorResponseProjection;
 import no.nav.pdl.HentPersonQueryRequest;
 import no.nav.pdl.Kjoenn;
 import no.nav.pdl.KjoennResponseProjection;
@@ -32,9 +36,6 @@ import no.nav.pdl.KjoennType;
 import no.nav.pdl.NavnResponseProjection;
 import no.nav.pdl.Person;
 import no.nav.pdl.PersonResponseProjection;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 @ApplicationScoped
 public class PersonBasisTjeneste {
@@ -57,10 +58,15 @@ public class PersonBasisTjeneste {
         var query = new HentPersonQueryRequest();
         query.setIdent(aktørId.getId());
         var projection = new PersonResponseProjection()
+            .folkeregisteridentifikator(new FolkeregisteridentifikatorResponseProjection().identifikasjonsnummer())
             .navn(new NavnResponseProjection().fornavn().mellomnavn().etternavn())
             .adressebeskyttelse(new AdressebeskyttelseResponseProjection().gradering());
 
         var person = pdlKlient.hentPerson(ytelseType, query, projection);
+
+        if (person.getFolkeregisteridentifikator() == null || person.getFolkeregisteridentifikator().isEmpty()) {
+            pdlKlient.sjekkUtenIdentifikatorFalskIdentitet(ytelseType, aktørId);
+        }
 
         return new PersoninfoVisning(aktørId, personIdent, mapNavnVisning(person, aktørId), getDiskresjonskode(person));
     }
@@ -69,23 +75,28 @@ public class PersonBasisTjeneste {
         var query = new HentPersonQueryRequest();
         query.setIdent(aktørId.getId());
         var projection = new PersonResponseProjection()
-                .navn(new NavnResponseProjection().fornavn().mellomnavn().etternavn())
-                .foedselsdato(new FoedselsdatoResponseProjection().foedselsdato())
-                .doedsfall(new DoedsfallResponseProjection().doedsdato())
-                .kjoenn(new KjoennResponseProjection().kjoenn())
-                .adressebeskyttelse(new AdressebeskyttelseResponseProjection().gradering());
+            .folkeregisteridentifikator(new FolkeregisteridentifikatorResponseProjection().identifikasjonsnummer())
+            .navn(new NavnResponseProjection().fornavn().mellomnavn().etternavn())
+            .foedselsdato(new FoedselsdatoResponseProjection().foedselsdato())
+            .doedsfall(new DoedsfallResponseProjection().doedsdato())
+            .kjoenn(new KjoennResponseProjection().kjoenn())
+            .adressebeskyttelse(new AdressebeskyttelseResponseProjection().gradering());
 
         var person = pdlKlient.hentPerson(ytelseType, query, projection);
 
+        if (person.getFolkeregisteridentifikator() == null || person.getFolkeregisteridentifikator().isEmpty()) {
+            pdlKlient.sjekkUtenIdentifikatorFalskIdentitet(ytelseType, aktørId);
+        }
+
         var fødselsdato = person.getFoedselsdato().stream()
-                .map(Foedselsdato::getFoedselsdato)
-                .filter(Objects::nonNull)
-                .findFirst().map(d -> LocalDate.parse(d, DateTimeFormatter.ISO_LOCAL_DATE))
-                .orElseGet(() -> IS_PROD ? null : LocalDate.now().minusDays(1));
+            .map(Foedselsdato::getFoedselsdato)
+            .filter(Objects::nonNull)
+            .findFirst().map(d -> LocalDate.parse(d, DateTimeFormatter.ISO_LOCAL_DATE))
+            .orElseGet(() -> IS_PROD ? null : LocalDate.now().minusDays(1));
         var dødsdato = person.getDoedsfall().stream()
-                .map(Doedsfall::getDoedsdato)
-                .filter(Objects::nonNull)
-                .findFirst().map(d -> LocalDate.parse(d, DateTimeFormatter.ISO_LOCAL_DATE)).orElse(null);
+            .map(Doedsfall::getDoedsdato)
+            .filter(Objects::nonNull)
+            .findFirst().map(d -> LocalDate.parse(d, DateTimeFormatter.ISO_LOCAL_DATE)).orElse(null);
         return new PersoninfoBasis(aktørId, personIdent, mapNavn(person, aktørId), fødselsdato, dødsdato,
             mapKjønn(person), getDiskresjonskode(person).getKode());
     }
@@ -94,20 +105,20 @@ public class PersonBasisTjeneste {
         var query = new HentPersonQueryRequest();
         query.setIdent(aktørId.getId());
         var projection = new PersonResponseProjection()
-                .navn(new NavnResponseProjection().fornavn().mellomnavn().etternavn())
-                .foedselsdato(new FoedselsdatoResponseProjection().foedselsdato());
+            .navn(new NavnResponseProjection().fornavn().mellomnavn().etternavn())
+            .foedselsdato(new FoedselsdatoResponseProjection().foedselsdato());
 
         var person = pdlKlient.hentPersonTilgangsnektSomInfo(ytelseType, query, projection);
 
         var fødselsdato = person.getFoedselsdato().stream()
-                .map(Foedselsdato::getFoedselsdato)
-                .filter(Objects::nonNull)
-                .findFirst().map(d -> LocalDate.parse(d, DateTimeFormatter.ISO_LOCAL_DATE)).orElse(null);
+            .map(Foedselsdato::getFoedselsdato)
+            .filter(Objects::nonNull)
+            .findFirst().map(d -> LocalDate.parse(d, DateTimeFormatter.ISO_LOCAL_DATE)).orElse(null);
 
         var arbeidsgiver = new PersoninfoArbeidsgiver.Builder().medAktørId(aktørId).medPersonIdent(personIdent)
-                .medNavn(person.getNavn().stream().map(PersoninfoTjeneste::mapNavn).filter(Objects::nonNull).findFirst().orElse(null))
-                .medFødselsdato(fødselsdato)
-                .build();
+            .medNavn(person.getNavn().stream().map(PersoninfoTjeneste::mapNavn).filter(Objects::nonNull).findFirst().orElse(null))
+            .medFødselsdato(fødselsdato)
+            .build();
 
         return person.getNavn().isEmpty() || person.getFoedselsdato().isEmpty() ? Optional.empty() : Optional.of(arbeidsgiver);
     }
@@ -138,13 +149,13 @@ public class PersonBasisTjeneste {
         var query = new HentPersonQueryRequest();
         query.setIdent(aktørId.getId());
         var projection = new PersonResponseProjection()
-                .kjoenn(new KjoennResponseProjection().kjoenn());
+            .kjoenn(new KjoennResponseProjection().kjoenn());
 
         var person = pdlKlient.hentPerson(ytelseType, query, projection);
 
         var kjønn = new PersoninfoKjønn.Builder().medAktørId(aktørId)
-                .medNavBrukerKjønn(mapKjønn(person))
-                .build();
+            .medNavBrukerKjønn(mapKjønn(person))
+            .build();
         return person.getKjoenn().isEmpty() ? Optional.empty() : Optional.of(kjønn);
     }
 
@@ -179,13 +190,16 @@ public class PersonBasisTjeneste {
     }
 
     private static NavBrukerKjønn mapKjønn(Person person) {
-        var kode = person.getKjoenn().stream()
-                .map(Kjoenn::getKjoenn)
-                .filter(Objects::nonNull)
-                .findFirst().orElse(KjoennType.UKJENT);
-        if (KjoennType.MANN.equals(kode))
-            return NavBrukerKjønn.MANN;
-        return KjoennType.KVINNE.equals(kode) ? NavBrukerKjønn.KVINNE : NavBrukerKjønn.UDEFINERT;
+        var kjønnType = person.getKjoenn().stream()
+            .map(Kjoenn::getKjoenn)
+            .filter(Objects::nonNull)
+            .findFirst().orElse(KjoennType.UKJENT);
+        return mapKjønn(kjønnType);
     }
 
+    private static NavBrukerKjønn mapKjønn(KjoennType kjønn) {
+        if (KjoennType.MANN.equals(kjønn))
+            return NavBrukerKjønn.MANN;
+        return KjoennType.KVINNE.equals(kjønn) ? NavBrukerKjønn.KVINNE : NavBrukerKjønn.UDEFINERT;
+    }
 }

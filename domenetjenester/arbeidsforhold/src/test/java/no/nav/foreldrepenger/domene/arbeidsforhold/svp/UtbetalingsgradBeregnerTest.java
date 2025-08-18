@@ -1020,12 +1020,6 @@ class UtbetalingsgradBeregnerTest {
                 .medFomDato(delvisTilrettelegging)
                 .medStillingsprosent(stillingsprosent).build();
     }
-    private TilretteleggingFOM delvisTilrettelegging(LocalDate delvisTilrettelegging, BigDecimal stillingsprosent, BigDecimal overstyrtUtbetalingsgrad) {
-        return new TilretteleggingFOM.Builder().medTilretteleggingType(TilretteleggingType.DELVIS_TILRETTELEGGING)
-            .medFomDato(delvisTilrettelegging)
-            .medOverstyrtUtbetalingsgrad(overstyrtUtbetalingsgrad)
-            .medStillingsprosent(stillingsprosent).build();
-    }
 
     private TilretteleggingFOM helTilrettelegging(LocalDate helTilrettelegging) {
         return new TilretteleggingFOM.Builder()

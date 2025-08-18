@@ -1,6 +1,5 @@
 package no.nav.foreldrepenger.mottak.vedtak.rest;
 
-import java.net.URI;
 import java.util.Arrays;
 import java.util.List;
 

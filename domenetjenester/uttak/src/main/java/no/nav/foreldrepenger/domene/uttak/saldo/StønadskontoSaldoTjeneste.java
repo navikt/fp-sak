@@ -1,5 +1,6 @@
 package no.nav.foreldrepenger.domene.uttak.saldo;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -60,29 +61,31 @@ public class StønadskontoSaldoTjeneste {
         var ref = uttakInput.getBehandlingReferanse();
         var stønadskontoer = stønadskontoer(ref);
         ForeldrepengerGrunnlag fpGrunnlag = uttakInput.getYtelsespesifiktGrunnlag();
-        var saldoUtregningGrunnlag = saldoUtregningGrunnlag(perioderSøker, uttakInput, fpGrunnlag.isBerørtBehandling(), stønadskontoer);
+        var saldoUtregningGrunnlag = saldoUtregningGrunnlag(perioderSøker, uttakInput, fpGrunnlag.isTapendeBehandling(), stønadskontoer);
         return SaldoUtregningTjeneste.lagUtregning(saldoUtregningGrunnlag);
     }
 
     private SaldoUtregningGrunnlag saldoUtregningGrunnlag(List<FastsattUttakPeriode> perioderSøker,
                                                           UttakInput uttakInput,
-                                                          boolean berørtBehandling,
+                                                          boolean tapendeBehandling,
                                                           Map<StønadskontoType, Integer> stønadskontoer) {
         ForeldrepengerGrunnlag fpGrunnlag = uttakInput.getYtelsespesifiktGrunnlag();
         var søknadOpprettetTidspunkt = uttakInput.getSøknadOpprettetTidspunkt();
         var sisteSøknadOpprettetTidspunktAnnenpart = fpGrunnlag.getAnnenpart()
             .map(Annenpart::søknadOpprettetTidspunkt)
             .orElse(null);
+        var sammenhengendeUttakTomDato = UtsettelseCore2021.kreverSammenhengendeUttakTilOgMed();
+        var annenpartEøs = fpGrunnlag.getEøsUttakGrunnlag().isPresent();
         if (!stønadskontoer.isEmpty() && !perioderSøker.isEmpty()) {
             var perioderAnnenpart = perioderAnnenpart(fpGrunnlag);
             var kontoer  = KontoerGrunnlagBygger.byggGrunnlag(uttakInput, stønadskontoer).build();
             return SaldoUtregningGrunnlag.forUtregningAvHeleUttaket(perioderSøker,
-                berørtBehandling, perioderAnnenpart, kontoer, søknadOpprettetTidspunkt,
-                sisteSøknadOpprettetTidspunktAnnenpart, UtsettelseCore2021.kreverSammenhengendeUttakTilOgMed());
+                tapendeBehandling, perioderAnnenpart, kontoer, søknadOpprettetTidspunkt,
+                sisteSøknadOpprettetTidspunktAnnenpart, sammenhengendeUttakTomDato, annenpartEøs);
         }
-        return SaldoUtregningGrunnlag.forUtregningAvHeleUttaket(List.of(), berørtBehandling,
-            List.of(), new Kontoer.Builder().build(), søknadOpprettetTidspunkt, sisteSøknadOpprettetTidspunktAnnenpart,
-            UtsettelseCore2021.kreverSammenhengendeUttakTilOgMed());
+        return SaldoUtregningGrunnlag.forUtregningAvHeleUttaket(List.of(), tapendeBehandling,
+            List.of(), new Kontoer.Builder().build(), søknadOpprettetTidspunkt, sisteSøknadOpprettetTidspunktAnnenpart, sammenhengendeUttakTomDato,
+            annenpartEøs);
     }
 
     public boolean erNegativSaldoPåNoenKonto(UttakInput uttakInput) {
@@ -104,13 +107,18 @@ public class StønadskontoSaldoTjeneste {
     }
 
     private List<AnnenpartUttakPeriode> perioderAnnenpart(ForeldrepengerGrunnlag foreldrepengerGrunnlag) {
+        var eøsUttakGrunnlagOpt = foreldrepengerGrunnlag.getEøsUttakGrunnlag();
+        if (eøsUttakGrunnlagOpt.isPresent()) {
+            return AnnenPartGrunnlagBygger.map(eøsUttakGrunnlagOpt.get());
+        }
+
         var opt = annenPartUttak(foreldrepengerGrunnlag);
         return opt.map(uttakResultatEntitet -> uttakResultatEntitet.getGjeldendePerioder()
             .getPerioder()
             .stream()
             .map(AnnenPartGrunnlagBygger::map)
             .toList())
-            .orElseGet(List::of);
+            .orElse(List.of());
     }
 
     private Optional<UttakResultatEntitet> annenPartUttak(ForeldrepengerGrunnlag foreldrepengerGrunnlag) {

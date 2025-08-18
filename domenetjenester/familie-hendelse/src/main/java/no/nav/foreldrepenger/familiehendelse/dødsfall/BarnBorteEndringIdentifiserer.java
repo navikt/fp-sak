@@ -1,7 +1,6 @@
 package no.nav.foreldrepenger.familiehendelse.dødsfall;
 
 import static java.util.Collections.emptyList;
-import static java.util.stream.Collectors.toList;
 
 import java.util.List;
 import java.util.Objects;
@@ -67,6 +66,6 @@ public class BarnBorteEndringIdentifiserer {
                 .findAny()
                 .orElse(null))
             .filter(Objects::nonNull)
-            .collect(toList());
+            .toList();
     }
 }

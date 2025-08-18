@@ -17,6 +17,4 @@ public interface PersonopplysningerForUttak {
     boolean annenpartHarSammeBosted(BehandlingReferanse ref, Skjæringstidspunkt skjæringstidspunkt);
 
     boolean barnHarSammeBosted(BehandlingReferanse ref, Skjæringstidspunkt skjæringstidspunkt);
-
-    boolean oppgittAnnenpartUtenNorskID(BehandlingReferanse referanse);
 }

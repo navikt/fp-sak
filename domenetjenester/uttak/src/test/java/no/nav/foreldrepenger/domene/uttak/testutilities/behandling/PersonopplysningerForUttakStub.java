@@ -33,9 +33,4 @@ public class PersonopplysningerForUttakStub implements PersonopplysningerForUtta
     public boolean barnHarSammeBosted(BehandlingReferanse ref, Skjæringstidspunkt skjæringstidspunkt) {
         return true;
     }
-
-    @Override
-    public boolean oppgittAnnenpartUtenNorskID(BehandlingReferanse referanse) {
-        return false;
-    }
 }

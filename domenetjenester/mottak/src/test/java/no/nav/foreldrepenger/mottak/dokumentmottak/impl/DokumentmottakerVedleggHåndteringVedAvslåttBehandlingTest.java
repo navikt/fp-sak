@@ -31,7 +31,7 @@ class DokumentmottakerVedleggHåndteringVedAvslåttBehandlingTest extends Dokume
     @Test
     void gittAvslåttBehandlingPgaManglendeDokMedIkkeUtløptFristForInnsendingSkalOppretteNyFørstegangsbehandling() {
         //Arrange
-        var nyBehandling = opprettNyBehandlingUtenVedtak(FagsakYtelseType.FORELDREPENGER);
+        opprettNyBehandlingUtenVedtak(FagsakYtelseType.FORELDREPENGER);
         Mockito.doNothing().when(dokumentmottakerFellesSpied).opprettFørstegangsbehandlingMedHistorikkinslagOgKopiAvDokumenter(Mockito.any(), Mockito.any(), Mockito.any());
         Mockito.doReturn(true).when(dokumentmottakerFellesSpied).skalOppretteNyFørstegangsbehandling(any());
         var behandling = opprettBehandling(

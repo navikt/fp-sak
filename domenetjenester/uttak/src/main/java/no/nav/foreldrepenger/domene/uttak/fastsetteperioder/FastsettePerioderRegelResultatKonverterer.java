@@ -187,9 +187,9 @@ public class FastsettePerioderRegelResultatKonverterer {
             if (annenpartOverlappOpt.isEmpty()) return;
             var annenpartOverlapp = annenpartOverlappOpt.get();
             var annenpartAntallAktiviteter = annenpartOverlapp.getAktiviteter().stream()
-                .filter(a -> a.getUtbetalingsgrad().harUtbetaling()).count();
+                .filter(a -> a.utbetalingsgrad().harUtbetaling()).count();
             var annenpartUtbetalingsgrad = annenpartOverlapp.getAktiviteter().stream()
-                .map(AnnenpartUttakPeriodeAktivitet::getUtbetalingsgrad)
+                .map(AnnenpartUttakPeriodeAktivitet::utbetalingsgrad)
                 .filter(no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.Utbetalingsgrad::harUtbetaling).min(Comparator.naturalOrder()).map(
                     no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.Utbetalingsgrad::decimalValue).orElse(BigDecimal.ZERO);
             var antallAktiviteter = periode.getAktiviteter().stream()
