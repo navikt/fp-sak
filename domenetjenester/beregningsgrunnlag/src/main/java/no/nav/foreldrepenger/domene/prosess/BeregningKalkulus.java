@@ -136,12 +136,10 @@ public class BeregningKalkulus implements BeregningAPI {
             LOG.info("Kobling for behandlingUuid {} finnes ikke, oppretter", revurdering.behandlingUuid());
             return koblingRepository.opprettKoblingFraOriginal(revurdering, originalKobling.get());
         });
-        // OBS: Kopieringen er normalt sett "til og med", men pga spesialbehandling for g-regulering kopierer "FORESLÅTT" bare til dette steget.
-        // FORESLÅTT steget må deretter kjøres av fpsak
-        if (!tilstand.equals(BeregningsgrunnlagTilstand.FASTSATT) && !tilstand.equals(BeregningsgrunnlagTilstand.FORESLÅTT)) {
-            throw new IllegalStateException("Støtter ikke kopiering av grunnlag i tilstand " + tilstand);
+        if (!tilstand.equals(BeregningsgrunnlagTilstand.FASTSATT)) {
+            throw new IllegalStateException("Støtter ikke kopiering av grunnlag som ikke er fastsatt!");
         }
-        var request = lagKopierRequest(revurdering, kobling, originalKobling.get());
+        var request = lagKopierRequest(revurdering.saksnummer().getVerdi(), kobling, originalKobling.get());
         klient.kopierGrunnlag(request);
     }
 
@@ -194,10 +192,9 @@ public class BeregningKalkulus implements BeregningAPI {
         return Optional.of(MapEndringsresultat.mapFraOppdateringRespons(respons));
     }
 
-    private EnkelKopierBeregningsgrunnlagRequestDto lagKopierRequest(BehandlingReferanse revurderingRef, BeregningsgrunnlagKobling kobling, BeregningsgrunnlagKobling originalKobling) {
-        var input = kalkulusInputTjeneste.lagKalkulusInput(revurderingRef);
-        return new EnkelKopierBeregningsgrunnlagRequestDto(new Saksnummer(revurderingRef.saksnummer().getVerdi()), kobling.getKoblingUuid(),
-            originalKobling.getKoblingUuid(), BeregningSteg.FAST_BERGRUNN, input);
+    private EnkelKopierBeregningsgrunnlagRequestDto lagKopierRequest(String verdi, BeregningsgrunnlagKobling kobling, BeregningsgrunnlagKobling originalKobling) {
+        return new EnkelKopierBeregningsgrunnlagRequestDto(new Saksnummer(verdi), kobling.getKoblingUuid(),
+            originalKobling.getKoblingUuid(), BeregningSteg.FAST_BERGRUNN);
     }
 
     private no.nav.folketrygdloven.kalkulus.kodeverk.FagsakYtelseType mapYtelseSomSkalBeregnes(FagsakYtelseType fagsakYtelseType) {

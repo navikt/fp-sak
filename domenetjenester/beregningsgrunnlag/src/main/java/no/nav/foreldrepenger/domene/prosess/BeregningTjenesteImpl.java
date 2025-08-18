@@ -52,6 +52,7 @@ public class BeregningTjenesteImpl implements BeregningTjeneste {
     @Override
     public void kopier(BehandlingReferanse revurdering, BehandlingReferanse originalbehandling, BeregningsgrunnlagTilstand tilstand) {
         kalkulusBeregner.kopier(revurdering, originalbehandling, tilstand);
+
     }
 
     @Override
