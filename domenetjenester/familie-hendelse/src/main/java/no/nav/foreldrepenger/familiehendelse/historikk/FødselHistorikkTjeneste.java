@@ -19,9 +19,6 @@ public class FødselHistorikkTjeneste {
     private FødselHistorikkTjeneste() {
     }
 
-    private BarnHistorikkTjeneste() {
-    }
-
     public static void lagHistorikkForBarn(Historikkinnslag.Builder historikkinnslag,
                                            FamilieHendelseGrunnlagEntitet grunnlag,
                                            BarnInfoProvider barnInfo) {
