@@ -136,6 +136,8 @@ public class BeregningKalkulus implements BeregningAPI {
             LOG.info("Kobling for behandlingUuid {} finnes ikke, oppretter", revurdering.behandlingUuid());
             return koblingRepository.opprettKoblingFraOriginal(revurdering, originalKobling.get());
         });
+        // OBS: Kopieringen er normalt sett "til og med", men pga spesialbehandling for g-regulering kopierer "FORESLÅTT" bare til dette steget.
+        // FORESLÅTT steget må deretter kjøres av fpsak
         if (!tilstand.equals(BeregningsgrunnlagTilstand.FASTSATT) && !tilstand.equals(BeregningsgrunnlagTilstand.FORESLÅTT)) {
             throw new IllegalStateException("Støtter ikke kopiering av grunnlag i tilstand " + tilstand);
         }
