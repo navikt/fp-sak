@@ -2,6 +2,7 @@ package no.nav.foreldrepenger.web.app.tjenester.behandling.fødsel.overstyring;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.DtoTilServiceAdapter;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.OppdateringResultat;
@@ -51,11 +52,9 @@ public class FaktaOmFødselOverstyringshåndterer implements Overstyringshåndte
         var gjeldendeTermindato = familieHendelse.getGjeldendeVersjon().getTermindato().orElse(null);
 
         if (Boolean.FALSE.equals(dto.getErBarnFødt())) {
+            familieHendelseTjeneste.fjernOverstyrtHendelse(behandlingId);
             if (!(dto.getTermindato().equals(gjeldendeTermindato))) {
-                familieHendelseTjeneste.fjernOverstyrtHendelse(behandlingId);
                 faktaFødselTjeneste.overstyrFaktaOmFødsel(behandlingId, dto);
-            } else {
-                familieHendelseTjeneste.fjernOverstyrtHendelse(behandlingId);
             }
         } else {
             faktaFødselTjeneste.overstyrFaktaOmFødsel(behandlingId, dto);
@@ -66,12 +65,11 @@ public class FaktaOmFødselOverstyringshåndterer implements Overstyringshåndte
     }
 
     private void opprettHistorikkinnslag(BehandlingReferanse ref, OverstyringFaktaOmFødselDto dto, FamilieHendelseGrunnlagEntitet familieHendelse) {
-        var historikkinnslag = new Historikkinnslag.Builder()
-                .medFagsakId(ref.fagsakId())
-                .medBehandlingId(ref.behandlingId())
-                .medAktør(HistorikkAktør.SAKSBEHANDLER)
-                .medTittel(SkjermlenkeType.FAKTA_OM_FOEDSEL)
-                .addLinje(new HistorikkinnslagLinjeBuilder().bold("Overstyrt fakta om fødsel"));
+        var historikkinnslag = new Historikkinnslag.Builder().medFagsakId(ref.fagsakId())
+            .medBehandlingId(ref.behandlingId())
+            .medAktør(HistorikkAktør.SAKSBEHANDLER)
+            .medTittel(SkjermlenkeType.FAKTA_OM_FOEDSEL)
+            .addLinje(new HistorikkinnslagLinjeBuilder().bold("Overstyrt fakta om fødsel"));
 
         var originalErBarnetFødt = Optional.of(familieHendelse.getOverstyrtVersjon().filter(o -> !o.getBarna().isEmpty()).isPresent()).orElse(null);
         var dtoErBarnetFødt = dto.getErBarnFødt();
@@ -94,6 +92,6 @@ public class FaktaOmFødselOverstyringshåndterer implements Overstyringshåndte
 
     private static HistorikkinnslagLinjeBuilder lagTermindatoLinje(OverstyringFaktaOmFødselDto dto, FamilieHendelseGrunnlagEntitet familieHendelse) {
         return fraTilEquals("Termindato", familieHendelse.getGjeldendeTerminbekreftelse().map(TerminbekreftelseEntitet::getTermindato).orElse(null),
-                dto.getTermindato());
+            dto.getTermindato());
     }
 }
