@@ -1,17 +1,40 @@
 package no.nav.foreldrepenger.web.app.konfig;
 
+import java.net.URISyntaxException;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import io.swagger.v3.core.converter.ModelConverter;
+import io.swagger.v3.core.converter.ModelConverters;
+import io.swagger.v3.core.jackson.ModelResolver;
+import io.swagger.v3.core.jackson.TypeNameResolver;
+import io.swagger.v3.core.util.ObjectMapperFactory;
+import io.swagger.v3.oas.integration.api.OpenApiContext;
+
 import jakarta.ws.rs.ApplicationPath;
 import jakarta.ws.rs.core.Application;
+
+import no.nav.openapi.spec.utils.openapi.DiscriminatorModelConverter;
+import no.nav.openapi.spec.utils.openapi.EnumVarnamesConverter;
+import no.nav.openapi.spec.utils.openapi.JsonSubTypesModelConverter;
+import no.nav.openapi.spec.utils.openapi.NoJsonSubTypesAnnotationIntrospector;
+import no.nav.openapi.spec.utils.openapi.OpenApiSetupHelper;
+
+import no.nav.openapi.spec.utils.openapi.OptionalResponseTypeAdjustingReader;
+import no.nav.openapi.spec.utils.openapi.RefToClassLookup;
+import no.nav.openapi.spec.utils.openapi.RegisteredSubtypesModelConverter;
+import no.nav.openapi.spec.utils.openapi.TimeTypesModelConverter;
 
 import org.glassfish.jersey.server.ServerProperties;
 
@@ -25,6 +48,8 @@ import no.nav.foreldrepenger.konfig.Environment;
 import no.nav.foreldrepenger.web.app.tjenester.RestImplementationClasses;
 import no.nav.vedtak.exception.TekniskException;
 
+import static no.nav.foreldrepenger.web.app.jackson.JacksonJsonConfig.getJsonTypeNameClasses;
+
 @ApplicationPath(ApiConfig.API_URI)
 public class ApiConfig extends Application {
 
@@ -33,28 +58,110 @@ public class ApiConfig extends Application {
     public static final String API_URI = "/api";
 
     public ApiConfig() {
-        var oas = new OpenAPI();
         var info = new Info()
             .title("FPSAK - Foreldrepenger, engangsstønad og svangerskapspenger")
             .version(Optional.ofNullable(ENV.imageName()).orElse("1.0"))
             .description("REST grensesnitt for FPSAK.");
-
-        oas.info(info).addServersItem(new Server().url(ENV.getProperty("context.path", "/fpsak")));
-        var oasConfig = new SwaggerConfiguration()
-            .openAPI(oas)
-            .prettyPrint(true)
-            .resourceClasses(Stream.of(RestImplementationClasses.getImplementationClasses(), RestImplementationClasses.getForvaltningClasses())
-                .flatMap(Collection::stream).map(Class::getName).collect(Collectors.toSet()));
+        var server = new Server().url(ENV.getProperty("context.path", "/fpsak"));
 
         try {
-            new GenericOpenApiContextBuilder<>()
+            var oas = new OpenAPI();
+
+            oas.info(info).addServersItem(server);
+            var oasConfig = new SwaggerConfiguration()
+                .openAPI(oas)
+                .prettyPrint(true)
+                .resourceClasses(Stream.of(RestImplementationClasses.getImplementationClasses(), RestImplementationClasses.getForvaltningClasses())
+                    .flatMap(Collection::stream).map(Class::getName).collect(Collectors.toSet()));
+
+            final var resolvedRefClassLookup = new RefToClassLookup();
+            // --- CRUCIAL: Reset and register model converters BEFORE context building ---
+            ModelConverters.reset();
+
+            // Add base ModelResolver with typeNameResolver set on this helper.
+            // This must be added first, so that it ends up last in the converter chain
+            ModelConverters.getInstance().addConverter(new ModelResolver(this.objectMapper(),  TypeNameResolver.std));
+            // EnumVarnamesConverter adds x-enum-varnames for property name on generated enum objects.
+//            ModelConverters.getInstance().addConverter(new EnumVarnamesConverter());
+            // TimeTypesModelConverter converts Duration to OpenAPI string with format "duration".
+            ModelConverters.getInstance().addConverter(new TimeTypesModelConverter());
+
+            Set<Class<?>> registeredSubtypes = allJsonTypeNameClasses();
+            ModelConverters.getInstance().addConverter(new RegisteredSubtypesModelConverter(registeredSubtypes));
+            ModelConverters.getInstance().addConverter(new JsonSubTypesModelConverter());
+            ModelConverters.getInstance().addConverter(new DiscriminatorModelConverter(resolvedRefClassLookup));
+//            ModelConverters.getInstance().addConverter(new JsonTypeNameDisctriminatorConverter());
+
+            // --- Build context AFTER converters are registered ---
+            var context = new GenericOpenApiContextBuilder<>()
                 .openApiConfiguration(oasConfig)
-                .buildContext(true)
-                .read();
+                .buildContext(false);
+
+            context.init();
+            context.read();
+
+
         } catch (OpenApiConfigurationException e) {
             throw new TekniskException("OPEN-API", e.getMessage(), e);
         }
     }
+
+    protected ObjectMapper objectMapper() {
+        final var om = ObjectMapperFactory.createJson();
+        // Remove all JsonSubTypes annotations from the objectmapper used in openapi creation. To avoid problem with
+        // allOf element being created on subtypes along with oneOf from JsonSubTypesModelConverter
+        om.setAnnotationIntrospector(new NoJsonSubTypesAnnotationIntrospector());
+        return om;
+    }
+
+    public static Set<Class<?>> allJsonTypeNameClasses() {
+        // registrer jackson JsonTypeName subtypes basert på rest implementasjoner
+        final Collection<Class<?>> restClasses = RestImplementationClasses.getImplementationClasses();
+
+        final Set<Class<?>> scanClasses = new LinkedHashSet<>(restClasses);
+
+        // hack - additional locations to scan (jars uten rest services) - trenger det her p.t. for å bestemme hvilke jars / maven moduler som skal scannes for andre dtoer
+//        scanClasses.add(AvklarArbeidsforholdDto.class);
+//        scanClasses.add(VurderFaktaOmBeregningDto.class);
+//        scanClasses.add(OmsorgspengerSøknadInnsending.class);
+//        scanClasses.add(PleiepengerBarnSøknadInnsending.class);
+//        scanClasses.add(FrisinnSøknadInnsending.class);
+
+        // avled code location fra klassene
+        return scanClasses
+            .stream()
+            .map(c -> {
+                try {
+                    return c.getProtectionDomain().getCodeSource().getLocation().toURI();
+                } catch (URISyntaxException e) {
+                    throw new IllegalArgumentException("Ikke en URI for klasse: " + c, e);
+                }
+            })
+            .distinct()
+            .flatMap(uri -> getJsonTypeNameClasses(uri).stream())
+            .collect(Collectors.toUnmodifiableSet());
+
+    }
+
+//    public ApiConfig() {
+//        final var info = new Info()
+//            .title("K9 saksbehandling - Saksbehandling av kapittel 9 i folketrygden")
+//            .version("2.1")
+//            .description("REST grensesnitt for Vedtaksløsningen.");
+//        final var server = new Server().url("/k9/sak");
+//        final var openapiSetupHelper = new OpenApiSetupHelper(this, info, server);
+//        openapiSetupHelper.addResourcePackage("no.nav.k9.");
+//        openapiSetupHelper.addResourcePackage("no.nav.k9.sak");
+//        openapiSetupHelper.addResourcePackage("no.nav.k9");
+//        // The same classes registered as subtypes in object mapper are registered as subtypes in openapi setup helper:
+//        openapiSetupHelper.registerSubTypes(allJsonTypeNameClasses());
+////        openapiSetupHelper.setTypeNameResolver(new PrefixStrippingFQNTypeNameResolver("no.nav."));
+//        try {
+//            return openapiSetupHelper.resolveOpenAPI();
+//        } catch (OpenApiConfigurationException e) {
+//            throw new RuntimeException(e.getMessage(), e);
+//        }
+//    }
 
     @Override
     public Set<Class<?>> getClasses() {

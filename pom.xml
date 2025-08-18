@@ -37,7 +37,7 @@
 
         <felles.version>7.5.7</felles.version>
         <prosesstask.version>5.1.10</prosesstask.version>
-
+        <openapi-spec-utils.version>2.0.4</openapi-spec-utils.version>
         <fp-kontrakter.version>9.3.8</fp-kontrakter.version>
         <abakus-kontrakt.version>2.3.4</abakus-kontrakt.version>
 
