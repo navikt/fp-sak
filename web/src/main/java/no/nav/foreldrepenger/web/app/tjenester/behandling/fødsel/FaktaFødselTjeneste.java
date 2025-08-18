@@ -136,15 +136,11 @@ public class FaktaFødselTjeneste {
     }
 
     private static boolean finnesUlikeBarn(OverstyringFaktaOmFødselDto dto, FamilieHendelseGrunnlagEntitet familieHendelse) {
-        var dtoFødselStatus = dto.getBarn()
-            .stream()
-            .map(
-                barn -> {
-                    var barnDto = new DokumentertBarnDto(barn.getFødselsdato(), barn.getDødsdato().orElse(null));
-                    var barnNummer = getBarnNummer(barn, dto.getBarn());
-                    return new FødselStatus(barnDto, barnNummer);
-                })
-            .toList();
+        var dtoFødselStatus = dto.getBarn().stream().map(barn -> {
+            var barnDto = new DokumentertBarnDto(barn.getFødselsdato(), barn.getDødsdato().orElse(null));
+            var barnNummer = getBarnNummer(barn, dto.getBarn());
+            return new FødselStatus(barnDto, barnNummer);
+        }).toList();
 
         var grunnlagBarnFødselStatus = familieHendelse.getGjeldendeVersjon()
             .getBarna()
@@ -153,19 +149,17 @@ public class FaktaFødselTjeneste {
                 getBarnNummer(barn, familieHendelse.getGjeldendeVersjon().getBarna())))
             .toList();
 
-        return dtoFødselStatus.size() != grunnlagBarnFødselStatus.size() ||
-            harEndringerIBarnMedSammeNummer(dtoFødselStatus, grunnlagBarnFødselStatus);
+        return dtoFødselStatus.size() != grunnlagBarnFødselStatus.size() || harEndringerIBarnMedSammeNummer(dtoFødselStatus,
+            grunnlagBarnFødselStatus);
     }
 
     private static boolean harEndringerIBarnMedSammeNummer(List<FødselStatus> dtoBarn, List<FødselStatus> grunnlagBarn) {
-        return dtoBarn.stream().anyMatch(dtoBarnStatus ->
-            grunnlagBarn.stream()
+        return dtoBarn.stream()
+            .anyMatch(dtoBarnStatus -> grunnlagBarn.stream()
                 .filter(grunnlagBarnStatus -> Objects.equals(grunnlagBarnStatus.getBarnNummer(), dtoBarnStatus.getBarnNummer()))
-                .anyMatch(grunnlagBarnStatus ->
-                    !Objects.equals(dtoBarnStatus.getFødselsdato(), grunnlagBarnStatus.getFødselsdato()) ||
-                        !Objects.equals(dtoBarnStatus.getDødsdato(), grunnlagBarnStatus.getDødsdato())
-                )
-        );
+                .anyMatch(
+                    grunnlagBarnStatus -> !Objects.equals(dtoBarnStatus.getFødselsdato(), grunnlagBarnStatus.getFødselsdato()) || !Objects.equals(
+                        dtoBarnStatus.getDødsdato(), grunnlagBarnStatus.getDødsdato())));
     }
 
     private FødselDto.Gjeldende.Utstedtdato mapUtstedtdato(FamilieHendelseGrunnlagEntitet familieHendelse) {
@@ -207,9 +201,7 @@ public class FaktaFødselTjeneste {
         return kilde == Kilde.SØKNAD ? søknadDato.orElse(null) : overstyrtDato.orElse(null);
     }
 
-    private static Kilde bestemKilde(int søknadAntallBarn,
-                                     Optional<Integer> bekreftetAntallBarn,
-                                     Optional<Integer> overstyrtAntallBarn) {
+    private static Kilde bestemKilde(int søknadAntallBarn, Optional<Integer> bekreftetAntallBarn, Optional<Integer> overstyrtAntallBarn) {
 
         if (overstyrtAntallBarn.isPresent() && !Objects.equals(overstyrtAntallBarn.get(), søknadAntallBarn)) {
             return Kilde.SAKSBEHANDLER;
@@ -248,8 +240,8 @@ public class FaktaFødselTjeneste {
 
         if (!overstyrtBarn.isEmpty()) {
             var bekreftedeBarnMap = bekreftedeBarn.stream()
-                .collect(Collectors.groupingBy(FødselDto.BarnHendelseData::barnNummer,
-                    Collectors.collectingAndThen(Collectors.toList(), List::getFirst)));
+                .collect(
+                    Collectors.groupingBy(FødselDto.BarnHendelseData::barnNummer, Collectors.collectingAndThen(Collectors.toList(), List::getFirst)));
 
             overstyrtBarn.forEach(barn -> {
                 var bekreftetBarn = bekreftedeBarnMap.get(barn.barnNummer());
@@ -272,8 +264,8 @@ public class FaktaFødselTjeneste {
     }
 
     private static boolean erSammeBarn(FødselDto.BarnHendelseData bekreftetBarn, FødselDto.BarnHendelseData overstyrtBarn) {
-        return Objects.equals(bekreftetBarn.fødselsdato(), overstyrtBarn.fødselsdato()) &&
-            Objects.equals(bekreftetBarn.dødsdato(), overstyrtBarn.dødsdato());
+        return Objects.equals(bekreftetBarn.fødselsdato(), overstyrtBarn.fødselsdato()) && Objects.equals(bekreftetBarn.dødsdato(),
+            overstyrtBarn.dødsdato());
     }
 
     private static List<FødselDto.Gjeldende.GjeldendeBarn> sorterRiktigRekkefølgerPåGjeldendeBarn(ArrayList<FødselDto.Gjeldende.GjeldendeBarn> gjeldendeBarn) {
