@@ -109,7 +109,7 @@ class BeregningKalkulusTest {
             .behandlingId(), behandlingReferanse2.behandlingUuid())));
 
         // Act
-        beregningKalkulus.kopier(behandlingReferanse, behandlingReferanse2, BeregningsgrunnlagTilstand.FASTSATT);
+        beregningKalkulus.kopier(behandlingReferanse, behandlingReferanse2, BehandlingStegType.FASTSETT_BEREGNINGSGRUNNLAG);
 
         // Assert
         verify(kalkulusKlient, times(1)).kopierGrunnlag(any());
@@ -122,7 +122,7 @@ class BeregningKalkulusTest {
         var behandlingReferanse2 = lagRef(2L, "321");
 
         // Act + Assert
-        assertThrows(IllegalStateException.class, () -> beregningKalkulus.kopier(behandlingReferanse, behandlingReferanse2, BeregningsgrunnlagTilstand.FASTSATT));
+        assertThrows(IllegalStateException.class, () -> beregningKalkulus.kopier(behandlingReferanse, behandlingReferanse2, BehandlingStegType.FASTSETT_BEREGNINGSGRUNNLAG));
     }
 
     @Test
