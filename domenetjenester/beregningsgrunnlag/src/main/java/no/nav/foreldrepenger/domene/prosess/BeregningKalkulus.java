@@ -36,7 +36,6 @@ import no.nav.foreldrepenger.domene.fp.BesteberegningFødendeKvinneTjeneste;
 import no.nav.foreldrepenger.domene.mappers.KalkulusInputTjeneste;
 import no.nav.foreldrepenger.domene.mappers.fra_kalkulus_til_domene.KalkulusTilFpsakMapper;
 import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagGrunnlag;
-import no.nav.foreldrepenger.domene.modell.kodeverk.BeregningsgrunnlagTilstand;
 import no.nav.foreldrepenger.domene.output.BeregningsgrunnlagVilkårOgAkjonspunktResultat;
 import no.nav.foreldrepenger.domene.typer.Beløp;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
@@ -122,7 +121,7 @@ public class BeregningKalkulus implements BeregningAPI {
     }
 
     @Override
-    public void kopier(BehandlingReferanse revurdering, BehandlingReferanse originalbehandling, BeregningsgrunnlagTilstand tilstand) {
+    public void kopier(BehandlingReferanse revurdering, BehandlingReferanse originalbehandling, BehandlingStegType stegType) {
         if (!revurdering.saksnummer().equals(originalbehandling.saksnummer())) {
             throw new IllegalStateException("Prøver å kopiere fra et grunnlag uten samme saksnummer, ugyldig handling");
         }
@@ -136,10 +135,12 @@ public class BeregningKalkulus implements BeregningAPI {
             LOG.info("Kobling for behandlingUuid {} finnes ikke, oppretter", revurdering.behandlingUuid());
             return koblingRepository.opprettKoblingFraOriginal(revurdering, originalKobling.get());
         });
-        if (!tilstand.equals(BeregningsgrunnlagTilstand.FASTSATT)) {
-            throw new IllegalStateException("Støtter ikke kopiering av grunnlag som ikke er fastsatt!");
+        // OBS: Kopieringen er normalt sett "til og med", men pga spesialbehandling for g-regulering kopierer "FORESLÅTT" bare til dette steget.
+        // FORESLÅTT steget må deretter kjøres av fpsak
+        if (!stegType.equals(BehandlingStegType.FASTSETT_BEREGNINGSGRUNNLAG) && !stegType.equals(BehandlingStegType.FORESLÅ_BEREGNINGSGRUNNLAG)) {
+            throw new IllegalStateException("Støtter ikke kopiering av grunnlag i stegType " + stegType);
         }
-        var request = lagKopierRequest(revurdering.saksnummer().getVerdi(), kobling, originalKobling.get());
+        var request = lagKopierRequest(revurdering, kobling, originalKobling.get(), stegType);
         klient.kopierGrunnlag(request);
     }
 
@@ -192,9 +193,13 @@ public class BeregningKalkulus implements BeregningAPI {
         return Optional.of(MapEndringsresultat.mapFraOppdateringRespons(respons));
     }
 
-    private EnkelKopierBeregningsgrunnlagRequestDto lagKopierRequest(String verdi, BeregningsgrunnlagKobling kobling, BeregningsgrunnlagKobling originalKobling) {
-        return new EnkelKopierBeregningsgrunnlagRequestDto(new Saksnummer(verdi), kobling.getKoblingUuid(),
-            originalKobling.getKoblingUuid(), BeregningSteg.FAST_BERGRUNN);
+    private EnkelKopierBeregningsgrunnlagRequestDto lagKopierRequest(BehandlingReferanse revurderingRef, BeregningsgrunnlagKobling kobling, BeregningsgrunnlagKobling originalKobling,
+                                                                     BehandlingStegType stegType) {
+        // Når stegType er FASTSETT_BEREGNINGSGRUNNLAG skal vi bare kopiere grunnlaget for bruk i uttak / tilkjent
+        // og vi trenger ikke den detaljerte infoen om sakens tilstand vi får fra input. Sjekken kan fjernes når TFP-6357 er løst.
+        var input = stegType.equals(BehandlingStegType.FASTSETT_BEREGNINGSGRUNNLAG) ? null : kalkulusInputTjeneste.lagKalkulusInput(revurderingRef);
+        return new EnkelKopierBeregningsgrunnlagRequestDto(new Saksnummer(revurderingRef.saksnummer().getVerdi()), kobling.getKoblingUuid(),
+            originalKobling.getKoblingUuid(), mapTilBeregningStegType(stegType), input);
     }
 
     private no.nav.folketrygdloven.kalkulus.kodeverk.FagsakYtelseType mapYtelseSomSkalBeregnes(FagsakYtelseType fagsakYtelseType) {

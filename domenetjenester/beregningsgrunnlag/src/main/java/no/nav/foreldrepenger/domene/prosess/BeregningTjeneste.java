@@ -22,7 +22,14 @@ public interface BeregningTjeneste {
 
     void lagre(BeregningsgrunnlagGrunnlag beregningsgrunnlagGrunnlag, BehandlingReferanse referanse);
 
-    void kopier(BehandlingReferanse revurdering, BehandlingReferanse originalbehandling, BeregningsgrunnlagTilstand tilstand);
+    /**
+     * Kopieringen er normalt sett "til og med", men pga spesialbehandling for g-regulering kopierer "FORESLÅTT" bare til dette steget.
+     * FORESLÅTT steget må deretter kjøres av fpsak. For alle andre steg er kopieringen til og med angitt tilstand.
+     * @param revurdering - behandlingen vi skal kopiere et grunnlag til
+     * @param originalbehandling - behandlingen vi skal kopiere et grunnlag fra
+     * @param stegType steget vi skal kopiere til (OBS: Om det er til og med eller til avhenger foreløpig av implementasjon)
+     */
+    void kopier(BehandlingReferanse revurdering, BehandlingReferanse originalbehandling, BehandlingStegType stegType);
 
     /**
      * @param oppdatering - Dto som spesifiserer hvilken oppdatering som skal gjøres på grunnlaget

@@ -101,7 +101,7 @@ public class BeregningFPSAK implements BeregningAPI {
     }
 
     @Override
-    public void kopier(BehandlingReferanse revurdering, BehandlingReferanse originalbehandling, BeregningsgrunnlagTilstand tilstand) {
+    public void kopier(BehandlingReferanse revurdering, BehandlingReferanse originalbehandling, BehandlingStegType tilstand) {
         if (!BeregningsgrunnlagTilstand.FASTSATT.equals(tilstand)) {
             throw new IllegalStateException("Støtter kun kopiering av fastsatte grunnlag!");
         }

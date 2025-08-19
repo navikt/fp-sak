@@ -12,7 +12,6 @@ import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
-import no.nav.foreldrepenger.domene.modell.kodeverk.BeregningsgrunnlagTilstand;
 import no.nav.foreldrepenger.domene.prosess.BeregningTjeneste;
 
 @FagsakYtelseTypeRef
@@ -53,7 +52,7 @@ public class FastsettBeregningsgrunnlagSteg implements BeregningsgrunnlagSteg {
             behandling.getOriginalBehandlingId()
                 .ifPresent(originalId -> {
                     var originalBehandling = behandlingRepository.hentBehandling(originalId);
-                    beregningTjeneste.kopier(BehandlingReferanse.fra(behandling), BehandlingReferanse.fra(originalBehandling), BeregningsgrunnlagTilstand.FASTSATT);
+                    beregningTjeneste.kopier(BehandlingReferanse.fra(behandling), BehandlingReferanse.fra(originalBehandling), BehandlingStegType.FASTSETT_BEREGNINGSGRUNNLAG);
                 });
 
         }
