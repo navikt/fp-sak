@@ -357,7 +357,7 @@ public class ForvaltningFagsakRestTjeneste {
     @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.DRIFT, sporingslogg = false)
     public Response identhistorikk(@TilpassetAbacAttributt(supplierClass = SøkeFeltAbacDataSupplier.class)
                                  @Parameter(description = "Søkestreng kan være aktørId, fødselsnummer eller D-nummer.") @Valid SokefeltDto søkestreng) {
-        var trimmed = søkestreng.getSearchString() != null ? søkestreng.getSearchString().trim() : "";
+        var trimmed = søkestreng.getSearchString();
         var ident = PersonIdent.erGyldigFnr(trimmed) || AktørId.erGyldigAktørId(trimmed) ? trimmed : null;
         if (ident == null) {
             return Response.status(HttpURLConnection.HTTP_BAD_REQUEST).build();
@@ -410,7 +410,7 @@ public class ForvaltningFagsakRestTjeneste {
         public AbacDataAttributter apply(Object obj) {
             var req = (SokefeltDto) obj;
             var attributter = AbacDataAttributter.opprett();
-            var søkestring = req.getSearchString() != null ? req.getSearchString().trim() : "";
+            var søkestring = req.getSearchString();
             if (søkestring.length() == 13 /* guess - aktørId */) {
                 attributter.leggTil(AppAbacAttributtType.AKTØR_ID, søkestring);
             } else if (søkestring.length() == 11 /* guess - FNR */) {

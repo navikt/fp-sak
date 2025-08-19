@@ -214,6 +214,14 @@ public class BerørtBehandlingKontroller {
 
     private void opprettFerieBerørtBehandling(Fagsak fagsakMedforelder, Behandlingsresultat behandlingsresultatBruker) {
         fagsakLåsRepository.taLås(fagsakMedforelder.getId());
+        var åpenTømUttak = behandlingRepository.hentÅpneYtelseBehandlingerForFagsakId(fagsakMedforelder.getId())
+            .stream()
+            .anyMatch(SpesialBehandling::erOppsagtUttak);
+        if (åpenTømUttak) {
+            // Holder på å tømme uttaket. Ingen vits med berørt behandling
+            LOG.info("OPPRETT BERØRT finnes allerede åpen behandling som tømmer uttak for sak {}", fagsakMedforelder.getSaksnummer());
+            return;
+        }
         var berørtBehandling = behandlingsoppretter.opprettRevurdering(fagsakMedforelder, BehandlingÅrsakType.REBEREGN_FERIEPENGER);
         opprettHistorikkinnslag(berørtBehandling, behandlingsresultatBruker, BerørtBehandlingTjeneste.BerørtÅrsak.FERIEPENGER);
         køKontroller.submitBerørtBehandling(berørtBehandling, Optional.empty());

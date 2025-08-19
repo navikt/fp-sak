@@ -9,7 +9,6 @@ import no.nav.foreldrepenger.behandling.aksjonspunkt.OverstyringAksjonspunktDto;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.domene.aksjonspunkt.OppdaterBeregningsgrunnlagResultat;
 import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagGrunnlag;
-import no.nav.foreldrepenger.domene.modell.kodeverk.BeregningsgrunnlagTilstand;
 import no.nav.foreldrepenger.domene.output.BeregningsgrunnlagVilkårOgAkjonspunktResultat;
 
 public interface BeregningAPI {
@@ -20,7 +19,7 @@ public interface BeregningAPI {
 
     Optional<BeregningsgrunnlagDto> hentGUIDto(BehandlingReferanse referanse);
 
-    void kopier(BehandlingReferanse revurdering, BehandlingReferanse originalbehandling, BeregningsgrunnlagTilstand tilstand);
+    void kopier(BehandlingReferanse revurdering, BehandlingReferanse originalbehandling, BehandlingStegType tilstand);
 
     Optional<OppdaterBeregningsgrunnlagResultat> oppdaterBeregning(BekreftetAksjonspunktDto oppdateringer, BehandlingReferanse referanse);
 

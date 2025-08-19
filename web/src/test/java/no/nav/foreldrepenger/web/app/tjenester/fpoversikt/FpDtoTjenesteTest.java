@@ -1,5 +1,6 @@
 package no.nav.foreldrepenger.web.app.tjenester.fpoversikt;
 
+import static no.nav.foreldrepenger.web.app.tjenester.fpoversikt.Konto.FELLESPERIODE;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.math.BigDecimal;
@@ -16,6 +17,9 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.DokumentTypeId;
 import no.nav.foreldrepenger.behandlingslager.behandling.MottattDokument;
+import no.nav.foreldrepenger.behandlingslager.behandling.eøs.EøsUttakRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.eøs.EøsUttaksperiodeEntitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.eøs.EøsUttaksperioderEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.OppgittAnnenPartBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.VedtakResultatType;
@@ -40,6 +44,7 @@ import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPerioderEnti
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakUtsettelseType;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.dbstoette.CdiDbAwareTest;
+import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 import no.nav.foreldrepenger.domene.typer.JournalpostId;
@@ -51,6 +56,8 @@ class FpDtoTjenesteTest {
     private FpDtoTjeneste tjeneste;
     @Inject
     private BehandlingRepositoryProvider repositoryProvider;
+    @Inject
+    private EøsUttakRepository eøsUttakRepository;
 
     @Test
     void henter_sak_med_foreldrepenger() {
@@ -108,6 +115,13 @@ class FpDtoTjenesteTest {
             .build();
         repositoryProvider.getFpUttakRepository().lagreOpprinneligUttakResultatPerioder(behandling.getId(), uttak);
 
+        var eøsPeriode = new EøsUttaksperiodeEntitet.Builder().medPeriode(
+                DatoIntervallEntitet.fraOgMedTilOgMed(fødselsdato, fødselsdato.plusWeeks(10)))
+            .medTrekkdager(new Trekkdager(50))
+            .medTrekkonto(UttakPeriodeType.FELLESPERIODE)
+            .build();
+        eøsUttakRepository.lagreEøsUttak(behandling.getId(), new EøsUttaksperioderEntitet.Builder().leggTil(List.of(eøsPeriode)).build());
+
         var dto = (FpSak) tjeneste.hentSak(behandling.getFagsak());
         assertThat(dto.saksnummer()).isEqualTo(behandling.getSaksnummer().getVerdi());
         assertThat(dto.aktørId()).isEqualTo(behandling.getAktørId().getId());
@@ -132,6 +146,13 @@ class FpDtoTjenesteTest {
         assertThat(vedtaksperiode.oppholdÅrsak()).isEqualTo(no.nav.foreldrepenger.web.app.tjenester.fpoversikt.OppholdÅrsak.FEDREKVOTE_ANNEN_FORELDER);
         assertThat(vedtaksperiode.utsettelseÅrsak()).isEqualTo(no.nav.foreldrepenger.web.app.tjenester.fpoversikt.UtsettelseÅrsak.ARBEID);
         assertThat(vedtaksperiode.overføringÅrsak()).isEqualTo(no.nav.foreldrepenger.web.app.tjenester.fpoversikt.OverføringÅrsak.SYKDOM_ANNEN_FORELDER);
+
+        assertThat(vedtak.annenpartEøsUttaksperioder()).hasSize(1);
+        var eøsDtoPeriode = vedtak.annenpartEøsUttaksperioder().getFirst();
+        assertThat(eøsDtoPeriode.fom()).isEqualTo(eøsPeriode.getPeriode().getFomDato());
+        assertThat(eøsDtoPeriode.tom()).isEqualTo(eøsPeriode.getPeriode().getTomDato());
+        assertThat(eøsDtoPeriode.trekkdager()).isEqualTo(eøsPeriode.getTrekkdager().decimalValue());
+        assertThat(eøsDtoPeriode.konto()).isEqualTo(FELLESPERIODE);
 
         assertThat(dto.oppgittAnnenPart()).isEqualTo(annenPartAktørId.getId());
         assertThat(dto.brukerRolle()).isEqualTo(FpSak.BrukerRolle.MOR);

@@ -1,6 +1,9 @@
 package no.nav.foreldrepenger.behandling.steg.uttak.fp;
 
+import java.util.List;
+
 import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.inject.Instance;
 import jakarta.inject.Inject;
 
 import no.nav.foreldrepenger.behandling.revurdering.ytelse.UttakInputTjeneste;
@@ -15,7 +18,7 @@ import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
-import no.nav.foreldrepenger.domene.uttak.fakta.OmsorgRettUttakTjeneste;
+import no.nav.foreldrepenger.domene.uttak.fakta.OmsorgRettAksjonspunktUtleder;
 
 @BehandlingStegRef(BehandlingStegType.KONTROLLER_OMSORG_RETT)
 @FagsakYtelseTypeRef(FagsakYtelseType.FORELDREPENGER)
@@ -23,16 +26,16 @@ import no.nav.foreldrepenger.domene.uttak.fakta.OmsorgRettUttakTjeneste;
 @ApplicationScoped
 public class KontrollerOmsorgRettFørstegangsbehandlingSteg implements BehandlingSteg {
 
-    private OmsorgRettUttakTjeneste omsorgRettUttakTjeneste;
+    private List<OmsorgRettAksjonspunktUtleder> aksjonspunktUtledere;
     private UttakInputTjeneste uttakInputTjeneste;
     private RyddOmsorgRettTjeneste ryddOmsorgRettTjeneste;
 
     @Inject
     public KontrollerOmsorgRettFørstegangsbehandlingSteg(UttakInputTjeneste uttakInputTjeneste,
-                                                         OmsorgRettUttakTjeneste omsorgRettUttakTjeneste,
+                                                         @FagsakYtelseTypeRef(FagsakYtelseType.FORELDREPENGER) Instance<OmsorgRettAksjonspunktUtleder> aksjonspunktUtledere,
                                                          RyddOmsorgRettTjeneste ryddOmsorgRettTjeneste) {
         this.uttakInputTjeneste = uttakInputTjeneste;
-        this.omsorgRettUttakTjeneste = omsorgRettUttakTjeneste;
+        this.aksjonspunktUtledere = aksjonspunktUtledere.stream().toList();
         this.ryddOmsorgRettTjeneste = ryddOmsorgRettTjeneste;
     }
 
@@ -43,11 +46,11 @@ public class KontrollerOmsorgRettFørstegangsbehandlingSteg implements Behandlin
     @Override
     public BehandleStegResultat utførSteg(BehandlingskontrollKontekst kontekst) {
         var input = uttakInputTjeneste.lagInput(kontekst.getBehandlingId());
-        omsorgRettUttakTjeneste.avklarOmAnnenForelderHarRett(input.getBehandlingReferanse());
-        var aksjonspunktDefinisjonList = omsorgRettUttakTjeneste.utledAksjonspunkter(input);
-        var resultater = aksjonspunktDefinisjonList.stream()
-                .map(AksjonspunktResultat::opprettForAksjonspunkt)
-                .toList();
+        var resultater = aksjonspunktUtledere.stream()
+            .flatMap(utleder -> utleder.utledAksjonspunkterFor(input).stream())
+            .distinct()
+            .map(AksjonspunktResultat::opprettForAksjonspunkt)
+            .toList();
         return BehandleStegResultat.utførtMedAksjonspunktResultater(resultater);
     }
 

@@ -356,6 +356,9 @@ public enum PeriodeResultatÅrsak implements Kodeverdi, ÅrsakskodeMedLovreferan
     BARE_FAR_RETT_MANGLER_MORS_AKTIVITET
         ("4107", "14-14-3", "§14-14 tredje ledd: Ikke nok dager uten aktivitetskrav", "{\"fagsakYtelseType\": {\"FP\": {\"lovreferanse\": \"14-14\"}}}",
             of(UTTAK), of(FORELDREPENGER), null, of(IKKE_MOR)),
+    ANNEN_FORELDER_UTTAK_EØS
+        ("4108", "14-10-6", "§14-10 sjette ledd, artikkel 5 i Forordning (EF) 883/2004: Annen part har overlappende uttak i EØS, det er ikke søkt/innvilget samtidig uttak", "{\"fagsakYtelseType\": {\"FP\": {\"lovreferanse\": \"14-10, artikkel 5 i Forordning (EF) 883/2004\"}}}",
+            of(UTTAK)),
     SØKERS_SYKDOM_SKADE_SEKS_UKER_IKKE_OPPFYLT
         ("4110", "14-11", "§14-11: Søkers sykdom/skade første 6 uker ikke oppfylt", "{\"fagsakYtelseType\": {\"FP\": {\"lovreferanse\": \"14-11\"}}}",
             of(UTSETTELSE), of(MØDREKVOTE, FORELDREPENGER), of(FRITT_UTTAK, MINSTERETT_2022), of(MOR)),

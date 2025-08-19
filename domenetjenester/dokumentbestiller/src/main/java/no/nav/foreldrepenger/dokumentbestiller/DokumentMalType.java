@@ -12,7 +12,7 @@ import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
 public enum DokumentMalType implements Kodeverdi {
 
     FRITEKSTBREV("FRITEK"),
-    FRITEKSTBREV_HMTL("FRIHTM"),
+    VEDTAKSBREV_FRITEKST_HTML("FRIHTM"),
     ENGANGSSTØNAD_INNVILGELSE("INNVES"),
     ENGANGSSTØNAD_AVSLAG("AVSLES"),
     FORELDREPENGER_INNVILGELSE("INVFOR"),
@@ -59,13 +59,11 @@ public enum DokumentMalType implements Kodeverdi {
     @Deprecated KLAGE_STADFESTET("KGESTA"),
     @Deprecated KLAGE_HJEMSENDT("KGEHJE");
 
+    public static final Set<DokumentMalType> VEDTAK_FRITEKTBREV_TYPER = Set.of(FRITEKSTBREV, VEDTAKSBREV_FRITEKST_HTML);
+
     public static final Set<DokumentMalType> VEDTAKSBREV = Set.of(ENGANGSSTØNAD_INNVILGELSE, ENGANGSSTØNAD_AVSLAG, FORELDREPENGER_INNVILGELSE,
         FORELDREPENGER_AVSLAG, FORELDREPENGER_OPPHØR, FORELDREPENGER_ANNULLERT, SVANGERSKAPSPENGER_INNVILGELSE, SVANGERSKAPSPENGER_AVSLAG,
         SVANGERSKAPSPENGER_OPPHØR);
-
-    public static final Set<DokumentMalType> KLAGE_VEDTAKSBREV = Set.of(KLAGE_STADFESTET, KLAGE_AVVIST, KLAGE_HJEMSENDT, KLAGE_OMGJORT,
-        KLAGE_AVVIST_DOK, KLAGE_AVVIST_FRITEKST, KLAGE_HJEMSENDT_DOK, KLAGE_HJEMSENDT_FRITEKST, KLAGE_OMGJORT_DOK, KLAGE_OMGJORT_FRITEKST,
-        KLAGE_STADFESTET_DOK, KLAGE_STADFESTET_FRITEKST);
 
     public static final Set<DokumentMalType> MANUELLE_BREV = Set.of(INNHENTE_OPPLYSNINGER, VARSEL_OM_REVURDERING, FORLENGET_SAKSBEHANDLINGSTID_MEDL,
         FORLENGET_SAKSBEHANDLINGSTID_MEDL_FORUTGÅENDE, FORLENGET_SAKSBEHANDLINGSTID, ETTERLYS_INNTEKTSMELDING);
@@ -114,12 +112,12 @@ public enum DokumentMalType implements Kodeverdi {
         return ad.get();
     }
 
-    public static boolean erVedtaksBrev(DokumentMalType brev) {
-        return VEDTAKSBREV.contains(brev);
+    public static boolean erVedtakFritektsBrev(DokumentMalType brev) {
+        return VEDTAK_FRITEKTBREV_TYPER.contains(brev);
     }
 
-    public static boolean erKlageVedtaksBrev(DokumentMalType brev) {
-        return KLAGE_VEDTAKSBREV.contains(brev);
+    public static boolean erVedtaksBrev(DokumentMalType brev) {
+        return VEDTAKSBREV.contains(brev);
     }
 
     public static boolean erOversendelsesBrev(DokumentMalType brev) {
@@ -128,7 +126,7 @@ public enum DokumentMalType implements Kodeverdi {
 
     private static String utledDokumentTittel(DokumentMalType mal) {
         return switch (mal) {
-            case FRITEKSTBREV, FRITEKSTBREV_HMTL-> "Fritekstbrev";
+            case FRITEKSTBREV, VEDTAKSBREV_FRITEKST_HTML -> "Fritekstbrev";
             case ENGANGSSTØNAD_INNVILGELSE -> "Innvilget engangsstønad";
             case ENGANGSSTØNAD_AVSLAG -> "Avslag engangsstønad";
             case FORELDREPENGER_INNVILGELSE -> "Innvilgelsesbrev foreldrepenger";

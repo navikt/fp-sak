@@ -177,7 +177,7 @@ class MapTilKalkulatorInput {
             var aktivitetGraderingDto = mapAktivitetGradering(fpGrunnlag.getAktivitetGradering());
             // Forventer prosent her, så må gange opp. Brukes kun i forvaltning swaggerkall
             return new ForeldrepengerGrunnlag(BigDecimal.valueOf(fpGrunnlag.getDekningsgrad().getVerdi()).multiply(BigDecimal.valueOf(100)), fpGrunnlag.isKvalifisererTilBesteberegning(), aktivitetGraderingDto,
-                mapBesteberegningYtelsegrunnlag(fpGrunnlag.getBesteberegningYtelsegrunnlag()));
+                mapBesteberegningYtelsegrunnlag(fpGrunnlag.getBesteberegningYtelsegrunnlag()), null);
         }
         return null;
     }

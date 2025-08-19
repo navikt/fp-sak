@@ -13,15 +13,14 @@ import no.nav.foreldrepenger.behandling.aksjonspunkt.OverstyringAksjonspunktDto;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.domene.aksjonspunkt.OppdaterBeregningsgrunnlagResultat;
-import no.nav.foreldrepenger.domene.input.MapStegTilTilstand;
-import no.nav.foreldrepenger.domene.mappers.til_kalkulator.OppdatererDtoMapper;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagRepository;
+import no.nav.foreldrepenger.domene.input.MapStegTilTilstand;
 import no.nav.foreldrepenger.domene.mappers.fra_entitet_til_domene.FraEntitetTilBehandlingsmodellMapper;
 import no.nav.foreldrepenger.domene.mappers.til_kalkulator.BeregningsgrunnlagGUIInputFelles;
 import no.nav.foreldrepenger.domene.mappers.til_kalkulator.BeregningsgrunnlagInputFelles;
 import no.nav.foreldrepenger.domene.mappers.til_kalkulator.BeregningsgrunnlagInputProvider;
-import no.nav.foreldrepenger.domene.migrering.MigrerBeregningSakTask;
+import no.nav.foreldrepenger.domene.mappers.til_kalkulator.OppdatererDtoMapper;
 import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagGrunnlag;
 import no.nav.foreldrepenger.domene.modell.kodeverk.BeregningsgrunnlagTilstand;
 import no.nav.foreldrepenger.domene.output.BeregningsgrunnlagVilkårOgAkjonspunktResultat;
@@ -37,8 +36,6 @@ import no.nav.foreldrepenger.domene.rest.dto.VurderFaktaOmBeregningDto;
 import no.nav.foreldrepenger.domene.rest.dto.VurderRefusjonBeregningsgrunnlagDto;
 import no.nav.foreldrepenger.domene.rest.dto.VurderVarigEndringEllerNyoppstartetSNDto;
 import no.nav.foreldrepenger.domene.rest.dto.fordeling.FordelBeregningsgrunnlagDto;
-import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
-import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 
 @ApplicationScoped
 public class BeregningFPSAK implements BeregningAPI {
@@ -48,7 +45,6 @@ public class BeregningFPSAK implements BeregningAPI {
     private BeregningsgrunnlagInputProvider inputTjenesteProvider;
     private BeregningsgrunnlagKopierOgLagreTjeneste beregningsgrunnlagKopierOgLagreTjeneste;
     private BeregningHåndterer beregningHåndterer;
-    private ProsessTaskTjeneste prosessTaskTjeneste;
 
     BeregningFPSAK() {
         // CDI
@@ -60,14 +56,13 @@ public class BeregningFPSAK implements BeregningAPI {
                           InntektArbeidYtelseTjeneste iayTjeneste,
                           BeregningsgrunnlagInputProvider inputTjenesteProvider,
                           BeregningsgrunnlagKopierOgLagreTjeneste beregningsgrunnlagKopierOgLagreTjeneste,
-                          BeregningHåndterer beregningHåndterer, ProsessTaskTjeneste prosessTaskTjeneste) {
+                          BeregningHåndterer beregningHåndterer) {
         this.beregningsgrunnlagRepository = beregningsgrunnlagRepository;
         this.beregningDtoTjeneste = beregningDtoTjeneste;
         this.iayTjeneste = iayTjeneste;
         this.inputTjenesteProvider = inputTjenesteProvider;
         this.beregningsgrunnlagKopierOgLagreTjeneste = beregningsgrunnlagKopierOgLagreTjeneste;
         this.beregningHåndterer = beregningHåndterer;
-        this.prosessTaskTjeneste = prosessTaskTjeneste;
     }
 
     @Override
@@ -106,7 +101,7 @@ public class BeregningFPSAK implements BeregningAPI {
     }
 
     @Override
-    public void kopier(BehandlingReferanse revurdering, BehandlingReferanse originalbehandling, BeregningsgrunnlagTilstand tilstand) {
+    public void kopier(BehandlingReferanse revurdering, BehandlingReferanse originalbehandling, BehandlingStegType tilstand) {
         if (!BeregningsgrunnlagTilstand.FASTSATT.equals(tilstand)) {
             throw new IllegalStateException("Støtter kun kopiering av fastsatte grunnlag!");
         }
@@ -129,10 +124,7 @@ public class BeregningFPSAK implements BeregningAPI {
 
     @Override
     public void avslutt(BehandlingReferanse referanse) {
-        // Beregning er kjørt i fpsak, lager task her for å migrere grunnlaget til kalkulus
-        var migreringstask = ProsessTaskData.forProsessTask(MigrerBeregningSakTask.class);
-        migreringstask.setBehandling(referanse.saksnummer().getVerdi(), referanse.fagsakId(), referanse.behandlingUuid(), referanse.behandlingId());
-        prosessTaskTjeneste.lagre(migreringstask);
+        // Ingenting å gjøre her
     }
 
     @Override

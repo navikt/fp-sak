@@ -8,6 +8,7 @@ import jakarta.persistence.EntityManager;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.aktivitetskrav.AktivitetskravArbeidRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.arbeidsforhold.ArbeidsforholdValgRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.eøs.EøsUttakRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.nestesak.NesteSakRepository;
@@ -36,6 +37,7 @@ public class BehandlingGrunnlagRepositoryProvider {
     private SvangerskapspengerRepository svangerskapspengerRepository;
     private ArbeidsforholdValgRepository arbeidsforholdValgRepository;
     private AktivitetskravArbeidRepository aktivitetskravArbeidRepository;
+    private EøsUttakRepository eøsUttakRepository;
 
     BehandlingGrunnlagRepositoryProvider() {
         // for CDI proxy
@@ -60,6 +62,7 @@ public class BehandlingGrunnlagRepositoryProvider {
         // Ytelsespesifikke grunnlag
         this.ytelsesFordelingRepository = new YtelsesFordelingRepository(entityManager);
         this.svangerskapspengerRepository = new SvangerskapspengerRepository(entityManager);
+        this.eøsUttakRepository = new EøsUttakRepository(entityManager);
     }
 
     public EntityManager getEntityManager() {
@@ -108,5 +111,9 @@ public class BehandlingGrunnlagRepositoryProvider {
 
     public ArbeidsforholdValgRepository getArbeidsforholdValgRepository() {
         return arbeidsforholdValgRepository;
+    }
+
+    public EøsUttakRepository getEøsUttakRepository() {
+        return eøsUttakRepository;
     }
 }

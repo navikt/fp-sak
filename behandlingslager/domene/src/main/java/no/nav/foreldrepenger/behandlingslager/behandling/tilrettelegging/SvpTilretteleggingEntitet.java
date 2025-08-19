@@ -321,13 +321,17 @@ public class SvpTilretteleggingEntitet extends BaseEntitet {
             this.mal.skalBrukes = skalBrukes;
             return this;
         }
-        public Builder medAvklartOpphold(SvpAvklartOpphold avklarteOpphold) {
-            this.mal.avklarteOpphold.add(avklarteOpphold);
+        public Builder medAvklartOpphold(SvpAvklartOpphold opphold) {
+            if (this.mal.avklarteOpphold.isEmpty() || this.mal.avklarteOpphold.stream().noneMatch(ao -> Objects.equals(ao, opphold))) {
+                this.mal.avklarteOpphold.add(opphold);
+            }
             return this;
         }
 
+        // NB! fjerner evt eksisterende innslag og legger til de nye (med deduplisering)
         public Builder medAvklarteOpphold(List<SvpAvklartOpphold> avklarteOpphold) {
-            this.mal.avklarteOpphold = avklarteOpphold;
+            this.mal.avklarteOpphold.clear();
+            avklarteOpphold.forEach(this::medAvklartOpphold);
             return this;
         }
 

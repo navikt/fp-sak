@@ -16,6 +16,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.behandling.DokumentTypeId;
 import no.nav.foreldrepenger.behandlingslager.behandling.SpesialBehandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.aktivitetskrav.AktivitetskravArbeidRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.eøs.EøsUttakRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseGrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseType;
@@ -66,6 +67,7 @@ public class UttakGrunnlagTjeneste {
     private NesteSakRepository nesteSakRepository;
     private AktivitetskravArbeidRepository aktivitetskravArbeidRepository;
     private MottatteDokumentRepository mottatteDokumentRepository;
+    private EøsUttakRepository eøsUttakRepository;
 
     @Inject
     public UttakGrunnlagTjeneste(BehandlingRepositoryProvider behandlingRepositoryProvider,
@@ -86,6 +88,7 @@ public class UttakGrunnlagTjeneste {
         this.nesteSakRepository = grunnlagRepositoryProvider.getNesteSakRepository();
         this.aktivitetskravArbeidRepository = aktivitetskravArbeidRepository;
         this.mottatteDokumentRepository = behandlingRepositoryProvider.getMottatteDokumentRepository();
+        this.eøsUttakRepository = grunnlagRepositoryProvider.getEøsUttakRepository();
     }
 
     UttakGrunnlagTjeneste() {
@@ -123,6 +126,7 @@ public class UttakGrunnlagTjeneste {
             .medDødsfall(harDødsfall(behandling, familiehendelser, ref))
             .medAktivitetskravGrunnlag(aktivitetskravArbeidRepository.hentGrunnlag(behandlingId).orElse(null))
             .medMottattMorsArbeidDokument(harMottattMorsArbeidDokument(behandling))
+            .medEøsUttakGrunnlag(eøsUttakRepository.hentGrunnlag(behandlingId).orElse(null))
             ;
         if (fagsakRelasjon.isPresent()) {
             var annenpart = annenpart(fagsakRelasjon.get(), behandling);
