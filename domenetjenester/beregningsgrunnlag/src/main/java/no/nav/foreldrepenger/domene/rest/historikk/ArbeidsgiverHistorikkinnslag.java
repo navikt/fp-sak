@@ -11,7 +11,6 @@ import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Organisasjonstype;
 import no.nav.foreldrepenger.domene.aksjonspunkt.BeregningAktivitetNøkkel;
 import no.nav.foreldrepenger.domene.arbeidsgiver.ArbeidsgiverTjeneste;
-import no.nav.foreldrepenger.domene.entiteter.BeregningAktivitetEntitet;
 import no.nav.foreldrepenger.domene.iay.modell.ArbeidsforholdOverstyring;
 import no.nav.foreldrepenger.domene.modell.kodeverk.AktivitetStatus;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
@@ -65,16 +64,6 @@ public class ArbeidsgiverHistorikkinnslag {
             .gjelderForSpesifiktArbeidsforhold() ? lagArbeidsgiverHistorikkinnslagTekst(arbGiv, arbeidsforholdRef.get(),
             overstyringer) : lagArbeidsgiverHistorikkinnslagTekst(arbGiv, overstyringer))
             .orElse(aktivitetStatus.getNavn());
-    }
-
-    public String lagHistorikkinnslagTekstForBeregningaktivitet(BeregningAktivitetEntitet beregningAktivitet,
-                                                                List<ArbeidsforholdOverstyring> arbeidsforholdOverstyringer) {
-        var arbeidsgiver = beregningAktivitet.getArbeidsgiver();
-        var arbeidsforholdRef = beregningAktivitet.getArbeidsforholdRef();
-        if (arbeidsgiver != null) {
-            return lagArbeidsgiverHistorikkinnslagTekst(arbeidsgiver, arbeidsforholdRef, arbeidsforholdOverstyringer);
-        }
-        return beregningAktivitet.getOpptjeningAktivitetType().getNavn();
     }
 
     private String lagTekstMedArbeidsgiver(Arbeidsgiver arbeidsgiver, List<ArbeidsforholdOverstyring> overstyringer) {
