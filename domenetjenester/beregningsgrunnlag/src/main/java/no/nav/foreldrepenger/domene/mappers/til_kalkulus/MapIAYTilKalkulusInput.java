@@ -187,7 +187,7 @@ public class MapIAYTilKalkulusInput {
                 beløpDto,
                 dagsatsDto,
                 utbetalingsgrad,
-                null); // TODO tfp-5742 trenger vi anviste andeler?
+                List.of());
         }).collect(Collectors.toSet());
     }
 
@@ -320,7 +320,7 @@ public class MapIAYTilKalkulusInput {
 
     private static List<OppgittArbeidsforholdDto> mapOppgittArbeidsforholdDto(List<OppgittArbeidsforhold> arbeidsforhold) {
         if (arbeidsforhold == null) {
-            return null;
+            return List.of();
         }
         return arbeidsforhold.stream().map(MapIAYTilKalkulusInput::mapArbeidsforhold).toList();
     }
