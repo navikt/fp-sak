@@ -126,11 +126,6 @@
 
             <dependency>
                 <groupId>no.nav.folketrygdloven.kalkulus</groupId>
-                <artifactId>beregning-kalkulator</artifactId>
-                <version>${beregning.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>no.nav.folketrygdloven.kalkulus</groupId>
                 <artifactId>beregning-kontrakt</artifactId>
                 <version>${beregning.version}</version>
             </dependency>

@@ -10,7 +10,6 @@ import java.util.Set;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
-import no.nav.folketrygdloven.kalkulator.modell.besteberegning.Ytelsegrunnlag;
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatRepository;
@@ -137,45 +136,6 @@ public class BesteberegningFødendeKvinneTjeneste {
         var bg = beregningTjeneste.hent(behandlingReferanse).flatMap(
             BeregningsgrunnlagGrunnlag::getBeregningsgrunnlag);
         return bg.map(Beregningsgrunnlag::isOverstyrt).orElse(false);
-    }
-
-    public List<Ytelsegrunnlag> lagBesteberegningYtelseinput(BehandlingReferanse behandlingReferanse, Skjæringstidspunkt stp) {
-        var iayGrunnlag = inntektArbeidYtelseTjeneste.hentGrunnlag(behandlingReferanse.behandlingId());
-        var ytelseFilter = new YtelseFilter(iayGrunnlag.getAktørYtelseFraRegister(behandlingReferanse.aktørId()));
-        var periodeYtelserKanVæreRelevantForBB = stp.getSkjæringstidspunktHvisUtledet()
-            .map(t -> DatoIntervallEntitet.fraOgMedTilOgMed(t.minusMonths(12), t));
-        if (periodeYtelserKanVæreRelevantForBB.isEmpty() || !brukerOmfattesAvBesteBeregningsRegelForFødendeKvinne(behandlingReferanse, stp)) {
-            return Collections.emptyList();
-        }
-        List<Ytelsegrunnlag> grunnlag = new ArrayList<>();
-
-        // Obs: Før flere ytelser legges til her, validerer med produkteier hvordan
-        // inntekten skal fordeles under besteberegning og sjekk om eksiterende kode støtter dette
-        BesteberegningYtelsegrunnlagMapper.mapEksterneYtelserTilBesteberegningYtelsegrunnlag(periodeYtelserKanVæreRelevantForBB.get(), ytelseFilter,
-                RelatertYtelseType.SYKEPENGER)
-            .ifPresent(grunnlag::add);
-        BesteberegningYtelsegrunnlagMapper.mapEksterneYtelserTilBesteberegningYtelsegrunnlag(periodeYtelserKanVæreRelevantForBB.get(), ytelseFilter,
-                RelatertYtelseType.PLEIEPENGER_NÆRSTÅENDE)
-            .ifPresent(grunnlag::add);
-        BesteberegningYtelsegrunnlagMapper.mapEksterneYtelserTilBesteberegningYtelsegrunnlag(periodeYtelserKanVæreRelevantForBB.get(), ytelseFilter,
-                RelatertYtelseType.PLEIEPENGER_SYKT_BARN)
-            .ifPresent(grunnlag::add);
-
-        var saksnumreSomMåHentesFraFpsak = BesteberegningYtelsegrunnlagMapper.saksnummerSomMåHentesFraFpsak(periodeYtelserKanVæreRelevantForBB.get(), ytelseFilter);
-        grunnlag.addAll(hentOgMapFpsakYtelser(saksnumreSomMåHentesFraFpsak));
-        return grunnlag;
-    }
-
-    private List<Ytelsegrunnlag> hentOgMapFpsakYtelser(List<Saksnummer> saksnummer) {
-        List<Ytelsegrunnlag> resultater = new ArrayList<>();
-        saksnummer.forEach(sak -> {
-            var fagsak = fagsakRepository.hentSakGittSaksnummer(sak);
-            fagsak.flatMap(fag -> behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(fag.getId()))
-                .flatMap(beh -> beregningsresultatRepository.hentUtbetBeregningsresultat(beh.getId()))
-                .flatMap(br -> BesteberegningYtelsegrunnlagMapper.mapFpsakYtelseTilYtelsegrunnlag(br, fagsak.get().getYtelseType()))
-                .ifPresent(resultater::add);
-        });
-        return resultater;
     }
 
     private boolean erBesteberegningManueltVurdert(BehandlingReferanse ref) {
