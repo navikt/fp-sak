@@ -5,57 +5,8 @@
                  https://jakarta.ee/xml/ns/persistence/orm/orm_3_0.xsd"
                  version="3.0">
 
-    <sequence-generator name="SEQ_BEREGNINGSGRUNNLAG" allocation-size="50" sequence-name="SEQ_BEREGNINGSGRUNNLAG" />
-    <sequence-generator name="SEQ_BG_REGEL_SPORING" allocation-size="50" sequence-name="SEQ_BG_REGEL_SPORING" />
-    <sequence-generator name="SEQ_BG_PERIODE" allocation-size="50" sequence-name="SEQ_BG_PERIODE" />
-    <sequence-generator name="SEQ_BG_PERIODE_REGEL_SPORING" allocation-size="50" sequence-name="SEQ_BG_PERIODE_REGEL_SPORING" />
-    <sequence-generator name="SEQ_BG_PERIODE_AARSAK" allocation-size="50" sequence-name="SEQ_BG_PERIODE_AARSAK" />
-    <sequence-generator name="SEQ_BG_ANDEL_ARBEIDSFORHOLD" allocation-size="50" sequence-name="SEQ_BG_ANDEL_ARBEIDSFORHOLD" />
-    <sequence-generator name="SEQ_BG_PR_STATUS_OG_ANDEL" allocation-size="50" sequence-name="SEQ_BG_PR_STATUS_OG_ANDEL" />
-    <sequence-generator name="SEQ_SAMMENLIGNINGSGRUNNLAG" allocation-size="50" sequence-name="SEQ_SAMMENLIGNINGSGRUNNLAG" />
-    <sequence-generator name="SEQ_BG_SG_PR_STATUS" allocation-size="50" sequence-name="SEQ_BG_SG_PR_STATUS" />
-    <sequence-generator name="SEQ_BG_FAKTA_BER_TILFELLE" allocation-size="50" sequence-name="SEQ_BG_FAKTA_BER_TILFELLE" />
-    <sequence-generator name="SEQ_GR_BEREGNINGSGRUNNLAG" allocation-size="50" sequence-name="SEQ_GR_BEREGNINGSGRUNNLAG" />
-    <sequence-generator name="SEQ_BG_FRILANS_ANDEL" allocation-size="50" sequence-name="SEQ_BG_FRILANS_ANDEL" />
-    <sequence-generator name="SEQ_BG_ARBEIDSTAKER_ANDEL" allocation-size="50" sequence-name="SEQ_BG_ARBEIDSTAKER_ANDEL" />
-    <sequence-generator name="SEQ_BG_AKTIVITETER" allocation-size="50" sequence-name="SEQ_BG_AKTIVITETER"/>
-    <sequence-generator name="SEQ_BG_AKTIVITET" allocation-size="50" sequence-name="SEQ_BG_AKTIVITET"/>
-    <sequence-generator name="SEQ_BG_AKTIVITET_OVERSTYRINGER" allocation-size="50" sequence-name="SEQ_BG_AKTIVITET_OVERSTYRINGER"/>
-    <sequence-generator name="SEQ_BG_AKTIVITET_OVERSTYRING" allocation-size="50" sequence-name="SEQ_BG_AKTIVITET_OVERSTYRING"/>
-    <sequence-generator name="SEQ_BG_REFUSJON_OVERSTYRINGER" allocation-size="50" sequence-name="SEQ_BG_REFUSJON_OVERSTYRINGER"/>
-    <sequence-generator name="SEQ_BG_REFUSJON_OVERSTYRING" allocation-size="50" sequence-name="SEQ_BG_REFUSJON_OVERSTYRING"/>
-    <sequence-generator name="SEQ_BG_REFUSJON_PERIODE" allocation-size="50" sequence-name="SEQ_BG_REFUSJON_PERIODE"/>
-    <sequence-generator name="SEQ_BG_BESTEBEREGNINGGRUNNLAG" allocation-size="50" sequence-name="SEQ_BG_BESTEBEREGNINGGRUNNLAG"/>
-    <sequence-generator name="SEQ_BESTEBEREGNING_MAANED" allocation-size="50" sequence-name="SEQ_BESTEBEREGNING_MAANED"/>
-    <sequence-generator name="SEQ_BESTEBEREGNING_INNTEKT" allocation-size="50" sequence-name="SEQ_BESTEBEREGNING_INNTEKT"/>
-    <sequence-generator name="SEQ_BG_AKTIVITET_STATUS" allocation-size="50" sequence-name="SEQ_BG_AKTIVITET_STATUS"/>
     <sequence-generator name="SEQ_BG_EKSTERN_KOBLING" allocation-size="50" sequence-name="SEQ_BG_EKSTERN_KOBLING" />
 
-
-    <entity class="no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagEntitet" />
-    <entity class="no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagRegelSporing" />
-    <entity class="no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagAktivitetStatus" />
-    <entity class="no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagGrunnlagEntitet" />
-    <entity class="no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagPeriode" />
-    <entity class="no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagPeriodeRegelSporing" />
-    <entity class="no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagPeriodeÅrsak" />
-    <entity class="no.nav.foreldrepenger.domene.entiteter.BGAndelArbeidsforhold" />
-    <entity class="no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagPrStatusOgAndel" />
-    <entity class="no.nav.foreldrepenger.domene.entiteter.Sammenligningsgrunnlag" />
-    <entity class="no.nav.foreldrepenger.domene.entiteter.SammenligningsgrunnlagPrStatus" />
-    <entity class="no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagFaktaOmBeregningTilfelle" />
-    <entity class="no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagFrilansAndel" />
-    <entity class="no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagArbeidstakerAndel" />
-    <entity class="no.nav.foreldrepenger.domene.entiteter.BeregningAktivitetAggregatEntitet" />
-    <entity class="no.nav.foreldrepenger.domene.entiteter.BeregningAktivitetEntitet" />
-    <entity class="no.nav.foreldrepenger.domene.entiteter.BeregningAktivitetOverstyringerEntitet" />
-    <entity class="no.nav.foreldrepenger.domene.entiteter.BeregningAktivitetOverstyringEntitet" />
-    <entity class="no.nav.foreldrepenger.domene.entiteter.BeregningRefusjonOverstyringerEntitet" />
-    <entity class="no.nav.foreldrepenger.domene.entiteter.BeregningRefusjonOverstyringEntitet" />
-    <entity class="no.nav.foreldrepenger.domene.entiteter.BeregningRefusjonPeriodeEntitet" />
-    <entity class="no.nav.foreldrepenger.domene.entiteter.BesteberegninggrunnlagEntitet" />
-    <entity class="no.nav.foreldrepenger.domene.entiteter.BesteberegningMånedsgrunnlagEntitet" />
-    <entity class="no.nav.foreldrepenger.domene.entiteter.BesteberegningInntektEntitet" />
     <entity class="no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagKobling" />
 
 </entity-mappings>
