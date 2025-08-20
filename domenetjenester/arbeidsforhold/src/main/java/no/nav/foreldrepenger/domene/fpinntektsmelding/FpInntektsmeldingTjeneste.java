@@ -144,7 +144,7 @@ public class FpInntektsmeldingTjeneste {
         return endringer;
     }
 
-    public void lagForespørsel(BehandlingReferanse ref, Skjæringstidspunkt stp, Arbeidsgiver arbeidsgiver) {
+    public void lagForespørselForBestemtArbeidsgiver(BehandlingReferanse ref, Skjæringstidspunkt stp, Arbeidsgiver arbeidsgiver) {
         var skjæringstidspunkt = stp.getUtledetSkjæringstidspunkt();
         var førsteUttaksdato = stp.getFørsteUttaksdato();
         var agDto = new OrganisasjonsnummerDto(arbeidsgiver.getOrgnr());
@@ -156,7 +156,7 @@ public class FpInntektsmeldingTjeneste {
         sendRequest(ref, request);
     }
 
-    public void lagForespørsel(BehandlingReferanse ref, Skjæringstidspunkt stp) {
+    public void lagForespørselForAlleArbeidsgivere(BehandlingReferanse ref, Skjæringstidspunkt stp) {
         var arbeidsgivereViManglerInntektsmeldingFra = inntektsmeldingRegisterTjeneste.utledManglendeInntektsmeldingerFraGrunnlag(ref, stp)
             .keySet()
             .stream()

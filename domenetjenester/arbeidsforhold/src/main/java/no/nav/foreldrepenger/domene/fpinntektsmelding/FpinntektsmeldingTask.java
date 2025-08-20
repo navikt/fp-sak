@@ -54,10 +54,10 @@ public class FpinntektsmeldingTask extends GenerellProsessTask {
         spesifikkArbeidsgiver.ifPresentOrElse((ag) -> {
             LOG.info("Starter task for å opprette forespørsel i fpinntektsmelding for behandlingId {} med skjæringstidspunkt {} for arbeidsgiver {}",
                 behandlingId, stp, spesifikkArbeidsgiver.orElseThrow());
-            fpInntektsmeldingTjeneste.lagForespørsel(ref, stp, ag);
+            fpInntektsmeldingTjeneste.lagForespørselForBestemtArbeidsgiver(ref, stp, ag);
         }, () -> {
             LOG.info("Starter task for å opprette forespørsel i fpinntektsmelding for behandlingId {} med skjæringstidspunkt {}", behandlingId, stp);
-            fpInntektsmeldingTjeneste.lagForespørsel(ref, stp);
+            fpInntektsmeldingTjeneste.lagForespørselForAlleArbeidsgivere(ref, stp);
         });
     }
 }
