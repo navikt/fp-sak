@@ -15,6 +15,8 @@ import java.util.stream.Collectors;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
+import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -69,9 +71,20 @@ public class FpInntektsmeldingTjeneste {
         this.inntektsmeldingRegisterTjeneste = inntektsmeldingRegisterTjeneste;
     }
 
-    public void lagForespørslerTask(BehandlingReferanse ref) {
+    public void lagTaskForespørAlleInntektsmeldinger(BehandlingReferanse ref) {
+        lagTask(ref, null);
+    }
+
+    public void lagTaskForespørBestemtInntektsmelding(BehandlingReferanse ref, String orgnummer) {
+        lagTask(ref, orgnummer);
+    }
+
+    private void lagTask(BehandlingReferanse ref, String orgnummer) {
         var taskdata = ProsessTaskData.forTaskType(TaskType.forProsessTask(FpinntektsmeldingTask.class));
         taskdata.setBehandling(ref.saksnummer().getVerdi(), ref.fagsakId(), ref.behandlingId());
+        if (orgnummer != null) {
+            taskdata.setProperty(FpinntektsmeldingTask.ORGNUMMER, orgnummer);
+        }
         var gruppeId = String.format(GRUPPE_ID, ref.saksnummer().getVerdi());
         taskdata.setGruppe(gruppeId);
         taskdata.setSekvens(String.valueOf(Instant.now().toEpochMilli()));
@@ -131,6 +144,18 @@ public class FpInntektsmeldingTjeneste {
         return endringer;
     }
 
+    public void lagForespørsel(BehandlingReferanse ref, Skjæringstidspunkt stp, Arbeidsgiver arbeidsgiver) {
+        var skjæringstidspunkt = stp.getUtledetSkjæringstidspunkt();
+        var førsteUttaksdato = stp.getFørsteUttaksdato();
+        var agDto = new OrganisasjonsnummerDto(arbeidsgiver.getOrgnr());
+
+        var request = new OpprettForespørselRequest(new OpprettForespørselRequest.AktørIdDto(ref.aktørId().getId()), null, skjæringstidspunkt,
+            mapYtelsetype(ref.fagsakYtelseType()), new SaksnummerDto(ref.saksnummer().getVerdi()), førsteUttaksdato,
+            List.of(agDto));
+
+        sendRequest(ref, request);
+    }
+
     public void lagForespørsel(BehandlingReferanse ref, Skjæringstidspunkt stp) {
         var arbeidsgivereViManglerInntektsmeldingFra = inntektsmeldingRegisterTjeneste.utledManglendeInntektsmeldingerFraGrunnlag(ref, stp)
             .keySet()
@@ -150,9 +175,14 @@ public class FpInntektsmeldingTjeneste {
             mapYtelsetype(ref.fagsakYtelseType()), new SaksnummerDto(ref.saksnummer().getVerdi()), førsteUttaksdato,
             arbeidsgivereViManglerInntektsmeldingFra);
 
+        sendRequest(ref, request);
+    }
+
+    private void sendRequest(BehandlingReferanse ref,
+                             OpprettForespørselRequest request) {
         LOG.info(
             "Sender kall til fpinntektsmelding om å opprette forespørsel for saksnummer {} med skjæringstidspunkt {} for følgende organisasjonsnumre: {}",
-            ref.saksnummer(), stp, arbeidsgivereViManglerInntektsmeldingFra);
+            ref.saksnummer(), request.skjæringstidspunkt(), request.organisasjonsnumre());
 
         var opprettForespørselResponseNy = klient.opprettForespørsel(request);
 
@@ -164,7 +194,7 @@ public class FpInntektsmeldingTjeneste {
             } else {
                 if (LOG.isInfoEnabled()) {
                     LOG.info("Fpinntektsmelding har allerede oppgave på saksnummer: {} og orgnummer: {} på stp: {} og første uttaksdato: {}",
-                        ref.saksnummer(), tilMaskertNummer(orgnr), skjæringstidspunkt, førsteUttaksdato);
+                        ref.saksnummer(), tilMaskertNummer(orgnr), request.skjæringstidspunkt(), request.førsteUttaksdato());
                 }
             }
         });
