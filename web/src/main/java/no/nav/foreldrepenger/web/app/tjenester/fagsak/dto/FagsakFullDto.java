@@ -3,6 +3,8 @@ package no.nav.foreldrepenger.web.app.tjenester.fagsak.dto;
 import java.util.Collection;
 import java.util.List;
 
+import jakarta.validation.constraints.NotNull;
+
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakStatus;
@@ -14,7 +16,7 @@ import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.behandling.FagsakB
 import no.nav.foreldrepenger.web.app.tjenester.behandling.historikk.HistorikkinnslagDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.kontroll.dto.KontrollresultatDto;
 
-public record FagsakFullDto(String saksnummer,
+public record FagsakFullDto(@NotNull String saksnummer,
                             FagsakYtelseType fagsakYtelseType,
                             RelasjonsRolleType relasjonsRolleType,
                             FagsakStatus status,
