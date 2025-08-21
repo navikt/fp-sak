@@ -81,6 +81,10 @@ public class ApiConfig extends Application {
             // Add base ModelResolver with typeNameResolver set on this helper.
             // This must be added first, so that it ends up last in the converter chain
             ModelConverters.getInstance().addConverter(new ModelResolver(this.objectMapper(),  TypeNameResolver.std));
+
+//            ModelConverters.getInstance().addConverter(new NoAnnotationRequiredNullableConverter());
+            ModelConverters.getInstance().addConverter(new NotNullAwareModelConverter());
+
             // EnumVarnamesConverter adds x-enum-varnames for property name on generated enum objects.
 //            ModelConverters.getInstance().addConverter(new EnumVarnamesConverter());
             // TimeTypesModelConverter converts Duration to OpenAPI string with format "duration".
