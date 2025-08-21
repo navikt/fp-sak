@@ -43,7 +43,11 @@ public class AnnenPartGrunnlagBygger {
 
     public Optional<AnnenPart.Builder> byggGrunnlag(ForeldrepengerGrunnlag fpGrunnlag) {
         var apOpt = fpGrunnlag.getAnnenpart();
-        if (fpGrunnlag.getEøsUttakGrunnlag().isPresent()) {
+        var eøsUttakGrunnlag = fpGrunnlag.getEøsUttakGrunnlag();
+        if (eøsUttakGrunnlag.isPresent() && apOpt.stream().anyMatch(ap -> fpUttakRepository.hentUttakResultatHvisEksisterer(ap.gjeldendeVedtakBehandlingId()).isPresent())) {
+            throw new IllegalStateException("Ikke støttet at annen part både har uttak i eøs og uttak i Norge");
+        }
+        if (eøsUttakGrunnlag.isPresent()) {
             return eøsAnnenPart(fpGrunnlag);
         }
 
