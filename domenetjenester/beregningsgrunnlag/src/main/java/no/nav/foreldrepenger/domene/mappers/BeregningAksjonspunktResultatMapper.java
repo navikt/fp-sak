@@ -1,6 +1,5 @@
 package no.nav.foreldrepenger.domene.mappers;
 
-import no.nav.folketrygdloven.kalkulator.output.BeregningAvklaringsbehovResultat;
 import no.nav.folketrygdloven.kalkulus.beregning.v1.AvklaringsbehovMedTilstandDto;
 import no.nav.folketrygdloven.kalkulus.kodeverk.AvklaringsbehovDefinisjon;
 import no.nav.folketrygdloven.kalkulus.kodeverk.BeregningVenteårsak;
@@ -11,15 +10,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Venteårsa
 public class BeregningAksjonspunktResultatMapper {
 
     private BeregningAksjonspunktResultatMapper() {
-    }
-
-    public static AksjonspunktResultat map(BeregningAvklaringsbehovResultat beregningResultat) {
-        var apDef = mapTilAksjonspunkt(beregningResultat.getBeregningAvklaringsbehovDefinisjon());
-        if (beregningResultat.harFrist()) {
-            return AksjonspunktResultat.opprettForAksjonspunktMedFrist(apDef, mapTilVenteårsak(beregningResultat.getVenteårsak()),
-                    beregningResultat.getVentefrist());
-        }
-        return AksjonspunktResultat.opprettForAksjonspunkt(apDef);
     }
 
     public static AksjonspunktResultat mapKontrakt(AvklaringsbehovMedTilstandDto avklaringsbehovMedTilstandDto) {

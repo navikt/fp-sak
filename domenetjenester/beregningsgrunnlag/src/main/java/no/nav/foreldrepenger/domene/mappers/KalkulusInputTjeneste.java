@@ -11,10 +11,10 @@ import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektsmeldingTjeneste;
-import no.nav.foreldrepenger.domene.mappers.input.MapIAYTilKalkulusInput;
-import no.nav.foreldrepenger.domene.mappers.input.MapKalkulusYtelsegrunnlag;
-import no.nav.foreldrepenger.domene.mappers.input.MapKravperioder;
-import no.nav.foreldrepenger.domene.mappers.input.MapOpptjeningTilKalkulusInput;
+import no.nav.foreldrepenger.domene.mappers.til_kalkulus.MapIAYTilKalkulusInput;
+import no.nav.foreldrepenger.domene.mappers.til_kalkulus.MapKalkulusYtelsegrunnlag;
+import no.nav.foreldrepenger.domene.mappers.til_kalkulus.MapKravperioder;
+import no.nav.foreldrepenger.domene.mappers.til_kalkulus.MapOpptjeningTilKalkulusInput;
 import no.nav.foreldrepenger.domene.opptjening.OpptjeningForBeregningTjeneste;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 
