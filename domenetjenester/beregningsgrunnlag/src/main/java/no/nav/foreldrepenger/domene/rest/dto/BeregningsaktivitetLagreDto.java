@@ -7,7 +7,6 @@ import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.OpptjeningAktivitetType;
-import no.nav.foreldrepenger.domene.entiteter.BeregningAktivitetNøkkel;
 import no.nav.foreldrepenger.validering.ValidKodeverk;
 import no.nav.vedtak.util.InputValideringRegex;
 
@@ -62,19 +61,6 @@ public class BeregningsaktivitetLagreDto {
 
     public boolean getSkalBrukes() {
         return skalBrukes;
-    }
-
-    public BeregningAktivitetNøkkel getNøkkel() {
-        var builder = BeregningAktivitetNøkkel.builder()
-            .medOpptjeningAktivitetType(opptjeningAktivitetType)
-            .medFom(fom)
-            .medArbeidsforholdRef(arbeidsforholdRef);
-        if (oppdragsgiverOrg != null) {
-            builder.medArbeidsgiverIdentifikator(oppdragsgiverOrg);
-        } else {
-            builder.medArbeidsgiverIdentifikator(arbeidsgiverIdentifikator);
-        }
-        return builder.build();
     }
 
     public static Builder builder() {

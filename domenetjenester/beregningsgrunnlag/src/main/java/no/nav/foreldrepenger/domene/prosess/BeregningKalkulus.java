@@ -30,8 +30,8 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.domene.aksjonspunkt.KalkulusAksjonspunktMapper;
 import no.nav.foreldrepenger.domene.aksjonspunkt.MapEndringsresultat;
 import no.nav.foreldrepenger.domene.aksjonspunkt.OppdaterBeregningsgrunnlagResultat;
-import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagKobling;
-import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagKoblingRepository;
+import no.nav.foreldrepenger.behandlingslager.beregningsgrunnlag.BeregningsgrunnlagKobling;
+import no.nav.foreldrepenger.behandlingslager.beregningsgrunnlag.BeregningsgrunnlagKoblingRepository;
 import no.nav.foreldrepenger.domene.fp.BesteberegningFødendeKvinneTjeneste;
 import no.nav.foreldrepenger.domene.mappers.KalkulusInputTjeneste;
 import no.nav.foreldrepenger.domene.mappers.fra_kalkulus.KalkulusTilFpsakMapper;
@@ -85,7 +85,7 @@ public class BeregningKalkulus implements BeregningAPI {
         if (koblingOpt.isEmpty() && !stegType.equals(BehandlingStegType.FASTSETT_SKJÆRINGSTIDSPUNKT_BEREGNING)) {
             throw new IllegalStateException("Kan ikke opprette ny kobling uten at denne starter i første steg av beregning, angitt steg var " + stegType);
         }
-        var kobling = koblingOpt.orElseGet(() -> koblingRepository.opprettKobling(behandlingReferanse));
+        var kobling = koblingOpt.orElseGet(() -> koblingRepository.opprettKobling(behandlingReferanse.behandlingId(), behandlingReferanse.behandlingUuid()));
         var beregningSteg = mapTilBeregningStegType(stegType);
         var originalKobling = behandlingReferanse.getOriginalBehandlingId().flatMap(oid -> koblingRepository.hentKobling(oid));
         var request = lagBeregningRequest(behandlingReferanse, kobling, beregningSteg, originalKobling);
@@ -133,7 +133,7 @@ public class BeregningKalkulus implements BeregningAPI {
         var koblingOpt = koblingRepository.hentKobling(revurdering.behandlingId());
         var kobling = koblingOpt.orElseGet(() -> {
             LOG.info("Kobling for behandlingUuid {} finnes ikke, oppretter", revurdering.behandlingUuid());
-            return koblingRepository.opprettKoblingFraOriginal(revurdering, originalKobling.get());
+            return koblingRepository.opprettKoblingFraOriginal(revurdering.behandlingId(), revurdering.behandlingUuid(), originalKobling.get());
         });
         // OBS: Kopieringen er normalt sett "til og med", men pga spesialbehandling for g-regulering kopierer "FORESLÅTT" bare til dette steget.
         // FORESLÅTT steget må deretter kjøres av fpsak

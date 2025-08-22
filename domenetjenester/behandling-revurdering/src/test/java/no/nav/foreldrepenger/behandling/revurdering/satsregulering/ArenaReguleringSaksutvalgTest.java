@@ -33,7 +33,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPerioderEntitet;
 import no.nav.foreldrepenger.dbstoette.JpaExtension;
-import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagKoblingRepository;
+import no.nav.foreldrepenger.behandlingslager.beregningsgrunnlag.BeregningsgrunnlagKoblingRepository;
 import no.nav.foreldrepenger.domene.typer.Beløp;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
@@ -111,7 +111,7 @@ class ArenaReguleringSaksutvalgTest {
         var lås = repositoryProvider.getBehandlingRepository().taSkriveLås(behandling);
         repositoryProvider.getBehandlingRepository().lagre(behandling, lås);
 
-        var kobling = beregningKoblingRepository.opprettKobling(BehandlingReferanse.fra(behandling));
+        var kobling = beregningKoblingRepository.opprettKobling(behandling.getId(), behandling.getUuid());
         beregningKoblingRepository.oppdaterKoblingMedStpOgGrunnbeløp(kobling, Beløp.fra(BigDecimal.valueOf(gammelSats)), uttakFom);
         beregningKoblingRepository.oppdaterKoblingMedReguleringsbehov(kobling, true);
 
