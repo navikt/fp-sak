@@ -551,11 +551,11 @@ class AutomatiskEtterkontrollTaskTest {
             .medAntallBarn(1);
 
         if (medBekreftet) {
-            scenario.medBekreftetHendelse().tilbakestillBarn().medFødselsDato(terminDato, antallBarn).erFødsel().medAntallBarn(antallBarn);
+            scenario.medBekreftetHendelse().tilbakestillBarn().medFødselsDato(terminDato, antallBarn).medFødselType().medAntallBarn(antallBarn);
         }
 
         if (medOverstyrtFødsel) {
-            scenario.medOverstyrtHendelse().tilbakestillBarn().medFødselsDato(terminDato, antallBarn).erFødsel().medAntallBarn(antallBarn);
+            scenario.medOverstyrtHendelse().tilbakestillBarn().medFødselsDato(terminDato, antallBarn).medFødselType().medAntallBarn(antallBarn);
         }
 
         if (medOverstyrtTermin) {
