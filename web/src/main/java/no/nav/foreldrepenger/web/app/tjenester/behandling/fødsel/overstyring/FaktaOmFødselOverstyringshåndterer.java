@@ -49,17 +49,8 @@ public class FaktaOmFødselOverstyringshåndterer implements Overstyringshåndte
     public OppdateringResultat håndterOverstyring(OverstyringFaktaOmFødselDto dto, BehandlingReferanse ref) {
         var behandlingId = ref.behandlingId();
         var familieHendelse = familieHendelseTjeneste.hentAggregat(behandlingId);
-        var gjeldendeTermindato = familieHendelse.getGjeldendeVersjon().getTermindato().orElse(null);
 
-        if (Boolean.FALSE.equals(dto.getErBarnFødt())) {
-            familieHendelseTjeneste.fjernOverstyrtHendelse(behandlingId);
-            if (!(dto.getTermindato().equals(gjeldendeTermindato))) {
-                faktaFødselTjeneste.overstyrFaktaOmFødsel(behandlingId, dto);
-            }
-        } else {
-            faktaFødselTjeneste.overstyrFaktaOmFødsel(behandlingId, dto);
-
-        }
+        faktaFødselTjeneste.overstyrFaktaOmFødsel(behandlingId, dto);
         opprettHistorikkinnslag(ref, dto, familieHendelse);
         return OppdateringResultat.utenOverhopp();
     }

@@ -53,6 +53,12 @@ public class FaktaFødselTjeneste {
 
         validerFødselsdataForOverstyring(dto);
 
+        if (dto.getBarn() == null || dto.getBarn().isEmpty()) {
+            var søknadAntallBarn = familieHendelse.getSøknadVersjon().getAntallBarn();
+            var bekreftetAntallBarn = familieHendelse.getBekreftetVersjon().map(FamilieHendelseEntitet::getAntallBarn);
+            oppdatere.medTerminType().tilbakestillBarn().medAntallBarn(bekreftetAntallBarn.orElse(søknadAntallBarn));
+        }
+
         if (harEndringerIBarnData(dto, familieHendelse)) {
             oppdaterBarnData(dto, oppdatere);
         }
@@ -96,12 +102,8 @@ public class FaktaFødselTjeneste {
     }
 
     private static void oppdaterBarnData(OverstyringFaktaOmFødselDto dto, FamilieHendelseBuilder oppdatere) {
-        // Filtrer bort barn uten fødselsdato. Dette skjer ved overstyring av kun termindato når barn ikke er født ennå.
         oppdatere.tilbakestillBarn().medAntallBarn(dto.getBarn().size());
-        dto.getBarn()
-            .stream()
-            .filter(b -> b.getFødselsdato() != null)
-            .forEach(b -> oppdatere.leggTilBarn(b.getFødselsdato(), b.getDødsdato().orElse(null)));
+        dto.getBarn().forEach(b -> oppdatere.leggTilBarn(b.getFødselsdato(), b.getDødsdato().orElse(null)));
     }
 
     private static boolean harEndringerIBarnData(OverstyringFaktaOmFødselDto dto, FamilieHendelseGrunnlagEntitet familieHendelse) {
