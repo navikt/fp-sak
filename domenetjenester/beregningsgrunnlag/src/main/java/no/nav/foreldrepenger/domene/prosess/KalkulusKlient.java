@@ -7,8 +7,6 @@ import java.util.Optional;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.ws.rs.core.UriBuilder;
 
-import no.nav.folketrygdloven.kalkulus.migrering.MigrerBeregningsgrunnlagRequest;
-import no.nav.folketrygdloven.kalkulus.migrering.MigrerBeregningsgrunnlagResponse;
 import no.nav.folketrygdloven.kalkulus.request.v1.enkel.EnkelBeregnRequestDto;
 import no.nav.folketrygdloven.kalkulus.request.v1.enkel.EnkelFpkalkulusRequestDto;
 import no.nav.folketrygdloven.kalkulus.request.v1.enkel.EnkelGrunnlagTilstanderRequestDto;
@@ -138,16 +136,6 @@ public class KalkulusKlient {
         }
     }
 
-    public MigrerBeregningsgrunnlagResponse migrerGrunnlag(MigrerBeregningsgrunnlagRequest request) {
-        var restRequest = RestRequest.newPOSTJson(request, migrer, restConfig);
-        try {
-            return restClient.sendReturnOptional(restRequest, MigrerBeregningsgrunnlagResponse.class).orElseThrow(() -> new TekniskException("FP-503910", "Tomt resultat etter migrering til kalkulus, ugyldig respons"));
-        }
-        catch (Exception e) {
-            throw new TekniskException("FP-503900", "Feil under migrering til kalkulus: " + e);
-        }
-    }
-
     public TilgjengeligeTilstanderDto hentTilgjengeligeTilstander(EnkelGrunnlagTilstanderRequestDto request) {
         LOG.info("Henter tilgjengelige tilstander i fpkalkulus");
         var restRequest = RestRequest.newPOSTJson(request, tilstand, restConfig);
@@ -166,6 +154,5 @@ public class KalkulusKlient {
             throw new IllegalArgumentException("Ugyldig uri: " + endpointURI + path, e);
         }
     }
-
 
 }

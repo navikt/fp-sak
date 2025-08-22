@@ -1,4 +1,4 @@
-package no.nav.foreldrepenger.domene.modell.typer;
+package no.nav.foreldrepenger.domene.modell;
 
 import java.io.Serializable;
 import java.util.Objects;
