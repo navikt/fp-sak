@@ -1,16 +1,16 @@
-package no.nav.foreldrepenger.domene.entiteter;
+package no.nav.foreldrepenger.behandlingslager.beregningsgrunnlag;
 
 import static no.nav.vedtak.felles.jpa.HibernateVerktøy.hentUniktResultat;
 
 import java.time.LocalDate;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.UUID;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.persistence.EntityManager;
 
-import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.domene.typer.Beløp;
 
 
@@ -35,9 +35,9 @@ public class BeregningsgrunnlagKoblingRepository {
         return hentUniktResultat(query);
     }
 
-    public BeregningsgrunnlagKobling opprettKoblingFraOriginal(BehandlingReferanse behandlingReferanse, BeregningsgrunnlagKobling original) {
-        guardMotEksisterende(behandlingReferanse);
-        var bgKobling = new BeregningsgrunnlagKobling(behandlingReferanse.behandlingId(), behandlingReferanse.behandlingUuid(),
+    public BeregningsgrunnlagKobling opprettKoblingFraOriginal(Long behandlingId, UUID behandlingUuid, BeregningsgrunnlagKobling original) {
+        guardMotEksisterende(behandlingId);
+        var bgKobling = new BeregningsgrunnlagKobling(behandlingId, behandlingUuid,
             original.getSkjæringstidspunkt().orElse(null),
             original.getGrunnbeløp().orElse(null),
             Boolean.TRUE.equals(original.getReguleringsbehov().orElse(null)));
@@ -45,17 +45,17 @@ public class BeregningsgrunnlagKoblingRepository {
         return bgKobling;
     }
 
-    public BeregningsgrunnlagKobling opprettKobling(BehandlingReferanse behandlingReferanse) {
-        guardMotEksisterende(behandlingReferanse);
-        var bgKobling = new BeregningsgrunnlagKobling(behandlingReferanse.behandlingId(), behandlingReferanse.behandlingUuid());
+    public BeregningsgrunnlagKobling opprettKobling(Long behandlingId, UUID behandlingUuid) {
+        guardMotEksisterende(behandlingId);
+        var bgKobling = new BeregningsgrunnlagKobling(behandlingId, behandlingUuid);
         lagreKobling(bgKobling);
         return bgKobling;
     }
 
-    private void guardMotEksisterende(BehandlingReferanse behandlingReferanse) {
-        var eksisterende = hentKobling(behandlingReferanse.behandlingId());
+    private void guardMotEksisterende(Long behandlingId) {
+        var eksisterende = hentKobling(behandlingId);
         if (eksisterende.isPresent()) {
-            throw new IllegalStateException("Finnes allerede kobling på behandlingId " + behandlingReferanse.behandlingId());
+            throw new IllegalStateException("Finnes allerede kobling på behandlingId " + behandlingId);
         }
     }
 

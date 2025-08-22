@@ -1,4 +1,4 @@
-package no.nav.foreldrepenger.domene.entiteter;
+package no.nav.foreldrepenger.behandlingslager.beregningsgrunnlag;
 
 
 import java.time.LocalDate;

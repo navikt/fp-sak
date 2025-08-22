@@ -7,6 +7,6 @@
 
     <sequence-generator name="SEQ_BG_EKSTERN_KOBLING" allocation-size="50" sequence-name="SEQ_BG_EKSTERN_KOBLING" />
 
-    <entity class="no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagKobling" />
+    <entity class="no.nav.foreldrepenger.behandlingslager.beregningsgrunnlag.BeregningsgrunnlagKobling" />
 
 </entity-mappings>
