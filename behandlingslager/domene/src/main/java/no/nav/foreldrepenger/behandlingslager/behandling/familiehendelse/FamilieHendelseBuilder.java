@@ -114,13 +114,12 @@ public class FamilieHendelseBuilder {
         return this;
     }
 
-    /**
-     * Gjør det mulig å sette type til omsorgovertagelse.
-     *
-     * @return builder
-     */
     public FamilieHendelseBuilder medFødselType() {
         return medType(FamilieHendelseType.FØDSEL);
+    }
+
+    public FamilieHendelseBuilder medTerminType() {
+        return medType(FamilieHendelseType.TERMIN);
     }
 
     private FamilieHendelseBuilder medType(FamilieHendelseType type) {
