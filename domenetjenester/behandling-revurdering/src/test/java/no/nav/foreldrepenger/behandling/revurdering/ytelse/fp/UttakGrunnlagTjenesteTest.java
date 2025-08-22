@@ -48,13 +48,13 @@ class UttakGrunnlagTjenesteTest {
     void skal_ignorere_overstyrt_familiehendelse_hvis_saksbehandler_har_valgt_at_fødsel_ikke_er_dokumentert() {
         var førstegangsScenario = ScenarioMorSøkerEngangsstønad.forFødsel();
         var fødselsDato = LocalDate.of(2019, 10, 10);
-        førstegangsScenario.medBekreftetHendelse().medFødselsDato(fødselsDato).medAntallBarn(1).erFødsel();
-        førstegangsScenario.medOverstyrtHendelse().medAntallBarn(0).erFødsel();
+        førstegangsScenario.medBekreftetHendelse().medFødselsDato(fødselsDato).medAntallBarn(1).medFødselType();
+        førstegangsScenario.medOverstyrtHendelse().medAntallBarn(0).medFødselType();
         var behandling = førstegangsScenario.lagre(repositoryProvider);
 
         var revurderingScenario = ScenarioMorSøkerEngangsstønad.forFødsel()
             .medOriginalBehandling(behandling, BehandlingÅrsakType.RE_ENDRING_FRA_BRUKER);
-        revurderingScenario.medBekreftetHendelse().medAntallBarn(1).medFødselsDato(fødselsDato).erFødsel();
+        revurderingScenario.medBekreftetHendelse().medAntallBarn(1).medFødselsDato(fødselsDato).medFødselType();
         var revurdering = revurderingScenario.lagre(repositoryProvider);
 
         var grunnlagRevurdering = tjeneste.grunnlag(BehandlingReferanse.fra(revurdering));

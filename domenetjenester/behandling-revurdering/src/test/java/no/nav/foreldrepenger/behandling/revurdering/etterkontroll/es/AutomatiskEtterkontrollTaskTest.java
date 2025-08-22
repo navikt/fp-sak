@@ -239,7 +239,7 @@ class AutomatiskEtterkontrollTaskTest {
         if (medBekreftet) {
             scenario.medBekreftetHendelse()
                     .medFødselsDato(terminDato)
-                    .erFødsel()
+                    .medFødselType()
                     .medAntallBarn(antallBarn);
         }
 
