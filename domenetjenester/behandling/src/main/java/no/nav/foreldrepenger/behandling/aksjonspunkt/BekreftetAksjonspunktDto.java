@@ -1,5 +1,7 @@
 package no.nav.foreldrepenger.behandling.aksjonspunkt;
 
+import com.fasterxml.jackson.annotation.JsonSubTypes;
+
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 
@@ -12,7 +14,8 @@ import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspun
 import no.nav.vedtak.util.InputValideringRegex;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-@JsonTypeInfo(use = JsonTypeInfo.Id.NAME)
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY,
+    property = "@type")
 /** Husk @JsonTypeName på alle sublasser!! */
 public abstract class BekreftetAksjonspunktDto implements AksjonspunktKode {
 
