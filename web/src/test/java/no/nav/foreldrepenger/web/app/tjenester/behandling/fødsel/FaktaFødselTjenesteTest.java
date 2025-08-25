@@ -262,8 +262,7 @@ public class FaktaFødselTjenesteTest extends EntityManagerAwareTest {
         var scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
         var barnDtoListe = List.of(new DokumentertBarnDto(fødselsdato, null));
         var behandling = byggBehandlingBekreftetFødsel(scenario, barnDtoListe);
-        var overstyringFaktaOmFødselDto = new OverstyringFaktaOmFødselDto("Legger til fødselsdato 8 uker etter termindato.", TERMINDATO, barnDtoListe,
-            true);
+        var overstyringFaktaOmFødselDto = new OverstyringFaktaOmFødselDto("Legger til fødselsdato 8 uker etter termindato.", TERMINDATO, barnDtoListe);
 
         // Act & Assert
         var behandlingId = behandling.getId();
@@ -279,7 +278,7 @@ public class FaktaFødselTjenesteTest extends EntityManagerAwareTest {
         var scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
         var barnDtoListe = List.of(new DokumentertBarnDto(fødselsdato, null), new DokumentertBarnDto(fødselsdato, fødselsdato.minusDays(1)));
         var behandling = byggBehandlingBekreftetFødsel(scenario, barnDtoListe);
-        var overstyringFaktaOmFødselDto = new OverstyringFaktaOmFødselDto("Legger til dødsdato før fødselsdato", TERMINDATO, barnDtoListe, true);
+        var overstyringFaktaOmFødselDto = new OverstyringFaktaOmFødselDto("Legger til dødsdato før fødselsdato", TERMINDATO, barnDtoListe);
 
         // Act og Assert
         var behandlingId = behandling.getId();
@@ -295,7 +294,7 @@ public class FaktaFødselTjenesteTest extends EntityManagerAwareTest {
         var barnDtoListe = List.of(new DokumentertBarnDto(FØDSELSDATO, null));
         var behandling = byggBehandlingBekreftetFødsel(scenario, barnDtoListe);
         var overstyringFaktaOmFødselDto = new OverstyringFaktaOmFødselDto("begrunnelse", TERMINDATO,
-            List.of(new DokumentertBarnDto(FØDSELSDATO, null), new DokumentertBarnDto(FØDSELSDATO.plusDays(1), null)), true);
+            List.of(new DokumentertBarnDto(FØDSELSDATO, null), new DokumentertBarnDto(FØDSELSDATO.plusDays(1), null)));
 
         // Act
         tjeneste.overstyrFaktaOmFødsel(behandling.getId(), overstyringFaktaOmFødselDto);
@@ -316,7 +315,7 @@ public class FaktaFødselTjenesteTest extends EntityManagerAwareTest {
         var behandling = byggBehandlingTermin(scenario, TERMINDATO);
         var behandlingId = behandling.getId();
         var endretTermindato = TERMINDATO.minusWeeks(1);
-        var overstyringFaktaOmFødselDto = new OverstyringFaktaOmFødselDto("begrunnelse", endretTermindato, Collections.EMPTY_LIST, false);
+        var overstyringFaktaOmFødselDto = new OverstyringFaktaOmFødselDto("begrunnelse", endretTermindato, Collections.EMPTY_LIST);
 
         // Act
         tjeneste.overstyrFaktaOmFødsel(behandlingId, overstyringFaktaOmFødselDto);
@@ -334,8 +333,7 @@ public class FaktaFødselTjenesteTest extends EntityManagerAwareTest {
         var scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
         var barnDtoListe = List.of(new DokumentertBarnDto(FØDSELSDATO, null));
         var behandling = byggBehandlingBekreftetFødsel(scenario, barnDtoListe);
-        var overstyringFaktaOmFødselDto = new OverstyringFaktaOmFødselDto("begrunnelse", null, List.of(new DokumentertBarnDto(FØDSELSDATO, dødsdato)),
-            true);
+        var overstyringFaktaOmFødselDto = new OverstyringFaktaOmFødselDto("begrunnelse", null, List.of(new DokumentertBarnDto(FØDSELSDATO, dødsdato)));
 
         // Act
         tjeneste.overstyrFaktaOmFødsel(behandling.getId(), overstyringFaktaOmFødselDto);
@@ -355,8 +353,7 @@ public class FaktaFødselTjenesteTest extends EntityManagerAwareTest {
         var scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
         var barnDtoListe = List.of(new DokumentertBarnDto(FØDSELSDATO, null), new DokumentertBarnDto(FØDSELSDATO, null));
         var behandling = byggBehandlingBekreftetFødsel(scenario, barnDtoListe);
-        var overstyringFaktaOmFødselDto = new OverstyringFaktaOmFødselDto("begrunnelse", null, List.of(new DokumentertBarnDto(FØDSELSDATO, dødsdato)),
-            true);
+        var overstyringFaktaOmFødselDto = new OverstyringFaktaOmFødselDto("begrunnelse", null, List.of(new DokumentertBarnDto(FØDSELSDATO, dødsdato)));
 
         // Act
         tjeneste.overstyrFaktaOmFødsel(behandling.getId(), overstyringFaktaOmFødselDto);
@@ -389,8 +386,7 @@ public class FaktaFødselTjenesteTest extends EntityManagerAwareTest {
 
         var behandling = scenario.lagre(repositoryProvider);
 
-        var overstyringFaktaOmFødselDto = new OverstyringFaktaOmFødselDto("begrunnelse", null, List.of(new DokumentertBarnDto(FØDSELSDATO, null)),
-            true);
+        var overstyringFaktaOmFødselDto = new OverstyringFaktaOmFødselDto("begrunnelse", null, List.of(new DokumentertBarnDto(FØDSELSDATO, null)));
 
         // Act
         var fhFraRepoFoer = repositoryProvider.getFamilieHendelseRepository().hentAggregat(behandling.getId());

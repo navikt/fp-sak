@@ -64,7 +64,7 @@ class SjekkManglendeFødselOppdatererTest extends EntityManagerAwareTest {
         var behandling = scenario.lagre(repositoryProvider);
 
         // Dto
-        var dto = new SjekkManglendeFødselAksjonspunktDto("begrunnelse", false, null);
+        var dto = new SjekkManglendeFødselAksjonspunktDto("begrunnelse", null);
         var aksjonspunkt = behandling.getAksjonspunktFor(SJEKK_MANGLENDE_FØDSEL);
 
         // Act
@@ -103,7 +103,7 @@ class SjekkManglendeFødselOppdatererTest extends EntityManagerAwareTest {
 
         // Dto
         var barn = List.of(new DokumentertBarnDto(fødselsdatoFraSøknad, null));
-        var dto = new SjekkManglendeFødselAksjonspunktDto("begrunnelse", true, barn);
+        var dto = new SjekkManglendeFødselAksjonspunktDto("begrunnelse", barn);
         var aksjonspunkt = behandling.getAksjonspunktFor(SJEKK_MANGLENDE_FØDSEL);
 
         // Act
@@ -146,7 +146,7 @@ class SjekkManglendeFødselOppdatererTest extends EntityManagerAwareTest {
 
         // Dto
         var barn = List.of(new DokumentertBarnDto(fødselsdatoFraPDL, null), new DokumentertBarnDto(fødselsdatoFraPDL, null));
-        var dto = new SjekkManglendeFødselAksjonspunktDto("begrunnelse", true, barn);
+        var dto = new SjekkManglendeFødselAksjonspunktDto("begrunnelse", barn);
         var aksjonspunkt = behandling.getAksjonspunktFor(SJEKK_MANGLENDE_FØDSEL);
 
         // Act
@@ -186,7 +186,7 @@ class SjekkManglendeFødselOppdatererTest extends EntityManagerAwareTest {
 
         // Dto
         var barn = List.of(new DokumentertBarnDto(avklartFødseldato, null), new DokumentertBarnDto(avklartFødseldato, null));
-        var dto = new SjekkManglendeFødselAksjonspunktDto("begrunnelse", true, barn);
+        var dto = new SjekkManglendeFødselAksjonspunktDto("begrunnelse", barn);
         var aksjonspunkt = behandling.getAksjonspunktFor(SJEKK_MANGLENDE_FØDSEL);
 
         // Act
@@ -229,7 +229,7 @@ class SjekkManglendeFødselOppdatererTest extends EntityManagerAwareTest {
         // Dto
         var barn = List.of(new DokumentertBarnDto(fødselsdatoFraSøknad, dødsdatoFraSBH));
 
-        var dto = new SjekkManglendeFødselAksjonspunktDto("begrunnelse", true, barn);
+        var dto = new SjekkManglendeFødselAksjonspunktDto("begrunnelse", barn);
         var aksjonspunkt = behandling.getAksjonspunktFor(SJEKK_MANGLENDE_FØDSEL);
 
         // Act
@@ -270,7 +270,7 @@ class SjekkManglendeFødselOppdatererTest extends EntityManagerAwareTest {
 
         var barn = List.of(new DokumentertBarnDto(fødselsdatoFraSBH, null));
 
-        var dto = new SjekkManglendeFødselAksjonspunktDto("begrunnelse", true, barn);
+        var dto = new SjekkManglendeFødselAksjonspunktDto("begrunnelse", barn);
         var aksjonspunkt = behandling.getAksjonspunktFor(SJEKK_MANGLENDE_FØDSEL);
 
         // Act
@@ -307,7 +307,7 @@ class SjekkManglendeFødselOppdatererTest extends EntityManagerAwareTest {
         var behandling = scenario.lagre(repositoryProvider);
 
         var barn = List.of(new DokumentertBarnDto(fødselsdatoFraSøknad, null));
-        var dto = new SjekkManglendeFødselAksjonspunktDto("begrunnelse", true, barn);
+        var dto = new SjekkManglendeFødselAksjonspunktDto("begrunnelse", barn);
         var aksjonspunkt = behandling.getAksjonspunktFor(SJEKK_MANGLENDE_FØDSEL);
 
         // Act
@@ -341,17 +341,16 @@ class SjekkManglendeFødselOppdatererTest extends EntityManagerAwareTest {
         var oppdaterer = new SjekkManglendeFødselOppdaterer(mock(OpplysningsPeriodeTjeneste.class), familieHendelseTjeneste,
             repositoryProvider.getHistorikkinnslagRepository(), repositoryProvider.getBehandlingRepository());
 
-        var dtoManglerBarn = new SjekkManglendeFødselAksjonspunktDto("begrunnelse", true, List.of());
-        var dtoForMangeBarn = new SjekkManglendeFødselAksjonspunktDto("begrunnelse", true, Collections.nCopies(10, new DokumentertBarnDto(now(), null)));
-        var dtoDødFørFødsel = new SjekkManglendeFødselAksjonspunktDto("begrunnelse", true, List.of(new DokumentertBarnDto(now(), now().minusDays(1))));
+        var dtoForMangeBarn = new SjekkManglendeFødselAksjonspunktDto("begrunnelse", Collections.nCopies(10, new DokumentertBarnDto(now(), null)));
+        var dtoDødFørFødsel = new SjekkManglendeFødselAksjonspunktDto("begrunnelse", List.of(new DokumentertBarnDto(now(), now().minusDays(1))));
 
         var aksjonspunkt = behandling.getAksjonspunktFor(SJEKK_MANGLENDE_FØDSEL);
-        var param = new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling), dtoManglerBarn, aksjonspunkt);
-        assertThatExceptionOfType(FunksjonellException.class).isThrownBy(() -> oppdaterer.oppdater(dtoManglerBarn, param))
-            .withMessage("FP-076343:Mangler barn");
-        assertThatExceptionOfType(FunksjonellException.class).isThrownBy(() -> oppdaterer.oppdater(dtoForMangeBarn, param))
+        var ref = BehandlingReferanse.fra(behandling);
+        assertThatExceptionOfType(FunksjonellException.class).isThrownBy(() -> oppdaterer.oppdater(dtoForMangeBarn,
+                new AksjonspunktOppdaterParameter(ref, dtoForMangeBarn, aksjonspunkt)))
             .withMessage("FP-076347:For mange barn");
-        assertThatExceptionOfType(FunksjonellException.class).isThrownBy(() -> oppdaterer.oppdater(dtoDødFørFødsel, param))
+        assertThatExceptionOfType(FunksjonellException.class).isThrownBy(() -> oppdaterer.oppdater(dtoDødFørFødsel,
+                new AksjonspunktOppdaterParameter(ref, dtoDødFørFødsel, aksjonspunkt)))
             .withMessage("FP-076345:Dødsdato før fødselsdato");
     }
 
