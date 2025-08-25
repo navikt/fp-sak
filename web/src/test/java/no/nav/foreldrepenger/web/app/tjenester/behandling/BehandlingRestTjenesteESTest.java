@@ -9,6 +9,8 @@ import java.time.LocalDate;
 
 import jakarta.persistence.EntityManager;
 
+import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -93,7 +95,7 @@ class BehandlingRestTjenesteESTest {
         henleggBehandlingTjeneste = mock(HenleggBehandlingTjeneste.class);
         behandlingRestTjeneste = new BehandlingRestTjeneste(behandlingsutredningTjeneste, behandlingsoppretterTjeneste,
             behandlingOpprettingTjeneste, behandlingsprosessTjenste, fagsakTjeneste, henleggBehandlingTjeneste, behandlingDtoTjeneste,
-            mock(FagsakEgenskapRepository.class), mock(HistorikkinnslagRepository.class));
+            mock(FagsakEgenskapRepository.class), mock(HistorikkinnslagRepository.class), mock(ProsessTaskTjeneste.class));
     }
 
     @Test
