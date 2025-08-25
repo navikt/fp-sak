@@ -304,11 +304,13 @@ class MorsJustering implements ForelderFødselJustering {
         var virkedagerSomSkalSkyves= Virkedager.beregnAntallVirkedager(nyFamiliehendelse, gammelFamiliehendelse) - 1;
         var justertePerioderUtenFFF = new ArrayList<OppgittPeriodeEntitet>();
         for (var periodeSomSkalJusteres : oppgittePerioder) {
-            if (!FORELDREPENGER_FØR_FØDSEL.equals(periodeSomSkalJusteres.getPeriodeType())) {
-                var justertePerioder = justerPeriodeVenstrejustert(periodeSomSkalJusteres, virkedagerSomSkalSkyves, ikkeFlyttbarePerioderEtterTermin);
-                virkedagerSomSkalSkyves = justertePerioder.antallVirkedagerSomSkalSkyvesNestePeriode();
-                justertePerioderUtenFFF.addAll(justertePerioder.periodene());
+            if (FORELDREPENGER_FØR_FØDSEL.equals(periodeSomSkalJusteres.getPeriodeType())) {
+                continue; // Legges til etter justering
             }
+
+            var justertePerioder = justerPeriodeVenstrejustert(periodeSomSkalJusteres, virkedagerSomSkalSkyves, ikkeFlyttbarePerioderEtterTermin);
+            virkedagerSomSkalSkyves = justertePerioder.antallVirkedagerSomSkalSkyvesNestePeriode();
+            justertePerioderUtenFFF.addAll(justertePerioder.periodene());
         }
         return leggTilFFFkonto(justertePerioderUtenFFF, oppgittePerioder); // 6) FORELDREPENGER_FØR_FØDSEL legger vi på til slutt
     }
