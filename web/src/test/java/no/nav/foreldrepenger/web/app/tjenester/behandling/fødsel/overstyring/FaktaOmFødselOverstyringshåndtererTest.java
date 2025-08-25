@@ -64,7 +64,7 @@ class FaktaOmFødselOverstyringshåndtererTest {
         var ref = BehandlingReferanse.fra(behandling);
         var termindatoFraDto = LocalDate.now().plusDays(1);
         var begrunnelse = "Endrer termindato på grunn av feil i søknad.";
-        var overstyringFaktaOmFødselDto = new OverstyringFaktaOmFødselDto(begrunnelse, termindatoFraDto, null, false);
+        var overstyringFaktaOmFødselDto = new OverstyringFaktaOmFødselDto(begrunnelse, termindatoFraDto, null);
 
         // Act
         oppdaterer.håndterOverstyring(overstyringFaktaOmFødselDto, ref);
@@ -96,7 +96,7 @@ class FaktaOmFødselOverstyringshåndtererTest {
         // barnDtoListe inneholder gjeldende barn fra register i tillegg til det som skal legges til. Dette vil overstyre fra overstyrt versjon som inneholder 1 barn fra bekreftet hendelse.
         var barnDtoListe = List.of(new DokumentertBarnDto(fødselsdato, null), new DokumentertBarnDto(fødselsdato, null));
         var begrunnelse = "Legger til ekstra barn i overstyring.";
-        var overstyringFaktaOmFødselDto = new OverstyringFaktaOmFødselDto(begrunnelse, termindato, barnDtoListe, true);
+        var overstyringFaktaOmFødselDto = new OverstyringFaktaOmFødselDto(begrunnelse, termindato, barnDtoListe);
 
         // Act
         var familieHendelseFørOverstyring = familieHendelseTjeneste.hentAggregat(ref.behandlingId());
@@ -141,7 +141,7 @@ class FaktaOmFødselOverstyringshåndtererTest {
         var barnDtoListe = List.of(new DokumentertBarnDto(fødselsdato, null), new DokumentertBarnDto(fødselsdato, null),
             new DokumentertBarnDto(fødselsdato, null), new DokumentertBarnDto(fødselsdato2, null));
         var begrunnelse = "Legger til ekstra barn i overstyring.";
-        var overstyringFaktaOmFødselDto = new OverstyringFaktaOmFødselDto(begrunnelse, termindato, barnDtoListe, true);
+        var overstyringFaktaOmFødselDto = new OverstyringFaktaOmFødselDto(begrunnelse, termindato, barnDtoListe);
 
         // Act
         var familieHendelseFørOverstyring = familieHendelseTjeneste.hentAggregat(ref.behandlingId());
@@ -196,7 +196,7 @@ class FaktaOmFødselOverstyringshåndtererTest {
         var barnDtoListe = List.of(new DokumentertBarnDto(fødselsdato, null), new DokumentertBarnDto(fødselsdato, null),
             new DokumentertBarnDto(fødselsdato, fødselsdato), new DokumentertBarnDto(fødselsdato2, null));
         var begrunnelse = "Legger til ekstra barn i overstyring.";
-        var overstyringFaktaOmFødselDto = new OverstyringFaktaOmFødselDto(begrunnelse, termindato, barnDtoListe, true);
+        var overstyringFaktaOmFødselDto = new OverstyringFaktaOmFødselDto(begrunnelse, termindato, barnDtoListe);
 
         // Act
         var familieHendelseFørOverstyring = familieHendelseTjeneste.hentAggregat(ref.behandlingId());
@@ -240,7 +240,7 @@ class FaktaOmFødselOverstyringshåndtererTest {
         // barnDtoListe inneholder gjeldende barn fra register og fra overstyrt. Denne vil overstyre fra overstyrt versjon som inneholder 3 barn (1 barn fra register og 2 barn fra overstyring).
         var barnDtoListe = List.of(new DokumentertBarnDto(fødselsdato, null));
         var begrunnelse = "Fjernet 2 barn fra overstyring.";
-        var overstyringFaktaOmFødselDto = new OverstyringFaktaOmFødselDto(begrunnelse, termindato, barnDtoListe, true);
+        var overstyringFaktaOmFødselDto = new OverstyringFaktaOmFødselDto(begrunnelse, termindato, barnDtoListe);
 
         // Act
         var familieHendelseFørOverstyring = familieHendelseTjeneste.hentAggregat(ref.behandlingId());
@@ -289,7 +289,7 @@ class FaktaOmFødselOverstyringshåndtererTest {
         var ref = BehandlingReferanse.fra(behandling);
         var barnDtoListe = List.of(new DokumentertBarnDto(fødselsdato, null));
         var begrunnelse = "Fjernet 3 barn fra overstyring.";
-        var overstyringFaktaOmFødselDto = new OverstyringFaktaOmFødselDto(begrunnelse, termindato, barnDtoListe, true);
+        var overstyringFaktaOmFødselDto = new OverstyringFaktaOmFødselDto(begrunnelse, termindato, barnDtoListe);
 
         // Act
         var familieHendelseFørOverstyring = familieHendelseTjeneste.hentAggregat(ref.behandlingId());
@@ -342,7 +342,7 @@ class FaktaOmFødselOverstyringshåndtererTest {
         // barnDtoListe inneholder gjeldende barn. Et barn fra bekreftet og et barn som skal overstyres.
         var barnDtoListe = List.of(new DokumentertBarnDto(fødselsdato, null), new DokumentertBarnDto(fødselsdato, dødsdato));
         var begrunnelse = "Endret på dødsdato.";
-        var overstyringFaktaOmFødselDto = new OverstyringFaktaOmFødselDto(begrunnelse, termindato, barnDtoListe, true);
+        var overstyringFaktaOmFødselDto = new OverstyringFaktaOmFødselDto(begrunnelse, termindato, barnDtoListe);
 
         // Act
         oppdaterer.håndterOverstyring(overstyringFaktaOmFødselDto, ref);
@@ -384,7 +384,7 @@ class FaktaOmFødselOverstyringshåndtererTest {
         // barnDtoListe inneholder gjeldende barn fra register. Barn med fødselsdato er fjernet og barn med fødselsdato2 er lagt til.
         var barnDtoListe = List.of(new DokumentertBarnDto(fødselsdato, null), new DokumentertBarnDto(fødselsdato2, fødselsdato2));
         var begrunnelse = "Fjernet 1 barn med fødselsdato og lagt til 1 barn med fødselsdato2.";
-        var overstyringFaktaOmFødselDto = new OverstyringFaktaOmFødselDto(begrunnelse, termindato, barnDtoListe, true);
+        var overstyringFaktaOmFødselDto = new OverstyringFaktaOmFødselDto(begrunnelse, termindato, barnDtoListe);
 
         // Act
         var familieHendelseFørOverstyring = familieHendelseTjeneste.hentAggregat(ref.behandlingId());
