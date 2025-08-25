@@ -1,17 +1,18 @@
 package no.nav.foreldrepenger.familiehendelse.historikk;
 
+import static no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagLinjeBuilder.fraTilEquals;
+import static no.nav.foreldrepenger.familiehendelse.modell.FødselStatus.safeGet;
+
+import java.util.List;
+import java.util.Objects;
+
 import jakarta.enterprise.context.ApplicationScoped;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseGrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagLinjeBuilder;
+import no.nav.foreldrepenger.familiehendelse.aksjonspunkt.dto.DokumentertBarnDto;
 import no.nav.foreldrepenger.familiehendelse.modell.FødselStatus;
-import no.nav.foreldrepenger.familiehendelse.aksjonspunkt.dto.BarnInfoProvider;
-
-import java.util.Objects;
-
-import static no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagLinjeBuilder.fraTilEquals;
-import static no.nav.foreldrepenger.familiehendelse.modell.FødselStatus.safeGet;
 
 @ApplicationScoped
 public class FødselHistorikkTjeneste {
@@ -21,8 +22,8 @@ public class FødselHistorikkTjeneste {
 
     public static void lagHistorikkForBarn(Historikkinnslag.Builder historikkinnslag,
                                            FamilieHendelseGrunnlagEntitet grunnlag,
-                                           BarnInfoProvider barnInfo) {
-        var oppdatertFødselStatus = barnInfo.getBarn().stream().map(FødselStatus::new).toList();
+                                           List<DokumentertBarnDto> barna) {
+        var oppdatertFødselStatus = barna.stream().map(FødselStatus::new).toList();
         var gjeldendeFødselStatus = grunnlag.getGjeldendeBarna().stream().map(FødselStatus::new).toList();
 
         if (!Objects.equals(oppdatertFødselStatus.size(), grunnlag.getGjeldendeAntallBarn())) {

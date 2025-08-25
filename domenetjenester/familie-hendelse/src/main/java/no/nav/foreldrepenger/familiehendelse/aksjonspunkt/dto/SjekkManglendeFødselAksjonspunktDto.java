@@ -3,7 +3,6 @@ package no.nav.foreldrepenger.familiehendelse.aksjonspunkt.dto;
 import java.util.List;
 
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotNull;
 
 import com.fasterxml.jackson.annotation.JsonTypeName;
 
@@ -11,10 +10,7 @@ import no.nav.foreldrepenger.behandling.aksjonspunkt.BekreftetAksjonspunktDto;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktKodeDefinisjon;
 
 @JsonTypeName(AksjonspunktKodeDefinisjon.SJEKK_MANGLENDE_FØDSEL_KODE)
-public class SjekkManglendeFødselAksjonspunktDto extends BekreftetAksjonspunktDto implements BarnInfoProvider {
-
-    @NotNull
-    private Boolean erBarnFødt;
+public class SjekkManglendeFødselAksjonspunktDto extends BekreftetAksjonspunktDto {
 
     @Valid
     private List<DokumentertBarnDto> barn;
@@ -23,19 +19,13 @@ public class SjekkManglendeFødselAksjonspunktDto extends BekreftetAksjonspunktD
         //For Jackson
     }
 
-    public SjekkManglendeFødselAksjonspunktDto(String begrunnelse, Boolean dokumentasjonForeligger, List<DokumentertBarnDto> barn) {
+    public SjekkManglendeFødselAksjonspunktDto(String begrunnelse, List<DokumentertBarnDto> barn) {
         super(begrunnelse);
-        this.erBarnFødt = dokumentasjonForeligger;
         this.barn = barn;
     }
 
-    public Boolean getErBarnFødt() {
-        return erBarnFødt;
-    }
-
-    @Override
     public List<DokumentertBarnDto> getBarn() {
-        return barn;
+        return barn == null ? List.of() : barn;
     }
 
 }

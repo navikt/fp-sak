@@ -6,27 +6,21 @@ import java.util.List;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 
-import jakarta.validation.constraints.NotNull;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.OverstyringAksjonspunktDto;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktKodeDefinisjon;
 import no.nav.foreldrepenger.familiehendelse.aksjonspunkt.dto.DokumentertBarnDto;
-import no.nav.foreldrepenger.familiehendelse.aksjonspunkt.dto.BarnInfoProvider;
 
 @JsonTypeName(AksjonspunktKodeDefinisjon.OVERSTYRING_AV_FAKTA_OM_FØDSEL_KODE)
-public class OverstyringFaktaOmFødselDto extends OverstyringAksjonspunktDto implements BarnInfoProvider {
+public class OverstyringFaktaOmFødselDto extends OverstyringAksjonspunktDto {
 
     private LocalDate termindato;
 
-    @NotNull
-    private Boolean erBarnFødt;
-
     private List<DokumentertBarnDto> barn;
 
-    public OverstyringFaktaOmFødselDto(String begrunnelse, LocalDate termindato, List<DokumentertBarnDto> barn, Boolean erBarnFødt) {
+    public OverstyringFaktaOmFødselDto(String begrunnelse, LocalDate termindato, List<DokumentertBarnDto> barn) {
         super(begrunnelse);
         this.termindato = termindato;
         this.barn = barn;
-        this.erBarnFødt = erBarnFødt;
     }
 
     @SuppressWarnings("unused")
@@ -35,17 +29,12 @@ public class OverstyringFaktaOmFødselDto extends OverstyringAksjonspunktDto imp
         // For Jackson
     }
 
-    public Boolean getErBarnFødt() {
-        return erBarnFødt;
-    }
-
     public LocalDate getTermindato() {
         return termindato;
     }
 
-    @Override
     public List<DokumentertBarnDto> getBarn() {
-        return barn;
+        return barn == null ? List.of() : barn;
     }
 
     @Override
