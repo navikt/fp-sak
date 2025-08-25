@@ -47,7 +47,7 @@ import no.nav.foreldrepenger.domene.modell.FaktaAktør;
 import no.nav.foreldrepenger.domene.modell.FaktaArbeidsforhold;
 import no.nav.foreldrepenger.domene.modell.SammenligningsgrunnlagPrStatus;
 import no.nav.foreldrepenger.domene.modell.kodeverk.FaktaVurderingKilde;
-import no.nav.foreldrepenger.domene.modell.typer.FaktaVurdering;
+import no.nav.foreldrepenger.domene.modell.FaktaVurdering;
 import no.nav.foreldrepenger.domene.tid.ÅpenDatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.Beløp;

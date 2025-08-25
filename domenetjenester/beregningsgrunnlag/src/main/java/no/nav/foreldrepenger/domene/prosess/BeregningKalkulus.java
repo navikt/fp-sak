@@ -41,7 +41,7 @@ import no.nav.foreldrepenger.domene.typer.Beløp;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 
 @ApplicationScoped
-public class BeregningKalkulus implements BeregningAPI {
+class BeregningKalkulus implements BeregningAPI {
     private static final Logger LOG = LoggerFactory.getLogger(BeregningKalkulus.class);
 
     private KalkulusKlient klient;

@@ -23,7 +23,7 @@ import no.nav.foreldrepenger.domene.modell.kodeverk.AktivitetStatus;
 import no.nav.foreldrepenger.domene.modell.kodeverk.AndelKilde;
 import no.nav.foreldrepenger.domene.modell.kodeverk.Hjemmel;
 import no.nav.foreldrepenger.domene.modell.kodeverk.PeriodeÅrsak;
-import no.nav.foreldrepenger.domene.modell.typer.FaktaVurdering;
+import no.nav.foreldrepenger.domene.modell.FaktaVurdering;
 import no.nav.foreldrepenger.domene.typer.Beløp;
 import no.nav.foreldrepenger.kontrakter.fpsak.beregningsgrunnlag.v2.BeregningsgrunnlagAndelDto;
 import no.nav.foreldrepenger.kontrakter.fpsak.beregningsgrunnlag.v2.BeregningsgrunnlagDto;
