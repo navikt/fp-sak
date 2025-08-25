@@ -216,7 +216,7 @@ public class FagsakRestTjeneste {
         var fagsak = fagsakTjeneste.hentFagsakForSaksnummer(new Saksnummer(endreUtland.saksnummer())).orElse(null);
         if (fagsak != null) {
             var eksisterende = fagsakEgenskapRepository.finnFagsakMarkeringer(fagsak.getId());
-            var nyeMarkeringer = getMarkeringer(endreUtland);
+            var nyeMarkeringer = Optional.ofNullable(endreUtland.fagsakMarkeringer()).orElseGet(Set::of);
             // Sjekk om uendret merking (nasjonal er default)
             if (eksisterende.size() == nyeMarkeringer.size() && nyeMarkeringer.containsAll(eksisterende)) {
                 return Response.ok().build();
@@ -241,10 +241,6 @@ public class FagsakRestTjeneste {
         } else {
             return Response.status(Response.Status.BAD_REQUEST).build();
         }
-    }
-
-    private static Set<FagsakMarkering> getMarkeringer(EndreUtlandMarkeringDto dto) {
-        return Optional.ofNullable(dto.fagsakMarkeringer()).orElseGet(Set::of);
     }
 
     private ProsessTaskData opprettLosProsessTask(Behandling behandling) {

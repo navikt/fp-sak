@@ -43,6 +43,8 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.egenskaper.FagsakMarkering;
 import no.nav.foreldrepenger.behandlingsprosess.prosessering.BehandlingOpprettingTjeneste;
 import no.nav.foreldrepenger.behandlingsprosess.prosessering.HenleggBehandlingTjeneste;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
+import no.nav.foreldrepenger.produksjonsstyring.behandlinghendelse.HendelseForBehandling;
+import no.nav.foreldrepenger.produksjonsstyring.behandlinghendelse.PubliserBehandlingHendelseTask;
 import no.nav.foreldrepenger.web.app.exceptions.FeilDto;
 import no.nav.foreldrepenger.web.app.exceptions.FeilType;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.aksjonspunkt.BehandlingsoppretterTjeneste;
@@ -66,6 +68,8 @@ import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.SaksnummerAbacSupplier
 import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.SaksnummerDto;
 import no.nav.foreldrepenger.web.server.abac.AppAbacAttributtType;
 import no.nav.vedtak.exception.FunksjonellException;
+import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
+import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 import no.nav.vedtak.sikkerhet.abac.AbacDataAttributter;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
 import no.nav.vedtak.sikkerhet.abac.TilpassetAbacAttributt;
@@ -107,6 +111,7 @@ public class BehandlingRestTjeneste {
     private BehandlingDtoTjeneste behandlingDtoTjeneste;
     private FagsakEgenskapRepository fagsakEgenskapRepository;
     private HistorikkinnslagRepository historikkinnslagRepository;
+    private ProsessTaskTjeneste prosessTaskTjeneste;
 
     public BehandlingRestTjeneste() {
         // CDI
@@ -117,9 +122,12 @@ public class BehandlingRestTjeneste {
                                   BehandlingsoppretterTjeneste behandlingsoppretterTjeneste,
                                   BehandlingOpprettingTjeneste behandlingOpprettingTjeneste,
                                   BehandlingsprosessTjeneste behandlingsprosessTjeneste,
-                                  FagsakTjeneste fagsakTjeneste, HenleggBehandlingTjeneste henleggBehandlingTjeneste,
+                                  FagsakTjeneste fagsakTjeneste,
+                                  HenleggBehandlingTjeneste henleggBehandlingTjeneste,
                                   BehandlingDtoTjeneste behandlingDtoTjeneste,
-                                  FagsakEgenskapRepository fagsakEgenskapRepository, HistorikkinnslagRepository historikkinnslagRepository) {
+                                  FagsakEgenskapRepository fagsakEgenskapRepository,
+                                  HistorikkinnslagRepository historikkinnslagRepository,
+                                  ProsessTaskTjeneste prosessTaskTjeneste) {
         this.behandlingsutredningTjeneste = behandlingsutredningTjeneste;
         this.behandlingsoppretterTjeneste = behandlingsoppretterTjeneste;
         this.behandlingOpprettingTjeneste = behandlingOpprettingTjeneste;
@@ -129,6 +137,7 @@ public class BehandlingRestTjeneste {
         this.behandlingDtoTjeneste = behandlingDtoTjeneste;
         this.fagsakEgenskapRepository = fagsakEgenskapRepository;
         this.historikkinnslagRepository = historikkinnslagRepository;
+        this.prosessTaskTjeneste = prosessTaskTjeneste;
     }
 
     @POST
@@ -219,6 +228,12 @@ public class BehandlingRestTjeneste {
                 .medFagsakId(behandling.getFagsakId())
                 .medTittel("Merket som hastesak");
             historikkinnslagRepository.lagre(builder.build());
+            if (!behandling.isBehandlingPåVent()) {
+                var prosessTaskData = ProsessTaskData.forProsessTask(PubliserBehandlingHendelseTask.class);
+                prosessTaskData.setBehandling(behandling.getSaksnummer().getVerdi(), behandling.getFagsakId(), behandling.getId());
+                prosessTaskData.setProperty(PubliserBehandlingHendelseTask.HENDELSE_TYPE, HendelseForBehandling.AKSJONSPUNKT.name());
+                prosessTaskTjeneste.lagre(prosessTaskData);
+            }
         }
     }
 
