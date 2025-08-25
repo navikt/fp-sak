@@ -64,7 +64,7 @@ public class SjekkManglendeFødselOppdaterer implements AksjonspunktOppdaterer<S
         var grunnlag = familieHendelseTjeneste.hentAggregat(behandlingId);
 
 
-        if (Boolean.TRUE.equals(dto.getErBarnFødt())) {
+        if (!dto.getBarn().isEmpty()) {
             var utledetResultat = utledFødselsdata(dto, grunnlag);
             var oppdatertOverstyrtHendelse = familieHendelseTjeneste.opprettBuilderForOverstyring(behandlingId)
                 .tilbakestillBarn()
@@ -91,10 +91,7 @@ public class SjekkManglendeFødselOppdaterer implements AksjonspunktOppdaterer<S
     }
 
     private void valider(SjekkManglendeFødselAksjonspunktDto dto) {
-        if (Boolean.TRUE.equals(dto.getErBarnFødt())) {
-            if (dto.getBarn() == null || dto.getBarn().isEmpty()) {
-                throw new FunksjonellException("FP-076343", "Mangler barn", "Oppgi mellom 1 og 9 barn");
-            }
+        if (!dto.getBarn().isEmpty()) {
             if (dto.getBarn().size() > 9) {
                 throw new FunksjonellException("FP-076347", "For mange barn", "Oppgi mellom 1 og 9 barn");
             }
@@ -119,7 +116,7 @@ public class SjekkManglendeFødselOppdaterer implements AksjonspunktOppdaterer<S
         return barn;
     }
 
-    private Optional<Boolean> hentOriginalErBarnetFødt(FamilieHendelseGrunnlagEntitet grunnlag, Behandling behandling) {
+    private Optional<Boolean> hentOriginalFinnesFødteBarn(FamilieHendelseGrunnlagEntitet grunnlag, Behandling behandling) {
         var harUtførtAP = behandling.harUtførtAksjonspunktMedType(AksjonspunktDefinisjon.SJEKK_MANGLENDE_FØDSEL);
 
         if (!harUtførtAP && grunnlag.getOverstyrtVersjon().isEmpty()) {
@@ -133,19 +130,20 @@ public class SjekkManglendeFødselOppdaterer implements AksjonspunktOppdaterer<S
                                          BehandlingReferanse behandlingReferanse,
                                          FamilieHendelseGrunnlagEntitet grunnlag,
                                          Behandling behandling) {
-        var originalErBarnetFødt = hentOriginalErBarnetFødt(grunnlag, behandling).orElse(null);
+        var originalFinnesFødteBarn = hentOriginalFinnesFødteBarn(grunnlag, behandling).orElse(null);
 
         var historikkinnslag = new Historikkinnslag.Builder().medAktør(HistorikkAktør.SAKSBEHANDLER)
             .medTittel(SkjermlenkeType.FAKTA_OM_FOEDSEL)
             .medFagsakId(behandlingReferanse.fagsakId())
             .medBehandlingId(behandlingReferanse.behandlingId());
 
-        if (!Objects.equals(dto.getErBarnFødt(), originalErBarnetFødt)) {
-            historikkinnslag.addLinje(new HistorikkinnslagLinjeBuilder().fraTil("Er barnet født?", originalErBarnetFødt, dto.getErBarnFødt()));
+        var finnesFødteBarn = !dto.getBarn().isEmpty();
+        if (!Objects.equals(finnesFødteBarn, originalFinnesFødteBarn)) {
+            historikkinnslag.addLinje(new HistorikkinnslagLinjeBuilder().fraTil("Er barnet født?", originalFinnesFødteBarn, finnesFødteBarn));
         }
 
-        if (Boolean.TRUE.equals(dto.getErBarnFødt())) {
-            FødselHistorikkTjeneste.lagHistorikkForBarn(historikkinnslag, grunnlag, dto);
+        if (finnesFødteBarn) {
+            FødselHistorikkTjeneste.lagHistorikkForBarn(historikkinnslag, grunnlag, dto.getBarn());
         }
 
         historikkinnslag.addLinje(dto.getBegrunnelse());
