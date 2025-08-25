@@ -2240,6 +2240,30 @@ class JusterFordelingTjenesteTest {
         assertThat(justertePerioder.getFirst().getPeriodeType()).isEqualTo(FORELDREPENGER_FØR_FØDSEL);
     }
 
+    // Fellesperiode justeres ikke inn i de 6 ukene forbeholdt mor etter fødsel. Fylles med mødrekvote.
+    // Termin:        |mmmfffff    fffff
+    // Fødsel:      |mmmmmfffff    fffff
+    @Test
+    void papirsøknad_fellesperiode_innenfor_6_ukene_forbeholdt_mor_skal_ikke_forskyves_lenger_inn_i_intervallet() {
+        var termindato = LocalDate.of(2025, 6, 18);
+        var fødsel = LocalDate.of(2025, 6, 12);
+        var mødre = lagPeriode(MØDREKVOTE, LocalDate.of(2025, 6, 18), LocalDate.of(2025, 7, 10));
+        var felles1 = lagPeriode(FELLESPERIODE, LocalDate.of(2025, 7, 11), LocalDate.of(2025, 8, 22));
+        var felles2 = lagPeriode(FELLESPERIODE, LocalDate.of(2025, 9, 22), LocalDate.of(2026, 4, 22));
+        var oppgittePerioder = List.of(mødre, felles1, felles2);
+
+        var justertePerioder = juster(oppgittePerioder, termindato, fødsel);
+
+        assertThat(justertePerioder).hasSize(3);
+        assertThat(justertePerioder.get(0).getFom()).isEqualTo(fødsel);
+        assertThat(justertePerioder.get(0).getTom()).isEqualTo(mødre.getTom());
+        assertThat(justertePerioder.get(0).getPeriodeType()).isEqualTo(MØDREKVOTE);
+        assertThat(justertePerioder.get(1)).isEqualTo(felles1);
+        assertThat(justertePerioder.get(2)).isEqualTo(felles2);
+
+
+    }
+
     private static List<OppgittPeriodeEntitet> juster(List<OppgittPeriodeEntitet> oppgittePerioder, LocalDate familehendelse1, LocalDate familehendelse2) {
         var justert = JusterFordelingTjeneste.justerForFamiliehendelse(oppgittePerioder, familehendelse1, familehendelse2, RelasjonsRolleType.MORA, false);
         return slåSammenLikePerioder(justert);
