@@ -84,7 +84,7 @@ class SjekkManglendeFødselOppdatererTest extends EntityManagerAwareTest {
         });
 
         var historikkinnslag = repositoryProvider.getHistorikkinnslagRepository().hent(behandling.getSaksnummer()).getFirst();
-        assertThat(historikkinnslag.getTekstLinjer()).containsExactly("__Er barnet født?__ er satt til __Nei__.", "begrunnelse.");
+        assertThat(historikkinnslag.getTekstLinjer()).containsExactly("__Er barnet født?__ Nei.", "begrunnelse.");
 
     }
 
@@ -119,7 +119,7 @@ class SjekkManglendeFødselOppdatererTest extends EntityManagerAwareTest {
         });
 
         var historikkinnslag = repositoryProvider.getHistorikkinnslagRepository().hent(behandling.getSaksnummer()).getFirst();
-        assertThat(historikkinnslag.getTekstLinjer()).containsExactly("__Er barnet født?__ er satt til __Ja__.",
+        assertThat(historikkinnslag.getTekstLinjer()).containsExactly("__Er barnet født?__ Ja.",
             "__Antall barn__ som brukes i behandlingen: __1__.", "begrunnelse.");
 
     }
@@ -164,7 +164,7 @@ class SjekkManglendeFødselOppdatererTest extends EntityManagerAwareTest {
         });
 
         var historikkinnslag = repositoryProvider.getHistorikkinnslagRepository().hent(behandling.getSaksnummer()).getFirst();
-        assertThat(historikkinnslag.getTekstLinjer()).containsExactly("__Er barnet født?__ er satt til __Ja__.",
+        assertThat(historikkinnslag.getTekstLinjer()).containsExactly("__Er barnet født?__ Ja.",
             "__Antall barn__ som brukes i behandlingen: __2__.", "begrunnelse.");
     }
 
@@ -204,7 +204,7 @@ class SjekkManglendeFødselOppdatererTest extends EntityManagerAwareTest {
         });
 
         var historikkinnslag = repositoryProvider.getHistorikkinnslagRepository().hent(behandling.getSaksnummer()).getFirst();
-        assertThat(historikkinnslag.getTekstLinjer()).containsExactly("__Er barnet født?__ er satt til __Ja__.",
+        assertThat(historikkinnslag.getTekstLinjer()).containsExactly("__Er barnet født?__ Ja.",
             "__Antall barn__ er endret fra 1 til __2__.",
             String.format("__Barn 1__ er endret fra f. %s til __f. %s__.", format(opprinneligFødseldato), format(avklartFødseldato)),
             String.format("__Barn 2__ er satt til __f. %s__.", format(avklartFødseldato)), "begrunnelse.");
@@ -248,7 +248,7 @@ class SjekkManglendeFødselOppdatererTest extends EntityManagerAwareTest {
         });
 
         var historikkinnslag = repositoryProvider.getHistorikkinnslagRepository().hent(behandling.getSaksnummer()).getFirst();
-        assertThat(historikkinnslag.getTekstLinjer()).containsExactly("__Er barnet født?__ er satt til __Ja__.",
+        assertThat(historikkinnslag.getTekstLinjer()).containsExactly("__Er barnet født?__ Ja.",
             "__Antall barn__ som brukes i behandlingen: __1__.",
             String.format("__Barn__ er endret fra f. %s til __f. %s - d. %s__.", format(fødselsdatoFraSøknad), format(fødselsdatoFraSøknad),
                 format(dødsdatoFraSBH)), "begrunnelse.");
@@ -288,7 +288,7 @@ class SjekkManglendeFødselOppdatererTest extends EntityManagerAwareTest {
         });
 
         var historikkinnslag = repositoryProvider.getHistorikkinnslagRepository().hent(behandling.getSaksnummer()).getFirst();
-        assertThat(historikkinnslag.getTekstLinjer()).containsExactly("__Er barnet født?__ er satt til __Ja__.",
+        assertThat(historikkinnslag.getTekstLinjer()).containsExactly("__Er barnet født?__ Ja.",
             "__Antall barn__ som brukes i behandlingen: __1__.",
             String.format("__Barn__ er endret fra f. %s til __f. %s__.", format(fødselsdatoFraSøknad), format(fødselsdatoFraSBH)), "begrunnelse.");
 
@@ -323,7 +323,7 @@ class SjekkManglendeFødselOppdatererTest extends EntityManagerAwareTest {
         });
 
         var historikkinnslag2 = repositoryProvider.getHistorikkinnslagRepository().hent(behandling.getSaksnummer()).getFirst();
-        assertThat(historikkinnslag2.getTekstLinjer()).containsExactly("__Er barnet født?__ er satt til __Ja__.",
+        assertThat(historikkinnslag2.getTekstLinjer()).containsExactly("__Er barnet født?__ Ja.",
             "__Antall barn__ er endret fra 2 til __1__.", String.format("__Barn 2__ __f. %s__ er fjernet.", format(fødselsdatoFraSøknad)), "begrunnelse.");
 
     }
