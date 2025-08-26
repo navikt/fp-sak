@@ -1,8 +1,8 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.fødsel.overstyring;
 
+import static no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagLinjeBuilder.format;
 import static no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagLinjeBuilder.fraTilEquals;
 
-import java.util.Objects;
 import java.util.Optional;
 
 import jakarta.enterprise.context.ApplicationScoped;
@@ -12,6 +12,8 @@ import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.DtoTilServiceAdapter;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.OppdateringResultat;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.Overstyringshåndterer;
+import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
+import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseGrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.TerminbekreftelseEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
@@ -62,19 +64,16 @@ public class FaktaOmFødselOverstyringshåndterer implements Overstyringshåndte
             .medTittel(SkjermlenkeType.FAKTA_OM_FOEDSEL)
             .addLinje(new HistorikkinnslagLinjeBuilder().bold("Overstyrt fakta om fødsel"));
 
-        var originalFinnesFødteBarn = Optional.of(familieHendelse.getOverstyrtVersjon().filter(o -> !o.getBarna().isEmpty()).isPresent()).orElse(null);
-        var dtoFinnesFødteBarn = !dto.getBarn().isEmpty();
-        if (!Objects.equals(dtoFinnesFødteBarn, originalFinnesFødteBarn)) {
-            historikkinnslag.addLinje(new HistorikkinnslagLinjeBuilder().fraTil("Er barnet født?", originalFinnesFødteBarn, dtoFinnesFødteBarn));
-        }
-
-        if (dtoFinnesFødteBarn) {
-            FødselHistorikkTjeneste.lagHistorikkForBarn(historikkinnslag, familieHendelse, dto.getBarn());
-        }
-
         var gjeldendeTerminDato = familieHendelse.getGjeldendeVersjon().getTermindato().orElse(null);
         if (dto.getTermindato() != null && !dto.getTermindato().equals(gjeldendeTerminDato)) {
             historikkinnslag.addLinje(lagTermindatoLinje(dto, familieHendelse));
+        }
+
+        var finnesFødteBarn = !dto.getBarn().isEmpty();
+        historikkinnslag.addLinje(new HistorikkinnslagLinjeBuilder().bold("Er barnet født?").tekst(format(finnesFødteBarn)));
+
+        if (finnesFødteBarn) {
+            FødselHistorikkTjeneste.lagHistorikkForBarn(historikkinnslag, familieHendelse, dto.getBarn());
         }
 
         historikkinnslag.addLinje(dto.getBegrunnelse());

@@ -53,10 +53,10 @@ public class FaktaFødselTjeneste {
 
         validerFødselsdataForOverstyring(dto);
 
-        if (dto.getBarn() == null || dto.getBarn().isEmpty()) {
+        if (dto.getBarn() == null) {
             var søknadAntallBarn = familieHendelse.getSøknadVersjon().getAntallBarn();
-            var bekreftetAntallBarn = familieHendelse.getBekreftetVersjon().map(FamilieHendelseEntitet::getAntallBarn);
-            oppdatere.medTerminType().tilbakestillBarn().medAntallBarn(bekreftetAntallBarn.orElse(søknadAntallBarn));
+            var overstyrtAntallBarn = familieHendelse.getOverstyrtVersjon().map(FamilieHendelseEntitet::getAntallBarn);
+            oppdatere.medTerminType().tilbakestillBarn().medAntallBarn(overstyrtAntallBarn.orElse(søknadAntallBarn));
         }
 
         if (harEndringerIBarnData(dto, familieHendelse)) {
