@@ -121,7 +121,7 @@ public class SjekkManglendeFødselOppdaterer implements AksjonspunktOppdaterer<S
             .medFagsakId(behandlingReferanse.fagsakId())
             .medBehandlingId(behandlingReferanse.behandlingId());
 
-        var finnesFødteBarn = !dto.getBarn().isEmpty();
+        var finnesFødteBarn =  dto.getBarn() != null && !dto.getBarn().isEmpty();
         historikkinnslag.addLinje(new HistorikkinnslagLinjeBuilder().bold("Er barnet født?").tekst(format(finnesFødteBarn)));
 
         if (finnesFødteBarn) {
