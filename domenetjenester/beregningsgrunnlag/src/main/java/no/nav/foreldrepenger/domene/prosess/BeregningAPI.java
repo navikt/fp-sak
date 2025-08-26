@@ -28,4 +28,6 @@ interface BeregningAPI {
     void avslutt(BehandlingReferanse referanse);
 
     boolean kanStartesISteg(BehandlingReferanse referanse, BehandlingStegType stegType);
+
+    void kopierFastsatt(BehandlingReferanse revurdering, BehandlingReferanse originalbehandling);
 }

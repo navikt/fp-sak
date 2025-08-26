@@ -54,6 +54,12 @@ public class BeregningTjenesteImpl implements BeregningTjeneste {
     }
 
     @Override
+    public void kopierFastsatt(BehandlingReferanse revurdering, BehandlingReferanse originalbehandling) {
+        kalkulusBeregner.kopierFastsatt(revurdering, originalbehandling);
+
+    }
+
+    @Override
     public Optional<OppdaterBeregningsgrunnlagResultat> oppdaterBeregning(BekreftetAksjonspunktDto oppdatering, BehandlingReferanse referanse) {
         return kalkulusBeregner.oppdaterBeregning(oppdatering, referanse);
     }
