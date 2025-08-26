@@ -17,6 +17,8 @@ import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioF
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioKlageEngangsstønad;
 import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
 
+import java.time.LocalDate;
+
 class KlageRepositoryTest extends EntityManagerAwareTest {
 
     private BehandlingRepositoryProvider repositoryProvider;
@@ -159,6 +161,7 @@ class KlageRepositoryTest extends EntityManagerAwareTest {
             .medErKonkret(true)
             .medErSignert(true)
             .medGjelderVedtak(true)
+            .medMottattDato(LocalDate.now())
             .medBegrunnelse("Begrunnelse")
             .medKlageResultat(klageResultat)
             .medKlageVurdertAv(klageVurdertAv);
