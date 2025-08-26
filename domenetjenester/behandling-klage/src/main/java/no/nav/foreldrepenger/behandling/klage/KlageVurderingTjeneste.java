@@ -225,15 +225,15 @@ public class KlageVurderingTjeneste {
         return null;
     }
 
-    public Optional<LocalDate> getKlageMottattDato(Behandling behandling, KlageFormkravEntitet formkrav) {
-        return Optional.ofNullable(formkrav.getMottattDato())
+    public Optional<LocalDate> getKlageMottattDato(Behandling behandling) {
+        return hentKlageFormkrav(behandling, KlageVurdertAv.NFP).map(KlageFormkravEntitet::getMottattDato)
             .or(() -> getKlageDokumentMottattDato(behandling));
     }
 
     private Optional<LocalDate> getKlageDokumentMottattDato(Behandling behandling) {
         return mottatteDokumentRepository.hentMottatteDokument(behandling.getId()).stream()
             .filter(dok -> DokumentTypeId.KLAGE_DOKUMENT.equals(dok.getDokumentType()))
-            .min(Comparator.comparing(MottattDokument::getMottattDato))
-            .map(MottattDokument::getMottattDato);
+            .map(MottattDokument::getMottattDato)
+            .min(Comparator.naturalOrder());
     }
 }

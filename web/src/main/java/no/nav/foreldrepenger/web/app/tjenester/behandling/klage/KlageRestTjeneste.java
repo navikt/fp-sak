@@ -1,6 +1,5 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.klage;
 
-import java.time.LocalDate;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Function;
@@ -176,9 +175,7 @@ public class KlageRestTjeneste {
         var behandling = behandlingRepository.hentBehandling(apDto.behandlingUuid());
         var klageResultat = klageVurderingTjeneste.hentEvtOpprettKlageResultat(behandling);
         var lagretFormkrav = klageVurderingTjeneste.hentKlageFormkrav(behandling, vurdertAv);
-        var klageMottattDato = lagretFormkrav
-            .flatMap(formkrav -> klageVurderingTjeneste.getKlageMottattDato(behandling, formkrav))
-            .orElse(null);
+        var klageMottattDato = klageVurderingTjeneste.getKlageMottattDato(behandling).orElse(null);
         var builderFormKrav = klageVurderingTjeneste.hentKlageFormkravBuilder(behandling, vurdertAv);
         var vurderingResultatBuilder = klageVurderingTjeneste.hentKlageVurderingResultatBuilder(behandling, vurdertAv);
 
@@ -239,9 +236,7 @@ public class KlageRestTjeneste {
             @NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
         var behandling = behandlingRepository.hentBehandling(uuidDto.getBehandlingUuid());
 
-        var klageMottattDato = klageVurderingTjeneste.hentKlageFormkrav(behandling, KlageVurdertAv.NFP)
-            .flatMap(formkrav -> klageVurderingTjeneste.getKlageMottattDato(behandling, formkrav))
-            .orElse(null);
+        var klageMottattDato = klageVurderingTjeneste.getKlageMottattDato(behandling).orElse(null);
         return new MottattKlagedokumentDto(klageMottattDato);
     }
 
@@ -256,17 +251,15 @@ public class KlageRestTjeneste {
         var nkVurdering = klageVurderingTjeneste.hentKlageVurderingResultat(behandling, KlageVurdertAv.NK)
                 .map(KlageRestTjeneste::mapKlageVurderingResultatDto);
         var nfpFormkravEntitet = klageVurderingTjeneste.hentKlageFormkrav(behandling, KlageVurdertAv.NFP);
-        var klageMottattDato = nfpFormkravEntitet
-            .flatMap(formkrav -> klageVurderingTjeneste.getKlageMottattDato(behandling, formkrav))
-            .orElse(null);
-        var nfpFormkrav = nfpFormkravEntitet.map(fk -> mapKlageFormkravResultatDto(fk, påklagdBehandling, fptilbakeRestKlient, klageMottattDato));
+        var klageMottattDato = klageVurderingTjeneste.getKlageMottattDato(behandling).orElse(null);
+        var nfpFormkrav = nfpFormkravEntitet.map(fk -> mapKlageFormkravResultatDto(fk, påklagdBehandling, fptilbakeRestKlient));
         var kaFormkrav = klageVurderingTjeneste.hentKlageFormkrav(behandling, KlageVurdertAv.NK)
-                .map(fk -> mapKlageFormkravResultatDto(fk, påklagdBehandling, fptilbakeRestKlient, klageMottattDato));
+                .map(fk -> mapKlageFormkravResultatDto(fk, påklagdBehandling, fptilbakeRestKlient));
 
         return new KlagebehandlingDto(nfpFormkrav.orElse(null), nfpVurdering,
             kaFormkrav.orElse(null), nkVurdering.orElse(null), KlageHjemmel.getHjemlerForYtelse(ytelseType),
             behandling.harÅpentAksjonspunktMedType(AksjonspunktDefinisjon.AUTO_VENT_PÅ_KABAL_KLAGE),
-            klageResultat.erBehandletAvKabal());
+            klageResultat.erBehandletAvKabal(), klageMottattDato);
     }
 
     private static KlageVurderingResultatDto mapKlageVurderingResultatDto(KlageVurderingResultat klageVurderingResultat) {
@@ -293,8 +286,7 @@ public class KlageRestTjeneste {
 
     private static KlageFormkravResultatDto mapKlageFormkravResultatDto(KlageFormkravEntitet klageFormkrav,
                                                                         Optional<Behandling> påklagdBehandling,
-                                                                        FptilbakeRestKlient fptilbakeRestKlient,
-                                                                        LocalDate klageMottattDato) {
+                                                                        FptilbakeRestKlient fptilbakeRestKlient) {
         var paKlagdEksternBehandlingUuid = klageFormkrav.hentKlageResultat().getPåKlagdEksternBehandlingUuid();
         Optional<TilbakeBehandlingDto> tilbakekrevingVedtakDto = påklagdBehandling.isPresent() ? Optional.empty() :
             paKlagdEksternBehandlingUuid.flatMap(b -> hentPåklagdBehandlingIdForEksternApplikasjon(b, fptilbakeRestKlient));
@@ -309,8 +301,7 @@ public class KlageRestTjeneste {
             klageFormkrav.erKonkret(),
             klageFormkrav.erFristOverholdt(),
             klageFormkrav.erSignert(),
-            klageFormkrav.hentAvvistÅrsaker(),
-            klageMottattDato);
+            klageFormkrav.hentAvvistÅrsaker());
     }
 
     private static Optional<TilbakeBehandlingDto> hentPåklagdBehandlingIdForEksternApplikasjon(UUID paKlagdEksternBehandlingUuid,

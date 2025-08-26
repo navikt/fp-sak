@@ -70,9 +70,7 @@ public class KlageFormkravOppdaterer implements AksjonspunktOppdaterer<KlageForm
         }
 
         var klageFormkrav = klageVurderingTjeneste.hentKlageFormkrav(klageBehandling, klageVurdertAv);
-        var klageMottattDato = klageFormkrav
-            .flatMap(formkrav -> klageVurderingTjeneste.getKlageMottattDato(klageBehandling, formkrav))
-            .orElse(null);
+        var klageMottattDato = klageVurderingTjeneste.getKlageMottattDato(klageBehandling).orElse(null);
 
         klageFormkravHistorikk.opprettHistorikkinnslagFormkrav(klageBehandling, apDefFormkrav, dto, klageFormkrav, klageResultat, klageMottattDato, dto.getBegrunnelse());
         var optionalAvvistÅrsak = vurderOgLagreFormkrav(dto, klageBehandling, klageResultat, klageVurdertAv);

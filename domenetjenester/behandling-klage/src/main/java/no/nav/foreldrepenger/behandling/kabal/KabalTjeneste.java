@@ -85,7 +85,8 @@ public class KabalTjeneste {
             .or(() -> Optional.ofNullable(resultat.getKlageHjemmel()))
             .orElseGet(() -> KlageHjemmel.standardHjemmelForYtelse(klageBehandling.getFagsakYtelseType()));
         var enhet = utledEnhet(klageBehandling.getFagsak());
-        var klageMottattDato  = kabalDokumenter.utledDokumentMottattDato(klageBehandling);
+        var klageMottattDato  = klageVurderingTjeneste.getKlageMottattDato(klageBehandling)
+            .orElseGet(() -> klageBehandling.getOpprettetTidspunkt().toLocalDate());
         var sakenGjelder = utledSakenGjelder(klageBehandling);
         var fullmektig = utledFullmektig(klageBehandling, Optional.of(resultat.getKlageResultat()));
         var dokumentReferanser = kabalDokumenter.finnDokumentReferanserForKlage(klageBehandling.getId(),

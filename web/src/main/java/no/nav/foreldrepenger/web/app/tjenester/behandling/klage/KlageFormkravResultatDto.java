@@ -1,6 +1,5 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.klage;
 
-import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
 
@@ -15,6 +14,5 @@ public record KlageFormkravResultatDto(Long paKlagdBehandlingId,
                                        boolean erKlageKonkret,
                                        boolean erKlagefirstOverholdt,
                                        boolean erSignert,
-                                       List<KlageAvvistÅrsak> avvistArsaker,
-                                       LocalDate mottattDato) {
+                                       List<KlageAvvistÅrsak> avvistArsaker) {
 }
