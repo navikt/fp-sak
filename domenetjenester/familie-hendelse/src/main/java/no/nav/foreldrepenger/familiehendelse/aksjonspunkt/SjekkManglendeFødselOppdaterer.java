@@ -3,7 +3,6 @@ package no.nav.foreldrepenger.familiehendelse.aksjonspunkt;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -13,8 +12,6 @@ import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterParamet
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterer;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.DtoTilServiceAdapter;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.OppdateringResultat;
-import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
-import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseGrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.TerminbekreftelseEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.UidentifisertBarn;
@@ -31,6 +28,8 @@ import no.nav.foreldrepenger.familiehendelse.modell.FødselStatus;
 import no.nav.foreldrepenger.skjæringstidspunkt.OpplysningsPeriodeTjeneste;
 import no.nav.vedtak.exception.FunksjonellException;
 
+import static no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagLinjeBuilder.format;
+
 @ApplicationScoped
 @DtoTilServiceAdapter(dto = SjekkManglendeFødselAksjonspunktDto.class, adapter = AksjonspunktOppdaterer.class)
 public class SjekkManglendeFødselOppdaterer implements AksjonspunktOppdaterer<SjekkManglendeFødselAksjonspunktDto> {
@@ -38,7 +37,6 @@ public class SjekkManglendeFødselOppdaterer implements AksjonspunktOppdaterer<S
     private FamilieHendelseTjeneste familieHendelseTjeneste;
     private OpplysningsPeriodeTjeneste opplysningsPeriodeTjeneste;
     private HistorikkinnslagRepository historikkinnslagRepository;
-    private BehandlingRepository behandlingRepository;
 
     SjekkManglendeFødselOppdaterer() {
         // for CDI proxy
@@ -52,7 +50,6 @@ public class SjekkManglendeFødselOppdaterer implements AksjonspunktOppdaterer<S
         this.familieHendelseTjeneste = familieHendelseTjeneste;
         this.opplysningsPeriodeTjeneste = opplysningsPeriodeTjeneste;
         this.historikkinnslagRepository = historikkinnslagRepository;
-        this.behandlingRepository = behandlingRepository;
     }
 
     @Override
@@ -60,11 +57,10 @@ public class SjekkManglendeFødselOppdaterer implements AksjonspunktOppdaterer<S
         valider(dto);
 
         var behandlingId = param.getBehandlingId();
-        var behandling = behandlingRepository.hentBehandling(behandlingId);
         var grunnlag = familieHendelseTjeneste.hentAggregat(behandlingId);
 
 
-        if (!dto.getBarn().isEmpty()) {
+        if (dto.getBarn() != null) {
             var utledetResultat = utledFødselsdata(dto, grunnlag);
             var oppdatertOverstyrtHendelse = familieHendelseTjeneste.opprettBuilderForOverstyring(behandlingId)
                 .tilbakestillBarn()
@@ -81,7 +77,7 @@ public class SjekkManglendeFødselOppdaterer implements AksjonspunktOppdaterer<S
         var forrigeFikspunkt = opplysningsPeriodeTjeneste.utledFikspunktForRegisterInnhenting(behandlingId, param.getRef().fagsakYtelseType());
         var sistefikspunkt = opplysningsPeriodeTjeneste.utledFikspunktForRegisterInnhenting(behandlingId, param.getRef().fagsakYtelseType());
 
-        opprettHistorikkinnslag(dto, param.getRef(), grunnlag, behandling);
+        opprettHistorikkinnslag(dto, param.getRef(), grunnlag);
 
         if (Objects.equals(forrigeFikspunkt, sistefikspunkt)) {
             return OppdateringResultat.utenTransisjon().medTotrinn().build();
@@ -116,21 +112,9 @@ public class SjekkManglendeFødselOppdaterer implements AksjonspunktOppdaterer<S
         return barn;
     }
 
-    private Optional<Boolean> hentOriginalFinnesFødteBarn(FamilieHendelseGrunnlagEntitet grunnlag, Behandling behandling) {
-        var harUtførtAP = behandling.harUtførtAksjonspunktMedType(AksjonspunktDefinisjon.SJEKK_MANGLENDE_FØDSEL);
-
-        if (!harUtførtAP && grunnlag.getOverstyrtVersjon().isEmpty()) {
-            return Optional.empty();
-        }
-
-        return Optional.of(grunnlag.getOverstyrtVersjon().filter(o -> !o.getBarna().isEmpty()).isPresent());
-    }
-
     private void opprettHistorikkinnslag(SjekkManglendeFødselAksjonspunktDto dto,
                                          BehandlingReferanse behandlingReferanse,
-                                         FamilieHendelseGrunnlagEntitet grunnlag,
-                                         Behandling behandling) {
-        var originalFinnesFødteBarn = hentOriginalFinnesFødteBarn(grunnlag, behandling).orElse(null);
+                                         FamilieHendelseGrunnlagEntitet grunnlag) {
 
         var historikkinnslag = new Historikkinnslag.Builder().medAktør(HistorikkAktør.SAKSBEHANDLER)
             .medTittel(SkjermlenkeType.FAKTA_OM_FOEDSEL)
@@ -138,9 +122,7 @@ public class SjekkManglendeFødselOppdaterer implements AksjonspunktOppdaterer<S
             .medBehandlingId(behandlingReferanse.behandlingId());
 
         var finnesFødteBarn = !dto.getBarn().isEmpty();
-        if (!Objects.equals(finnesFødteBarn, originalFinnesFødteBarn)) {
-            historikkinnslag.addLinje(new HistorikkinnslagLinjeBuilder().fraTil("Er barnet født?", originalFinnesFødteBarn, finnesFødteBarn));
-        }
+        historikkinnslag.addLinje(new HistorikkinnslagLinjeBuilder().bold("Er barnet født?").tekst(format(finnesFødteBarn)));
 
         if (finnesFødteBarn) {
             FødselHistorikkTjeneste.lagHistorikkForBarn(historikkinnslag, grunnlag, dto.getBarn());
