@@ -23,13 +23,23 @@ public interface BeregningTjeneste {
     void lagre(BeregningsgrunnlagGrunnlag beregningsgrunnlagGrunnlag, BehandlingReferanse referanse);
 
     /**
-     * Kopieringen er normalt sett "til og med", men pga spesialbehandling for g-regulering kopierer "FORESLÅTT" bare til dette steget.
-     * FORESLÅTT steget må deretter kjøres av fpsak. For alle andre steg er kopieringen til og med angitt tilstand.
+     * Kopierer det som skal til for å starte beregningen i det angitte steget.
+     * Eksempel: Hvis FORESLÅ_BEREGNINGSGRUNNLAG er angitt vil siste steg før FORESLÅ_BEREGNINGSGRUNNLAG bli kopiert, men ikke FORESLÅ_BEREGNINGSGRUNNLAG.
+     * Beregningen er da klar for å kjøres videre fra FORESLÅ_BEREGNINGSGRUNNLAG steget.
+     * OBS: Hvis FORESLÅ_BEREGNINGSGRUNNLAG er angitt som steg vil det bli gjort g-regulering av grunnlaget hvis input tilsier at dette er nødvendig.
      * @param revurdering - behandlingen vi skal kopiere et grunnlag til
      * @param originalbehandling - behandlingen vi skal kopiere et grunnlag fra
      * @param stegType steget vi skal kopiere til (OBS: Om det er til og med eller til avhenger foreløpig av implementasjon)
      */
     void kopier(BehandlingReferanse revurdering, BehandlingReferanse originalbehandling, BehandlingStegType stegType);
+
+    /**
+     * Kopierer et fastsatt grunnlag til en ny behandling. Til bruk i revurderinger når behandlingen skal starte etter beregning.
+     * Forutsetter at originalbehandling har et fastsatt (ferdig beregnet) beregningsgrunnlag
+     * @param revurdering - behandlingen vi skal kopiere et grunnlag til
+     * @param originalbehandling - behandlingen vi skal kopiere et grunnlag fra
+     */
+    void kopierFastsatt(BehandlingReferanse revurdering, BehandlingReferanse originalbehandling);
 
     /**
      * @param oppdatering - Dto som spesifiserer hvilken oppdatering som skal gjøres på grunnlaget

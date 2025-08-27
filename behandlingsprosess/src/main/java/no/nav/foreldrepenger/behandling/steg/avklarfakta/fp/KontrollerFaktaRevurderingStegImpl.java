@@ -374,7 +374,7 @@ class KontrollerFaktaRevurderingStegImpl implements KontrollerFaktaSteg {
         }
 
         if (StartpunktType.UTTAKSVILKÅR.equals(revurdering.getStartpunkt()) || StartpunktType.TILKJENT_YTELSE.equals(revurdering.getStartpunkt())) {
-            beregningTjeneste.kopier(BehandlingReferanse.fra(revurdering), BehandlingReferanse.fra(origBehandling), BehandlingStegType.FASTSETT_BEREGNINGSGRUNNLAG);
+            beregningTjeneste.kopierFastsatt(BehandlingReferanse.fra(revurdering), BehandlingReferanse.fra(origBehandling));
         }
 
         if (StartpunktType.TILKJENT_YTELSE.equals(revurdering.getStartpunkt())) {

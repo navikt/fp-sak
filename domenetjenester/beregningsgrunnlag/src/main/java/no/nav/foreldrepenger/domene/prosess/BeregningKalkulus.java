@@ -6,6 +6,8 @@ import java.util.Optional;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
+import no.nav.folketrygdloven.kalkulus.request.v1.enkel.KopierFastsattGrunnlagRequest;
+
 import org.jboss.weld.exceptions.IllegalStateException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -126,22 +128,37 @@ class BeregningKalkulus implements BeregningAPI {
             throw new IllegalStateException("Prøver å kopiere fra et grunnlag uten samme saksnummer, ugyldig handling");
         }
         var originalKobling = koblingRepository.hentKobling(originalbehandling.behandlingId());
-        if (originalKobling.isEmpty()) {
-            // Forrige behandling hadde ikke noe beregningsgrunnlag, ingenting å kopiere
-            return;
-        }
-        var koblingOpt = koblingRepository.hentKobling(revurdering.behandlingId());
-        var kobling = koblingOpt.orElseGet(() -> {
-            LOG.info("Kobling for behandlingUuid {} finnes ikke, oppretter", revurdering.behandlingUuid());
-            return koblingRepository.opprettKoblingFraOriginal(revurdering.behandlingId(), revurdering.behandlingUuid(), originalKobling.get());
+        originalKobling.ifPresent(ok -> {
+            var koblingOpt = koblingRepository.hentKobling(revurdering.behandlingId());
+            var kobling = koblingOpt.orElseGet(() -> {
+                LOG.info("Kobling for behandlingUuid {} finnes ikke, oppretter", revurdering.behandlingUuid());
+                return koblingRepository.opprettKoblingFraOriginal(revurdering.behandlingId(), revurdering.behandlingUuid(), originalKobling.get());
+            });
+            // Før nye startpunkt introduseres, verifiser støtte i kalkulus
+            if (!stegType.equals(BehandlingStegType.FORESLÅ_BEREGNINGSGRUNNLAG)) {
+                throw new IllegalStateException("Støtter ikke kopiering av grunnlag i stegType " + stegType);
+            }
+            var request = lagKopierRequest(revurdering, kobling, originalKobling.get(), stegType);
+            klient.kopierGrunnlag(request);
         });
-        // OBS: Kopieringen er normalt sett "til og med", men pga spesialbehandling for g-regulering kopierer "FORESLÅTT" bare til dette steget.
-        // FORESLÅTT steget må deretter kjøres av fpsak
-        if (!stegType.equals(BehandlingStegType.FASTSETT_BEREGNINGSGRUNNLAG) && !stegType.equals(BehandlingStegType.FORESLÅ_BEREGNINGSGRUNNLAG)) {
-            throw new IllegalStateException("Støtter ikke kopiering av grunnlag i stegType " + stegType);
+    }
+
+    @Override
+    public void kopierFastsatt(BehandlingReferanse revurdering, BehandlingReferanse originalbehandling) {
+        if (!revurdering.saksnummer().equals(originalbehandling.saksnummer())) {
+            throw new IllegalStateException("Prøver å kopiere fra et grunnlag uten samme saksnummer, ugyldig handling");
         }
-        var request = lagKopierRequest(revurdering, kobling, originalKobling.get(), stegType);
-        klient.kopierGrunnlag(request);
+        var originalKobling = koblingRepository.hentKobling(originalbehandling.behandlingId());
+        originalKobling.ifPresent(ok -> {
+            var koblingOpt = koblingRepository.hentKobling(revurdering.behandlingId());
+            var kobling = koblingOpt.orElseGet(() -> {
+                LOG.info("Kobling for behandlingUuid {} finnes ikke, oppretter", revurdering.behandlingUuid());
+                return koblingRepository.opprettKoblingFraOriginal(revurdering.behandlingId(), revurdering.behandlingUuid(), originalKobling.get());
+            });
+            var saksnummer = new Saksnummer(revurdering.saksnummer().getVerdi());
+            var request = new KopierFastsattGrunnlagRequest(saksnummer, kobling.getKoblingUuid(), ok.getKoblingUuid());
+            klient.kopierFastsattGrunnlag(request);
+        });
     }
 
     @Override
@@ -195,9 +212,7 @@ class BeregningKalkulus implements BeregningAPI {
 
     private EnkelKopierBeregningsgrunnlagRequestDto lagKopierRequest(BehandlingReferanse revurderingRef, BeregningsgrunnlagKobling kobling, BeregningsgrunnlagKobling originalKobling,
                                                                      BehandlingStegType stegType) {
-        // Når stegType er FASTSETT_BEREGNINGSGRUNNLAG skal vi bare kopiere grunnlaget for bruk i uttak / tilkjent
-        // og vi trenger ikke den detaljerte infoen om sakens tilstand vi får fra input. Sjekken kan fjernes når TFP-6357 er løst.
-        var input = stegType.equals(BehandlingStegType.FASTSETT_BEREGNINGSGRUNNLAG) ? null : kalkulusInputTjeneste.lagKalkulusInput(revurderingRef);
+        var input = kalkulusInputTjeneste.lagKalkulusInput(revurderingRef);
         return new EnkelKopierBeregningsgrunnlagRequestDto(new Saksnummer(revurderingRef.saksnummer().getVerdi()), kobling.getKoblingUuid(),
             originalKobling.getKoblingUuid(), mapTilBeregningStegType(stegType), input);
     }
