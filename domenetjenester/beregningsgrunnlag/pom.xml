@@ -25,10 +25,6 @@
         </dependency>
         <dependency>
             <groupId>no.nav.folketrygdloven.kalkulus</groupId>
-            <artifactId>beregning-kalkulator</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>no.nav.folketrygdloven.kalkulus</groupId>
             <artifactId>beregning-kontrakt</artifactId>
         </dependency>
 

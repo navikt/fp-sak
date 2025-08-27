@@ -149,7 +149,7 @@ public class Behandlingsoppretter {
 
     public void henleggBehandling(Behandling behandling) {
         var lås = behandlingRepository.taSkriveLås(behandling);
-        henleggBehandlingTjeneste.henleggBehandlingTeknisk(behandling, lås, BehandlingResultatType.MERGET_OG_HENLAGT, "Mottatt ny søknad");
+        henleggBehandlingTjeneste.henleggBehandlingTeknisk(behandling, lås, BehandlingResultatType.MERGET_OG_HENLAGT, null);
     }
 
     public void opprettInntektsmeldingerFraMottatteDokumentPåNyBehandling(Behandling nyBehandling) {

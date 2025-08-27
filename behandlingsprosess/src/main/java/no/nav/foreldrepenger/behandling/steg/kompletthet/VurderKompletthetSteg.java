@@ -74,7 +74,7 @@ public class VurderKompletthetSteg implements BehandlingSteg {
 
         if (Set.of(FagsakYtelseType.FORELDREPENGER, FagsakYtelseType.SVANGERSKAPSPENGER).contains(behandling.getFagsakYtelseType())) {
             // Bestill inntektsmeldingforespørsler ved behov
-            fpInntektsmeldingTjeneste.lagForespørslerTask(BehandlingReferanse.fra(behandling));
+            fpInntektsmeldingTjeneste.lagTaskForespørAlleInntektsmeldinger(BehandlingReferanse.fra(behandling));
         }
 
         var ventefrist = utledVentefrist(forsendelseKomplett, behandling);

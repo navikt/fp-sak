@@ -412,7 +412,7 @@ class UttakStegImplTest {
         iayTjeneste.kopierGrunnlagFraEksisterendeBehandling(behandlingId, revurderingId);
         ytelsesFordelingRepository.kopierGrunnlagFraEksisterendeBehandling(behandlingId, revurdering);
         familieHendelseRepository.kopierGrunnlagFraEksisterendeBehandling(behandlingId, revurderingId);
-        beregningTjenesteInMemory.kopier(BehandlingReferanse.fra(revurdering), BehandlingReferanse.fra(tidligereBehandling), BeregningsgrunnlagTilstand.FASTSATT);
+        beregningTjenesteInMemory.kopierFastsatt(BehandlingReferanse.fra(revurdering), BehandlingReferanse.fra(tidligereBehandling));
         ytelsesFordelingRepository.kopierGrunnlagFraEksisterendeBehandling(behandlingId, revurdering);
         var yfBuilder = ytelsesFordelingRepository.opprettBuilder(behandlingId);
         yfBuilder.medAvklarteDatoer(new AvklarteUttakDatoerEntitet.Builder().medJustertEndringsdato(endringsdato).build());

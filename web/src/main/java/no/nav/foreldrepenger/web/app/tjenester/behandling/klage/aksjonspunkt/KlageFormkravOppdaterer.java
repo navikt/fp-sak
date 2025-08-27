@@ -70,8 +70,9 @@ public class KlageFormkravOppdaterer implements AksjonspunktOppdaterer<KlageForm
         }
 
         var klageFormkrav = klageVurderingTjeneste.hentKlageFormkrav(klageBehandling, klageVurdertAv);
+        var klageMottattDato = klageVurderingTjeneste.getKlageMottattDato(klageBehandling).orElse(null);
 
-        klageFormkravHistorikk.opprettHistorikkinnslagFormkrav(klageBehandling, apDefFormkrav, dto, klageFormkrav, klageResultat, dto.getBegrunnelse());
+        klageFormkravHistorikk.opprettHistorikkinnslagFormkrav(klageBehandling, apDefFormkrav, dto, klageFormkrav, klageResultat, klageMottattDato, dto.getBegrunnelse());
         var optionalAvvistÅrsak = vurderOgLagreFormkrav(dto, klageBehandling, klageResultat, klageVurdertAv);
         if (optionalAvvistÅrsak.isPresent()) {
             lagreKlageVurderingResultatMedAvvistKlage(klageBehandling, skriveLås, klageVurdertAv, dto.fritekstTilBrev() != null ? dto.fritekstTilBrev() : null);
@@ -120,6 +121,7 @@ public class KlageFormkravOppdaterer implements AksjonspunktOppdaterer<KlageForm
             .medErKonkret(dto.erKonkret())
             .medErSignert(dto.erSignert())
             .medErFristOverholdt(dto.erFristOverholdt())
+            .medMottattDato(dto.mottattDato())
             .medBegrunnelse(dto.getBegrunnelse())
             .medGjelderVedtak(dto.påKlagdBehandlingUuid() != null)
             .medKlageResultat(klageResultat);

@@ -1,7 +1,9 @@
 package no.nav.foreldrepenger.behandlingslager.behandling.eøs;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Convert;
@@ -64,6 +66,14 @@ public class EøsUttakGrunnlagEntitet extends BaseEntitet {
 
     public void deaktiver() {
         this.aktiv = false;
+    }
+
+    public Optional<LocalDate> getFom() {
+        return getPerioder().stream().map(p -> p.getPeriode().getFomDato()).min(LocalDate::compareTo);
+    }
+
+    public Optional<LocalDate> getTom() {
+        return getPerioder().stream().map(p -> p.getPeriode().getTomDato()).max(LocalDate::compareTo);
     }
 
     @Override

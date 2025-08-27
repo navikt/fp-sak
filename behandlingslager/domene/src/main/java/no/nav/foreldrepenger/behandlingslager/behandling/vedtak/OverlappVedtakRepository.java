@@ -2,6 +2,8 @@ package no.nav.foreldrepenger.behandlingslager.behandling.vedtak;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -21,6 +23,14 @@ public class OverlappVedtakRepository {
     @Inject
     public OverlappVedtakRepository(EntityManager entityManager) {
         this.entityManager = entityManager;
+    }
+
+    public Set<Saksnummer> hentTidligereFrisinn() {
+        var query = entityManager
+            .createQuery("from OverlappVedtak where ytelse=:ytelse",
+                OverlappVedtak.class);
+        query.setParameter("ytelse", OverlappVedtak.OverlappYtelseType.FRISINN.name());
+        return query.getResultList().stream().map(OverlappVedtak::getSaksnummer).collect(Collectors.toSet());
     }
 
     public List<OverlappVedtak> hentForSaksnummer(Saksnummer saksnummer) {

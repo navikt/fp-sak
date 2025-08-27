@@ -49,10 +49,13 @@ public class BeregningTjenesteInMemory implements BeregningTjeneste {
     }
 
     @Override
-    public void kopier(BehandlingReferanse revurdering, BehandlingReferanse originalbehandling, BeregningsgrunnlagTilstand tilstand) {
-        if (!BeregningsgrunnlagTilstand.FASTSATT.equals(tilstand)) {
-            throw new IllegalStateException("Støtter kun kopiering av fastsatte grunnlag!");
-        }
+    public void kopier(BehandlingReferanse revurdering, BehandlingReferanse originalbehandling, BehandlingStegType stegType) {
+        var originaltGr = hent(originalbehandling);
+        originaltGr.ifPresent(gr -> lagre(gr, revurdering));
+    }
+
+    @Override
+    public void kopierFastsatt(BehandlingReferanse revurdering, BehandlingReferanse originalbehandling) {
         var originaltGr = hent(originalbehandling);
         originaltGr.ifPresent(gr -> lagre(gr, revurdering));
     }

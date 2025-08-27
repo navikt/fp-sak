@@ -1,5 +1,6 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.klage;
 
+import java.time.LocalDate;
 import java.util.List;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageHjemmel;
@@ -10,5 +11,6 @@ public record KlagebehandlingDto(KlageFormkravResultatDto klageFormkravResultatN
                                  KlageVurderingResultatDto klageVurderingResultatNK,
                                  List<KlageHjemmel> aktuelleHjemler,
                                  boolean underBehandlingKabal,
-                                 boolean behandletAvKabal) {
+                                 boolean behandletAvKabal,
+                                 LocalDate mottattDato) {
 }

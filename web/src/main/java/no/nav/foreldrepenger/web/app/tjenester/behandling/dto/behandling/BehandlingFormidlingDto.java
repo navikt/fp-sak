@@ -37,7 +37,7 @@ public class BehandlingFormidlingDto extends BehandlingDto {
 
     @JsonProperty("medlemskapFom")
     private LocalDate medlemskapFom;
-    
+
     @JsonProperty("rettigheter")
     private Rettigheter rettigheter;
 
@@ -94,6 +94,9 @@ public class BehandlingFormidlingDto extends BehandlingDto {
     }
 
      public record Rettigheter(Rettighetstype opprinnelig,  //søknad eller forrige vedtak
-                               Rettighetstype gjeldende) {
-    }
+                               Rettighetstype gjeldende,
+                               EøsUttak eøsUttak) {
+         public record EøsUttak(LocalDate fom, LocalDate tom, int forbruktFellesperiode, int fellesperiodeINorge) {
+         }
+     }
 }
