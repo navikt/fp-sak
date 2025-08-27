@@ -26,13 +26,11 @@ import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.uttak.UttakRepositoryProvider;
 import no.nav.foreldrepenger.domene.uttak.input.ForeldrepengerGrunnlag;
 import no.nav.foreldrepenger.domene.uttak.input.UttakInput;
-import no.nav.foreldrepenger.konfig.Environment;
 import no.nav.vedtak.konfig.Tid;
 
 @ApplicationScoped
 public class FastsettUttakManueltAksjonspunktUtleder {
 
-    private static final Environment ENV = Environment.current();
     private static final Arbeidsgiver STORTINGET = Arbeidsgiver.virksomhet(Spesialnummer.STORTINGET.getOrgnummer());
 
     private FpUttakRepository fpUttakRepository;
@@ -56,9 +54,7 @@ public class FastsettUttakManueltAksjonspunktUtleder {
 
         utledAksjonspunktForManuellBehandlingFraRegler(behandlingId).ifPresent(aksjonspunkter::add);
         utledAksjonspunktForStortingsrepresentant(input).ifPresent(aksjonspunkter::add);
-        if (ENV.isProd()) { // TODO (TFP-6302): Fjern etter test. Skal ikke være nødvendig å utlede følgende aksjonpunkt lenger
-            utledAksjonspunktForAnnenpartEØS(behandlingId).ifPresent(aksjonspunkter::add);
-        }
+        utledAksjonspunktForAnnenpartEØS(behandlingId).ifPresent(aksjonspunkter::add);
 
         if (input.harBehandlingÅrsak(BehandlingÅrsakType.RE_KLAGE_UTEN_END_INNTEKT)
             || input.harBehandlingÅrsak(BehandlingÅrsakType.RE_KLAGE_MED_END_INNTEKT)) {
