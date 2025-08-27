@@ -3,8 +3,6 @@ package no.nav.foreldrepenger.web.app.tjenester.behandling.aksjonspunkt;
 import java.time.LocalDateTime;
 import java.util.Set;
 
-import io.swagger.v3.oas.annotations.media.Schema;
-
 import jakarta.validation.constraints.NotNull;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
@@ -16,18 +14,18 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
 public class AksjonspunktDto {
     @NotNull private AksjonspunktDefinisjon definisjon;
     @NotNull private AksjonspunktStatus status;
-    @Schema(nullable = true, requiredMode = Schema.RequiredMode.REQUIRED) private String begrunnelse;
-    @Schema(nullable = true, requiredMode = Schema.RequiredMode.REQUIRED) private VilkårType vilkarType;
+    private String begrunnelse;
+    private VilkårType vilkarType;
     @NotNull private Boolean toTrinnsBehandling;
-    @Schema(nullable = true, requiredMode = Schema.RequiredMode.REQUIRED) private Boolean toTrinnsBehandlingGodkjent;
-    @Schema(nullable = true, requiredMode = Schema.RequiredMode.REQUIRED) private Set<VurderÅrsak> vurderPaNyttArsaker;
-    @Schema(nullable = true, requiredMode = Schema.RequiredMode.REQUIRED) private String besluttersBegrunnelse;
-    @Schema(nullable = true, requiredMode = Schema.RequiredMode.REQUIRED) private AksjonspunktType aksjonspunktType;
+    private Boolean toTrinnsBehandlingGodkjent;
+    private Set<VurderÅrsak> vurderPaNyttArsaker;
+    private String besluttersBegrunnelse;
+    @NotNull private AksjonspunktType aksjonspunktType;
     @NotNull private Boolean kanLoses;
     @NotNull private Boolean erAktivt;
-    @Schema(nullable = true, requiredMode = Schema.RequiredMode.REQUIRED) private LocalDateTime fristTid;
-    @Schema(nullable = true, requiredMode = Schema.RequiredMode.REQUIRED) private LocalDateTime endretTidspunkt;
-    @Schema(nullable = true, requiredMode = Schema.RequiredMode.REQUIRED) private String endretAv;
+    private LocalDateTime fristTid;
+    private LocalDateTime endretTidspunkt;
+    private String endretAv;
 
     public void setDefinisjon(AksjonspunktDefinisjon definisjon) {
         this.definisjon = definisjon;

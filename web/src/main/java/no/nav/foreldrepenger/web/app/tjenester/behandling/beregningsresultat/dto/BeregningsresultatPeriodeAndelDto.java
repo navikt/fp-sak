@@ -3,21 +3,23 @@ package no.nav.foreldrepenger.web.app.tjenester.behandling.beregningsresultat.dt
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
+import jakarta.validation.constraints.NotNull;
+
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.AktivitetStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.OpptjeningAktivitetType;
 
 public class BeregningsresultatPeriodeAndelDto {
-    private String arbeidsgiverReferanse;
-    private final Integer refusjon;
-    private final Integer tilSoker;
-    private final UttakDto uttak;
-    private final BigDecimal utbetalingsgrad;
-    private final LocalDate sisteUtbetalingsdato;
-    private final AktivitetStatus aktivitetStatus;
+    @NotNull private String arbeidsgiverReferanse;
+    @NotNull private final Integer refusjon;
+    @NotNull private final Integer tilSoker;
+    @NotNull private final UttakDto uttak;
+    @NotNull private final BigDecimal utbetalingsgrad;
+    @NotNull private final LocalDate sisteUtbetalingsdato;
+    @NotNull private final AktivitetStatus aktivitetStatus;
     private final String arbeidsforholdId;
-    private final String eksternArbeidsforholdId;
+    @NotNull private final String eksternArbeidsforholdId;
     private final String aktørId;
-    private final OpptjeningAktivitetType arbeidsforholdType;
+    @NotNull private final OpptjeningAktivitetType arbeidsforholdType;
     private final BigDecimal stillingsprosent;
 
     private BeregningsresultatPeriodeAndelDto(Builder builder) {
