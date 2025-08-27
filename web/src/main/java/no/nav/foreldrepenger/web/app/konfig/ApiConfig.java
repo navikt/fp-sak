@@ -27,6 +27,7 @@ import no.nav.openapi.spec.utils.openapi.DiscriminatorModelConverter;
 import no.nav.openapi.spec.utils.openapi.JsonSubTypesModelConverter;
 import no.nav.openapi.spec.utils.openapi.NoJsonSubTypesAnnotationIntrospector;
 
+import no.nav.openapi.spec.utils.openapi.PrefixStrippingFQNTypeNameResolver;
 import no.nav.openapi.spec.utils.openapi.RefToClassLookup;
 import no.nav.openapi.spec.utils.openapi.RegisteredSubtypesModelConverter;
 import no.nav.openapi.spec.utils.openapi.TimeTypesModelConverter;
@@ -75,9 +76,9 @@ public class ApiConfig extends Application {
             // --- CRUCIAL: Reset and register model converters BEFORE context building ---
             ModelConverters.reset();
 
-            var a = TypeNameResolver.std;
-//            var a =new PrefixStrippingFQNTypeNameResolver("no.nav.");
-//            a.setUseFqn(true);
+//            var a = TypeNameResolver.std;
+            var a =new PrefixStrippingFQNTypeNameResolver("no.nav.foreldrepenger.web.app.", "no.nav.");
+            a.setUseFqn(true);
             // Add base ModelResolver with typeNameResolver set on this helper.
             // This must be added first, so that it ends up last in the converter chain
             ModelConverters.getInstance().addConverter(new ModelResolver(this.objectMapper(),  a));
