@@ -9,6 +9,7 @@ import static no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageVurde
 import static no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageVurdering.STADFESTE_YTELSESVEDTAK;
 import static org.mockito.Mockito.lenient;
 
+import java.time.LocalDate;
 import java.util.EnumMap;
 import java.util.Map;
 import java.util.Optional;
@@ -287,6 +288,7 @@ public class ScenarioKlageEngangsstønad {
                 .medErSignert(true)
                 .medGjelderVedtak(true)
                 .medBegrunnelse("Begrunnelse")
+                .medMottattDato(LocalDate.now())
                 .medKlageResultat(klageResultat)
                 .medKlageVurdertAv(klageVurdertAv);
     }

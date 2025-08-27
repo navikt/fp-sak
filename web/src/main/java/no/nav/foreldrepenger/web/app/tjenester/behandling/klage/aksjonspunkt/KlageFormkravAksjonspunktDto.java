@@ -1,6 +1,7 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.klage.aksjonspunkt;
 
 
+import java.time.LocalDate;
 import java.util.UUID;
 
 import jakarta.validation.Valid;
@@ -37,6 +38,8 @@ public final class KlageFormkravAksjonspunktDto extends BekreftetAksjonspunktDto
     @Pattern(regexp = InputValideringRegex.FRITEKST)
     private String fritekstTilBrev;
 
+    private LocalDate mottattDato;
+
 
     KlageFormkravAksjonspunktDto() {
         // For Jackson
@@ -50,7 +53,8 @@ public final class KlageFormkravAksjonspunktDto extends BekreftetAksjonspunktDto
                                         String begrunnelse,
                                         boolean erTilbakekreving,
                                         KlageTilbakekrevingDto klageTilbakekreving,
-                                        String fritekstTilBrev) {
+                                        String fritekstTilBrev,
+                                        LocalDate mottattDato) {
         super(begrunnelse);
         this.erKlagerPart = erKlagerPart;
         this.erFristOverholdt = erFristOverholdt;
@@ -60,6 +64,7 @@ public final class KlageFormkravAksjonspunktDto extends BekreftetAksjonspunktDto
         this.erTilbakekreving = erTilbakekreving;
         this.klageTilbakekreving = klageTilbakekreving;
         this.fritekstTilBrev = fritekstTilBrev;
+        this.mottattDato = mottattDato;
     }
 
     @Override
@@ -86,6 +91,11 @@ public final class KlageFormkravAksjonspunktDto extends BekreftetAksjonspunktDto
     @Override
     public boolean erTilbakekreving() {
         return erTilbakekreving;
+    }
+
+    @Override
+    public LocalDate mottattDato() {
+        return mottattDato;
     }
 
 
