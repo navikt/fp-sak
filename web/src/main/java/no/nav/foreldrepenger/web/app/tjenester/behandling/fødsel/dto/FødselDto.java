@@ -1,5 +1,7 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.fødsel.dto;
 
+import jakarta.validation.constraints.NotNull;
+
 import java.time.LocalDate;
 import java.util.List;
 
@@ -18,7 +20,7 @@ public record FødselDto(FødselDto.Søknad søknad, FødselDto.Register registe
     public record Register(List<BarnHendelseData> barn) {
     }
 
-    public record Gjeldende(Termin termin, FødselDto.Gjeldende.Utstedtdato utstedtdato,
+    public record Gjeldende(@NotNull Termin termin, FødselDto.Gjeldende.Utstedtdato utstedtdato,
                             AntallBarn antallBarn, List<FødselDto.Gjeldende.GjeldendeBarn> barn, FødselDokumetasjonStatus fødselDokumetasjonStatus) {
 
         public record Termin(Kilde kilde, LocalDate termindato) {

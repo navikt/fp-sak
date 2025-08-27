@@ -15,23 +15,18 @@ import java.util.stream.Stream;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import io.swagger.v3.core.converter.ModelConverter;
 import io.swagger.v3.core.converter.ModelConverters;
 import io.swagger.v3.core.jackson.ModelResolver;
 import io.swagger.v3.core.jackson.TypeNameResolver;
 import io.swagger.v3.core.util.ObjectMapperFactory;
-import io.swagger.v3.oas.integration.api.OpenApiContext;
 
 import jakarta.ws.rs.ApplicationPath;
 import jakarta.ws.rs.core.Application;
 
 import no.nav.openapi.spec.utils.openapi.DiscriminatorModelConverter;
-import no.nav.openapi.spec.utils.openapi.EnumVarnamesConverter;
 import no.nav.openapi.spec.utils.openapi.JsonSubTypesModelConverter;
 import no.nav.openapi.spec.utils.openapi.NoJsonSubTypesAnnotationIntrospector;
-import no.nav.openapi.spec.utils.openapi.OpenApiSetupHelper;
 
-import no.nav.openapi.spec.utils.openapi.OptionalResponseTypeAdjustingReader;
 import no.nav.openapi.spec.utils.openapi.RefToClassLookup;
 import no.nav.openapi.spec.utils.openapi.RegisteredSubtypesModelConverter;
 import no.nav.openapi.spec.utils.openapi.TimeTypesModelConverter;
@@ -71,16 +66,21 @@ public class ApiConfig extends Application {
             var oasConfig = new SwaggerConfiguration()
                 .openAPI(oas)
                 .prettyPrint(true)
+                .resourcePackages(Collections.singleton("no.nav.foreldrepenger"))
                 .resourceClasses(Stream.of(RestImplementationClasses.getImplementationClasses(), RestImplementationClasses.getForvaltningClasses())
                     .flatMap(Collection::stream).map(Class::getName).collect(Collectors.toSet()));
 
+            ModelResolver.enumsAsRef = true;
             final var resolvedRefClassLookup = new RefToClassLookup();
             // --- CRUCIAL: Reset and register model converters BEFORE context building ---
             ModelConverters.reset();
 
+            var a = TypeNameResolver.std;
+//            var a =new PrefixStrippingFQNTypeNameResolver("no.nav.");
+//            a.setUseFqn(true);
             // Add base ModelResolver with typeNameResolver set on this helper.
             // This must be added first, so that it ends up last in the converter chain
-            ModelConverters.getInstance().addConverter(new ModelResolver(this.objectMapper(),  TypeNameResolver.std));
+            ModelConverters.getInstance().addConverter(new ModelResolver(this.objectMapper(),  a));
 
 //            ModelConverters.getInstance().addConverter(new NoAnnotationRequiredNullableConverter());
             ModelConverters.getInstance().addConverter(new NotNullAwareModelConverter());
@@ -94,6 +94,7 @@ public class ApiConfig extends Application {
             ModelConverters.getInstance().addConverter(new RegisteredSubtypesModelConverter(registeredSubtypes));
             ModelConverters.getInstance().addConverter(new JsonSubTypesModelConverter());
             ModelConverters.getInstance().addConverter(new DiscriminatorModelConverter(resolvedRefClassLookup));
+
 //            ModelConverters.getInstance().addConverter(new JsonTypeNameDisctriminatorConverter());
 
             // --- Build context AFTER converters are registered ---

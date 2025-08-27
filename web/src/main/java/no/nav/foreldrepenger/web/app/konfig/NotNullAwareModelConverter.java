@@ -12,6 +12,9 @@ import java.lang.reflect.Field;
 import java.lang.reflect.RecordComponent;
 import java.util.*;
 
+/**
+ * Denne er midlertidig for å gjøre om undefined typer til null. På sikt ønsker vi at selve objectmapperen skal outputte undefined. Men først må vi sync'e FE+BE
+ */
 public class NotNullAwareModelConverter implements ModelConverter {
 
     @Override
@@ -25,6 +28,10 @@ public class NotNullAwareModelConverter implements ModelConverter {
         JavaType javaType = TypeFactory.defaultInstance().constructType(type.getType());
         Class<?> rawClass = javaType.getRawClass();
 
+        // Disse har en annen objectmapper som outputter undefined.
+        if (rawClass.getPackageName().contains("no.nav.folketrygdloven.kalkulus")) {
+            return schema;
+        }
         // Debug logging to help identify which schemas are being processed
         System.out.println("Processing schema for class: " + rawClass.getSimpleName());
 
