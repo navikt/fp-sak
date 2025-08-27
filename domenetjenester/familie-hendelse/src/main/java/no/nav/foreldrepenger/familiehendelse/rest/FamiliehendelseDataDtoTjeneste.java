@@ -26,12 +26,6 @@ public class FamiliehendelseDataDtoTjeneste {
         // for CDI proxy
     }
 
-    public static Optional<FamiliehendelseDto> mapFra(Optional<FamilieHendelseGrunnlagEntitet> grunnlag,
-                                                      Optional<LocalDate> vedtaksdato,
-                                                      Behandling behandling) {
-        return grunnlag.flatMap(g -> FamiliehendelseDataDtoTjeneste.mapHendelseGrunnlag(g, vedtaksdato, behandling));
-    }
-
     public static FamilieHendelseGrunnlagDto mapGrunnlagFra(Optional<FamilieHendelseGrunnlagEntitet> grunnlag,
                                                             Optional<LocalDate> vedtaksdato,
                                                             Behandling behandling) {
