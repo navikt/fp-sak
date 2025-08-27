@@ -2,12 +2,15 @@ package no.nav.foreldrepenger.web.app.tjenester.behandling.klage;
 
 import static no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagLinjeBuilder.format;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.time.LocalDate;
 import java.util.Comparator;
 import java.util.Optional;
 import java.util.UUID;
+
+import no.nav.foreldrepenger.behandlingslager.behandling.repository.MottatteDokumentRepository;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -68,7 +71,7 @@ class KlageFormkravOppdatererTest extends EntityManagerAwareTest {
         BehandlingRepository behandlingRepository = repositoryProvider.getBehandlingRepository();
         klageRepository = new KlageRepository(getEntityManager());
         KlageVurderingTjeneste klageVurderingTjeneste = new KlageVurderingTjeneste(null, null, behandlingRepository, klageRepository, null,
-            repositoryProvider.getBehandlingsresultatRepository(), eventPubliserer);
+            repositoryProvider.getBehandlingsresultatRepository(), eventPubliserer, mock(MottatteDokumentRepository.class));
         var formHistorikk = new KlageHistorikkinnslag(repositoryProvider.getHistorikkinnslagRepository(), behandlingRepository,
             repositoryProvider.getBehandlingVedtakRepository(), mockFptilbakeRestKlient);
         klageFormkravOppdaterer = new KlageFormkravOppdaterer(klageVurderingTjeneste, behandlingRepository, aksjonspunktkontrollTjeneste,
@@ -129,7 +132,7 @@ class KlageFormkravOppdatererTest extends EntityManagerAwareTest {
         assertThat(historikk).hasSize(2);
         var historikkinnslag = historikk.getFirst();
         assertThat(historikkinnslag.getSkjermlenke()).isEqualByComparingTo(SkjermlenkeType.FORMKRAV_KLAGE_NFP);
-        assertThat(historikkinnslag.getLinjer()).hasSize(6);
+        assertThat(historikkinnslag.getLinjer()).hasSize(7);
         var linjer = historikkinnslag.getLinjer();
 
 
@@ -181,7 +184,7 @@ class KlageFormkravOppdatererTest extends EntityManagerAwareTest {
         assertThat(historikk).hasSize(2);
         var historikkinnslag = historikk.get(0);
         assertThat(historikkinnslag.getSkjermlenke()).isEqualByComparingTo(SkjermlenkeType.FORMKRAV_KLAGE_NFP);
-        assertThat(historikkinnslag.getLinjer()).hasSize(6);
+        assertThat(historikkinnslag.getLinjer()).hasSize(7);
         var linjer = historikkinnslag.getLinjer();
         assertThat(linjer.stream()
             .anyMatch(tekstlinje -> tekstlinje.getTekst().contains(KlageHistorikkinnslag.PÅKLAGD_BEHANDLING) && tekstlinje.getTekst()
@@ -213,7 +216,7 @@ class KlageFormkravOppdatererTest extends EntityManagerAwareTest {
         when(mockFptilbakeRestKlient.hentTilbakekrevingsVedtakInfo(TILBAKEKREVING_BEHANDLING_UUID)).thenReturn(
             new TilbakekrevingVedtakDto(1L, klageTilbakekrevingDto.tilbakekrevingVedtakDato(),
                 klageTilbakekrevingDto.tilbakekrevingBehandlingType()));
-        klageFormkravAksjonspunktDto = new KlageFormkravAksjonspunktDto(true, true, true, true, null, "test", false, null, null);
+        klageFormkravAksjonspunktDto = new KlageFormkravAksjonspunktDto(true, true, true, true, null, "test", false, null, null, LocalDate.now());
         klageFormkravOppdaterer.oppdater(klageFormkravAksjonspunktDto, aksjonspunktOppdaterParameter);
 
         var historikk = historikkinnslagRepository.hent(behandling.getSaksnummer())
@@ -223,7 +226,7 @@ class KlageFormkravOppdatererTest extends EntityManagerAwareTest {
         assertThat(historikk).hasSize(2);
         var historikkinnslag = historikk.get(0);
         assertThat(historikkinnslag.getSkjermlenke()).isEqualByComparingTo(SkjermlenkeType.FORMKRAV_KLAGE_NFP);
-        assertThat(historikkinnslag.getLinjer()).hasSize(6);
+        assertThat(historikkinnslag.getLinjer()).hasSize(7);
         var linjer = historikkinnslag.getLinjer();
         assertThat(linjer.stream()
             .anyMatch(tekstlinje -> tekstlinje.getTekst().contains(KlageHistorikkinnslag.PÅKLAGD_BEHANDLING) && tekstlinje.getTekst()
@@ -255,7 +258,7 @@ class KlageFormkravOppdatererTest extends EntityManagerAwareTest {
         when(mockFptilbakeRestKlient.hentTilbakekrevingsVedtakInfo(TILBAKEKREVING_BEHANDLING_UUID)).thenReturn(
             new TilbakekrevingVedtakDto(1L, klageTilbakekrevingDto.tilbakekrevingVedtakDato(),
                 klageTilbakekrevingDto.tilbakekrevingBehandlingType()));
-        klageFormkravAksjonspunktDto = new KlageFormkravAksjonspunktDto(true, true, true, true, behandling.getUuid(), "test", false, null, null);
+        klageFormkravAksjonspunktDto = new KlageFormkravAksjonspunktDto(true, true, true, true, behandling.getUuid(), "test", false, null, null, LocalDate.now());
         klageFormkravOppdaterer.oppdater(klageFormkravAksjonspunktDto, aksjonspunktOppdaterParameter);
 
         var historikk = historikkinnslagRepository.hent(behandling.getSaksnummer())
@@ -265,7 +268,7 @@ class KlageFormkravOppdatererTest extends EntityManagerAwareTest {
         assertThat(historikk).hasSize(2);
         var historikkinnslag = historikk.get(0);
         assertThat(historikkinnslag.getSkjermlenke()).isEqualByComparingTo(SkjermlenkeType.FORMKRAV_KLAGE_NFP);
-        assertThat(historikkinnslag.getLinjer()).hasSize(6);
+        assertThat(historikkinnslag.getLinjer()).hasSize(7);
         var linjer = historikkinnslag.getLinjer();
         assertThat(linjer.stream()
             .anyMatch(tekstlinje -> tekstlinje.getTekst().contains(KlageHistorikkinnslag.PÅKLAGD_BEHANDLING) && tekstlinje.getTekst()
@@ -285,7 +288,7 @@ class KlageFormkravOppdatererTest extends EntityManagerAwareTest {
         final String fritekstTilBrev = "Tester at fritekst lagres på vurderingsresulatet";
 
         var klageAvvistMedFritekst = new KlageFormkravAksjonspunktDto(true, true, false, true, behandling.getUuid(), "test", false, null,
-            fritekstTilBrev);
+            fritekstTilBrev, LocalDate.now());
         var aksjonspunktOppdaterParameter = new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling), klageAvvistMedFritekst,
             behandling.getAksjonspunktFor(AksjonspunktDefinisjon.MANUELL_VURDERING_AV_KLAGE_NFP));
 
@@ -303,7 +306,7 @@ class KlageFormkravOppdatererTest extends EntityManagerAwareTest {
         var vurderingResBuilder = KlageVurderingResultat.builder().medFritekstTilBrev(fritekstTilBrev).medKlageVurdertAv(KlageVurdertAv.NFP);
         klageRepository.lagreVurderingsResultat(behandling, vurderingResBuilder);
 
-        var klageAvvistUtenFritekst = new KlageFormkravAksjonspunktDto(true, true, true, true, behandling.getUuid(), "test", false, null, null);
+        var klageAvvistUtenFritekst = new KlageFormkravAksjonspunktDto(true, true, true, true, behandling.getUuid(), "test", false, null, null, LocalDate.now());
         var aksjonspunktOppdaterParameter = new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling), klageAvvistUtenFritekst,
             behandling.getAksjonspunktFor(AksjonspunktDefinisjon.MANUELL_VURDERING_AV_KLAGE_NFP));
 
@@ -332,7 +335,7 @@ class KlageFormkravOppdatererTest extends EntityManagerAwareTest {
     }
 
     private KlageFormkravAksjonspunktDto lagKlageAksjonspunktDto(boolean erTilbakekreving, KlageTilbakekrevingDto klageTilbakekrevingDto) {
-        return new KlageFormkravAksjonspunktDto(true, true, true, true, behandling.getUuid(), "test", erTilbakekreving, klageTilbakekrevingDto, null);
+        return new KlageFormkravAksjonspunktDto(true, true, true, true, behandling.getUuid(), "test", erTilbakekreving, klageTilbakekrevingDto, null, LocalDate.now());
     }
 
 }

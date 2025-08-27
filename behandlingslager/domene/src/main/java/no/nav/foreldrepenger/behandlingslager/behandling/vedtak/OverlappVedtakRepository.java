@@ -29,7 +29,7 @@ public class OverlappVedtakRepository {
         var query = entityManager
             .createQuery("from OverlappVedtak where ytelse=:ytelse",
                 OverlappVedtak.class);
-        query.setParameter("ytelse", OverlappVedtak.OverlappYtelseType.FRISINN);
+        query.setParameter("ytelse", OverlappVedtak.OverlappYtelseType.FRISINN.name());
         return query.getResultList().stream().map(OverlappVedtak::getSaksnummer).collect(Collectors.toSet());
     }
 

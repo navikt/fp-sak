@@ -10,6 +10,8 @@ import java.util.Optional;
 
 import jakarta.inject.Inject;
 
+import no.nav.foreldrepenger.behandlingslager.behandling.repository.MottatteDokumentRepository;
+
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
@@ -117,7 +119,7 @@ class KlagevurderingOppdatererTest {
         var behandlingRepository = repositoryProvider.getBehandlingRepository();
         var klageVurderingTjeneste = new KlageVurderingTjeneste(dokumentBestillerTjeneste, Mockito.mock(DokumentBehandlingTjeneste.class),
             behandlingRepository, klageRepository, behandlingProsesseringTjeneste,
-            repositoryProvider.getBehandlingsresultatRepository(), eventPubliserer);
+            repositoryProvider.getBehandlingsresultatRepository(), eventPubliserer, mock(MottatteDokumentRepository.class));
         var klageHistorikk = new KlageHistorikkinnslag(repositoryProvider.getHistorikkinnslagRepository(),
             behandlingRepository, repositoryProvider.getBehandlingVedtakRepository(), mock(FptilbakeRestKlient.class));
         return new KlagevurderingOppdaterer(klageHistorikk, behandlendeEnhetTjeneste, eventPubliserer, aksjonspunktkontrollTjeneste, klageVurderingTjeneste,
