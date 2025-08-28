@@ -163,7 +163,7 @@ public class ForvaltningUttrekkRestTjeneste {
         var query = entityManager.createNativeQuery("""
             select behandling_id
             from aksjonspunkt
-            where aksjonspunkt_def = '5074' and aksjonspunkt_status = 'OPPR'
+            where aksjonspunkt_def = '5058' and aksjonspunkt_status = 'OPPR'
             """);
         @SuppressWarnings("unchecked")
         List<Number> resultatList = query.getResultList();
