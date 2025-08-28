@@ -6,6 +6,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -168,18 +169,26 @@ public class ForvaltningUttrekkRestTjeneste {
         @SuppressWarnings("unchecked")
         List<Number> resultatList = query.getResultList();
         var åpneAksjonspunkt =  resultatList.stream().map(Number::longValue).toList();
-        åpneAksjonspunkt.forEach(this::flyttBehandlingTilbakeTilSteg);
+        var tasks = åpneAksjonspunkt.stream()
+            .map(this::lagFlyttBehandlingTilbakeTilStegTask)
+            .flatMap(Optional::stream)
+            .toList();
+        if (!tasks.isEmpty()) {
+            var gruppe = new ProsessTaskGruppe();
+            gruppe.addNesteParallell(tasks);
+            taskTjeneste.lagre(gruppe);
+        }
         return Response.ok().build();
     }
 
-    private void flyttBehandlingTilbakeTilSteg(Long behandlingId) {
+    private Optional<ProsessTaskData> lagFlyttBehandlingTilbakeTilStegTask(Long behandlingId) {
         var behandling = behandlingRepository.hentBehandling(behandlingId);
         if (!BehandlingStegType.KONTROLLER_FAKTA_BEREGNING.equals(behandling.getAktivtBehandlingSteg())) {
-            return;
+            return Optional.empty();
         }
         var task = ProsessTaskData.forProsessTask(TilbakeføringTilStegTask.class);
         task.setBehandling(behandling.getSaksnummer().getVerdi(), behandling.getFagsakId(), behandling.getId());
-        taskTjeneste.lagre(task);
+        return Optional.of(task);
     }
 
     @GET
