@@ -32,9 +32,6 @@ public class OverlappVedtak extends BaseEntitet {
     public static final String HENDELSE_AVSTEM_PERIODE = "AVSTEM-PER";
     public static final String HENDELSE_AVSTEM_SAK = "AVSTEM-SAK";
 
-    // Midlertidig hendelse for ny sjekk av frisinn
-    public static final String HENDELSE_AVSTEM_FRISINN = "AVSTEM-FRI";
-
 
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "SEQ_OVERLAPP_VEDTAK")

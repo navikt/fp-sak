@@ -25,14 +25,6 @@ public class OverlappVedtakRepository {
         this.entityManager = entityManager;
     }
 
-    public Set<Saksnummer> hentTidligereFrisinn() {
-        var query = entityManager
-            .createQuery("from OverlappVedtak where ytelse=:ytelse",
-                OverlappVedtak.class);
-        query.setParameter("ytelse", OverlappVedtak.OverlappYtelseType.FRISINN.name());
-        return query.getResultList().stream().map(OverlappVedtak::getSaksnummer).collect(Collectors.toSet());
-    }
-
     public List<OverlappVedtak> hentForSaksnummer(Saksnummer saksnummer) {
         var query = entityManager
             .createQuery("from OverlappVedtak where saksnummer=:saksnummer",

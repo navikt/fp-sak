@@ -283,35 +283,6 @@ public class ForvaltningUttrekkRestTjeneste {
         return Response.ok(resultat).build();
     }
 
-    @POST
-    @Path("/avstemOverlappFrisinn")
-    @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
-    @Produces(MediaType.APPLICATION_JSON)
-    @Operation(description = "Lagrer task for å finne overlapp frisinn. Resultat i overlapp_vedtak", tags = "FORVALTNING-uttrekk")
-    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.DRIFT, sporingslogg = false)
-    public Response avstemOverlappFrisinn() {
-        long suffix = 0;
-        var gruppe = new ProsessTaskGruppe();
-        var baseline = LocalDateTime.now();
-        if (MDCOperations.getCallId() == null) MDCOperations.putCallId();
-        var callId = MDCOperations.getCallId();
-        List<ProsessTaskData> tasks = new ArrayList<>();
-        for (var s : overlappRepository.hentTidligereFrisinn()) {
-            var prosessTaskData = ProsessTaskData.forProsessTask(VedtakOverlappAvstemSakTask.class);
-            prosessTaskData.setProperty(VedtakOverlappAvstemSakTask.LOG_SAKSNUMMER_KEY, s.getVerdi());
-            prosessTaskData.setProperty(VedtakOverlappAvstemSakTask.LOG_HENDELSE_KEY, OverlappVedtak.HENDELSE_AVSTEM_FRISINN);
-            prosessTaskData.medNesteKjøringEtter(baseline.plusSeconds(suffix));
-            prosessTaskData.setCallId(callId + "_" + suffix);
-            prosessTaskData.setPrioritet(100);
-            tasks.add(prosessTaskData);
-            suffix++;
-        }
-        gruppe.addNesteParallell(tasks);
-        taskTjeneste.lagre(gruppe);
-
-        return Response.ok().build();
-    }
-
     @GET
     @Path("/infotrygdRestanseFP")
     @Consumes(MediaType.APPLICATION_JSON)
