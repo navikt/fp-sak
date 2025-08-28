@@ -486,9 +486,6 @@ public class BehandlingDtoTjeneste {
             var originalBehandling = behandlingRepository.hentBehandling(originalBehandlingId);
             var originalUuidDto = new UuidDto(originalBehandling.getUuid());
 
-            dto.leggTil(get(FamiliehendelseRestTjeneste.FAMILIEHENDELSE_PATH, "familiehendelse-original-behandling", originalUuidDto));
-            dto.leggTil(get(SøknadRestTjeneste.SOKNAD_PATH, "soknad-original-behandling", originalUuidDto));
-
             if (FagsakYtelseType.ENGANGSTØNAD.equals(originalBehandling.getFagsakYtelseType())) {
                 dto.leggTil(
                     get(BeregningsresultatRestTjeneste.ENGANGSTONAD_PATH, "beregningsresultat-engangsstonad-original-behandling", originalUuidDto));
