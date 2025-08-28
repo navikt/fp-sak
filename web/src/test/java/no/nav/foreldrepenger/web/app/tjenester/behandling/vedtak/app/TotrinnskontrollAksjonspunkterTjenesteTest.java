@@ -457,7 +457,7 @@ class TotrinnskontrollAksjonspunkterTjenesteTest {
 
     @Test
     void skal_sortere_basert_på_behandlingsrekkefølge() {
-        var aksjonspunktDefs = List.of(AksjonspunktDefinisjon.FASTSETT_UTTAKPERIODER, AksjonspunktDefinisjon.KONTROLLER_ANNENPART_EØS, //Samme skjermlenke, samme steg, samme vurderingspunkt
+        var aksjonspunktDefs = List.of(AksjonspunktDefinisjon.FASTSETT_UTTAKPERIODER, AksjonspunktDefinisjon.FASTSETT_UTTAK_STORTINGSREPRESENTANT, //Samme skjermlenke, samme steg, samme vurderingspunkt
             AksjonspunktDefinisjon.VURDER_MEDLEMSKAPSVILKÅRET, AksjonspunktDefinisjon.OVERSTYRING_AV_AVKLART_STARTDATO, //Ulik skjermlenke, samme steg, ulik vurderingspunkt
             AksjonspunktDefinisjon.OVERSTYRING_AV_RETT_OG_OMSORG, AksjonspunktDefinisjon.VURDER_UTTAK_DOKUMENTASJON);
 

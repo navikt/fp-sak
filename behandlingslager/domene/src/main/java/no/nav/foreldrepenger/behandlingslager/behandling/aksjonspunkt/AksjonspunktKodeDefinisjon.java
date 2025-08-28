@@ -111,7 +111,6 @@ public class AksjonspunktKodeDefinisjon {
     public static final String FAKTA_UTTAK_MANUELT_SATT_STARTDATO_ULIK_SØKNAD_STARTDATO_KODE = "5065";
     public static final String FAKTA_UTTAK_GRADERING_AKTIVITET_UTEN_BEREGNINGSGRUNNLAG_KODE = "5066";
 
-    public static final String KONTROLLER_ANNENPART_EØS_KODE = "5069";
     public static final String VURDER_UTTAK_STORTINGSREPRESENTANT_KODE = "5072";
     public static final String KONTROLLER_REALITETSBEHANDLING_ELLER_KLAGE_KODE = "5073";
     public static final String KONTROLLER_OPPLYSNINGER_OM_DØD_KODE = "5076";

@@ -200,8 +200,7 @@ public enum AksjonspunktDefinisjon implements Kodeverdi {
             SkjermlenkeType.UTTAK, TOTRINN, EnumSet.of(FP)),
     FASTSETT_UTTAK_STORTINGSREPRESENTANT(AksjonspunktKodeDefinisjon.VURDER_UTTAK_STORTINGSREPRESENTANT_KODE, AksjonspunktType.MANUELL, "Søker er stortingsrepresentant",
         BehandlingStegType.VURDER_UTTAK, VurderingspunktType.UT, UTEN_VILKÅR, SkjermlenkeType.UTTAK, TOTRINN, EnumSet.of(FP)),
-    KONTROLLER_ANNENPART_EØS(AksjonspunktKodeDefinisjon.KONTROLLER_ANNENPART_EØS_KODE, AksjonspunktType.MANUELL, "Kontroller annen forelders uttak i EØS",
-        BehandlingStegType.VURDER_UTTAK, VurderingspunktType.UT, UTEN_VILKÅR, SkjermlenkeType.UTTAK, TOTRINN, EnumSet.of(FP)),
+
     KONTROLLER_REALITETSBEHANDLING_ELLER_KLAGE(
             AksjonspunktKodeDefinisjon.KONTROLLER_REALITETSBEHANDLING_ELLER_KLAGE_KODE, AksjonspunktType.MANUELL, "Kontroller realitetsbehandling/klage",
             BehandlingStegType.VURDER_UTTAK, VurderingspunktType.UT, UTEN_VILKÅR, SkjermlenkeType.UTTAK, TOTRINN, EnumSet.of(FP, SVP)),
@@ -401,6 +400,8 @@ public enum AksjonspunktDefinisjon implements Kodeverdi {
     UTGÅTT_5056("5056", AksjonspunktType.MANUELL, "Kontroll av manuelt opprettet revurderingsbehandling"),
     @Deprecated
     UTGÅTT_5067("5067", AksjonspunktType.MANUELL, "Bruker har minsterett ifm tette saker og uttak etter start av ny sak"),
+    @Deprecated
+    UTGÅTT_5069("5069", AksjonspunktType.MANUELL, "Kontroller annen forelders uttak i EØS"),
     @Deprecated
     UTGÅTT_5070("5070", AksjonspunktType.MANUELL, "Kontrollerer søknadsperioder"),
     @Deprecated
