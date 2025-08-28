@@ -20,7 +20,6 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.domene.uttak.fakta.uttak.FaktaUttakAksjonspunktUtleder;
 import no.nav.foreldrepenger.domene.uttak.input.UttakInput;
 import no.nav.foreldrepenger.domene.ytelsefordeling.YtelseFordelingTjeneste;
-import no.nav.foreldrepenger.konfig.Environment;
 
 @BehandlingStegRef(BehandlingStegType.FAKTA_UTTAK)
 @BehandlingTypeRef
@@ -28,7 +27,6 @@ import no.nav.foreldrepenger.konfig.Environment;
 @ApplicationScoped
 public class FaktaUttakSteg implements UttakSteg {
 
-    private static final Environment ENV = Environment.current();
     private FaktaUttakAksjonspunktUtleder faktaUttakAksjonspunktUtleder;
     private UttakInputTjeneste uttakInputTjeneste;
     private BehandlingRepository behandlingRepository;
@@ -60,14 +58,10 @@ public class FaktaUttakSteg implements UttakSteg {
         if (!ytelseFordelingAggregat.avklartAnnenForelderHarRettEØS()) {
             eøsUttakAnnenpartTjeneste.fjernEøsUttak(behandlingReferanse);
         }
+
         var faktaUttakAP = utledFaktaUttakAp(uttakInput);
-
-        // TODO (TFP-6302): Fjerne denne når EØS uttak prodsettes
-        if (ENV.isProd()) {
-            return BehandleStegResultat.utførtMedAksjonspunkter(faktaUttakAP);
-        }
-
         var eøsUttakAP = eøsUttakAnnenpartTjeneste.utledUttakIEøsForAnnenpartAP(behandlingReferanse);
+
         return BehandleStegResultat.utførtMedAksjonspunkter(Stream.concat(faktaUttakAP.stream(), eøsUttakAP.stream()).toList());
     }
 
