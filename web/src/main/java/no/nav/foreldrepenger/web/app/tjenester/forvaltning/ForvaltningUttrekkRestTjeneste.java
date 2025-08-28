@@ -164,15 +164,6 @@ public class ForvaltningUttrekkRestTjeneste {
             select behandling_id
             from aksjonspunkt
             where aksjonspunkt_def = '5074' and aksjonspunkt_status = 'OPPR'
-            and behandling_id not in (select behandling_id from aksjonspunkt where aksjonspunkt_def > '7000' and aksjonspunkt_status = 'OPPR')
-            and behandling_id in (select behandling_id from gr_ytelses_fordeling gy join YF_FORDELING_PERIODE op on gy.so_fordeling_id = op.fordeling_id
-                        where mors_aktivitet = 'ARBEID')
-            and exists (select * from behandling b join fagsak_egenskap fe on b.fagsak_id = fe.fagsak_id where b.id = behandling_id and fe.egenskap_value = 'BARE_FAR_RETT')
-            and behandling_id in (
-              select b.id from behandling b where fagsak_id in (select fagsak_id from behandling bi join gr_soeknad gs on gs.behandling_id = bi.id join soeknad_vedlegg sv on gs.soeknad_id = sv.soeknad_id where skjemanummer = 'I000132' and innsendingsvalg = 'LASTET_OPP')
-              union all
-              select b.id from mottatt_dokument md join behandling b on md.fagsak_id = b.fagsak_id where type = 'I000132'
-              )
             """);
         @SuppressWarnings("unchecked")
         List<Number> resultatList = query.getResultList();
@@ -183,7 +174,7 @@ public class ForvaltningUttrekkRestTjeneste {
 
     private void flyttBehandlingTilbakeTilSteg(Long behandlingId) {
         var behandling = behandlingRepository.hentBehandling(behandlingId);
-        if (!BehandlingStegType.FAKTA_UTTAK_DOKUMENTASJON.equals(behandling.getAktivtBehandlingSteg())) {
+        if (!BehandlingStegType.KONTROLLER_FAKTA_BEREGNING.equals(behandling.getAktivtBehandlingSteg())) {
             return;
         }
         var task = ProsessTaskData.forProsessTask(TilbakeføringTilStegTask.class);
