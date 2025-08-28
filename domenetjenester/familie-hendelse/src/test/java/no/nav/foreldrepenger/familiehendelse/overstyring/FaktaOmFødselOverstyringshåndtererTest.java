@@ -1,4 +1,4 @@
-package no.nav.foreldrepenger.web.app.tjenester.behandling.fødsel.overstyring;
+package no.nav.foreldrepenger.familiehendelse.overstyring;
 
 import static no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagLinjeBuilder.format;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -20,10 +20,10 @@ import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.AbstractT
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
 import no.nav.foreldrepenger.dbstoette.CdiDbAwareTest;
 import no.nav.foreldrepenger.domene.typer.AktørId;
+import no.nav.foreldrepenger.familiehendelse.FaktaFødselTjeneste;
 import no.nav.foreldrepenger.familiehendelse.FamilieHendelseTjeneste;
 import no.nav.foreldrepenger.familiehendelse.aksjonspunkt.dto.DokumentertBarnDto;
-import no.nav.foreldrepenger.web.app.tjenester.behandling.fødsel.FaktaFødselTjeneste;
-import no.nav.foreldrepenger.web.app.tjenester.behandling.fødsel.aksjonspunkt.OverstyringFaktaOmFødselDto;
+import no.nav.foreldrepenger.familiehendelse.aksjonspunkt.dto.OverstyringFaktaOmFødselDto;
 
 @CdiDbAwareTest
 class FaktaOmFødselOverstyringshåndtererTest {
@@ -76,8 +76,7 @@ class FaktaOmFødselOverstyringshåndtererTest {
             "Termindato skal være oppdatert").isEqualTo(termindatoFraDto);
         assertThat(historikkinnslag.getLinjer()).extracting(HistorikkinnslagLinje::getTekst)
             .containsExactly("__Overstyrt fakta om fødsel__.",
-                "__Termindato__ er endret fra " + format(termindato) + " til __" + format(termindatoFraDto) + "__.",
-                "__Er barnet født?__ Nei.",
+                "__Termindato__ er endret fra " + format(termindato) + " til __" + format(termindatoFraDto) + "__.", "__Er barnet født?__ Nei.",
                 begrunnelse);
     }
 
@@ -210,11 +209,11 @@ class FaktaOmFødselOverstyringshåndtererTest {
             .isEqualTo(4);
 
         assertThat(historikkinnslag.getLinjer()).extracting(HistorikkinnslagLinje::getTekst)
-            .containsAll(List.of("__Overstyrt fakta om fødsel__.",
+            .containsExactly("__Overstyrt fakta om fødsel__.", "__Er barnet født?__ Ja.",
                 "__Antall barn__ er endret fra " + familieHendelseFørOverstyring.getGjeldendeAntallBarn() + " til __"
                     + familieHendelseEtterOverstyring.getOverstyrtVersjon().map(FamilieHendelseEntitet::getAntallBarn).orElse(0) + "__.",
                 "__Barn 3__ er satt til __f. " + format(fødselsdato) + " - d. " + format(fødselsdato) + "__.",
-                "__Barn 4__ er satt til __f. " + format(fødselsdato2) + "__.", begrunnelse));
+                "__Barn 4__ er satt til __f. " + format(fødselsdato2) + "__.", begrunnelse);
     }
 
     @Test
@@ -348,9 +347,9 @@ class FaktaOmFødselOverstyringshåndtererTest {
             });
 
         assertThat(historikkinnslag.getLinjer()).extracting(HistorikkinnslagLinje::getTekst)
-            .containsAll(List.of("__Overstyrt fakta om fødsel__.", "__Antall barn__ som brukes i behandlingen: __" + barnDtoListe.size() + "__.",
+            .containsExactly("__Overstyrt fakta om fødsel__.", "__Er barnet født?__ Ja.", "__Antall barn:__ " + barnDtoListe.size() + ".",
                 "__Barn 2__ er endret fra f. " + format(fødselsdato) + " til __f. " + format(fødselsdato) + " - d. " + format(dødsdato) + "__.",
-                begrunnelse));
+                begrunnelse);
     }
 
     @Test
@@ -401,9 +400,9 @@ class FaktaOmFødselOverstyringshåndtererTest {
         });
 
         assertThat(historikkinnslag.getLinjer()).extracting(HistorikkinnslagLinje::getTekst)
-            .containsAll(List.of("__Overstyrt fakta om fødsel__.", "__Antall barn__ som brukes i behandlingen: __" + barnDtoListe.size() + "__.",
+            .containsExactly("__Overstyrt fakta om fødsel__.", "__Er barnet født?__ Ja.", "__Antall barn:__ " + barnDtoListe.size() + ".",
                 "__Barn 2__ er endret fra f. " + format(fødselsdato) + " til __f. " + format(fødselsdato2) + " - d. " + format(fødselsdato2) + "__.",
-                begrunnelse));
+                begrunnelse);
     }
 
     private void byggSøknadhendelse(AbstractTestScenario<?> scenario, LocalDate termindato, LocalDate fødselsdato) {

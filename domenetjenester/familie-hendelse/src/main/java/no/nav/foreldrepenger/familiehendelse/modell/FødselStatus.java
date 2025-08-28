@@ -23,8 +23,8 @@ public class FødselStatus implements UidentifisertBarn, Comparable<FødselStatu
     }
 
     public FødselStatus(DokumentertBarnDto barn, Integer barnNummer) {
-        this.fødselsdato = barn.getFødselsdato();
-        this.dødsdato = barn.getDødsdato().orElse(null);
+        this.fødselsdato = barn.fødselsdato();
+        this.dødsdato = barn.dødsdato();
         this.barnNummer = barnNummer;
     }
 

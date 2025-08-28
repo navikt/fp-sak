@@ -1,20 +1,30 @@
-package no.nav.foreldrepenger.web.app.tjenester.behandling.fødsel.aksjonspunkt;
+package no.nav.foreldrepenger.familiehendelse.aksjonspunkt.dto;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotEmpty;
+
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
+
 import no.nav.foreldrepenger.behandling.aksjonspunkt.OverstyringAksjonspunktDto;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktKodeDefinisjon;
-import no.nav.foreldrepenger.familiehendelse.aksjonspunkt.dto.DokumentertBarnDto;
 
 @JsonTypeName(AksjonspunktKodeDefinisjon.OVERSTYRING_AV_FAKTA_OM_FØDSEL_KODE)
 public class OverstyringFaktaOmFødselDto extends OverstyringAksjonspunktDto {
 
+    @NotNull
     private LocalDate termindato;
 
+    @Valid
+    @Size(min = 1, max = 9)
     private List<DokumentertBarnDto> barn;
 
     public OverstyringFaktaOmFødselDto(String begrunnelse, LocalDate termindato, List<DokumentertBarnDto> barn) {
@@ -33,8 +43,9 @@ public class OverstyringFaktaOmFødselDto extends OverstyringAksjonspunktDto {
         return termindato;
     }
 
-    public List<DokumentertBarnDto> getBarn() {
-        return barn == null ? List.of() : barn;
+
+    public Optional<List<DokumentertBarnDto>> getBarn() {
+        return Optional.ofNullable(barn);
     }
 
     @Override

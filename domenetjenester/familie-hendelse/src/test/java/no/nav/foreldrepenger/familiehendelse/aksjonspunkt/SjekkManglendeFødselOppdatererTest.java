@@ -5,51 +5,55 @@ import static no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aks
 import static no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagLinjeBuilder.format;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
-import static org.mockito.Mockito.mock;
 
-import java.time.LocalDate;
 import java.util.Collections;
 import java.util.List;
-import java.util.stream.Stream;
+
+import jakarta.inject.Inject;
+
+import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseType;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterParameter;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.OverhoppKontroll;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.UidentifisertBarn;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioFarSøkerEngangsstønad;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerEngangsstønad;
-import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
+import no.nav.foreldrepenger.dbstoette.CdiDbAwareTest;
+import no.nav.foreldrepenger.familiehendelse.FaktaFødselTjeneste;
 import no.nav.foreldrepenger.familiehendelse.FamilieHendelseTjeneste;
-import no.nav.foreldrepenger.familiehendelse.aksjonspunkt.dto.SjekkManglendeFødselAksjonspunktDto;
 import no.nav.foreldrepenger.familiehendelse.aksjonspunkt.dto.DokumentertBarnDto;
-import no.nav.foreldrepenger.familiehendelse.event.FamiliehendelseEventPubliserer;
-import no.nav.foreldrepenger.familiehendelse.modell.FødselStatus;
-import no.nav.foreldrepenger.skjæringstidspunkt.OpplysningsPeriodeTjeneste;
+import no.nav.foreldrepenger.familiehendelse.aksjonspunkt.dto.SjekkManglendeFødselAksjonspunktDto;
 import no.nav.vedtak.exception.FunksjonellException;
 
-@ExtendWith(MockitoExtension.class)
-class SjekkManglendeFødselOppdatererTest extends EntityManagerAwareTest {
+@CdiDbAwareTest
+class SjekkManglendeFødselOppdatererTest {
 
+    @Inject
     private BehandlingRepositoryProvider repositoryProvider;
-
-    @Mock
-    private FamiliehendelseEventPubliserer familiehendelseEventPubliserer;
+    @Inject
+    private HistorikkinnslagRepository historikkinnslagRepository;
+    @Inject
+    private FaktaFødselTjeneste faktaFødselTjeneste;
+    @Inject
     private FamilieHendelseTjeneste familieHendelseTjeneste;
+
+    private SjekkManglendeFødselOppdaterer oppdaterer;
 
     @BeforeEach
     void setUp() {
-        repositoryProvider = new BehandlingRepositoryProvider(getEntityManager());
-        familieHendelseTjeneste = new FamilieHendelseTjeneste(familiehendelseEventPubliserer, repositoryProvider.getFamilieHendelseRepository());
+        this.oppdaterer = new SjekkManglendeFødselOppdaterer(familieHendelseTjeneste, repositoryProvider.getHistorikkinnslagRepository(),
+            faktaFødselTjeneste);
     }
 
+
+    // TODO finn ut hvorfor denne testen ikke kjører som forventet
     @Test
     void skal_avklare_at_manglende_fødsel_ikke_kan_dokumenters() {
         // Arrange
@@ -58,7 +62,8 @@ class SjekkManglendeFødselOppdatererTest extends EntityManagerAwareTest {
 
         // Behandling
         var scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
-        scenario.medSøknadHendelse().medFødselsDato(fødselsdatoFraSøknad).medAntallBarn(antallBarnSøknad);
+        var famHendelseBuilder = scenario.medSøknadHendelse();
+        famHendelseBuilder.medTerminbekreftelse(famHendelseBuilder.getTerminbekreftelseBuilder().medTermindato(fødselsdatoFraSøknad)).medFødselsDato(fødselsdatoFraSøknad).medAntallBarn(antallBarnSøknad);
 
         scenario.leggTilAksjonspunkt(SJEKK_MANGLENDE_FØDSEL, BehandlingStegType.SØKERS_RELASJON_TIL_BARN);
         var behandling = scenario.lagre(repositoryProvider);
@@ -68,9 +73,7 @@ class SjekkManglendeFødselOppdatererTest extends EntityManagerAwareTest {
         var aksjonspunkt = behandling.getAksjonspunktFor(SJEKK_MANGLENDE_FØDSEL);
 
         // Act
-        new SjekkManglendeFødselOppdaterer(mock(OpplysningsPeriodeTjeneste.class), familieHendelseTjeneste,
-            repositoryProvider.getHistorikkinnslagRepository(), repositoryProvider.getBehandlingRepository()).oppdater(dto,
-            new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling), dto, aksjonspunkt));
+        oppdaterer.oppdater(dto, new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling), dto, aksjonspunkt));
 
         // Assert
         var familieHendelseSamling = repositoryProvider.getFamilieHendelseRepository().hentAggregat(behandling.getId());
@@ -80,7 +83,11 @@ class SjekkManglendeFødselOppdatererTest extends EntityManagerAwareTest {
                 assertThat(s.getBarna()).hasSize(antallBarnSøknad).map(UidentifisertBarn::getFødselsdato).containsExactly(fødselsdatoFraSøknad);
             });
             assertThat(h.getBekreftetVersjon()).isEmpty();
-            assertThat(h.getOverstyrtVersjon()).isEmpty();
+            assertThat(h.getOverstyrtVersjon()).hasValueSatisfying(o -> {
+                assertThat(o.getAntallBarn()).isEqualTo(antallBarnSøknad);
+                assertThat(o.getBarna()).hasSize(antallBarnSøknad).map(UidentifisertBarn::getFødselsdato).containsExactly(fødselsdatoFraSøknad);
+                assertThat(o.getType()).isEqualTo(FamilieHendelseType.TERMIN);
+            });
         });
 
         var historikkinnslag = repositoryProvider.getHistorikkinnslagRepository().hent(behandling.getSaksnummer()).getFirst();
@@ -107,9 +114,7 @@ class SjekkManglendeFødselOppdatererTest extends EntityManagerAwareTest {
         var aksjonspunkt = behandling.getAksjonspunktFor(SJEKK_MANGLENDE_FØDSEL);
 
         // Act
-        new SjekkManglendeFødselOppdaterer(mock(OpplysningsPeriodeTjeneste.class), familieHendelseTjeneste,
-            repositoryProvider.getHistorikkinnslagRepository(), repositoryProvider.getBehandlingRepository()).oppdater(dto,
-            new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling), dto, aksjonspunkt));
+        oppdaterer.oppdater(dto, new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling), dto, aksjonspunkt));
 
         // Assert
         var hendelse = repositoryProvider.getFamilieHendelseRepository().hentAggregat(behandling.getId()).getGjeldendeVersjon();
@@ -119,8 +124,7 @@ class SjekkManglendeFødselOppdatererTest extends EntityManagerAwareTest {
         });
 
         var historikkinnslag = repositoryProvider.getHistorikkinnslagRepository().hent(behandling.getSaksnummer()).getFirst();
-        assertThat(historikkinnslag.getTekstLinjer()).containsExactly("__Er barnet født?__ Ja.",
-            "__Antall barn__ som brukes i behandlingen: __1__.", "begrunnelse.");
+        assertThat(historikkinnslag.getTekstLinjer()).containsExactly("__Er barnet født?__ Ja.", "__Antall barn:__ 1.", "begrunnelse.");
 
     }
 
@@ -150,9 +154,7 @@ class SjekkManglendeFødselOppdatererTest extends EntityManagerAwareTest {
         var aksjonspunkt = behandling.getAksjonspunktFor(SJEKK_MANGLENDE_FØDSEL);
 
         // Act
-        new SjekkManglendeFødselOppdaterer(mock(OpplysningsPeriodeTjeneste.class), familieHendelseTjeneste,
-            repositoryProvider.getHistorikkinnslagRepository(), repositoryProvider.getBehandlingRepository()).oppdater(dto,
-            new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling), dto, aksjonspunkt));
+        oppdaterer.oppdater(dto, new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling), dto, aksjonspunkt));
 
         // Assert
         var hendelse = repositoryProvider.getFamilieHendelseRepository().hentAggregat(behandling.getId()).getGjeldendeVersjon();
@@ -164,8 +166,7 @@ class SjekkManglendeFødselOppdatererTest extends EntityManagerAwareTest {
         });
 
         var historikkinnslag = repositoryProvider.getHistorikkinnslagRepository().hent(behandling.getSaksnummer()).getFirst();
-        assertThat(historikkinnslag.getTekstLinjer()).containsExactly("__Er barnet født?__ Ja.",
-            "__Antall barn__ som brukes i behandlingen: __2__.", "begrunnelse.");
+        assertThat(historikkinnslag.getTekstLinjer()).containsExactly("__Er barnet født?__ Ja.", "__Antall barn:__ 2.", "begrunnelse.");
     }
 
     @Test
@@ -188,11 +189,9 @@ class SjekkManglendeFødselOppdatererTest extends EntityManagerAwareTest {
         var barn = List.of(new DokumentertBarnDto(avklartFødseldato, null), new DokumentertBarnDto(avklartFødseldato, null));
         var dto = new SjekkManglendeFødselAksjonspunktDto("begrunnelse", barn);
         var aksjonspunkt = behandling.getAksjonspunktFor(SJEKK_MANGLENDE_FØDSEL);
-
+var ref = BehandlingReferanse.fra(behandling);
         // Act
-        new SjekkManglendeFødselOppdaterer(mock(OpplysningsPeriodeTjeneste.class), familieHendelseTjeneste,
-            repositoryProvider.getHistorikkinnslagRepository(), repositoryProvider.getBehandlingRepository()).oppdater(dto,
-            new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling), dto, aksjonspunkt));
+        oppdaterer.oppdater(dto, new AksjonspunktOppdaterParameter(ref, dto, aksjonspunkt));
 
         // Assert
         var hendelse = repositoryProvider.getFamilieHendelseRepository().hentAggregat(behandling.getId()).getGjeldendeVersjon();
@@ -204,8 +203,7 @@ class SjekkManglendeFødselOppdatererTest extends EntityManagerAwareTest {
         });
 
         var historikkinnslag = repositoryProvider.getHistorikkinnslagRepository().hent(behandling.getSaksnummer()).getFirst();
-        assertThat(historikkinnslag.getTekstLinjer()).containsExactly("__Er barnet født?__ Ja.",
-            "__Antall barn__ er endret fra 1 til __2__.",
+        assertThat(historikkinnslag.getTekstLinjer()).containsExactly("__Er barnet født?__ Ja.", "__Antall barn__ er endret fra 1 til __2__.",
             String.format("__Barn 1__ er endret fra f. %s til __f. %s__.", format(opprinneligFødseldato), format(avklartFødseldato)),
             String.format("__Barn 2__ er satt til __f. %s__.", format(avklartFødseldato)), "begrunnelse.");
 
@@ -231,11 +229,9 @@ class SjekkManglendeFødselOppdatererTest extends EntityManagerAwareTest {
 
         var dto = new SjekkManglendeFødselAksjonspunktDto("begrunnelse", barn);
         var aksjonspunkt = behandling.getAksjonspunktFor(SJEKK_MANGLENDE_FØDSEL);
-
+        var ref = BehandlingReferanse.fra(behandling);
         // Act
-        new SjekkManglendeFødselOppdaterer(mock(OpplysningsPeriodeTjeneste.class), familieHendelseTjeneste,
-            repositoryProvider.getHistorikkinnslagRepository(), repositoryProvider.getBehandlingRepository()).oppdater(dto,
-            new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling), dto, aksjonspunkt));
+        oppdaterer.oppdater(dto, new AksjonspunktOppdaterParameter(ref, dto, aksjonspunkt));
 
         // Assert
         var hendelse = repositoryProvider.getFamilieHendelseRepository().hentAggregat(behandling.getId()).getGjeldendeVersjon();
@@ -248,8 +244,7 @@ class SjekkManglendeFødselOppdatererTest extends EntityManagerAwareTest {
         });
 
         var historikkinnslag = repositoryProvider.getHistorikkinnslagRepository().hent(behandling.getSaksnummer()).getFirst();
-        assertThat(historikkinnslag.getTekstLinjer()).containsExactly("__Er barnet født?__ Ja.",
-            "__Antall barn__ som brukes i behandlingen: __1__.",
+        assertThat(historikkinnslag.getTekstLinjer()).containsExactly("__Er barnet født?__ Ja.", "__Antall barn:__ 1.",
             String.format("__Barn__ er endret fra f. %s til __f. %s - d. %s__.", format(fødselsdatoFraSøknad), format(fødselsdatoFraSøknad),
                 format(dødsdatoFraSBH)), "begrunnelse.");
 
@@ -272,11 +267,11 @@ class SjekkManglendeFødselOppdatererTest extends EntityManagerAwareTest {
 
         var dto = new SjekkManglendeFødselAksjonspunktDto("begrunnelse", barn);
         var aksjonspunkt = behandling.getAksjonspunktFor(SJEKK_MANGLENDE_FØDSEL);
+        var ref = BehandlingReferanse.fra(behandling);
 
         // Act
-        var resultat = new SjekkManglendeFødselOppdaterer(mock(OpplysningsPeriodeTjeneste.class), familieHendelseTjeneste,
-            repositoryProvider.getHistorikkinnslagRepository(), repositoryProvider.getBehandlingRepository()).oppdater(dto,
-            new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling), dto, aksjonspunkt));
+        var resultat = new SjekkManglendeFødselOppdaterer(familieHendelseTjeneste, repositoryProvider.getHistorikkinnslagRepository(),
+            faktaFødselTjeneste).oppdater(dto, new AksjonspunktOppdaterParameter(ref, dto, aksjonspunkt));
 
         // Assert
         assertThat(resultat.getOverhoppKontroll()).isEqualTo(OverhoppKontroll.UTEN_OVERHOPP);
@@ -288,8 +283,7 @@ class SjekkManglendeFødselOppdatererTest extends EntityManagerAwareTest {
         });
 
         var historikkinnslag = repositoryProvider.getHistorikkinnslagRepository().hent(behandling.getSaksnummer()).getFirst();
-        assertThat(historikkinnslag.getTekstLinjer()).containsExactly("__Er barnet født?__ Ja.",
-            "__Antall barn__ som brukes i behandlingen: __1__.",
+        assertThat(historikkinnslag.getTekstLinjer()).containsExactly("__Er barnet født?__ Ja.", "__Antall barn:__ 1.",
             String.format("__Barn__ er endret fra f. %s til __f. %s__.", format(fødselsdatoFraSøknad), format(fødselsdatoFraSBH)), "begrunnelse.");
 
     }
@@ -309,11 +303,10 @@ class SjekkManglendeFødselOppdatererTest extends EntityManagerAwareTest {
         var barn = List.of(new DokumentertBarnDto(fødselsdatoFraSøknad, null));
         var dto = new SjekkManglendeFødselAksjonspunktDto("begrunnelse", barn);
         var aksjonspunkt = behandling.getAksjonspunktFor(SJEKK_MANGLENDE_FØDSEL);
+        var ref = BehandlingReferanse.fra(behandling);
 
         // Act
-        new SjekkManglendeFødselOppdaterer(mock(OpplysningsPeriodeTjeneste.class), familieHendelseTjeneste,
-            repositoryProvider.getHistorikkinnslagRepository(), repositoryProvider.getBehandlingRepository()).oppdater(dto,
-            new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling), dto, aksjonspunkt));
+        oppdaterer.oppdater(dto, new AksjonspunktOppdaterParameter(ref, dto, aksjonspunkt));
 
         // Assert
         var hendelse = repositoryProvider.getFamilieHendelseRepository().hentAggregat(behandling.getId()).getGjeldendeVersjon();
@@ -323,8 +316,8 @@ class SjekkManglendeFødselOppdatererTest extends EntityManagerAwareTest {
         });
 
         var historikkinnslag2 = repositoryProvider.getHistorikkinnslagRepository().hent(behandling.getSaksnummer()).getFirst();
-        assertThat(historikkinnslag2.getTekstLinjer()).containsExactly("__Er barnet født?__ Ja.",
-            "__Antall barn__ er endret fra 2 til __1__.", String.format("__Barn 2__ __f. %s__ er fjernet.", format(fødselsdatoFraSøknad)), "begrunnelse.");
+        assertThat(historikkinnslag2.getTekstLinjer()).containsExactly("__Er barnet født?__ Ja.", "__Antall barn__ er endret fra 2 til __1__.",
+            String.format("__Barn 2__ __f. %s__ er fjernet.", format(fødselsdatoFraSøknad)), "begrunnelse.");
 
     }
 
@@ -338,35 +331,19 @@ class SjekkManglendeFødselOppdatererTest extends EntityManagerAwareTest {
 
         var behandling = scenario.lagre(repositoryProvider);
 
-        var oppdaterer = new SjekkManglendeFødselOppdaterer(mock(OpplysningsPeriodeTjeneste.class), familieHendelseTjeneste,
-            repositoryProvider.getHistorikkinnslagRepository(), repositoryProvider.getBehandlingRepository());
+        var oppdaterer = new SjekkManglendeFødselOppdaterer(familieHendelseTjeneste, repositoryProvider.getHistorikkinnslagRepository(),
+            faktaFødselTjeneste);
 
         var dtoForMangeBarn = new SjekkManglendeFødselAksjonspunktDto("begrunnelse", Collections.nCopies(10, new DokumentertBarnDto(now(), null)));
         var dtoDødFørFødsel = new SjekkManglendeFødselAksjonspunktDto("begrunnelse", List.of(new DokumentertBarnDto(now(), now().minusDays(1))));
 
         var aksjonspunkt = behandling.getAksjonspunktFor(SJEKK_MANGLENDE_FØDSEL);
         var ref = BehandlingReferanse.fra(behandling);
-        assertThatExceptionOfType(FunksjonellException.class).isThrownBy(() -> oppdaterer.oppdater(dtoForMangeBarn,
-                new AksjonspunktOppdaterParameter(ref, dtoForMangeBarn, aksjonspunkt)))
+        assertThatExceptionOfType(FunksjonellException.class).isThrownBy(
+                () -> oppdaterer.oppdater(dtoForMangeBarn, new AksjonspunktOppdaterParameter(ref, dtoForMangeBarn, aksjonspunkt)))
             .withMessage("FP-076347:For mange barn");
-        assertThatExceptionOfType(FunksjonellException.class).isThrownBy(() -> oppdaterer.oppdater(dtoDødFørFødsel,
-                new AksjonspunktOppdaterParameter(ref, dtoDødFørFødsel, aksjonspunkt)))
+        assertThatExceptionOfType(FunksjonellException.class).isThrownBy(
+                () -> oppdaterer.oppdater(dtoDødFørFødsel, new AksjonspunktOppdaterParameter(ref, dtoDødFørFødsel, aksjonspunkt)))
             .withMessage("FP-076345:Dødsdato før fødselsdato");
-    }
-
-    @Test
-    void skal_sortere_barn_på_fødselstatus() {
-
-        var barn1 = Stream.of(lagFødselStatus(now(), null), lagFødselStatus(now().minusDays(1), now()), lagFødselStatus(now().minusDays(1), null),
-            lagFødselStatus(now().minusDays(2), null), lagFødselStatus(now().plusDays(33), null)).sorted().toList();
-
-        var barn2 = Stream.of(lagFødselStatus(now(), null), lagFødselStatus(now().minusDays(1), null), lagFødselStatus(now().minusDays(1), now()),
-            lagFødselStatus(now().minusDays(2), null), lagFødselStatus(now().plusDays(33), null)).sorted().toList();
-
-        assertThat(barn1).isEqualTo(barn2);
-    }
-
-    private FødselStatus lagFødselStatus(LocalDate fødselsdato, LocalDate dødsdato) {
-        return new FødselStatus(new DokumentertBarnDto(fødselsdato, dødsdato));
     }
 }

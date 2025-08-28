@@ -275,10 +275,6 @@ public class FamilieHendelseTjeneste {
         return FØDSEL.equals(fh.getType()) && !fh.getBarna().isEmpty();
     }
 
-    public void kopierGrunnlag(Long fraBehandlingId, Long tilBehandlingId) {
-        familieGrunnlagRepository.kopierGrunnlagFraEksisterendeBehandling(fraBehandlingId, tilBehandlingId);
-    }
-
     static List<LocalDateInterval> utledPerioderForRegisterinnhenting(FamilieHendelseGrunnlagEntitet familieHendelseGrunnlag) {
         return utledTidslineFraGrunnlag(familieHendelseGrunnlag).getLocalDateIntervals().stream().toList();
     }

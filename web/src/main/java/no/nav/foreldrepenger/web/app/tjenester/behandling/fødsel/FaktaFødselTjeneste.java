@@ -13,26 +13,17 @@ import java.util.stream.Stream;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
-import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseGrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.TerminbekreftelseEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.familiehendelse.FamilieHendelseTjeneste;
-import no.nav.foreldrepenger.familiehendelse.aksjonspunkt.dto.DokumentertBarnDto;
-import no.nav.foreldrepenger.familiehendelse.modell.FødselStatus;
-import no.nav.foreldrepenger.web.app.tjenester.behandling.fødsel.aksjonspunkt.OverstyringFaktaOmFødselDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.fødsel.dto.FødselDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.fødsel.dto.Kilde;
-import no.nav.vedtak.exception.FunksjonellException;
 
 @ApplicationScoped
 public class FaktaFødselTjeneste {
-    private static final Logger LOG = LoggerFactory.getLogger(FaktaFødselTjeneste.class);
     private FamilieHendelseTjeneste familieHendelseTjeneste;
     private BehandlingRepository behandlingRepository;
 
@@ -44,30 +35,6 @@ public class FaktaFødselTjeneste {
     public FaktaFødselTjeneste(FamilieHendelseTjeneste familieHendelseTjeneste, BehandlingRepository behandlingRepository) {
         this.familieHendelseTjeneste = familieHendelseTjeneste;
         this.behandlingRepository = behandlingRepository;
-    }
-
-    public void overstyrFaktaOmFødsel(Long behandlingId, OverstyringFaktaOmFødselDto dto) {
-        LOG.info("Overstyrer fakta rundt fødsel for behandlingId {} til {}", behandlingId, dto);
-        var oppdatere = familieHendelseTjeneste.opprettBuilderForOverstyring(behandlingId);
-        var familieHendelse = familieHendelseTjeneste.hentAggregat(behandlingId);
-
-        validerFødselsdataForOverstyring(dto);
-
-        if (dto.getBarn() == null) {
-            var søknadAntallBarn = familieHendelse.getSøknadVersjon().getAntallBarn();
-            var overstyrtAntallBarn = familieHendelse.getOverstyrtVersjon().map(FamilieHendelseEntitet::getAntallBarn);
-            oppdatere.medTerminType().tilbakestillBarn().medAntallBarn(overstyrtAntallBarn.orElse(søknadAntallBarn));
-        }
-
-        if (harEndringerIBarnData(dto, familieHendelse)) {
-            oppdaterBarnData(dto, oppdatere);
-        }
-
-        if (dto.getTermindato() != null) {
-            oppdatere.medTerminbekreftelse(oppdatere.getTerminbekreftelseBuilder().medTermindato(dto.getTermindato()));
-        }
-
-        familieHendelseTjeneste.lagreOverstyrtHendelse(behandlingId, oppdatere);
     }
 
     public FødselDto hentFaktaOmFødsel(Long behandlingId) {
@@ -99,69 +66,6 @@ public class FaktaFødselTjeneste {
             .filter(o -> !o.getBarna().isEmpty())
             .map(o -> FødselDto.Gjeldende.FødselDokumetasjonStatus.DOKUMENTERT)
             .orElse(FødselDto.Gjeldende.FødselDokumetasjonStatus.IKKE_DOKUMENTERT);
-    }
-
-    private static void oppdaterBarnData(OverstyringFaktaOmFødselDto dto, FamilieHendelseBuilder oppdatere) {
-        oppdatere.tilbakestillBarn().medAntallBarn(dto.getBarn().size());
-        dto.getBarn().forEach(b -> oppdatere.leggTilBarn(b.getFødselsdato(), b.getDødsdato().orElse(null)));
-    }
-
-    private static boolean harEndringerIBarnData(OverstyringFaktaOmFødselDto dto, FamilieHendelseGrunnlagEntitet familieHendelse) {
-        return dto.getBarn() != null && !dto.getBarn().isEmpty() && finnesUlikeBarn(dto, familieHendelse);
-    }
-
-    private static void validerFødselsdataForOverstyring(OverstyringFaktaOmFødselDto dto) {
-        if (dto.getBarn() == null || dto.getBarn().isEmpty()) {
-            return; // Ingen fødselsdato/barn å validere
-        }
-
-        validerDødsdatoerMotFødselsdatoer(dto);
-        sjekkGyldigTerminFødsel(dto);
-    }
-
-    private static void sjekkGyldigTerminFødsel(OverstyringFaktaOmFødselDto dto) {
-        var fødselsdato = dto.getBarn().stream().map(DokumentertBarnDto::getFødselsdato).filter(Objects::nonNull).min(Comparator.naturalOrder());
-        if (dto.getTermindato() != null && fødselsdato.isPresent()) {
-            var fødselsintervall = FamilieHendelseTjeneste.intervallForTermindato(dto.getTermindato());
-            if (!fødselsintervall.encloses(fødselsdato.get())) {
-                throw new FunksjonellException("FP-076346", "For stort avvik termin/fødsel", "Sjekk datoer eller meld sak i Porten");
-            }
-        }
-    }
-
-    private static void validerDødsdatoerMotFødselsdatoer(OverstyringFaktaOmFødselDto dto) {
-        dto.getBarn().forEach(barn -> {
-            if (barn.getDødsdato().isPresent() && barn.getDødsdato().get().isBefore(barn.getFødselsdato())) {
-                throw new FunksjonellException("FP-076345", "Dødsdato før fødselsdato", "Se over fødsels- og dødsdato");
-            }
-        });
-    }
-
-    private static boolean finnesUlikeBarn(OverstyringFaktaOmFødselDto dto, FamilieHendelseGrunnlagEntitet familieHendelse) {
-        var dtoFødselStatus = dto.getBarn().stream().map(barn -> {
-            var barnDto = new DokumentertBarnDto(barn.getFødselsdato(), barn.getDødsdato().orElse(null));
-            var barnNummer = getBarnNummer(barn, dto.getBarn());
-            return new FødselStatus(barnDto, barnNummer);
-        }).toList();
-
-        var grunnlagBarnFødselStatus = familieHendelse.getGjeldendeVersjon()
-            .getBarna()
-            .stream()
-            .map(barn -> new FødselStatus(new DokumentertBarnDto(barn.getFødselsdato(), barn.getDødsdato().orElse(null)),
-                getBarnNummer(barn, familieHendelse.getGjeldendeVersjon().getBarna())))
-            .toList();
-
-        return dtoFødselStatus.size() != grunnlagBarnFødselStatus.size() || harEndringerIBarnMedSammeNummer(dtoFødselStatus,
-            grunnlagBarnFødselStatus);
-    }
-
-    private static boolean harEndringerIBarnMedSammeNummer(List<FødselStatus> dtoBarn, List<FødselStatus> grunnlagBarn) {
-        return dtoBarn.stream()
-            .anyMatch(dtoBarnStatus -> grunnlagBarn.stream()
-                .filter(grunnlagBarnStatus -> Objects.equals(grunnlagBarnStatus.getBarnNummer(), dtoBarnStatus.getBarnNummer()))
-                .anyMatch(
-                    grunnlagBarnStatus -> !Objects.equals(dtoBarnStatus.getFødselsdato(), grunnlagBarnStatus.getFødselsdato()) || !Objects.equals(
-                        dtoBarnStatus.getDødsdato(), grunnlagBarnStatus.getDødsdato())));
     }
 
     private FødselDto.Gjeldende.Utstedtdato mapUtstedtdato(FamilieHendelseGrunnlagEntitet familieHendelse) {
