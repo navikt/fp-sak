@@ -5,16 +5,18 @@ import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
 import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import jakarta.validation.constraints.NotNull;
+
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 
 @JsonAutoDetect(getterVisibility=Visibility.NONE, setterVisibility=Visibility.NONE, fieldVisibility=Visibility.ANY)
 public class BehandlingÅrsakDto {
 
     @JsonProperty("behandlingArsakType")
-    private BehandlingÅrsakType behandlingÅrsakType;
+    @NotNull private BehandlingÅrsakType behandlingÅrsakType;
 
     @JsonProperty("manueltOpprettet")
-    private boolean manueltOpprettet;
+    @NotNull private boolean manueltOpprettet;
 
     public BehandlingÅrsakDto() {
         // trengs for deserialisering av JSON
@@ -29,6 +31,7 @@ public class BehandlingÅrsakDto {
     }
 
     @JsonGetter
+    @NotNull
     public Boolean getErAutomatiskRevurdering(){
         if(behandlingÅrsakType == null){
             return false;
