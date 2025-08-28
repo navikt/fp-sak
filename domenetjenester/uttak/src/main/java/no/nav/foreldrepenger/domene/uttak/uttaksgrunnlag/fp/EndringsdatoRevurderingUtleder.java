@@ -380,6 +380,7 @@ public class EndringsdatoRevurderingUtleder {
             .toList();
         var tidslinjePleiepenger = new LocalDateTimeline<>(segmentPleiepenger, StandardCombinators::alwaysTrueForMatch);
         var tidslinjeOverlapp = tidslinjeUtbetalt.intersection(tidslinjePleiepenger);
+        LOG.info("Endringsdato pleiepenger uttak {} {} {}", tidslinjeUtbetalt, tidslinjePleiepenger, tidslinjeOverlapp);
         Optional<LocalDate> førsteOverlapp = !tidslinjeOverlapp.isEmpty() ? Optional.of(tidslinjeOverlapp.getMinLocalDate()) : Optional.empty();
         var søknadsPerioder = ytelsesFordelingRepository.hentAggregatHvisEksisterer(input.getBehandlingReferanse().behandlingId())
             .map(YtelseFordelingAggregat::getOppgittFordeling)
