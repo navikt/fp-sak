@@ -20,7 +20,6 @@ public class UttakPeriodeEndringDtoTjeneste {
 
     private static final Set<AksjonspunktDefinisjon> PROSESS_UTTAK = Set.of(AksjonspunktDefinisjon.FASTSETT_UTTAKPERIODER,
         AksjonspunktDefinisjon.FASTSETT_UTTAK_STORTINGSREPRESENTANT,
-        AksjonspunktDefinisjon.KONTROLLER_ANNENPART_EØS,
         AksjonspunktDefinisjon.KONTROLLER_REALITETSBEHANDLING_ELLER_KLAGE, AksjonspunktDefinisjon.KONTROLLER_OPPLYSNINGER_OM_SØKNADSFRIST,
         AksjonspunktDefinisjon.KONTROLLER_OPPLYSNINGER_OM_DØD,
         AksjonspunktDefinisjon.OVERSTYRING_AV_UTTAKPERIODER);
