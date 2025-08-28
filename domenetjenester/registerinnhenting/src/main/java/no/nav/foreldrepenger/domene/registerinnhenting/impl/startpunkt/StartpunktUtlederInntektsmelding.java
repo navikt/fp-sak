@@ -114,8 +114,12 @@ class StartpunktUtlederInntektsmelding {
         if (erStartpunktForNyImBeregning(grunnlag, nyIm, gamleIm, ref)) {
             return StartpunktType.BEREGNING;
         }
+        if (erStartpunktForNyImBeregningRefusjon(nyIm, gamleIm, ref)) {
+            return StartpunktType.BEREGNING_REFUSJON;
+        }
         return StartpunktType.UDEFINERT;
     }
+
 
     private boolean erInntektsmeldingArbeidsforholdOverstyrtIkkeVenterIM(Optional<InntektArbeidYtelseGrunnlag> grunnlag,
                                                                          Inntektsmelding nyIm,
@@ -137,6 +141,7 @@ class StartpunktUtlederInntektsmelding {
     private boolean erStartpunktForNyImBeregning(Optional<InntektArbeidYtelseGrunnlag> grunnlag, Inntektsmelding nyIm, List<Inntektsmelding> gamleIm, BehandlingReferanse ref) {
         var origIM = sisteInntektsmeldingForArbeidsforhold(nyIm, gamleIm).orElse(null);
         if (origIM == null) { // Finnes ikke tidligere IM fra denne AG
+            // TODO Hvis det er en IM for arbeidsforhold som er tilkommet kan vi starte i refusjon
             FellesStartpunktUtlederLogger.skrivLoggStartpunktIM(klassenavn, "første", ref.behandlingId(), nyIm.getKanalreferanse());
             return true;
         }
@@ -164,6 +169,16 @@ class StartpunktUtlederInntektsmelding {
         return false;
     }
 
+    private boolean erStartpunktForNyImBeregningRefusjon(Inntektsmelding nyIm,
+                                                         List<Inntektsmelding> gamleIm,
+                                                         BehandlingReferanse ref) {
+        var origIM = sisteInntektsmeldingForArbeidsforhold(nyIm, gamleIm).orElseThrow();
+        if (erEndringPåRefusjon(nyIm, origIM)) {
+            FellesStartpunktUtlederLogger.skrivLoggStartpunktIM(klassenavn, "refusjon", ref.behandlingId(), nyIm.getKanalreferanse());
+            return true;
+        }
+        return false;
+    }
 
     private Optional<InntektArbeidYtelseGrunnlag> finnIayGrunnlagForOrigBehandling(Optional<InntektArbeidYtelseGrunnlag> grunnlagForBehandling, InntektArbeidYtelseGrunnlag grunnlag1, InntektArbeidYtelseGrunnlag grunnlag2) {
         var gjeldendeGrunnlag = grunnlagForBehandling.orElse(null);
