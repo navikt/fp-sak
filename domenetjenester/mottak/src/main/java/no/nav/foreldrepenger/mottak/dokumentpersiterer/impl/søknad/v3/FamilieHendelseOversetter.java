@@ -65,7 +65,7 @@ public class FamilieHendelseOversetter  {
         hendelseBuilder.medTerminbekreftelse(hendelseBuilder.getTerminbekreftelseBuilder().medTermindato(termindato));
         var fødselsdato = omYtelse.getFødselsdato();
         if (fødselsdato != null) {
-            hendelseBuilder.erFødsel().medFødselsDato(fødselsdato).medAntallBarn(1);
+            hendelseBuilder.medFødselType().medFødselsDato(fødselsdato).medAntallBarn(1);
         }
     }
 

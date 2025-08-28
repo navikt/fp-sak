@@ -3,8 +3,12 @@ package no.nav.foreldrepenger.web.app.tjenester.behandling.fødsel;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -20,7 +24,6 @@ import no.nav.foreldrepenger.web.app.tjenester.behandling.fødsel.dto.Kilde;
 
 @ApplicationScoped
 public class FaktaFødselTjeneste {
-
     private FamilieHendelseTjeneste familieHendelseTjeneste;
     private BehandlingRepository behandlingRepository;
 
@@ -92,29 +95,26 @@ public class FaktaFødselTjeneste {
         return new FødselDto.Gjeldende.Termin(kilde, gjeldeneTermindato);
     }
 
-    private static Kilde bestemKilde(java.util.Optional<LocalDate> overstyrtDato, java.util.Optional<LocalDate> søknadDato) {
+    private static Kilde bestemKilde(Optional<LocalDate> overstyrtDato, Optional<LocalDate> søknadDato) {
         return overstyrtDato.isEmpty() || Objects.equals(overstyrtDato, søknadDato) ? Kilde.SØKNAD : Kilde.SAKSBEHANDLER;
     }
 
-    private static LocalDate utledUtstedtDato(Kilde kilde, java.util.Optional<LocalDate> søknadDato, java.util.Optional<LocalDate> overstyrtDato) {
+    private static LocalDate utledUtstedtDato(Kilde kilde, Optional<LocalDate> søknadDato, Optional<LocalDate> overstyrtDato) {
         return kilde == Kilde.SØKNAD ? søknadDato.orElse(null) : overstyrtDato.orElse(null);
     }
 
-    private static LocalDate utledTermindato(Kilde kilde, java.util.Optional<LocalDate> søknadDato, java.util.Optional<LocalDate> overstyrtDato) {
+    private static LocalDate utledTermindato(Kilde kilde, Optional<LocalDate> søknadDato, Optional<LocalDate> overstyrtDato) {
         return kilde == Kilde.SØKNAD ? søknadDato.orElse(null) : overstyrtDato.orElse(null);
     }
 
-    private static Kilde bestemKilde(int søknadAntallBarn,
-                                     java.util.Optional<Integer> bekreftetAntallBarn,
-                                     java.util.Optional<Integer> overstyrtAntallBarn) {
+    private static Kilde bestemKilde(int søknadAntallBarn, Optional<Integer> bekreftetAntallBarn, Optional<Integer> overstyrtAntallBarn) {
 
-        if (overstyrtAntallBarn.isPresent()) {
-            return Objects.equals(overstyrtAntallBarn.get(), søknadAntallBarn) ? Kilde.SØKNAD : Kilde.SAKSBEHANDLER;
+        if (overstyrtAntallBarn.isPresent() && !Objects.equals(overstyrtAntallBarn.get(), søknadAntallBarn)) {
+            return Kilde.SAKSBEHANDLER;
         }
-        if (bekreftetAntallBarn.isPresent()) {
-            return Objects.equals(bekreftetAntallBarn.get(), søknadAntallBarn) ? Kilde.SØKNAD : Kilde.FOLKEREGISTER;
+        if (bekreftetAntallBarn.isPresent() && !Objects.equals(bekreftetAntallBarn.get(), søknadAntallBarn)) {
+            return Kilde.FOLKEREGISTER;
         }
-
         return Kilde.SØKNAD;
     }
 
@@ -134,7 +134,6 @@ public class FaktaFødselTjeneste {
         return new FødselDto.Gjeldende.AntallBarn(kilde, antallBarn);
     }
 
-
     private List<FødselDto.Gjeldende.GjeldendeBarn> mapBarn(FamilieHendelseGrunnlagEntitet familieHendelse) {
         var gjeldendeBarn = new ArrayList<FødselDto.Gjeldende.GjeldendeBarn>();
         var søknadBarn = familieHendelse.getSøknadVersjon().getBarna();
@@ -147,37 +146,52 @@ public class FaktaFødselTjeneste {
 
         if (!overstyrtBarn.isEmpty()) {
             var bekreftedeBarnMap = bekreftedeBarn.stream()
-                .collect(java.util.stream.Collectors.groupingBy(b -> new BarnNøkkel(b.fødselsdato(), b.dødsdato()),
-                    java.util.stream.Collectors.counting()));
+                .collect(
+                    Collectors.groupingBy(FødselDto.BarnHendelseData::barnNummer, Collectors.collectingAndThen(Collectors.toList(), List::getFirst)));
 
-            overstyrtBarn.stream()
-                .collect(java.util.stream.Collectors.groupingBy(b -> new BarnNøkkel(b.fødselsdato(), b.dødsdato())))
-                .forEach((nøkkel, barnListe) -> {
-                    long antallBekreftede = bekreftedeBarnMap.getOrDefault(nøkkel, 0L);
-                    barnListe.stream()
-                        .skip(antallBekreftede)
-                        .map(barn -> new FødselDto.Gjeldende.GjeldendeBarn(Kilde.SAKSBEHANDLER, barn, true))
-                        .forEach(gjeldendeBarn::add);
-                });
+            overstyrtBarn.forEach(barn -> {
+                var bekreftetBarn = bekreftedeBarnMap.get(barn.barnNummer());
+                if (bekreftetBarn == null || !erSammeBarn(bekreftetBarn, barn)) {
+                    gjeldendeBarn.add(new FødselDto.Gjeldende.GjeldendeBarn(Kilde.SAKSBEHANDLER, barn, true));
+                }
+            });
+
+            return sorterRiktigRekkefølgerPåGjeldendeBarn(gjeldendeBarn);
         }
 
-        if (overstyrtBarn.isEmpty() && bekreftedeBarn.isEmpty() && !søknadBarn.isEmpty()) {
+        if (bekreftedeBarn.isEmpty() && !søknadBarn.isEmpty()) {
             søknadBarn.stream()
                 .map(barn -> new FødselDto.Gjeldende.GjeldendeBarn(Kilde.SØKNAD,
-                    new FødselDto.BarnHendelseData(barn.getFødselsdato(), barn.getDødsdato().orElse(null)), true))
+                    new FødselDto.BarnHendelseData(barn.getFødselsdato(), barn.getDødsdato().orElse(null), barn.getBarnNummer()), true))
                 .forEach(gjeldendeBarn::add);
         }
 
         return gjeldendeBarn;
     }
 
+    private static boolean erSammeBarn(FødselDto.BarnHendelseData bekreftetBarn, FødselDto.BarnHendelseData overstyrtBarn) {
+        return Objects.equals(bekreftetBarn.fødselsdato(), overstyrtBarn.fødselsdato()) && Objects.equals(bekreftetBarn.dødsdato(),
+            overstyrtBarn.dødsdato());
+    }
+
+    private static List<FødselDto.Gjeldende.GjeldendeBarn> sorterRiktigRekkefølgerPåGjeldendeBarn(ArrayList<FødselDto.Gjeldende.GjeldendeBarn> gjeldendeBarn) {
+        var folkeregisterBarn = gjeldendeBarn.stream().filter(b -> b.kilde() == Kilde.FOLKEREGISTER).toList();
+        var overstyrteBarn = gjeldendeBarn.stream()
+            .filter(b -> b.kilde() != Kilde.FOLKEREGISTER)
+            .sorted(Comparator.comparingInt(barn -> barn.barn().barnNummer()))
+            .toList();
+        return Stream.concat(folkeregisterBarn.stream(), overstyrteBarn.stream()).toList();
+    }
+
     private List<FødselDto.BarnHendelseData> getBarn(FamilieHendelseEntitet familieHendelse) {
         return familieHendelse == null ? Collections.emptyList() : familieHendelse.getBarna()
             .stream()
-            .map(barnEntitet -> new FødselDto.BarnHendelseData(barnEntitet.getFødselsdato(), barnEntitet.getDødsdato().orElse(null)))
+            .map(barn -> new FødselDto.BarnHendelseData(barn.getFødselsdato(), barn.getDødsdato().orElse(null),
+                getBarnNummer(barn, familieHendelse.getBarna())))
             .toList();
     }
 
-    private record BarnNøkkel(LocalDate fødselsdato, LocalDate dødsdato) {
+    private static <T> int getBarnNummer(T barn, List<T> barnListe) {
+        return barnListe.indexOf(barn) + 1;
     }
 }

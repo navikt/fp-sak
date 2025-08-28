@@ -66,7 +66,7 @@ public class BehandlingDtoLenkeTestUtils {
 
     static ScenarioMorSøkerEngangsstønad lagESBehandling() {
         var scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
-        scenario.medSøknadHendelse().erFødsel().build();
+        scenario.medSøknadHendelse().medFødselType().build();
         return scenario;
     }
 
