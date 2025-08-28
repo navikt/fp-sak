@@ -166,7 +166,7 @@ public class ForvaltningUttrekkRestTjeneste {
         var query = entityManager.createNativeQuery("""
             select behandling_id
             from aksjonspunkt
-            where aksjonspunkt_def = '5058' and aksjonspunkt_status = 'OPPR'
+            where aksjonspunkt_def = '5058' and aksjonspunkt_status = 'OPPR' and opprettet_tid > '10.05.2025'
               and behandling_id > :fom and behandling_id <= :tom
             """)
             .setParameter("fom", fom)
