@@ -19,6 +19,7 @@ import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
+import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.MediaType;
@@ -160,12 +161,16 @@ public class ForvaltningUttrekkRestTjeneste {
     @Operation(description = "Flytt behandling til steg", tags = "FORVALTNING-uttrekk")
     @Path("/flyttBehandlingTilSteg")
     @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.DRIFT, sporingslogg = true)
-    public Response flyttBehandlingTilSteg() {
+    public Response flyttBehandlingTilSteg(@TilpassetAbacAttributt(supplierClass = ForvaltningFagsakRestTjeneste.AbacEmptySupplier.class) @QueryParam("fom") @NotNull @Valid Long fom,
+                                           @TilpassetAbacAttributt(supplierClass = ForvaltningFagsakRestTjeneste.AbacEmptySupplier.class) @QueryParam("tom") @NotNull @Valid Long tom) {
         var query = entityManager.createNativeQuery("""
             select behandling_id
             from aksjonspunkt
             where aksjonspunkt_def = '5058' and aksjonspunkt_status = 'OPPR'
-            """);
+              and behandling_id > :fom and behandling_id <= :tom
+            """)
+            .setParameter("fom", fom)
+            .setParameter("tom", tom);
         @SuppressWarnings("unchecked")
         List<Number> resultatList = query.getResultList();
         var åpneAksjonspunkt =  resultatList.stream().map(Number::longValue).toList();
