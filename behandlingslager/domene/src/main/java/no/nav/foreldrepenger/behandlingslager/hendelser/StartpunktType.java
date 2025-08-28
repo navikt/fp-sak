@@ -31,10 +31,11 @@ public enum StartpunktType implements Kodeverdi {
     OPPTJENING("OPPTJENING", "Opptjening", 6, BehandlingStegType.FASTSETT_OPPTJENINGSPERIODE, Set.of(FagsakYtelseType.ENGANGSTØNAD)),
     DEKNINGSGRAD("DEKNINGSGRAD", "Dekningsgrad", 7, BehandlingStegType.DEKNINGSGRAD, Set.of(FagsakYtelseType.ENGANGSTØNAD, FagsakYtelseType.SVANGERSKAPSPENGER)),
     BEREGNING("BEREGNING", "Beregning", 8, BehandlingStegType.FASTSETT_SKJÆRINGSTIDSPUNKT_BEREGNING, Set.of(FagsakYtelseType.ENGANGSTØNAD)),
-    // StartpunktType BEREGNING_FORESLÅ skal kun brukes ved G-regulering
+    // StartpunktType BEREGNING_FORESLÅ skal kun brukes ved G-regulering,
     BEREGNING_FORESLÅ("BEREGNING_FORESLÅ", "Beregning foreslå", 9, BehandlingStegType.FORESLÅ_BEREGNINGSGRUNNLAG, Set.of(FagsakYtelseType.ENGANGSTØNAD)),
-    UTTAKSVILKÅR("UTTAKSVILKÅR", "Uttaksvilkår", 10, BehandlingStegType.INNGANG_UTTAK, Set.of(FagsakYtelseType.ENGANGSTØNAD)), // OBS: Endrer du startsteg må du flytte køhåndtering ....
-    TILKJENT_YTELSE("TILKJENT_YTELSE", "Tilkjent ytelse", 11, BehandlingStegType.BEREGN_YTELSE, Set.of()), // OBS: Ikke testet for Engangsstønad
+    BEREGNING_REFUSJON("BEREGNING_REFUSJON", "Beregning refusjon", 10, BehandlingStegType.VURDER_REF_BERGRUNN, Set.of(FagsakYtelseType.ENGANGSTØNAD)),
+    UTTAKSVILKÅR("UTTAKSVILKÅR", "Uttaksvilkår", 11, BehandlingStegType.INNGANG_UTTAK, Set.of(FagsakYtelseType.ENGANGSTØNAD)), // OBS: Endrer du startsteg må du flytte køhåndtering ....
+    TILKJENT_YTELSE("TILKJENT_YTELSE", "Tilkjent ytelse", 12, BehandlingStegType.BEREGN_YTELSE, Set.of()), // OBS: Ikke testet for Engangsstønad
 
     UDEFINERT("-", "Ikke definert", 99, BehandlingStegType.KONTROLLERER_SØKERS_OPPLYSNINGSPLIKT, Set.of()),
     ;
@@ -93,10 +94,14 @@ public enum StartpunktType implements Kodeverdi {
         VILKÅR_HÅNDTERT_INNEN_STARTPUNKT.put(StartpunktType.BEREGNING_FORESLÅ,
             VILKÅR_HÅNDTERT_INNEN_STARTPUNKT.values().stream().flatMap(Collection::stream).collect(toSet()));
 
+        VILKÅR_HÅNDTERT_INNEN_STARTPUNKT.put(StartpunktType.BEREGNING_REFUSJON,
+            VILKÅR_HÅNDTERT_INNEN_STARTPUNKT.values().stream().flatMap(Collection::stream).collect(toSet()));
+        VILKÅR_HÅNDTERT_INNEN_STARTPUNKT.get(StartpunktType.BEREGNING_REFUSJON).add(VilkårType.BEREGNINGSGRUNNLAGVILKÅR);
+
+
         // Uttak
         VILKÅR_HÅNDTERT_INNEN_STARTPUNKT.put(StartpunktType.UTTAKSVILKÅR,
             VILKÅR_HÅNDTERT_INNEN_STARTPUNKT.values().stream().flatMap(Collection::stream).collect(toSet()));
-        VILKÅR_HÅNDTERT_INNEN_STARTPUNKT.get(StartpunktType.UTTAKSVILKÅR).add(VilkårType.BEREGNINGSGRUNNLAGVILKÅR);
 
         // Tilkjent
         VILKÅR_HÅNDTERT_INNEN_STARTPUNKT.put(StartpunktType.TILKJENT_YTELSE,

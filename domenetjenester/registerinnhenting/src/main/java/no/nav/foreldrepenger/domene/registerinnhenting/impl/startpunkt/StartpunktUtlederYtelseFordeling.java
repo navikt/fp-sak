@@ -55,8 +55,8 @@ class StartpunktUtlederYtelseFordeling implements StartpunktUtleder {
             return StartpunktType.INNGANGSVILKÅR_OPPLYSNINGSPLIKT;
         }
         if (erStartpunktBeregning(ref)) {
-            FellesStartpunktUtlederLogger.loggEndringSomFørteTilStartpunkt(this.getClass().getSimpleName(), StartpunktType.BEREGNING, "Søkt om gradert periode", grunnlagId1, grunnlagId2);
-            return StartpunktType.BEREGNING;
+            FellesStartpunktUtlederLogger.loggEndringSomFørteTilStartpunkt(this.getClass().getSimpleName(), StartpunktType.BEREGNING_REFUSJON, "Søkt om gradert periode", grunnlagId1, grunnlagId2);
+            return StartpunktType.BEREGNING_REFUSJON;
         }
         FellesStartpunktUtlederLogger.loggEndringSomFørteTilStartpunkt(this.getClass().getSimpleName(), StartpunktType.UTTAKSVILKÅR, "ingen endring i skjæringsdato", grunnlagId1, grunnlagId2);
         return StartpunktType.UTTAKSVILKÅR;
