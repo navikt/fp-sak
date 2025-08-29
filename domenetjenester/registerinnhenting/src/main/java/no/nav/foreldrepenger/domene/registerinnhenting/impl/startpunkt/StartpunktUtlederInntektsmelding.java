@@ -1,6 +1,7 @@
 package no.nav.foreldrepenger.domene.registerinnhenting.impl.startpunkt;
 
 import static java.util.Collections.emptyList;
+import static java.util.Collections.max;
 
 import java.util.Comparator;
 import java.util.HashSet;
@@ -13,6 +14,8 @@ import jakarta.enterprise.context.Dependent;
 import jakarta.inject.Inject;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
+import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.arbeidsforhold.ArbeidsforholdKomplettVurderingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.arbeidsforhold.ArbeidsforholdValg;
@@ -20,6 +23,7 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.hendelser.StartpunktType;
 import no.nav.foreldrepenger.domene.arbeidInntektsmelding.ArbeidsforholdInntektsmeldingMangelTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
+import no.nav.foreldrepenger.domene.iay.modell.AktivitetsAvtale;
 import no.nav.foreldrepenger.domene.iay.modell.AktørArbeid;
 import no.nav.foreldrepenger.domene.iay.modell.ArbeidsforholdOverstyring;
 import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlag;
@@ -29,6 +33,7 @@ import no.nav.foreldrepenger.domene.iay.modell.NaturalYtelse;
 import no.nav.foreldrepenger.domene.iay.modell.Refusjon;
 import no.nav.foreldrepenger.domene.iay.modell.Yrkesaktivitet;
 import no.nav.foreldrepenger.domene.iay.modell.kodeverk.ArbeidsforholdHandlingType;
+import no.nav.foreldrepenger.domene.prosess.BeregningTjeneste;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 
 @Dependent
@@ -39,6 +44,7 @@ class StartpunktUtlederInntektsmelding {
 
     private InntektArbeidYtelseTjeneste inntektArbeidYtelseTjeneste;
     private ArbeidsforholdInntektsmeldingMangelTjeneste arbeidsforholdInntektsmeldingMangelTjeneste;
+    private BeregningTjeneste beregningTjeneste;
     private String klassenavn = this.getClass().getSimpleName();
 
     StartpunktUtlederInntektsmelding() {
@@ -47,12 +53,16 @@ class StartpunktUtlederInntektsmelding {
 
     @Inject
     StartpunktUtlederInntektsmelding(InntektArbeidYtelseTjeneste inntektArbeidYtelseTjeneste,
-                                     ArbeidsforholdInntektsmeldingMangelTjeneste arbeidsforholdInntektsmeldingMangelTjeneste) {
+                                     ArbeidsforholdInntektsmeldingMangelTjeneste arbeidsforholdInntektsmeldingMangelTjeneste,
+                                     BeregningTjeneste beregningTjeneste) {
         this.inntektArbeidYtelseTjeneste = inntektArbeidYtelseTjeneste;
         this.arbeidsforholdInntektsmeldingMangelTjeneste = arbeidsforholdInntektsmeldingMangelTjeneste;
+        this.beregningTjeneste = beregningTjeneste;
     }
 
-    public StartpunktType utledStartpunkt(BehandlingReferanse ref, InntektArbeidYtelseGrunnlag grunnlag1, InntektArbeidYtelseGrunnlag grunnlag2) {
+    public StartpunktType utledStartpunkt(BehandlingReferanse ref,
+                                          Skjæringstidspunkt stp,
+                                          InntektArbeidYtelseGrunnlag grunnlag1, InntektArbeidYtelseGrunnlag grunnlag2) {
         var fersktGrunnlag =  inntektArbeidYtelseTjeneste.finnGrunnlag(ref.behandlingId());
         var eldsteGrunnlag = finnIayGrunnlagForOrigBehandling(fersktGrunnlag, grunnlag1, grunnlag2);
         var gamleIm = hentInntektsmeldingerFraGittGrunnlag(eldsteGrunnlag);
@@ -67,7 +77,7 @@ class StartpunktUtlederInntektsmelding {
         }
 
         return deltaIM.stream()
-            .map(nyIm -> finnStartpunktForNyIm(ref, fersktGrunnlag, nyIm, gamleIm, saksbehandlersArbeidsforholdvalg))
+            .map(nyIm -> finnStartpunktForNyIm(ref, fersktGrunnlag, nyIm, gamleIm, saksbehandlersArbeidsforholdvalg, stp))
             .min(Comparator.comparingInt(StartpunktType::getRangering))
             .orElse(StartpunktType.UDEFINERT);
     }
@@ -102,7 +112,7 @@ class StartpunktUtlederInntektsmelding {
                                                  Optional<InntektArbeidYtelseGrunnlag> grunnlag,
                                                  Inntektsmelding nyIm,
                                                  List<Inntektsmelding> gamleIm,
-                                                 List<ArbeidsforholdValg> saksbehandlersArbeidsforholdvalg) {
+                                                 List<ArbeidsforholdValg> saksbehandlersArbeidsforholdvalg, Skjæringstidspunkt stp) {
         if (erInntektsmeldingArbeidsforholdOverstyrtIkkeVenterIM(grunnlag, nyIm, saksbehandlersArbeidsforholdvalg)) {
             FellesStartpunktUtlederLogger.skrivLoggStartpunktIM(klassenavn, "overstyring", ref.behandlingId(), nyIm.getKanalreferanse());
             return StartpunktType.KONTROLLER_ARBEIDSFORHOLD;
@@ -111,10 +121,10 @@ class StartpunktUtlederInntektsmelding {
         if (FagsakYtelseType.SVANGERSKAPSPENGER.equals(ref.fagsakYtelseType()) && (nyttArbForholdForEksisterendeArbgiver(nyIm, gamleIm) || endringIArbeidsforholdIdForSammeArbgiver(nyIm, gamleIm))){
             return StartpunktType.INNGANGSVILKÅR_OPPLYSNINGSPLIKT;
         }
-        if (erStartpunktForNyImBeregning(grunnlag, nyIm, gamleIm, ref)) {
+        if (erStartpunktForNyImBeregning(grunnlag, nyIm, gamleIm, ref, stp)) {
             return StartpunktType.BEREGNING;
         }
-        if (erStartpunktForNyImBeregningRefusjon(nyIm, gamleIm, ref)) {
+        if (erStartpunktForNyImBeregningRefusjon(nyIm, gamleIm, ref) && beregningTjeneste.kanStartesISteg(ref, BehandlingStegType.VURDER_REF_BERGRUNN)) {
             return StartpunktType.BEREGNING_REFUSJON;
         }
         return StartpunktType.UDEFINERT;
@@ -138,12 +148,18 @@ class StartpunktUtlederInntektsmelding {
         return erIkkeVentetFraIAY || erIkkeVentetFraSaksbehandler;
     }
 
-    private boolean erStartpunktForNyImBeregning(Optional<InntektArbeidYtelseGrunnlag> grunnlag, Inntektsmelding nyIm, List<Inntektsmelding> gamleIm, BehandlingReferanse ref) {
+    private boolean erStartpunktForNyImBeregning(Optional<InntektArbeidYtelseGrunnlag> grunnlag, Inntektsmelding nyIm, List<Inntektsmelding> gamleIm, BehandlingReferanse ref,
+                                                 Skjæringstidspunkt stp) {
         var origIM = sisteInntektsmeldingForArbeidsforhold(nyIm, gamleIm).orElse(null);
         if (origIM == null) { // Finnes ikke tidligere IM fra denne AG
-            // TODO Hvis det er en IM for arbeidsforhold som er tilkommet kan vi starte i refusjon
-            FellesStartpunktUtlederLogger.skrivLoggStartpunktIM(klassenavn, "første", ref.behandlingId(), nyIm.getKanalreferanse());
-            return true;
+            // Andeler som starter etter stp påvirker ikke inntektsberegningen, bare fordelingen
+            if (erInntektsmeldingForTilkommetAndel(grunnlag, nyIm, ref, stp) && !beregningTjeneste.kanStartesISteg(ref, BehandlingStegType.VURDER_REF_BERGRUNN)) {
+                FellesStartpunktUtlederLogger.skrivLoggStartpunktIM(klassenavn, "første", ref.behandlingId(), nyIm.getKanalreferanse());
+                return false;
+            } else {
+                FellesStartpunktUtlederLogger.skrivLoggStartpunktIM(klassenavn, "første", ref.behandlingId(), nyIm.getKanalreferanse());
+                return true;
+            }
         }
 
         // Endring til/fra angitt arbeidsforholdId og ingen slik id
@@ -162,11 +178,37 @@ class StartpunktUtlederInntektsmelding {
             FellesStartpunktUtlederLogger.skrivLoggStartpunktIM(klassenavn, "natural", ref.behandlingId(), nyIm.getKanalreferanse());
             return true;
         }
-        if (erEndringPåRefusjon(nyIm, origIM)) {
+        if (erEndringPåRefusjon(nyIm, origIM) && !beregningTjeneste.kanStartesISteg(ref, BehandlingStegType.VURDER_REF_BERGRUNN)) {
             FellesStartpunktUtlederLogger.skrivLoggStartpunktIM(klassenavn, "refusjon", ref.behandlingId(), nyIm.getKanalreferanse());
             return true;
         }
         return false;
+    }
+
+    private boolean erInntektsmeldingForTilkommetAndel(Optional<InntektArbeidYtelseGrunnlag> grunnlag, Inntektsmelding nyIm,
+                                                       BehandlingReferanse ref,
+                                                       Skjæringstidspunkt stp) {
+        var matchendeYrkesaktivitet = grunnlag.flatMap(InntektArbeidYtelseGrunnlag::getRegisterVersjon)
+            .flatMap(agg -> agg.getAktørArbeid().stream().filter(ar -> ar.getAktørId().equals(ref.aktørId())).findFirst())
+            .map(AktørArbeid::hentAlleYrkesaktiviteter)
+            .orElse(List.of())
+            .stream()
+            .filter(ya -> ya.gjelderFor(nyIm.getArbeidsgiver(), nyIm.getArbeidsforholdRef()))
+            .findFirst();
+        var ansettelsesperioder = matchendeYrkesaktivitet.map(Yrkesaktivitet::getAlleAktivitetsAvtaler)
+            .orElse(List.of())
+            .stream()
+            .filter(AktivitetsAvtale::erAnsettelsesPeriode)
+            .toList();
+        // Uten ansettelsesperioder er det umulig å bestemme, vil også intreffe dersom det ikke finnes en yrkesaktivitet som matcher inntektsmeldingen
+        if (ansettelsesperioder.isEmpty()) {
+            return false;
+        }
+        var erAktivPåStp = ansettelsesperioder.stream().anyMatch(aa -> aa.getPeriode().inkluderer(stp.getUtledetSkjæringstidspunkt()));
+        if (erAktivPåStp) {
+            return false;
+        }
+        return ansettelsesperioder.stream().anyMatch(aa -> aa.getPeriode().getFomDato().isAfter(stp.getUtledetSkjæringstidspunkt()));
     }
 
     private boolean erStartpunktForNyImBeregningRefusjon(Inntektsmelding nyIm,

@@ -13,6 +13,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.domene.aksjonspunkt.OppdaterBeregningsgrunnlagResultat;
 import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagGrunnlag;
 import no.nav.foreldrepenger.domene.output.BeregningsgrunnlagVilkårOgAkjonspunktResultat;
+import no.nav.foreldrepenger.konfig.Environment;
 
 @ApplicationScoped
 public class BeregningTjenesteImpl implements BeregningTjeneste {
@@ -76,6 +77,9 @@ public class BeregningTjenesteImpl implements BeregningTjeneste {
 
     @Override
     public boolean kanStartesISteg(BehandlingReferanse referanse, BehandlingStegType stegType) {
+        if (stegType.equals(BehandlingStegType.VURDER_REF_BERGRUNN) && Environment.current().isProd()) {
+            return false;
+        }
         return kalkulusBeregner.kanStartesISteg(referanse, stegType);
     }
 }

@@ -118,7 +118,7 @@ class StartpunktUtlederInntektArbeidYtelse implements StartpunktUtleder {
             }
         }
         if (erInntektsmeldingEndret) {
-            var startpunktIM = startpunktUtlederInntektsmelding.utledStartpunkt(ref, grunnlag1, grunnlag2);
+            var startpunktIM = startpunktUtlederInntektsmelding.utledStartpunkt(ref, stp, grunnlag1, grunnlag2);
             if (StartpunktType.KONTROLLER_ARBEIDSFORHOLD.equals(startpunktIM)) {
                 arbeidsforholdAdministrasjonTjeneste.fjernOverstyringerGjortAvSaksbehandler(ref.behandlingId());
             }

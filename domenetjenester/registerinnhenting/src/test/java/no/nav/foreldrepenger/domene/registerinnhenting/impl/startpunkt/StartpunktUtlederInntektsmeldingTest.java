@@ -12,6 +12,9 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
+import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
+import no.nav.foreldrepenger.domene.prosess.BeregningTjeneste;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -72,6 +75,9 @@ class StartpunktUtlederInntektsmeldingTest extends EntityManagerAwareTest {
     @Mock
     ArbeidsforholdInntektsmeldingMangelTjeneste arbeidsforholdInntektsmeldingMangelTjeneste;
 
+    @Mock
+    BeregningTjeneste beregningTjeneste;
+
     private StartpunktUtlederInntektsmelding utleder;
 
     @BeforeEach
@@ -81,7 +87,7 @@ class StartpunktUtlederInntektsmeldingTest extends EntityManagerAwareTest {
         behandlingRepository = new BehandlingRepository(entityManager);
         lenient().when(førstegangsbehandlingGrunnlagIAY.getInntektsmeldinger()).thenReturn(Optional.of(førstegangsbehandlingIMAggregat));
         lenient().when(revurderingGrunnlagIAY.getInntektsmeldinger()).thenReturn(Optional.of(revurderingIMAggregat));
-        utleder = new StartpunktUtlederInntektsmelding(inntektArbeidYtelseTjeneste, arbeidsforholdInntektsmeldingMangelTjeneste);
+        utleder = new StartpunktUtlederInntektsmelding(inntektArbeidYtelseTjeneste, arbeidsforholdInntektsmeldingMangelTjeneste, beregningTjeneste);
     }
 
     @Test
@@ -108,7 +114,8 @@ class StartpunktUtlederInntektsmeldingTest extends EntityManagerAwareTest {
     }
 
     private StartpunktType utledStartpunkt(BehandlingReferanse ref) {
-        return utleder.utledStartpunkt(ref, førstegangsbehandlingGrunnlagIAY, revurderingGrunnlagIAY);
+        var stp = Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(LocalDate.now()).build();
+        return utleder.utledStartpunkt(ref, stp, førstegangsbehandlingGrunnlagIAY, revurderingGrunnlagIAY);
     }
 
     @Test
