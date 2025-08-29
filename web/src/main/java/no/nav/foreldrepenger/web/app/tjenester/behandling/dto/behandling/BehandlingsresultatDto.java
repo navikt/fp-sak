@@ -6,6 +6,8 @@ import java.util.List;
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import jakarta.validation.constraints.NotNull;
+
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.KonsekvensForYtelsen;
 import no.nav.foreldrepenger.behandlingslager.behandling.RettenTil;
@@ -16,9 +18,9 @@ import no.nav.foreldrepenger.domene.vedtak.intern.VedtaksbrevStatus;
 @JsonAutoDetect(getterVisibility = JsonAutoDetect.Visibility.NONE, setterVisibility = JsonAutoDetect.Visibility.NONE, fieldVisibility = JsonAutoDetect.Visibility.ANY)
 public class BehandlingsresultatDto {
 
-    @JsonProperty("id")
+    @NotNull @JsonProperty("id")
     private Long id;
-    @JsonProperty("type")
+    @NotNull @JsonProperty("type")
     private BehandlingResultatType type;
     @JsonProperty("avslagsarsak")
     private Avslagsårsak avslagsarsak;
@@ -30,13 +32,13 @@ public class BehandlingsresultatDto {
     private List<KonsekvensForYtelsen> konsekvenserForYtelsen;
     @JsonProperty("vedtaksbrev")
     private Vedtaksbrev vedtaksbrev;
-    @JsonProperty("vedtaksbrevStatus")
+    @NotNull @JsonProperty("vedtaksbrevStatus")
     private VedtaksbrevStatus vedtaksbrevStatus;
     @JsonProperty("overskrift")
     private String overskrift;
     @JsonProperty("fritekstbrev")
     private String fritekstbrev;
-    @JsonProperty("harRedigertVedtaksbrev")
+    @NotNull @JsonProperty("harRedigertVedtaksbrev")
     private boolean harRedigertVedtaksbrev;
     @JsonProperty("erRevurderingMedUendretUtfall")
     private Boolean erRevurderingMedUendretUtfall;

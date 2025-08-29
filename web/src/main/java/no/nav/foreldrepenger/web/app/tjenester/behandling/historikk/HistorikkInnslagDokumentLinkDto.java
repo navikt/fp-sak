@@ -1,11 +1,13 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.historikk;
 
+import jakarta.validation.constraints.NotNull;
+
 public class HistorikkInnslagDokumentLinkDto {
 
-    private String tag;
-    private String journalpostId;
-    private String dokumentId;
-    private boolean utgått;
+    @NotNull private String tag;
+    @NotNull private String journalpostId;
+    @NotNull private String dokumentId;
+    @NotNull private boolean utgått;
 
     public String getTag() {
         return tag;

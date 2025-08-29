@@ -6,6 +6,8 @@ import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import jakarta.validation.constraints.NotNull;
+
 import no.nav.foreldrepenger.kontrakter.formidling.v3.BrevmalDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.aksjonspunkt.AksjonspunktDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.BehandlingOperasjonerDto;
@@ -18,10 +20,10 @@ public class FagsakBehandlingDto extends BehandlingDto {
     @JsonProperty("behandlingTillatteOperasjoner")
     private BehandlingOperasjonerDto behandlingTillatteOperasjoner;
 
-    @JsonProperty("brevmaler")
+    @JsonProperty("brevmaler") @NotNull
     private List<BrevmalDto> brevmaler;
 
-    @JsonProperty("totrinnskontrollÅrsaker")
+    @JsonProperty("totrinnskontrollÅrsaker") @NotNull
     private List<TotrinnskontrollSkjermlenkeContextDto> totrinnskontrollÅrsaker;
 
     @JsonProperty("totrinnskontrollReadonly")

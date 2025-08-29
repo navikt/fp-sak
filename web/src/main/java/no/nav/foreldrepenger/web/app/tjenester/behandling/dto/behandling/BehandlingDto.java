@@ -73,11 +73,11 @@ public class BehandlingDto {
     private String ansvarligSaksbehandler;
     @JsonProperty("toTrinnsBehandling") @NotNull
     private boolean toTrinnsBehandling;
-    @JsonProperty("behandlingsresultat")
+    @JsonProperty("behandlingsresultat") @NotNull
     private BehandlingsresultatDto behandlingsresultat;
     @JsonProperty("behandlingÅrsaker") @NotNull
     private List<BehandlingÅrsakDto> behandlingÅrsaker;
-    @JsonProperty("vilkår")
+    @JsonProperty("vilkår") @NotNull
     private List<VilkårDto> vilkår;
 
     /**

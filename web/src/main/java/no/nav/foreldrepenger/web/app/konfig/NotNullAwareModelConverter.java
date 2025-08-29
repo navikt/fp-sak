@@ -17,6 +17,22 @@ import java.util.*;
  */
 public class NotNullAwareModelConverter implements ModelConverter {
 
+    /**
+     * Finds a field by name in the class hierarchy, including inherited fields from parent classes.
+     */
+    private Field findFieldInHierarchy(Class<?> clazz, String fieldName) {
+        Class<?> currentClass = clazz;
+        while (currentClass != null) {
+            try {
+                return currentClass.getDeclaredField(fieldName);
+            } catch (NoSuchFieldException ignored) {
+                // Field not found in current class, try parent class
+                currentClass = currentClass.getSuperclass();
+            }
+        }
+        return null; // Field not found in entire hierarchy
+    }
+
     @Override
     @SuppressWarnings({"unchecked", "rawtypes"})
     public Schema<?> resolve(AnnotatedType type, ModelConverterContext context, Iterator<ModelConverter> chain) {
@@ -103,12 +119,16 @@ public class NotNullAwareModelConverter implements ModelConverter {
                 }
             } else {
                 try {
-                    Field field = rawClass.getDeclaredField(name);
-                    notNull = field.isAnnotationPresent(NotNull.class);
-                    isDeprecated = field.isAnnotationPresent(Deprecated.class);
-                    System.out.println("  Class field '" + name + "': @NotNull=" + notNull + ", @Deprecated=" + isDeprecated);
-                } catch (NoSuchFieldException ignored) {
-                    System.out.println("  Field '" + name + "' not found in class, treating as nullable");
+                    Field field = findFieldInHierarchy(rawClass, name);
+                    if (field != null) {
+                        notNull = field.isAnnotationPresent(NotNull.class);
+                        isDeprecated = field.isAnnotationPresent(Deprecated.class);
+                        System.out.println("  Class field '" + name + "' (found in " + field.getDeclaringClass().getSimpleName() + "): @NotNull=" + notNull + ", @Deprecated=" + isDeprecated);
+                    } else {
+                        System.out.println("  Field '" + name + "' not found in class hierarchy, treating as nullable");
+                    }
+                } catch (Exception e) {
+                    System.out.println("  Error accessing field '" + name + "': " + e.getMessage() + ", treating as nullable");
                 }
             }
 

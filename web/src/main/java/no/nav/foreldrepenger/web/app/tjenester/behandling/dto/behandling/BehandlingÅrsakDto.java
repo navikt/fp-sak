@@ -30,6 +30,7 @@ public class BehandlingÅrsakDto {
         this.manueltOpprettet = manueltOpprettet;
     }
 
+    // TODO: [JOHANNES-typegen] her forståes ikke NotNull annoteringen
     @JsonGetter
     @NotNull
     public Boolean getErAutomatiskRevurdering(){

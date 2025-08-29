@@ -6,7 +6,7 @@ import java.util.List;
 
 public class TotrinnskontrollSkjermlenkeContextDto {
 
-    private String skjermlenkeType;
+    @NotNull private String skjermlenkeType;
     @NotNull private List<TotrinnskontrollAksjonspunkterDto> totrinnskontrollAksjonspunkter;
 
     public TotrinnskontrollSkjermlenkeContextDto(String skjermlenkeType, List<TotrinnskontrollAksjonspunkterDto> totrinnskontrollAksjonspunkter) {
