@@ -6,6 +6,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -18,6 +19,7 @@ import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
+import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.MediaType;
@@ -159,36 +161,39 @@ public class ForvaltningUttrekkRestTjeneste {
     @Operation(description = "Flytt behandling til steg", tags = "FORVALTNING-uttrekk")
     @Path("/flyttBehandlingTilSteg")
     @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.DRIFT, sporingslogg = true)
-    public Response flyttBehandlingTilSteg() {
+    public Response flyttBehandlingTilSteg(@TilpassetAbacAttributt(supplierClass = ForvaltningFagsakRestTjeneste.AbacEmptySupplier.class) @QueryParam("fom") @NotNull @Valid Long fom,
+                                           @TilpassetAbacAttributt(supplierClass = ForvaltningFagsakRestTjeneste.AbacEmptySupplier.class) @QueryParam("tom") @NotNull @Valid Long tom) {
         var query = entityManager.createNativeQuery("""
             select behandling_id
             from aksjonspunkt
-            where aksjonspunkt_def = '5074' and aksjonspunkt_status = 'OPPR'
-            and behandling_id not in (select behandling_id from aksjonspunkt where aksjonspunkt_def > '7000' and aksjonspunkt_status = 'OPPR')
-            and behandling_id in (select behandling_id from gr_ytelses_fordeling gy join YF_FORDELING_PERIODE op on gy.so_fordeling_id = op.fordeling_id
-                        where mors_aktivitet = 'ARBEID')
-            and exists (select * from behandling b join fagsak_egenskap fe on b.fagsak_id = fe.fagsak_id where b.id = behandling_id and fe.egenskap_value = 'BARE_FAR_RETT')
-            and behandling_id in (
-              select b.id from behandling b where fagsak_id in (select fagsak_id from behandling bi join gr_soeknad gs on gs.behandling_id = bi.id join soeknad_vedlegg sv on gs.soeknad_id = sv.soeknad_id where skjemanummer = 'I000132' and innsendingsvalg = 'LASTET_OPP')
-              union all
-              select b.id from mottatt_dokument md join behandling b on md.fagsak_id = b.fagsak_id where type = 'I000132'
-              )
-            """);
+            where aksjonspunkt_def = '5058' and aksjonspunkt_status = 'OPPR' and opprettet_tid > '10.05.2025'
+              and behandling_id > :fom and behandling_id <= :tom
+            """)
+            .setParameter("fom", fom)
+            .setParameter("tom", tom);
         @SuppressWarnings("unchecked")
         List<Number> resultatList = query.getResultList();
         var åpneAksjonspunkt =  resultatList.stream().map(Number::longValue).toList();
-        åpneAksjonspunkt.forEach(this::flyttBehandlingTilbakeTilSteg);
+        var tasks = åpneAksjonspunkt.stream()
+            .map(this::lagFlyttBehandlingTilbakeTilStegTask)
+            .flatMap(Optional::stream)
+            .toList();
+        if (!tasks.isEmpty()) {
+            var gruppe = new ProsessTaskGruppe();
+            gruppe.addNesteParallell(tasks);
+            taskTjeneste.lagre(gruppe);
+        }
         return Response.ok().build();
     }
 
-    private void flyttBehandlingTilbakeTilSteg(Long behandlingId) {
+    private Optional<ProsessTaskData> lagFlyttBehandlingTilbakeTilStegTask(Long behandlingId) {
         var behandling = behandlingRepository.hentBehandling(behandlingId);
-        if (!BehandlingStegType.FAKTA_UTTAK_DOKUMENTASJON.equals(behandling.getAktivtBehandlingSteg())) {
-            return;
+        if (!BehandlingStegType.KONTROLLER_FAKTA_BEREGNING.equals(behandling.getAktivtBehandlingSteg())) {
+            return Optional.empty();
         }
         var task = ProsessTaskData.forProsessTask(TilbakeføringTilStegTask.class);
         task.setBehandling(behandling.getSaksnummer().getVerdi(), behandling.getFagsakId(), behandling.getId());
-        taskTjeneste.lagre(task);
+        return Optional.of(task);
     }
 
     @GET
