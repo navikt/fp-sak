@@ -141,7 +141,6 @@ class KontrollerFaktaRevurderingStegImpl implements KontrollerFaktaSteg {
         behandlingÅrsakTjeneste.lagHistorikkForRegisterEndringerMotOriginalBehandling(behandling);
 
         var startpunkt = utledStartpunkt(ref, skjæringstidspunkter, behandling);
-
         behandling.setStartpunkt(startpunkt);
 
         List<AksjonspunktResultat> aksjonspunktResultater = startpunkt.getRangering() <= StartpunktType.INNGANGSVILKÅR_OPPLYSNINGSPLIKT.getRangering() ?
