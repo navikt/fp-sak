@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.UUID;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import jakarta.validation.constraints.NotNull;
@@ -73,7 +74,7 @@ public class BehandlingDto {
     private String ansvarligSaksbehandler;
     @JsonProperty("toTrinnsBehandling") @NotNull
     private boolean toTrinnsBehandling;
-    @JsonProperty("behandlingsresultat")
+    @JsonProperty("behandlingsresultat") @JsonInclude(JsonInclude.Include.NON_NULL)
     private BehandlingsresultatDto behandlingsresultat;
     @JsonProperty("behandlingÅrsaker") @NotNull
     private List<BehandlingÅrsakDto> behandlingÅrsaker;
