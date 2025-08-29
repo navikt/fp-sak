@@ -10,6 +10,8 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 
+import no.nav.foreldrepenger.domene.prosess.BeregningTjeneste;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -47,13 +49,15 @@ class StartpunktUtlederYtelseFordelingTest extends EntityManagerAwareTest {
     private SøknadRepository søknadRepository;
     @Mock
     private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
+    @Mock
+    private BeregningTjeneste beregningTjeneste;
 
     @BeforeEach
     void oppsett() {
         var entityManager = getEntityManager();
         repositoryProvider = new BehandlingRepositoryProvider(entityManager);
         søknadRepository = new SøknadRepository(entityManager, new BehandlingRepository(entityManager));
-        utleder = new StartpunktUtlederYtelseFordeling(repositoryProvider, skjæringstidspunktTjeneste);
+        utleder = new StartpunktUtlederYtelseFordeling(repositoryProvider, skjæringstidspunktTjeneste, beregningTjeneste);
     }
 
     @Test

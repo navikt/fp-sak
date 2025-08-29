@@ -8,6 +8,7 @@ import jakarta.inject.Inject;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.GrunnlagRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
@@ -16,6 +17,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadReposito
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelsesFordelingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeEntitet;
 import no.nav.foreldrepenger.behandlingslager.hendelser.StartpunktType;
+import no.nav.foreldrepenger.domene.prosess.BeregningTjeneste;
 import no.nav.foreldrepenger.domene.registerinnhenting.StartpunktUtleder;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 
@@ -27,18 +29,20 @@ class StartpunktUtlederYtelseFordeling implements StartpunktUtleder {
     private BehandlingRepository behandlingRepository;
     private YtelsesFordelingRepository ytelsesFordelingRepository;
     private SøknadRepository søknadRepository;
-
+    private BeregningTjeneste beregningTjeneste;
     StartpunktUtlederYtelseFordeling() {
         // For CDI
     }
 
     @Inject
     StartpunktUtlederYtelseFordeling(BehandlingRepositoryProvider repositoryProvider,
-                                     SkjæringstidspunktTjeneste skjæringstidspunktTjeneste) {
+                                     SkjæringstidspunktTjeneste skjæringstidspunktTjeneste,
+                                     BeregningTjeneste beregningTjeneste) {
         this.ytelsesFordelingRepository = repositoryProvider.getYtelsesFordelingRepository();
         this.skjæringstidspunktTjeneste = skjæringstidspunktTjeneste;
         this.søknadRepository = repositoryProvider.getSøknadRepository();
         this.behandlingRepository = repositoryProvider.getBehandlingRepository();
+        this.beregningTjeneste = beregningTjeneste;
     }
 
     @Override
@@ -55,8 +59,13 @@ class StartpunktUtlederYtelseFordeling implements StartpunktUtleder {
             return StartpunktType.INNGANGSVILKÅR_OPPLYSNINGSPLIKT;
         }
         if (erStartpunktBeregning(ref)) {
-            FellesStartpunktUtlederLogger.loggEndringSomFørteTilStartpunkt(this.getClass().getSimpleName(), StartpunktType.BEREGNING_REFUSJON, "Søkt om gradert periode", grunnlagId1, grunnlagId2);
-            return StartpunktType.BEREGNING_REFUSJON;
+            if (beregningTjeneste.kanStartesISteg(ref, BehandlingStegType.VURDER_REF_BERGRUNN)) {
+                FellesStartpunktUtlederLogger.loggEndringSomFørteTilStartpunkt(this.getClass().getSimpleName(), StartpunktType.BEREGNING_REFUSJON, "Søkt om gradert periode", grunnlagId1, grunnlagId2);
+                return StartpunktType.BEREGNING_REFUSJON;
+            } else {
+                FellesStartpunktUtlederLogger.loggEndringSomFørteTilStartpunkt(this.getClass().getSimpleName(), StartpunktType.BEREGNING_REFUSJON, "Søkt om gradert periode", grunnlagId1, grunnlagId2);
+                return StartpunktType.BEREGNING;
+            }
         }
         FellesStartpunktUtlederLogger.loggEndringSomFørteTilStartpunkt(this.getClass().getSimpleName(), StartpunktType.UTTAKSVILKÅR, "ingen endring i skjæringsdato", grunnlagId1, grunnlagId2);
         return StartpunktType.UTTAKSVILKÅR;
