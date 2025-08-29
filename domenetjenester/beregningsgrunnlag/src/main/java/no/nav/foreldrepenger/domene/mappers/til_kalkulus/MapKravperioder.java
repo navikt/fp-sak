@@ -89,7 +89,7 @@ public class MapKravperioder {
             yrkesaktiviteter);
         // Her kan vi ende opp uten refusjonsperioder hvis stp har flyttet seg til å være før opphørsdato i inntektsmeldingen,
         // legger på filtrering for å ikke ta med disse da de er uinteressante
-        if (alleTidligereKravPerioder.isEmpty()) {
+        if (alleTidligereKravPerioder.isEmpty() || sistePerioder.getRefusjonsperioder().isEmpty()) {
             return Optional.empty();
         } else {
             return Optional.of(new KravperioderPrArbeidsforhold(
