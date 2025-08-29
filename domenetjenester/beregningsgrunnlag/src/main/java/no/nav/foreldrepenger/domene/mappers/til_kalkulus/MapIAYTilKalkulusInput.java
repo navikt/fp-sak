@@ -33,13 +33,6 @@ import no.nav.folketrygdloven.kalkulus.iay.v1.InntektArbeidYtelseGrunnlagDto;
 import no.nav.folketrygdloven.kalkulus.iay.ytelse.v1.YtelseAnvistDto;
 import no.nav.folketrygdloven.kalkulus.iay.ytelse.v1.YtelseDto;
 import no.nav.folketrygdloven.kalkulus.iay.ytelse.v1.YtelserDto;
-import no.nav.folketrygdloven.kalkulus.kodeverk.ArbeidType;
-import no.nav.folketrygdloven.kalkulus.kodeverk.InntektYtelseType;
-import no.nav.folketrygdloven.kalkulus.kodeverk.InntektskildeType;
-import no.nav.folketrygdloven.kalkulus.kodeverk.InntektspostType;
-import no.nav.folketrygdloven.kalkulus.kodeverk.NaturalYtelseType;
-import no.nav.folketrygdloven.kalkulus.kodeverk.PermisjonsbeskrivelseType;
-import no.nav.folketrygdloven.kalkulus.kodeverk.VirksomhetType;
 import no.nav.folketrygdloven.kalkulus.opptjening.v1.OppgittArbeidsforholdDto;
 import no.nav.folketrygdloven.kalkulus.opptjening.v1.OppgittEgenNæringDto;
 import no.nav.folketrygdloven.kalkulus.opptjening.v1.OppgittFrilansDto;
@@ -132,7 +125,7 @@ public class MapIAYTilKalkulusInput {
                 .stream()
                 .map(naturalYtelse -> new NaturalYtelseDto(mapPeriode(naturalYtelse.getPeriode()),
                     no.nav.folketrygdloven.kalkulus.felles.v1.Beløp.fra(naturalYtelse.getBeloepPerMnd().getVerdi()),
-                    NaturalYtelseType.fraKode(naturalYtelse.getType().getKode())))
+                    KodeverkTilKalkulusMapper.mapNaturalytelsetype(naturalYtelse.getType())))
                 .toList();
 
             var refusjonDtos = inntektsmelding.getEndringerRefusjon()
@@ -213,7 +206,7 @@ public class MapIAYTilKalkulusInput {
         return new YrkesaktivitetDto(
             mapTilAktør(yrkesaktivitet.getArbeidsgiver()),
             arbeidsforholdRef != null ? new InternArbeidsforholdRefDto(arbeidsforholdRef) : null,
-            ArbeidType.fraKode(yrkesaktivitet.getArbeidType().getKode()),
+            KodeverkTilKalkulusMapper.mapArbeidtype(yrkesaktivitet.getArbeidType()),
             aktivitetsAvtaleDtos,
             permisjoner);
     }
@@ -245,7 +238,7 @@ public class MapIAYTilKalkulusInput {
         return new PermisjonDto(
             new Periode(permisjon.getFraOgMed(), permisjon.getTilOgMed()),
             IayProsent.fra(permisjon.getProsentsats().getVerdi()),
-            PermisjonsbeskrivelseType.fraKode(permisjon.getPermisjonsbeskrivelseType().getKode())
+            KodeverkTilKalkulusMapper.mapPermisjonbeskrivelsetype(permisjon.getPermisjonsbeskrivelseType())
         );
     }
 
@@ -259,7 +252,7 @@ public class MapIAYTilKalkulusInput {
     }
 
     private static UtbetalingDto mapTilUtbetalingDto(Inntekt inntekt) {
-        UtbetalingDto utbetalingDto = new UtbetalingDto(InntektskildeType.fraKode(inntekt.getInntektsKilde().getKode()),
+        UtbetalingDto utbetalingDto = new UtbetalingDto(KodeverkTilKalkulusMapper.mapInntektskilde(inntekt.getInntektsKilde()),
             inntekt.getAlleInntektsposter().stream().map(MapIAYTilKalkulusInput::mapTilUtbetalingspostDto).toList());
         if (inntekt.getArbeidsgiver() != null) {
             return utbetalingDto.medArbeidsgiver(mapTilAktør(inntekt.getArbeidsgiver()));
@@ -270,12 +263,13 @@ public class MapIAYTilKalkulusInput {
     private static UtbetalingsPostDto mapTilUtbetalingspostDto(Inntektspost inntektspost) {
         var utbetalingsPostDto = new UtbetalingsPostDto(
             mapPeriode(inntektspost.getPeriode()),
-            InntektspostType.fraKode(inntektspost.getInntektspostType().getKode()),
+            KodeverkTilKalkulusMapper.mapInntektspostType(inntektspost.getInntektspostType()),
             no.nav.folketrygdloven.kalkulus.felles.v1.Beløp.fra(inntektspost.getBeløp().getVerdi()));
         if (inntektspost.getInntektYtelseType() != null) {
             var ytelseType = inntektspost.getInntektYtelseType();
-            utbetalingsPostDto.setInntektYtelseType(InntektYtelseType.valueOf(ytelseType.name()));
+            utbetalingsPostDto.setInntektYtelseType(KodeverkTilKalkulusMapper.mapInntektytelseType(ytelseType));
         }
+        utbetalingsPostDto.setSkattAvgiftType(KodeverkTilKalkulusMapper.mapSkatteOgAvgitsregelType(inntektspost.getSkatteOgAvgiftsregelType()));
         return utbetalingsPostDto;
     }
 
@@ -309,7 +303,7 @@ public class MapIAYTilKalkulusInput {
         return new OppgittEgenNæringDto(
             mapPeriode(oppgittEgenNæring.getPeriode()),
             oppgittEgenNæring.getOrgnr() == null ? null : new Organisasjon(oppgittEgenNæring.getOrgnr()),
-            VirksomhetType.fraKode(oppgittEgenNæring.getVirksomhetType().getKode()),
+            KodeverkTilKalkulusMapper.mapVirksomhetstype(oppgittEgenNæring.getVirksomhetType()),
             oppgittEgenNæring.getNyoppstartet(),
             oppgittEgenNæring.getVarigEndring(),
             oppgittEgenNæring.getEndringDato(),

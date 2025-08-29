@@ -4,8 +4,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.OpptjeningAk
 import no.nav.foreldrepenger.domene.modell.kodeverk.AktivitetStatus;
 import no.nav.foreldrepenger.domene.modell.kodeverk.AndelKilde;
 import no.nav.foreldrepenger.domene.modell.kodeverk.BeregningAktivitetHandlingType;
-import no.nav.foreldrepenger.domene.modell.kodeverk.BeregningsgrunnlagPeriodeRegelType;
-import no.nav.foreldrepenger.domene.modell.kodeverk.BeregningsgrunnlagRegelType;
 import no.nav.foreldrepenger.domene.modell.kodeverk.BeregningsgrunnlagTilstand;
 import no.nav.foreldrepenger.domene.modell.kodeverk.FaktaOmBeregningTilfelle;
 import no.nav.foreldrepenger.domene.modell.kodeverk.Hjemmel;
@@ -194,34 +192,6 @@ public class KodeverkFraKalkulusMapper {
             case UDEFINERT -> Hjemmel.UDEFINERT;
             case F_9_9, COV_1_5, F_9_9_8_35, F_9_9_8_38, F_9_9_8_41, F_9_9_8_42, F_9_9_8_43, F_9_9_8_47, F_9_9_8_49, F_9_9_8_28_8_30, F_9_8_8_28,
                  F_9_9_8_40, KORONALOVEN_3, F_22_13_6 -> throw new IllegalArgumentException(ukjentKodeFeil("hjemmel", hjemmel.getKode()));
-        };
-    }
-
-    public static BeregningsgrunnlagRegelType mapRegelGrunnlagType(no.nav.folketrygdloven.kalkulus.kodeverk.BeregningsgrunnlagRegelType type) {
-        return switch (type) {
-            case SKJÆRINGSTIDSPUNKT -> BeregningsgrunnlagRegelType.SKJÆRINGSTIDSPUNKT;
-            case BRUKERS_STATUS -> BeregningsgrunnlagRegelType.BRUKERS_STATUS;
-            case PERIODISERING_NATURALYTELSE -> BeregningsgrunnlagRegelType.PERIODISERING_NATURALYTELSE;
-            case PERIODISERING_REFUSJON -> BeregningsgrunnlagRegelType.PERIODISERING_REFUSJON;
-            case PERIODISERING_GRADERING -> BeregningsgrunnlagRegelType.PERIODISERING_GRADERING;
-            case UDEFINERT -> BeregningsgrunnlagRegelType.UDEFINERT;
-            case PERIODISERING -> BeregningsgrunnlagRegelType.PERIODISERING;
-            case PERIODISERING_UTBETALINGSGRAD, BESTEBEREGNING -> throw new IllegalArgumentException(ukjentKodeFeil("regelgrunnlagType", type.getKode()));
-        };
-    }
-
-    public static BeregningsgrunnlagPeriodeRegelType mapRegelPeriodeType(no.nav.folketrygdloven.kalkulus.kodeverk.BeregningsgrunnlagPeriodeRegelType type) {
-        return switch (type) {
-            case FORESLÅ -> BeregningsgrunnlagPeriodeRegelType.FORESLÅ;
-            case FORESLÅ_2 -> BeregningsgrunnlagPeriodeRegelType.FORESLÅ_2;
-            case VILKÅR_VURDERING -> BeregningsgrunnlagPeriodeRegelType.VILKÅR_VURDERING;
-            case FORDEL -> BeregningsgrunnlagPeriodeRegelType.FORDEL;
-            case FASTSETT -> BeregningsgrunnlagPeriodeRegelType.FASTSETT;
-            case FINN_GRENSEVERDI -> BeregningsgrunnlagPeriodeRegelType.FINN_GRENSEVERDI;
-            case UDEFINERT -> BeregningsgrunnlagPeriodeRegelType.UDEFINERT;
-            case OPPDATER_GRUNNLAG_SVP -> BeregningsgrunnlagPeriodeRegelType.OPPDATER_GRUNNLAG_SVP;
-            case FASTSETT2 -> BeregningsgrunnlagPeriodeRegelType.FASTSETT2;
-            case FINN_GRADERING_VED_TILKOMMET_INNTEKT -> throw new IllegalArgumentException(ukjentKodeFeil("beregningsgrunnlagPeriodeRegelType", type.getKode()));
         };
     }
 }
