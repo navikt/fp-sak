@@ -5,9 +5,9 @@ import jakarta.validation.constraints.NotNull;
 import java.time.LocalDate;
 import java.util.List;
 
-public record FødselDto(FødselDto.Søknad søknad, FødselDto.Register register, FødselDto.Gjeldende gjeldende) {
+public record FødselDto(@NotNull FødselDto.Søknad søknad, FødselDto.Register register,@NotNull FødselDto.Gjeldende gjeldende) {
 
-    public record BarnHendelseData(LocalDate fødselsdato, LocalDate dødsdato) {
+    public record BarnHendelseData(@NotNull LocalDate fødselsdato, LocalDate dødsdato) {
     }
 
     /*
