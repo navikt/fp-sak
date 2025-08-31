@@ -1,40 +1,43 @@
 package no.nav.foreldrepenger.web.app.tjenester.infotrygd;
 
+import jakarta.validation.constraints.NotNull;
+
 import java.time.LocalDate;
 import java.util.List;
 
-public record InfotrygdVedtakDto(List<SakDto> saker, List<VedtakKjede> vedtakKjeder) {
+public record InfotrygdVedtakDto(@NotNull List<SakDto> saker, @NotNull List<VedtakKjede> vedtakKjeder) {
 
-    public record VedtakKjede(LocalDate opprinneligIdentdato, InfotrygdKode behandlingstema, List<Vedtak> vedtak) {}
+    public record VedtakKjede(@NotNull LocalDate opprinneligIdentdato, @NotNull InfotrygdKode behandlingstema, @NotNull List<Vedtak> vedtak) {}
 
     public record Vedtak(InfotrygdKode behandlingstema,
-                         LocalDate identdato, // IS10: ArbUfør
+                         @NotNull LocalDate identdato, // IS10: ArbUfør
                          LocalDate opphørFom, // IS10: ArbUførTom
-                         LocalDate opprinneligIdentdato, // IS10: ArbUførOpprinnelig
-                         Periode periode, // IS10: UtbetaltFom - UtbetaltTom
-                         LocalDate registrert,  // IS10: RegDato
-                         String saksbehandlerId, // IS10: BrukerId
+                         @NotNull LocalDate opprinneligIdentdato, // IS10: ArbUførOpprinnelig
+                         @NotNull Periode periode, // IS10: UtbetaltFom - UtbetaltTom
+                         @NotNull LocalDate registrert,  // IS10: RegDato
+                         @NotNull String saksbehandlerId, // IS10: BrukerId
                          InfotrygdKode arbeidskategori, // IS10: ArbKat
                          List<Arbeidsforhold> arbeidsforhold,
-                         Integer dekningsgrad, // IS10: Fdato
+                         @NotNull Integer dekningsgrad, // IS10: Fdato
                          LocalDate fødselsdatoBarn, // IS10: Fdato
                          Integer gradering, // IS18 tidskonto prosent
                          List<Utbetaling> utbetalinger) { }
 
     // Fra IS13 Inntekt
-    public record Arbeidsforhold(String arbeidsgiverOrgnr, Integer inntekt, InfotrygdKode inntektsperiode,
-                                 Boolean refusjon, LocalDate refusjonTom,
-                                 LocalDate identdato, LocalDate opprinneligIdentdato) { }
+    public record Arbeidsforhold(@NotNull String arbeidsgiverOrgnr, @NotNull Integer inntekt, InfotrygdKode inntektsperiode,
+                                 @NotNull Boolean refusjon, LocalDate refusjonTom,
+                                 @NotNull LocalDate identdato,@NotNull LocalDate opprinneligIdentdato) { }
 
     // Fra IS15 Utbetaling
-    public record Utbetaling(Periode periode, int utbetalingsgrad, String arbeidsgiverOrgnr, Boolean erRefusjon, Integer dagsats,
-                             LocalDate identdato, LocalDate opprinneligIdentdato) { }
+    public record Utbetaling(@NotNull Periode periode, @NotNull int utbetalingsgrad, String arbeidsgiverOrgnr, @NotNull Boolean erRefusjon, @NotNull Integer dagsats,
+                             @NotNull LocalDate identdato, @NotNull LocalDate opprinneligIdentdato) { }
 
 
-    public record InfotrygdKode(String kode, String termnavn) { }
+    public record InfotrygdKode(@NotNull String kode, @NotNull String termnavn) { }
 
-    public record Periode(LocalDate fom, LocalDate tom) { }
+    public record Periode(@NotNull LocalDate fom, @NotNull LocalDate tom) { }
 
+    // TODO [JOHANNES] -- frontend antar alle felter her er NotNull
     public record SakDto(String resultat, LocalDate registrert, String sakId, String type, LocalDate vedtatt, String valg, String undervalg, String nivaa) {
 
     }

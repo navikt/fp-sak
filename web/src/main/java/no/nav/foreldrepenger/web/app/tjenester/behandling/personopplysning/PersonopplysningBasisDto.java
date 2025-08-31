@@ -4,17 +4,19 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
+import jakarta.validation.constraints.NotNull;
+
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBrukerKjønn;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.SivilstandType;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 
 public class PersonopplysningBasisDto extends PersonIdentDto {
 
-    private NavBrukerKjønn kjønn;
-    private SivilstandType sivilstand;
+    @NotNull private NavBrukerKjønn kjønn;
+    @NotNull private SivilstandType sivilstand;
     private LocalDate dødsdato;
-    private LocalDate fødselsdato;
-    private List<PersonadresseDto> adresser = new ArrayList<>();
+    @NotNull private LocalDate fødselsdato;
+    @NotNull private List<PersonadresseDto> adresser = new ArrayList<>();
 
     public PersonopplysningBasisDto(AktørId aktørId) {
         this.setAktoerId(aktørId);

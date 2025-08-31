@@ -1,13 +1,15 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.personopplysning;
 
+import jakarta.validation.constraints.NotNull;
+
 import java.util.ArrayList;
 import java.util.List;
 
 public class PersonoversiktDto {
 
-    private PersonopplysningBasisDto bruker;
+    @NotNull private PersonopplysningBasisDto bruker;
     private PersonopplysningBasisDto annenPart;
-    private List<PersonopplysningBasisDto> barn = new ArrayList<>();
+    @NotNull private List<PersonopplysningBasisDto> barn = new ArrayList<>();
 
     public PersonopplysningBasisDto getBruker() {
         return bruker;

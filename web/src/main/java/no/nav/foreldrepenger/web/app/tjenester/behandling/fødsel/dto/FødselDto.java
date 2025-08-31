@@ -14,22 +14,24 @@ public record FødselDto(@NotNull FødselDto.Søknad søknad, FødselDto.Registe
      * List<BarnHendelseData> barn er listen over barn som er født (registrert i søknaden) og som det søkes foreldrepenger for.
      * int antallBarn er antall barn det er søkt om i søknaden, hvor barna ennå ikke er født.
      * */
-    public record Søknad(List<BarnHendelseData> barn, LocalDate termindato, LocalDate utstedtdato, int antallBarn) {
+    public record Søknad(@NotNull List<BarnHendelseData> barn, LocalDate termindato, LocalDate utstedtdato, @NotNull int antallBarn) {
     }
 
-    public record Register(List<BarnHendelseData> barn) {
+    public record Register(@NotNull List<BarnHendelseData> barn) {
     }
 
-    public record Gjeldende(@NotNull Termin termin, FødselDto.Gjeldende.Utstedtdato utstedtdato,
-                            AntallBarn antallBarn, List<FødselDto.Gjeldende.GjeldendeBarn> barn, FødselDokumetasjonStatus fødselDokumetasjonStatus) {
+    public record Gjeldende(Termin termin, FødselDto.Gjeldende.Utstedtdato utstedtdato,
+                            @NotNull AntallBarn antallBarn, @NotNull List<FødselDto.Gjeldende.GjeldendeBarn> barn, @NotNull FødselDokumetasjonStatus fødselDokumetasjonStatus) {
 
-        public record Termin(Kilde kilde, LocalDate termindato) {
+        // TODO [JOHANNES] -- frontend bruker termindato som notnull, men fra koden ser det ut som den kan bli null
+        public record Termin(@NotNull Kilde kilde, @NotNull LocalDate termindato) {
         }
 
-        public record AntallBarn(Kilde kilde, int antall) {
+        public record AntallBarn(@NotNull Kilde kilde, @NotNull int antall) {
         }
 
-        public record Utstedtdato(Kilde kilde, LocalDate utstedtdato) {
+        // TODO [JOHANNES] -- frontend bruker utstedtdato som notnull, men fra koden ser det ut som den kan bli null
+        public record Utstedtdato(@NotNull Kilde kilde, @NotNull LocalDate utstedtdato) {
         }
 
         public record GjeldendeBarn(Kilde kilde, BarnHendelseData barn, boolean kanOverstyres) {
