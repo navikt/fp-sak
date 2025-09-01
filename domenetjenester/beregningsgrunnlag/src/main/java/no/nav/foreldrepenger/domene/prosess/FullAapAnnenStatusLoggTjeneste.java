@@ -56,7 +56,7 @@ public class FullAapAnnenStatusLoggTjeneste {
     private boolean harFullAap(BehandlingReferanse referanse, LocalDate skjæringstidspunkt) {
         var iayGrunnlag = iayTjeneste.finnGrunnlag(referanse.behandlingId());
         var ytelser = iayGrunnlag.flatMap(gr -> gr.getAktørYtelseFraRegister(referanse.aktørId())).map(AktørYtelse::getAlleYtelser).orElse(List.of());
-        var filter = new YtelseFilter(ytelser, skjæringstidspunkt, false);
+        var filter = new YtelseFilter(ytelser, skjæringstidspunkt, true);
         var aapVedtak = filter.filter(yt -> yt.getKilde().equals(Fagsystem.ARENA) && yt.getRelatertYtelseType().equals(RelatertYtelseType.ARBEIDSAVKLARINGSPENGER)).getFiltrertYtelser();
         var utbetalingsprosentSisteMK = aapVedtak.stream()
             .map(Ytelse::getYtelseAnvist)
