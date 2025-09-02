@@ -221,6 +221,7 @@ class BehandlingRepositoryTest extends EntityManagerAwareTest {
 
     @Test
     void skal_kunne_lagre_vedtak() {
+        getEntityManager().flush();
         var vedtak = opprettBuilderForVedtak().build();
 
         var lås = behandlingRepository.taSkriveLås(behandling);
