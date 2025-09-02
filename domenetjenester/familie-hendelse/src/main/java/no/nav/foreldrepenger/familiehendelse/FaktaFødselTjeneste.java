@@ -15,11 +15,13 @@ import jakarta.inject.Inject;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.OppdateringResultat;
+import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseGrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.TerminbekreftelseEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagLinjeBuilder;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.SkjermlenkeType;
 import no.nav.foreldrepenger.familiehendelse.aksjonspunkt.dto.DokumentertBarnDto;
 import no.nav.foreldrepenger.familiehendelse.modell.FødselStatus;
@@ -30,15 +32,19 @@ import no.nav.vedtak.exception.FunksjonellException;
 public class FaktaFødselTjeneste {
     private FamilieHendelseTjeneste familieHendelseTjeneste;
     private OpplysningsPeriodeTjeneste opplysningsPeriodeTjeneste;
+    private HistorikkinnslagRepository historikkinnslagRepository;
 
     FaktaFødselTjeneste() {
         // For CDI proxy
     }
 
     @Inject
-    public FaktaFødselTjeneste(FamilieHendelseTjeneste familieHendelseTjeneste, OpplysningsPeriodeTjeneste opplysningsPeriodeTjeneste) {
+    public FaktaFødselTjeneste(FamilieHendelseTjeneste familieHendelseTjeneste,
+                               OpplysningsPeriodeTjeneste opplysningsPeriodeTjeneste,
+                               HistorikkinnslagRepository historikkinnslagRepository) {
         this.familieHendelseTjeneste = familieHendelseTjeneste;
         this.opplysningsPeriodeTjeneste = opplysningsPeriodeTjeneste;
+        this.historikkinnslagRepository = historikkinnslagRepository;
     }
 
     private static void validerGyldigTerminFødsel(Optional<LocalDate> termindato, Optional<List<DokumentertBarnDto>> barna) {
@@ -63,59 +69,12 @@ public class FaktaFødselTjeneste {
         }));
     }
 
-    public Historikkinnslag.Builder lagHistorikkForBarn(BehandlingReferanse ref,
-                                                        FamilieHendelseGrunnlagEntitet fh,
-                                                        Optional<LocalDate> termindato,
-                                                        Optional<List<DokumentertBarnDto>> barna,
-                                                        String begrunnelse,
-                                                        boolean erOverstyring) {
-        var historikkinnslag = new Historikkinnslag.Builder().medFagsakId(ref.fagsakId())
-            .medBehandlingId(ref.behandlingId())
-            .medAktør(HistorikkAktør.SAKSBEHANDLER)
-            .medTittel(SkjermlenkeType.FAKTA_OM_FOEDSEL);
-
-        if (erOverstyring) {
-            historikkinnslag.addLinje(new HistorikkinnslagLinjeBuilder().bold("Overstyrt fakta om fødsel"));
-
-            var gjeldendeTermindato = fh.getGjeldendeVersjon().getTermindato().orElse(null);
-            termindato.filter(t -> !t.equals(gjeldendeTermindato))
-                .ifPresent(t -> historikkinnslag.addLinje(
-                    fraTilEquals("Termindato", fh.getGjeldendeTerminbekreftelse().map(TerminbekreftelseEntitet::getTermindato).orElse(null), t)));
-        }
-
-        var finnesFødteBarn = barna.isPresent();
-        historikkinnslag.addLinje(new HistorikkinnslagLinjeBuilder().bold("Er barnet født?").tekst(format(finnesFødteBarn)));
-
-        if (barna.isPresent()) {
-            var oppdatertFødselStatus = barna.get().stream().map(FødselStatus::new).toList();
-            var gjeldendeFødselStatus = fh.getGjeldendeBarna().stream().map(FødselStatus::new).toList();
-
-            if (!Objects.equals(oppdatertFødselStatus.size(), fh.getGjeldendeAntallBarn())) {
-                historikkinnslag.addLinje(
-                    new HistorikkinnslagLinjeBuilder().fraTil("Antall barn", fh.getGjeldendeAntallBarn(), oppdatertFødselStatus.size()));
-            } else {
-                historikkinnslag.addLinje(new HistorikkinnslagLinjeBuilder().bold("Antall barn:").tekst(format(oppdatertFødselStatus.size())));
-            }
-
-            if (!oppdatertFødselStatus.equals(gjeldendeFødselStatus)) {
-                var lengsteListeStørrelse = Math.max(oppdatertFødselStatus.size(), gjeldendeFødselStatus.size());
-                for (int i = 0; i < lengsteListeStørrelse; i++) {
-                    var til = safeGet(oppdatertFødselStatus, i).map(FødselStatus::formaterLevetid).orElse(null);
-                    var fra = safeGet(gjeldendeFødselStatus, i).map(FødselStatus::formaterLevetid).orElse(null);
-                    var barn = lengsteListeStørrelse > 1 ? "Barn " + (i + 1) : "Barn";
-                    historikkinnslag.addLinje(fraTilEquals(barn, fra, til));
-                }
-            }
-        }
-        historikkinnslag.addLinje(begrunnelse);
-        return historikkinnslag;
-    }
-
-
     public OppdateringResultat overstyrFaktaOmFødsel(BehandlingReferanse ref,
                                                      FamilieHendelseGrunnlagEntitet familieHendelse,
                                                      Optional<LocalDate> termindato,
-                                                     Optional<List<DokumentertBarnDto>> barna) {
+                                                     Optional<List<DokumentertBarnDto>> barna,
+                                                     String begrunnelse,
+                                                     boolean erOverstyring) {
         validerDødsdatoerMotFødselsdatoer(barna);
         validerGyldigTerminFødsel(termindato, barna);
 
@@ -126,32 +85,98 @@ public class FaktaFødselTjeneste {
             oppdatere.medFødselType().tilbakestillBarn().medAntallBarn(barna.get().size());
             barna.get().forEach(b -> oppdatere.leggTilBarn(b.fødselsdato(), b.dødsdato()));
         } else {
-
-            familieHendelse.getBekreftetVersjon().ifPresentOrElse(bv -> {
-
-                var bekreftetBarn = bv.getBarna();
-                var bekreftetAntallBarn = bv.getAntallBarn();
-
-                oppdatere.medTerminType().tilbakestillBarn().medAntallBarn(bekreftetAntallBarn);
-                bekreftetBarn.forEach(b -> oppdatere.leggTilBarn(b.getFødselsdato(), b.getDødsdato().orElse(null)));
-            }, () -> {
-                var søknadBarn = familieHendelse.getSøknadVersjon().getBarna();
-                var søknadAntallBarn = familieHendelse.getSøknadVersjon().getAntallBarn();
-
-                oppdatere.medTerminType().tilbakestillBarn().medAntallBarn(søknadAntallBarn);
-
-                søknadBarn.forEach(b -> oppdatere.leggTilBarn(b.getFødselsdato(), b.getDødsdato().orElse(null)));
-            });
+            resetBarna(familieHendelse, oppdatere);
         }
 
-        termindato.ifPresent(date -> {
-            var tbb = oppdatere.getTerminbekreftelseBuilder().medTermindato(date);
+        termindato.ifPresent(dato -> {
+            var tbb = oppdatere.getTerminbekreftelseBuilder().medTermindato(dato);
             oppdatere.medTerminbekreftelse(tbb);
         });
 
         familieHendelseTjeneste.lagreOverstyrtHendelse(behandlingId, oppdatere);
+        lagHistorikkForBarn(ref, familieHendelse, termindato, barna, begrunnelse, erOverstyring);
 
         return getOppdateringResultat(ref, behandlingId);
+    }
+
+    private static void resetBarna(FamilieHendelseGrunnlagEntitet familieHendelse, FamilieHendelseBuilder oppdatere) {
+        familieHendelse.getBekreftetVersjon().ifPresentOrElse(bv -> {
+            var bekreftetBarn = bv.getBarna();
+            var bekreftetAntallBarn = bv.getAntallBarn();
+
+            oppdatere.medTerminType().tilbakestillBarn().medAntallBarn(bekreftetAntallBarn);
+            bekreftetBarn.forEach(b -> oppdatere.leggTilBarn(b.getFødselsdato(), b.getDødsdato().orElse(null)));
+        }, () -> {
+            var søknadBarn = familieHendelse.getSøknadVersjon().getBarna();
+            var søknadAntallBarn = familieHendelse.getSøknadVersjon().getAntallBarn();
+
+            oppdatere.medTerminType().tilbakestillBarn().medAntallBarn(søknadAntallBarn);
+            søknadBarn.forEach(b -> oppdatere.leggTilBarn(b.getFødselsdato(), b.getDødsdato().orElse(null)));
+        });
+    }
+
+    private void lagHistorikkForBarn(BehandlingReferanse ref,
+                                     FamilieHendelseGrunnlagEntitet fh,
+                                     Optional<LocalDate> termindato,
+                                     Optional<List<DokumentertBarnDto>> barna,
+                                     String begrunnelse,
+                                     boolean erOverstyring) {
+        var historikkinnslag = new Historikkinnslag.Builder().medFagsakId(ref.fagsakId())
+            .medBehandlingId(ref.behandlingId())
+            .medAktør(HistorikkAktør.SAKSBEHANDLER)
+            .medTittel(SkjermlenkeType.FAKTA_OM_FOEDSEL);
+
+        if (erOverstyring) {
+            historikkinnslag.addLinje(new HistorikkinnslagLinjeBuilder().bold("Overstyrt fakta om fødsel"));
+            addLinjeTermindato(fh, termindato, historikkinnslag);
+        }
+
+        historikkinnslag.addLinje(new HistorikkinnslagLinjeBuilder().bold("Er barnet født?").tekst(format(barna.isPresent())));
+
+        if (barna.isPresent()) {
+            var oppdatertFødselStatus = barna.get().stream().map(FødselStatus::new).toList();
+            var gjeldendeFødselStatus = fh.getGjeldendeBarna().stream().map(FødselStatus::new).toList();
+
+            addLinjeForAntallBarn(fh, oppdatertFødselStatus, historikkinnslag);
+
+            if (!oppdatertFødselStatus.equals(gjeldendeFødselStatus)) {
+                addLinjerForBarn(oppdatertFødselStatus, gjeldendeFødselStatus, historikkinnslag);
+            }
+        }
+        historikkinnslag.addLinje(begrunnelse);
+        historikkinnslagRepository.lagre(historikkinnslag.build());
+    }
+
+    private static void addLinjeTermindato(FamilieHendelseGrunnlagEntitet fh,
+                                           Optional<LocalDate> termindato,
+                                           Historikkinnslag.Builder historikkinnslag) {
+        var gjeldendeTermindato = fh.getGjeldendeVersjon().getTermindato().orElse(null);
+        termindato.filter(t -> !t.equals(gjeldendeTermindato))
+            .ifPresent(t -> historikkinnslag.addLinje(
+                fraTilEquals("Termindato", fh.getGjeldendeTerminbekreftelse().map(TerminbekreftelseEntitet::getTermindato).orElse(null), t)));
+    }
+
+    private static void addLinjeForAntallBarn(FamilieHendelseGrunnlagEntitet fh,
+                                              List<FødselStatus> oppdatertFødselStatus,
+                                              Historikkinnslag.Builder historikkinnslag) {
+        if (!Objects.equals(oppdatertFødselStatus.size(), fh.getGjeldendeAntallBarn())) {
+            historikkinnslag.addLinje(
+                new HistorikkinnslagLinjeBuilder().fraTil("Antall barn", fh.getGjeldendeAntallBarn(), oppdatertFødselStatus.size()));
+        } else {
+            historikkinnslag.addLinje(new HistorikkinnslagLinjeBuilder().bold("Antall barn:").tekst(format(oppdatertFødselStatus.size())));
+        }
+    }
+
+    private static void addLinjerForBarn(List<FødselStatus> oppdatertFødselStatus,
+                                         List<FødselStatus> gjeldendeFødselStatus,
+                                         Historikkinnslag.Builder historikkinnslag) {
+        var lengsteListeStørrelse = Math.max(oppdatertFødselStatus.size(), gjeldendeFødselStatus.size());
+        for (int i = 0; i < lengsteListeStørrelse; i++) {
+            var til = safeGet(oppdatertFødselStatus, i).map(FødselStatus::formaterLevetid).orElse(null);
+            var fra = safeGet(gjeldendeFødselStatus, i).map(FødselStatus::formaterLevetid).orElse(null);
+            var barn = lengsteListeStørrelse > 1 ? "Barn " + (i + 1) : "Barn";
+            historikkinnslag.addLinje(fraTilEquals(barn, fra, til));
+        }
     }
 
     private OppdateringResultat getOppdateringResultat(BehandlingReferanse ref, Long behandlingId) {
