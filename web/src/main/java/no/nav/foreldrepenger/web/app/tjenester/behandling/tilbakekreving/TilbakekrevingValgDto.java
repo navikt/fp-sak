@@ -1,5 +1,7 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.tilbakekreving;
 
+import jakarta.validation.constraints.NotNull;
+
 import no.nav.foreldrepenger.behandlingslager.behandling.tilbakekreving.TilbakekrevingVidereBehandling;
 
 public class TilbakekrevingValgDto {
@@ -7,7 +9,8 @@ public class TilbakekrevingValgDto {
 
     private Boolean grunnerTilReduksjon; //null når !erTilbakekrevingVilkårOppfylt
 
-    private TilbakekrevingVidereBehandling videreBehandling;  //null når erTilbakekrevingVilkårOppfylt
+    // TODO [JOHANNES] notnull ifølge frontend, stemmer ikke med kommentar her
+    @NotNull private TilbakekrevingVidereBehandling videreBehandling;  //null når erTilbakekrevingVilkårOppfylt
 
     private String varseltekst;
 
@@ -34,4 +37,4 @@ public class TilbakekrevingValgDto {
         return videreBehandling;
     }
 }
-    
+

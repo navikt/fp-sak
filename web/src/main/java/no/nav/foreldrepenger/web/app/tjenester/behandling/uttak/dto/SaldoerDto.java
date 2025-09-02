@@ -2,9 +2,11 @@ package no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto;
 
 import java.util.Map;
 
+import jakarta.validation.constraints.NotNull;
+
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.Stønadskontotype;
 
-public record SaldoerDto(Map<SaldoVisningStønadskontoType, StønadskontoDto> stonadskontoer, int tapteDagerFpff) {
+public record SaldoerDto(@NotNull Map<SaldoVisningStønadskontoType, StønadskontoDto> stonadskontoer, @NotNull int tapteDagerFpff) {
 
     public enum SaldoVisningStønadskontoType {
         MØDREKVOTE,

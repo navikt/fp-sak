@@ -1,10 +1,12 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.ytelsefordeling;
 
+import jakarta.validation.constraints.NotNull;
+
 import java.time.LocalDate;
 
 public class YtelseFordelingDto {
     private Boolean overstyrtOmsorg;
-    private LocalDate førsteUttaksdato;
+    @NotNull private LocalDate førsteUttaksdato;
     private boolean ønskerJustertVedFødsel;
 
     private YtelseFordelingDto() {

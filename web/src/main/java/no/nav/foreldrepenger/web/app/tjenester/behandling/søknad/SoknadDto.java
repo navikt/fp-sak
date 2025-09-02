@@ -6,6 +6,8 @@ import java.util.List;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
+import jakarta.validation.constraints.NotNull;
+
 import no.nav.foreldrepenger.familiehendelse.rest.SøknadType;
 
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME)
@@ -15,14 +17,14 @@ import no.nav.foreldrepenger.familiehendelse.rest.SøknadType;
 })
 public abstract class SoknadDto {
 
-    private SøknadType soknadType;
-    private LocalDate mottattDato;
+    @NotNull private SøknadType soknadType;
+    @NotNull private LocalDate mottattDato;
     private String begrunnelseForSenInnsending;
-    private Integer antallBarn;
-    private OppgittTilknytningDto oppgittTilknytning;
-    private List<ManglendeVedleggDto> manglendeVedlegg;
-    private OppgittFordelingDto oppgittFordeling;
-    private SøknadsfristDto søknadsfrist;
+    @NotNull private Integer antallBarn;
+    @NotNull private OppgittTilknytningDto oppgittTilknytning;
+    @NotNull private List<ManglendeVedleggDto> manglendeVedlegg;
+    @NotNull private OppgittFordelingDto oppgittFordeling;
+    @NotNull private SøknadsfristDto søknadsfrist;
 
     protected SoknadDto() {
     }
