@@ -47,12 +47,14 @@ class BeregningKalkulusTest {
     private BesteberegningFødendeKvinneTjeneste besteberegningFødendeKvinneTjeneste;
     @Mock
     private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
+    @Mock
+    private FullAapAnnenStatusLoggTjeneste fullAapAnnenStatusLoggTjeneste;
 
     private BeregningKalkulus beregningKalkulus;
 
     @BeforeEach
     void setup() {
-        beregningKalkulus = new BeregningKalkulus(kalkulusKlient, kalkulusInputTjeneste, koblingRepository, besteberegningFødendeKvinneTjeneste, skjæringstidspunktTjeneste);
+        beregningKalkulus = new BeregningKalkulus(kalkulusKlient, kalkulusInputTjeneste, koblingRepository, besteberegningFødendeKvinneTjeneste, skjæringstidspunktTjeneste, fullAapAnnenStatusLoggTjeneste);
     }
 
     @Test
