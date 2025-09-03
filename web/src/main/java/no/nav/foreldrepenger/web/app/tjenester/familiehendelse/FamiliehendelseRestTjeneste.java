@@ -1,5 +1,7 @@
 package no.nav.foreldrepenger.web.app.tjenester.familiehendelse;
 
+import java.time.LocalDate;
+
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
@@ -16,7 +18,10 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.AdopsjonEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.OmsorgsovertakelseVilkårType;
+import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.TerminbekreftelseEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtak;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtakRepository;
@@ -41,7 +46,9 @@ public class FamiliehendelseRestTjeneste {
 
     static final String BASE_PATH = "/behandling";
     private static final String FAMILIEHENDELSE_V2_PART_PATH = "/familiehendelse/v2";
+    private static final String FAMILIEHENDELSE_V3_PART_PATH = "/familiehendelse/v3";
     public static final String FAMILIEHENDELSE_V2_PATH = BASE_PATH + FAMILIEHENDELSE_V2_PART_PATH;
+    public static final String FAMILIEHENDELSE_V3_PATH = BASE_PATH + FAMILIEHENDELSE_V3_PART_PATH;
 
     @Inject
     public FamiliehendelseRestTjeneste(BehandlingRepository behandlingRepository,
@@ -65,5 +72,28 @@ public class FamiliehendelseRestTjeneste {
         var grunnlag = familieHendelseRepository.hentAggregatHvisEksisterer(behandling.getId());
         var vedtaksdato = behandlingVedtakRepository.hentForBehandlingHvisEksisterer(behandling.getId()).map(BehandlingVedtak::getVedtaksdato);
         return FamiliehendelseDataDtoTjeneste.mapGrunnlagFra(grunnlag, vedtaksdato, behandling);
+    }
+
+    @GET
+    @Path(FAMILIEHENDELSE_V3_PART_PATH)
+    @Operation(description = "Hent informasjon om familiehendelse til grunn for ytelse", tags = "familiehendelse", responses = {@ApiResponse(responseCode = "200", description = "Returnerer familehendelse", content = @Content(mediaType = "application/json", schema = @Schema(implementation = FamilieHendelseGrunnlagDto.class)))})
+    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK, sporingslogg = false)
+    public FamilieHendelseDto hentFamiliehendelse(@TilpassetAbacAttributt(supplierClass = BehandlingAbacSuppliers.UuidAbacDataSupplier.class) @NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
+        var behandling = behandlingRepository.hentBehandling(uuidDto.getBehandlingUuid());
+        var grunnlag = familieHendelseRepository.hentAggregat(behandling.getId());
+        var dødsdato = grunnlag.getGjeldendeBarna().stream().flatMap(b -> b.getDødsdato().stream()).min(LocalDate::compareTo).orElse(null);
+        var termindato = grunnlag.getGjeldendeTerminbekreftelse().map(TerminbekreftelseEntitet::getTermindato).orElse(null);
+        var fødselsdato = grunnlag.finnGjeldendeFødselsdato();
+        var omsorgsovertakelsedato = grunnlag.getGjeldendeAdopsjon().map(AdopsjonEntitet::getOmsorgsovertakelseDato).orElse(null);
+        var foreldreansvarDato = grunnlag.getGjeldendeAdopsjon().map(AdopsjonEntitet::getForeldreansvarDato).orElse(null);
+        var antallBarn = grunnlag.getGjeldendeAntallBarn();
+        var vilkårType = grunnlag.getGjeldendeAdopsjon().map(AdopsjonEntitet::getOmsorgovertakelseVilkår).orElse(null);
+        var ektefellesBarn = grunnlag.getGjeldendeAdopsjon().map(AdopsjonEntitet::getErEktefellesBarn).orElse(false);
+        return new FamilieHendelseDto(termindato, fødselsdato, omsorgsovertakelsedato, dødsdato, foreldreansvarDato, antallBarn,
+            vilkårType, ektefellesBarn);
+    }
+
+    public record FamilieHendelseDto(LocalDate termindato, LocalDate fødselsdato, LocalDate omsorgsovertakelsedato, LocalDate dødsdato,
+                                     LocalDate foreldreansvarDato, int antallBarn, OmsorgsovertakelseVilkårType vilkårType, boolean ektefellesBarn) {
     }
 }

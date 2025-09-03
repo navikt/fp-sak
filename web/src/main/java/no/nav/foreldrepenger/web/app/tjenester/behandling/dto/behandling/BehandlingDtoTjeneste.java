@@ -372,6 +372,7 @@ public class BehandlingDtoTjeneste {
         }
 
         dto.leggTil(get(FamiliehendelseRestTjeneste.FAMILIEHENDELSE_V2_PATH, "familiehendelse-v2", uuidDto)); // TODO: Kan denne nå fjernes
+        dto.leggTil(get(FamiliehendelseRestTjeneste.FAMILIEHENDELSE_V3_PATH, "familiehendelse-v3", uuidDto));
 
         familieHendelseRepository.hentAggregatHvisEksisterer(behandling.getId())
             .ifPresent(f -> dto.leggTil(get(FødselRestTjeneste.FAKTA_FODSEL_PATH, "fakta-fødsel", uuidDto)));
