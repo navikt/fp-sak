@@ -188,7 +188,13 @@ class BehandlingRepositoryTest extends EntityManagerAwareTest {
 
     @Test
     void skal_hente_siste_innvilget_eller_endret_på_fagsakId() {
-        var forVedtak = opprettBuilderForVedtak();
+        var behandling = opprettBuilderForVedtak();
+        var forVedtak = BehandlingVedtak.builder()
+            .medVedtakstidspunkt(LocalDateTime.now())
+            .medAnsvarligSaksbehandler("Janne Hansen")
+            .medVedtakResultatType(VedtakResultatType.INNVILGET)
+            .medIverksettingStatus(IverksettingStatus.IKKE_IVERKSATT)
+            .medBehandlingsresultat(getBehandlingsresultat(behandling));
         var behandlingsresultat = getBehandlingsresultat(behandling);
         Behandlingsresultat.builderEndreEksisterende(behandlingsresultat).medBehandlingResultatType(BehandlingResultatType.INNVILGET);
 
@@ -221,8 +227,14 @@ class BehandlingRepositoryTest extends EntityManagerAwareTest {
 
     @Test
     void skal_kunne_lagre_vedtak() {
-        getEntityManager().flush();
-        var vedtak = opprettBuilderForVedtak().build();
+        var behandling = opprettBuilderForVedtak();
+        var vedtak = BehandlingVedtak.builder()
+            .medVedtakstidspunkt(LocalDateTime.now())
+            .medAnsvarligSaksbehandler("Janne Hansen")
+            .medVedtakResultatType(VedtakResultatType.INNVILGET)
+            .medIverksettingStatus(IverksettingStatus.IKKE_IVERKSATT)
+            .medBehandlingsresultat(getBehandlingsresultat(behandling))
+            .build();
 
         var lås = behandlingRepository.taSkriveLås(behandling);
 
@@ -268,29 +280,38 @@ class BehandlingRepositoryTest extends EntityManagerAwareTest {
 
     @Test
     void skal_kunne_lagre_konsekvens_for_ytelsen() {
-        behandling = opprettBehandlingMedTermindato();
+        var behandling = opprettBehandlingMedTermindato();
         var behandlingsresultat = oppdaterMedBehandlingsresultatOgLagre(behandling, true, false);
 
-        setKonsekvensForYtelsen(behandlingsresultat, List.of(KonsekvensForYtelsen.ENDRING_I_BEREGNING, KonsekvensForYtelsen.ENDRING_I_UTTAK));
+        setKonsekvensForYtelsen(behandling, behandlingsresultat, List.of(KonsekvensForYtelsen.ENDRING_I_BEREGNING, KonsekvensForYtelsen.ENDRING_I_UTTAK));
         var brKonsekvenser = behandlingsresultatRepository.hent(behandling.getId()).getKonsekvenserForYtelsen();
         assertThat(brKonsekvenser).containsExactlyInAnyOrder(KonsekvensForYtelsen.ENDRING_I_BEREGNING, KonsekvensForYtelsen.ENDRING_I_UTTAK);
     }
 
     @Test
     void dersom_man_lagrer_konsekvens_for_ytelsen_flere_ganger_skal_kun_den_siste_lagringen_gjelde() {
-        behandling = opprettBehandlingMedTermindato();
+        var behandling = opprettBehandlingMedTermindato();
         var behandlingsresultat = oppdaterMedBehandlingsresultatOgLagre(behandling, true, false);
 
-        setKonsekvensForYtelsen(behandlingsresultat, List.of(KonsekvensForYtelsen.ENDRING_I_BEREGNING, KonsekvensForYtelsen.ENDRING_I_UTTAK));
+        setKonsekvensForYtelsen(behandling, behandlingsresultat, List.of(KonsekvensForYtelsen.ENDRING_I_BEREGNING, KonsekvensForYtelsen.ENDRING_I_UTTAK));
         behandling = behandlingRepository.hentBehandling(behandling.getId());
         Behandlingsresultat.builderEndreEksisterende(getBehandlingsresultat(behandling)).fjernKonsekvenserForYtelsen();
-        setKonsekvensForYtelsen(getBehandlingsresultat(behandling), List.of(KonsekvensForYtelsen.ENDRING_I_FORDELING_AV_YTELSEN));
+        setKonsekvensForYtelsen(behandling, getBehandlingsresultat(behandling), List.of(KonsekvensForYtelsen.ENDRING_I_FORDELING_AV_YTELSEN));
 
         var brKonsekvenser = behandlingsresultatRepository.hent(behandling.getId())
             .getKonsekvenserForYtelsen();
         assertThat(brKonsekvenser)
             .hasSize(1)
             .containsExactlyInAnyOrder(KonsekvensForYtelsen.ENDRING_I_FORDELING_AV_YTELSEN);
+    }
+
+    private void setKonsekvensForYtelsen(Behandling behandling, Behandlingsresultat behandlingsresultat, List<KonsekvensForYtelsen> konsekvenserForYtelsen) {
+        var builder = Behandlingsresultat.builderEndreEksisterende(behandlingsresultat);
+        konsekvenserForYtelsen.forEach(builder::leggTilKonsekvensForYtelsen);
+        builder.buildFor(behandling);
+
+        var lås = behandlingRepository.taSkriveLås(behandling);
+        behandlingRepository.lagre(behandling, lås);
     }
 
     private void setKonsekvensForYtelsen(Behandlingsresultat behandlingsresultat, List<KonsekvensForYtelsen> konsekvenserForYtelsen) {
@@ -653,15 +674,10 @@ class BehandlingRepositoryTest extends EntityManagerAwareTest {
 
     }
 
-    private BehandlingVedtak.Builder opprettBuilderForVedtak() {
-        behandling = opprettBehandlingMedTermindato();
+    private Behandling opprettBuilderForVedtak() {
+        var behandling = opprettBehandlingMedTermindato();
         oppdaterMedBehandlingsresultatOgLagre(behandling, true, false);
-
-        return BehandlingVedtak.builder().medVedtakstidspunkt(LocalDateTime.now())
-            .medAnsvarligSaksbehandler("Janne Hansen")
-            .medVedtakResultatType(VedtakResultatType.INNVILGET)
-            .medIverksettingStatus(IverksettingStatus.IKKE_IVERKSATT)
-            .medBehandlingsresultat(getBehandlingsresultat(behandling));
+        return behandling;
     }
 
     private Behandling opprettBehandlingMedTermindato() {
@@ -680,7 +696,7 @@ class BehandlingRepositoryTest extends EntityManagerAwareTest {
                 .medNavnPå("NAVN"))
             .medAntallBarn(1));
 
-        behandling = scenario.lagre(repositoryProvider);
+        var behandling = scenario.lagre(repositoryProvider);
         return behandling;
     }
 
