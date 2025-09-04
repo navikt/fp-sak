@@ -144,7 +144,7 @@ public class UttakInputTjeneste {
         return new BeregningsgrunnlagStatus(mapStatus(andel.getAktivitetStatus()), arbeidsgiver, arbeidsforholdRef);
     }
 
-    private AktivitetStatus mapStatus(no.nav.foreldrepenger.domene.modell.kodeverk.AktivitetStatus aktivitetStatus) {
+    private AktivitetStatus mapStatus(no.nav.foreldrepenger.behandlingslager.behandling.beregning.AktivitetStatus aktivitetStatus) {
         return AktivitetStatus.fraKode(aktivitetStatus.getKode());
     }
 
