@@ -20,17 +20,17 @@ final class InntektskategoriMapper {
         Map.entry(no.nav.foreldrepenger.ytelse.beregning.regelmodell.beregningsgrunnlag.Inntektskategori.FISKER, Inntektskategori.FISKER),
         Map.entry(no.nav.foreldrepenger.ytelse.beregning.regelmodell.beregningsgrunnlag.Inntektskategori.ARBEIDSTAKER_UTEN_FERIEPENGER, Inntektskategori.ARBEIDSTAKER_UTEN_FERIEPENGER)
     );
-    private static final Map<no.nav.foreldrepenger.domene.modell.kodeverk.Inntektskategori, Inntektskategori> DOMENE_TIL_VL_MAP = Map.ofEntries(
-        Map.entry(no.nav.foreldrepenger.domene.modell.kodeverk.Inntektskategori.ARBEIDSTAKER, Inntektskategori.ARBEIDSTAKER),
-        Map.entry(no.nav.foreldrepenger.domene.modell.kodeverk.Inntektskategori.FRILANSER, Inntektskategori.FRILANSER),
-        Map.entry(no.nav.foreldrepenger.domene.modell.kodeverk.Inntektskategori.SELVSTENDIG_NÆRINGSDRIVENDE, Inntektskategori.SELVSTENDIG_NÆRINGSDRIVENDE),
-        Map.entry(no.nav.foreldrepenger.domene.modell.kodeverk.Inntektskategori.DAGPENGER, Inntektskategori.DAGPENGER),
-        Map.entry(no.nav.foreldrepenger.domene.modell.kodeverk.Inntektskategori.ARBEIDSAVKLARINGSPENGER, Inntektskategori.ARBEIDSAVKLARINGSPENGER),
-        Map.entry(no.nav.foreldrepenger.domene.modell.kodeverk.Inntektskategori.SJØMANN, Inntektskategori.SJØMANN),
-        Map.entry(no.nav.foreldrepenger.domene.modell.kodeverk.Inntektskategori.DAGMAMMA, Inntektskategori.DAGMAMMA),
-        Map.entry(no.nav.foreldrepenger.domene.modell.kodeverk.Inntektskategori.JORDBRUKER, Inntektskategori.JORDBRUKER),
-        Map.entry(no.nav.foreldrepenger.domene.modell.kodeverk.Inntektskategori.FISKER, Inntektskategori.FISKER),
-        Map.entry(no.nav.foreldrepenger.domene.modell.kodeverk.Inntektskategori.ARBEIDSTAKER_UTEN_FERIEPENGER, Inntektskategori.ARBEIDSTAKER_UTEN_FERIEPENGER)
+    private static final Map<no.nav.foreldrepenger.behandlingslager.behandling.beregning.Inntektskategori, Inntektskategori> DOMENE_TIL_VL_MAP = Map.ofEntries(
+        Map.entry(no.nav.foreldrepenger.behandlingslager.behandling.beregning.Inntektskategori.ARBEIDSTAKER, Inntektskategori.ARBEIDSTAKER),
+        Map.entry(no.nav.foreldrepenger.behandlingslager.behandling.beregning.Inntektskategori.FRILANSER, Inntektskategori.FRILANSER),
+        Map.entry(no.nav.foreldrepenger.behandlingslager.behandling.beregning.Inntektskategori.SELVSTENDIG_NÆRINGSDRIVENDE, Inntektskategori.SELVSTENDIG_NÆRINGSDRIVENDE),
+        Map.entry(no.nav.foreldrepenger.behandlingslager.behandling.beregning.Inntektskategori.DAGPENGER, Inntektskategori.DAGPENGER),
+        Map.entry(no.nav.foreldrepenger.behandlingslager.behandling.beregning.Inntektskategori.ARBEIDSAVKLARINGSPENGER, Inntektskategori.ARBEIDSAVKLARINGSPENGER),
+        Map.entry(no.nav.foreldrepenger.behandlingslager.behandling.beregning.Inntektskategori.SJØMANN, Inntektskategori.SJØMANN),
+        Map.entry(no.nav.foreldrepenger.behandlingslager.behandling.beregning.Inntektskategori.DAGMAMMA, Inntektskategori.DAGMAMMA),
+        Map.entry(no.nav.foreldrepenger.behandlingslager.behandling.beregning.Inntektskategori.JORDBRUKER, Inntektskategori.JORDBRUKER),
+        Map.entry(no.nav.foreldrepenger.behandlingslager.behandling.beregning.Inntektskategori.FISKER, Inntektskategori.FISKER),
+        Map.entry(no.nav.foreldrepenger.behandlingslager.behandling.beregning.Inntektskategori.ARBEIDSTAKER_UTEN_FERIEPENGER, Inntektskategori.ARBEIDSTAKER_UTEN_FERIEPENGER)
     );
     private static final Map<Inntektskategori, no.nav.foreldrepenger.ytelse.beregning.regelmodell.beregningsgrunnlag.Inntektskategori> VL_TIL_REGEL_MAP;
 
@@ -47,7 +47,7 @@ final class InntektskategoriMapper {
         return REGEL_TIL_VL_MAP.getOrDefault(inntektskategori, Inntektskategori.UDEFINERT);
     }
 
-    static no.nav.foreldrepenger.ytelse.beregning.regelmodell.beregningsgrunnlag.Inntektskategori fraVLTilRegel(no.nav.foreldrepenger.domene.modell.kodeverk.Inntektskategori inntektskategori) {
+    static no.nav.foreldrepenger.ytelse.beregning.regelmodell.beregningsgrunnlag.Inntektskategori fraVLTilRegel(no.nav.foreldrepenger.behandlingslager.behandling.beregning.Inntektskategori inntektskategori) {
         var behandlingslagerIK = DOMENE_TIL_VL_MAP.getOrDefault(inntektskategori, Inntektskategori.UDEFINERT);
         return VL_TIL_REGEL_MAP.getOrDefault(behandlingslagerIK, no.nav.foreldrepenger.ytelse.beregning.regelmodell.beregningsgrunnlag.Inntektskategori.UDEFINERT);
     }

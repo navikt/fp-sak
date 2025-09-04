@@ -255,7 +255,7 @@ class VedtakXmlTest {
 
     private void lagBeregningsgrunnlag(Behandling behandling) {
         var andel = BeregningsgrunnlagPrStatusOgAndel.builder()
-            .medAktivitetStatus(no.nav.foreldrepenger.domene.modell.kodeverk.AktivitetStatus.FRILANSER)
+            .medAktivitetStatus(no.nav.foreldrepenger.behandlingslager.behandling.beregning.AktivitetStatus.FRILANSER)
             .medAvkortetPrÅr(BigDecimal.TEN)
             .medAvkortetBrukersAndelPrÅr(BigDecimal.TEN)
             .medAvkortetRefusjonPrÅr(BigDecimal.ZERO)

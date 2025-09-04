@@ -3,7 +3,7 @@ package no.nav.foreldrepenger.domene.rest.dto.fordeling;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 
-import no.nav.foreldrepenger.domene.modell.kodeverk.Inntektskategori;
+import no.nav.foreldrepenger.behandlingslager.behandling.beregning.Inntektskategori;
 import no.nav.foreldrepenger.validering.ValidKodeverk;
 
 public class FordelBeregningsgrunnlagAndelDto extends FordelRedigerbarAndelDto {
