@@ -71,7 +71,7 @@ public class PraksisendringAapBatchTask implements ProsessTaskHandler {
              inner join Behandling beh on beh.fagsak_id = fag.id
              inner join Aksjonspunkt ap on ap.behandling_id = beh.id
              where ap.aksjonspunkt_def = '5052' and ap.aksjonspunkt_status = 'UTFO'
-             and fag.id >= :fraOgMedId and fag.id <= :tilOgMedId)
+             and fag.id >= :fraOgMedId and fag.id <= :tilOgMedId order by fag.id)
              where ROWNUM <= 10""", Fagsak.class)
             .setParameter("fraOgMedId", fraOgMedId)
             .setParameter("tilOgMedId", tilOgMedId);
