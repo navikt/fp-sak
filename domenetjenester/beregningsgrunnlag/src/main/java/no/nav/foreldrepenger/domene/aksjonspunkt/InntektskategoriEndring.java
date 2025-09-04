@@ -1,6 +1,6 @@
 package no.nav.foreldrepenger.domene.aksjonspunkt;
 
-import no.nav.foreldrepenger.domene.modell.kodeverk.Inntektskategori;
+import no.nav.foreldrepenger.behandlingslager.behandling.beregning.Inntektskategori;
 
 public class InntektskategoriEndring {
 
