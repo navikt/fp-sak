@@ -86,7 +86,7 @@ public class MapTilYtelsegrunnlagDto {
         if (arbeidskategori.isEmpty() || harUgyldigTilstandForBesteberegning(arbeidskategori.get(), sp.getStatus())) {
             return Optional.empty();
         }
-        var andel = new Ytelseandel(null, null, no.nav.folketrygdloven.kalkulus.kodeverk.Arbeidskategori.fraKode(arbeidskategori.get().getKode()),
+        var andel = new Ytelseandel(null, null, KodeverkTilKalkulusMapper.mapArbeidskategori(arbeidskategori.get()),
             null);
         return Optional.of(new Ytelseperiode(new Periode(sp.getPeriode().getFomDato(), sp.getPeriode().getTomDato()),
             Collections.singletonList(andel)));
