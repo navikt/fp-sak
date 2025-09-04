@@ -48,7 +48,7 @@ class BeregningKalkulusTest {
     @Mock
     private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
     @Mock
-    private FullAapAnnenStatusLoggTjeneste fullAapAnnenStatusLoggTjeneste;
+    private AapPraksisendringTjeneste fullAapAnnenStatusLoggTjeneste;
 
     private BeregningKalkulus beregningKalkulus;
 

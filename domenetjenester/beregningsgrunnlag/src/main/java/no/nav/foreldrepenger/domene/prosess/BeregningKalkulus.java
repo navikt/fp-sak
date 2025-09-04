@@ -51,7 +51,7 @@ class BeregningKalkulus implements BeregningAPI {
     private BeregningsgrunnlagKoblingRepository koblingRepository;
     private BesteberegningFødendeKvinneTjeneste besteberegningFødendeKvinneTjeneste;
     private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
-    private FullAapAnnenStatusLoggTjeneste fullAapAnnenStatusLoggTjeneste;
+    private AapPraksisendringTjeneste fullAapAnnenStatusLoggTjeneste;
 
     BeregningKalkulus() {
         // CDI
@@ -63,7 +63,7 @@ class BeregningKalkulus implements BeregningAPI {
                              BeregningsgrunnlagKoblingRepository koblingRepository,
                              BesteberegningFødendeKvinneTjeneste besteberegningFødendeKvinneTjeneste,
                              SkjæringstidspunktTjeneste skjæringstidspunktTjeneste,
-                             FullAapAnnenStatusLoggTjeneste fullAapAnnenStatusLoggTjeneste) {
+                             AapPraksisendringTjeneste fullAapAnnenStatusLoggTjeneste) {
         this.klient = klient;
         this.kalkulusInputTjeneste = kalkulusInputTjeneste;
         this.koblingRepository = koblingRepository;
