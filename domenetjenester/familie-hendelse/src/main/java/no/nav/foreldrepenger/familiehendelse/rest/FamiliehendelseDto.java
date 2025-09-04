@@ -6,6 +6,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
+import jakarta.validation.constraints.NotNull;
+
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME)
 @JsonSubTypes({
     @JsonSubTypes.Type(value = AvklartDataFodselDto.class),
@@ -14,8 +16,8 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 })
 public abstract class FamiliehendelseDto {
 
-    private SøknadType soknadType;
-    private LocalDate skjæringstidspunkt;
+    @NotNull private SøknadType soknadType;
+    @NotNull private LocalDate skjæringstidspunkt;
 
     public FamiliehendelseDto() {
     }
