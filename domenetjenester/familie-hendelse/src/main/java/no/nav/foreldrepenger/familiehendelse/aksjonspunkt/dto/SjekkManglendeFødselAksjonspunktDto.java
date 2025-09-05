@@ -1,11 +1,13 @@
 package no.nav.foreldrepenger.familiehendelse.aksjonspunkt.dto;
 
 import java.util.List;
+import java.util.Optional;
 
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotNull;
 
 import com.fasterxml.jackson.annotation.JsonTypeName;
+
+import jakarta.validation.constraints.Size;
 
 import no.nav.foreldrepenger.behandling.aksjonspunkt.BekreftetAksjonspunktDto;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktKodeDefinisjon;
@@ -13,28 +15,22 @@ import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspun
 @JsonTypeName(AksjonspunktKodeDefinisjon.SJEKK_MANGLENDE_FØDSEL_KODE)
 public class SjekkManglendeFødselAksjonspunktDto extends BekreftetAksjonspunktDto {
 
-    @NotNull
-    private Boolean erBarnFødt;
-
+    // barn = null betyr at barn ikke er født
     @Valid
+    @Size(min = 1, max = 9)
     private List<DokumentertBarnDto> barn;
 
     SjekkManglendeFødselAksjonspunktDto() {
         //For Jackson
     }
 
-    public SjekkManglendeFødselAksjonspunktDto(String begrunnelse, Boolean dokumentasjonForeligger, List<DokumentertBarnDto> barn) {
+    public SjekkManglendeFødselAksjonspunktDto(String begrunnelse, List<DokumentertBarnDto> barn) {
         super(begrunnelse);
-        this.erBarnFødt = dokumentasjonForeligger;
         this.barn = barn;
     }
 
-    public Boolean getErBarnFødt() {
-        return erBarnFødt;
-    }
-
-    public List<DokumentertBarnDto> getBarn() {
-        return barn;
+    public Optional<List<DokumentertBarnDto>> getBarn() {
+        return Optional.ofNullable(barn);
     }
 
 }
