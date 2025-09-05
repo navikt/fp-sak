@@ -1,6 +1,5 @@
 package no.nav.foreldrepenger.web.app.tjenester.forvaltning;
 
-import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -145,7 +144,7 @@ public class ForvaltningUttrekkRestTjeneste {
 
     private OpenAutopunkt mapFraAksjonspunktTilDto(Object[] row) {
         return new OpenAutopunkt((String) row[0], (String) row[1], TimestampConverter.toLocalDate(row[2]),
-            row[3] != null ? ((Timestamp) row[3]).toLocalDateTime().toLocalDate() : null);
+            row[3] != null ? TimestampConverter.toLocalDate(row[3]): null);
     }
 
     public record OpenAutopunkt(String saksnummer, String ytelseType, LocalDate aksjonspunktOpprettetDato, LocalDate aksjonspunktFristDato) {
