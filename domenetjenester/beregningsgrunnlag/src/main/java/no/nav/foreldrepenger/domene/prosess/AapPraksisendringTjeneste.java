@@ -12,6 +12,8 @@ import java.util.stream.Collectors;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -69,30 +71,55 @@ public class AapPraksisendringTjeneste {
         var alleBehandlinger = behandlingRepository.hentAbsoluttAlleBehandlingerForFagsak(fagsakId);
         var sisteBehandlingMedBeregning = alleBehandlinger.stream()
             .filter(Behandling::erYtelseBehandling)
+            .filter(AapPraksisendringTjeneste::erIkkeAvslåttEllerHenlagt)
             .filter(b -> b.getType().equals(BehandlingType.FØRSTEGANGSSØKNAD) || starterFørBeregning(b))
             .max(Comparator.comparing(Behandling::getOpprettetDato))
             .orElseThrow();
 
         if (!harHattAksjonspunkt(sisteBehandlingMedBeregning)) {
-            LOG.info("FP-63781: Finner ikke aksjonspunkt 5052 på siste behandling som kjørte beregning for saksnummer {}, behandling uuid {}",
+            LOG.info("FP-63781_IKKE_AKSJONSPUNKT Finner ikke aksjonspunkt 5052 på siste behandling som kjørte beregning for saksnummer {}, behandling uuid {}",
                 sisteBehandlingMedBeregning.getSaksnummer(), sisteBehandlingMedBeregning.getUuid());
             return false;
         }
+
         var ref = BehandlingReferanse.fra(sisteBehandlingMedBeregning);
         var grBeregningsgrunnlag = beregningTjeneste.hent(ref);
+        if (!harBlittBeregnetSomAapMottaker(grBeregningsgrunnlag)) {
+            LOG.info("FP-63781_IKKE_AAP: Søker er ikke beregnet på bakgrunn av AAP for saksnummer {}, behandling uuid {}",
+                sisteBehandlingMedBeregning.getSaksnummer(), sisteBehandlingMedBeregning.getUuid());
+            return false;
+        }
+
         if (harBlittBeregnetSomArbeidstakerEllerFrilans(grBeregningsgrunnlag)) {
-            LOG.info("FP-63781: Beregningsgrunnlaget er beregnet på bakgrunn av arbeidstakerstatus for saksnummer {}, behandling uuid {}",
+            LOG.info("FP-63781_BEREGNET_MED_AT_FL: Beregningsgrunnlaget er beregnet på bakgrunn av arbeidstakerstatus for saksnummer {}, behandling uuid {}",
                 sisteBehandlingMedBeregning.getSaksnummer(), sisteBehandlingMedBeregning.getUuid());
             return false;
         }
+
         if (!harInntektsIBeregningsperioden(grBeregningsgrunnlag, ref)) {
-            LOG.info("FP-63781: Finner ikke inntekt på fjernede arbeidsforhold i saksnummer {}, behandling uuid {}",
+            LOG.info("FP-63781_INGEN_INNTEKT: Finner ikke inntekt på fjernede arbeidsforhold i saksnummer {}, behandling uuid {}",
                 sisteBehandlingMedBeregning.getSaksnummer(), sisteBehandlingMedBeregning.getUuid());
             return false;
         }
+
         LOG.info("FP-63782: Påvirket av praksisendring: saksnummer {}, behandling uuid {}", sisteBehandlingMedBeregning.getSaksnummer(),
             sisteBehandlingMedBeregning.getUuid());
         return true;
+    }
+
+    private static boolean erIkkeAvslåttEllerHenlagt(Behandling b) {
+        if (b.getBehandlingsresultat() == null) {
+            return false;
+        }
+        return !b.getBehandlingsresultat().getBehandlingResultatType().erHenlagt()
+            && !b.getBehandlingsresultat().getBehandlingResultatType().equals(BehandlingResultatType.AVSLÅTT);
+    }
+
+    private boolean harBlittBeregnetSomAapMottaker(Optional<BeregningsgrunnlagGrunnlag> grBeregningsgrunnlag) {
+        var statuserSomBidrarTilGrunnlaget = grBeregningsgrunnlag.flatMap(BeregningsgrunnlagGrunnlag::getBeregningsgrunnlag)
+            .map(Beregningsgrunnlag::getAktivitetStatuser)
+            .orElse(List.of());
+        return statuserSomBidrarTilGrunnlaget.stream().anyMatch(s -> s.getAktivitetStatus().equals(AktivitetStatus.ARBEIDSAVKLARINGSPENGER));
     }
 
     private boolean harInntektsIBeregningsperioden(Optional<BeregningsgrunnlagGrunnlag> grBeregningsgrunnlag, BehandlingReferanse ref) {
