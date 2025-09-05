@@ -6,7 +6,7 @@
     <parent>
         <groupId>no.nav.foreldrepenger.felles</groupId>
         <artifactId>fp-bom</artifactId>
-        <version>3.6.18</version>
+        <version>4.0.0</version>
     </parent>
 
     <groupId>no.nav.foreldrepenger</groupId>
@@ -36,9 +36,9 @@
         <fp-ytelse-beregn.version>1.0.4</fp-ytelse-beregn.version>
 
         <felles.version>7.5.10</felles.version>
-        <prosesstask.version>5.1.11</prosesstask.version>
+        <prosesstask.version>5.2.0</prosesstask.version>
 
-        <fp-kontrakter.version>9.3.8</fp-kontrakter.version>
+        <fp-kontrakter.version>9.4.0</fp-kontrakter.version>
         <abakus-kontrakt.version>2.3.4</abakus-kontrakt.version>
 
         <sonar.moduleKey>${project.artifactId}</sonar.moduleKey>
@@ -54,7 +54,7 @@
             <dependency>
                 <groupId>no.nav.foreldrepenger.felles</groupId>
                 <artifactId>fp-bom</artifactId>
-                <version>3.6.18</version>
+                <version>4.0.0</version>
                 <scope>import</scope>
                 <type>pom</type>
             </dependency>
@@ -139,7 +139,7 @@
             <dependency>
                 <groupId>no.nav.foreldrepenger.felles</groupId>
                 <artifactId>jms-integrasjon</artifactId>
-                <version>3.2.14</version>
+                <version>3.2.15</version>
             </dependency>
 
             <dependency>
