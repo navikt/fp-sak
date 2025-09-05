@@ -1,6 +1,7 @@
 package no.nav.foreldrepenger.web.app.tjenester.familiehendelse;
 
 import java.time.LocalDate;
+import java.util.Map;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -18,10 +19,11 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.AdopsjonEntitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseGrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.OmsorgsovertakelseVilkårType;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.TerminbekreftelseEntitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.UidentifisertBarn;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtak;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtakRepository;
@@ -76,24 +78,43 @@ public class FamiliehendelseRestTjeneste {
 
     @GET
     @Path(FAMILIEHENDELSE_V3_PART_PATH)
-    @Operation(description = "Hent informasjon om familiehendelse til grunn for ytelse", tags = "familiehendelse", responses = {@ApiResponse(responseCode = "200", description = "Returnerer familehendelse", content = @Content(mediaType = "application/json", schema = @Schema(implementation = FamilieHendelseGrunnlagDto.class)))})
+    @Operation(description = "Hent informasjon om familiehendelse til grunn for ytelse", tags = "familiehendelse", responses = {@ApiResponse(responseCode = "200", description = "Returnerer familehendelse", content = @Content(mediaType = "application/json", schema = @Schema(implementation = FamilieHendelseDto.class)))})
     @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK, sporingslogg = false)
     public FamilieHendelseDto hentFamiliehendelse(@TilpassetAbacAttributt(supplierClass = BehandlingAbacSuppliers.UuidAbacDataSupplier.class) @NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
         var behandling = behandlingRepository.hentBehandling(uuidDto.getBehandlingUuid());
         var grunnlag = familieHendelseRepository.hentAggregat(behandling.getId());
-        var dødsdato = grunnlag.getGjeldendeBarna().stream().flatMap(b -> b.getDødsdato().stream()).min(LocalDate::compareTo).orElse(null);
-        var termindato = grunnlag.getGjeldendeTerminbekreftelse().map(TerminbekreftelseEntitet::getTermindato).orElse(null);
-        var fødselsdato = grunnlag.finnGjeldendeFødselsdato();
-        var omsorgsovertakelsedato = grunnlag.getGjeldendeAdopsjon().map(AdopsjonEntitet::getOmsorgsovertakelseDato).orElse(null);
-        var foreldreansvarDato = grunnlag.getGjeldendeAdopsjon().map(AdopsjonEntitet::getForeldreansvarDato).orElse(null);
-        var antallBarn = grunnlag.getGjeldendeAntallBarn();
-        var vilkårType = grunnlag.getGjeldendeAdopsjon().map(AdopsjonEntitet::getOmsorgovertakelseVilkår).orElse(null);
-        var ektefellesBarn = grunnlag.getGjeldendeAdopsjon().map(AdopsjonEntitet::getErEktefellesBarn).orElse(false);
-        return new FamilieHendelseDto(termindato, fødselsdato, omsorgsovertakelsedato, dødsdato, foreldreansvarDato, antallBarn,
-            vilkårType, ektefellesBarn);
+        return mapTilFamilieHendelseDto(grunnlag);
     }
 
-    public record FamilieHendelseDto(LocalDate termindato, LocalDate fødselsdato, LocalDate omsorgsovertakelsedato, LocalDate dødsdato,
-                                     LocalDate foreldreansvarDato, int antallBarn, OmsorgsovertakelseVilkårType vilkårType, boolean ektefellesBarn) {
+    static FamilieHendelseDto mapTilFamilieHendelseDto(FamilieHendelseGrunnlagEntitet grunnlag) {
+        return grunnlag.getGjeldendeAdopsjon().map(adopsjon -> {
+            var fødselsdatoer = grunnlag.getGjeldendeBarna()
+                .stream()
+                .collect(java.util.stream.Collectors.toMap(barn -> grunnlag.getGjeldendeBarna().indexOf(barn), UidentifisertBarn::getFødselsdato));
+
+            var adopsjonDto = new AdopsjonFamilieHendelseDto(grunnlag.getGjeldendeAntallBarn(), fødselsdatoer, adopsjon.getOmsorgsovertakelseDato(),
+                adopsjon.getForeldreansvarDato(), adopsjon.getOmsorgovertakelseVilkår(),
+                adopsjon.getErEktefellesBarn() != null ? adopsjon.getErEktefellesBarn() : false,
+                adopsjon.getAdoptererAlene() != null ? adopsjon.getAdoptererAlene() : false, adopsjon.getAnkomstNorgeDato());
+
+            return new FamilieHendelseDto(null, adopsjonDto);
+        }).orElseGet(() -> {
+            var termindato = grunnlag.getGjeldendeTerminbekreftelse().map(TerminbekreftelseEntitet::getTermindato).orElse(null);
+            var fødselsdato = grunnlag.finnGjeldendeFødselsdato();
+
+            var fødselTerminDto = new FødselTerminFamilieHendelseDto(termindato, fødselsdato);
+            return new FamilieHendelseDto(fødselTerminDto, null);
+        });
+    }
+
+    record FamilieHendelseDto(FødselTerminFamilieHendelseDto fødselTermin, AdopsjonFamilieHendelseDto adopsjon) {
+    }
+
+    record FødselTerminFamilieHendelseDto(LocalDate termindato, LocalDate fødselsdato) {
+    }
+
+    record AdopsjonFamilieHendelseDto(int antallBarn, Map<Integer, LocalDate> fødselsdatoer, LocalDate omsorgsovertakelseDato,
+                                             LocalDate foreldreansvarDato, OmsorgsovertakelseVilkårType omsorgsovertakelseVilkårType,
+                                             boolean ektefellesBarn, boolean mannAdoptererAlene, LocalDate ankomstNorge) {
     }
 }
