@@ -67,11 +67,11 @@ public class PraksisendringAapBatchTask implements ProsessTaskHandler {
 
     private List<Fagsak> finnNesteTiSaker(Long fraOgMedId, Long tilOgMedId) {
         var query = entityManager.createNativeQuery("""
-            select * from (select fag.* from Fagsak fag
+            select * from (select * from fagsak where id in (select distinct(fag.id) from Fagsak fag
              inner join Behandling beh on beh.fagsak_id = fag.id
              inner join Aksjonspunkt ap on ap.behandling_id = beh.id
              where ap.aksjonspunkt_def = '5052' and ap.aksjonspunkt_status = 'UTFO'
-             and fag.id >= :fraOgMedId and fag.id <= :tilOgMedId order by fag.id)
+             and fag.id >= :fraOgMedId and fag.id <= :tilOgMedId) order by id)
              where ROWNUM <= 10""", Fagsak.class)
             .setParameter("fraOgMedId", fraOgMedId)
             .setParameter("tilOgMedId", tilOgMedId);
@@ -81,7 +81,7 @@ public class PraksisendringAapBatchTask implements ProsessTaskHandler {
     private void opprettTaskForSak(Fagsak fagsak, boolean dryRun) {
         if (dryRun) {
             var erPåvirket = aapPraksisendringTjeneste.erPåvirketAvPraksisendring(fagsak.getId());
-            LOG.info("PÅVIRKET_AV_AAP_PRAKSISENDRING: {}", erPåvirket);
+            LOG.info("PÅVIRKET_AV_AAP_PRAKSISENDRING: {} fagsakId {}", erPåvirket, fagsak.getId());
         } else {
             // TODO lag tasker for å opprette revurderinger, tas i neste omgang når vi ser hvor mange det gjelder.
         }
