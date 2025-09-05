@@ -1,6 +1,5 @@
 package no.nav.foreldrepenger.dokumentbestiller.infobrev;
 
-import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -18,6 +17,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.Relasj
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.uttak.PeriodeResultatType;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.StønadskontoType;
+import no.nav.foreldrepenger.domene.tid.TimestampConverter;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 
 /**
@@ -128,8 +128,8 @@ public class InformasjonssakRepository {
             var builder = InformasjonssakData.InformasjonssakDataBuilder
                     .ny(Long.parseLong(resultat[POS_FAGSAKID].toString()))
                     .medAktørIdAnnenPart((String) resultat[POS_AKTORID])
-                    .medOpprettetDato(((Timestamp) resultat[POS_OPPRDATO]).toLocalDateTime().toLocalDate())
-                    .medHendelseDato(((Timestamp) resultat[POS_FHDATO]).toLocalDateTime().toLocalDate())
+                    .medOpprettetDato(TimestampConverter.toLocalDate(resultat[POS_OPPRDATO]))
+                    .medHendelseDato(TimestampConverter.toLocalDate(resultat[POS_FHDATO]))
                     .medEnhet((String) resultat[POS_ENHETID]);
             returnList.add(builder.build());
         });
