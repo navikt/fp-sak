@@ -69,15 +69,20 @@ public class AapPraksisendringTjeneste {
     public boolean erPåvirketAvPraksisendring(Long fagsakId) {
         // Vi må sjekke om siste behandling som kjørte beregningen har fått aksjonspunkt 5052, kan ha oppstått i beregning men ikke siste
         var alleBehandlinger = behandlingRepository.hentAbsoluttAlleBehandlingerForFagsak(fagsakId);
-        var sisteBehandlingMedBeregning = alleBehandlinger.stream()
+        var sisteBehandlingMedBeregningOpt = alleBehandlinger.stream()
             .filter(Behandling::erYtelseBehandling)
-            .filter(AapPraksisendringTjeneste::erIkkeAvslåttEllerHenlagt)
+            .filter(b -> !erAvslåttEllerHenlagt(b))
             .filter(b -> b.getType().equals(BehandlingType.FØRSTEGANGSSØKNAD) || starterFørBeregning(b))
-            .max(Comparator.comparing(Behandling::getOpprettetDato))
-            .orElseThrow();
+            .max(Comparator.comparing(Behandling::getOpprettetDato));
 
+        if (sisteBehandlingMedBeregningOpt.isEmpty()) {
+            LOG.info("FP-63781_IKKE_INNVILGET: Finnes ikke innvilget behandling på fagsakId {}", fagsakId);
+            return false;
+        }
+
+        var sisteBehandlingMedBeregning = sisteBehandlingMedBeregningOpt.get();
         if (!harHattAksjonspunkt(sisteBehandlingMedBeregning)) {
-            LOG.info("FP-63781_IKKE_AKSJONSPUNKT Finner ikke aksjonspunkt 5052 på siste behandling som kjørte beregning for saksnummer {}, behandling uuid {}",
+            LOG.info("FP-63781_IKKE_AKSJONSPUNKT: Finner ikke aksjonspunkt 5052 på siste behandling som kjørte beregning for saksnummer {}, behandling uuid {}",
                 sisteBehandlingMedBeregning.getSaksnummer(), sisteBehandlingMedBeregning.getUuid());
             return false;
         }
@@ -107,12 +112,12 @@ public class AapPraksisendringTjeneste {
         return true;
     }
 
-    private static boolean erIkkeAvslåttEllerHenlagt(Behandling b) {
+    private static boolean erAvslåttEllerHenlagt(Behandling b) {
         if (b.getBehandlingsresultat() == null) {
             return false;
         }
-        return !b.getBehandlingsresultat().getBehandlingResultatType().erHenlagt()
-            && !b.getBehandlingsresultat().getBehandlingResultatType().equals(BehandlingResultatType.AVSLÅTT);
+        return b.getBehandlingsresultat().getBehandlingResultatType().erHenlagt()
+            || b.getBehandlingsresultat().getBehandlingResultatType().equals(BehandlingResultatType.AVSLÅTT);
     }
 
     private boolean harBlittBeregnetSomAapMottaker(Optional<BeregningsgrunnlagGrunnlag> grBeregningsgrunnlag) {
