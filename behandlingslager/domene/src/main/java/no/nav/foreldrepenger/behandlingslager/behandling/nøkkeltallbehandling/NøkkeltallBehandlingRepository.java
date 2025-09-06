@@ -1,7 +1,6 @@
 package no.nav.foreldrepenger.behandlingslager.behandling.nøkkeltallbehandling;
 
 import java.math.BigDecimal;
-import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Objects;
@@ -18,6 +17,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspun
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.OppholdÅrsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.UtsettelseÅrsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
+import no.nav.foreldrepenger.domene.tid.TimestampConverter;
 
 @ApplicationScoped
 public class NøkkeltallBehandlingRepository {
@@ -141,10 +141,7 @@ public class NøkkeltallBehandlingRepository {
     }
 
     private static LocalDate localDate(Object sqlTimestamp) {
-        if (sqlTimestamp == null) {
-            return null;
-        }
-        return ((Timestamp) sqlTimestamp).toLocalDateTime().toLocalDate();
+        return TimestampConverter.toLocalDate(sqlTimestamp);
     }
 
 }

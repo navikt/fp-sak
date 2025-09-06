@@ -7,12 +7,10 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Lob;
-import jakarta.persistence.MappedSuperclass;
 import jakarta.persistence.Table;
 
 import no.nav.foreldrepenger.behandlingslager.BaseEntitet;
 
-@MappedSuperclass
 @Table(name = "UTGAAENDE_HENDELSE")
 @DiscriminatorColumn(name = "OUTPUT_FEED_KODE")
 @Entity(name = "UtgåendeHendelse")

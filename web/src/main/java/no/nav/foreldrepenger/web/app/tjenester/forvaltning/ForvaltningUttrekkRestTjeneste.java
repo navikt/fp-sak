@@ -1,6 +1,5 @@
 package no.nav.foreldrepenger.web.app.tjenester.forvaltning;
 
-import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -19,7 +18,6 @@ import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
-import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.MediaType;
@@ -39,6 +37,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.OverlappVedtak;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.OverlappVedtakRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakStatus;
+import no.nav.foreldrepenger.domene.tid.TimestampConverter;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.mottak.vedtak.avstemming.VedtakAvstemPeriodeTask;
 import no.nav.foreldrepenger.mottak.vedtak.avstemming.VedtakOverlappAvstemSakTask;
@@ -144,8 +143,8 @@ public class ForvaltningUttrekkRestTjeneste {
     }
 
     private OpenAutopunkt mapFraAksjonspunktTilDto(Object[] row) {
-        return new OpenAutopunkt((String) row[0], (String) row[1], ((Timestamp) row[2]).toLocalDateTime().toLocalDate(),
-            row[3] != null ? ((Timestamp) row[3]).toLocalDateTime().toLocalDate() : null);
+        return new OpenAutopunkt((String) row[0], (String) row[1], TimestampConverter.toLocalDate(row[2]),
+            row[3] != null ? TimestampConverter.toLocalDate(row[3]): null);
     }
 
     public record OpenAutopunkt(String saksnummer, String ytelseType, LocalDate aksjonspunktOpprettetDato, LocalDate aksjonspunktFristDato) {
