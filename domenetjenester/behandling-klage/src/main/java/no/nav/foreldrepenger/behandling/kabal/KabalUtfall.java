@@ -2,6 +2,7 @@ package no.nav.foreldrepenger.behandling.kabal;
 
 public enum KabalUtfall {
     TRUKKET, // Bruker trekker klage/anke
+    HENLAGT, // Klage/anke henlagt av høyere instans
     HEVET, // Anke i TrR der bruker trekker anken
     RETUR, // Retur fra høyere instans
     AVVIST,
