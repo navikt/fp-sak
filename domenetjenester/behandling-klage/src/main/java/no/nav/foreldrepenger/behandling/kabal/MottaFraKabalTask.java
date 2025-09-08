@@ -42,7 +42,8 @@ public class MottaFraKabalTask extends BehandlingProsessTask {
     public static final String OVERSENDTR_KEY = "oversendtTrygderett";
     public static final String FEILOPPRETTET_TYPE_KEY = "feilopprettetType";
 
-    private static final Set<KabalUtfall> UTEN_VURDERING = Set.of(KabalUtfall.TRUKKET, KabalUtfall.HEVET, KabalUtfall.RETUR);
+    private static final Set<KabalUtfall> UTEN_VURDERING = Set.of(KabalUtfall.TRUKKET, KabalUtfall.HENLAGT, KabalUtfall.HEVET, KabalUtfall.RETUR);
+    private static final Set<KabalUtfall> HENLEGGELSE = Set.of(KabalUtfall.TRUKKET, KabalUtfall.HENLAGT, KabalUtfall.HEVET);
 
     private BehandlingRepository behandlingRepository;
     private BehandlingsresultatRepository behandlingsresultatRepository;
@@ -102,7 +103,7 @@ public class MottaFraKabalTask extends BehandlingProsessTask {
         if (!UTEN_VURDERING.contains(utfall)) {
             kabalTjeneste.lagreKlageUtfallFraKabal(klageBehandling, lås, utfall);
         }
-        if (KabalUtfall.TRUKKET.equals(utfall) || KabalUtfall.HEVET.equals(utfall)) {
+        if (HENLEGGELSE.contains(utfall)) {
             henleggBehandling(klageBehandling, lås, BehandlingResultatType.HENLAGT_KLAGE_TRUKKET);
         } else if (KabalUtfall.RETUR.equals(utfall)) {
             // Knoteri siden behandling tilbakeføres og deretter kanskje skal til Kabal på nytt. Avbrutt er viktig. Gjennomgå retur-semantikk på nytt.
@@ -168,7 +169,7 @@ public class MottaFraKabalTask extends BehandlingProsessTask {
             .orElseThrow(() -> new IllegalStateException("Mangler ankebehandling for behandling " + behandlingId));
         var lås = behandlingRepository.taSkriveLås(ankeBehandling);
         kabalTjeneste.settKabalReferanse(ankeBehandling, ref);
-        if (KabalUtfall.TRUKKET.equals(utfall) || KabalUtfall.HEVET.equals(utfall)) {
+        if (HENLEGGELSE.contains(utfall)) {
             henleggBehandling(ankeBehandling, lås, BehandlingResultatType.HENLAGT_ANKE_TRUKKET);
         } else if (KabalUtfall.RETUR.equals(utfall)) {
             throw new IllegalStateException("KABAL sender ankeutfall RETUR sak " + ankeBehandling.getSaksnummer().getVerdi());
