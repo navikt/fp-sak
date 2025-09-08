@@ -1,24 +1,15 @@
 package no.nav.foreldrepenger.domene.mappers.til_kalkulus;
 
 import no.nav.folketrygdloven.kalkulus.kodeverk.AktivitetStatus;
-import no.nav.folketrygdloven.kalkulus.kodeverk.AndelKilde;
 import no.nav.folketrygdloven.kalkulus.kodeverk.ArbeidType;
 import no.nav.folketrygdloven.kalkulus.kodeverk.ArbeidsforholdHandlingType;
-import no.nav.folketrygdloven.kalkulus.kodeverk.BeregningAktivitetHandlingType;
-import no.nav.folketrygdloven.kalkulus.kodeverk.BeregningsgrunnlagPeriodeRegelType;
-import no.nav.folketrygdloven.kalkulus.kodeverk.BeregningsgrunnlagRegelType;
-import no.nav.folketrygdloven.kalkulus.kodeverk.BeregningsgrunnlagTilstand;
-import no.nav.folketrygdloven.kalkulus.kodeverk.FagsakYtelseType;
-import no.nav.folketrygdloven.kalkulus.kodeverk.FaktaOmBeregningTilfelle;
-import no.nav.folketrygdloven.kalkulus.kodeverk.Hjemmel;
+import no.nav.folketrygdloven.kalkulus.kodeverk.Arbeidskategori;
 import no.nav.folketrygdloven.kalkulus.kodeverk.InntektYtelseType;
-import no.nav.folketrygdloven.kalkulus.kodeverk.Inntektskategori;
 import no.nav.folketrygdloven.kalkulus.kodeverk.InntektskildeType;
 import no.nav.folketrygdloven.kalkulus.kodeverk.InntektspostType;
 import no.nav.folketrygdloven.kalkulus.kodeverk.NaturalYtelseType;
 import no.nav.folketrygdloven.kalkulus.kodeverk.OpptjeningAktivitetType;
-import no.nav.folketrygdloven.kalkulus.kodeverk.PeriodeÅrsak;
-import no.nav.folketrygdloven.kalkulus.kodeverk.SammenligningsgrunnlagType;
+import no.nav.folketrygdloven.kalkulus.kodeverk.PermisjonsbeskrivelseType;
 import no.nav.folketrygdloven.kalkulus.kodeverk.SkatteOgAvgiftsregelType;
 import no.nav.folketrygdloven.kalkulus.kodeverk.UttakArbeidType;
 import no.nav.folketrygdloven.kalkulus.kodeverk.VirksomhetType;
@@ -32,33 +23,6 @@ public class KodeverkTilKalkulusMapper {
 
     private KodeverkTilKalkulusMapper() {
         // Skjuler default konstruktør
-    }
-
-    public static Inntektskategori mapInntektskategori(no.nav.foreldrepenger.domene.modell.kodeverk.Inntektskategori inntektskategori) {
-        return switch (inntektskategori) {
-            case ARBEIDSTAKER -> Inntektskategori.ARBEIDSTAKER;
-            case FRILANSER -> Inntektskategori.FRILANSER;
-            case SELVSTENDIG_NÆRINGSDRIVENDE -> Inntektskategori.SELVSTENDIG_NÆRINGSDRIVENDE;
-            case DAGPENGER -> Inntektskategori.DAGPENGER;
-            case ARBEIDSAVKLARINGSPENGER -> Inntektskategori.ARBEIDSAVKLARINGSPENGER;
-            case SJØMANN -> Inntektskategori.SJØMANN;
-            case DAGMAMMA -> Inntektskategori.DAGMAMMA;
-            case JORDBRUKER -> Inntektskategori.JORDBRUKER;
-            case FISKER -> Inntektskategori.FISKER;
-            case ARBEIDSTAKER_UTEN_FERIEPENGER -> Inntektskategori.ARBEIDSTAKER_UTEN_FERIEPENGER;
-            case UDEFINERT -> Inntektskategori.UDEFINERT;
-        };
-    }
-
-    public static AndelKilde mapAndelkilde(no.nav.foreldrepenger.domene.modell.kodeverk.AndelKilde andelKilde) {
-        return switch (andelKilde) {
-            case SAKSBEHANDLER_KOFAKBER -> AndelKilde.SAKSBEHANDLER_KOFAKBER;
-            case PROSESS_BESTEBEREGNING -> AndelKilde.PROSESS_BESTEBEREGNING;
-            case SAKSBEHANDLER_FORDELING -> AndelKilde.SAKSBEHANDLER_FORDELING;
-            case PROSESS_PERIODISERING -> AndelKilde.PROSESS_PERIODISERING;
-            case PROSESS_OMFORDELING -> AndelKilde.PROSESS_OMFORDELING;
-            case PROSESS_START -> AndelKilde.PROSESS_START;
-        };
     }
 
     public static AktivitetStatus mapAktivitetstatus(no.nav.foreldrepenger.domene.modell.kodeverk.AktivitetStatus aktivitetStatus) {
@@ -78,16 +42,6 @@ public class KodeverkTilKalkulusMapper {
             case BRUKERS_ANDEL -> AktivitetStatus.BRUKERS_ANDEL;
             case KUN_YTELSE -> AktivitetStatus.KUN_YTELSE;
             case TTLSTØTENDE_YTELSE -> AktivitetStatus.TTLSTØTENDE_YTELSE;
-        };
-    }
-
-    public static SammenligningsgrunnlagType mapSammenligningsgrunnlagtype(no.nav.foreldrepenger.domene.modell.kodeverk.SammenligningsgrunnlagType sammenligningsgrunnlagType) {
-        return switch (sammenligningsgrunnlagType) {
-            case SAMMENLIGNING_AT -> SammenligningsgrunnlagType.SAMMENLIGNING_AT;
-            case SAMMENLIGNING_FL -> SammenligningsgrunnlagType.SAMMENLIGNING_FL;
-            case SAMMENLIGNING_AT_FL -> SammenligningsgrunnlagType.SAMMENLIGNING_AT_FL;
-            case SAMMENLIGNING_SN -> SammenligningsgrunnlagType.SAMMENLIGNING_SN;
-            case SAMMENLIGNING_ATFL_SN -> SammenligningsgrunnlagType.SAMMENLIGNING_ATFL_SN;
         };
     }
 
@@ -121,38 +75,6 @@ public class KodeverkTilKalkulusMapper {
             case UTENLANDSK_ARBEIDSFORHOLD -> OpptjeningAktivitetType.UTENLANDSK_ARBEIDSFORHOLD;
             case UTDANNINGSPERMISJON -> OpptjeningAktivitetType.UTDANNINGSPERMISJON;
             case UDEFINERT -> OpptjeningAktivitetType.UDEFINERT;
-        };
-    }
-
-    public static Hjemmel mapHjemmel(no.nav.foreldrepenger.domene.modell.kodeverk.Hjemmel hjemmel) {
-        return switch (hjemmel) {
-            case F_14_7 -> Hjemmel.F_14_7;
-            case F_14_7_8_30 -> Hjemmel.F_14_7_8_30;
-            case F_14_7_8_28_8_30 -> Hjemmel.F_14_7_8_28_8_30;
-            case F_14_7_8_35 -> Hjemmel.F_14_7_8_35;
-            case F_14_7_8_38 -> Hjemmel.F_14_7_8_38;
-            case F_14_7_8_40 -> Hjemmel.F_14_7_8_40;
-            case F_14_7_8_41 -> Hjemmel.F_14_7_8_41;
-            case F_14_7_8_42 -> Hjemmel.F_14_7_8_42;
-            case F_14_7_8_43 -> Hjemmel.F_14_7_8_43;
-            case F_14_7_8_47 -> Hjemmel.F_14_7_8_47;
-            case F_14_7_8_49 -> Hjemmel.F_14_7_8_49;
-            case UDEFINERT -> Hjemmel.UDEFINERT;
-        };
-    }
-
-    public static PeriodeÅrsak mapPeriodeårsak(no.nav.foreldrepenger.domene.modell.kodeverk.PeriodeÅrsak periodeÅrsak) {
-        return switch (periodeÅrsak) {
-            case NATURALYTELSE_BORTFALT -> PeriodeÅrsak.NATURALYTELSE_BORTFALT;
-            case ARBEIDSFORHOLD_AVSLUTTET -> PeriodeÅrsak.ARBEIDSFORHOLD_AVSLUTTET;
-            case NATURALYTELSE_TILKOMMER -> PeriodeÅrsak.NATURALYTELSE_TILKOMMER;
-            case ENDRING_I_REFUSJONSKRAV -> PeriodeÅrsak.ENDRING_I_REFUSJONSKRAV;
-            case REFUSJON_OPPHØRER -> PeriodeÅrsak.REFUSJON_OPPHØRER;
-            case GRADERING -> PeriodeÅrsak.GRADERING;
-            case GRADERING_OPPHØRER -> PeriodeÅrsak.GRADERING_OPPHØRER;
-            case ENDRING_I_AKTIVITETER_SØKT_FOR -> PeriodeÅrsak.ENDRING_I_AKTIVITETER_SØKT_FOR;
-            case REFUSJON_AVSLÅTT -> PeriodeÅrsak.REFUSJON_AVSLÅTT;
-            case UDEFINERT -> PeriodeÅrsak.UDEFINERT;
         };
     }
 
@@ -237,68 +159,6 @@ public class KodeverkTilKalkulusMapper {
         };
     }
 
-    public static FagsakYtelseType mapFagsakytelsetype(no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType fagsakYtelseType) {
-        return switch (fagsakYtelseType) {
-            case FORELDREPENGER -> FagsakYtelseType.FORELDREPENGER;
-            case SVANGERSKAPSPENGER -> FagsakYtelseType.SVANGERSKAPSPENGER;
-            case ENGANGSTØNAD, UDEFINERT -> throw new IllegalStateException("Skal ikke kalle kalkulus med ytelsetype " + fagsakYtelseType);
-        };
-    }
-
-    public static FaktaOmBeregningTilfelle mapFaktaBeregningTilfelle(no.nav.foreldrepenger.domene.modell.kodeverk.FaktaOmBeregningTilfelle tilfelle) {
-        return switch (tilfelle) {
-            case VURDER_TIDSBEGRENSET_ARBEIDSFORHOLD -> FaktaOmBeregningTilfelle.VURDER_TIDSBEGRENSET_ARBEIDSFORHOLD;
-            case VURDER_SN_NY_I_ARBEIDSLIVET -> FaktaOmBeregningTilfelle.VURDER_SN_NY_I_ARBEIDSLIVET;
-            case VURDER_NYOPPSTARTET_FL -> FaktaOmBeregningTilfelle.VURDER_NYOPPSTARTET_FL;
-            case FASTSETT_MAANEDSINNTEKT_FL -> FaktaOmBeregningTilfelle.FASTSETT_MAANEDSINNTEKT_FL;
-            case FASTSETT_BG_ARBEIDSTAKER_UTEN_INNTEKTSMELDING -> FaktaOmBeregningTilfelle.FASTSETT_BG_ARBEIDSTAKER_UTEN_INNTEKTSMELDING;
-            case VURDER_LØNNSENDRING -> FaktaOmBeregningTilfelle.VURDER_LØNNSENDRING;
-            case FASTSETT_MÅNEDSLØNN_ARBEIDSTAKER_UTEN_INNTEKTSMELDING ->
-                FaktaOmBeregningTilfelle.FASTSETT_MÅNEDSLØNN_ARBEIDSTAKER_UTEN_INNTEKTSMELDING;
-            case VURDER_AT_OG_FL_I_SAMME_ORGANISASJON -> FaktaOmBeregningTilfelle.VURDER_AT_OG_FL_I_SAMME_ORGANISASJON;
-            case FASTSETT_BESTEBEREGNING_FØDENDE_KVINNE -> FaktaOmBeregningTilfelle.FASTSETT_BESTEBEREGNING_FØDENDE_KVINNE;
-            case VURDER_ETTERLØNN_SLUTTPAKKE -> FaktaOmBeregningTilfelle.VURDER_ETTERLØNN_SLUTTPAKKE;
-            case FASTSETT_ETTERLØNN_SLUTTPAKKE -> FaktaOmBeregningTilfelle.FASTSETT_ETTERLØNN_SLUTTPAKKE;
-            case VURDER_MOTTAR_YTELSE -> FaktaOmBeregningTilfelle.VURDER_MOTTAR_YTELSE;
-            case VURDER_BESTEBEREGNING -> FaktaOmBeregningTilfelle.VURDER_BESTEBEREGNING;
-            case VURDER_MILITÆR_SIVILTJENESTE -> FaktaOmBeregningTilfelle.VURDER_MILITÆR_SIVILTJENESTE;
-            case VURDER_REFUSJONSKRAV_SOM_HAR_KOMMET_FOR_SENT -> FaktaOmBeregningTilfelle.VURDER_REFUSJONSKRAV_SOM_HAR_KOMMET_FOR_SENT;
-            case FASTSETT_BG_KUN_YTELSE -> FaktaOmBeregningTilfelle.FASTSETT_BG_KUN_YTELSE;
-            case TILSTØTENDE_YTELSE -> FaktaOmBeregningTilfelle.TILSTØTENDE_YTELSE;
-            case FASTSETT_ENDRET_BEREGNINGSGRUNNLAG -> FaktaOmBeregningTilfelle.FASTSETT_ENDRET_BEREGNINGSGRUNNLAG;
-            case UDEFINERT -> FaktaOmBeregningTilfelle.UDEFINERT;
-        };
-    }
-
-    public static BeregningAktivitetHandlingType mapBeregningAktivitetHandling(no.nav.foreldrepenger.domene.modell.kodeverk.BeregningAktivitetHandlingType handling) {
-        return switch (handling) {
-            case BENYTT -> BeregningAktivitetHandlingType.BENYTT;
-            case IKKE_BENYTT -> BeregningAktivitetHandlingType.IKKE_BENYTT;
-            case UDEFINERT -> BeregningAktivitetHandlingType.UDEFINERT;
-        };
-    }
-
-    public static BeregningsgrunnlagTilstand mapBeregningsgrunnlagTilstand(no.nav.foreldrepenger.domene.modell.kodeverk.BeregningsgrunnlagTilstand beregningsgrunnlagTilstand) {
-        return switch (beregningsgrunnlagTilstand) {
-            case OPPRETTET -> BeregningsgrunnlagTilstand.OPPRETTET;
-            case FASTSATT_BEREGNINGSAKTIVITETER -> BeregningsgrunnlagTilstand.FASTSATT_BEREGNINGSAKTIVITETER;
-            case OPPDATERT_MED_ANDELER -> BeregningsgrunnlagTilstand.OPPDATERT_MED_ANDELER;
-            case KOFAKBER_UT -> BeregningsgrunnlagTilstand.KOFAKBER_UT;
-            case BESTEBEREGNET -> BeregningsgrunnlagTilstand.BESTEBEREGNET;
-            case FORESLÅTT -> BeregningsgrunnlagTilstand.FORESLÅTT;
-            case FORESLÅTT_UT -> BeregningsgrunnlagTilstand.FORESLÅTT_UT;
-            case FORESLÅTT_2 -> BeregningsgrunnlagTilstand.FORESLÅTT_DEL_2;
-            case FORESLÅTT_2_UT -> BeregningsgrunnlagTilstand.FORESLÅTT_DEL_2_UT;
-            case VURDERT_VILKÅR -> BeregningsgrunnlagTilstand.VURDERT_VILKÅR;
-            case VURDERT_REFUSJON -> BeregningsgrunnlagTilstand.VURDERT_REFUSJON;
-            case VURDERT_REFUSJON_UT -> BeregningsgrunnlagTilstand.VURDERT_REFUSJON_UT;
-            case OPPDATERT_MED_REFUSJON_OG_GRADERING -> BeregningsgrunnlagTilstand.OPPDATERT_MED_REFUSJON_OG_GRADERING;
-            case FASTSATT_INN -> BeregningsgrunnlagTilstand.FASTSATT_INN;
-            case FASTSATT -> BeregningsgrunnlagTilstand.FASTSATT;
-            case UDEFINERT -> BeregningsgrunnlagTilstand.UDEFINERT;
-        };
-    }
-
     public static InntektspostType mapInntektspostType(no.nav.foreldrepenger.domene.iay.modell.kodeverk.InntektspostType type) {
         return switch (type) {
             case UDEFINERT -> InntektspostType.UDEFINERT;
@@ -375,32 +235,6 @@ public class KodeverkTilKalkulusMapper {
         };
     }
 
-    public static BeregningsgrunnlagRegelType mapGrunnlagRegeltype(no.nav.foreldrepenger.domene.modell.kodeverk.BeregningsgrunnlagRegelType regeltype) {
-        return switch (regeltype) {
-            case SKJÆRINGSTIDSPUNKT -> BeregningsgrunnlagRegelType.SKJÆRINGSTIDSPUNKT;
-            case BRUKERS_STATUS -> BeregningsgrunnlagRegelType.BRUKERS_STATUS;
-            case PERIODISERING -> BeregningsgrunnlagRegelType.PERIODISERING;
-            case PERIODISERING_NATURALYTELSE -> BeregningsgrunnlagRegelType.PERIODISERING_NATURALYTELSE;
-            case PERIODISERING_REFUSJON -> BeregningsgrunnlagRegelType.PERIODISERING_REFUSJON;
-            case PERIODISERING_GRADERING -> BeregningsgrunnlagRegelType.PERIODISERING_GRADERING;
-            case UDEFINERT -> BeregningsgrunnlagRegelType.UDEFINERT;
-        };
-    }
-
-    public static BeregningsgrunnlagPeriodeRegelType mapPeriodeRegelType(no.nav.foreldrepenger.domene.modell.kodeverk.BeregningsgrunnlagPeriodeRegelType regeltype) {
-        return switch (regeltype) {
-            case FORESLÅ -> BeregningsgrunnlagPeriodeRegelType.FORESLÅ;
-            case FORESLÅ_2 -> BeregningsgrunnlagPeriodeRegelType.FORESLÅ_2;
-            case VILKÅR_VURDERING -> BeregningsgrunnlagPeriodeRegelType.VILKÅR_VURDERING;
-            case FORDEL -> BeregningsgrunnlagPeriodeRegelType.FORDEL;
-            case FASTSETT -> BeregningsgrunnlagPeriodeRegelType.FASTSETT;
-            case OPPDATER_GRUNNLAG_SVP -> BeregningsgrunnlagPeriodeRegelType.OPPDATER_GRUNNLAG_SVP;
-            case FASTSETT2 -> BeregningsgrunnlagPeriodeRegelType.FASTSETT2;
-            case FINN_GRENSEVERDI -> BeregningsgrunnlagPeriodeRegelType.FINN_GRENSEVERDI    ;
-            case UDEFINERT -> BeregningsgrunnlagPeriodeRegelType.UDEFINERT;
-        };
-    }
-
     public static YtelseKilde mapYtelseKilde(Fagsystem kilde) {
         return switch (kilde) {
             case FPSAK -> YtelseKilde.FPSAK;
@@ -410,6 +244,43 @@ public class KodeverkTilKalkulusMapper {
             case VLSP -> YtelseKilde.VLSP;
             case UDEFINERT -> YtelseKilde.UDEFINERT;
             case TPS, AAREGISTERET, ENHETSREGISTERET, GOSYS, MEDL, INNTEKT, JOARK -> null;
+        };
+    }
+
+    public static PermisjonsbeskrivelseType mapPermisjonbeskrivelsetype(no.nav.foreldrepenger.domene.iay.modell.kodeverk.PermisjonsbeskrivelseType permisjonsbeskrivelseType) {
+        return switch (permisjonsbeskrivelseType) {
+            case UDEFINERT -> PermisjonsbeskrivelseType.UDEFINERT;
+            case PERMISJON -> PermisjonsbeskrivelseType.PERMISJON;
+            case UTDANNINGSPERMISJON -> PermisjonsbeskrivelseType.UTDANNINGSPERMISJON;
+            case UTDANNINGSPERMISJON_IKKE_LOVFESTET -> PermisjonsbeskrivelseType.UTDANNINGSPERMISJON_IKKE_LOVFESTET;
+            case UTDANNINGSPERMISJON_LOVFESTET -> PermisjonsbeskrivelseType.UTDANNINGSPERMISJON_LOVFESTET;
+            case VELFERDSPERMISJON -> PermisjonsbeskrivelseType.VELFERDSPERMISJON;
+            case ANNEN_PERMISJON_IKKE_LOVFESTET -> PermisjonsbeskrivelseType.ANNEN_PERMISJON_IKKE_LOVFESTET;
+            case ANNEN_PERMISJON_LOVFESTET -> PermisjonsbeskrivelseType.ANNEN_PERMISJON_LOVFESTET;
+            case PERMISJON_MED_FORELDREPENGER -> PermisjonsbeskrivelseType.PERMISJON_MED_FORELDREPENGER;
+            case PERMITTERING -> PermisjonsbeskrivelseType.PERMITTERING;
+            case PERMISJON_VED_MILITÆRTJENESTE -> PermisjonsbeskrivelseType.PERMISJON_VED_MILITÆRTJENESTE;
+        };
+    }
+
+    public static Arbeidskategori mapArbeidskategori(no.nav.foreldrepenger.domene.iay.modell.kodeverk.Arbeidskategori arbeidskategori) {
+        return switch (arbeidskategori) {
+            case FISKER -> Arbeidskategori.FISKER;
+            case ARBEIDSTAKER -> Arbeidskategori.ARBEIDSTAKER;
+            case SELVSTENDIG_NÆRINGSDRIVENDE -> Arbeidskategori.SELVSTENDIG_NÆRINGSDRIVENDE;
+            case KOMBINASJON_ARBEIDSTAKER_OG_SELVSTENDIG_NÆRINGSDRIVENDE -> Arbeidskategori.KOMBINASJON_ARBEIDSTAKER_OG_SELVSTENDIG_NÆRINGSDRIVENDE;
+            case SJØMANN -> Arbeidskategori.SJØMANN;
+            case JORDBRUKER -> Arbeidskategori.JORDBRUKER;
+            case DAGPENGER -> Arbeidskategori.DAGPENGER;
+            case INAKTIV -> Arbeidskategori.INAKTIV;
+            case KOMBINASJON_ARBEIDSTAKER_OG_JORDBRUKER -> Arbeidskategori.KOMBINASJON_ARBEIDSTAKER_OG_JORDBRUKER;
+            case KOMBINASJON_ARBEIDSTAKER_OG_FISKER -> Arbeidskategori.KOMBINASJON_ARBEIDSTAKER_OG_FISKER;
+            case FRILANSER -> Arbeidskategori.FRILANSER;
+            case KOMBINASJON_ARBEIDSTAKER_OG_FRILANSER -> Arbeidskategori.KOMBINASJON_ARBEIDSTAKER_OG_FRILANSER;
+            case KOMBINASJON_ARBEIDSTAKER_OG_DAGPENGER -> Arbeidskategori.KOMBINASJON_ARBEIDSTAKER_OG_DAGPENGER;
+            case DAGMAMMA -> Arbeidskategori.DAGMAMMA;
+            case UGYLDIG -> Arbeidskategori.UGYLDIG;
+            case UDEFINERT -> Arbeidskategori.UDEFINERT;
         };
     }
 }

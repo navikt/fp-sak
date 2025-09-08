@@ -51,6 +51,7 @@ class BeregningKalkulus implements BeregningAPI {
     private BeregningsgrunnlagKoblingRepository koblingRepository;
     private BesteberegningFødendeKvinneTjeneste besteberegningFødendeKvinneTjeneste;
     private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
+    private AapPraksisendringTjeneste fullAapAnnenStatusLoggTjeneste;
 
     BeregningKalkulus() {
         // CDI
@@ -61,12 +62,14 @@ class BeregningKalkulus implements BeregningAPI {
                              KalkulusInputTjeneste kalkulusInputTjeneste,
                              BeregningsgrunnlagKoblingRepository koblingRepository,
                              BesteberegningFødendeKvinneTjeneste besteberegningFødendeKvinneTjeneste,
-                             SkjæringstidspunktTjeneste skjæringstidspunktTjeneste) {
+                             SkjæringstidspunktTjeneste skjæringstidspunktTjeneste,
+                             AapPraksisendringTjeneste fullAapAnnenStatusLoggTjeneste) {
         this.klient = klient;
         this.kalkulusInputTjeneste = kalkulusInputTjeneste;
         this.koblingRepository = koblingRepository;
         this.besteberegningFødendeKvinneTjeneste = besteberegningFødendeKvinneTjeneste;
         this.skjæringstidspunktTjeneste = skjæringstidspunktTjeneste;
+        this.fullAapAnnenStatusLoggTjeneste = fullAapAnnenStatusLoggTjeneste;
     }
 
     @Override
@@ -175,6 +178,11 @@ class BeregningKalkulus implements BeregningAPI {
 
     @Override
     public void avslutt(BehandlingReferanse referanse) {
+        // Midlertidig logging for å følge med på TFP-6041, bør kunne fjernes etter september 2025
+        if (referanse.fagsakYtelseType().equals(FagsakYtelseType.FORELDREPENGER)) {
+            fullAapAnnenStatusLoggTjeneste.loggVedFullAapOgAnnenStatus(referanse);
+        }
+
         koblingRepository.hentKobling(referanse.behandlingId())
             .ifPresent(k -> {
                 LOG.info("Lukker kalkuluskobling med koblingUuid {}", k.getKoblingUuid());

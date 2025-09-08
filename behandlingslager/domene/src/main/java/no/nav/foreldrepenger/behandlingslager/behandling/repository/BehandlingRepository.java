@@ -4,13 +4,11 @@ import static no.nav.vedtak.felles.jpa.HibernateVerktøy.hentEksaktResultat;
 import static no.nav.vedtak.felles.jpa.HibernateVerktøy.hentUniktResultat;
 
 import java.math.BigDecimal;
-import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
-import java.util.TimeZone;
 import java.util.UUID;
 
 import jakarta.enterprise.context.ApplicationScoped;
@@ -30,6 +28,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.behandling.SpesialBehandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultat;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
+import no.nav.foreldrepenger.domene.tid.TimestampConverter;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 
 @ApplicationScoped
@@ -527,13 +526,8 @@ public class BehandlingRepository {
         query.setParameter("behandling_id", behandlingId);
 
         var resultat = query.getSingleResult();
-        if (resultat == null) {
-            return Optional.empty();
-        }
-
-        var timestamp = (Timestamp) resultat;
-        var value = LocalDateTime.ofInstant(timestamp.toInstant(), TimeZone.getDefault().toZoneId());
-        return Optional.of(value);
+        return Optional.ofNullable(resultat)
+            .map(r -> TimestampConverter.toLocalDateTime(r));
     }
 
     public List<BehandlingÅrsak> finnÅrsakerForBehandling(Behandling behandling) {
