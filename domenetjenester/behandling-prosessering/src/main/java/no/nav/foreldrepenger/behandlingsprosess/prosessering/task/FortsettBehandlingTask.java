@@ -64,7 +64,7 @@ public class FortsettBehandlingTask implements ProsessTaskHandler {
                 if (behandling.isBehandlingPåVent()) { // Autopunkt
                     behandlingskontrollTjeneste.taBehandlingAvVentSetAlleAutopunktUtført(kontekst, behandling);
                 }
-            } else {
+            } else { // TODO: Slett denne etter omlegging
                 Optional.ofNullable(data.getPropertyValue(UTFORT_AUTOPUNKT))
                     .map(AksjonspunktDefinisjon::fraKode)
                     .flatMap(behandling::getÅpentAksjonspunktMedDefinisjonOptional)

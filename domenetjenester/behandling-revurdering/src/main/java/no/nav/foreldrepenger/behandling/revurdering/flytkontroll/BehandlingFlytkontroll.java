@@ -1,7 +1,5 @@
 package no.nav.foreldrepenger.behandling.revurdering.flytkontroll;
 
-import java.util.Optional;
-
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
@@ -13,7 +11,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.SpesialBehandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
-import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Venteårsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.hendelser.StartpunktType;
@@ -69,7 +66,7 @@ public class BehandlingFlytkontroll {
             var køetAnnenpartBerørt = annenpartÅpneBehandlinger.stream().filter(b -> SpesialBehandling.skalIkkeKøes(b) && venterVedUttakSynk(b)).findFirst();
             køetAnnenpartBerørt.ifPresent(b -> {
                 LOG.warn("Berørt behandling: Annenpart har en berørt på vent ved uttak. Fortsetter annenpart og går selv på vent.");
-                behandlingProsesseringTjeneste.opprettTasksForFortsettBehandlingSettUtført(b, Optional.of(AksjonspunktDefinisjon.AUTO_KØET_BEHANDLING));
+                behandlingProsesseringTjeneste.dekøBehandling(b);
             });
             return annenpartÅpneBehandlinger.stream().anyMatch(b -> SpesialBehandling.skalIkkeKøes(b) && (passertUttakSynk(b) || venterVedUttakSynk(b)));
         }
@@ -93,7 +90,7 @@ public class BehandlingFlytkontroll {
     }
 
     public void settNyRevurderingPåVent(Behandling behandling) {
-        behandlingProsesseringTjeneste.settBehandlingPåVentUtenSteg(behandling, AksjonspunktDefinisjon.AUTO_KØET_BEHANDLING, null, Venteårsak.VENT_ÅPEN_BEHANDLING);
+        behandlingProsesseringTjeneste.enkøBehandling(behandling);
     }
 
     public boolean finnesÅpenBerørtForFagsak(Long fagsakId, Long behandlingId) {

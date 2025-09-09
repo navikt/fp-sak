@@ -20,7 +20,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.behandling.DokumentTypeId;
 import no.nav.foreldrepenger.behandlingslager.behandling.MottattDokument;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
-import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Venteårsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadRepository;
@@ -207,7 +206,7 @@ public class Behandlingsoppretter {
 
 
     public void settSomKøet(Behandling nyKøetBehandling) {
-        behandlingProsesseringTjeneste.settBehandlingPåVentUtenSteg(nyKøetBehandling, AksjonspunktDefinisjon.AUTO_KØET_BEHANDLING, null, Venteårsak.VENT_ÅPEN_BEHANDLING);
+        behandlingProsesseringTjeneste.enkøBehandling(nyKøetBehandling);
     }
 
     public boolean erOpphørtBehandling(Behandling behandling) {
