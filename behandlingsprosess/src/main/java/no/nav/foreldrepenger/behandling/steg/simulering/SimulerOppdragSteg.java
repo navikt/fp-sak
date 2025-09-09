@@ -14,6 +14,8 @@ import java.util.stream.Stream;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -205,11 +207,15 @@ public class SimulerOppdragSteg implements BehandlingSteg {
         if (behandling.getFagsakYtelseType().equals(FagsakYtelseType.ENGANGSTØNAD)) {
             return Optional.empty(); // Ikke relevant for ES
         }
-        var utbetResultat = beregningsresultatRepository.hentUtbetBeregningsresultat(behandling.getId());
         // Ingen utbetaling i denne behandlingen, vil ikke bli etterbetaling
+        var utbetResultat = beregningsresultatRepository.hentUtbetBeregningsresultat(behandling.getId());
+
+        // For å ikke stoppe unødig mange saker ifm revurderinger forårsaket av praksisendring for AAP status beregning har disse behandlingene egen grense
+        var etterbetalingsgrense = behandling.harBehandlingÅrsak(BehandlingÅrsakType.FEIL_PRAKSIS_BEREGNING_AAP_KOMBINASJON) ? BigDecimal.valueOf(60_000) : BigDecimal.valueOf(30_000);
+
         return utbetResultat.flatMap(beregningsresultatEntitet -> behandling.getOriginalBehandlingId()
             .flatMap(orgId -> beregningsresultatRepository.hentUtbetBeregningsresultat(orgId)
-                .map(forrigeRes -> Etterbetalingtjeneste.finnSumSomVilBliEtterbetalt(LocalDate.now(), forrigeRes, beregningsresultatEntitet))));
+                .map(forrigeRes -> Etterbetalingtjeneste.finnSumSomVilBliEtterbetalt(LocalDate.now(), forrigeRes, beregningsresultatEntitet, etterbetalingsgrense))));
 
     }
 
