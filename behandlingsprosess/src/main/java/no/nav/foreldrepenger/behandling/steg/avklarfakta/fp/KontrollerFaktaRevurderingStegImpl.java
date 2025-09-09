@@ -184,8 +184,12 @@ class KontrollerFaktaRevurderingStegImpl implements KontrollerFaktaSteg {
 
         // Undersøk behov for GRegulering. Med mindre vi allerede skal til BEREGNING eller tidligere steg
         if (startpunkt.getRangering() > StartpunktType.BEREGNING.getRangering()) {
-            var greguleringStartpunkt = utledBehovForGRegulering(stp, revurdering);
-            startpunkt = startpunkt.getRangering() < greguleringStartpunkt.getRangering() ? startpunkt : greguleringStartpunkt;
+            if (erAapPraksisendringBehandling(revurdering)) {
+                startpunkt = StartpunktType.BEREGNING;
+            } else {
+                var greguleringStartpunkt = utledBehovForGRegulering(stp, revurdering);
+                startpunkt = startpunkt.getRangering() < greguleringStartpunkt.getRangering() ? startpunkt : greguleringStartpunkt;
+            }
         }
 
         // Startpunkt for revurdering kan kun hoppe fremover; default dersom startpunkt passert
@@ -194,6 +198,10 @@ class KontrollerFaktaRevurderingStegImpl implements KontrollerFaktaSteg {
         }
         LOG.info("KOFAKREV Revurdering {} har fått fastsatt startpunkt {} ", revurdering.getId(), startpunkt.getKode());
         return startpunkt;
+    }
+
+    private boolean erAapPraksisendringBehandling(Behandling behandling) {
+        return behandling.harBehandlingÅrsak(BehandlingÅrsakType.FEIL_PRAKSIS_BG_AAP_KOMBI);
     }
 
     private StartpunktType initieltStartPunkt(BehandlingReferanse ref, Skjæringstidspunkt stp, Behandling revurdering) {
