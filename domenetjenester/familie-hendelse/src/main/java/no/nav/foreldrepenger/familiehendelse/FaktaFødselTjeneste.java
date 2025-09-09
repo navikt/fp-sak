@@ -85,7 +85,7 @@ public class FaktaFødselTjeneste {
             oppdatere.medFødselType().tilbakestillBarn().medAntallBarn(barna.get().size());
             barna.get().forEach(b -> oppdatere.leggTilBarn(b.fødselsdato(), b.dødsdato()));
         } else {
-            resetBarna(familieHendelse, oppdatere);
+            oppdatere.medTerminType().tilbakestillBarn().medAntallBarn(0);
         }
 
         termindato.ifPresent(dato -> {
@@ -97,22 +97,6 @@ public class FaktaFødselTjeneste {
         lagHistorikkForBarn(ref, familieHendelse, termindato, barna, begrunnelse, erOverstyring);
 
         return getOppdateringResultat(ref, behandlingId);
-    }
-
-    private static void resetBarna(FamilieHendelseGrunnlagEntitet familieHendelse, FamilieHendelseBuilder oppdatere) {
-        familieHendelse.getBekreftetVersjon().ifPresentOrElse(bv -> {
-            var bekreftetBarn = bv.getBarna();
-            var bekreftetAntallBarn = bv.getAntallBarn();
-
-            oppdatere.medTerminType().tilbakestillBarn().medAntallBarn(bekreftetAntallBarn);
-            bekreftetBarn.forEach(b -> oppdatere.leggTilBarn(b.getFødselsdato(), b.getDødsdato().orElse(null)));
-        }, () -> {
-            var søknadBarn = familieHendelse.getSøknadVersjon().getBarna();
-            var søknadAntallBarn = familieHendelse.getSøknadVersjon().getAntallBarn();
-
-            oppdatere.medTerminType().tilbakestillBarn().medAntallBarn(søknadAntallBarn);
-            søknadBarn.forEach(b -> oppdatere.leggTilBarn(b.getFødselsdato(), b.getDødsdato().orElse(null)));
-        });
     }
 
     private void lagHistorikkForBarn(BehandlingReferanse ref,
