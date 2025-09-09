@@ -20,7 +20,8 @@ import no.nav.foreldrepenger.domene.typer.Saksnummer;
 
 public class IAYGrunnlagDiff {
     private static final Set<RelatertYtelseType> EKSLUSIVE_TYPER = Set.of(RelatertYtelseType.FORELDREPENGER, RelatertYtelseType.ENGANGSTØNAD);
-    private static final Set<RelatertYtelseType> PLEIEPENGER_TYPER = Set.of(RelatertYtelseType.PLEIEPENGER_SYKT_BARN, RelatertYtelseType.PLEIEPENGER_NÆRSTÅENDE);
+    private static final Set<RelatertYtelseType> PLEIEPENGER_TYPER = Set.of(RelatertYtelseType.PLEIEPENGER_SYKT_BARN,
+        RelatertYtelseType.PLEIEPENGER_NÆRSTÅENDE, RelatertYtelseType.OPPLÆRINGSPENGER);
 
     private InntektArbeidYtelseGrunnlag grunnlag1;
     private InntektArbeidYtelseGrunnlag grunnlag2;

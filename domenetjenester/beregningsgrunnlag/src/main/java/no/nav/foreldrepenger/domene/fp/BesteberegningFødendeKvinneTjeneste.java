@@ -208,6 +208,9 @@ public class BesteberegningFødendeKvinneTjeneste {
         MapTilYtelsegrunnlagDto.mapEksterneYtelserTilBesteberegningYtelsegrunnlag(periodeYtelserKanVæreRelevantForBB.get(), ytelseFilter,
                 RelatertYtelseType.PLEIEPENGER_SYKT_BARN)
             .ifPresent(grunnlag::add);
+        MapTilYtelsegrunnlagDto.mapEksterneYtelserTilBesteberegningYtelsegrunnlag(periodeYtelserKanVæreRelevantForBB.get(), ytelseFilter,
+                RelatertYtelseType.OPPLÆRINGSPENGER)
+            .ifPresent(grunnlag::add);
 
         var saksnumreSomMåHentesFraFpsak = MapTilYtelsegrunnlagDto.saksnummerSomMåHentesFraFpsak(periodeYtelserKanVæreRelevantForBB.get(), ytelseFilter);
         grunnlag.addAll(hentOgMapFpsakYtelserTilKalkulusDto(saksnumreSomMåHentesFraFpsak));
