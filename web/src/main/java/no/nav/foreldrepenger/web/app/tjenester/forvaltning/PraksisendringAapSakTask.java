@@ -3,6 +3,10 @@ package no.nav.foreldrepenger.web.app.tjenester.forvaltning;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
+import no.nav.foreldrepenger.behandlingslager.behandling.SpesialBehandling;
+import no.nav.foreldrepenger.produksjonsstyring.behandlingenhet.BehandlendeEnhetTjeneste;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -20,16 +24,19 @@ import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 
+import java.time.LocalDate;
+
 @ApplicationScoped
 @ProsessTask(value = "aap.praksisendring.sak", prioritet = 4, maxFailedRuns = 1)
 @FagsakProsesstaskRekkefølge(gruppeSekvens = false)
 public class PraksisendringAapSakTask extends FagsakProsessTask {
     private static final Logger LOG = LoggerFactory.getLogger(PraksisendringAapSakTask.class);
-
+    private static final LocalDate DATO_PRAKSISENDRING = LocalDate.of(2025,9,1);
     private BehandlingRepository behandlingRepository;
     private BehandlingProsesseringTjeneste behandlingProsesseringTjeneste;
     private RevurderingTjeneste revurderingTjeneste;
     private FagsakRepository fagsakRepository;
+
 
     @Inject
     public PraksisendringAapSakTask(BehandlingRepositoryProvider behandlingRepositoryProvider,
@@ -49,19 +56,25 @@ public class PraksisendringAapSakTask extends FagsakProsessTask {
         var behandling = behandlingRepository.hentSisteYtelsesBehandlingForFagsakId(fagsakId).orElseThrow();
         if (behandling.erAvsluttet()) {
             var fagsak = fagsakRepository.hentSakGittSaksnummer(new Saksnummer(prosessTaskData.getSaksnummer())).orElseThrow();
-            var revurdering = revurderingTjeneste.opprettAutomatiskRevurdering(fagsak, BehandlingÅrsakType.FEIL_PRAKSIS_BEREGNING_AAP_KOMBINASJON, null); // TODO Fiks enhet
+            var revurdering = revurderingTjeneste.opprettAutomatiskRevurdering(fagsak, BehandlingÅrsakType.FEIL_PRAKSIS_BEREGNING_AAP_KOMBINASJON, BehandlendeEnhetTjeneste.getMidlertidigEnhet());
             behandlingProsesseringTjeneste.opprettTasksForStartBehandling(revurdering);
+        } else if (SpesialBehandling.erSpesialBehandling(behandling)) {
+            var fagsak = fagsakRepository.hentSakGittSaksnummer(new Saksnummer(prosessTaskData.getSaksnummer())).orElseThrow();
+            var revurdering = revurderingTjeneste.opprettAutomatiskRevurdering(fagsak, BehandlingÅrsakType.FEIL_PRAKSIS_BEREGNING_AAP_KOMBINASJON, BehandlendeEnhetTjeneste.getMidlertidigEnhet());
+            behandlingProsesseringTjeneste.enkøBehandling(revurdering);
+        } else if (behandling.getType().equals(BehandlingType.FØRSTEGANGSSØKNAD)) {
+            return;
         } else {
             // Saker som startet etter beregning og ble opprettet før endringsdato, men har blitt liggende
-            if (behandling.getStartpunkt().equals(StartpunktType.TILKJENT_YTELSE) || behandling.getStartpunkt().equals(StartpunktType.UTTAKSVILKÅR)) {
+            if (behandling.getStartpunkt().equals(StartpunktType.UTTAKSVILKÅR)
+                || (behandling.getOpprettetDato().toLocalDate().isBefore(DATO_PRAKSISENDRING)
+                && behandlingProsesseringTjeneste.erBehandlingEtterSteg(behandling, BehandlingStegType.DEKNINGSGRAD))) {
                 var lås = behandlingRepository.taSkriveLås(behandling);
                 if (behandling.isBehandlingPåVent()) {
                     behandlingProsesseringTjeneste.taBehandlingAvVent(behandling);
                 }
                 behandlingProsesseringTjeneste.reposisjonerBehandlingTilbakeTil(behandling, lås, BehandlingStegType.DEKNINGSGRAD);
                 behandlingProsesseringTjeneste.opprettTasksForFortsettBehandling(behandling);
-                // TODO Legge på behandlingårsaktype?
-                // TODO Flytte til egen enhet?
             }
         }
 
