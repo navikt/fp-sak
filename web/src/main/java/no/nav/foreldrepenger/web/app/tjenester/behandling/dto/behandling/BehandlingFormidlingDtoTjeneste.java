@@ -23,6 +23,8 @@ import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspun
 import no.nav.foreldrepenger.behandlingslager.behandling.dokument.BehandlingDokumentRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.eøs.EøsUttakRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.eøs.EøsUttaksperiodeEntitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.AdopsjonEntitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.TerminbekreftelseEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadEntitet;
@@ -44,6 +46,7 @@ import no.nav.foreldrepenger.domene.uttak.Uttak;
 import no.nav.foreldrepenger.domene.uttak.UttakTjeneste;
 import no.nav.foreldrepenger.domene.uttak.beregnkontoer.UtregnetStønadskontoTjeneste;
 import no.nav.foreldrepenger.domene.ytelsefordeling.YtelseFordelingTjeneste;
+import no.nav.foreldrepenger.familiehendelse.FamilieHendelseTjeneste;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.aksjonspunkt.AksjonspunktRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.arbeidsforhold.InntektArbeidYtelseRestTjeneste;
@@ -88,6 +91,7 @@ public class BehandlingFormidlingDtoTjeneste {
     private YtelseFordelingTjeneste ytelseFordelingTjeneste;
     private UføretrygdRepository uføretrygdRepository;
     private EøsUttakRepository eøsUttakRepository;
+    private FamilieHendelseTjeneste familieHendelseTjeneste;
 
     @Inject
     public BehandlingFormidlingDtoTjeneste(BehandlingRepositoryProvider repositoryProvider,
@@ -101,7 +105,9 @@ public class BehandlingFormidlingDtoTjeneste {
                                            MedlemTjeneste medlemTjeneste,
                                            VergeRepository vergeRepository,
                                            YtelseFordelingTjeneste ytelseFordelingTjeneste,
-                                           UføretrygdRepository uføretrygdRepository, EøsUttakRepository eøsUttakRepository) {
+                                           UføretrygdRepository uføretrygdRepository,
+                                           EøsUttakRepository eøsUttakRepository,
+                                           FamilieHendelseTjeneste familieHendelseTjeneste) {
         this.beregningTjeneste = beregningTjeneste;
         this.uttakTjeneste = uttakTjeneste;
         this.utregnetStønadskontoTjeneste = utregnetStønadskontoTjeneste;
@@ -118,6 +124,7 @@ public class BehandlingFormidlingDtoTjeneste {
         this.ytelseFordelingTjeneste = ytelseFordelingTjeneste;
         this.uføretrygdRepository = uføretrygdRepository;
         this.eøsUttakRepository = eøsUttakRepository;
+        this.familieHendelseTjeneste = familieHendelseTjeneste;
     }
 
     BehandlingFormidlingDtoTjeneste() {
@@ -191,6 +198,7 @@ public class BehandlingFormidlingDtoTjeneste {
         }
 
         dto.leggTil(get(FamiliehendelseRestTjeneste.FAMILIEHENDELSE_V2_PATH, "familiehendelse-v2", uuidDto));
+        dto.setFamilieHendelse(utledFamilieHendelse(behandling).orElse(null));
 
         if (BehandlingType.REVURDERING.equals(behandling.getType()) && BehandlingStatus.UTREDES.equals(behandling.getStatus())) {
             dto.leggTil(get(BrevRestTjeneste.VARSEL_REVURDERING_PATH, "sendt-varsel-om-revurdering", uuidDto));
@@ -263,6 +271,19 @@ public class BehandlingFormidlingDtoTjeneste {
         return dto;
     }
 
+    private Optional<BehandlingFormidlingDto.FamilieHendelse> utledFamilieHendelse(Behandling behandling) {
+        return familieHendelseTjeneste.finnAggregat(behandling.getId()).map(fh -> {
+            var barn = fh.getGjeldendeBarna()
+                .stream()
+                .map(b -> new BehandlingFormidlingDto.Barn(b.getFødselsdato(), b.getDødsdato().orElse(null)))
+                .toList();
+            var termindato = fh.getGjeldendeTerminbekreftelse().map(TerminbekreftelseEntitet::getTermindato).orElse(null);
+            var antallBarn = fh.getGjeldendeAntallBarn();
+            return new BehandlingFormidlingDto.FamilieHendelse(barn, termindato, antallBarn,
+                fh.getGjeldendeAdopsjon().map(AdopsjonEntitet::getOmsorgsovertakelseDato).orElse(null));
+        });
+    }
+
     private BehandlingFormidlingDto.Rettigheter utledRettigheter(Behandling behandling) {
         var opprinnelig = opprinneligRettighetstype(behandling);
         var gjeldende = gjeldendeRettighetstype(behandling);
@@ -291,8 +312,8 @@ public class BehandlingFormidlingDtoTjeneste {
                 .setScale(0, RoundingMode.UP)
                 .intValue();
             var forbruktFellesperiodeInt = forbruktFellesperiode.decimalValue().setScale(0, RoundingMode.DOWN).intValue();
-            return Optional.of(new BehandlingFormidlingDto.Rettigheter.EøsUttak(fom.get(), tom,
-                forbruktFellesperiodeInt, Math.max(fellesperiodeINorge, 0)));
+            return Optional.of(
+                new BehandlingFormidlingDto.Rettigheter.EøsUttak(fom.get(), tom, forbruktFellesperiodeInt, Math.max(fellesperiodeINorge, 0)));
         });
     }
 
