@@ -191,9 +191,6 @@ public class FamilieHendelseTjeneste {
             familiehendelseEventPubliserer.fireEventTerminFødsel(behandlingId, tidligereGjeldendeFødselsdato, sisteGjeldendeFødselsdato);
         }
     }
-    public void fjernOverstyrtHendelse(Long behandlingId) {
-        familieGrunnlagRepository.slettOverstyrtData(behandlingId);
-    }
 
     public FamilieHendelseGrunnlagEntitet hentAggregat(Long behandlingId) {
         return familieGrunnlagRepository.hentAggregat(behandlingId);
