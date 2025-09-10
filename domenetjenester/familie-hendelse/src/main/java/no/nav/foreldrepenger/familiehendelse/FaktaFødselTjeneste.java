@@ -85,7 +85,7 @@ public class FaktaFødselTjeneste {
             oppdatere.medFødselType().tilbakestillBarn().medAntallBarn(barna.get().size());
             barna.get().forEach(b -> oppdatere.leggTilBarn(b.fødselsdato(), b.dødsdato()));
         } else {
-            oppdatere.medTerminType().tilbakestillBarn().medAntallBarn(0);
+            resetBarna(familieHendelse, oppdatere);
         }
 
         termindato.ifPresent(dato -> {
@@ -97,6 +97,11 @@ public class FaktaFødselTjeneste {
         lagHistorikkForBarn(ref, familieHendelse, termindato, barna, begrunnelse, erOverstyring);
 
         return getOppdateringResultat(ref, behandlingId);
+    }
+
+    private static void resetBarna(FamilieHendelseGrunnlagEntitet familieHendelse, FamilieHendelseBuilder oppdatere) {
+        var søknadAntallBarn = familieHendelse.getSøknadVersjon().getAntallBarn();
+        oppdatere.medTerminType().tilbakestillBarn().medAntallBarn(søknadAntallBarn);
     }
 
     private void lagHistorikkForBarn(BehandlingReferanse ref,
