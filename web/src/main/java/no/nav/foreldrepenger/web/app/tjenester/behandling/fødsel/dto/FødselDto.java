@@ -18,8 +18,14 @@ public record FødselDto(FødselDto.Søknad søknad, FødselDto.Register registe
     public record Register(List<BarnHendelseData> barn) {
     }
 
-    public record Gjeldende(Termin termin, FødselDto.Gjeldende.Utstedtdato utstedtdato,
-                            AntallBarn antallBarn, List<FødselDto.Gjeldende.GjeldendeBarn> barn, FødselDokumetasjonStatus fødselDokumetasjonStatus) {
+    public record Gjeldende(Termin termin, FødselDto.Gjeldende.Utstedtdato utstedtdato, AntallBarn antallBarn,
+                            List<FødselDto.Gjeldende.GjeldendeBarn> barn, FødselDokumetasjonStatus fødselDokumetasjonStatus) {
+
+        public enum FødselDokumetasjonStatus {
+            DOKUMENTERT,
+            IKKE_DOKUMENTERT,
+            IKKE_VURDERT;
+        }
 
         public record Termin(Kilde kilde, LocalDate termindato) {
         }
@@ -31,12 +37,6 @@ public record FødselDto(FødselDto.Søknad søknad, FødselDto.Register registe
         }
 
         public record GjeldendeBarn(Kilde kilde, BarnHendelseData barn, boolean kanOverstyres) {
-        }
-
-        public enum FødselDokumetasjonStatus {
-            DOKUMENTERT,
-            IKKE_DOKUMENTERT,
-            IKKE_VURDERT;
         }
     }
 }
