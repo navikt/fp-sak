@@ -2,8 +2,9 @@ package no.nav.foreldrepenger.mottak.dokumentpersiterer.xml;
 
 import static no.nav.foreldrepenger.xmlutils.XmlUtils.retrieveNameSpaceOfXML;
 
-import java.util.HashMap;
 import java.util.Map;
+import java.util.function.Function;
+import java.util.regex.Pattern;
 
 import no.nav.foreldrepenger.mottak.dokumentpersiterer.impl.MottattDokumentWrapper;
 import no.nav.foreldrepenger.søknad.v3.SøknadConstants;
@@ -13,19 +14,24 @@ import no.seres.xsd.nav.inntektsmelding_m._201812.InntektsmeldingConstants;
 
 public final class MottattDokumentXmlParser {
 
-    private static final Map<String, DokumentParserKonfig> SCHEMA_AND_CLASSES_TIL_STRUKTURERTE_DOKUMENTER = new HashMap<>();
+    private static final Pattern INNSENDING_MINUTT = Pattern.compile(".*T\\d{2}:\\d{2}</innsendingstidspunkt.*");
 
-    static {
-        SCHEMA_AND_CLASSES_TIL_STRUKTURERTE_DOKUMENTER.put(no.seres.xsd.nav.inntektsmelding_m._201809.InntektsmeldingConstants.NAMESPACE,
+    private static final Map<String, DokumentParserKonfig> SCHEMA_AND_CLASSES_TIL_STRUKTURERTE_DOKUMENTER = Map.of(
+        no.seres.xsd.nav.inntektsmelding_m._201809.InntektsmeldingConstants.NAMESPACE,
             new DokumentParserKonfig(no.seres.xsd.nav.inntektsmelding_m._201809.InntektsmeldingConstants.JAXB_CLASS,
-                no.seres.xsd.nav.inntektsmelding_m._201809.InntektsmeldingConstants.XSD_LOCATION));
-        SCHEMA_AND_CLASSES_TIL_STRUKTURERTE_DOKUMENTER.put(InntektsmeldingConstants.NAMESPACE,
-            new DokumentParserKonfig(InntektsmeldingConstants.JAXB_CLASS,
-                InntektsmeldingConstants.XSD_LOCATION));
-        SCHEMA_AND_CLASSES_TIL_STRUKTURERTE_DOKUMENTER.put(SøknadConstants.NAMESPACE,
+                no.seres.xsd.nav.inntektsmelding_m._201809.InntektsmeldingConstants.XSD_LOCATION),
+        InntektsmeldingConstants.NAMESPACE,
+            new DokumentParserKonfig(InntektsmeldingConstants.JAXB_CLASS, InntektsmeldingConstants.XSD_LOCATION),
+        SøknadConstants.NAMESPACE,
             new DokumentParserKonfig(SøknadConstants.JAXB_CLASS, SøknadConstants.XSD_LOCATION,
-                SøknadConstants.ADDITIONAL_XSD_LOCATION, SøknadConstants.ADDITIONAL_CLASSES));
-    }
+                SøknadConstants.ADDITIONAL_XSD_LOCATION, SøknadConstants.ADDITIONAL_CLASSES)
+    );
+
+    private static final Map<String, Function<String, String>> KORREKSJONER = Map.of(
+        no.seres.xsd.nav.inntektsmelding_m._201809.InntektsmeldingConstants.NAMESPACE, MottattDokumentXmlParser::normaliserInntektsmelding,
+        InntektsmeldingConstants.NAMESPACE, MottattDokumentXmlParser::normaliserInntektsmelding,
+        SøknadConstants.NAMESPACE, Function.identity()
+    );
 
 
     private MottattDokumentXmlParser() {
@@ -42,7 +48,7 @@ public final class MottattDokumentXmlParser {
                 throw new TekniskException("FP-958724", "Fant ikke xsd for namespacet " + namespace);
             }
             mottattDokument = JaxbHelper.unmarshalAndValidateXMLWithStAX(dokumentParserKonfig.jaxbClass,
-                xml,
+                KORREKSJONER.getOrDefault(namespace, Function.identity()).apply(xml),
                 dokumentParserKonfig.xsdLocation,
                 dokumentParserKonfig.additionalXsd,
                 dokumentParserKonfig.additionalClasses);
@@ -82,6 +88,14 @@ public final class MottattDokumentXmlParser {
             this.xsdLocation = xsdLocation;
             this.additionalXsd = additionalXsd;
             this.additionalClasses = additionalClasses;
+        }
+    }
+
+    public static String normaliserInntektsmelding(String xml) {
+        if (INNSENDING_MINUTT.matcher(xml).find()) {
+            return xml.replace("</innsendingstidspunkt>", ":00</innsendingstidspunkt>");
+        } else {
+            return xml;
         }
     }
 }
