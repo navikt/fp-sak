@@ -84,7 +84,7 @@ public class ApiConfig extends Application {
             ModelConverters.getInstance().addConverter(new ModelResolver(this.objectMapper(),  a));
 
 //            ModelConverters.getInstance().addConverter(new NoAnnotationRequiredNullableConverter());
-            ModelConverters.getInstance().addConverter(new NotNullAwareModelConverter());
+//            ModelConverters.getInstance().addConverter(new NotNullAwareModelConverter());
 
             // EnumVarnamesConverter adds x-enum-varnames for property name on generated enum objects.
 //            ModelConverters.getInstance().addConverter(new EnumVarnamesConverter());

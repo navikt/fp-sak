@@ -38,7 +38,7 @@ public record InfotrygdVedtakDto(@NotNull List<SakDto> saker, @NotNull List<Vedt
     public record Periode(@NotNull LocalDate fom, @NotNull LocalDate tom) { }
 
     // TODO [JOHANNES] -- frontend antar alle felter her er NotNull
-    public record SakDto(String resultat, LocalDate registrert, String sakId, String type, LocalDate vedtatt, String valg, String undervalg, String nivaa) {
+    public record SakDto(String resultat, @NotNull LocalDate registrert, String sakId, String type, @NotNull LocalDate vedtatt, String valg, String undervalg, String nivaa) {
 
     }
 }

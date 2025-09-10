@@ -5,7 +5,7 @@ import jakarta.validation.constraints.NotNull;
 import java.time.LocalDate;
 import java.util.List;
 
-public record FødselDto(@NotNull FødselDto.Søknad søknad, FødselDto.Register register,@NotNull FødselDto.Gjeldende gjeldende) {
+public record FødselDto(@NotNull FødselDto.Søknad søknad, @NotNull FødselDto.Register register,@NotNull FødselDto.Gjeldende gjeldende) {
 
     public record BarnHendelseData(@NotNull LocalDate fødselsdato, LocalDate dødsdato) {
     }
@@ -34,7 +34,7 @@ public record FødselDto(@NotNull FødselDto.Søknad søknad, FødselDto.Registe
         public record Utstedtdato(@NotNull Kilde kilde, @NotNull LocalDate utstedtdato) {
         }
 
-        public record GjeldendeBarn(Kilde kilde, BarnHendelseData barn, boolean kanOverstyres) {
+        public record GjeldendeBarn(@NotNull Kilde kilde, @NotNull BarnHendelseData barn, @NotNull boolean kanOverstyres) {
         }
 
         public enum FødselDokumetasjonStatus {

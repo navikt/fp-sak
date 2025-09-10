@@ -11,9 +11,9 @@ import no.nav.foreldrepenger.validering.ValidKodeverk;
 import no.nav.vedtak.util.InputValideringRegex;
 
 public record VergeDto(@NotNull @ValidKodeverk VergeType vergeType,
-                       LocalDate gyldigFom,
+                       @NotNull LocalDate gyldigFom,
                        LocalDate gyldigTom,
-                       @Size(max = 100) @Pattern(regexp = InputValideringRegex.FRITEKST) String navn,
+                       @NotNull@Size(max = 100) @Pattern(regexp = InputValideringRegex.FRITEKST) String navn,
                        @Pattern(regexp = "^\\d{11}$") String fnr,
                        @Pattern(regexp = "^\\d{9}$") String organisasjonsnummer) {
 

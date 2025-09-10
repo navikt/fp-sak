@@ -11,13 +11,13 @@ import no.nav.foreldrepenger.behandlingslager.aktør.NavBrukerKjønn;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Språkkode;
 
 public record PersonDto(
-    @Schema(nullable = true, requiredMode = Schema.RequiredMode.REQUIRED) String aktørId,
+    String aktørId,
     @NotNull String navn,
     @NotNull String fødselsnummer,
     @NotNull NavBrukerKjønn kjønn,
-    @Schema(nullable = true, requiredMode = Schema.RequiredMode.REQUIRED) String diskresjonskode,
+    String diskresjonskode,
     @NotNull LocalDate fødselsdato,
-    @Schema(nullable = true, requiredMode = Schema.RequiredMode.REQUIRED) LocalDate dødsdato,
+    LocalDate dødsdato,
     @Deprecated(forRemoval = true) LocalDate dodsdato,
     @NotNull Språkkode språkkode
 ) {

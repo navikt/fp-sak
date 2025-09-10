@@ -15,6 +15,6 @@ public record ArbeidsforholdDto(@NotNull String arbeidsgiverIdent,
                                 @NotNull LocalDate tom,
                                 @NotNull BigDecimal stillingsprosent,
                                 AksjonspunktÅrsak årsak,
-                                @NotNull ArbeidsforholdKomplettVurderingType saksbehandlersVurdering,
+                                ArbeidsforholdKomplettVurderingType saksbehandlersVurdering,
                                 PermisjonOgMangelDto permisjonOgMangel,
                                 String begrunnelse){}

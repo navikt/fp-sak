@@ -59,10 +59,10 @@ public record MedlemskapDto(ManuellBehandlingResultat manuellBehandlingResultat,
         }
     }
 
-    record Region(@NotNull LocalDate fom, LocalDate tom, @NotNull no.nav.foreldrepenger.behandlingslager.geografisk.Region type) {
+    record Region(@NotNull LocalDate fom, @NotNull LocalDate tom, @NotNull no.nav.foreldrepenger.behandlingslager.geografisk.Region type) {
     }
 
-    record Personstatus(@NotNull LocalDate fom, LocalDate tom, PersonstatusType type) {
+    record Personstatus(@NotNull LocalDate fom, @NotNull LocalDate tom, @NotNull PersonstatusType type) {
         public static Personstatus map(PersonstatusIntervall pse) {
             return new Personstatus(pse.intervall().getFomDato(), pse.intervall().getTomDato(), pse.personstatus());
         }
