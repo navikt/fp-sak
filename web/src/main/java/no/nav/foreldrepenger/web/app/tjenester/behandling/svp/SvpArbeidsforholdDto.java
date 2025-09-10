@@ -19,8 +19,8 @@ public class SvpArbeidsforholdDto {
     @NotNull private Long tilretteleggingId;
     @NotNull private LocalDate tilretteleggingBehovFom;
     @NotNull private List<SvpTilretteleggingDatoDto> tilretteleggingDatoer = new ArrayList<>();
-    @NotNull private UttakArbeidType uttakArbeidType;
-    @NotNull private String arbeidsgiverReferanse;
+    private UttakArbeidType uttakArbeidType;
+    private String arbeidsgiverReferanse;
     private String opplysningerOmRisiko;
     private String opplysningerOmTilrettelegging;
     private Boolean kopiertFraTidligereBehandling;
