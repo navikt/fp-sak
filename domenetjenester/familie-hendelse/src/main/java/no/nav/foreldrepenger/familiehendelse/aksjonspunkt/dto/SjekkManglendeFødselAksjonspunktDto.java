@@ -1,5 +1,6 @@
 package no.nav.foreldrepenger.familiehendelse.aksjonspunkt.dto;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
@@ -20,6 +21,8 @@ public class SjekkManglendeFødselAksjonspunktDto extends BekreftetAksjonspunktD
     @Size(min = 1, max = 9)
     private List<DokumentertBarnDto> barn;
 
+    private LocalDate termindato;
+
     SjekkManglendeFødselAksjonspunktDto() {
         //For Jackson
     }
@@ -33,4 +36,7 @@ public class SjekkManglendeFødselAksjonspunktDto extends BekreftetAksjonspunktD
         return Optional.ofNullable(barn);
     }
 
+    public Optional<LocalDate> getTermindato() {
+        return Optional.ofNullable(termindato);
+    }
 }

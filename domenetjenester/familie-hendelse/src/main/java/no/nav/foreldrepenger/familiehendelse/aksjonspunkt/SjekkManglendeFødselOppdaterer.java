@@ -34,7 +34,7 @@ public class SjekkManglendeFødselOppdaterer implements AksjonspunktOppdaterer<S
     @Override
     public OppdateringResultat oppdater(SjekkManglendeFødselAksjonspunktDto dto, AksjonspunktOppdaterParameter param) {
         var familieHendelse = familieHendelseTjeneste.hentAggregat(param.getBehandlingId());
-        return faktaFødselTjeneste.overstyrFaktaOmFødsel(param.getRef(), familieHendelse, Optional.empty(), dto.getBarn(), dto.getBegrunnelse(),
+        return faktaFødselTjeneste.overstyrFaktaOmFødsel(param.getRef(), familieHendelse, dto.getTermindato(), dto.getBarn(), dto.getBegrunnelse(),
             false);
     }
 }
