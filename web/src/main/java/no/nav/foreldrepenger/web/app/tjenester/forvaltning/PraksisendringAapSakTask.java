@@ -57,23 +57,29 @@ public class PraksisendringAapSakTask extends FagsakProsessTask {
 
     @Override
     public void prosesser(ProsessTaskData prosessTaskData, Long fagsakId) {
-        LOG.info("Starter task revurder sak praksisendring beregning av AAP");
+        LOG.info("aap.praksisendring.sak: Starter task revurder sak praksisendring beregning av AAP");
         var behandling = behandlingRepository.hentSisteYtelsesBehandlingForFagsakId(fagsakId).orElseThrow();
         if (behandling.erAvsluttet()) {
+            LOG.info("aap.praksisendring.sak: fagsakId {} Siste behandling er avsluttet, oppretter revurdering", fagsakId);
             var fagsak = fagsakRepository.hentSakGittSaksnummer(new Saksnummer(prosessTaskData.getSaksnummer())).orElseThrow();
             var revurdering = revurderingTjeneste.opprettAutomatiskRevurdering(fagsak, BehandlingÅrsakType.FEIL_PRAKSIS_BEREGNING_AAP_KOMBINASJON, BehandlendeEnhetTjeneste.getMidlertidigEnhet());
+            LOG.info("aap.praksisendring.sak: fagsakId {} Opprettet revurdering med uuid {}", fagsakId, revurdering.getUuid());
             behandlingProsesseringTjeneste.opprettTasksForStartBehandling(revurdering);
         } else if (SpesialBehandling.erSpesialBehandling(behandling)) {
+            LOG.info("aap.praksisendring.sak: fagsakId {} Siste behandling er åpen spesialbehandling, oppretter køet revurdering", fagsakId);
             var fagsak = fagsakRepository.hentSakGittSaksnummer(new Saksnummer(prosessTaskData.getSaksnummer())).orElseThrow();
             var revurdering = revurderingTjeneste.opprettAutomatiskRevurdering(fagsak, BehandlingÅrsakType.FEIL_PRAKSIS_BEREGNING_AAP_KOMBINASJON, BehandlendeEnhetTjeneste.getMidlertidigEnhet());
+            LOG.info("aap.praksisendring.sak: fagsakId {} Opprettet revurdering med uuid {}", fagsakId, revurdering.getUuid());
             behandlingProsesseringTjeneste.enkøBehandling(revurdering);
         } else if (behandling.getType().equals(BehandlingType.FØRSTEGANGSSØKNAD)) {
+            LOG.info("aap.praksisendring.sak: fagsakId {} Siste behandling er åpen førstegangsbehdling, gjør ingenting.", fagsakId);
             return;
         } else {
             // Saker som startet etter beregning og ble opprettet før endringsdato, men har blitt liggende
             if (behandling.getStartpunkt().equals(StartpunktType.UTTAKSVILKÅR)
                 || (behandling.getOpprettetDato().toLocalDate().isBefore(DATO_PRAKSISENDRING)
                 && behandlingProsesseringTjeneste.erBehandlingEtterSteg(behandling, BehandlingStegType.DEKNINGSGRAD))) {
+                LOG.info("aap.praksisendring.sak: fagsakId {} Siste er åpen revurdering med uuid {} som er passert beregning, ruller den tilbake", fagsakId, behandling.getUuid());
                 var lås = behandlingRepository.taSkriveLås(behandling);
                 if (behandling.isBehandlingPåVent()) {
                     behandlingProsesseringTjeneste.taBehandlingAvVent(behandling);
