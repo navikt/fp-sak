@@ -5,7 +5,7 @@ import java.util.List;
 
 public record FødselDto(FødselDto.Søknad søknad, FødselDto.Register register, FødselDto.Gjeldende gjeldende) {
 
-    public record BarnHendelseData(LocalDate fødselsdato, LocalDate dødsdato) {
+    public record BarnHendelseData(LocalDate fødselsdato, LocalDate dødsdato, Integer barnNummer) {
     }
 
     public record Søknad(List<BarnHendelseData> barn, LocalDate termindato, LocalDate utstedtdato, int antallBarn) {
