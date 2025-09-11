@@ -123,7 +123,7 @@ public class ForvaltningSøknadRestTjeneste {
         }
         var hendelsebuilder = familieHendelseRepository.opprettBuilderForOverstyring(behandlingId)
             .medAntallBarn(1)
-            .erFødsel() // Settes til fødsel for å sikre at typen blir fødsel selv om det ikke er født barn.
+            .medFødselType() // Settes til fødsel for å sikre at typen blir fødsel selv om det ikke er født barn.
             .medErMorForSykVedFødsel(null)
             .leggTilBarn(dto.getFødselsdato(), dto.getDødsdato());
         familieHendelseTjeneste.lagreOverstyrtHendelse(behandlingId, hendelsebuilder);

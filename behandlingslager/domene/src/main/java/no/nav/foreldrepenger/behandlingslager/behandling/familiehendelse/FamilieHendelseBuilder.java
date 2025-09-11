@@ -119,13 +119,16 @@ public class FamilieHendelseBuilder {
      *
      * @return builder
      */
-    public FamilieHendelseBuilder erFødsel() {
-        if (hendelse.getType().equals(FamilieHendelseType.UDEFINERT)
-                || hendelse.getType().equals(FamilieHendelseType.FØDSEL)
-                || hendelse.getType().equals(FamilieHendelseType.TERMIN)) {
-            hendelse.setType(FamilieHendelseType.FØDSEL);
+    public FamilieHendelseBuilder medFødselType() {
+        return medType(FamilieHendelseType.FØDSEL);
+    }
+
+    private FamilieHendelseBuilder medType(FamilieHendelseType type) {
+        if (hendelse.getType().equals(FamilieHendelseType.UDEFINERT) || hendelse.getType().equals(FamilieHendelseType.FØDSEL) || hendelse.getType()
+            .equals(FamilieHendelseType.TERMIN)) {
+            hendelse.setType(type);
         } else {
-            throw FamilieHendelseFeil.kanIkkeEndreTypePåHendelseFraTil(hendelse.getType(), FamilieHendelseType.FØDSEL);
+            throw FamilieHendelseFeil.kanIkkeEndreTypePåHendelseFraTil(hendelse.getType(), type);
         }
         return this;
     }
@@ -154,13 +157,12 @@ public class FamilieHendelseBuilder {
         }
         if (hendelse.getAdopsjon().isPresent()) {
             if (hendelse.getAdopsjon().get().getOmsorgovertakelseVilkår().equals(OmsorgsovertakelseVilkårType.UDEFINERT)
-                    && !erSøknadEllerBekreftetVersjonOgSattTilOmsorg()) {
+                && !erSøknadEllerBekreftetVersjonOgSattTilOmsorg()) {
                 hendelse.setType(FamilieHendelseType.ADOPSJON);
             } else {
                 hendelse.setType(FamilieHendelseType.OMSORG);
             }
-        } else if (!hendelse.getBarna().isEmpty()
-                || erHendelsenSattTil(FamilieHendelseType.FØDSEL)) {
+        } else if (!hendelse.getBarna().isEmpty() || erHendelsenSattTil(FamilieHendelseType.FØDSEL)) {
             hendelse.setType(FamilieHendelseType.FØDSEL);
         } else if (hendelse.getTerminbekreftelse().isPresent()) {
             hendelse.setType(FamilieHendelseType.TERMIN);
@@ -175,14 +177,12 @@ public class FamilieHendelseBuilder {
     }
 
     private boolean erSøknadEllerBekreftetVersjonOgSattTilOmsorg() {
-        return (type.equals(HendelseVersjonType.SØKNAD) || type.equals(HendelseVersjonType.BEKREFTET))
-                && hendelse.getType() != null
-                && hendelse.getType().equals(FamilieHendelseType.OMSORG);
+        return (type.equals(HendelseVersjonType.SØKNAD) || type.equals(HendelseVersjonType.BEKREFTET)) && hendelse.getType() != null
+            && hendelse.getType().equals(FamilieHendelseType.OMSORG);
     }
 
     private boolean erHendelsenSattTil(FamilieHendelseType type) {
-        return hendelse.getType() != null
-                && hendelse.getType().equals(type);
+        return hendelse.getType() != null && hendelse.getType().equals(type);
     }
 
     HendelseVersjonType getType() {
