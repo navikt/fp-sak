@@ -3,8 +3,10 @@ package no.nav.foreldrepenger.web.app.tjenester.forvaltning;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
+import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.SpesialBehandling;
+import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.produksjonsstyring.behandlingenhet.BehandlendeEnhetTjeneste;
 
 import org.slf4j.Logger;
@@ -44,7 +46,7 @@ public class PraksisendringAapSakTask extends FagsakProsessTask {
     @Inject
     public PraksisendringAapSakTask(BehandlingRepositoryProvider behandlingRepositoryProvider,
                                     BehandlingProsesseringTjeneste behandlingProsesseringTjeneste,
-                                    RevurderingTjeneste revurderingTjeneste) {
+                                    @FagsakYtelseTypeRef(FagsakYtelseType.FORELDREPENGER) RevurderingTjeneste revurderingTjeneste) {
         super(behandlingRepositoryProvider.getFagsakLåsRepository(), behandlingRepositoryProvider.getBehandlingLåsRepository());
         this.fagsakRepository = behandlingRepositoryProvider.getFagsakRepository();
         this.behandlingRepository = behandlingRepositoryProvider.getBehandlingRepository();
