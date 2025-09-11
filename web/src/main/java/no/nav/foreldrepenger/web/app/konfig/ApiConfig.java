@@ -17,7 +17,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import io.swagger.v3.core.converter.ModelConverters;
 import io.swagger.v3.core.jackson.ModelResolver;
-import io.swagger.v3.core.jackson.TypeNameResolver;
 import io.swagger.v3.core.util.ObjectMapperFactory;
 
 import jakarta.ws.rs.ApplicationPath;
@@ -25,8 +24,8 @@ import jakarta.ws.rs.core.Application;
 
 import no.nav.openapi.spec.utils.openapi.DiscriminatorModelConverter;
 import no.nav.openapi.spec.utils.openapi.JsonSubTypesModelConverter;
-import no.nav.openapi.spec.utils.openapi.NoJsonSubTypesAnnotationIntrospector;
 
+import no.nav.openapi.spec.utils.openapi.NoJsonSubTypesAnnotationIntrospector;
 import no.nav.openapi.spec.utils.openapi.PrefixStrippingFQNTypeNameResolver;
 import no.nav.openapi.spec.utils.openapi.RefToClassLookup;
 import no.nav.openapi.spec.utils.openapi.RegisteredSubtypesModelConverter;
@@ -71,34 +70,25 @@ public class ApiConfig extends Application {
                 .resourceClasses(Stream.of(RestImplementationClasses.getImplementationClasses(), RestImplementationClasses.getForvaltningClasses())
                     .flatMap(Collection::stream).map(Class::getName).collect(Collectors.toSet()));
 
+            // Følgende ModelConverts oppsett er tilpasset fra K9 sin openapi-spec-utils: https://github.com/navikt/openapi-spec-utils
+
+            // Denne gjør at enums trekkes ut som egne typer istedenfor inline
             ModelResolver.enumsAsRef = true;
-            final var resolvedRefClassLookup = new RefToClassLookup();
-            // --- CRUCIAL: Reset and register model converters BEFORE context building ---
             ModelConverters.reset();
 
-//            var a = TypeNameResolver.std;
-            var a =new PrefixStrippingFQNTypeNameResolver("no.nav.foreldrepenger.web.app.", "no.nav.");
-            a.setUseFqn(true);
+            var typeNameResolver =new PrefixStrippingFQNTypeNameResolver("no.nav.foreldrepenger.web.app.", "no.nav.");
+            typeNameResolver.setUseFqn(true);
             // Add base ModelResolver with typeNameResolver set on this helper.
             // This must be added first, so that it ends up last in the converter chain
-            ModelConverters.getInstance().addConverter(new ModelResolver(this.objectMapper(),  a));
+            ModelConverters.getInstance().addConverter(new ModelResolver(this.lagObjectMapperUtenJsonSubTypeAnnotasjoner(),  typeNameResolver));
 
-//            ModelConverters.getInstance().addConverter(new NoAnnotationRequiredNullableConverter());
-//            ModelConverters.getInstance().addConverter(new NotNullAwareModelConverter());
-
-            // EnumVarnamesConverter adds x-enum-varnames for property name on generated enum objects.
-//            ModelConverters.getInstance().addConverter(new EnumVarnamesConverter());
-            // TimeTypesModelConverter converts Duration to OpenAPI string with format "duration".
             ModelConverters.getInstance().addConverter(new TimeTypesModelConverter());
 
             Set<Class<?>> registeredSubtypes = allJsonTypeNameClasses();
             ModelConverters.getInstance().addConverter(new RegisteredSubtypesModelConverter(registeredSubtypes));
             ModelConverters.getInstance().addConverter(new JsonSubTypesModelConverter());
-            ModelConverters.getInstance().addConverter(new DiscriminatorModelConverter(resolvedRefClassLookup));
+            ModelConverters.getInstance().addConverter(new DiscriminatorModelConverter(new RefToClassLookup()));
 
-//            ModelConverters.getInstance().addConverter(new JsonTypeNameDisctriminatorConverter());
-
-            // --- Build context AFTER converters are registered ---
             var context = new GenericOpenApiContextBuilder<>()
                 .openApiConfiguration(oasConfig)
                 .buildContext(false);
@@ -112,10 +102,11 @@ public class ApiConfig extends Application {
         }
     }
 
-    protected ObjectMapper objectMapper() {
+    private static ObjectMapper lagObjectMapperUtenJsonSubTypeAnnotasjoner() {
         final var om = ObjectMapperFactory.createJson();
-        // Remove all JsonSubTypes annotations from the objectmapper used in openapi creation. To avoid problem with
-        // allOf element being created on subtypes along with oneOf from JsonSubTypesModelConverter
+        // Fjern all annotasjoner om JsonSubTypes. Hvis disse er med i generasjon av openapi spec får vi sirkulære avhengigheter.
+        // Det skjer ved at superklassen sier den har "oneOf" arvingene sine. Mens en arving sier den har "allOf" forelderen sin.
+        // Ved å fjerne jsonSubType annotasjoner får vi heller en enveis-lenke der superklassen definerer arvingene sine med "oneOf".
         om.setAnnotationIntrospector(new NoJsonSubTypesAnnotationIntrospector());
         return om;
     }
@@ -126,14 +117,6 @@ public class ApiConfig extends Application {
 
         final Set<Class<?>> scanClasses = new LinkedHashSet<>(restClasses);
 
-        // hack - additional locations to scan (jars uten rest services) - trenger det her p.t. for å bestemme hvilke jars / maven moduler som skal scannes for andre dtoer
-//        scanClasses.add(AvklarArbeidsforholdDto.class);
-//        scanClasses.add(VurderFaktaOmBeregningDto.class);
-//        scanClasses.add(OmsorgspengerSøknadInnsending.class);
-//        scanClasses.add(PleiepengerBarnSøknadInnsending.class);
-//        scanClasses.add(FrisinnSøknadInnsending.class);
-
-        // avled code location fra klassene
         return scanClasses
             .stream()
             .map(c -> {
@@ -148,26 +131,6 @@ public class ApiConfig extends Application {
             .collect(Collectors.toUnmodifiableSet());
 
     }
-
-//    public ApiConfig() {
-//        final var info = new Info()
-//            .title("K9 saksbehandling - Saksbehandling av kapittel 9 i folketrygden")
-//            .version("2.1")
-//            .description("REST grensesnitt for Vedtaksløsningen.");
-//        final var server = new Server().url("/k9/sak");
-//        final var openapiSetupHelper = new OpenApiSetupHelper(this, info, server);
-//        openapiSetupHelper.addResourcePackage("no.nav.k9.");
-//        openapiSetupHelper.addResourcePackage("no.nav.k9.sak");
-//        openapiSetupHelper.addResourcePackage("no.nav.k9");
-//        // The same classes registered as subtypes in object mapper are registered as subtypes in openapi setup helper:
-//        openapiSetupHelper.registerSubTypes(allJsonTypeNameClasses());
-////        openapiSetupHelper.setTypeNameResolver(new PrefixStrippingFQNTypeNameResolver("no.nav."));
-//        try {
-//            return openapiSetupHelper.resolveOpenAPI();
-//        } catch (OpenApiConfigurationException e) {
-//            throw new RuntimeException(e.getMessage(), e);
-//        }
-//    }
 
     @Override
     public Set<Class<?>> getClasses() {
