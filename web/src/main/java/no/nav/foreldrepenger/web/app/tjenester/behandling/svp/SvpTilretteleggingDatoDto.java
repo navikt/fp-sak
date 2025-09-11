@@ -3,18 +3,18 @@ package no.nav.foreldrepenger.web.app.tjenester.behandling.svp;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
+import jakarta.validation.constraints.NotNull;
+
 import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.SvpTilretteleggingFomKilde;
 import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.TilretteleggingType;
 import no.nav.foreldrepenger.validering.ValidKodeverk;
 
 public class SvpTilretteleggingDatoDto {
-    private LocalDate fom;
-    @ValidKodeverk
-    private TilretteleggingType type;
+    @NotNull private LocalDate fom;
+    @NotNull @ValidKodeverk private TilretteleggingType type;
     private BigDecimal stillingsprosent;
     private BigDecimal overstyrtUtbetalingsgrad;
-    @ValidKodeverk
-    private SvpTilretteleggingFomKilde kilde;
+    @NotNull @ValidKodeverk private SvpTilretteleggingFomKilde kilde;
     private LocalDate mottattDato;
 
     public SvpTilretteleggingDatoDto() {

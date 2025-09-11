@@ -1,14 +1,16 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.beregningsresultat.dto;
 
+import jakarta.validation.constraints.NotNull;
+
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 public class BeregningsresultatPeriodeDto {
-    private final LocalDate fom;
-    private final LocalDate tom;
-    private final int dagsats;
+    @NotNull private final LocalDate fom;
+    @NotNull private final LocalDate tom;
+    @NotNull private final int dagsats;
     private final BeregningsresultatPeriodeAndelDto[] andeler;
 
     private BeregningsresultatPeriodeDto(Builder builder) {

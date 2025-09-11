@@ -113,8 +113,8 @@ public class FamiliehendelseRestTjeneste {
     record FødselTerminFamilieHendelseDto(LocalDate termindato, LocalDate fødselsdato) {
     }
 
-    record AdopsjonFamilieHendelseDto(int antallBarn, Map<Integer, LocalDate> fødselsdatoer, LocalDate omsorgsovertakelseDato,
-                                             LocalDate foreldreansvarDato, OmsorgsovertakelseVilkårType omsorgsovertakelseVilkårType,
-                                             boolean ektefellesBarn, boolean mannAdoptererAlene, LocalDate ankomstNorge) {
+    record AdopsjonFamilieHendelseDto(@NotNull int antallBarn, @NotNull Map<Integer, LocalDate> fødselsdatoer, @NotNull LocalDate omsorgsovertakelseDato,
+                                             @NotNull LocalDate foreldreansvarDato, @NotNull OmsorgsovertakelseVilkårType omsorgsovertakelseVilkårType,
+                                             @NotNull boolean ektefellesBarn, @NotNull boolean mannAdoptererAlene, LocalDate ankomstNorge) {
     }
 }

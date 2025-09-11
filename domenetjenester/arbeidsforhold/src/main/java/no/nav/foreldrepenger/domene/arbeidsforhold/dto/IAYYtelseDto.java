@@ -1,13 +1,15 @@
 package no.nav.foreldrepenger.domene.arbeidsforhold.dto;
 
+import jakarta.validation.constraints.NotNull;
+
 import java.util.Collections;
 import java.util.List;
 
 public class IAYYtelseDto {
 
-    private List<RelaterteYtelserDto> relatertTilgrensendeYtelserForSoker = Collections.emptyList();
-    private List<RelaterteYtelserDto> relatertTilgrensendeYtelserForAnnenForelder = Collections.emptyList();
-    private List<RelaterteYtelserDto> innvilgetRelatertTilgrensendeYtelserForAnnenForelder = Collections.emptyList();
+    @NotNull private List<RelaterteYtelserDto> relatertTilgrensendeYtelserForSoker = Collections.emptyList();
+    @NotNull private List<RelaterteYtelserDto> relatertTilgrensendeYtelserForAnnenForelder = Collections.emptyList();
+    @NotNull private List<RelaterteYtelserDto> innvilgetRelatertTilgrensendeYtelserForAnnenForelder = Collections.emptyList();
 
     void setRelatertTilgrensendeYtelserForSoker(List<RelaterteYtelserDto> relatertTilgrensendeYtelserForSoker) {
         this.relatertTilgrensendeYtelserForSoker = relatertTilgrensendeYtelserForSoker;

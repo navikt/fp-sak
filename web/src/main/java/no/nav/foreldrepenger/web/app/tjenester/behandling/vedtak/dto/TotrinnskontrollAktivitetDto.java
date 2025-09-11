@@ -1,12 +1,14 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.vedtak.dto;
 
+import jakarta.validation.constraints.NotNull;
+
 import java.time.LocalDate;
 
 public class TotrinnskontrollAktivitetDto {
 
-    private String aktivitetType;
-    private Boolean erEndring;
-    private boolean godkjent;
+    @NotNull private String aktivitetType;
+    @NotNull private Boolean erEndring;
+    @NotNull private boolean godkjent;
     private String arbeidsgiverReferanse;
     private String arbeidsgiverNavn;
     private String orgnr;

@@ -1,5 +1,6 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto;
 
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 
 import no.nav.foreldrepenger.behandlingslager.uttak.UttakArbeidType;
@@ -7,7 +8,7 @@ import no.nav.foreldrepenger.validering.ValidKodeverk;
 import no.nav.vedtak.util.InputValideringRegex;
 
 public record ArbeidsforholdDto(@Pattern(regexp = InputValideringRegex.ARBEIDSGIVER) String arbeidsgiverReferanse,
-                                @ValidKodeverk UttakArbeidType arbeidType) {
+                                @NotNull @ValidKodeverk UttakArbeidType arbeidType) {
 
     public static ArbeidsforholdDto ordinært(String arbeidsgiverReferanse) {
         return new ArbeidsforholdDto(arbeidsgiverReferanse, UttakArbeidType.ORDINÆRT_ARBEID);

@@ -1,15 +1,17 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.arbeidsforhold;
 
+import jakarta.validation.constraints.NotNull;
+
 import java.time.LocalDate;
 import java.util.Objects;
 
 public class ArbeidsgiverOpplysningerDto {
 
-    private final String referanse;
-    private final String identifikator;
-    private final String navn;
+    @NotNull private final String referanse;
+    @NotNull private final String identifikator;
+    @NotNull private final String navn;
     private LocalDate fødselsdato;
-    private boolean erPrivatPerson;
+    @NotNull private boolean erPrivatPerson;
 
     public ArbeidsgiverOpplysningerDto(String referanse, String identifikator, String navn, LocalDate fødselsdato) {
         this.identifikator = identifikator;

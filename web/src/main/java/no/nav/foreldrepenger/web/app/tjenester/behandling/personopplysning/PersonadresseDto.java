@@ -4,11 +4,13 @@ import static no.nav.foreldrepenger.web.app.util.StringUtils.formaterMedStoreOgS
 
 import java.time.LocalDate;
 
+import jakarta.validation.constraints.NotNull;
+
 import no.nav.foreldrepenger.behandlingslager.aktør.AdresseType;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonAdresseEntitet;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Landkoder;
 
-public record PersonadresseDto(LocalDate fom, LocalDate tom, AdresseType adresseType, String adresselinje1, String adresselinje2,
+public record PersonadresseDto(@NotNull LocalDate fom, @NotNull LocalDate tom, AdresseType adresseType, String adresselinje1, String adresselinje2,
                                String adresselinje3, String postNummer, String poststed, String land) {
 
     public static PersonadresseDto tilDto(PersonAdresseEntitet adresse) {

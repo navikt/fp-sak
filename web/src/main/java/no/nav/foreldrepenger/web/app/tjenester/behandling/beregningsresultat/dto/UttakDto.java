@@ -1,12 +1,14 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.beregningsresultat.dto;
 
+import jakarta.validation.constraints.NotNull;
+
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeType;
 import no.nav.foreldrepenger.behandlingslager.uttak.PeriodeResultatType;
 
 public class UttakDto {
-    private final String stonadskontoType;
+    @NotNull private final String stonadskontoType;
     private final String periodeResultatType;
-    private final boolean gradering;
+    @NotNull private final boolean gradering;
 
     private UttakDto(String stonadskontoType, String periodeResultatType, boolean gradering) {
         this.stonadskontoType = stonadskontoType;

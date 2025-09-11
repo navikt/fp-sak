@@ -6,19 +6,21 @@ import java.time.LocalDate;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import jakarta.validation.constraints.NotNull;
+
 import no.nav.foreldrepenger.domene.iay.modell.kodeverk.PermisjonsbeskrivelseType;
 import no.nav.foreldrepenger.validering.ValidKodeverk;
 
 public class VelferdspermisjonDto {
 
-    @JsonProperty("permisjonFom")
+    @JsonProperty("permisjonFom") @NotNull
     private LocalDate permisjonFom;
-    @JsonProperty("permisjonTom")
+    @JsonProperty("permisjonTom") @NotNull
     private LocalDate permisjonTom;
-    @JsonProperty("permisjonsprosent")
+    @JsonProperty("permisjonsprosent") @NotNull
     private BigDecimal permisjonsprosent;
     @ValidKodeverk
-    @JsonProperty("type")
+    @JsonProperty("type") @NotNull
     private PermisjonsbeskrivelseType type;
     @JsonProperty("erGyldig")
     private Boolean erGyldig;

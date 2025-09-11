@@ -6,6 +6,8 @@ import java.util.Objects;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
 
+import jakarta.validation.constraints.NotNull;
+
 import no.nav.vedtak.konfig.Tid;
 
 /**
@@ -14,10 +16,10 @@ import no.nav.vedtak.konfig.Tid;
 @Embeddable
 public class DatoIntervallEntitet extends AbstractLocalDateInterval {
 
-    @Column(name = "fom")
+    @NotNull @Column(name = "fom")
     private LocalDate fomDato;
 
-    @Column(name = "tom")
+    @NotNull @Column(name = "tom")
     private LocalDate tomDato;
 
     private DatoIntervallEntitet() {

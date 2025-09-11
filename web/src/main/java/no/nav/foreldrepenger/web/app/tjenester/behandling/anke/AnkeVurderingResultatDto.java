@@ -6,16 +6,18 @@ import java.util.UUID;
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import jakarta.validation.constraints.NotNull;
+
 import no.nav.foreldrepenger.behandlingslager.behandling.anke.AnkeOmgjørÅrsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.anke.AnkeVurdering;
 import no.nav.foreldrepenger.behandlingslager.behandling.anke.AnkeVurderingOmgjør;
 
-@JsonAutoDetect(getterVisibility= JsonAutoDetect.Visibility.NONE, setterVisibility= JsonAutoDetect.Visibility.NONE, fieldVisibility= JsonAutoDetect.Visibility.ANY)
+@JsonAutoDetect(getterVisibility = JsonAutoDetect.Visibility.NONE, setterVisibility = JsonAutoDetect.Visibility.NONE, fieldVisibility = JsonAutoDetect.Visibility.ANY)
 public class AnkeVurderingResultatDto {
 
     @JsonProperty("ankeVurdering")
     private AnkeVurdering ankeVurdering;
-    @JsonProperty("begrunnelse")
+    @JsonProperty("begrunnelse") @NotNull
     private String begrunnelse;
     @JsonProperty("fritekstTilBrev")
     private String fritekstTilBrev;
@@ -23,15 +25,15 @@ public class AnkeVurderingResultatDto {
     private AnkeOmgjørÅrsak ankeOmgjoerArsak;
     @JsonProperty("ankeVurderingOmgjoer")
     private AnkeVurderingOmgjør ankeVurderingOmgjoer;
-    @JsonProperty("erAnkerIkkePart")
+    @JsonProperty("erAnkerIkkePart") @NotNull
     private boolean erAnkerIkkePart;
-    @JsonProperty("erFristIkkeOverholdt")
+    @JsonProperty("erFristIkkeOverholdt") @NotNull
     private boolean erFristIkkeOverholdt;
-    @JsonProperty("erIkkeKonkret")
+    @JsonProperty("erIkkeKonkret") @NotNull
     private boolean erIkkeKonkret;
-    @JsonProperty("erIkkeSignert")
+    @JsonProperty("erIkkeSignert") @NotNull
     private boolean erIkkeSignert;
-    @JsonProperty("erSubsidiartRealitetsbehandles")
+    @JsonProperty("erSubsidiartRealitetsbehandles") @NotNull
     private boolean erSubsidiartRealitetsbehandles;
     @JsonProperty("erMerknaderMottatt")
     private boolean erMerknaderMottatt;

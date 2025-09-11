@@ -4,22 +4,25 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.Objects;
 
+import jakarta.validation.constraints.NotNull;
+
 import no.nav.foreldrepenger.behandlingslager.diff.ChangeTracked;
 import no.nav.foreldrepenger.behandlingslager.diff.IndexKey;
 import no.nav.foreldrepenger.domene.typer.Beløp;
 
 public class Refusjon implements IndexKey {
 
-    @ChangeTracked
+    @ChangeTracked @NotNull
     private Beløp refusjonsbeløpMnd;
 
-    @ChangeTracked
+    @ChangeTracked @NotNull
     private LocalDate fom;
 
     public Refusjon() {
     }
 
     public Refusjon(BigDecimal refusjonsbeløpMnd, LocalDate fom) {
+        // TODO: sjekk om denne er nødvendig. Frontend bruker som notnull
         this.refusjonsbeløpMnd = refusjonsbeløpMnd == null ? null : new Beløp(refusjonsbeløpMnd);
         this.fom = fom;
     }
@@ -34,6 +37,7 @@ public class Refusjon implements IndexKey {
         return IndexKey.createKey(fom, refusjonsbeløpMnd);
     }
 
+    @NotNull
     public Beløp getRefusjonsbeløp() {
         return refusjonsbeløpMnd;
     }

@@ -4,6 +4,8 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Optional;
 
+import jakarta.validation.constraints.NotNull;
+
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakStatus;
@@ -12,14 +14,14 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 /**
  * Brukes for oppslag på aktørId eller søk etter saksnummer/fnr. Med fødselsdato for visnings/sorteringsformål
  */
-public record FagsakSøkDto(String saksnummer,
-                           FagsakYtelseType fagsakYtelseType,
-                           FagsakStatus status,
-                           RelasjonsRolleType relasjonsRolleType,
-                           String aktørId,
-                           PersonDto person,
-                           LocalDate barnFødt,
-                           LocalDate opprettet,
+public record FagsakSøkDto(@NotNull String saksnummer,
+                           @NotNull FagsakYtelseType fagsakYtelseType,
+                           @NotNull FagsakStatus status,
+                           @NotNull RelasjonsRolleType relasjonsRolleType,
+                           @NotNull String aktørId,
+                           @NotNull PersonDto person,
+                           @NotNull LocalDate barnFødt,
+                           @NotNull LocalDate opprettet,
                            LocalDate endret) {
 
     public FagsakSøkDto(Fagsak fagsak, PersonDto person, LocalDate barnFødt) {

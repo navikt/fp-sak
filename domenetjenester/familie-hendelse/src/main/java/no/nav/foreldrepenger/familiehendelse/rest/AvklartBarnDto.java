@@ -4,8 +4,10 @@ import java.time.LocalDate;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import jakarta.validation.constraints.NotNull;
+
 public class AvklartBarnDto {
-    private LocalDate fodselsdato;
+    @NotNull private LocalDate fodselsdato;
     private LocalDate dodsdato;
 
     public AvklartBarnDto(LocalDate fodselsdato, LocalDate dodsdato) {

@@ -6,30 +6,32 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
+import jakarta.validation.constraints.NotNull;
+
 import no.nav.foreldrepenger.behandlingslager.behandling.arbeidsforhold.ArbeidsforholdKomplettVurderingType;
 import no.nav.foreldrepenger.domene.arbeidsforhold.impl.AksjonspunktÅrsak;
 import no.nav.foreldrepenger.domene.iay.modell.NaturalYtelse;
 import no.nav.foreldrepenger.domene.iay.modell.Refusjon;
 import no.nav.foreldrepenger.domene.iay.modell.kodeverk.InntektsmeldingInnsendingsårsak;
 
-public record InntektsmeldingDto(BigDecimal inntektPrMnd,
+public record InntektsmeldingDto(@NotNull BigDecimal inntektPrMnd,
                                  BigDecimal refusjonPrMnd,
-                                 String arbeidsgiverIdent,
+                                 @NotNull String arbeidsgiverIdent,
                                  String eksternArbeidsforholdId,
                                  String internArbeidsforholdId,
-                                 String kontaktpersonNavn,
-                                 String kontaktpersonNummer,
-                                 String journalpostId,
-                                 String dokumentId,
-                                 LocalDate motattDato,
-                                 LocalDateTime innsendingstidspunkt,
+                                 @NotNull String kontaktpersonNavn,
+                                 @NotNull String kontaktpersonNummer,
+                                 @NotNull String journalpostId,
+                                 @NotNull String dokumentId,
+                                 @NotNull LocalDate motattDato,
+                                 @NotNull LocalDateTime innsendingstidspunkt,
                                  AksjonspunktÅrsak årsak,
                                  String begrunnelse,
                                  ArbeidsforholdKomplettVurderingType saksbehandlersVurdering,
-                                 String kildeSystem,
+                                 @NotNull String kildeSystem,
                                  LocalDate startDatoPermisjon,
-                                 List<NaturalYtelse> aktiveNaturalytelser,
-                                 List<Refusjon> refusjonsperioder,
-                                 InntektsmeldingInnsendingsårsak innsendingsårsak,
-                                 List<UUID> tilknyttedeBehandlingIder
+                                 @NotNull List<NaturalYtelse> aktiveNaturalytelser,
+                                 @NotNull List<Refusjon> refusjonsperioder,
+                                 @NotNull InntektsmeldingInnsendingsårsak innsendingsårsak,
+                                 @NotNull List<UUID> tilknyttedeBehandlingIder
                                  ){}

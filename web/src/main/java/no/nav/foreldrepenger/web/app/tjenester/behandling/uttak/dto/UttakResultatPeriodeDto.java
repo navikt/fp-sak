@@ -7,6 +7,8 @@ import java.util.Objects;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import jakarta.validation.constraints.NotNull;
+
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeType;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.OppholdÅrsak;
 import no.nav.foreldrepenger.behandlingslager.uttak.PeriodeResultatType;
@@ -18,21 +20,21 @@ import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakUtsettelseType;
 
 public class UttakResultatPeriodeDto {
 
-    private LocalDate fom;
-    private LocalDate tom;
-    private List<UttakResultatPeriodeAktivitetDto> aktiviteter = new ArrayList<>();
+    @NotNull private LocalDate fom;
+    @NotNull private LocalDate tom;
+    @NotNull private List<UttakResultatPeriodeAktivitetDto> aktiviteter = new ArrayList<>();
     private PeriodeResultatType periodeResultatType;
     private String begrunnelse;
-    private PeriodeResultatÅrsak periodeResultatÅrsak;
+    @NotNull private PeriodeResultatÅrsak periodeResultatÅrsak;
     private ManuellBehandlingÅrsak manuellBehandlingÅrsak;
     private GraderingAvslagÅrsak graderingAvslagÅrsak;
-    private boolean flerbarnsdager;
+    @NotNull private boolean flerbarnsdager;
     private boolean samtidigUttak;
     private SamtidigUttaksprosent samtidigUttaksprosent;
-    private boolean graderingInnvilget;
+    @NotNull private boolean graderingInnvilget;
     private UttakPeriodeType periodeType;
     private UttakUtsettelseType utsettelseType;
-    private OppholdÅrsak oppholdÅrsak;
+    @NotNull private OppholdÅrsak oppholdÅrsak;
     private LocalDate mottattDato;
     private LocalDate tidligstMottattDato; // brukes bare i formidling, ikke i front end
     private boolean erUtbetalingRedusertTilMorsStillingsprosent; // brukes bare i formidling, ikke i front end

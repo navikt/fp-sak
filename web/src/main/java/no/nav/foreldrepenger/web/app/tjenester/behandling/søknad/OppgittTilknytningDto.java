@@ -3,17 +3,19 @@ package no.nav.foreldrepenger.web.app.tjenester.behandling.søknad;
 import java.util.List;
 import java.util.Set;
 
+import jakarta.validation.constraints.NotNull;
+
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapOppgittLandOppholdEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapOppgittTilknytningEntitet;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Landkoder;
 
 public class OppgittTilknytningDto {
 
-    private boolean oppholdNorgeNa;
-    private boolean oppholdSistePeriode;
-    private boolean oppholdNestePeriode;
-    private List<UtlandsoppholdDto> utlandsoppholdFor;
-    private List<UtlandsoppholdDto> utlandsoppholdEtter;
+    @NotNull private boolean oppholdNorgeNa;
+    @NotNull private boolean oppholdSistePeriode;
+    @NotNull private boolean oppholdNestePeriode;
+    @NotNull private List<UtlandsoppholdDto> utlandsoppholdFor;
+    @NotNull private List<UtlandsoppholdDto> utlandsoppholdEtter;
 
     public OppgittTilknytningDto() {
         // trengs for deserialisering av JSON
