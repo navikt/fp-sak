@@ -29,7 +29,6 @@ import no.nav.openapi.spec.utils.openapi.NoJsonSubTypesAnnotationIntrospector;
 import no.nav.openapi.spec.utils.openapi.PrefixStrippingFQNTypeNameResolver;
 import no.nav.openapi.spec.utils.openapi.RefToClassLookup;
 import no.nav.openapi.spec.utils.openapi.RegisteredSubtypesModelConverter;
-import no.nav.openapi.spec.utils.openapi.TimeTypesModelConverter;
 
 import org.glassfish.jersey.server.ServerProperties;
 
@@ -76,13 +75,12 @@ public class ApiConfig extends Application {
             ModelResolver.enumsAsRef = true;
             ModelConverters.reset();
 
+            // fqn = fully-qualified-name. Her ber vi den om å inkludere pakkenavn i typenavnet. Da risikerer vi ikke kollisjon ved like typenavn.
+            // Ved kollisjon vil den som er sist prosessert overskrive alle tidligere.
             var typeNameResolver =new PrefixStrippingFQNTypeNameResolver("no.nav.foreldrepenger.web.app.", "no.nav.");
             typeNameResolver.setUseFqn(true);
-            // Add base ModelResolver with typeNameResolver set on this helper.
-            // This must be added first, so that it ends up last in the converter chain
-            ModelConverters.getInstance().addConverter(new ModelResolver(this.lagObjectMapperUtenJsonSubTypeAnnotasjoner(),  typeNameResolver));
 
-            ModelConverters.getInstance().addConverter(new TimeTypesModelConverter());
+            ModelConverters.getInstance().addConverter(new ModelResolver(lagObjectMapperUtenJsonSubTypeAnnotasjoner(),  typeNameResolver));
 
             Set<Class<?>> registeredSubtypes = allJsonTypeNameClasses();
             ModelConverters.getInstance().addConverter(new RegisteredSubtypesModelConverter(registeredSubtypes));
@@ -104,7 +102,7 @@ public class ApiConfig extends Application {
 
     private static ObjectMapper lagObjectMapperUtenJsonSubTypeAnnotasjoner() {
         final var om = ObjectMapperFactory.createJson();
-        // Fjern all annotasjoner om JsonSubTypes. Hvis disse er med i generasjon av openapi spec får vi sirkulære avhengigheter.
+        // Fjern alle annotasjoner om JsonSubTypes. Hvis disse er med i generasjon av openapi spec får vi sirkulære avhengigheter.
         // Det skjer ved at superklassen sier den har "oneOf" arvingene sine. Mens en arving sier den har "allOf" forelderen sin.
         // Ved å fjerne jsonSubType annotasjoner får vi heller en enveis-lenke der superklassen definerer arvingene sine med "oneOf".
         om.setAnnotationIntrospector(new NoJsonSubTypesAnnotationIntrospector());
