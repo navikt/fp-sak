@@ -69,13 +69,13 @@ public class ApiConfig extends Application {
                 .resourceClasses(Stream.of(RestImplementationClasses.getImplementationClasses(), RestImplementationClasses.getForvaltningClasses())
                     .flatMap(Collection::stream).map(Class::getName).collect(Collectors.toSet()));
 
-            // Følgende ModelConverts oppsett er tilpasset fra K9 sin openapi-spec-utils: https://github.com/navikt/openapi-spec-utils
+            // Påfølgende ModelConverts oppsett er tilpasset fra K9 sin openapi-spec-utils: https://github.com/navikt/openapi-spec-utils
 
             // Denne gjør at enums trekkes ut som egne typer istedenfor inline
             ModelResolver.enumsAsRef = true;
             ModelConverters.reset();
 
-            // fqn = fully-qualified-name. Her ber vi den om å inkludere pakkenavn i typenavnet. Da risikerer vi ikke kollisjon ved like typenavn.
+            // Her ber vi den om å inkludere pakkenavn i typenavnet. Da risikerer vi ikke kollisjon ved like typenavn. fqn = fully-qualified-name.
             // Ved kollisjon vil den som er sist prosessert overskrive alle tidligere.
             var typeNameResolver =new PrefixStrippingFQNTypeNameResolver("no.nav.foreldrepenger.web.app.", "no.nav.");
             typeNameResolver.setUseFqn(true);
@@ -110,7 +110,6 @@ public class ApiConfig extends Application {
     }
 
     public static Set<Class<?>> allJsonTypeNameClasses() {
-        // registrer jackson JsonTypeName subtypes basert på rest implementasjoner
         final Collection<Class<?>> restClasses = RestImplementationClasses.getImplementationClasses();
 
         final Set<Class<?>> scanClasses = new LinkedHashSet<>(restClasses);
