@@ -37,6 +37,9 @@ public class PraksisendringAapSakTask extends FagsakProsessTask {
     private RevurderingTjeneste revurderingTjeneste;
     private FagsakRepository fagsakRepository;
 
+    public PraksisendringAapSakTask() {
+        // For CDI
+    }
 
     @Inject
     public PraksisendringAapSakTask(BehandlingRepositoryProvider behandlingRepositoryProvider,
