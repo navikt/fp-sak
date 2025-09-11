@@ -10,7 +10,6 @@ import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
-import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakProsesstaskRekkefølge;
@@ -27,7 +26,6 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskHandler;
 public class FortsettBehandlingTask implements ProsessTaskHandler {
 
     public static final String MANUELL_FORTSETTELSE = "manuellFortsettelse";
-    public static final String UTFORT_AUTOPUNKT = "autopunktUtfort";
     public static final String GJENOPPTA_STEG = "gjenopptaSteg";
 
     private BehandlingRepository behandlingRepository;
@@ -60,15 +58,8 @@ public class FortsettBehandlingTask implements ProsessTaskHandler {
             var gjenoppta = data.getPropertyValue(GJENOPPTA_STEG);
 
             var stegtype = getBehandlingStegType(gjenoppta);
-            if (gjenoppta != null || manuellFortsettelse) {
-                if (behandling.isBehandlingPåVent()) { // Autopunkt
-                    behandlingskontrollTjeneste.taBehandlingAvVentSetAlleAutopunktUtført(kontekst, behandling);
-                }
-            } else { // TODO: Slett denne etter omlegging
-                Optional.ofNullable(data.getPropertyValue(UTFORT_AUTOPUNKT))
-                    .map(AksjonspunktDefinisjon::fraKode)
-                    .flatMap(behandling::getÅpentAksjonspunktMedDefinisjonOptional)
-                    .ifPresent(a -> behandlingskontrollTjeneste.settAutopunktTilUtført(kontekst, behandling, a));
+            if ((gjenoppta != null || manuellFortsettelse) && behandling.isBehandlingPåVent()) { // Autopunkt
+                behandlingskontrollTjeneste.taBehandlingAvVentSetAlleAutopunktUtført(kontekst, behandling);
             }
             // Ingen åpne autopunkt her, takk
             validerBehandlingIkkeErSattPåVent(behandling);
