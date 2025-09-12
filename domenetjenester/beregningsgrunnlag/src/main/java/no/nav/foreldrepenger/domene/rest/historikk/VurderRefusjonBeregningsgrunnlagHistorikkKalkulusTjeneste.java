@@ -27,7 +27,7 @@ import no.nav.foreldrepenger.domene.aksjonspunkt.RefusjonoverstyringEndring;
 import no.nav.foreldrepenger.domene.aksjonspunkt.RefusjonoverstyringPeriodeEndring;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.iay.modell.ArbeidsforholdOverstyring;
-import no.nav.foreldrepenger.domene.modell.kodeverk.AktivitetStatus;
+import no.nav.foreldrepenger.behandlingslager.behandling.beregning.AktivitetStatus;
 import no.nav.foreldrepenger.domene.rest.dto.VurderRefusjonAndelBeregningsgrunnlagDto;
 import no.nav.foreldrepenger.domene.rest.dto.VurderRefusjonBeregningsgrunnlagDto;
 import no.nav.foreldrepenger.domene.typer.AktørId;

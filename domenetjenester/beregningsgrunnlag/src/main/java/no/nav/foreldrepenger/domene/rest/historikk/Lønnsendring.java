@@ -3,8 +3,8 @@ package no.nav.foreldrepenger.domene.rest.historikk;
 import java.util.Optional;
 
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
-import no.nav.foreldrepenger.domene.modell.kodeverk.AktivitetStatus;
-import no.nav.foreldrepenger.domene.modell.kodeverk.Inntektskategori;
+import no.nav.foreldrepenger.behandlingslager.behandling.beregning.AktivitetStatus;
+import no.nav.foreldrepenger.behandlingslager.behandling.beregning.Inntektskategori;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 import no.nav.foreldrepenger.validering.ValidKodeverk;
 
