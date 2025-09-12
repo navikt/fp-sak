@@ -14,6 +14,7 @@ import no.nav.vedtak.konfig.Tid;
 
 public class Etterbetalingtjeneste {
     private static final int UTBETALINGS_DATO = 18;
+    private static final BigDecimal STANDARD_BELØPSGRENSE = BigDecimal.valueOf(30_000);
 
     private Etterbetalingtjeneste() {
         // Skjuler default konstruktør
@@ -29,6 +30,10 @@ public class Etterbetalingtjeneste {
      * @param nyttBeregningsresultat
      * @return
      */
+    public static EtterbetalingskontrollResultat finnSumSomVilBliEtterbetalt(LocalDate dagensDato, BeregningsresultatEntitet forrigeRes, BeregningsresultatEntitet nyttBeregningsresultat) {
+        return finnSumSomVilBliEtterbetalt(dagensDato, forrigeRes, nyttBeregningsresultat, STANDARD_BELØPSGRENSE);
+    }
+
     public static EtterbetalingskontrollResultat finnSumSomVilBliEtterbetalt(LocalDate dagensDato, BeregningsresultatEntitet forrigeRes, BeregningsresultatEntitet nyttBeregningsresultat, BigDecimal beløpsgrense) {
         var sisteDagSomErUtbetalt = finnSisteUtbetalteDato(dagensDato);
 

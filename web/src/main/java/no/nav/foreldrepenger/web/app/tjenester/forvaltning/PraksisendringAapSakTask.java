@@ -1,32 +1,32 @@
 package no.nav.foreldrepenger.web.app.tjenester.forvaltning;
 
+import java.time.LocalDate;
+
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-
-import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
-import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
-import no.nav.foreldrepenger.behandlingslager.behandling.SpesialBehandling;
-import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
-import no.nav.foreldrepenger.produksjonsstyring.behandlingenhet.BehandlendeEnhetTjeneste;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import no.nav.foreldrepenger.behandling.revurdering.RevurderingTjeneste;
+import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
+import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
+import no.nav.foreldrepenger.behandlingslager.behandling.SpesialBehandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakProsesstaskRekkefølge;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
+import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.hendelser.StartpunktType;
 import no.nav.foreldrepenger.behandlingslager.task.FagsakProsessTask;
 import no.nav.foreldrepenger.behandlingsprosess.prosessering.BehandlingProsesseringTjeneste;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
+import no.nav.foreldrepenger.produksjonsstyring.behandlingenhet.BehandlendeEnhetTjeneste;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
-
-import java.time.LocalDate;
 
 @ApplicationScoped
 @ProsessTask(value = "aap.praksisendring.sak", prioritet = 4, maxFailedRuns = 1)
@@ -61,24 +61,16 @@ public class PraksisendringAapSakTask extends FagsakProsessTask {
         var behandling = behandlingRepository.hentSisteYtelsesBehandlingForFagsakId(fagsakId).orElseThrow();
         if (behandling.erAvsluttet()) {
             LOG.info("aap.praksisendring.sak: fagsakId {} Siste behandling er avsluttet, oppretter revurdering", fagsakId);
-            var fagsak = fagsakRepository.hentSakGittSaksnummer(new Saksnummer(prosessTaskData.getSaksnummer())).orElseThrow();
-            var revurdering = revurderingTjeneste.opprettAutomatiskRevurdering(fagsak, BehandlingÅrsakType.FEIL_PRAKSIS_BEREGNING_AAP_KOMBINASJON, BehandlendeEnhetTjeneste.getMidlertidigEnhet());
-            LOG.info("aap.praksisendring.sak: fagsakId {} Opprettet revurdering med uuid {}", fagsakId, revurdering.getUuid());
+            var revurdering = opprettRevurdering(prosessTaskData, fagsakId);
             behandlingProsesseringTjeneste.opprettTasksForStartBehandling(revurdering);
         } else if (SpesialBehandling.erSpesialBehandling(behandling)) {
             LOG.info("aap.praksisendring.sak: fagsakId {} Siste behandling er åpen spesialbehandling, oppretter køet revurdering", fagsakId);
-            var fagsak = fagsakRepository.hentSakGittSaksnummer(new Saksnummer(prosessTaskData.getSaksnummer())).orElseThrow();
-            var revurdering = revurderingTjeneste.opprettAutomatiskRevurdering(fagsak, BehandlingÅrsakType.FEIL_PRAKSIS_BEREGNING_AAP_KOMBINASJON, BehandlendeEnhetTjeneste.getMidlertidigEnhet());
-            LOG.info("aap.praksisendring.sak: fagsakId {} Opprettet revurdering med uuid {}", fagsakId, revurdering.getUuid());
+            var revurdering = opprettRevurdering(prosessTaskData, fagsakId);
             behandlingProsesseringTjeneste.enkøBehandling(revurdering);
         } else if (behandling.getType().equals(BehandlingType.FØRSTEGANGSSØKNAD)) {
             LOG.info("aap.praksisendring.sak: fagsakId {} Siste behandling er åpen førstegangsbehdling, gjør ingenting.", fagsakId);
-            return;
         } else {
-            // Saker som startet etter beregning og ble opprettet før endringsdato, men har blitt liggende
-            if (behandling.getStartpunkt().equals(StartpunktType.UTTAKSVILKÅR)
-                || (behandling.getOpprettetDato().toLocalDate().isBefore(DATO_PRAKSISENDRING)
-                && behandlingProsesseringTjeneste.erBehandlingEtterSteg(behandling, BehandlingStegType.DEKNINGSGRAD))) {
+            if (harIkkeKjørtNyeBeregningsregler(behandling)) {
                 LOG.info("aap.praksisendring.sak: fagsakId {} Siste er åpen revurdering med uuid {} som er passert beregning, ruller den tilbake", fagsakId, behandling.getUuid());
                 var lås = behandlingRepository.taSkriveLås(behandling);
                 if (behandling.isBehandlingPåVent()) {
@@ -89,6 +81,19 @@ public class PraksisendringAapSakTask extends FagsakProsessTask {
             }
         }
 
+    }
+
+    private boolean harIkkeKjørtNyeBeregningsregler(Behandling behandling) {
+        return behandling.getStartpunkt().equals(StartpunktType.UTTAKSVILKÅR) || (
+            behandling.getOpprettetDato().toLocalDate().isBefore(DATO_PRAKSISENDRING) && behandlingProsesseringTjeneste.erBehandlingEtterSteg(
+                behandling, BehandlingStegType.DEKNINGSGRAD));
+    }
+
+    private Behandling opprettRevurdering(ProsessTaskData prosessTaskData, Long fagsakId) {
+        var fagsak = fagsakRepository.hentSakGittSaksnummer(new Saksnummer(prosessTaskData.getSaksnummer())).orElseThrow();
+        var revurdering = revurderingTjeneste.opprettAutomatiskRevurdering(fagsak, BehandlingÅrsakType.FEIL_PRAKSIS_BEREGNING_AAP_KOMBINASJON, BehandlendeEnhetTjeneste.getMidlertidigEnhet());
+        LOG.info("aap.praksisendring.sak: fagsakId {} Opprettet revurdering med uuid {}", fagsakId, revurdering.getUuid());
+        return revurdering;
     }
 
 }

@@ -27,7 +27,7 @@ class EtterbetalingtjenesteTest {
         lagNyPeriode(LocalDate.of(2023,1,1), LocalDate.of(2023,3,1), 500, true);
         lagNyPeriode(LocalDate.of(2023,3,2), LocalDate.of(2023,5,31), 200, true);
 
-        var etterbetalingsKontroll = Etterbetalingtjeneste.finnSumSomVilBliEtterbetalt(LocalDate.of(2023, 6, 1), originaltResultat, nyttResultat, BigDecimal.valueOf(30_000));
+        var etterbetalingsKontroll = Etterbetalingtjeneste.finnSumSomVilBliEtterbetalt(LocalDate.of(2023, 6, 1), originaltResultat, nyttResultat);
         assertThat(etterbetalingsKontroll.overstigerGrense()).isFalse();
         assertThat(etterbetalingsKontroll.etterbetalingssum()).isEqualByComparingTo(BigDecimal.ZERO);
     }
@@ -38,7 +38,7 @@ class EtterbetalingtjenesteTest {
 
         lagNyPeriode(LocalDate.of(2023,1,1), LocalDate.of(2023,5,31), 500, true);
 
-        var etterbetalingsKontroll = Etterbetalingtjeneste.finnSumSomVilBliEtterbetalt(LocalDate.of(2023, 6, 1), originaltResultat, nyttResultat, BigDecimal.valueOf(30_000));
+        var etterbetalingsKontroll = Etterbetalingtjeneste.finnSumSomVilBliEtterbetalt(LocalDate.of(2023, 6, 1), originaltResultat, nyttResultat);
         assertThat(etterbetalingsKontroll.overstigerGrense()).isFalse();
         assertThat(etterbetalingsKontroll.etterbetalingssum()).isEqualByComparingTo(BigDecimal.ZERO);
     }
@@ -49,7 +49,7 @@ class EtterbetalingtjenesteTest {
 
         lagNyPeriode(LocalDate.of(2023,1,1), LocalDate.of(2023,5,31), 1500, true);
 
-        var etterbetalingsKontroll = Etterbetalingtjeneste.finnSumSomVilBliEtterbetalt(LocalDate.of(2023, 6, 1), originaltResultat, nyttResultat, BigDecimal.valueOf(30_000));
+        var etterbetalingsKontroll = Etterbetalingtjeneste.finnSumSomVilBliEtterbetalt(LocalDate.of(2023, 6, 1), originaltResultat, nyttResultat);
         assertThat(etterbetalingsKontroll.overstigerGrense()).isTrue();
         assertThat(etterbetalingsKontroll.etterbetalingssum()).isEqualByComparingTo(BigDecimal.valueOf(65000));
     }
@@ -62,7 +62,7 @@ class EtterbetalingtjenesteTest {
         lagNyPeriode(LocalDate.of(2023,1,1), LocalDate.of(2023,9,30), 770, true);
 
         // 109 virkedager * 270 økt dagsats
-        var etterbetalingsKontroll = Etterbetalingtjeneste.finnSumSomVilBliEtterbetalt(LocalDate.of(2023, 10, 1), originaltResultat, nyttResultat, BigDecimal.valueOf(30_000));
+        var etterbetalingsKontroll = Etterbetalingtjeneste.finnSumSomVilBliEtterbetalt(LocalDate.of(2023, 10, 1), originaltResultat, nyttResultat);
         assertThat(etterbetalingsKontroll.overstigerGrense()).isFalse();
         assertThat(etterbetalingsKontroll.etterbetalingssum()).isEqualByComparingTo(BigDecimal.valueOf(29430));
     }
@@ -75,7 +75,7 @@ class EtterbetalingtjenesteTest {
         lagNyPeriode(LocalDate.of(2023,1,1), LocalDate.of(2023,3,1), 500, true);
         lagNyPeriode(LocalDate.of(2023,3,2), LocalDate.of(2023,5,31), 300, false);
 
-        var etterbetalingsKontroll = Etterbetalingtjeneste.finnSumSomVilBliEtterbetalt(LocalDate.of(2023, 6, 1), originaltResultat, nyttResultat, BigDecimal.valueOf(30_000));
+        var etterbetalingsKontroll = Etterbetalingtjeneste.finnSumSomVilBliEtterbetalt(LocalDate.of(2023, 6, 1), originaltResultat, nyttResultat);
         assertThat(etterbetalingsKontroll.overstigerGrense()).isFalse();
         assertThat(etterbetalingsKontroll.etterbetalingssum()).isEqualByComparingTo(BigDecimal.ZERO);
     }
@@ -88,7 +88,7 @@ class EtterbetalingtjenesteTest {
         lagNyPeriode(LocalDate.of(2023,1,1), LocalDate.of(2023,3,1), 500, true);
         lagNyPeriode(LocalDate.of(2023,3,2), LocalDate.of(2023,5,31), 250, true);
 
-        var etterbetalingsKontroll = Etterbetalingtjeneste.finnSumSomVilBliEtterbetalt(LocalDate.of(2023, 6, 1), originaltResultat, nyttResultat, BigDecimal.valueOf(30_000));
+        var etterbetalingsKontroll = Etterbetalingtjeneste.finnSumSomVilBliEtterbetalt(LocalDate.of(2023, 6, 1), originaltResultat, nyttResultat);
 
         var virkedager = Virkedager.beregnAntallVirkedager(LocalDate.of(2023, 3, 2), LocalDate.of(2023, 5, 31));
         assertThat(etterbetalingsKontroll.overstigerGrense()).isFalse();
@@ -104,7 +104,7 @@ class EtterbetalingtjenesteTest {
         lagNyPeriode(LocalDate.of(2023,3,2), LocalDate.of(2023,5,31), 2350, true);
         lagNyPeriode(LocalDate.of(2023,6,1), LocalDate.of(2023,9,30), 2350, true);
 
-        var etterbetalingsKontroll = Etterbetalingtjeneste.finnSumSomVilBliEtterbetalt(LocalDate.of(2023, 10, 1), originaltResultat, nyttResultat, BigDecimal.valueOf(30_000));
+        var etterbetalingsKontroll = Etterbetalingtjeneste.finnSumSomVilBliEtterbetalt(LocalDate.of(2023, 10, 1), originaltResultat, nyttResultat);
 
         var virkedager = Virkedager.beregnAntallVirkedager(LocalDate.of(2023, 1, 1), LocalDate.of(2023, 9, 30));
         assertThat(etterbetalingsKontroll.overstigerGrense()).isTrue();
@@ -148,7 +148,7 @@ class EtterbetalingtjenesteTest {
         lagNyPeriode(LocalDate.of(2023,1,18), LocalDate.of(2023,1,27), 1963, false);
         lagNyPeriode(LocalDate.of(2023,1,18), LocalDate.of(2023,1,27), 0, true);
 
-        var etterbetalingsKontroll = Etterbetalingtjeneste.finnSumSomVilBliEtterbetalt(LocalDate.of(2023, 9, 11), originaltResultat, nyttResultat, BigDecimal.valueOf(30_000));
+        var etterbetalingsKontroll = Etterbetalingtjeneste.finnSumSomVilBliEtterbetalt(LocalDate.of(2023, 9, 11), originaltResultat, nyttResultat);
         assertThat(etterbetalingsKontroll.overstigerGrense()).isFalse();
     }
 
