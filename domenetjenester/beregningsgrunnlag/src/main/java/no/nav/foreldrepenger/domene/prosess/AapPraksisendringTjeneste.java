@@ -108,8 +108,8 @@ public class AapPraksisendringTjeneste {
             return false;
         }
 
-        LOG.info("FP-63782: Påvirket av praksisendring: saksnummer {}, behandling uuid {}", sisteBehandlingMedBeregning.getSaksnummer(),
-            sisteBehandlingMedBeregning.getUuid());
+        LOG.info("FP-63782: Påvirket av praksisendring: saksnummer {}, behandling uuid {}, erAvsluttet: {}", sisteBehandlingMedBeregning.getSaksnummer(),
+            sisteBehandlingMedBeregning.getUuid(), sisteBehandlingMedBeregning.erAvsluttet());
         return true;
     }
 

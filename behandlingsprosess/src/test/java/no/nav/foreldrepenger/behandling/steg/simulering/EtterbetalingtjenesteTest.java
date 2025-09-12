@@ -16,8 +16,8 @@ import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.ytelse.beregning.Virkedager;
 
 class EtterbetalingtjenesteTest {
-    private BeregningsresultatEntitet originaltResultat = BeregningsresultatEntitet.builder().medRegelInput("").medRegelSporing("").build();
-    private BeregningsresultatEntitet nyttResultat = BeregningsresultatEntitet.builder().medRegelInput("").medRegelSporing("").build();
+    private final BeregningsresultatEntitet originaltResultat = BeregningsresultatEntitet.builder().medRegelInput("").medRegelSporing("").build();
+    private final BeregningsresultatEntitet nyttResultat = BeregningsresultatEntitet.builder().medRegelInput("").medRegelSporing("").build();
 
     @Test
     void skal_teste_når_ingen_etterbetaling() {

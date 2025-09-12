@@ -79,11 +79,13 @@ public class PraksisendringAapBatchTask implements ProsessTaskHandler {
     }
 
     private void opprettTaskForSak(Fagsak fagsak, boolean dryRun) {
+        var erPåvirket = aapPraksisendringTjeneste.erPåvirketAvPraksisendring(fagsak.getId());
         if (dryRun) {
-            var erPåvirket = aapPraksisendringTjeneste.erPåvirketAvPraksisendring(fagsak.getId());
             LOG.info("PÅVIRKET_AV_AAP_PRAKSISENDRING: {} fagsakId {}", erPåvirket, fagsak.getId());
         } else {
-            // TODO lag tasker for å opprette revurderinger, tas i neste omgang når vi ser hvor mange det gjelder.
+            var prosessTaskData = ProsessTaskData.forProsessTask(PraksisendringAapSakTask.class);
+            prosessTaskData.setFagsak(fagsak.getSaksnummer().getVerdi(), fagsak.getId());
+            prosessTaskTjeneste.lagre(prosessTaskData);
         }
     }
 

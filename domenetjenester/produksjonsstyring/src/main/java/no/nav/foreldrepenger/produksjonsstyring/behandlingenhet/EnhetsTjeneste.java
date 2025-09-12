@@ -141,6 +141,10 @@ public class EnhetsTjeneste {
         return KLAGE_ENHET;
     }
 
+    static OrganisasjonsEnhet getEnhetMidlertidig() {
+        return MIDLERTIDIG_ENHET;
+    }
+
     static OrganisasjonsEnhet getEnhetNasjonal() {
         return NASJONAL_ENHET;
     }
