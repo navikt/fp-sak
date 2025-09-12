@@ -1,5 +1,13 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.fødsel;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.tuple;
+
+import java.time.LocalDate;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.AbstractTestScenario;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
@@ -8,14 +16,6 @@ import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.familiehendelse.FamilieHendelseTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.fødsel.dto.FødselDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.fødsel.dto.Kilde;
-
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-
-import java.time.LocalDate;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.tuple;
 
 public class FaktaFødselTjenesteTest extends EntityManagerAwareTest {
     private static final LocalDate FØDSELSDATO = LocalDate.now();
@@ -258,5 +258,5 @@ public class FaktaFødselTjenesteTest extends EntityManagerAwareTest {
         scenario.medBruker(AktørId.dummy()).medSøknad().medMottattDato(LocalDate.now().minusWeeks(2));
         scenario.medSøknadAnnenPart().medAktørId(AktørId.dummy());
     }
-
 }
+
