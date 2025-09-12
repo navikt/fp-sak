@@ -102,6 +102,7 @@ public class OverlappVedtak extends BaseEntitet {
         return switch (ytelse) {
             case "PSB", "PPN" -> OverlappYtelseType.PLEIEPENGER;
             case "OMP" -> OverlappYtelseType.OMSORGSPENGER;
+            case "OLP" -> OverlappYtelseType.OPPLÆRINGSPENGER;
             default -> OverlappYtelseType.valueOf(ytelse);
         };
     }

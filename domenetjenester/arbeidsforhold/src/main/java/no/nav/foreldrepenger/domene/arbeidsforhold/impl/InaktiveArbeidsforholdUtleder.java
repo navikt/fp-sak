@@ -37,7 +37,7 @@ import no.nav.foreldrepenger.domene.typer.Saksnummer;
  * for å filtrere ut unødvendige arbeidsforhold fra å kreve inntektsmelding.
  */
 public class InaktiveArbeidsforholdUtleder {
-    private static final Set<RelatertYtelseType> YTELSER_SOM_IKKE_PÅVIRKER_IM = Set.of(RelatertYtelseType.PLEIEPENGER_NÆRSTÅENDE, RelatertYtelseType.ARBEIDSAVKLARINGSPENGER, RelatertYtelseType.DAGPENGER, RelatertYtelseType.OMSORGSPENGER);
+    private static final Set<RelatertYtelseType> YTELSER_SOM_IKKE_PÅVIRKER_IM = Set.of(RelatertYtelseType.ARBEIDSAVKLARINGSPENGER, RelatertYtelseType.DAGPENGER);
     private static final int AKTIVE_MÅNEDER_FØR_STP = 4;
     private static final int NYOPPSTARTEDE_ARBEIDSFORHOLD_ALDER_I_MND = 4;
 
