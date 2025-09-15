@@ -72,7 +72,7 @@ class VurderFagsystemTjenesteImplForAvlsluttetFagsakOgAvslåttBehandlingTest ext
                 new SøknadRepository(getEntityManager(), behandlingRepository));
         var tjenesteES = new VurderFagsystemTjenesteESImpl(fellesUtils);
 
-        vurderFagsystemFellesTjeneste = new VurderFagsystemFellesTjeneste(fagsakTjeneste, fellesUtils, new UnitTestLookupInstanceImpl<>(tjenesteES));
+        vurderFagsystemFellesTjeneste = new VurderFagsystemFellesTjeneste(fagsakTjeneste, fellesUtils, new UnitTestLookupInstanceImpl<>(tjenesteES), null);
     }
 
     @Test

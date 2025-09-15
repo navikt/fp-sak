@@ -437,6 +437,7 @@ public class FordelRestTjeneste {
         dto.getStartDatoForeldrepengerInntektsmelding().ifPresent(v::setStartDatoForeldrepengerInntektsmelding);
 
         dto.getSaksnummer().ifPresent(sn -> v.setSaksnummer(new Saksnummer(sn)));
+        dto.setOpprettSakVedBehov(v.isOpprettSakVedBehov());
         dto.getAnnenPart().map(AktørId::new).ifPresent(v::setAnnenPart);
 
         v.setBrukerRolle(mapBrukerRolle(dto.getBrukerRolle()));

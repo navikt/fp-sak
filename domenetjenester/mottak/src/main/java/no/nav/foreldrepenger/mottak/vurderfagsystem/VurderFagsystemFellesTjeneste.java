@@ -19,6 +19,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.DokumentTypeId;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
+import no.nav.foreldrepenger.domene.bruker.NavBrukerTjeneste;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 
 @ApplicationScoped
@@ -27,6 +28,7 @@ public class VurderFagsystemFellesTjeneste {
     private FagsakTjeneste fagsakTjeneste;
     private VurderFagsystemFellesUtils fellesUtils;
     private Instance<VurderFagsystemTjeneste> vurderFagsystemTjenester;
+    private NavBrukerTjeneste navBrukerTjeneste;
 
 
     public VurderFagsystemFellesTjeneste(){
@@ -36,10 +38,12 @@ public class VurderFagsystemFellesTjeneste {
     @Inject
     public VurderFagsystemFellesTjeneste(FagsakTjeneste fagsakTjeneste,
                                          VurderFagsystemFellesUtils fellesUtils,
-                                         @Any Instance<VurderFagsystemTjeneste> vurderFagsystemTjenester) {
+                                         @Any Instance<VurderFagsystemTjeneste> vurderFagsystemTjenester,
+                                         NavBrukerTjeneste navBrukerTjeneste) {
         this.fagsakTjeneste = fagsakTjeneste;
         this.fellesUtils = fellesUtils;
         this.vurderFagsystemTjenester = vurderFagsystemTjenester;
+        this.navBrukerTjeneste = navBrukerTjeneste;
     }
 
     public BehandlendeFagsystem vurderFagsystem(VurderFagsystem vurderFagsystem) {
@@ -93,7 +97,14 @@ public class VurderFagsystemFellesTjeneste {
         }
 
         if (vurderFagsystem.erStrukturertSøknad()) {
-            return vurderFagsystemTjeneste.vurderFagsystemStrukturertSøknad(vurderFagsystem, brukersSakerAvType);
+            var vurdering = vurderFagsystemTjeneste.vurderFagsystemStrukturertSøknad(vurderFagsystem, brukersSakerAvType);
+            var tilVedtaksløsningenUtenSaksnummer = VEDTAKSLØSNING.equals(vurdering.behandlendeSystem()) && vurdering.getSaksnummer().isEmpty();
+            if (vurderFagsystem.isOpprettSakVedBehov() && tilVedtaksløsningenUtenSaksnummer) {
+                // Strukturert søknad uten treff på sak skal ikke ende i vedtaksløsning uten saksnummer
+                var fagsak = fagsakTjeneste.opprettFagsak(ytelseType, navBrukerTjeneste.hentEllerOpprettFraAktørId(vurderFagsystem.getAktørId()));
+                return new BehandlendeFagsystem(VEDTAKSLØSNING, fagsak.getSaksnummer());
+            }
+            return vurdering;
         }
 
         return vurderFagsystemTjeneste.vurderFagsystemUstrukturert(vurderFagsystem, brukersSakerAvType);

@@ -108,7 +108,7 @@ class VurderFagsystemTjenesteForInntektsmeldingTest {
         var fellesUtil = new VurderFagsystemFellesUtils(repositoryProvider, familieTjeneste, mottatteDokumentTjenesteMock, inntektsmeldingTjeneste,
             skjæringstidspunktTjeneste, fagsakRelasjonTjeneste);
         var tjenesteFP = new VurderFagsystemTjenesteImpl(fellesUtil);
-        vurderFagsystemTjeneste = new VurderFagsystemFellesTjeneste(fagsakTjenesteMock, fellesUtil, new UnitTestLookupInstanceImpl<>(tjenesteFP));
+        vurderFagsystemTjeneste = new VurderFagsystemFellesTjeneste(fagsakTjenesteMock, fellesUtil, new UnitTestLookupInstanceImpl<>(tjenesteFP), null);
     }
 
     @Test

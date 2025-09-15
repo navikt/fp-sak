@@ -44,7 +44,7 @@ public class VurderFagsystemTjenesteESImpl implements VurderFagsystemTjeneste {
             .toList();
 
         if (matchendeFagsaker.size() == 1) {
-            return new BehandlendeFagsystem(VEDTAKSLØSNING, matchendeFagsaker.get(0));
+            return new BehandlendeFagsystem(VEDTAKSLØSNING, matchendeFagsaker.getFirst());
         }
         if (matchendeFagsaker.size() > 1) {
             LOG.info("VurderFagsystem ES strukturert søknad {} flere matchende saker {}", vurderFagsystem.getJournalpostIdLog(), matchendeFagsaker);
@@ -57,7 +57,7 @@ public class VurderFagsystemTjenesteESImpl implements VurderFagsystemTjeneste {
             .toList();
 
         if (passendeFagsaker.size() == 1) {
-            return new BehandlendeFagsystem(VEDTAKSLØSNING, passendeFagsaker.get(0));
+            return new BehandlendeFagsystem(VEDTAKSLØSNING, passendeFagsaker.getFirst());
         }
         if (passendeFagsaker.size() > 1) {
             LOG.info("VurderFagsystem ES strukturert søknad {} flere relevante saker {}", vurderFagsystem.getJournalpostIdLog(), passendeFagsaker);
