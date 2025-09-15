@@ -369,7 +369,7 @@ class VedtaksHendelseHåndtererTest extends EntityManagerAwareTest {
                     .medBGAndelArbeidsforhold(BGAndelArbeidsforhold.builder()
                         .medArbeidsforholdRef(InternArbeidsforholdRef.nullRef())
                         .medArbeidsgiver(Arbeidsgiver.virksomhet("999999999")))
-                    .medAktivitetStatus(no.nav.foreldrepenger.domene.modell.kodeverk.AktivitetStatus.ARBEIDSTAKER).build()).build())
+                    .medAktivitetStatus(no.nav.foreldrepenger.behandlingslager.behandling.beregning.AktivitetStatus.ARBEIDSTAKER).build()).build())
             .build();
         BeregningsgrunnlagGrunnlagBuilder.nytt().medBeregningsgrunnlag(beregningsgrunnlag).build(BeregningsgrunnlagTilstand.FASTSATT);
     }

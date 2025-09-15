@@ -20,6 +20,7 @@ import no.nav.foreldrepenger.domene.prosess.BeregningTjeneste;
 import no.nav.foreldrepenger.domene.uttak.UttakTjeneste;
 import no.nav.foreldrepenger.domene.uttak.beregnkontoer.UtregnetStønadskontoTjeneste;
 import no.nav.foreldrepenger.domene.ytelsefordeling.YtelseFordelingTjeneste;
+import no.nav.foreldrepenger.familiehendelse.FamilieHendelseTjeneste;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 
 
@@ -65,13 +66,16 @@ class BehandlingFormidlingDtoTjenesteTest {
     @Inject
     private EøsUttakRepository eøsUttakRepository;
 
+    @Inject
+    private FamilieHendelseTjeneste familieHendelseTjeneste;
+
     private BehandlingFormidlingDtoTjeneste tjeneste;
 
     @BeforeEach
     void setUp() {
         tjeneste = new BehandlingFormidlingDtoTjeneste(repositoryProvider, beregningTjeneste, skjæringstidspunktTjeneste,
             behandlingDokumentRepository, relatertBehandlingTjeneste, uttakTjeneste, dekningsgradTjeneste, utregnetStønadskontoTjeneste,
-            medlemTjeneste, vergeRepository, ytelseFordelingTjeneste, uføretrygdRepository, eøsUttakRepository);
+            medlemTjeneste, vergeRepository, ytelseFordelingTjeneste, uføretrygdRepository, eøsUttakRepository, familieHendelseTjeneste);
     }
 
 

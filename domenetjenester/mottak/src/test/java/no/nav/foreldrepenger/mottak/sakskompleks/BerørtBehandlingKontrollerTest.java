@@ -32,7 +32,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingsresultatRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.behandling.KonsekvensForYtelsen;
-import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
@@ -154,8 +153,7 @@ class BerørtBehandlingKontrollerTest {
         berørtBehandlingKontroller.vurderNesteOppgaveIBehandlingskø(fBehandling.getId());
 
         // Assert
-        verify(behandlingProsesseringTjeneste).opprettTasksForFortsettBehandlingSettUtført(køetBehandling,
-            Optional.of(AksjonspunktDefinisjon.AUTO_KØET_BEHANDLING));
+        verify(behandlingProsesseringTjeneste).dekøBehandling(køetBehandling);
     }
 
     @Test
@@ -177,7 +175,7 @@ class BerørtBehandlingKontrollerTest {
         berørtBehandlingKontroller.vurderNesteOppgaveIBehandlingskø(fBehandling.getId());
 
         // Assert
-        verify(behandlingProsesseringTjeneste).opprettTasksForFortsettBehandlingSettUtført(any(), any());
+        verify(behandlingProsesseringTjeneste).dekøBehandling(any());
     }
 
     @Test
@@ -190,8 +188,7 @@ class BerørtBehandlingKontrollerTest {
         berørtBehandlingKontroller.vurderNesteOppgaveIBehandlingskø(fBehandling.getId());
 
         // Assert
-        verify(behandlingProsesseringTjeneste).opprettTasksForFortsettBehandlingSettUtført(køetBehandlingMedforelder,
-            Optional.of(AksjonspunktDefinisjon.AUTO_KØET_BEHANDLING));
+        verify(behandlingProsesseringTjeneste).dekøBehandling(køetBehandlingMedforelder);
     }
 
     @Test
@@ -208,8 +205,7 @@ class BerørtBehandlingKontrollerTest {
 
         // Assert
         verifyNoMoreInteractions(behandlingsoppretter);
-        verify(behandlingProsesseringTjeneste).opprettTasksForFortsettBehandlingSettUtført(køetBehandlingMedforelder,
-            Optional.of(AksjonspunktDefinisjon.AUTO_KØET_BEHANDLING));
+        verify(behandlingProsesseringTjeneste).dekøBehandling(køetBehandlingMedforelder);
     }
 
     private void settOppAvsluttetBehandlingBruker() {
@@ -287,8 +283,7 @@ class BerørtBehandlingKontrollerTest {
         berørtBehandlingKontroller.vurderNesteOppgaveIBehandlingskø(fBehandling.getId());
         // Assert
         verifyNoMoreInteractions(behandlingsoppretter);
-        verify(behandlingProsesseringTjeneste).opprettTasksForFortsettBehandlingSettUtført(køetBehandlingMedforelder,
-            Optional.of(AksjonspunktDefinisjon.AUTO_KØET_BEHANDLING));
+        verify(behandlingProsesseringTjeneste).dekøBehandling(køetBehandlingMedforelder);
     }
 
     @Test
@@ -319,8 +314,7 @@ class BerørtBehandlingKontrollerTest {
         berørtBehandlingKontroller.vurderNesteOppgaveIBehandlingskø(fBehandling.getId());
         // Assert
         verifyNoMoreInteractions(behandlingsoppretter);
-        verify(behandlingProsesseringTjeneste).opprettTasksForFortsettBehandlingSettUtført(køetBehandling,
-            Optional.of(AksjonspunktDefinisjon.AUTO_KØET_BEHANDLING));
+        verify(behandlingProsesseringTjeneste).dekøBehandling(køetBehandling);
     }
 
     @Test
@@ -399,8 +393,7 @@ class BerørtBehandlingKontrollerTest {
         berørtBehandlingKontroller.vurderNesteOppgaveIBehandlingskø(fBehandling.getId());
         // Assert - dekø fra medforelders kø
         verifyNoMoreInteractions(behandlingsoppretter);
-        verify(behandlingProsesseringTjeneste).opprettTasksForFortsettBehandlingSettUtført(køetBehandling,
-            Optional.of(AksjonspunktDefinisjon.AUTO_KØET_BEHANDLING));
+        verify(behandlingProsesseringTjeneste).dekøBehandling(køetBehandling);
     }
 
     @Test
@@ -415,8 +408,7 @@ class BerørtBehandlingKontrollerTest {
         berørtBehandlingKontroller.vurderNesteOppgaveIBehandlingskø(fBehandling.getId());
         // Assert  - dekø fra medforelders kø
         verifyNoMoreInteractions(behandlingsoppretter);
-        verify(behandlingProsesseringTjeneste).opprettTasksForFortsettBehandlingSettUtført(køetBehandlingMedforelder,
-            Optional.of(AksjonspunktDefinisjon.AUTO_KØET_BEHANDLING));
+        verify(behandlingProsesseringTjeneste).dekøBehandling(køetBehandlingMedforelder);
     }
 
     @Test
@@ -430,8 +422,7 @@ class BerørtBehandlingKontrollerTest {
         berørtBehandlingKontroller.vurderNesteOppgaveIBehandlingskø(fBehandling.getId());
         // Assert dekø fra egen kø
         verifyNoMoreInteractions(behandlingsoppretter);
-        verify(behandlingProsesseringTjeneste).opprettTasksForFortsettBehandlingSettUtført(køetBehandling,
-            Optional.of(AksjonspunktDefinisjon.AUTO_KØET_BEHANDLING));
+        verify(behandlingProsesseringTjeneste).dekøBehandling(køetBehandling);
     }
 
     @Test

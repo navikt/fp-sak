@@ -13,8 +13,10 @@ import no.nav.folketrygdloven.kalkulus.response.v1.håndtering.Refusjonoverstyri
 import no.nav.folketrygdloven.kalkulus.response.v1.håndtering.VarigEndretEllerNyoppstartetNæringEndring;
 import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.OpptjeningAktivitetType;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
-import no.nav.foreldrepenger.domene.modell.kodeverk.AktivitetStatus;
-import no.nav.foreldrepenger.domene.modell.kodeverk.Inntektskategori;
+import no.nav.foreldrepenger.behandlingslager.behandling.beregning.AktivitetStatus;
+import no.nav.foreldrepenger.behandlingslager.behandling.beregning.Inntektskategori;
+import no.nav.foreldrepenger.domene.mappers.fra_kalkulus.KodeverkFraKalkulusMapper;
+import no.nav.foreldrepenger.domene.mappers.til_kalkulus.KodeverkTilKalkulusMapper;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
@@ -217,9 +219,8 @@ public class MapEndringsresultat {
 
     private static InntektskategoriEndring mapInntektskategoriEndring(no.nav.folketrygdloven.kalkulus.response.v1.håndtering.InntektskategoriEndring inntektskategoriEndring) {
         return inntektskategoriEndring == null ? null : new InntektskategoriEndring(
-            inntektskategoriEndring.getFraVerdi() == null ? null : Inntektskategori.fraKode(inntektskategoriEndring.getFraVerdi().getKode()),
-            Inntektskategori.fraKode(inntektskategoriEndring.getTilVerdi().getKode())
-        );
+            inntektskategoriEndring.getFraVerdi() == null ? null : KodeverkFraKalkulusMapper.mapInntektskategori(inntektskategoriEndring.getFraVerdi()),
+            KodeverkFraKalkulusMapper.mapInntektskategori(inntektskategoriEndring.getTilVerdi()));
     }
 
     private static BeløpEndring mapInntektEndring(no.nav.folketrygdloven.kalkulus.response.v1.håndtering.InntektEndring inntektEndring) {

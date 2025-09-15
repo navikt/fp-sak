@@ -27,8 +27,6 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import no.nav.foreldrepenger.behandlingskontroll.AksjonspunktkontrollTjeneste;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.SpesialBehandling;
-import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
-import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Venteårsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakProsessTaskRepository;
@@ -167,7 +165,7 @@ public class ForvaltningTekniskRestTjeneste {
         if (behandling == null || behandling.erKøet() || SpesialBehandling.erSpesialBehandling(behandling)) {
             return Response.status(Response.Status.BAD_REQUEST).build();
         }
-        behandlingProsesseringTjeneste.settBehandlingPåVentUtenSteg(behandling, AksjonspunktDefinisjon.AUTO_KØET_BEHANDLING, null, Venteårsak.VENT_ÅPEN_BEHANDLING);
+        behandlingProsesseringTjeneste.enkøBehandling(behandling);
         behandlingRepository.lagre(behandling, lås);
         return Response.ok().build();
     }

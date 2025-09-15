@@ -71,7 +71,7 @@ public class SjekkManglendeFødselOppdaterer implements AksjonspunktOppdaterer<S
             var oppdatertOverstyrtHendelse = familieHendelseTjeneste.opprettBuilderForOverstyring(behandlingId)
                 .tilbakestillBarn()
                 .medAntallBarn(utledetResultat.size())
-                .erFødsel() // Settes til fødsel for å sikre at typen blir fødsel selv om det ikke er født barn.
+                .medFødselType() // Settes til fødsel for å sikre at typen blir fødsel selv om det ikke er født barn.
                 .medErMorForSykVedFødsel(null);
             utledetResultat.forEach(it -> oppdatertOverstyrtHendelse.leggTilBarn(it.getFødselsdato(), it.getDødsdato().orElse(null)));
 
