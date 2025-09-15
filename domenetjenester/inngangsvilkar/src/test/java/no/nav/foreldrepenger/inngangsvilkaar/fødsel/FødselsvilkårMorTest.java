@@ -259,7 +259,7 @@ class FødselsvilkårMorTest extends EntityManagerAwareTest {
         var fødselsdato = LocalDate.now();
         var scenario = ScenarioFarSøkerEngangsstønad.forFødsel();
         scenario.medSøknadHendelse().medFødselsDato(fødselsdato).medAntallBarn(1);
-        scenario.medBekreftetHendelse().tilbakestillBarn().medAntallBarn(0).erFødsel();
+        scenario.medBekreftetHendelse().tilbakestillBarn().medAntallBarn(0).medFødselType();
         scenario.medBrukerKjønn(NavBrukerKjønn.KVINNE);
         leggTilSøker(scenario, NavBrukerKjønn.KVINNE);
         var behandling = scenario.lagre(repositoryProvider);

@@ -41,6 +41,9 @@ public class BehandlingFormidlingDto extends BehandlingDto {
     @JsonProperty("rettigheter")
     private Rettigheter rettigheter;
 
+    @JsonProperty("familieHendelse")
+    private FamilieHendelse familieHendelse;
+
     public List<ResourceLink> getFormidlingRessurser() {
         return formidlingRessurser;
     }
@@ -93,10 +96,25 @@ public class BehandlingFormidlingDto extends BehandlingDto {
         this.rettigheter = rettigheter;
     }
 
-     public record Rettigheter(Rettighetstype opprinnelig,  //søknad eller forrige vedtak
-                               Rettighetstype gjeldende,
-                               EøsUttak eøsUttak) {
-         public record EøsUttak(LocalDate fom, LocalDate tom, int forbruktFellesperiode, int fellesperiodeINorge) {
-         }
-     }
+    public FamilieHendelse getFamilieHendelse() {
+        return familieHendelse;
+    }
+
+    public void setFamilieHendelse(FamilieHendelse familieHendelse) {
+        this.familieHendelse = familieHendelse;
+    }
+
+    public record Rettigheter(Rettighetstype opprinnelig,  //søknad eller forrige vedtak
+                              Rettighetstype gjeldende,
+                              EøsUttak eøsUttak) {
+        public record EøsUttak(LocalDate fom, LocalDate tom, int forbruktFellesperiode, int fellesperiodeINorge) {
+        }
+    }
+
+    public record FamilieHendelse(List<Barn> barn, LocalDate termindato, int antallBarn, LocalDate omsorgsovertakelse) {
+    }
+
+    public record Barn(LocalDate fødselsdato, LocalDate dødsdato) {
+
+    }
 }

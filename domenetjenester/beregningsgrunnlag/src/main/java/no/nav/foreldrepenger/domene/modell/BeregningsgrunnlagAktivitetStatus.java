@@ -2,7 +2,7 @@ package no.nav.foreldrepenger.domene.modell;
 
 import java.util.Objects;
 
-import no.nav.foreldrepenger.domene.modell.kodeverk.AktivitetStatus;
+import no.nav.foreldrepenger.behandlingslager.behandling.beregning.AktivitetStatus;
 import no.nav.foreldrepenger.domene.modell.kodeverk.Hjemmel;
 
 public class BeregningsgrunnlagAktivitetStatus {

@@ -2,7 +2,6 @@ package no.nav.foreldrepenger.behandling.revurdering.flytkontroll;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -140,7 +139,7 @@ class BehandlingFlytkontrollTest {
         when(behandlingBerørt.harÅpentAksjonspunktMedType(AksjonspunktDefinisjon.AUTO_KØET_BEHANDLING)).thenReturn(true);
         when(behandlingBerørt.getAktivtBehandlingSteg()).thenReturn(StartpunktType.UTTAKSVILKÅR.getBehandlingSteg());
         assertThat(flytkontroll.uttaksProsessenSkalVente(EGEN_BERØRT_ID)).isTrue();
-        verify(behandlingProsesseringTjeneste, times(1)).opprettTasksForFortsettBehandlingSettUtført(any(), eq(Optional.of(AksjonspunktDefinisjon.AUTO_KØET_BEHANDLING)));
+        verify(behandlingProsesseringTjeneste, times(1)).dekøBehandling(any());
     }
 
 

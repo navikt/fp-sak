@@ -24,6 +24,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingL�
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingLåsRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingsprosess.prosessering.BehandlingProsesseringTjeneste;
+import no.nav.foreldrepenger.behandlingsprosess.prosessering.task.DekøBehandlingTask;
 import no.nav.foreldrepenger.behandlingsprosess.prosessering.task.FortsettBehandlingTask;
 import no.nav.foreldrepenger.behandlingsprosess.prosessering.task.GjenopptaBehandlingTask;
 import no.nav.foreldrepenger.behandlingsprosess.prosessering.task.RegisterdataOppdatererTask;
@@ -57,6 +58,7 @@ public class BehandlingProsesseringTjenesteImpl implements BehandlingProsesserin
 
     private static final TaskType TASK_START = TaskType.forProsessTask(StartBehandlingTask.class);
     private static final TaskType TASK_FORTSETT = TaskType.forProsessTask(FortsettBehandlingTask.class);
+    private static final TaskType TASK_DEKØ = TaskType.forProsessTask(DekøBehandlingTask.class);
     private static final TaskType TASK_ABAKUS = TaskType.forProsessTask(InnhentIAYIAbakusTask.class);
 
     private BehandlingskontrollTjeneste behandlingskontrollTjeneste;
@@ -183,13 +185,6 @@ public class BehandlingProsesseringTjenesteImpl implements BehandlingProsesserin
     }
 
     @Override
-    public String opprettTasksForFortsettBehandlingSettUtført(Behandling behandling, Optional<AksjonspunktDefinisjon> autopunktUtført) {
-        var taskData = lagTaskData(TASK_FORTSETT, behandling, LocalDateTime.now(), 2);
-        autopunktUtført.ifPresent(apu -> taskData.setProperty(FortsettBehandlingTask.UTFORT_AUTOPUNKT, apu.getKode()));
-        return lagreEnkeltTask(taskData);
-    }
-
-    @Override
     public String opprettTasksForFortsettBehandlingResumeStegNesteKjøring(Behandling behandling, BehandlingStegType stegType,
                                                                           LocalDateTime nesteKjøringEtter) {
         var taskData = lagTaskData(TASK_FORTSETT, behandling, nesteKjøringEtter, 2);
@@ -301,5 +296,19 @@ public class BehandlingProsesseringTjenesteImpl implements BehandlingProsesserin
             .map(ProsessTaskData::getBehandlingIdAsLong)
             .filter(Objects::nonNull)
             .collect(Collectors.toSet());
+    }
+
+    @Override
+    public void enkøBehandling(Behandling behandling) {
+        var lås = behandlingLåsRepository.taLås(behandling.getId());
+        var kontekst = behandlingskontrollTjeneste.initBehandlingskontroll(behandling, lås);
+        behandlingskontrollTjeneste.settBehandlingPåVentUtenSteg(kontekst, behandling, AksjonspunktDefinisjon.AUTO_KØET_BEHANDLING, null, Venteårsak.VENT_ÅPEN_BEHANDLING);
+    }
+
+    @Override
+    public String dekøBehandling(Behandling behandling) {
+        // Bruker task for å unngå låseproblem - siden man her ofte opererer på annenparts køet behandling
+        var taskData = lagTaskData(TASK_DEKØ, behandling, LocalDateTime.now(), 2);
+        return lagreEnkeltTask(taskData);
     }
 }

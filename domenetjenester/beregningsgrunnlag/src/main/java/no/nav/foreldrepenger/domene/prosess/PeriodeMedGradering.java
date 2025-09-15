@@ -1,7 +1,7 @@
 package no.nav.foreldrepenger.domene.prosess;
 
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
-import no.nav.foreldrepenger.domene.modell.kodeverk.AktivitetStatus;
+import no.nav.foreldrepenger.behandlingslager.behandling.beregning.AktivitetStatus;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
