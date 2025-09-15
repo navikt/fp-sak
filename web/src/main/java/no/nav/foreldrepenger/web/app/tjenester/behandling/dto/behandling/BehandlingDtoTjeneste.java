@@ -196,7 +196,6 @@ public class BehandlingDtoTjeneste {
 
         if (behandling.erYtelseBehandling()) {
             dto.leggTil(get(PersonRestTjeneste.PERSONOVERSIKT_PATH, "behandling-personoversikt", uuidDto));
-            dto.leggTil(get(FamiliehendelseRestTjeneste.FAMILIEHENDELSE_V2_PATH, "familiehendelse-v2", uuidDto));
         }
 
         if (BehandlingType.KLAGE.equals(behandling.getType())) {
@@ -371,7 +370,6 @@ public class BehandlingDtoTjeneste {
             dto.leggTil(post(BrevRestTjeneste.BREV_MELLOMLAGRE_OVERSTYRING_PATH, "mellomlagre-brev-overstyring"));
         }
 
-        dto.leggTil(get(FamiliehendelseRestTjeneste.FAMILIEHENDELSE_V2_PATH, "familiehendelse-v2", uuidDto)); // TODO: Kan denne nå fjernes
         dto.leggTil(get(FamiliehendelseRestTjeneste.FAMILIEHENDELSE_V3_PATH, "familiehendelse-v3", uuidDto));
 
         familieHendelseRepository.hentAggregatHvisEksisterer(behandling.getId())
