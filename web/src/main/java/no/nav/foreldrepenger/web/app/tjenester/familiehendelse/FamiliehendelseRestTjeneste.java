@@ -14,6 +14,9 @@ import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.MediaType;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -42,6 +45,8 @@ import no.nav.vedtak.sikkerhet.abac.beskyttet.ResourceType;
 @Transactional
 public class FamiliehendelseRestTjeneste {
 
+
+    private static final Logger LOG = LoggerFactory.getLogger(FamiliehendelseRestTjeneste.class);
     private BehandlingRepository behandlingRepository;
     private BehandlingVedtakRepository behandlingVedtakRepository;
     private FamilieHendelseRepository familieHendelseRepository;
@@ -73,6 +78,7 @@ public class FamiliehendelseRestTjeneste {
         var behandling = behandlingRepository.hentBehandling(uuidDto.getBehandlingUuid());
         var grunnlag = familieHendelseRepository.hentAggregatHvisEksisterer(behandling.getId());
         var vedtaksdato = behandlingVedtakRepository.hentForBehandlingHvisEksisterer(behandling.getId()).map(BehandlingVedtak::getVedtaksdato);
+        LOG.info("Familiehendelse v2 i bruk");
         return FamiliehendelseDataDtoTjeneste.mapGrunnlagFra(grunnlag, vedtaksdato, behandling);
     }
 
