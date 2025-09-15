@@ -71,7 +71,13 @@ public class VurderFagsystemFellesTjeneste {
             return fellesUtils.standardUstrukturertDokumentVurdering(alleBrukersFagsaker).orElse(new BehandlendeFagsystem(MANUELL_VURDERING));
         }
 
-        return håndterHenvendelse(vurderFagsystem, ytelseType, alleBrukersFagsaker);
+        var vurdering = håndterHenvendelse(vurderFagsystem, ytelseType, alleBrukersFagsaker);
+        var tilVedtaksløsningenUtenSaksnummer = VEDTAKSLØSNING.equals(vurdering.behandlendeSystem()) && vurdering.getSaksnummer().isEmpty();
+        if (vurderFagsystem.isOpprettSakVedBehov() && tilVedtaksløsningenUtenSaksnummer) {
+            var fagsak = fagsakTjeneste.opprettFagsak(ytelseType, navBrukerTjeneste.hentEllerOpprettFraAktørId(vurderFagsystem.getAktørId()));
+            return new BehandlendeFagsystem(VEDTAKSLØSNING, fagsak.getSaksnummer());
+        }
+        return vurdering;
     }
 
     private BehandlendeFagsystem vurderSøknadMedSaksnummer(Saksnummer saksnummer) {
@@ -97,14 +103,7 @@ public class VurderFagsystemFellesTjeneste {
         }
 
         if (vurderFagsystem.erStrukturertSøknad()) {
-            var vurdering = vurderFagsystemTjeneste.vurderFagsystemStrukturertSøknad(vurderFagsystem, brukersSakerAvType);
-            var tilVedtaksløsningenUtenSaksnummer = VEDTAKSLØSNING.equals(vurdering.behandlendeSystem()) && vurdering.getSaksnummer().isEmpty();
-            if (vurderFagsystem.isOpprettSakVedBehov() && tilVedtaksløsningenUtenSaksnummer) {
-                // Strukturert søknad uten treff på sak skal ikke ende i vedtaksløsning uten saksnummer
-                var fagsak = fagsakTjeneste.opprettFagsak(ytelseType, navBrukerTjeneste.hentEllerOpprettFraAktørId(vurderFagsystem.getAktørId()));
-                return new BehandlendeFagsystem(VEDTAKSLØSNING, fagsak.getSaksnummer());
-            }
-            return vurdering;
+            return vurderFagsystemTjeneste.vurderFagsystemStrukturertSøknad(vurderFagsystem, brukersSakerAvType);
         }
 
         return vurderFagsystemTjeneste.vurderFagsystemUstrukturert(vurderFagsystem, brukersSakerAvType);
