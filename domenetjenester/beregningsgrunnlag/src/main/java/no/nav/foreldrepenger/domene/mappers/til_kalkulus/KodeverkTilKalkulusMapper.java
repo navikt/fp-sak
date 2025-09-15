@@ -25,7 +25,7 @@ public class KodeverkTilKalkulusMapper {
         // Skjuler default konstruktør
     }
 
-    public static AktivitetStatus mapAktivitetstatus(no.nav.foreldrepenger.domene.modell.kodeverk.AktivitetStatus aktivitetStatus) {
+    public static AktivitetStatus mapAktivitetstatus(no.nav.foreldrepenger.behandlingslager.behandling.beregning.AktivitetStatus aktivitetStatus) {
         return switch (aktivitetStatus) {
             case ARBEIDSAVKLARINGSPENGER -> AktivitetStatus.ARBEIDSAVKLARINGSPENGER;
             case ARBEIDSTAKER -> AktivitetStatus.ARBEIDSTAKER;
