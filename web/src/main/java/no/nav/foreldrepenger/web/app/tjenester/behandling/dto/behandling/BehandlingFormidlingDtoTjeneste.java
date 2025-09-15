@@ -197,7 +197,6 @@ public class BehandlingFormidlingDtoTjeneste {
             return dto;
         }
 
-        dto.leggTil(get(FamiliehendelseRestTjeneste.FAMILIEHENDELSE_V2_PATH, "familiehendelse-v2", uuidDto));
         dto.setFamilieHendelse(utledFamilieHendelse(behandling).orElse(null));
 
         if (BehandlingType.REVURDERING.equals(behandling.getType()) && BehandlingStatus.UTREDES.equals(behandling.getStatus())) {

@@ -1,4 +1,4 @@
-package no.nav.foreldrepenger.familiehendelse.rest;
+package no.nav.foreldrepenger.web.app.tjenester.behandling.ytelsefordeling;
 
 
 import jakarta.validation.constraints.NotNull;
