@@ -55,6 +55,7 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektsmeldingTjeneste;
+import no.nav.foreldrepenger.domene.bruker.NavBrukerTjeneste;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.familiehendelse.FamilieHendelseTjeneste;
@@ -87,6 +88,8 @@ class VurderFagsystemTjenesteForInntektsmeldingTest {
     private FagsakTjeneste fagsakTjenesteMock;
     @Mock
     private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
+    @Mock
+    private NavBrukerTjeneste brukerTjeneste;
 
     private final Fagsak fpFagsakUdefinert = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, lagNavBruker());
 
@@ -108,7 +111,7 @@ class VurderFagsystemTjenesteForInntektsmeldingTest {
         var fellesUtil = new VurderFagsystemFellesUtils(repositoryProvider, familieTjeneste, mottatteDokumentTjenesteMock, inntektsmeldingTjeneste,
             skjæringstidspunktTjeneste, fagsakRelasjonTjeneste);
         var tjenesteFP = new VurderFagsystemTjenesteImpl(fellesUtil);
-        vurderFagsystemTjeneste = new VurderFagsystemFellesTjeneste(fagsakTjenesteMock, fellesUtil, new UnitTestLookupInstanceImpl<>(tjenesteFP), null);
+        vurderFagsystemTjeneste = new VurderFagsystemFellesTjeneste(fagsakTjenesteMock, fellesUtil, new UnitTestLookupInstanceImpl<>(tjenesteFP), brukerTjeneste);
     }
 
     @Test
@@ -345,6 +348,25 @@ class VurderFagsystemTjenesteForInntektsmeldingTest {
         var result = vurderFagsystemTjeneste.vurderFagsystem(fagsystem);
         assertThat(result.behandlendeSystem()).isEqualTo(BehandlendeFagsystem.BehandlendeSystem.VEDTAKSLØSNING);
         assertThat(result.getSaksnummer()).isEmpty();
+    }
+
+    @Test
+    void skalOppretteSakIVLHvisOpprettSakVedBehov() {
+        var fagsystem = byggVurderFagsystemForInntektsmelding(VurderFagsystem.ÅRSAK_NY, BehandlingTema.FORELDREPENGER,
+            LocalDateTime.now(), AktørId.dummy(), JOURNALPOST_ID, ARBEIDSFORHOLDSID, VIRKSOMHETSNUMMER);
+        fagsystem.setStartDatoForeldrepengerInntektsmelding(LocalDate.now());
+        fagsystem.setOpprettSakVedBehov(true);
+        var nySak = new Saksnummer("123456789");
+
+        lenient().when(fagsakRepositoryMock.hentJournalpost(any())).thenReturn(Optional.empty());
+        lenient().when(fagsakRepositoryMock.hentForBruker(any())).thenReturn(Collections.emptyList());
+        when(fagsakTjenesteMock.opprettFagsak(any(), any())).thenReturn(Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, lagNavBruker(), nySak));
+        when(fagsakTjenesteMock.finnFagsakerForAktør(any())).thenReturn(Collections.emptyList());
+        when(brukerTjeneste.hentEllerOpprettFraAktørId(fagsystem.getAktørId())).thenReturn(lagNavBruker());
+
+        var result = vurderFagsystemTjeneste.vurderFagsystem(fagsystem);
+        assertThat(result.behandlendeSystem()).isEqualTo(BehandlendeFagsystem.BehandlendeSystem.VEDTAKSLØSNING);
+        assertThat(result.getSaksnummer()).hasValueSatisfying(s -> assertThat(s).isEqualTo(nySak));
     }
 
     @Test
