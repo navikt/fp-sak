@@ -29,6 +29,7 @@ import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspunkt;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatRepository;
@@ -109,7 +110,9 @@ public class SimulerOppdragSteg implements BehandlingSteg {
     }
 
     @Override
-    public void vedHoppOverBakover(BehandlingskontrollKontekst kontekst, BehandlingStegModell modell, BehandlingStegType tilSteg,
+    public void vedHoppOverBakover(BehandlingskontrollKontekst kontekst,
+                                   BehandlingStegModell modell,
+                                   BehandlingStegType tilSteg,
                                    BehandlingStegType fraSteg) {
         if (!BehandlingStegType.SIMULER_OPPDRAG.equals(tilSteg)) {
             var behandling = behandlingRepository.hentBehandling(kontekst.getBehandlingId());
@@ -126,8 +129,8 @@ public class SimulerOppdragSteg implements BehandlingSteg {
 
     private void opprettFortsettBehandlingTask(Behandling behandling) {
         var nesteKjøringEtter = utledNesteKjøring();
-        behandlingProsesseringTjeneste.opprettTasksForFortsettBehandlingResumeStegNesteKjøring(behandling,
-            BehandlingStegType.SIMULER_OPPDRAG, nesteKjøringEtter);
+        behandlingProsesseringTjeneste.opprettTasksForFortsettBehandlingResumeStegNesteKjøring(behandling, BehandlingStegType.SIMULER_OPPDRAG,
+            nesteKjøringEtter);
     }
 
     private BehandleStegResultat utledAksjonspunkt(Behandling behandling) {
@@ -138,7 +141,8 @@ public class SimulerOppdragSteg implements BehandlingSteg {
             aksjonspunkter.add(AksjonspunktDefinisjon.KONTROLLER_STOR_ETTERBETALING_SØKER);
         }
 
-        var simuleringResultatDto = simuleringIntegrasjonTjeneste.hentResultat(behandling.getId(), behandling.getUuid(), behandling.getSaksnummer().getVerdi());
+        var simuleringResultatDto = simuleringIntegrasjonTjeneste.hentResultat(behandling.getId(), behandling.getUuid(),
+            behandling.getSaksnummer().getVerdi());
         if (simuleringResultatDto.isPresent()) {
             var resultatDto = simuleringResultatDto.get();
             lagreBrukInntrekk(behandling, resultatDto);
@@ -155,28 +159,31 @@ public class SimulerOppdragSteg implements BehandlingSteg {
         return BehandleStegResultat.utførtMedAksjonspunkter(aksjonspunkter);
     }
 
-    private static void loggEtterbetalingVedFlereGrenseverdier(Behandling behandling, ArrayList<AksjonspunktDefinisjon> aksjonspunkter, Optional<EtterbetalingskontrollResultat> etterbetalingskontrollResultatOpt) {
+    private static void loggEtterbetalingVedFlereGrenseverdier(Behandling behandling,
+                                                               ArrayList<AksjonspunktDefinisjon> aksjonspunkter,
+                                                               Optional<EtterbetalingskontrollResultat> etterbetalingskontrollResultatOpt) {
         try {
             if (etterbetalingskontrollResultatOpt.isEmpty()) {
                 return;
             }
 
-            var harAndreAksjonspunkt = Stream.concat(behandling.getAksjonspunkter().stream().map(Aksjonspunkt::getAksjonspunktDefinisjon), aksjonspunkter.stream())
+            var harAndreAksjonspunkt = Stream.concat(behandling.getAksjonspunkter().stream().map(Aksjonspunkt::getAksjonspunktDefinisjon),
+                    aksjonspunkter.stream())
                 .filter(other -> !AksjonspunktDefinisjon.KONTROLLER_STOR_ETTERBETALING_SØKER.equals(other))
                 .anyMatch(aksjonspunkt -> !aksjonspunkt.erAutopunkt());
 
             var etterbetalingssum = etterbetalingskontrollResultatOpt.get().etterbetalingssum();
             var behandlingÅrsakerStreng = behandlingsårsakerString(behandling);
-            if (etterbetalingssum.compareTo(BigDecimal.valueOf(60_000)) > 0 ) {
+            if (etterbetalingssum.compareTo(BigDecimal.valueOf(60_000)) > 0) {
                 Metrics.counter(COUNTER_ETTERBETALING_NAME, lagTagsForCounter(behandling, harAndreAksjonspunkt, "over_60")).increment();
                 LOG.info("Stor etterbetaling til søker over 60_000 med årsaker {}", behandlingÅrsakerStreng);
-            } else if (etterbetalingssum.compareTo(BigDecimal.valueOf(30_000)) > 0 ) {
+            } else if (etterbetalingssum.compareTo(BigDecimal.valueOf(30_000)) > 0) {
                 Metrics.counter(COUNTER_ETTERBETALING_NAME, lagTagsForCounter(behandling, harAndreAksjonspunkt, "mellom_60_og_30")).increment();
                 LOG.info("Stor etterbetaling til søker over 30_000 med årsaker {}", behandlingÅrsakerStreng);
-            } else if (etterbetalingssum.compareTo(BigDecimal.valueOf(10_000)) > 0 ) {
+            } else if (etterbetalingssum.compareTo(BigDecimal.valueOf(10_000)) > 0) {
                 Metrics.counter(COUNTER_ETTERBETALING_NAME, lagTagsForCounter(behandling, harAndreAksjonspunkt, "mellom_30_og_10")).increment();
                 LOG.info("Stor etterbetaling til søker over 10_000 med årsaker {}", behandlingÅrsakerStreng);
-            } else if (etterbetalingssum.compareTo(BigDecimal.ZERO) > 0 ) {
+            } else if (etterbetalingssum.compareTo(BigDecimal.ZERO) > 0) {
                 Metrics.counter(COUNTER_ETTERBETALING_NAME, lagTagsForCounter(behandling, harAndreAksjonspunkt, "over_0_under_10")).increment();
             }
         } catch (Exception e) {
@@ -195,7 +202,8 @@ public class SimulerOppdragSteg implements BehandlingSteg {
     }
 
     private static String behandlingsårsakerString(Behandling behandling) {
-        return behandling.getBehandlingÅrsaker().stream()
+        return behandling.getBehandlingÅrsaker()
+            .stream()
             .map(årsak -> årsak.getBehandlingÅrsakType().getKode())
             .sorted()
             .collect(Collectors.joining(","));
@@ -205,12 +213,20 @@ public class SimulerOppdragSteg implements BehandlingSteg {
         if (behandling.getFagsakYtelseType().equals(FagsakYtelseType.ENGANGSTØNAD)) {
             return Optional.empty(); // Ikke relevant for ES
         }
-        var utbetResultat = beregningsresultatRepository.hentUtbetBeregningsresultat(behandling.getId());
         // Ingen utbetaling i denne behandlingen, vil ikke bli etterbetaling
-        return utbetResultat.flatMap(beregningsresultatEntitet -> behandling.getOriginalBehandlingId()
-            .flatMap(orgId -> beregningsresultatRepository.hentUtbetBeregningsresultat(orgId)
-                .map(forrigeRes -> Etterbetalingtjeneste.finnSumSomVilBliEtterbetalt(LocalDate.now(), forrigeRes, beregningsresultatEntitet))));
+        var utbetResultat = beregningsresultatRepository.hentUtbetBeregningsresultat(behandling.getId());
 
+        // For å ikke stoppe unødig mange saker ifm revurderinger forårsaket av praksisendring for AAP status beregning har disse behandlingene egen grense
+        var erBehandlingSomSkalTåleHøyereEtterbetaling = behandling.harBehandlingÅrsak(BehandlingÅrsakType.FEIL_PRAKSIS_BG_AAP_KOMBI);
+
+        return utbetResultat.flatMap(beregningsresultatEntitet -> behandling.getOriginalBehandlingId()
+            .flatMap(orgId -> beregningsresultatRepository.hentUtbetBeregningsresultat(orgId).map(forrigeRes -> {
+                if (erBehandlingSomSkalTåleHøyereEtterbetaling) {
+                    return Etterbetalingtjeneste.finnSumSomVilBliEtterbetalt(LocalDate.now(), forrigeRes, beregningsresultatEntitet, BigDecimal.valueOf(60_000));
+                } else {
+                    return Etterbetalingtjeneste.finnSumSomVilBliEtterbetalt(LocalDate.now(), forrigeRes, beregningsresultatEntitet);
+                }
+            })));
     }
 
     private void lagreBrukInntrekk(Behandling behandling, SimuleringResultatDto resultatDto) {
@@ -241,8 +257,10 @@ public class SimulerOppdragSteg implements BehandlingSteg {
     private boolean kanOppdatereEksisterendeTilbakekrevingsbehandling(Behandling behandling, SimuleringResultatDto simuleringResultatDto) {
         var harÅpenTilbakekreving = harÅpenTilbakekreving(behandling);
         if (!harÅpenTilbakekreving && SimuleringIntegrasjonTjeneste.harFeilutbetaling(simuleringResultatDto)) {
-            LOG.info("Saksnummer {} har ikke åpen tilbakekreving og det er identifisert feilutbetaling. Simuleringsresultat: sumFeilutbetaling={}, sumInntrekk={}, slåttAvInntrekk={}",
-                behandling.getSaksnummer(), simuleringResultatDto.sumFeilutbetaling(), simuleringResultatDto.sumInntrekk(), simuleringResultatDto.slåttAvInntrekk());
+            LOG.info(
+                "Saksnummer {} har ikke åpen tilbakekreving og det er identifisert feilutbetaling. Simuleringsresultat: sumFeilutbetaling={}, sumInntrekk={}, slåttAvInntrekk={}",
+                behandling.getSaksnummer(), simuleringResultatDto.sumFeilutbetaling(), simuleringResultatDto.sumInntrekk(),
+                simuleringResultatDto.slåttAvInntrekk());
         }
         return harÅpenTilbakekreving && simuleringResultatDto.sumFeilutbetaling() != 0;
     }
