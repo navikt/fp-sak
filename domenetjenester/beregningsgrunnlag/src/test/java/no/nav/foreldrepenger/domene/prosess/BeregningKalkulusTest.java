@@ -27,11 +27,10 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
-import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagKobling;
-import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagKoblingRepository;
+import no.nav.foreldrepenger.behandlingslager.beregningsgrunnlag.BeregningsgrunnlagKobling;
+import no.nav.foreldrepenger.behandlingslager.beregningsgrunnlag.BeregningsgrunnlagKoblingRepository;
 import no.nav.foreldrepenger.domene.fp.BesteberegningFødendeKvinneTjeneste;
 import no.nav.foreldrepenger.domene.mappers.KalkulusInputTjeneste;
-import no.nav.foreldrepenger.domene.modell.kodeverk.BeregningsgrunnlagTilstand;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
@@ -48,12 +47,14 @@ class BeregningKalkulusTest {
     private BesteberegningFødendeKvinneTjeneste besteberegningFødendeKvinneTjeneste;
     @Mock
     private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
+    @Mock
+    private AapPraksisendringTjeneste fullAapAnnenStatusLoggTjeneste;
 
     private BeregningKalkulus beregningKalkulus;
 
     @BeforeEach
     void setup() {
-        beregningKalkulus = new BeregningKalkulus(kalkulusKlient, kalkulusInputTjeneste, koblingRepository, besteberegningFødendeKvinneTjeneste, skjæringstidspunktTjeneste);
+        beregningKalkulus = new BeregningKalkulus(kalkulusKlient, kalkulusInputTjeneste, koblingRepository, besteberegningFødendeKvinneTjeneste, skjæringstidspunktTjeneste, fullAapAnnenStatusLoggTjeneste);
     }
 
     @Test
@@ -61,14 +62,14 @@ class BeregningKalkulusTest {
         // Arrange
         var behandlingReferanse = lagRef();
         when(koblingRepository.hentKobling(behandlingReferanse.behandlingId())).thenReturn(Optional.empty());
-        when(koblingRepository.opprettKobling(behandlingReferanse)).thenReturn(new BeregningsgrunnlagKobling(behandlingReferanse
+        when(koblingRepository.opprettKobling(behandlingReferanse.behandlingId(), behandlingReferanse.behandlingUuid())).thenReturn(new BeregningsgrunnlagKobling(behandlingReferanse
             .behandlingId(), behandlingReferanse.behandlingUuid()));
         when(kalkulusKlient.beregn(any())).thenReturn(new KalkulusRespons(List.of(), new KalkulusRespons.VilkårRespons(true, "", "", "")));
         // Act
         beregningKalkulus.beregn(behandlingReferanse, BehandlingStegType.FASTSETT_SKJÆRINGSTIDSPUNKT_BEREGNING);
 
         // Assert
-        verify(koblingRepository, times(1)).opprettKobling(behandlingReferanse);
+        verify(koblingRepository, times(1)).opprettKobling(behandlingReferanse.behandlingId(), behandlingReferanse.behandlingUuid());
         verify(kalkulusKlient, times(1)).beregn(any());
     }
 
@@ -94,7 +95,7 @@ class BeregningKalkulusTest {
         beregningKalkulus.beregn(behandlingReferanse, BehandlingStegType.FORESLÅ_BEREGNINGSGRUNNLAG);
 
         // Assert
-        verify(koblingRepository, times(0)).opprettKobling(behandlingReferanse);
+        verify(koblingRepository, times(0)).opprettKobling(behandlingReferanse.behandlingId(), behandlingReferanse.behandlingUuid());
         verify(kalkulusKlient, times(1)).beregn(any());
     }
 
@@ -109,10 +110,10 @@ class BeregningKalkulusTest {
             .behandlingId(), behandlingReferanse2.behandlingUuid())));
 
         // Act
-        beregningKalkulus.kopier(behandlingReferanse, behandlingReferanse2, BeregningsgrunnlagTilstand.FASTSATT);
+        beregningKalkulus.kopierFastsatt(behandlingReferanse, behandlingReferanse2);
 
         // Assert
-        verify(kalkulusKlient, times(1)).kopierGrunnlag(any());
+        verify(kalkulusKlient, times(1)).kopierFastsattGrunnlag(any());
     }
 
     @Test
@@ -122,7 +123,7 @@ class BeregningKalkulusTest {
         var behandlingReferanse2 = lagRef(2L, "321");
 
         // Act + Assert
-        assertThrows(IllegalStateException.class, () -> beregningKalkulus.kopier(behandlingReferanse, behandlingReferanse2, BeregningsgrunnlagTilstand.FASTSATT));
+        assertThrows(IllegalStateException.class, () -> beregningKalkulus.kopierFastsatt(behandlingReferanse, behandlingReferanse2));
     }
 
     @Test

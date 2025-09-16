@@ -7,26 +7,24 @@ import java.util.Optional;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.ws.rs.core.UriBuilder;
 
-import no.nav.folketrygdloven.kalkulus.migrering.MigrerBeregningsgrunnlagRequest;
-import no.nav.folketrygdloven.kalkulus.migrering.MigrerBeregningsgrunnlagResponse;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import no.nav.folketrygdloven.kalkulus.request.v1.enkel.EnkelBeregnRequestDto;
 import no.nav.folketrygdloven.kalkulus.request.v1.enkel.EnkelFpkalkulusRequestDto;
 import no.nav.folketrygdloven.kalkulus.request.v1.enkel.EnkelGrunnlagTilstanderRequestDto;
 import no.nav.folketrygdloven.kalkulus.request.v1.enkel.EnkelHentBeregningsgrunnlagGUIRequest;
 import no.nav.folketrygdloven.kalkulus.request.v1.enkel.EnkelHåndterBeregningRequestDto;
 import no.nav.folketrygdloven.kalkulus.request.v1.enkel.EnkelKopierBeregningsgrunnlagRequestDto;
-import no.nav.folketrygdloven.kalkulus.response.v1.besteberegning.BesteberegningGrunnlagDto;
-import no.nav.folketrygdloven.kalkulus.response.v1.tilstander.TilgjengeligeTilstanderDto;
-import no.nav.vedtak.exception.TekniskException;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
+import no.nav.folketrygdloven.kalkulus.request.v1.enkel.KopierFastsattGrunnlagRequest;
 import no.nav.folketrygdloven.kalkulus.response.v1.TilstandResponse;
 import no.nav.folketrygdloven.kalkulus.response.v1.beregningsgrunnlag.detaljert.BeregningsgrunnlagGrunnlagDto;
 import no.nav.folketrygdloven.kalkulus.response.v1.beregningsgrunnlag.gui.BeregningsgrunnlagDto;
+import no.nav.folketrygdloven.kalkulus.response.v1.besteberegning.BesteberegningGrunnlagDto;
 import no.nav.folketrygdloven.kalkulus.response.v1.håndtering.OppdateringRespons;
+import no.nav.folketrygdloven.kalkulus.response.v1.tilstander.TilgjengeligeTilstanderDto;
 import no.nav.foreldrepenger.domene.mappers.BeregningAksjonspunktResultatMapper;
+import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.felles.integrasjon.rest.FpApplication;
 import no.nav.vedtak.felles.integrasjon.rest.RestClient;
 import no.nav.vedtak.felles.integrasjon.rest.RestClientConfig;
@@ -44,11 +42,11 @@ public class KalkulusKlient {
     private URI hentGrunnlagGui;
     private URI hentGrunnlagBesteberegning;
     private URI kopierGrunnlag;
+    private URI kopierFastsattGrunnlag;
     private URI avklaringsbehov;
     private URI deatkvier;
     private URI tilstand;
     private URI avslutt;
-    private URI migrer;
     private final RestClient restClient;
     private final RestConfig restConfig;
 
@@ -61,10 +59,10 @@ public class KalkulusKlient {
         this.hentGrunnlagBesteberegning = toUri(restConfig.fpContextPath(), "/api/kalkulus/v1/grunnlag/besteberegning");
         this.tilstand = toUri(restConfig.fpContextPath(), "/api/kalkulus/v1/grunnlag/tilstander");
         this.kopierGrunnlag = toUri(restConfig.fpContextPath(), "/api/kalkulus/v1/kopier");
+        this.kopierFastsattGrunnlag = toUri(restConfig.fpContextPath(), "/api/kalkulus/v1/kopier-fastsatt");
         this.avklaringsbehov = toUri(restConfig.fpContextPath(), "/api/kalkulus/v1/avklaringsbehov");
         this.deatkvier = toUri(restConfig.fpContextPath(), "/api/kalkulus/v1/deaktiver");
         this.avslutt = toUri(restConfig.fpContextPath(), "/api/kalkulus/v1/avslutt");
-        this.migrer = toUri(restConfig.fpContextPath(), "/api/kalkulus/v1/migrer");
     }
 
     public KalkulusRespons beregn(EnkelBeregnRequestDto request) {
@@ -109,6 +107,15 @@ public class KalkulusKlient {
         }
     }
 
+    public void kopierFastsattGrunnlag(KopierFastsattGrunnlagRequest request) {
+        LOG.info("Kopierer fastsatt grunnlag i fpkalkulus");
+        var restRequest = RestRequest.newPOSTJson(request, kopierFastsattGrunnlag, restConfig);
+        var respons = restClient.sendReturnUnhandled(restRequest);
+        if (respons.statusCode() != HttpURLConnection.HTTP_OK) {
+            throw new IllegalStateException("Feil ved kopiering av fastsatt grunnlag i fpkalkulus");
+        }
+    }
+
     public OppdateringRespons løsAvklaringsbehov(EnkelHåndterBeregningRequestDto request) {
         LOG.info("Løser avklaringsbehov i fpkalkulus");
         var restRequest = RestRequest.newPOSTJson(request, avklaringsbehov, restConfig);
@@ -117,7 +124,6 @@ public class KalkulusKlient {
         } catch (Exception e) {
             throw new TekniskException("FP-503800", "Feil ved kall til fpkalkulus: " + e);
         }
-
     }
 
     public void deaktiverGrunnlag(EnkelFpkalkulusRequestDto request) {
@@ -135,16 +141,6 @@ public class KalkulusKlient {
         var respons = restClient.sendReturnUnhandled(restRequest);
         if (respons.statusCode() != HttpURLConnection.HTTP_OK) {
             throw new IllegalStateException("Feil ved avslutning av grunnlag i fpkalkulus");
-        }
-    }
-
-    public MigrerBeregningsgrunnlagResponse migrerGrunnlag(MigrerBeregningsgrunnlagRequest request) {
-        var restRequest = RestRequest.newPOSTJson(request, migrer, restConfig);
-        try {
-            return restClient.sendReturnOptional(restRequest, MigrerBeregningsgrunnlagResponse.class).orElseThrow(() -> new TekniskException("FP-503910", "Tomt resultat etter migrering til kalkulus, ugyldig respons"));
-        }
-        catch (Exception e) {
-            throw new TekniskException("FP-503900", "Feil under migrering til kalkulus: " + e);
         }
     }
 
@@ -166,6 +162,4 @@ public class KalkulusKlient {
             throw new IllegalArgumentException("Ugyldig uri: " + endpointURI + path, e);
         }
     }
-
-
 }

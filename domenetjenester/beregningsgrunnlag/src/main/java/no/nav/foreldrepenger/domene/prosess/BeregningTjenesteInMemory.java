@@ -15,7 +15,6 @@ import no.nav.foreldrepenger.behandling.aksjonspunkt.OverstyringAksjonspunktDto;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.domene.aksjonspunkt.OppdaterBeregningsgrunnlagResultat;
 import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagGrunnlag;
-import no.nav.foreldrepenger.domene.modell.kodeverk.BeregningsgrunnlagTilstand;
 import no.nav.foreldrepenger.domene.output.BeregningsgrunnlagVilkårOgAkjonspunktResultat;
 
 @RequestScoped
@@ -49,10 +48,13 @@ public class BeregningTjenesteInMemory implements BeregningTjeneste {
     }
 
     @Override
-    public void kopier(BehandlingReferanse revurdering, BehandlingReferanse originalbehandling, BeregningsgrunnlagTilstand tilstand) {
-        if (!BeregningsgrunnlagTilstand.FASTSATT.equals(tilstand)) {
-            throw new IllegalStateException("Støtter kun kopiering av fastsatte grunnlag!");
-        }
+    public void kopier(BehandlingReferanse revurdering, BehandlingReferanse originalbehandling, BehandlingStegType stegType) {
+        var originaltGr = hent(originalbehandling);
+        originaltGr.ifPresent(gr -> lagre(gr, revurdering));
+    }
+
+    @Override
+    public void kopierFastsatt(BehandlingReferanse revurdering, BehandlingReferanse originalbehandling) {
         var originaltGr = hent(originalbehandling);
         originaltGr.ifPresent(gr -> lagre(gr, revurdering));
     }

@@ -1,5 +1,6 @@
 package no.nav.foreldrepenger.behandlingslager.behandling.klage;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -56,6 +57,9 @@ public class KlageFormkravEntitet extends BaseEntitet {
     @Column(name = "begrunnelse", nullable = false)
     private String begrunnelse;
 
+    @Column(name = "mottatt_dato")
+    private LocalDate mottattDato;
+
     public KlageFormkravEntitet() {
         // Hibernate
     }
@@ -69,6 +73,7 @@ public class KlageFormkravEntitet extends BaseEntitet {
         this.erKonkret = entitet.erKonkret;
         this.erSignert = entitet.erSignert;
         this.begrunnelse = entitet.begrunnelse;
+        this.mottattDato = entitet.mottattDato;
     }
 
     public void setKlageVurdertAv(KlageVurdertAv klageVurdertAv) {
@@ -97,6 +102,10 @@ public class KlageFormkravEntitet extends BaseEntitet {
 
     public void setBegrunnelse(String begrunnelse) {
         this.begrunnelse = begrunnelse;
+    }
+
+    public void setMottattDato(LocalDate mottattDato) {
+        this.mottattDato = mottattDato;
     }
 
     public Long hentId() {
@@ -133,6 +142,10 @@ public class KlageFormkravEntitet extends BaseEntitet {
 
     public String hentBegrunnelse() {
         return begrunnelse;
+    }
+
+    public LocalDate getMottattDato() {
+        return mottattDato;
     }
 
     public List<KlageAvvistÅrsak> hentAvvistÅrsaker() {
@@ -174,12 +187,13 @@ public class KlageFormkravEntitet extends BaseEntitet {
             erKonkret == that.erKonkret &&
             erSignert == that.erSignert &&
             klageVurdertAv == that.klageVurdertAv &&
-            Objects.equals(begrunnelse, that.begrunnelse);
+            Objects.equals(begrunnelse, that.begrunnelse) &&
+            Objects.equals(mottattDato, that.mottattDato);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(klageResultat, klageVurdertAv, gjelderVedtak, erKlagerPart, erFristOverholdt, erKonkret, erSignert, begrunnelse);
+        return Objects.hash(klageResultat, klageVurdertAv, gjelderVedtak, erKlagerPart, erFristOverholdt, erKonkret, erSignert, begrunnelse, mottattDato);
     }
 
     public static Builder builder() {
@@ -241,6 +255,11 @@ public class KlageFormkravEntitet extends BaseEntitet {
             return this;
         }
 
+        public Builder medMottattDato(LocalDate mottattDato) {
+            klageFormkravEntitetMal.mottattDato = mottattDato;
+            return this;
+        }
+
         public KlageFormkravEntitet build() {
             verifyStateForBuild();
             return klageFormkravEntitetMal;
@@ -269,6 +288,7 @@ public class KlageFormkravEntitet extends BaseEntitet {
             + "erKonkret=" + erKonkret() + ", "
             + "erSignert=" + erSignert() + ", "
             + "begrunnelse=" + hentBegrunnelse() + ", "
+            + "mottattDato=" + getMottattDato() + ", "
             + ">";
     }
 

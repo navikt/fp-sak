@@ -79,7 +79,7 @@ class KøKontrollerTest {
         // Assert
         Mockito.verify(behandlingsoppretter, times(0)).oppdaterBehandlingViaHenleggelse(any(), any());
         Mockito.verify(ytelsesFordelingRepository, times(0)).kopierGrunnlagFraEksisterendeBehandling(any(), any());
-        Mockito.verify(behandlingProsesseringTjeneste).opprettTasksForFortsettBehandlingSettUtført(eq(morKøetBehandling), any());
+        Mockito.verify(behandlingProsesseringTjeneste).dekøBehandling(eq(morKøetBehandling));
     }
 
     @Test

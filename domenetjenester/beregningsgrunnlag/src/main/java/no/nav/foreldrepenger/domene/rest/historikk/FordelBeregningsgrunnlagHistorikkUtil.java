@@ -16,8 +16,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.Skjermlenke
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.OrgNummer;
 import no.nav.foreldrepenger.domene.aksjonspunkt.BeregningsgrunnlagPeriodeEndring;
-import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagPeriode;
-import no.nav.foreldrepenger.domene.modell.kodeverk.Inntektskategori;
+import no.nav.foreldrepenger.behandlingslager.behandling.beregning.Inntektskategori;
 import no.nav.foreldrepenger.domene.rest.dto.fordeling.FordelBeregningsgrunnlagAndelDto;
 import no.nav.foreldrepenger.domene.rest.dto.fordeling.FordelBeregningsgrunnlagPeriodeDto;
 import no.nav.foreldrepenger.domene.typer.AktørId;
@@ -35,14 +34,6 @@ public final class FordelBeregningsgrunnlagHistorikkUtil {
                 .medLinjer(linjeBuilder);
         }
         return Optional.ofNullable(historikkinnslagBuilder);
-    }
-
-    public static BeregningsgrunnlagPeriode getKorrektPeriode(List<BeregningsgrunnlagPeriode> perioder,
-                                                              FordelBeregningsgrunnlagPeriodeDto endretPeriode) {
-        return perioder.stream()
-            .filter(periode -> periode.getBeregningsgrunnlagPeriodeFom().equals(endretPeriode.getFom()))
-            .findFirst()
-            .orElseThrow(() -> new IllegalStateException("Finner ikke periode"));
     }
 
     public static BeregningsgrunnlagPeriodeEndring getKorrektPeriodeEndring(List<BeregningsgrunnlagPeriodeEndring> perioder,

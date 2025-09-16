@@ -30,6 +30,10 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 @ProsessTask(value = "iverksetteVedtak.håndterOverlappPleiepenger", prioritet = 2, maxFailedRuns = 1)
 @FagsakProsesstaskRekkefølge(gruppeSekvens = false)
 public class HåndterOverlappPleiepengerTask extends GenerellProsessTask {
+
+    private static final Set<Ytelser> PLEIEPENGER = Set.of(Ytelser.PLEIEPENGER_SYKT_BARN,
+        Ytelser.PLEIEPENGER_NÆRSTÅENDE, Ytelser.OPPLÆRINGSPENGER);
+
     private HåndterOpphørAvYtelser tjeneste;
     private AbakusTjeneste abakusTjeneste;
     private FagsakRepository fagsakRepository;
@@ -83,14 +87,13 @@ public class HåndterOverlappPleiepengerTask extends GenerellProsessTask {
     }
 
     private List<YtelseV1> hentYtelser(AktørId aktørId, LocalDate tidligsteTilkjent) {
-        var request = AbakusTjeneste.lagRequestForHentVedtakFom(aktørId, tidligsteTilkjent,
-            Set.of(Ytelser.PLEIEPENGER_SYKT_BARN, Ytelser.PLEIEPENGER_NÆRSTÅENDE));
+        var request = AbakusTjeneste.lagRequestForHentVedtakFom(aktørId, tidligsteTilkjent, PLEIEPENGER);
 
         return abakusTjeneste.hentVedtakForAktørId(request)
             .stream()
             .map(y -> (YtelseV1) y)
             .filter(y -> Kildesystem.K9SAK.equals(y.getKildesystem()))
-            .filter(y -> Ytelser.PLEIEPENGER_SYKT_BARN.equals(y.getYtelse()) || Ytelser.PLEIEPENGER_NÆRSTÅENDE.equals(y.getYtelse()))
+            .filter(y -> PLEIEPENGER.contains(y.getYtelse()))
             .toList();
     }
 }

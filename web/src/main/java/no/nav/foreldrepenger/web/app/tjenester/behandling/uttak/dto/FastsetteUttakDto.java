@@ -58,6 +58,7 @@ public abstract class FastsetteUttakDto extends BekreftetAksjonspunktDto {
 
     }
 
+    @Deprecated // TODO: TFP-6302: Opprydding
     @JsonTypeName(AksjonspunktKodeDefinisjon.KONTROLLER_ANNENPART_EØS_KODE)
     public static class FastsetteUttakKontrollerAnnenpartEØSDto extends FastsetteUttakDto {
 

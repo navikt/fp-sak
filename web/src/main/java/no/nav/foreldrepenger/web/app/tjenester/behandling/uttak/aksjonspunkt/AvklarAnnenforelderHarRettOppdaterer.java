@@ -1,9 +1,5 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.aksjonspunkt;
 
-import static java.lang.Boolean.TRUE;
-
-import java.util.stream.Stream;
-
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
@@ -14,7 +10,9 @@ import no.nav.foreldrepenger.behandling.aksjonspunkt.OppdateringResultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
 import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.SkjermlenkeType;
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.Rettighetstype;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.app.FaktaOmsorgRettTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto.AvklarAnnenforelderHarRettDto;
 
@@ -37,28 +35,31 @@ public class AvklarAnnenforelderHarRettOppdaterer implements AksjonspunktOppdate
 
     @Override
     public OppdateringResultat oppdater(AvklarAnnenforelderHarRettDto dto, AksjonspunktOppdaterParameter param) {
-        var annenforelderHarRett = dto.getAnnenforelderHarRett();
-        var annenForelderHarRettEØS =
-            TRUE.equals(annenforelderHarRett) && dto.getAnnenForelderHarRettEØS() != null ? Boolean.FALSE : dto.getAnnenForelderHarRettEØS();
-        var totrinn = faktaOmsorgRettTjeneste.totrinnForAnnenforelderRett(param, annenforelderHarRett, dto.getAnnenforelderMottarUføretrygd(),
-            annenForelderHarRettEØS);
-        oppretHistorikkinnslag(dto, param, annenforelderHarRett, annenForelderHarRettEØS);
+        var rettighetstype = utledRettighetstype(param.getRef().relasjonRolle(), dto);
+        var totrinn = faktaOmsorgRettTjeneste.totrinnForRettighetsavklaring(param, rettighetstype);
+        oppretHistorikkinnslag(param, rettighetstype, dto.getBegrunnelse());
 
-        faktaOmsorgRettTjeneste.oppdaterAnnenforelderRett(param, annenforelderHarRett, dto.getAnnenforelderMottarUføretrygd(),
-            annenForelderHarRettEØS);
-
+        faktaOmsorgRettTjeneste.avklarRettighet(param, rettighetstype);
 
         return OppdateringResultat.utenTransisjon().medTotrinnHvis(totrinn).build();
     }
 
-    private void oppretHistorikkinnslag(AvklarAnnenforelderHarRettDto dto,
-                                        AksjonspunktOppdaterParameter param,
-                                        Boolean annenforelderHarRett,
-                                        Boolean annenForelderHarRettEØS) {
-        var historikkinnslagLinjer = Stream.concat(
-                faktaOmsorgRettTjeneste.annenforelderRettHistorikkLinjer(param, annenforelderHarRett, dto.getAnnenforelderMottarUføretrygd(),
-                    annenForelderHarRettEØS).stream(), faktaOmsorgRettTjeneste.omsorgRettHistorikkLinje(param, dto.getBegrunnelse()).stream())
-            .toList();
+    private Rettighetstype utledRettighetstype(RelasjonsRolleType relasjonsRolleType, AvklarAnnenforelderHarRettDto dto) {
+        if (dto.getAnnenforelderHarRett()) {
+            return Rettighetstype.BEGGE_RETT;
+        } else if (Boolean.TRUE.equals(dto.getAnnenForelderHarRettEØS())) {
+            return Rettighetstype.BEGGE_RETT_EØS;
+        } else if (Boolean.TRUE.equals(dto.getAnnenforelderMottarUføretrygd())) {
+            return Rettighetstype.BARE_FAR_RETT_MOR_UFØR;
+        } else {
+            return relasjonsRolleType.erFarEllerMedMor() ? Rettighetstype.BARE_FAR_RETT : Rettighetstype.BARE_MOR_RETT;
+        }
+    }
+
+    private void oppretHistorikkinnslag(AksjonspunktOppdaterParameter param,
+                                        Rettighetstype rettighetstype,
+                                        String begrunnelse) {
+        var historikkinnslagLinjer = faktaOmsorgRettTjeneste.annenForelderRettAvklaringHistorikkLinjer(rettighetstype, begrunnelse);
 
         var historikkinnslag = new Historikkinnslag.Builder().medAktør(HistorikkAktør.SAKSBEHANDLER)
             .medFagsakId(param.getFagsakId())

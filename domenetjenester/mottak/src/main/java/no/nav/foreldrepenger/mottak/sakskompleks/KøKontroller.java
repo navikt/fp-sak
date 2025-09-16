@@ -12,7 +12,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.behandling.SpesialBehandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
-import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Venteårsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadEntitet;
@@ -83,21 +82,28 @@ public class KøKontroller {
     }
 
     public void enkøBehandling(Behandling behandling) {
-        behandlingProsesseringTjeneste.settBehandlingPåVentUtenSteg(behandling, AksjonspunktDefinisjon.AUTO_KØET_BEHANDLING, null, Venteårsak.VENT_ÅPEN_BEHANDLING);
+        behandlingProsesseringTjeneste.enkøBehandling(behandling);
     }
 
     public void submitBerørtBehandling(Behandling behandling, Optional<Behandling> åpenBehandling) {
         if (!behandling.harNoenBehandlingÅrsaker(BehandlingÅrsakType.alleTekniskeÅrsaker())) throw new IllegalArgumentException("Behandling er ikke berørt");
-        åpenBehandling.ifPresent(b -> behandlingProsesseringTjeneste.settBehandlingPåVentUtenSteg(b, AksjonspunktDefinisjon.AUTO_KØET_BEHANDLING, null, Venteårsak.VENT_ÅPEN_BEHANDLING));
+        åpenBehandling.ifPresent(b -> behandlingProsesseringTjeneste.enkøBehandling(b));
         behandlingProsesseringTjeneste.opprettTasksForStartBehandling(behandling);
     }
 
+    // Ta høyde for ikke-køet revurdering og køet førstegangsbehandling. Ikke forutsett køing utelukkende bak berørt eller annenpart.
+    // Koden as-is forutsetter en-og-en berørt (disse setter andre i kø).
     public void håndterSakskompleks(Fagsak fagsak) {
+        var aktivBehandling = behandlingRevurderingTjeneste.finnÅpenYtelsesbehandling(fagsak.getId());
+        var aktivBehandlingMedforelder = behandlingRevurderingTjeneste.finnÅpenBehandlingMedforelder(fagsak);
+        if (aktivBehandling.isPresent() || aktivBehandlingMedforelder.isPresent()) {
+            return;
+        }
         var køetBehandling = behandlingRevurderingTjeneste.finnKøetYtelsesbehandling(fagsak.getId());
         var køetBehandlingMedforelder = behandlingRevurderingTjeneste.finnKøetBehandlingMedforelder(fagsak);
         var køetBerørt = sjekkKøetBerørt(køetBehandling, køetBehandlingMedforelder);
         if (køetBerørt.isPresent()) {
-            behandlingProsesseringTjeneste.opprettTasksForFortsettBehandlingSettUtført(køetBerørt.get(), Optional.of(AksjonspunktDefinisjon.AUTO_KØET_BEHANDLING));
+            behandlingProsesseringTjeneste.dekøBehandling(køetBerørt.get());
             return;
         }
         var nesteBehandling = finnTidligsteSøknad(køetBehandling, køetBehandlingMedforelder)
@@ -106,7 +112,7 @@ public class KøKontroller {
             if (skalOppdatereKøetBehandling(b)) {
                 lagreOppdaterKøetProsesstask(b);
             } else {
-                behandlingProsesseringTjeneste.opprettTasksForFortsettBehandlingSettUtført(b, Optional.of(AksjonspunktDefinisjon.AUTO_KØET_BEHANDLING));
+                behandlingProsesseringTjeneste.dekøBehandling(b);
             }
         });
     }
@@ -121,6 +127,7 @@ public class KøKontroller {
         return ts1.isPresent() ? behandling1 : behandling2;
     }
 
+    // OBS: Filter i tilfelle førstegang - de har ikke behandlingsårsak (dvs førstegang eller årsak endring)
     private Optional<Behandling> finnTidligsteSøknad(Optional<Behandling> behandling1, Optional<Behandling> behandling2) {
         var ts1 = behandling1.filter(b -> b.harBehandlingÅrsak(BehandlingÅrsakType.RE_ENDRING_FRA_BRUKER))
             .flatMap(b -> søknadRepository.hentSøknadHvisEksisterer(b.getId())).map(SøknadEntitet::getMottattDato);
@@ -146,7 +153,7 @@ public class KøKontroller {
 
     private void opprettTaskForÅStarteBehandling(Behandling behandling) {
         if (behandling.harÅpentAksjonspunktMedType(AksjonspunktDefinisjon.AUTO_KØET_BEHANDLING)) {
-            behandlingProsesseringTjeneste.opprettTasksForFortsettBehandlingSettUtført(behandling, Optional.of(AksjonspunktDefinisjon.AUTO_KØET_BEHANDLING));
+            behandlingProsesseringTjeneste.dekøBehandling(behandling);
         } else {
             behandlingProsesseringTjeneste.opprettTasksForStartBehandling(behandling);
         }
@@ -170,7 +177,7 @@ public class KøKontroller {
             }
             behandlingProsesseringTjeneste.opprettTasksForStartBehandling(oppdatertBehandling);
         } else {
-            behandlingProsesseringTjeneste.opprettTasksForFortsettBehandlingSettUtført(behandling, Optional.of(AksjonspunktDefinisjon.AUTO_KØET_BEHANDLING));
+            behandlingProsesseringTjeneste.dekøBehandling(behandling);
         }
     }
 

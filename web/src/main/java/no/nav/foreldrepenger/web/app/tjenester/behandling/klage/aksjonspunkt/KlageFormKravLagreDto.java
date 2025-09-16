@@ -1,5 +1,6 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.klage.aksjonspunkt;
 
+import java.time.LocalDate;
 import java.util.UUID;
 
 public interface KlageFormKravLagreDto {
@@ -20,4 +21,6 @@ public interface KlageFormKravLagreDto {
     default UUID hentpåKlagdEksternBehandlingUuId() {
         return erTilbakekreving() && klageTilbakekreving() != null ? klageTilbakekreving().tilbakekrevingUuid() : null;
     }
+
+    LocalDate mottattDato();
 }

@@ -10,7 +10,6 @@ import jakarta.inject.Inject;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
-import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelseFordelingAggregat;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelsesFordelingRepository;
 import no.nav.foreldrepenger.behandlingslager.uttak.PeriodeResultatType;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.FpUttakRepository;
@@ -26,13 +25,11 @@ import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.uttak.UttakRepositoryProvider;
 import no.nav.foreldrepenger.domene.uttak.input.ForeldrepengerGrunnlag;
 import no.nav.foreldrepenger.domene.uttak.input.UttakInput;
-import no.nav.foreldrepenger.konfig.Environment;
 import no.nav.vedtak.konfig.Tid;
 
 @ApplicationScoped
 public class FastsettUttakManueltAksjonspunktUtleder {
 
-    private static final Environment ENV = Environment.current();
     private static final Arbeidsgiver STORTINGET = Arbeidsgiver.virksomhet(Spesialnummer.STORTINGET.getOrgnummer());
 
     private FpUttakRepository fpUttakRepository;
@@ -56,9 +53,6 @@ public class FastsettUttakManueltAksjonspunktUtleder {
 
         utledAksjonspunktForManuellBehandlingFraRegler(behandlingId).ifPresent(aksjonspunkter::add);
         utledAksjonspunktForStortingsrepresentant(input).ifPresent(aksjonspunkter::add);
-        if (ENV.isProd()) { // TODO (TFP-6302): Fjern etter test. Skal ikke være nødvendig å utlede følgende aksjonpunkt lenger
-            utledAksjonspunktForAnnenpartEØS(behandlingId).ifPresent(aksjonspunkter::add);
-        }
 
         if (input.harBehandlingÅrsak(BehandlingÅrsakType.RE_KLAGE_UTEN_END_INNTEKT)
             || input.harBehandlingÅrsak(BehandlingÅrsakType.RE_KLAGE_MED_END_INNTEKT)) {
@@ -101,12 +95,6 @@ public class FastsettUttakManueltAksjonspunktUtleder {
             return Optional.of(AksjonspunktDefinisjon.FASTSETT_UTTAK_STORTINGSREPRESENTANT);
         }
         return Optional.empty();
-    }
-
-    private Optional<AksjonspunktDefinisjon> utledAksjonspunktForAnnenpartEØS(Long behandlingId) {
-        return ytelsesFordelingRepository.hentAggregatHvisEksisterer(behandlingId)
-            .filter(YtelseFordelingAggregat::avklartAnnenForelderHarRettEØS)
-            .map(yfa -> AksjonspunktDefinisjon.KONTROLLER_ANNENPART_EØS);
     }
 
     private AksjonspunktDefinisjon fastsettUttakAksjonspunkt() {

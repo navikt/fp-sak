@@ -2,7 +2,6 @@ package no.nav.foreldrepenger.domene.modell;
 
 
 import no.nav.foreldrepenger.domene.modell.kodeverk.FaktaVurderingKilde;
-import no.nav.foreldrepenger.domene.modell.typer.FaktaVurdering;
 
 public class FaktaAktør {
 

@@ -10,7 +10,6 @@ import java.util.Set;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
-import no.nav.folketrygdloven.kalkulator.modell.besteberegning.Ytelsegrunnlag;
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatRepository;
@@ -27,7 +26,7 @@ import no.nav.foreldrepenger.behandlingslager.ytelse.RelatertYtelseType;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.iay.modell.AktørYtelse;
 import no.nav.foreldrepenger.domene.iay.modell.YtelseFilter;
-import no.nav.foreldrepenger.domene.mappers.input.MapTilYtelsegrunnlagDto;
+import no.nav.foreldrepenger.domene.mappers.til_kalkulus.MapTilYtelsegrunnlagDto;
 import no.nav.foreldrepenger.domene.modell.BeregningAktivitetAggregat;
 import no.nav.foreldrepenger.domene.modell.Beregningsgrunnlag;
 import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagGrunnlag;
@@ -139,45 +138,6 @@ public class BesteberegningFødendeKvinneTjeneste {
         return bg.map(Beregningsgrunnlag::isOverstyrt).orElse(false);
     }
 
-    public List<Ytelsegrunnlag> lagBesteberegningYtelseinput(BehandlingReferanse behandlingReferanse, Skjæringstidspunkt stp) {
-        var iayGrunnlag = inntektArbeidYtelseTjeneste.hentGrunnlag(behandlingReferanse.behandlingId());
-        var ytelseFilter = new YtelseFilter(iayGrunnlag.getAktørYtelseFraRegister(behandlingReferanse.aktørId()));
-        var periodeYtelserKanVæreRelevantForBB = stp.getSkjæringstidspunktHvisUtledet()
-            .map(t -> DatoIntervallEntitet.fraOgMedTilOgMed(t.minusMonths(12), t));
-        if (periodeYtelserKanVæreRelevantForBB.isEmpty() || !brukerOmfattesAvBesteBeregningsRegelForFødendeKvinne(behandlingReferanse, stp)) {
-            return Collections.emptyList();
-        }
-        List<Ytelsegrunnlag> grunnlag = new ArrayList<>();
-
-        // Obs: Før flere ytelser legges til her, validerer med produkteier hvordan
-        // inntekten skal fordeles under besteberegning og sjekk om eksiterende kode støtter dette
-        BesteberegningYtelsegrunnlagMapper.mapEksterneYtelserTilBesteberegningYtelsegrunnlag(periodeYtelserKanVæreRelevantForBB.get(), ytelseFilter,
-                RelatertYtelseType.SYKEPENGER)
-            .ifPresent(grunnlag::add);
-        BesteberegningYtelsegrunnlagMapper.mapEksterneYtelserTilBesteberegningYtelsegrunnlag(periodeYtelserKanVæreRelevantForBB.get(), ytelseFilter,
-                RelatertYtelseType.PLEIEPENGER_NÆRSTÅENDE)
-            .ifPresent(grunnlag::add);
-        BesteberegningYtelsegrunnlagMapper.mapEksterneYtelserTilBesteberegningYtelsegrunnlag(periodeYtelserKanVæreRelevantForBB.get(), ytelseFilter,
-                RelatertYtelseType.PLEIEPENGER_SYKT_BARN)
-            .ifPresent(grunnlag::add);
-
-        var saksnumreSomMåHentesFraFpsak = BesteberegningYtelsegrunnlagMapper.saksnummerSomMåHentesFraFpsak(periodeYtelserKanVæreRelevantForBB.get(), ytelseFilter);
-        grunnlag.addAll(hentOgMapFpsakYtelser(saksnumreSomMåHentesFraFpsak));
-        return grunnlag;
-    }
-
-    private List<Ytelsegrunnlag> hentOgMapFpsakYtelser(List<Saksnummer> saksnummer) {
-        List<Ytelsegrunnlag> resultater = new ArrayList<>();
-        saksnummer.forEach(sak -> {
-            var fagsak = fagsakRepository.hentSakGittSaksnummer(sak);
-            fagsak.flatMap(fag -> behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(fag.getId()))
-                .flatMap(beh -> beregningsresultatRepository.hentUtbetBeregningsresultat(beh.getId()))
-                .flatMap(br -> BesteberegningYtelsegrunnlagMapper.mapFpsakYtelseTilYtelsegrunnlag(br, fagsak.get().getYtelseType()))
-                .ifPresent(resultater::add);
-        });
-        return resultater;
-    }
-
     private boolean erBesteberegningManueltVurdert(BehandlingReferanse ref) {
         var beregningsgrunnlagEntitet = beregningTjeneste.hent(ref).flatMap(BeregningsgrunnlagGrunnlag::getBeregningsgrunnlag);
         return beregningsgrunnlagEntitet.map(Beregningsgrunnlag::getFaktaOmBeregningTilfeller)
@@ -247,6 +207,9 @@ public class BesteberegningFødendeKvinneTjeneste {
             .ifPresent(grunnlag::add);
         MapTilYtelsegrunnlagDto.mapEksterneYtelserTilBesteberegningYtelsegrunnlag(periodeYtelserKanVæreRelevantForBB.get(), ytelseFilter,
                 RelatertYtelseType.PLEIEPENGER_SYKT_BARN)
+            .ifPresent(grunnlag::add);
+        MapTilYtelsegrunnlagDto.mapEksterneYtelserTilBesteberegningYtelsegrunnlag(periodeYtelserKanVæreRelevantForBB.get(), ytelseFilter,
+                RelatertYtelseType.OPPLÆRINGSPENGER)
             .ifPresent(grunnlag::add);
 
         var saksnumreSomMåHentesFraFpsak = MapTilYtelsegrunnlagDto.saksnummerSomMåHentesFraFpsak(periodeYtelserKanVæreRelevantForBB.get(), ytelseFilter);

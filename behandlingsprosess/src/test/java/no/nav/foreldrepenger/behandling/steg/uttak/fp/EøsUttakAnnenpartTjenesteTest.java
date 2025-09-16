@@ -59,10 +59,23 @@ class EøsUttakAnnenpartTjenesteTest {
     }
 
     @Test
+    void utleder_aksjonspunkt_hvis_endringssøknad_og_revurdering_med_eksisterende_eøs_uttak() {
+        var originalBehandling = ScenarioFarSøkerForeldrepenger.forFødsel().lagre(repositoryProvider);
+        eøsUttakRepository.lagreEøsUttak(originalBehandling.getId(), new EøsUttaksperioderEntitet.Builder().build());
+        var revurdering = ScenarioFarSøkerForeldrepenger.forFødsel()
+            .medOverstyrtRettighet(eøsRett())
+            .medOriginalBehandling(originalBehandling, BehandlingÅrsakType.RE_ENDRING_FRA_BRUKER)
+            .lagre(repositoryProvider);
+        eøsUttakRepository.lagreEøsUttak(revurdering.getId(), new EøsUttaksperioderEntitet.Builder().build());
+        var ap = tjeneste.utledUttakIEøsForAnnenpartAP(BehandlingReferanse.fra(revurdering));
+        assertThat(ap).contains(AksjonspunktDefinisjon.AVKLAR_UTTAK_I_EØS_FOR_ANNENPART);
+    }
+
+    @Test
     void utleder_ikke_aksjonspunkt_hvis_eøsrett_og_revurdering_med_eksisterende_eøs_uttak() {
         var revurdering = ScenarioFarSøkerForeldrepenger.forFødsel()
             .medOverstyrtRettighet(eøsRett())
-            .medOriginalBehandling(ScenarioFarSøkerForeldrepenger.forFødsel().lagre(repositoryProvider), BehandlingÅrsakType.RE_ENDRING_FRA_BRUKER)
+            .medOriginalBehandling(ScenarioFarSøkerForeldrepenger.forFødsel().lagre(repositoryProvider), BehandlingÅrsakType.RE_ENDRET_INNTEKTSMELDING)
             .lagre(repositoryProvider);
         eøsUttakRepository.lagreEøsUttak(revurdering.getId(), new EøsUttaksperioderEntitet.Builder().build());
         var ap = tjeneste.utledUttakIEøsForAnnenpartAP(BehandlingReferanse.fra(revurdering));

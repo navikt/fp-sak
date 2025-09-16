@@ -67,7 +67,7 @@ import no.nav.foreldrepenger.domene.modell.Beregningsgrunnlag;
 import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagGrunnlagBuilder;
 import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagPeriode;
 import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagPrStatusOgAndel;
-import no.nav.foreldrepenger.domene.modell.kodeverk.AktivitetStatus;
+import no.nav.foreldrepenger.behandlingslager.behandling.beregning.AktivitetStatus;
 import no.nav.foreldrepenger.domene.modell.kodeverk.BeregningsgrunnlagTilstand;
 import no.nav.foreldrepenger.domene.prosess.BeregningTjenesteInMemory;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
@@ -412,7 +412,7 @@ class UttakStegImplTest {
         iayTjeneste.kopierGrunnlagFraEksisterendeBehandling(behandlingId, revurderingId);
         ytelsesFordelingRepository.kopierGrunnlagFraEksisterendeBehandling(behandlingId, revurdering);
         familieHendelseRepository.kopierGrunnlagFraEksisterendeBehandling(behandlingId, revurderingId);
-        beregningTjenesteInMemory.kopier(BehandlingReferanse.fra(revurdering), BehandlingReferanse.fra(tidligereBehandling), BeregningsgrunnlagTilstand.FASTSATT);
+        beregningTjenesteInMemory.kopierFastsatt(BehandlingReferanse.fra(revurdering), BehandlingReferanse.fra(tidligereBehandling));
         ytelsesFordelingRepository.kopierGrunnlagFraEksisterendeBehandling(behandlingId, revurdering);
         var yfBuilder = ytelsesFordelingRepository.opprettBuilder(behandlingId);
         yfBuilder.medAvklarteDatoer(new AvklarteUttakDatoerEntitet.Builder().medJustertEndringsdato(endringsdato).build());

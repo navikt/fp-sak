@@ -1,6 +1,6 @@
 package no.nav.foreldrepenger.behandlingslager.behandling.historikk;
 
-import static no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagLinjeBuilder.DATE_FORMATTER;
+import static no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagLinjeBuilder.format;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.LocalDate;
@@ -74,7 +74,7 @@ public class HistorikkinnslagRepositoryTest extends EntityManagerAwareTest {
         var hentet = repository.hent(behandling.getSaksnummer());
         assertThat(hentet).isNotNull();
         assertThat(hentet.getFirst().getLinjer().getFirst().getTekst()).isEqualTo(
-            "__Startdato for refusjon til " + arbeidsforholdInfo + "__ er satt til __" + DATE_FORMATTER.format(idag) + "__" + punktum);
+            "__Startdato for refusjon til " + arbeidsforholdInfo + "__ er satt til __" + format(idag) + "__" + punktum);
     }
 
     @Test

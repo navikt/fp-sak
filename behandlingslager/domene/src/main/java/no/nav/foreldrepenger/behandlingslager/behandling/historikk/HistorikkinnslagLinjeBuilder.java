@@ -20,8 +20,8 @@ public class HistorikkinnslagLinjeBuilder {
         b.type = HistorikkinnslagLinjeType.LINJESKIFT;
         return b;
     }
-
-    public static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("dd.MM.yyyy");
+    // Bruk format(T verdi) for formatering av ulike typer
+    private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("dd.MM.yyyy");
 
     private final StringBuilder stringBuilder = new StringBuilder();
     private HistorikkinnslagLinjeType type = HistorikkinnslagLinjeType.TEKST;
