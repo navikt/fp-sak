@@ -50,7 +50,8 @@ public class VedtaksHendelseHåndterer implements KafkaMessageHandler.KafkaStrin
     private static final String GROUP_ID = "fpsak-vedtakfattet";  // Hold konstant pga offset commit !!
 
     private static final Set<FagsakYtelseType> VURDER_OVERLAPP = Set.of(FagsakYtelseType.FORELDREPENGER, FagsakYtelseType.SVANGERSKAPSPENGER);
-    private static final Set<Ytelser> EKSTERNE_HÅNDTERES = Set.of(Ytelser.PLEIEPENGER_SYKT_BARN, Ytelser.PLEIEPENGER_NÆRSTÅENDE);
+    private static final Set<Ytelser> EKSTERNE_HÅNDTERES = Set.of(Ytelser.PLEIEPENGER_SYKT_BARN,
+        Ytelser.PLEIEPENGER_NÆRSTÅENDE, Ytelser.OPPLÆRINGSPENGER);
     private static final Set<Ytelser> EKSTERNE_LOGGES = Set.of(Ytelser.FRISINN, Ytelser.OMSORGSPENGER);
 
     private String topicName;
