@@ -8,8 +8,6 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
 import jakarta.validation.constraints.NotNull;
 
-import no.nav.foreldrepenger.familiehendelse.rest.SøknadType;
-
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME)
 @JsonSubTypes({
     @JsonSubTypes.Type(value = SoknadAdopsjonDto.class),
