@@ -76,7 +76,7 @@ class DokumentBestillerTjenesteTest {
         when(behandlingResultatMock.getVedtaksbrev()).thenReturn(Vedtaksbrev.FRITEKST);
         when(behandlingResultatMock.getKonsekvenserForYtelsen()).thenReturn(List.of(KonsekvensForYtelsen.ENDRING_I_BEREGNING));
 
-        when(dokumentBehandlingTjeneste.hentMellomlagretOverstyring(anyLong())).thenReturn(Optional.empty());
+        when(dokumentBehandlingTjeneste.hentMellomlagretOverstyring(anyLong())).thenReturn(Optional.ofNullable("<hhtml><body>Fritekst</body></html>"));
 
         when(behandlingVedtakMock.getBehandlingsresultat()).thenReturn(behandlingResultatMock);
         when(behandlingVedtakMock.getVedtakResultatType()).thenReturn(VedtakResultatType.INNVILGET);
@@ -93,7 +93,7 @@ class DokumentBestillerTjenesteTest {
         var bestilling = bestillingCaptor.getValue();
 
         assertThat(bestilling.behandlingUuid()).isEqualTo(behandling.getUuid());
-        assertThat(bestilling.dokumentMal()).isEqualTo(DokumentMalType.FRITEKSTBREV);
+        assertThat(bestilling.dokumentMal()).isEqualTo(DokumentMalType.VEDTAKSBREV_FRITEKST_HTML);
         assertThat(bestilling.bestillingUuid()).isNotNull();
         assertThat(bestilling.journalførSom()).isEqualTo(DokumentMalType.FORELDREPENGER_INNVILGELSE);
     }
@@ -108,7 +108,7 @@ class DokumentBestillerTjenesteTest {
         when(behandlingResultatMock.getBehandlingResultatType()).thenReturn(BehandlingResultatType.FORELDREPENGER_ENDRET);
         when(behandlingResultatMock.getVedtaksbrev()).thenReturn(Vedtaksbrev.FRITEKST);
         when(behandlingResultatMock.getKonsekvenserForYtelsen()).thenReturn(List.of(KonsekvensForYtelsen.ENDRING_I_FORDELING_AV_YTELSEN));
-        when(dokumentBehandlingTjeneste.hentMellomlagretOverstyring(anyLong())).thenReturn(Optional.empty());
+        when(dokumentBehandlingTjeneste.hentMellomlagretOverstyring(anyLong())).thenReturn(Optional.of("<hhtml><body>Fritekst</body></html>"));
 
         when(behandlingVedtakMock.getBehandlingsresultat()).thenReturn(behandlingResultatMock);
         when(behandlingVedtakMock.getVedtakResultatType()).thenReturn(VedtakResultatType.INNVILGET);
@@ -124,7 +124,7 @@ class DokumentBestillerTjenesteTest {
         var bestilling = bestillingCaptor.getValue();
 
         assertThat(bestilling.behandlingUuid()).isEqualTo(behandling.getUuid());
-        assertThat(bestilling.dokumentMal()).isEqualTo(DokumentMalType.FRITEKSTBREV);
+        assertThat(bestilling.dokumentMal()).isEqualTo(DokumentMalType.VEDTAKSBREV_FRITEKST_HTML);
         assertThat(bestilling.bestillingUuid()).isNotNull();
         assertThat(bestilling.journalførSom()).isEqualTo(DokumentMalType.ENDRING_UTBETALING);
     }

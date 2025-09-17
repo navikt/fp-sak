@@ -49,7 +49,7 @@ public class DokumentBestillerTjeneste extends AbstractDokumentBestillerTjeneste
 
         DokumentMalType journalførSom = null; // settes kun ved fritekst
         if (Vedtaksbrev.FRITEKST.equals(behandlingResultat.getVedtaksbrev())) {
-            if (dokumentBehandlingTjeneste.hentMellomlagretOverstyring(behandling.getId()).isPresent()) {
+            if (dokumentBehandlingTjeneste.hentMellomlagretOverstyring(behandling.getId()).isEmpty()) {
                 throw new IllegalStateException("Utviklerfeil: Overstyring av vedtakbrev mangler!");
             }
             journalførSom = endretVedtakOgKunEndringIFordeling(behandlingResultatType, behandlingResultat.getKonsekvenserForYtelsen())
