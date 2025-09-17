@@ -161,30 +161,6 @@ public class ForvaltningFagsakRestTjeneste {
     }
 
     @POST
-    @Path("/gjenAapneFagsakForVidereBruk")
-    @Consumes(APPLICATION_JSON)
-    @Produces(APPLICATION_JSON)
-    @Operation(description = "Gjenåpner fagsak for videre bruk", tags = "FORVALTNING-fagsak", responses = {
-            @ApiResponse(responseCode = "200", description = "Fagsak stengt.", content = @Content(mediaType = APPLICATION_JSON, schema = @Schema(implementation = String.class))),
-            @ApiResponse(responseCode = "400", description = "Ukjent fagsak oppgitt."),
-            @ApiResponse(responseCode = "500", description = "Feilet pga ukjent feil.")
-    })
-    @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.FAGSAK, sporingslogg = true)
-    public Response gjenaapneFagsak(@TilpassetAbacAttributt(supplierClass = SaksnummerAbacSupplier.Supplier.class)
-        @NotNull @QueryParam("saksnummer") @Valid SaksnummerDto saksnummerDto) {
-        var saksnummer = new Saksnummer(saksnummerDto.getVerdi());
-        var fagsak = fagsakRepository.hentSakGittSaksnummer(saksnummer).orElse(null);
-        if (fagsak == null || !fagsak.erStengt()) {
-            return Response.status(Response.Status.BAD_REQUEST).build();
-        }
-        if (fagsak.erStengt()) {
-            LOG.info("Gjenåpner fagsak med saksnummer: {} ", saksnummer.getVerdi());
-            fagsakRepository.fagsakSkalGjenåpnesForBruk(fagsak.getId());
-        }
-        return Response.ok().build();
-    }
-
-    @POST
     @Path("/settFagsakFraAvsluttetTilUnderBehandling")
     @Operation(description = "Setter status for fagsak fra avsluttet til under behandling", tags = "FORVALTNING-fagsak", responses = {
         @ApiResponse(responseCode = "200", description = "Fagsak endret.", content = @Content(mediaType = APPLICATION_JSON, schema = @Schema(implementation = String.class))),
