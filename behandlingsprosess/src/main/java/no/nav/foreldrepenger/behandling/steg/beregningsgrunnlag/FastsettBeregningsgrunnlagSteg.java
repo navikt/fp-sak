@@ -52,7 +52,7 @@ public class FastsettBeregningsgrunnlagSteg implements BeregningsgrunnlagSteg {
             behandling.getOriginalBehandlingId()
                 .ifPresent(originalId -> {
                     var originalBehandling = behandlingRepository.hentBehandling(originalId);
-                    beregningTjeneste.kopier(BehandlingReferanse.fra(behandling), BehandlingReferanse.fra(originalBehandling), BehandlingStegType.FASTSETT_BEREGNINGSGRUNNLAG);
+                    beregningTjeneste.kopierFastsatt(BehandlingReferanse.fra(behandling), BehandlingReferanse.fra(originalBehandling));
                 });
 
         }

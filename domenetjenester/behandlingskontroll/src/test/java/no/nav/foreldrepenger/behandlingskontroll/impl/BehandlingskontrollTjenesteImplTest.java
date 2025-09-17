@@ -22,7 +22,6 @@ import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
 import no.nav.foreldrepenger.behandlingskontroll.spi.BehandlingskontrollServiceProvider;
 import no.nav.foreldrepenger.behandlingskontroll.testutilities.TestScenario;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
-import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingEvent;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
@@ -36,7 +35,7 @@ import no.nav.foreldrepenger.dbstoette.JpaExtension;
 class BehandlingskontrollTjenesteImplTest {
 
     private BehandlingskontrollTjenesteImpl kontrollTjeneste;
-    private final BehandlingskontrollEventPublisererForTest eventPubliserer = new BehandlingskontrollEventPublisererForTest();
+    private final BehandlingskontrollEventPubliserer eventPubliserer = BehandlingskontrollEventPubliserer.NULL_EVENT_PUB;
     private BehandlingskontrollServiceProvider serviceProvider;
 
     private BehandlingStegType steg2;
@@ -265,14 +264,6 @@ class BehandlingskontrollTjenesteImplTest {
 
     private void initBehandlingskontrollTjeneste() {
         this.kontrollTjeneste = new BehandlingskontrollTjenesteImpl(serviceProvider);
-    }
-
-    private static final class BehandlingskontrollEventPublisererForTest extends BehandlingskontrollEventPubliserer {
-
-        @Override
-        protected void doFireEvent(BehandlingEvent event) {
-            // NOSONAR
-        }
     }
 
 }

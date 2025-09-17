@@ -6,7 +6,6 @@ import static no.nav.foreldrepenger.web.app.rest.ResourceLinks.post;
 import java.time.LocalDate;
 import java.util.Collections;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 
 import jakarta.enterprise.context.ApplicationScoped;
@@ -21,7 +20,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingsresultatRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.SpesialBehandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.dokument.BehandlingDokumentRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
@@ -30,19 +28,15 @@ import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtak;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtakRepository;
-import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakEgenskapRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
-import no.nav.foreldrepenger.behandlingslager.fagsak.egenskaper.FagsakMarkering;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Språkkode;
 import no.nav.foreldrepenger.dokumentbestiller.brevmal.BrevmalTjeneste;
 import no.nav.foreldrepenger.domene.uttak.Uttak;
 import no.nav.foreldrepenger.domene.uttak.UttakTjeneste;
 import no.nav.foreldrepenger.domene.vedtak.TotrinnTjeneste;
-import no.nav.foreldrepenger.produksjonsstyring.behandlingenhet.BehandlendeEnhetTjeneste;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.aksjonspunkt.AksjonspunktDtoMapper;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.aksjonspunkt.AksjonspunktRestTjeneste;
-import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.BehandlingOperasjonerDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.UuidDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.klage.KlageRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.kontroll.app.KontrollDtoTjeneste;
@@ -50,8 +44,6 @@ import no.nav.foreldrepenger.web.app.tjenester.behandling.personopplysning.Perso
 import no.nav.foreldrepenger.web.app.tjenester.behandling.vedtak.app.TotrinnskontrollAksjonspunkterTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.verge.VergeTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.brev.BrevRestTjeneste;
-import no.nav.foreldrepenger.web.app.tjenester.familiehendelse.FamiliehendelseRestTjeneste;
-import no.nav.vedtak.sikkerhet.kontekst.KontekstHolder;
 
 /**
  * Bygger et sammensatt resultat av FagsakBehandlingDto ved å samle data fra ulike tjenester, for å kunne levere dette ut på en REST tjeneste.
@@ -66,13 +58,11 @@ public class FagsakBehandlingDtoTjeneste {
     private BehandlingVedtakRepository behandlingVedtakRepository;
     private BehandlingDokumentRepository behandlingDokumentRepository;
     private BrevmalTjeneste brevmalTjeneste;
-    private TotrinnTjeneste totrinnTjeneste;
-    private VergeTjeneste vergeTjeneste;
     private TotrinnskontrollAksjonspunkterTjeneste totrinnskontrollTjeneste;
     private KontrollDtoTjeneste kontrollDtoTjeneste;
     private DekningsgradTjeneste dekningsgradTjeneste;
     private UttakTjeneste uttakTjeneste;
-    private FagsakEgenskapRepository fagsakEgenskapRepository;
+    private FagsakBehandlingOperasjonerDtoTjeneste behandlingOperasjonerDtoTjeneste;
 
     @Inject
     public FagsakBehandlingDtoTjeneste(BehandlingRepositoryProvider repositoryProvider,
@@ -84,7 +74,8 @@ public class FagsakBehandlingDtoTjeneste {
                                        VergeTjeneste vergeTjeneste,
                                        KontrollDtoTjeneste kontrollDtoTjeneste,
                                        DekningsgradTjeneste dekningsgradTjeneste,
-                                       UttakTjeneste uttakTjeneste, FagsakEgenskapRepository fagsakEgenskapRepository) {
+                                       UttakTjeneste uttakTjeneste,
+                                       FagsakBehandlingOperasjonerDtoTjeneste behandlingOperasjonerDtoTjeneste) {
 
         this.søknadRepository = repositoryProvider.getSøknadRepository();
         this.skjæringstidspunktTjeneste = skjæringstidspunktTjeneste;
@@ -93,13 +84,11 @@ public class FagsakBehandlingDtoTjeneste {
         this.behandlingVedtakRepository = repositoryProvider.getBehandlingVedtakRepository();
         this.behandlingDokumentRepository = behandlingDokumentRepository;
         this.brevmalTjeneste = brevmalTjeneste;
-        this.totrinnTjeneste = totrinnTjeneste;
         this.totrinnskontrollTjeneste = totrinnskontrollTjeneste;
-        this.vergeTjeneste = vergeTjeneste;
         this.kontrollDtoTjeneste = kontrollDtoTjeneste;
         this.dekningsgradTjeneste = dekningsgradTjeneste;
         this.uttakTjeneste = uttakTjeneste;
-        this.fagsakEgenskapRepository = fagsakEgenskapRepository;
+        this.behandlingOperasjonerDtoTjeneste = behandlingOperasjonerDtoTjeneste;
     }
 
     FagsakBehandlingDtoTjeneste() {
@@ -122,8 +111,9 @@ public class FagsakBehandlingDtoTjeneste {
     }
 
     private FagsakBehandlingDto lagBehandlingDto(Behandling behandling,
-                                           Behandlingsresultat behandlingsresultat,
-                                           boolean erBehandlingMedGjeldendeVedtak, LocalDate vedtaksdato) {
+                                                 Behandlingsresultat behandlingsresultat,
+                                                 boolean erBehandlingMedGjeldendeVedtak,
+                                                 LocalDate vedtaksdato) {
         var dto = new FagsakBehandlingDto();
         var uuidDto = new UuidDto(behandling.getUuid());
 
@@ -132,11 +122,10 @@ public class FagsakBehandlingDtoTjeneste {
         dto.setBehandlingsresultat(lagBehandlingsresultatDto(behandling, behandlingsresultat).orElse(null));
 
         // Felles for alle behandlingstyper
-        dto.setBehandlingTillatteOperasjoner(lovligeOperasjoner(behandling));
+        dto.setBehandlingTillatteOperasjoner(behandlingOperasjonerDtoTjeneste.lovligeOperasjoner(behandling));
 
         if (behandling.erYtelseBehandling()) {
             dto.leggTil(get(PersonRestTjeneste.PERSONOVERSIKT_PATH, "behandling-personoversikt", uuidDto));
-            dto.leggTil(get(FamiliehendelseRestTjeneste.FAMILIEHENDELSE_V2_PATH, "familiehendelse-v2", uuidDto));
         }
 
         if (BehandlingType.FØRSTEGANGSSØKNAD.equals(behandling.getType())) {
@@ -233,39 +222,6 @@ public class FagsakBehandlingDtoTjeneste {
 
     private Behandlingsresultat getBehandlingsresultat(Long behandlingId) {
         return behandlingsresultatRepository.hentHvisEksisterer(behandlingId).orElse(null);
-    }
-
-    private BehandlingOperasjonerDto lovligeOperasjoner(Behandling b) {
-        if (b.erSaksbehandlingAvsluttet()) {
-            return new BehandlingOperasjonerDto(b.getUuid()); // Skal ikke foreta menyvalg lenger
-        }
-        if (BehandlingStatus.FATTER_VEDTAK.equals(b.getStatus())) {
-            var tilgokjenning = b.getAnsvarligSaksbehandler() != null && !b.getAnsvarligSaksbehandler().equalsIgnoreCase(
-                KontekstHolder.getKontekst().getUid());
-            return new BehandlingOperasjonerDto(b.getUuid(), tilgokjenning);
-        }
-        var kanÅpnesForEndring = b.erRevurdering() && !b.isBehandlingPåVent() &&
-            SpesialBehandling.erIkkeSpesialBehandling(b) && !b.erKøet() &&
-            !FagsakYtelseType.ENGANGSTØNAD.equals(b.getFagsakYtelseType());
-        var totrinnRetur = totrinnTjeneste.hentTotrinnaksjonspunktvurderinger(b.getId()).stream()
-            .anyMatch(tt -> !tt.isGodkjent());
-        var behandlingIkkeHosKlageInstans = !behandlingHosKlageInstans(b);
-        var kanMerkesHaster = b.erYtelseBehandling() && !fagsakEgenskapRepository.harFagsakMarkering(b.getFagsakId(), FagsakMarkering.HASTER);
-        return new BehandlingOperasjonerDto(b.getUuid(),
-            !b.erKøet(), // Bytte enhet
-            SpesialBehandling.kanHenlegges(b) && behandlingIkkeHosKlageInstans, // Henlegges
-            b.isBehandlingPåVent() && !b.erKøet() && behandlingIkkeHosKlageInstans, // Gjenopptas
-            kanÅpnesForEndring, // Åpnes for endring
-            kanMerkesHaster, // Merkes med Haster
-            !b.isBehandlingPåVent(), // Settes på vent
-            true, // Sende melding
-            !b.isBehandlingPåVent() && totrinnRetur, // Fra beslutter
-            false, // Til godkjenning
-            vergeTjeneste.utledBehandlingOperasjon(b));
-    }
-
-    private static boolean behandlingHosKlageInstans(Behandling behandling) {
-        return Objects.equals(behandling.getBehandlendeOrganisasjonsEnhet(), BehandlendeEnhetTjeneste.getKlageInstans());
     }
 
 }

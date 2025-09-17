@@ -68,9 +68,6 @@ public interface BehandlingProsesseringTjeneste {
     // Til bruk for å kjøre behandlingsprosessen videre. Lagrer tasks. Returnerer gruppe-handle
     String opprettTasksForFortsettBehandling(Behandling behandling);
 
-    // Til bruk for å kjøre behandlingsprosessen videre. Lagrer tasks. Setter autopunkt til utført. Returnerer gruppe-handle
-    String opprettTasksForFortsettBehandlingSettUtført(Behandling behandling, Optional<AksjonspunktDefinisjon> autoPunktUtført);
-
     // Brukes kun der et steg har suspendet seg selv. Lagrer tasks. Returnerer gruppe-handle
     String opprettTasksForFortsettBehandlingResumeStegNesteKjøring(Behandling behandling, BehandlingStegType stegType,
                                                                    LocalDateTime nesteKjøringEtter);
@@ -84,4 +81,8 @@ public interface BehandlingProsesseringTjeneste {
     String opprettTasksForInitiellRegisterInnhenting(Behandling behandling);
 
     Set<Long> behandlingerMedFeiletProsessTask();
+
+    void enkøBehandling(Behandling behandling);
+
+    String dekøBehandling(Behandling behandling);
 }

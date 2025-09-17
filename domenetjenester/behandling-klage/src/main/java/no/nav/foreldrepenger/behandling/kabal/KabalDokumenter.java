@@ -1,8 +1,6 @@
 package no.nav.foreldrepenger.behandling.kabal;
 
-import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -52,13 +50,6 @@ public class KabalDokumenter {
         this.mottatteDokumentRepository = mottatteDokumentRepository;
         this.behandlingDokumentRepository = behandlingDokumentRepository;
         this.historikkRepository = historikkRepository;
-    }
-
-    LocalDate utledDokumentMottattDato(Behandling behandling) {
-        return finnMottattDokumentFor(behandling.getId(), erKlageEllerAnkeDokument())
-            .map(MottattDokument::getMottattDato)
-            .min(Comparator.naturalOrder())
-            .orElseGet(() -> behandling.getOpprettetDato().toLocalDate());
     }
 
     List<TilKabalDto.DokumentReferanse> finnDokumentReferanserForKlage(long behandlingId, Saksnummer saksnummer, KlageResultatEntitet resultat, KlageHjemmel hjemmel) {

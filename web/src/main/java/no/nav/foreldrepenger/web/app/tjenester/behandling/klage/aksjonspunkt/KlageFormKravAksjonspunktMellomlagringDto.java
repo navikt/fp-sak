@@ -1,5 +1,6 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.klage.aksjonspunkt;
 
+import java.time.LocalDate;
 import java.util.UUID;
 
 import jakarta.validation.Valid;
@@ -25,6 +26,7 @@ public class KlageFormKravAksjonspunktMellomlagringDto implements KlageFormKravL
     private boolean erTilbakekreving;
     @Valid
     private KlageTilbakekrevingDto klageTilbakekreving;
+    private LocalDate mottattDato;
     @JsonProperty("paKlagdBehandlingUuid")
     private UUID paKlagdBehandlingUuid;
     @Size(max = 2000)
@@ -49,7 +51,8 @@ public class KlageFormKravAksjonspunktMellomlagringDto implements KlageFormKravL
                                                      boolean erTilbakekreving,
                                                      KlageTilbakekrevingDto klageTilbakekreving,
                                                      String begrunnelse,
-                                                     String fritekstTilBrev) {
+                                                     String fritekstTilBrev,
+                                                     LocalDate mottattDato) {
         this.kode = kode;
         this.behandlingUuid = behandlingUuid;
         this.erKlagerPart = erKlagerPart;
@@ -61,7 +64,7 @@ public class KlageFormKravAksjonspunktMellomlagringDto implements KlageFormKravL
         this.klageTilbakekreving = klageTilbakekreving;
         this.begrunnelse = begrunnelse;
         this.fritekstTilBrev = fritekstTilBrev;
-
+        this.mottattDato = mottattDato;
     }
 
     public String getKode() {
@@ -104,6 +107,10 @@ public class KlageFormKravAksjonspunktMellomlagringDto implements KlageFormKravL
     @Override
     public KlageTilbakekrevingDto klageTilbakekreving() {
         return klageTilbakekreving;
+    }
+    @Override
+    public LocalDate mottattDato() {
+        return mottattDato;
     }
 
     public String fritekstTilBrev() {

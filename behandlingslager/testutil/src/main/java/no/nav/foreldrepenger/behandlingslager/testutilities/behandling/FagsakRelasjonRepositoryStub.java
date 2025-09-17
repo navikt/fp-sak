@@ -9,6 +9,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import jakarta.enterprise.inject.Alternative;
+
 import no.nav.foreldrepenger.behandlingslager.fagsak.Dekningsgrad;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakLås;
@@ -17,6 +19,7 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjonRepository;
 import no.nav.foreldrepenger.behandlingslager.laas.FagsakRelasjonLås;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 
+@Alternative
 class FagsakRelasjonRepositoryStub extends FagsakRelasjonRepository {
 
     private static final String IKKE_STOTTET = "Ikke støttet av FagsakRelasjonRepositoryStub";

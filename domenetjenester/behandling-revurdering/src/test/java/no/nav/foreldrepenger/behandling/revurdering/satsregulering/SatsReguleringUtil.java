@@ -37,8 +37,8 @@ import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPeriodeAktiv
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPeriodeEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPerioderEntitet;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
-import no.nav.foreldrepenger.domene.entiteter.BeregningsgrunnlagKoblingRepository;
-import no.nav.foreldrepenger.domene.modell.kodeverk.AktivitetStatus;
+import no.nav.foreldrepenger.behandlingslager.beregningsgrunnlag.BeregningsgrunnlagKoblingRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.beregning.AktivitetStatus;
 import no.nav.foreldrepenger.domene.typer.Beløp;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.TrekkdagerUtregningUtil;
@@ -112,7 +112,7 @@ public class SatsReguleringUtil {
         var lås = repositoryProvider.getBehandlingRepository().taSkriveLås(behandling);
         repositoryProvider.getBehandlingRepository().lagre(behandling, lås);
 
-        var kobling = beregningKoblingRepository.opprettKobling(BehandlingReferanse.fra(behandling));
+        var kobling = beregningKoblingRepository.opprettKobling(behandling.getId(), behandling.getUuid());
         beregningKoblingRepository.oppdaterKoblingMedStpOgGrunnbeløp(kobling, Beløp.fra(BigDecimal.valueOf(sats)), uttakFom);
         var gregulering = Set.of(AktivitetStatus.ARBEIDSAVKLARINGSPENGER, AktivitetStatus.DAGPENGER, AktivitetStatus.SELVSTENDIG_NÆRINGSDRIVENDE,
             AktivitetStatus.KOMBINERT_AT_SN, AktivitetStatus.KOMBINERT_FL_SN, AktivitetStatus.KOMBINERT_AT_FL_SN).contains(aStatus)
@@ -204,7 +204,7 @@ public class SatsReguleringUtil {
         var lås = repositoryProvider.getBehandlingRepository().taSkriveLås(behandling);
         repositoryProvider.getBehandlingRepository().lagre(behandling, lås);
 
-        var kobling = beregningKoblingRepository.opprettKobling(BehandlingReferanse.fra(behandling));
+        var kobling = beregningKoblingRepository.opprettKobling(behandling.getId(), behandling.getUuid());
         beregningKoblingRepository.oppdaterKoblingMedStpOgGrunnbeløp(kobling, Beløp.fra(BigDecimal.valueOf(sats)), uttakFom);
         var gregulering = Set.of(AktivitetStatus.SELVSTENDIG_NÆRINGSDRIVENDE, AktivitetStatus.KOMBINERT_AT_SN,
             AktivitetStatus.KOMBINERT_FL_SN, AktivitetStatus.KOMBINERT_AT_FL_SN).contains(aStatus)

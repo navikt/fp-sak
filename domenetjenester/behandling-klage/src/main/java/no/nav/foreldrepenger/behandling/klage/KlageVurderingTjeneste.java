@@ -1,6 +1,7 @@
 package no.nav.foreldrepenger.behandling.klage;
 
 import java.time.LocalDate;
+import java.util.Comparator;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -12,6 +13,8 @@ import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingsresultatRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.DokumentTypeId;
+import no.nav.foreldrepenger.behandlingslager.behandling.MottattDokument;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.events.BehandlingRelasjonEvent;
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageFormkravEntitet;
@@ -24,6 +27,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageVurderingRes
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageVurdertAv;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingLås;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.repository.MottatteDokumentRepository;
 import no.nav.foreldrepenger.behandlingsprosess.prosessering.BehandlingProsesseringTjeneste;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentBehandlingTjeneste;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentBestillerTjeneste;
@@ -40,6 +44,7 @@ public class KlageVurderingTjeneste {
     private BehandlingProsesseringTjeneste behandlingProsesseringTjeneste;
     private BehandlingsresultatRepository behandlingsresultatRepository;
     private BehandlingEventPubliserer behandlingEventPubliserer;
+    private MottatteDokumentRepository mottatteDokumentRepository;
 
     @Inject
     public KlageVurderingTjeneste(DokumentBestillerTjeneste dokumentBestillerTjeneste,
@@ -48,7 +53,8 @@ public class KlageVurderingTjeneste {
                                   KlageRepository klageRepository,
                                   BehandlingProsesseringTjeneste behandlingProsesseringTjeneste,
                                   BehandlingsresultatRepository behandlingsresultatRepository,
-                                  BehandlingEventPubliserer behandlingEventPubliserer) {
+                                  BehandlingEventPubliserer behandlingEventPubliserer,
+                                  MottatteDokumentRepository mottatteDokumentRepository) {
         this.dokumentBestillerTjeneste = dokumentBestillerTjeneste;
         this.dokumentBehandlingTjeneste = dokumentBehandlingTjeneste;
         this.klageRepository = klageRepository;
@@ -56,6 +62,7 @@ public class KlageVurderingTjeneste {
         this.behandlingRepository = behandlingRepository;
         this.behandlingsresultatRepository = behandlingsresultatRepository;
         this.behandlingEventPubliserer = behandlingEventPubliserer;
+        this.mottatteDokumentRepository = mottatteDokumentRepository;
     }
 
     KlageVurderingTjeneste() {
@@ -216,5 +223,17 @@ public class KlageVurderingTjeneste {
             return "Vedtaket er stadfestet";
         }
         return null;
+    }
+
+    public Optional<LocalDate> getKlageMottattDato(Behandling behandling) {
+        return hentKlageFormkrav(behandling, KlageVurdertAv.NFP).map(KlageFormkravEntitet::getMottattDato)
+            .or(() -> getKlageDokumentMottattDato(behandling));
+    }
+
+    private Optional<LocalDate> getKlageDokumentMottattDato(Behandling behandling) {
+        return mottatteDokumentRepository.hentMottatteDokument(behandling.getId()).stream()
+            .filter(dok -> DokumentTypeId.KLAGE_DOKUMENT.equals(dok.getDokumentType()))
+            .map(MottattDokument::getMottattDato)
+            .min(Comparator.naturalOrder());
     }
 }

@@ -11,7 +11,7 @@ import no.nav.foreldrepenger.domene.aksjonspunkt.OppdaterBeregningsgrunnlagResul
 import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagGrunnlag;
 import no.nav.foreldrepenger.domene.output.BeregningsgrunnlagVilkårOgAkjonspunktResultat;
 
-public interface BeregningAPI {
+interface BeregningAPI {
 
     Optional<BeregningsgrunnlagGrunnlag> hent(BehandlingReferanse referanse);
 
@@ -28,4 +28,6 @@ public interface BeregningAPI {
     void avslutt(BehandlingReferanse referanse);
 
     boolean kanStartesISteg(BehandlingReferanse referanse, BehandlingStegType stegType);
+
+    void kopierFastsatt(BehandlingReferanse revurdering, BehandlingReferanse originalbehandling);
 }

@@ -42,6 +42,7 @@ import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.OrgNummer;
 import no.nav.foreldrepenger.behandlingsprosess.prosessering.BehandlingProsesseringTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
+import no.nav.foreldrepenger.domene.arbeidsforhold.InntektsmeldingTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsforhold.dto.AlleInntektsmeldingerDtoMapper;
 import no.nav.foreldrepenger.domene.arbeidsforhold.dto.IAYYtelseDto;
 import no.nav.foreldrepenger.domene.arbeidsforhold.dto.IayYtelseDtoMapper;
@@ -55,7 +56,6 @@ import no.nav.foreldrepenger.domene.iay.modell.ArbeidsforholdOverstyring;
 import no.nav.foreldrepenger.domene.iay.modell.ArbeidsforholdReferanse;
 import no.nav.foreldrepenger.domene.iay.modell.Inntekt;
 import no.nav.foreldrepenger.domene.iay.modell.Inntektsmelding;
-import no.nav.foreldrepenger.domene.iay.modell.InntektsmeldingAggregat;
 import no.nav.foreldrepenger.domene.iay.modell.OppgittArbeidsforhold;
 import no.nav.foreldrepenger.domene.iay.modell.OppgittEgenNæring;
 import no.nav.foreldrepenger.domene.iay.modell.OppgittOpptjening;
@@ -104,6 +104,7 @@ public class InntektArbeidYtelseRestTjeneste {
     private InntektArbeidYtelseTjeneste iayTjeneste;
     private FpOppdragRestKlient fpOppdragRestKlient;
     private BehandlingProsesseringTjeneste behandlingProsesseringTjeneste;
+    private InntektsmeldingTjeneste inntektsmeldingTjeneste;
 
     public InntektArbeidYtelseRestTjeneste() {
         // for CDI proxy
@@ -120,7 +121,8 @@ public class InntektArbeidYtelseRestTjeneste {
                                            SkjæringstidspunktTjeneste skjæringstidspunktTjeneste,
                                            AlleInntektsmeldingerDtoMapper alleInntektsmeldingerMapper,
                                            FpOppdragRestKlient fpOppdragRestKlient,
-                                           BehandlingProsesseringTjeneste behandlingProsesseringTjeneste) {
+                                           BehandlingProsesseringTjeneste behandlingProsesseringTjeneste,
+                                           InntektsmeldingTjeneste inntektsmeldingTjeneste) {
         this.personopplysningTjeneste = personopplysningTjeneste;
         this.iayTjeneste = iayTjeneste;
         this.skjæringstidspunktTjeneste = skjæringstidspunktTjeneste;
@@ -132,6 +134,7 @@ public class InntektArbeidYtelseRestTjeneste {
         this.alleInntektsmeldingerMapper = alleInntektsmeldingerMapper;
         this.fpOppdragRestKlient = fpOppdragRestKlient;
         this.behandlingProsesseringTjeneste = behandlingProsesseringTjeneste;
+        this.inntektsmeldingTjeneste = inntektsmeldingTjeneste;
     }
 
     @GET
@@ -213,6 +216,10 @@ public class InntektArbeidYtelseRestTjeneste {
                 .map(SvpTilretteleggingEntitet::getArbeidsgiver).flatMap(Optional::stream).forEach(arbeidsgivere::add);
         }
 
+        //Henter arbeidsgivere fra alle inntektsmeldinger mottatt på saken
+        inntektsmeldingTjeneste.hentAlleInntektsmeldingerForFagsak(behandling.getFagsak().getSaksnummer()).stream()
+            .map(Inntektsmelding::getArbeidsgiver).forEach(arbeidsgivere::add);
+
         iayTjeneste.finnGrunnlag(behandling.getId()).ifPresent(iayg -> {
             iayg.getAktørArbeidFraRegister(behandling.getAktørId()).map(AktørArbeid::hentAlleYrkesaktiviteter).orElse(Collections.emptyList()).stream()
                 .map(Yrkesaktivitet::getArbeidsgiver).filter(Objects::nonNull).forEach(arbeidsgivere::add);
@@ -223,8 +230,6 @@ public class InntektArbeidYtelseRestTjeneste {
             iayg.getAktørYtelseFraRegister(behandling.getAktørId()).map(AktørYtelse::getAlleYtelser).orElse(Collections.emptyList()).stream()
                 .flatMap(y -> y.getYtelseGrunnlag().stream()).flatMap(g -> g.getYtelseStørrelse().stream())
                 .flatMap(s -> s.getVirksomhet().stream().map(Arbeidsgiver::virksomhet)).forEach(arbeidsgivere::add);
-            iayg.getInntektsmeldinger().map(InntektsmeldingAggregat::getAlleInntektsmeldinger).orElse(Collections.emptyList()).stream()
-                .map(Inntektsmelding::getArbeidsgiver).filter(Objects::nonNull).forEach(arbeidsgivere::add);
             iayg.getArbeidsforholdInformasjon().map(ArbeidsforholdInformasjon::getArbeidsforholdReferanser).orElse(Collections.emptyList()).stream()
                 .map(ArbeidsforholdReferanse::getArbeidsgiver).filter(Objects::nonNull).forEach(arbeidsgivere::add);
             iayg.getArbeidsforholdOverstyringer().stream()

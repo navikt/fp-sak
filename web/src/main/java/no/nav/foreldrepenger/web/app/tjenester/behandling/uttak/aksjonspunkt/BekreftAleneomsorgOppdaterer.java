@@ -58,10 +58,10 @@ public class BekreftAleneomsorgOppdaterer implements AksjonspunktOppdaterer<Avkl
             return Rettighetstype.ALENEOMSORG;
         } else if (Boolean.TRUE.equals(dto.getAnnenforelderHarRett())) {
             return Rettighetstype.BEGGE_RETT;
-        } else if (Boolean.TRUE.equals(dto.getAnnenforelderMottarUføretrygd())) {
-            return Rettighetstype.BARE_FAR_RETT_MOR_UFØR;
         } else if (Boolean.TRUE.equals(dto.getAnnenForelderHarRettEØS())) {
             return Rettighetstype.BEGGE_RETT_EØS;
+        } else if (Boolean.TRUE.equals(dto.getAnnenforelderMottarUføretrygd())) {
+            return Rettighetstype.BARE_FAR_RETT_MOR_UFØR;
         } else {
             return relasjonsRolleType.erFarEllerMedMor() ? Rettighetstype.BARE_FAR_RETT : Rettighetstype.BARE_MOR_RETT;
         }

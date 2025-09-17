@@ -197,6 +197,7 @@ class FpInntektsmeldingTjenesteTest {
             List.of(), Collections.emptyList(), "Truls Test", saksnummerDto);
         verify(klient, times(1)).overstyrInntektsmelding(forventetRequest);
     }
+
     @Test
     void skal_opprette_opppgave_og_historikkinnslag() {
         // Arrange
@@ -212,12 +213,31 @@ class FpInntektsmeldingTjenesteTest {
         when(inntektsmeldingRegisterTjeneste.utledManglendeInntektsmeldingerFraGrunnlag(behandlingRef, stpp)).thenReturn(Map.of(Arbeidsgiver.virksomhet(virksomhet.getOrgnr()), Set.of(
             InternArbeidsforholdRef.nyRef())));
         // Act
-        fpInntektsmeldingTjeneste.lagForespørsel(behandlingRef, stpp);
+        fpInntektsmeldingTjeneste.lagForespørselForAlleArbeidsgivere(behandlingRef, stpp);
 
         // Assert
         verify(historikkRepository, times(1)).lagre(any());
     }
 
+    @Test
+    void skal_opprette_forespørsel_for_enkelt_arbeidsgiver() {
+        // Arrange
+        var stp = LocalDate.of(2024,9,1);
+        var virksomhet = Arbeidsgiver.virksomhet("999999999");
+
+        var behandlingRef = new BehandlingReferanse(new Saksnummer("1234"), 1234L, FagsakYtelseType.FORELDREPENGER, 4321L, UUID.randomUUID(),
+            BehandlingStatus.UTREDES, BehandlingType.FØRSTEGANGSSØKNAD, 5432L, new AktørId("9999999999999"), RelasjonsRolleType.MORA);
+        var stpp = Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(stp).medFørsteUttaksdato(stp).build();
+
+        when(klient.opprettForespørsel(any())).thenReturn(new OpprettForespørselResponsNy(List.of(new OpprettForespørselResponsNy.OrganisasjonsnummerMedStatus(new OrganisasjonsnummerDto(virksomhet.getOrgnr()), OpprettForespørselResponsNy.ForespørselResultat.FORESPØRSEL_OPPRETTET))));
+        when(arbeidsgiverTjeneste.hentVirksomhet(virksomhet.getIdentifikator())).thenReturn(Virksomhet.getBuilder().medOrgnr(virksomhet.getIdentifikator()).medNavn("Testbedrift").build());
+
+        // Act
+        fpInntektsmeldingTjeneste.lagForespørselForBestemtArbeidsgiver(behandlingRef, stpp, virksomhet);
+
+        // Assert
+        verify(historikkRepository, times(1)).lagre(any());
+    }
     @Test
     void skal_opprette_historikkinnslag_for_flere() {
         // Arrange
@@ -237,7 +257,7 @@ class FpInntektsmeldingTjenesteTest {
         when(arbeidsgiverTjeneste.hentVirksomhet(virksomhet2.getIdentifikator())).thenReturn(Virksomhet.getBuilder().medOrgnr(virksomhet2.getIdentifikator()).medNavn("Testbedrift 2").build());
         when(inntektsmeldingRegisterTjeneste.utledManglendeInntektsmeldingerFraGrunnlag(behandlingRef, stpp)).thenReturn(imer);
         // Act
-        fpInntektsmeldingTjeneste.lagForespørsel(behandlingRef, stpp);
+        fpInntektsmeldingTjeneste.lagForespørselForAlleArbeidsgivere(behandlingRef, stpp);
 
         // Assert
         verify(historikkRepository, times(2)).lagre(any());
@@ -255,7 +275,7 @@ class FpInntektsmeldingTjenesteTest {
         when(klient.opprettForespørsel(any())).thenReturn(new OpprettForespørselResponsNy(List.of(new OpprettForespørselResponsNy.OrganisasjonsnummerMedStatus(new OrganisasjonsnummerDto(virksomhet.getOrgnr()), OpprettForespørselResponsNy.ForespørselResultat.IKKE_OPPRETTET_FINNES_ALLEREDE))));
         when(inntektsmeldingRegisterTjeneste.utledManglendeInntektsmeldingerFraGrunnlag(behandlingRef, stpp)).thenReturn(Map.of(Arbeidsgiver.virksomhet(virksomhet.getOrgnr()), Set.of(InternArbeidsforholdRef.nullRef())));
         // Act
-        fpInntektsmeldingTjeneste.lagForespørsel(behandlingRef, stpp);
+        fpInntektsmeldingTjeneste.lagForespørselForAlleArbeidsgivere(behandlingRef, stpp);
 
         // Assert
         verify(historikkRepository, times(0)).lagre(any());

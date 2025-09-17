@@ -11,7 +11,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.beregning.Beregningsres
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Dekningsgrad;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
-import no.nav.foreldrepenger.domene.modell.kodeverk.AktivitetStatus;
+import no.nav.foreldrepenger.behandlingslager.behandling.beregning.AktivitetStatus;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 import no.nav.foreldrepenger.ytelse.beregning.regelmodell.BeregningsresultatAndel;
 import no.nav.foreldrepenger.ytelse.beregning.regelmodell.BeregningsresultatFeriepengerGrunnlag;
@@ -68,13 +68,8 @@ public final class MapBeregningsresultatFeriepengerFraVLTilRegel {
             .flatMap(periode -> periode.getBeregningsresultatAndelList().stream())
             .filter(andel -> andel.getDagsats() > 0)
             .map(no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatAndel::getInntektskategori)
-            .map(MapBeregningsresultatFeriepengerFraVLTilRegel::mapInntektskategori)
             .map(InntektskategoriMapper::fraVLTilRegel)
             .collect(Collectors.toSet());
-    }
-
-    private static no.nav.foreldrepenger.domene.modell.kodeverk.Inntektskategori mapInntektskategori(no.nav.foreldrepenger.behandlingslager.behandling.beregning.Inntektskategori inntektskategori) {
-        return no.nav.foreldrepenger.domene.modell.kodeverk.Inntektskategori.fraKode(inntektskategori.getKode());
     }
 
     private static BeregningsresultatPeriode mapBeregningsresultatPerioder(no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatPeriode beregningsresultatPerioder) {
@@ -90,7 +85,7 @@ public final class MapBeregningsresultatFeriepengerFraVLTilRegel {
             .medDagsats((long) andel.getDagsats())
             .medDagsatsFraBg((long) andel.getDagsatsFraBg())
             .medAktivitetStatus(AktivitetStatusMapper.fraVLTilRegel(AktivitetStatus.fraKode(aktivitetStatus.getKode())))
-            .medInntektskategori(InntektskategoriMapper.fraVLTilRegel(mapInntektskategori(andel.getInntektskategori())))
+            .medInntektskategori(InntektskategoriMapper.fraVLTilRegel(andel.getInntektskategori()))
             .medArbeidsforhold(mapArbeidsforhold(andel))
             .build();
     }

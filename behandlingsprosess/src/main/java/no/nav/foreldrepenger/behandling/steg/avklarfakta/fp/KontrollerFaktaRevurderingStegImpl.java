@@ -60,8 +60,8 @@ import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagGrunnlag;
 import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagPeriode;
 import no.nav.foreldrepenger.domene.modell.FaktaAggregat;
 import no.nav.foreldrepenger.domene.modell.FaktaAktør;
-import no.nav.foreldrepenger.domene.modell.kodeverk.AktivitetStatus;
-import no.nav.foreldrepenger.domene.modell.typer.FaktaVurdering;
+import no.nav.foreldrepenger.behandlingslager.behandling.beregning.AktivitetStatus;
+import no.nav.foreldrepenger.domene.modell.FaktaVurdering;
 import no.nav.foreldrepenger.domene.prosess.BeregningTjeneste;
 import no.nav.foreldrepenger.domene.registerinnhenting.BehandlingÅrsakTjeneste;
 import no.nav.foreldrepenger.domene.registerinnhenting.StartpunktTjeneste;
@@ -184,8 +184,12 @@ class KontrollerFaktaRevurderingStegImpl implements KontrollerFaktaSteg {
 
         // Undersøk behov for GRegulering. Med mindre vi allerede skal til BEREGNING eller tidligere steg
         if (startpunkt.getRangering() > StartpunktType.BEREGNING.getRangering()) {
-            var greguleringStartpunkt = utledBehovForGRegulering(stp, revurdering);
-            startpunkt = startpunkt.getRangering() < greguleringStartpunkt.getRangering() ? startpunkt : greguleringStartpunkt;
+            if (erAapPraksisendringBehandling(revurdering)) {
+                startpunkt = StartpunktType.BEREGNING;
+            } else {
+                var greguleringStartpunkt = utledBehovForGRegulering(stp, revurdering);
+                startpunkt = startpunkt.getRangering() < greguleringStartpunkt.getRangering() ? startpunkt : greguleringStartpunkt;
+            }
         }
 
         // Startpunkt for revurdering kan kun hoppe fremover; default dersom startpunkt passert
@@ -194,6 +198,10 @@ class KontrollerFaktaRevurderingStegImpl implements KontrollerFaktaSteg {
         }
         LOG.info("KOFAKREV Revurdering {} har fått fastsatt startpunkt {} ", revurdering.getId(), startpunkt.getKode());
         return startpunkt;
+    }
+
+    private boolean erAapPraksisendringBehandling(Behandling behandling) {
+        return behandling.harBehandlingÅrsak(BehandlingÅrsakType.FEIL_PRAKSIS_BG_AAP_KOMBI);
     }
 
     private StartpunktType initieltStartPunkt(BehandlingReferanse ref, Skjæringstidspunkt stp, Behandling revurdering) {
@@ -374,7 +382,7 @@ class KontrollerFaktaRevurderingStegImpl implements KontrollerFaktaSteg {
         }
 
         if (StartpunktType.UTTAKSVILKÅR.equals(revurdering.getStartpunkt()) || StartpunktType.TILKJENT_YTELSE.equals(revurdering.getStartpunkt())) {
-            beregningTjeneste.kopier(BehandlingReferanse.fra(revurdering), BehandlingReferanse.fra(origBehandling), BehandlingStegType.FASTSETT_BEREGNINGSGRUNNLAG);
+            beregningTjeneste.kopierFastsatt(BehandlingReferanse.fra(revurdering), BehandlingReferanse.fra(origBehandling));
         }
 
         if (StartpunktType.TILKJENT_YTELSE.equals(revurdering.getStartpunkt())) {
