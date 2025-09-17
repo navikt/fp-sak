@@ -18,6 +18,7 @@ import no.nav.foreldrepenger.behandling.BehandlingEventPubliserer;
 import no.nav.foreldrepenger.behandling.FagsakRelasjonTjeneste;
 import no.nav.foreldrepenger.behandlingslager.aktør.OrganisasjonsEnhet;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.behandling.events.BehandlingEnhetEvent;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag;
@@ -197,6 +198,10 @@ public class BehandlendeEnhetTjeneste {
         return EnhetsTjeneste.getEnhetKlage();
     }
 
+    public static OrganisasjonsEnhet getMidlertidigEnhet() {
+        return EnhetsTjeneste.getEnhetMidlertidig();
+    }
+
     public static OrganisasjonsEnhet getNasjonalEnhet() {
         return EnhetsTjeneste.getEnhetNasjonal();
     }
@@ -204,6 +209,16 @@ public class BehandlendeEnhetTjeneste {
     // Oppdaterer behandlende enhet og sikre at dvh oppdateres (via event)
     public void oppdaterBehandlendeEnhet(Behandling behandling, OrganisasjonsEnhet nyEnhet, HistorikkAktør endretAv, String begrunnelse) {
         var lås = behandlingRepository.taSkriveLås(behandling);
+
+        // TODO Når opprydning etter AAP praksisendring er ferdig kan dette fjernes TFP-6377
+        if (behandling.harBehandlingÅrsak(BehandlingÅrsakType.FEIL_PRAKSIS_BG_AAP_KOMBI)) {
+            if (behandling.getBehandlendeEnhet().equals(EnhetsTjeneste.getEnhetMidlertidig().enhetId())) {
+                return;
+            } else {
+                nyEnhet = EnhetsTjeneste.getEnhetMidlertidig();
+            }
+        }
+
         if (endretAv != null) {
             lagHistorikkInnslagForByttBehandlendeEnhet(behandling, nyEnhet, begrunnelse, endretAv);
         }
