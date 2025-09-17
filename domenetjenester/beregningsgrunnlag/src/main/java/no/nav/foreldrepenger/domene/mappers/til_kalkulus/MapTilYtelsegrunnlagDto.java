@@ -103,20 +103,15 @@ public class MapTilYtelsegrunnlagDto {
             .filter(y -> y.getPeriode().overlapper(periode))
             .getFiltrertYtelser();
         if (ytelse.equals(RelatertYtelseType.SYKEPENGER)) {
-            var sykepengeperioder = ytelsevedtak.stream()
-                .map(MapTilYtelsegrunnlagDto::mapTilYtelsegrunnlag)
-                .flatMap(Optional::stream)
+            var sykepengeperioder = ytelsevedtak.stream().map(MapTilYtelsegrunnlagDto::mapTilYtelsegrunnlag).flatMap(Optional::stream).toList();
+            return sykepengeperioder.isEmpty() ? Optional.empty() : Optional.of(new Ytelsegrunnlag(YtelseType.SYKEPENGER, sykepengeperioder));
+        } else {
+            var alleAnvistePerioder = ytelsevedtak.stream().map(Ytelse::getYtelseAnvist).flatMap(Collection::stream).toList();
+            var perioder = alleAnvistePerioder.stream()
+                .map(p -> new Ytelseperiode(new Periode(p.getAnvistFOM(), p.getAnvistTOM()), mapAnvisteAndeler(p.getYtelseAnvistAndeler())))
                 .toList();
-            return sykepengeperioder.isEmpty()
-                ? Optional.empty()
-                : Optional.of(new Ytelsegrunnlag(YtelseType.SYKEPENGER, sykepengeperioder));
+            return perioder.isEmpty() ? Optional.empty() : Optional.of(new Ytelsegrunnlag(mapRelatertYtelseKode(ytelse), perioder));
         }
-        var alleAnvistePerioder = ytelsevedtak.stream().map(Ytelse::getYtelseAnvist).flatMap(Collection::stream).toList();
-        var perioder = alleAnvistePerioder.stream()
-            .map(
-                p -> new Ytelseperiode(new Periode(p.getAnvistFOM(), p.getAnvistTOM()), mapAnvisteAndeler(p.getYtelseAnvistAndeler())))
-            .toList();
-        return perioder.isEmpty() ? Optional.empty() : Optional.of(new Ytelsegrunnlag(mapRelatertYtelseKode(ytelse), perioder));
     }
 
     private static List<Ytelseandel> mapAnvisteAndeler(Set<YtelseAnvistAndel> ytelseAnvistAndeler) {
@@ -168,10 +163,10 @@ public class MapTilYtelsegrunnlagDto {
     }
 
     private static YtelseType mapRelatertYtelseKode(RelatertYtelseType ytelse) {
-        if (ytelse.equals(RelatertYtelseType.PLEIEPENGER_NÆRSTÅENDE)) {
-            return YtelseType.PLEIEPENGER_NÆRSTÅENDE;
-        } else if (ytelse.equals(RelatertYtelseType.PLEIEPENGER_SYKT_BARN)) {
-            return YtelseType.PLEIEPENGER_SYKT_BARN;
-        }
-        throw new IllegalArgumentException("Ukjent ytelse ved mapping til besteberegning ytelsegrunnlag: " + ytelse);
+        return switch (ytelse) {
+            case PLEIEPENGER_SYKT_BARN ->  YtelseType.PLEIEPENGER_SYKT_BARN;
+            case PLEIEPENGER_NÆRSTÅENDE -> YtelseType.PLEIEPENGER_NÆRSTÅENDE;
+            case OPPLÆRINGSPENGER -> YtelseType.OPPLÆRINGSPENGER;
+            default -> throw new IllegalArgumentException("Ukjent ytelse ved mapping til besteberegning ytelsegrunnlag: " + ytelse);
+        };
     }}

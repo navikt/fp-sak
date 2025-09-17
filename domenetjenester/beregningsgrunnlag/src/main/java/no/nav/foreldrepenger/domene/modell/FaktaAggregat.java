@@ -3,8 +3,6 @@ package no.nav.foreldrepenger.domene.modell;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.function.Consumer;
-import java.util.function.Function;
 
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
@@ -54,29 +52,6 @@ public class FaktaAggregat {
         eksisterende.ifPresent(this.faktaArbeidsforholdListe::remove);
         this.faktaArbeidsforholdListe.add(faktaArbeidsforhold);
     }
-
-    private void leggTilFaktaArbeidsforholdOgKopierEksisterende(FaktaArbeidsforhold faktaArbeidsforhold) {
-        var eksisterende = this.faktaArbeidsforholdListe.stream()
-            .filter(fa -> fa.gjelderFor(faktaArbeidsforhold.getArbeidsgiver(), faktaArbeidsforhold.getArbeidsforholdRef()))
-            .findFirst();
-        eksisterende.ifPresentOrElse(kopier(faktaArbeidsforhold), () -> this.faktaArbeidsforholdListe.add(faktaArbeidsforhold));
-    }
-
-    private Consumer<FaktaArbeidsforhold> kopier(FaktaArbeidsforhold faktaArbeidsforhold) {
-        return e -> {
-            var faktaBuilder = FaktaArbeidsforhold.builder(e);
-            kopierVurdering(faktaBuilder::medErTidsbegrenset, faktaArbeidsforhold.getErTidsbegrenset());
-            kopierVurdering(faktaBuilder::medHarMottattYtelse, faktaArbeidsforhold.getHarMottattYtelse());
-            kopierVurdering(faktaBuilder::medHarLønnsendringIBeregningsperioden, faktaArbeidsforhold.getHarLønnsendringIBeregningsperioden());
-        };
-    }
-
-    private void kopierVurdering(Function<FaktaVurdering, FaktaArbeidsforhold.Builder> builderFunction, FaktaVurdering vurdering) {
-        if (vurdering != null && vurdering.getVurdering() != null) {
-            builderFunction.apply(vurdering);
-        }
-    }
-
 
     void setFaktaAktør(FaktaAktør faktaAktør) {
         this.faktaAktør = faktaAktør;
