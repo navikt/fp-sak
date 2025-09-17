@@ -5,10 +5,9 @@ import java.util.List;
 import java.util.Optional;
 
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Size;
 
 import com.fasterxml.jackson.annotation.JsonTypeName;
-
-import jakarta.validation.constraints.Size;
 
 import no.nav.foreldrepenger.behandling.aksjonspunkt.BekreftetAksjonspunktDto;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktKodeDefinisjon;
@@ -18,7 +17,7 @@ public class SjekkManglendeFødselAksjonspunktDto extends BekreftetAksjonspunktD
 
     // barn = null betyr at barn ikke er født
     @Valid
-    @Size(min = 1, max = 9)
+    @Size(max = 9)
     private List<DokumentertBarnDto> barn;
 
     private LocalDate termindato;

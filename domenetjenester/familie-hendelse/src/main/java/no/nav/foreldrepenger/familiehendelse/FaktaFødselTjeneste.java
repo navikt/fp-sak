@@ -117,9 +117,9 @@ public class FaktaFødselTjeneste {
 
         if (erOverstyring) {
             historikkinnslag.addLinje(new HistorikkinnslagLinjeBuilder().bold("Overstyrt fakta om fødsel"));
-            addLinjeTermindato(fh, termindato, historikkinnslag);
         }
 
+        addLinjeTermindato(fh, termindato, historikkinnslag);
         historikkinnslag.addLinje(new HistorikkinnslagLinjeBuilder().bold("Er barnet født?").tekst(format(barna.isPresent())));
 
         if (barna.isPresent()) {
@@ -139,9 +139,7 @@ public class FaktaFødselTjeneste {
     private static void addLinjeTermindato(FamilieHendelseGrunnlagEntitet fh,
                                            Optional<LocalDate> termindato,
                                            Historikkinnslag.Builder historikkinnslag) {
-        var gjeldendeTermindato = fh.getGjeldendeVersjon().getTermindato().orElse(null);
-        termindato.filter(t -> !t.equals(gjeldendeTermindato))
-            .ifPresent(t -> historikkinnslag.addLinje(
+        termindato.ifPresent(t -> historikkinnslag.addLinje(
                 fraTilEquals("Termindato", fh.getGjeldendeTerminbekreftelse().map(TerminbekreftelseEntitet::getTermindato).orElse(null), t)));
     }
 
