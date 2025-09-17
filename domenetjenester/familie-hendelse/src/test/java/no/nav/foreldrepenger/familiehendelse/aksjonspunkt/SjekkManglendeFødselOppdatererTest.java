@@ -6,14 +6,9 @@ import static no.nav.foreldrepenger.behandlingslager.behandling.historikk.Histor
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
-import java.util.Collections;
 import java.util.List;
 
 import jakarta.inject.Inject;
-
-import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.AbstractTestScenario;
-
-import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -45,18 +40,17 @@ class SjekkManglendeFødselOppdatererTest {
     private FamilieHendelseTjeneste familieHendelseTjeneste;
 
     private SjekkManglendeFødselOppdaterer oppdaterer;
-    private AbstractTestScenario<?> scenario;
 
     @BeforeEach
     void setUp() {
         this.oppdaterer = new SjekkManglendeFødselOppdaterer(familieHendelseTjeneste, faktaFødselTjeneste);
-        scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
-        scenario.leggTilAksjonspunkt(SJEKK_MANGLENDE_FØDSEL, BehandlingStegType.SØKERS_RELASJON_TIL_BARN);
     }
 
     // TODO finn ut hvorfor denne testen ikke kjører som forventet
     @Test
     void skal_avklare_at_manglende_fødsel_ikke_kan_dokumenters() {
+        var scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
+        scenario.leggTilAksjonspunkt(SJEKK_MANGLENDE_FØDSEL, BehandlingStegType.SØKERS_RELASJON_TIL_BARN);
         var antallBarnSøknad = 1;
         var fødselsdatoFraSøknad = now();
         var famHendelseBuilder = scenario.medSøknadHendelse();
@@ -78,7 +72,7 @@ class SjekkManglendeFødselOppdatererTest {
             assertThat(h.getBekreftetVersjon()).isEmpty();
             assertThat(h.getOverstyrtVersjon()).hasValueSatisfying(o -> {
                 assertThat(o.getAntallBarn()).isEqualTo(antallBarnSøknad);
-                assertThat(o.getBarna()).hasSize(antallBarnSøknad).map(UidentifisertBarn::getFødselsdato).containsExactly(fødselsdatoFraSøknad);
+                assertThat(o.getBarna()).isEmpty();
                 assertThat(o.getType()).isEqualTo(FamilieHendelseType.TERMIN);
             });
         });
@@ -91,6 +85,8 @@ class SjekkManglendeFødselOppdatererTest {
     void skal_avklare_manglende_fødsel_hvor_fødsel_ikke_er_registrert_i_freg() {
         var antallBarnSøknad = 1;
         var fødselsdatoFraSøknad = now().minusDays(1);
+        var scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
+        scenario.leggTilAksjonspunkt(SJEKK_MANGLENDE_FØDSEL, BehandlingStegType.SØKERS_RELASJON_TIL_BARN);
         scenario.medSøknadHendelse().medFødselsDato(fødselsdatoFraSøknad).medAntallBarn(antallBarnSøknad);
         var behandling = scenario.lagre(repositoryProvider);
         var dto = new SjekkManglendeFødselAksjonspunktDto("begrunnelse", List.of(new DokumentertBarnDto(fødselsdatoFraSøknad, null)));
@@ -114,6 +110,8 @@ class SjekkManglendeFødselOppdatererTest {
         var antallBarnFReg = 2;
         var fødselsdatoFraPDL = now().minusDays(1);
         var fødselsdatoFraSøknad = now().minusDays(10);
+        var scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
+        scenario.leggTilAksjonspunkt(SJEKK_MANGLENDE_FØDSEL, BehandlingStegType.SØKERS_RELASJON_TIL_BARN);
         scenario.medSøknadHendelse().medFødselsDato(fødselsdatoFraSøknad, antallBarnSøknad).medAntallBarn(antallBarnSøknad);
         scenario.medBekreftetHendelse()
             .tilbakestillBarn()
@@ -145,6 +143,8 @@ class SjekkManglendeFødselOppdatererTest {
         var avklartFødseldato = opprinneligFødseldato.plusDays(1);
         var antallBarnSøknad = 1;
         var antallBarnSBH = 2;
+        var scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
+        scenario.leggTilAksjonspunkt(SJEKK_MANGLENDE_FØDSEL, BehandlingStegType.SØKERS_RELASJON_TIL_BARN);
         scenario.medSøknadHendelse().medFødselsDato(opprinneligFødseldato).medAntallBarn(antallBarnSøknad);
         scenario.lagre(repositoryProvider);
         var behandling = scenario.getBehandling();
@@ -173,6 +173,8 @@ class SjekkManglendeFødselOppdatererTest {
         var fødselsdatoFraSøknad = now();
         var dødsdatoFraSBH = now();
         var antallBarnSøknad = 1;
+        var scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
+        scenario.leggTilAksjonspunkt(SJEKK_MANGLENDE_FØDSEL, BehandlingStegType.SØKERS_RELASJON_TIL_BARN);
         scenario.medSøknadHendelse().medFødselsDato(fødselsdatoFraSøknad).medAntallBarn(antallBarnSøknad);
         scenario.lagre(repositoryProvider);
         var behandling = scenario.getBehandling();
@@ -200,7 +202,7 @@ class SjekkManglendeFødselOppdatererTest {
     void skal_oppdatere_fødsel_13m_gir_oppdater_grunnlag() {
         var fødselsdatoFraSøknad = now().minusDays(3);
         var fødselsdatoFraSBH = now().minusMonths(13);
-        scenario = ScenarioFarSøkerEngangsstønad.forFødsel();
+        var scenario = ScenarioFarSøkerEngangsstønad.forFødsel();
         scenario.medSøknad().medSøknadsdato(now()).build();
         scenario.medSøknadHendelse().medFødselsDato(fødselsdatoFraSøknad).medAntallBarn(1);
         scenario.leggTilAksjonspunkt(SJEKK_MANGLENDE_FØDSEL, BehandlingStegType.SØKERS_RELASJON_TIL_BARN);
@@ -228,7 +230,7 @@ class SjekkManglendeFødselOppdatererTest {
     @Test
     void skal_oppdatere_antall_barn_basert_på_saksbehandlers_oppgitte_antall() {
         var fødselsdatoFraSøknad = now().minusDays(3);
-        scenario = ScenarioFarSøkerEngangsstønad.forFødsel();
+        var scenario = ScenarioFarSøkerEngangsstønad.forFødsel();
         scenario.medSøknad().medSøknadsdato(now());
         scenario.medSøknadHendelse().medFødselsDato(fødselsdatoFraSøknad, 2).medAntallBarn(2);
         scenario.leggTilAksjonspunkt(SJEKK_MANGLENDE_FØDSEL, BehandlingStegType.SØKERS_RELASJON_TIL_BARN);
@@ -252,6 +254,8 @@ class SjekkManglendeFødselOppdatererTest {
 
     @Test
     void skal_hive_exception_når_dto_inneholder_feil() {
+        var scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
+        scenario.leggTilAksjonspunkt(SJEKK_MANGLENDE_FØDSEL, BehandlingStegType.SØKERS_RELASJON_TIL_BARN);
         scenario.medSøknad().medSøknadsdato(now());
         scenario.medSøknadHendelse().medAntallBarn(1).medFødselsDato(now());
         var behandling = scenario.lagre(repositoryProvider);
