@@ -225,14 +225,7 @@ public class FordelRestTjeneste {
     public Response knyttSakOgJournalpost(@TilpassetAbacAttributt(supplierClass = JournalpostKnyttningDtoAbacDataSupplier.class)
         @Parameter(description = "Saksnummer og JournalpostId som skal knyttes sammen") @Valid JournalpostKnyttningDto journalpostKnytningDto) {
         ensureCallId();
-        var saksnummer = new Saksnummer(journalpostKnytningDto.saksnummerDto().saksnummer());
-        var fagsak = opprettSakTjeneste.finnSak(saksnummer);
-
-        if (fagsak.isPresent()) {
-            opprettSakTjeneste.knyttSakOgJournalpost(saksnummer, new JournalpostId(journalpostKnytningDto.journalpostIdDto().journalpostId()));
-        } else {
-            throw new TekniskException("FP-840572", "Finner ikke fagsak med angitt saksnummer " + saksnummer);
-        }
+        knyttSakOgJournalpost(new Saksnummer(journalpostKnytningDto.saksnummerDto().saksnummer()), new JournalpostId(journalpostKnytningDto.journalpostIdDto().journalpostId()));
         return Response.ok().build();
     }
 
@@ -244,14 +237,19 @@ public class FordelRestTjeneste {
     @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.FAGSAK, sporingslogg = true)
     public Response mottaJournalpost(@TilpassetAbacAttributt(supplierClass = JournalpostMottakDtoAbacDataSupplier.class)
         @Parameter(description = "Krever saksnummer, journalpostId og behandlingstemaOffisiellKode") @Valid JournalpostMottakDto mottattJournalpost) {
+        ensureCallId();
+        var saksnummer = new Saksnummer(mottattJournalpost.getSaksnummer());
+        if (mottattJournalpost.isKnyttSakOgJournalpost()) {
+            knyttSakOgJournalpost(saksnummer, new JournalpostId(mottattJournalpost.getJournalpostId()));
+        }
+
         var dokumentTypeId = mottattJournalpost.getDokumentTypeIdOffisiellKode()
             .map(DokumentTypeId::finnForKodeverkEiersKode)
             .orElse(DokumentTypeId.UDEFINERT);
         if (DokumentTypeId.TILBAKEKREVING_UTTALSELSE.equals(dokumentTypeId) || DokumentTypeId.TILBAKEBETALING_UTTALSELSE.equals(dokumentTypeId)) {
             return Response.ok().build();
         }
-        ensureCallId();
-        var saksnummer = new Saksnummer(mottattJournalpost.getSaksnummer());
+
         var dokument = mapTilMottattDokument(mottattJournalpost, dokumentTypeId, saksnummer);
         dokumentmottakTjeneste.dokumentAnkommet(dokument, null, saksnummer);
         return Response.ok().build();
@@ -311,6 +309,14 @@ public class FordelRestTjeneste {
             .orElse(new InfoOmSakInntektsmeldingResponse(StatusSakInntektsmelding.INGEN_BEHANDLING, Tid.TIDENES_ENDE, Tid.TIDENES_ENDE));
 
         return Response.ok(infoOmSakIMResponse).build();
+    }
+
+    private void knyttSakOgJournalpost(Saksnummer saksnummer, JournalpostId journalpostId) {
+        var fagsak = opprettSakTjeneste.finnSak(saksnummer);
+        if (fagsak.isEmpty()) {
+            throw new TekniskException("FP-840572", "Finner ikke fagsak med angitt saksnummer " + saksnummer);
+        }
+        opprettSakTjeneste.knyttSakOgJournalpost(saksnummer, journalpostId);
     }
 
     private InfoOmSakInntektsmeldingResponse hentInfoOmSakIntektsmelding(Long fagsakId) {
@@ -439,6 +445,7 @@ public class FordelRestTjeneste {
         dto.getSaksnummer().ifPresent(sn -> v.setSaksnummer(new Saksnummer(sn)));
         dto.getAnnenPart().map(AktørId::new).ifPresent(v::setAnnenPart);
 
+        v.setOpprettSakVedBehov(dto.isOpprettSakVedBehov());
         v.setBrukerRolle(mapBrukerRolle(dto.getBrukerRolle()));
         v.setDokumentTypeId(DokumentTypeId.UDEFINERT);
         v.setDokumentKategori(DokumentKategori.UDEFINERT);

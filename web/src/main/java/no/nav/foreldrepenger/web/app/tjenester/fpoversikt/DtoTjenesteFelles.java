@@ -96,7 +96,7 @@ class DtoTjenesteFelles {
                 case AUTO_VENT_PÅ_SYKEMELDING -> Sak.Aksjonspunkt.Type.VENT_SYKEMELDING;
                 case AUTO_VENT_PÅ_KABAL_KLAGE -> Sak.Aksjonspunkt.Type.VENT_KABAL_KLAGE;
                 case AUTO_VENT_PÅ_KABAL_ANKE -> Sak.Aksjonspunkt.Type.VENT_PÅ_KABAL_ANKE;
-                default -> null;
+                default -> Sak.Aksjonspunkt.Type.ANNET;
             };
 
             var venteÅrsak = switch (a.getVenteårsak()) {
@@ -118,7 +118,7 @@ class DtoTjenesteFelles {
                 default -> null;
             };
             return new Sak.Aksjonspunkt(type, venteÅrsak, a.getFristTid());
-        }).filter(a -> a.type() != null).collect(Collectors.toSet());
+        }).collect(Collectors.toSet());
     }
 
     boolean erAvsluttet(Fagsak fagsak) {

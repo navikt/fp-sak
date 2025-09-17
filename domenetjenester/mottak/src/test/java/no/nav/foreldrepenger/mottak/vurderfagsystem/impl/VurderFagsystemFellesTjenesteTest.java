@@ -34,7 +34,7 @@ class VurderFagsystemFellesTjenesteTest {
 
     @BeforeEach
     void setup() {
-        vurderFagsystemFellesTjeneste = new VurderFagsystemFellesTjeneste(fagsakTjenesteMock, null, null);
+        vurderFagsystemFellesTjeneste = new VurderFagsystemFellesTjeneste(fagsakTjenesteMock, null, null, null);
     }
 
     @Test
