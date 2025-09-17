@@ -43,6 +43,8 @@ public class VurderFagsystem {
     private String arbeidsforholdsid;
     private RelasjonsRolleType brukerRolle;
 
+    private boolean opprettSakVedBehov;
+
 
     public Optional<JournalpostId> getJournalpostId() {
         return Optional.ofNullable(journalpostId);
@@ -202,6 +204,14 @@ public class VurderFagsystem {
 
     public void setBrukerRolle(RelasjonsRolleType brukerRolle) {
         this.brukerRolle = brukerRolle;
+    }
+
+    public boolean isOpprettSakVedBehov() {
+        return opprettSakVedBehov;
+    }
+
+    public void setOpprettSakVedBehov(boolean opprettSakVedBehov) {
+        this.opprettSakVedBehov = opprettSakVedBehov;
     }
 }
 

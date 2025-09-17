@@ -46,7 +46,7 @@ public class VurderFagsystemTjenesteImpl implements VurderFagsystemTjeneste {
             .toList();
 
         if (matchendeFagsaker.size() == 1) {
-            return new BehandlendeFagsystem(VEDTAKSLØSNING, matchendeFagsaker.get(0));
+            return new BehandlendeFagsystem(VEDTAKSLØSNING, matchendeFagsaker.getFirst());
         }
         if (matchendeFagsaker.size() > 1) {
             LOG.info("VurderFagsystem FP strukturert søknad {} flere matchende saker {}", vurderFagsystem.getJournalpostIdLog(), matchendeFagsaker);
@@ -59,7 +59,7 @@ public class VurderFagsystemTjenesteImpl implements VurderFagsystemTjeneste {
             .toList();
 
         if (relevanteFagsaker.size() == 1) {
-            return new BehandlendeFagsystem(VEDTAKSLØSNING, relevanteFagsaker.get(0));
+            return new BehandlendeFagsystem(VEDTAKSLØSNING, relevanteFagsaker.getFirst());
         }
         if (relevanteFagsaker.size() > 1) {
             LOG.info("VurderFagsystem FP strukturert søknad {} flere relevante saker {}", vurderFagsystem.getJournalpostIdLog(), relevanteFagsaker);
@@ -75,7 +75,7 @@ public class VurderFagsystemTjenesteImpl implements VurderFagsystemTjeneste {
             .filter(s -> !fellesUtils.erFagsakMedAnnenFamilieHendelseEnnSøknadFamilieHendelse(vurderFagsystem, s))
             .toList();
         // Mønster av 1 sak basert på inntektsmelding som blir henlagt ila siste 10 mnd. Bruk saken hvis fersk nok IM.
-        var potensiellImSak = sakOpprettetInnenIntervall.size() == 1 ? sakOpprettetInnenIntervall.get(0) : null;
+        var potensiellImSak = sakOpprettetInnenIntervall.size() == 1 ? sakOpprettetInnenIntervall.getFirst() : null;
         if (potensiellImSak != null && fellesUtils.erFagsakBasertPåInntektsmeldingUtenSøknad(potensiellImSak)) {
             return fellesUtils.kanFagsakBasertPåInntektsmeldingBrukesForSøknad(vurderFagsystem, potensiellImSak) ?
                 new BehandlendeFagsystem(VEDTAKSLØSNING, potensiellImSak.getSaksnummer()) :  new BehandlendeFagsystem(VEDTAKSLØSNING);
