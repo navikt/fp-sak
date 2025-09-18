@@ -15,7 +15,7 @@ public class VelferdspermisjonDto {
 
     @JsonProperty("permisjonFom") @NotNull
     private LocalDate permisjonFom;
-    @JsonProperty("permisjonTom") @NotNull
+    @JsonProperty("permisjonTom")
     private LocalDate permisjonTom;
     @JsonProperty("permisjonsprosent") @NotNull
     private BigDecimal permisjonsprosent;

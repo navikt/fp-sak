@@ -8,7 +8,7 @@ import no.nav.foreldrepenger.validering.ValidKodeverk;
 import no.nav.vedtak.util.InputValideringRegex;
 
 public record ArbeidsforholdDto(@Pattern(regexp = InputValideringRegex.ARBEIDSGIVER) String arbeidsgiverReferanse,
-                                @NotNull @ValidKodeverk UttakArbeidType arbeidType) {
+                                @ValidKodeverk UttakArbeidType arbeidType) {
 
     public static ArbeidsforholdDto ordinært(String arbeidsgiverReferanse) {
         return new ArbeidsforholdDto(arbeidsgiverReferanse, UttakArbeidType.ORDINÆRT_ARBEID);
