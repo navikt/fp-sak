@@ -13,6 +13,7 @@ import java.util.stream.Stream;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
+import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseGrunnlagEntitet;
@@ -126,10 +127,8 @@ public class FaktaFødselTjeneste {
     private FødselDto.Gjeldende.FødselDokumetasjonStatus mapFødselDokumetasjonStatus(FamilieHendelseGrunnlagEntitet familieHendelse,
                                                                                      Long behandlingId) {
         var behandling = behandlingRepository.hentBehandling(behandlingId);
-        var harUtførtAP = behandling.harUtførtAksjonspunktMedType(AksjonspunktDefinisjon.SJEKK_MANGLENDE_FØDSEL);
-        var harUtførtOverstyring = behandling.harUtførtAksjonspunktMedType(AksjonspunktDefinisjon.OVERSTYRING_AV_FAKTA_OM_FØDSEL);
 
-        if (!harUtførtAP && !harUtførtOverstyring) {
+        if (!(utførtAksjonspunkt(behandling) || sendtTilbakeFraBeslutter(behandling))) {
             return FødselDto.Gjeldende.FødselDokumetasjonStatus.IKKE_VURDERT;
         }
 
@@ -137,6 +136,16 @@ public class FaktaFødselTjeneste {
             .filter(o -> !o.getBarna().isEmpty())
             .map(o -> FødselDto.Gjeldende.FødselDokumetasjonStatus.DOKUMENTERT)
             .orElse(FødselDto.Gjeldende.FødselDokumetasjonStatus.IKKE_DOKUMENTERT);
+    }
+
+    private static boolean utførtAksjonspunkt(Behandling behandling) {
+        return behandling.harUtførtAksjonspunktMedType(AksjonspunktDefinisjon.SJEKK_MANGLENDE_FØDSEL) || behandling.harUtførtAksjonspunktMedType(
+            AksjonspunktDefinisjon.OVERSTYRING_AV_FAKTA_OM_FØDSEL);
+    }
+
+    private static boolean sendtTilbakeFraBeslutter(Behandling behandling) {
+        return (behandling.harÅpentAksjonspunktMedType(AksjonspunktDefinisjon.SJEKK_MANGLENDE_FØDSEL) || behandling.harAksjonspunktMedType(
+            AksjonspunktDefinisjon.OVERSTYRING_AV_FAKTA_OM_FØDSEL)) && behandling.isToTrinnsBehandling();
     }
 
     private FødselDto.Gjeldende.Utstedtdato mapUtstedtdato(FamilieHendelseGrunnlagEntitet familieHendelse) {
