@@ -75,14 +75,15 @@ public class VurderFagsystemTjenesteImpl implements VurderFagsystemTjeneste {
             return new BehandlendeFagsystem(VEDTAKSLØSNING);
         }
         // Har har vi kun 1 relevant sak. Sjekker om åpen eller basert på inntektsmelding og så henlagt før søknad kommer.
-        if (relevanteFagsaker.get(0).erÅpen()) {
-            return new BehandlendeFagsystem(VEDTAKSLØSNING, relevanteFagsaker.get(0).getSaksnummer());
+        var relevantFagsak = relevanteFagsaker.getFirst();
+        if (relevantFagsak.erÅpen()) {
+            return new BehandlendeFagsystem(VEDTAKSLØSNING, relevantFagsak.getSaksnummer());
         }
-        if (fellesUtils.erFagsakBasertPåInntektsmeldingUtenSøknad(relevanteFagsaker.get(0))) {
-            return fellesUtils.kanFagsakBasertPåInntektsmeldingBrukesForSøknad(vurderFagsystem, relevanteFagsaker.get(0)) ?
-                new BehandlendeFagsystem(VEDTAKSLØSNING, relevanteFagsaker.get(0).getSaksnummer()) : new BehandlendeFagsystem(VEDTAKSLØSNING);
+        if (fellesUtils.erFagsakBasertPåInntektsmeldingUtenSøknad(relevantFagsak)) {
+            return fellesUtils.kanFagsakBasertPåInntektsmeldingBrukesForSøknad(vurderFagsystem, relevantFagsak) ?
+                new BehandlendeFagsystem(VEDTAKSLØSNING, relevantFagsak.getSaksnummer()) : new BehandlendeFagsystem(VEDTAKSLØSNING);
         }
-        LOG.info("VurderFagsystem SV strukturert søknad {} 1 relevant saker som ikke matchet {}", vurderFagsystem.getJournalpostIdLog(), relevanteFagsaker.get(0).getSaksnummer());
+        LOG.info("VurderFagsystem SV strukturert søknad {} 1 relevant saker som ikke matchet {}", vurderFagsystem.getJournalpostIdLog(), relevantFagsak.getSaksnummer());
         return new BehandlendeFagsystem(MANUELL_VURDERING);
     }
 

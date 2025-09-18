@@ -19,16 +19,22 @@ public record BehandlingOperasjonerDto(UUID uuid,
                                        @NotNull VergeBehandlingsmenyEnum vergeBehandlingsmeny) {
 
 
-    public BehandlingOperasjonerDto(UUID uuid) {
-        this(uuid, false, false, false, false,
+    public static BehandlingOperasjonerDto avsluttet(UUID uuid) {
+        return new BehandlingOperasjonerDto(uuid, false, false, false, false,
             false, false, false, false,
             false, VergeBehandlingsmenyEnum.SKJUL);
     }
 
-    public BehandlingOperasjonerDto(UUID uuid, boolean behandlingTilGodkjenning) {
-        this(uuid, false, false, false, false,
-            false, false, false, false,
+    public static BehandlingOperasjonerDto fatteVedtak(UUID uuid, boolean behandlingTilGodkjenning, boolean kanMerkesHaster) {
+        return new BehandlingOperasjonerDto(uuid, false, false, false, false,
+            kanMerkesHaster, false, false, false,
             behandlingTilGodkjenning, VergeBehandlingsmenyEnum.SKJUL);
+    }
+
+    public static BehandlingOperasjonerDto veileder(UUID uuid, boolean kanMerkesHaster) {
+        return new BehandlingOperasjonerDto(uuid, false, false, false, false,
+            kanMerkesHaster, false, false, false,
+            false, VergeBehandlingsmenyEnum.SKJUL);
     }
 
 }

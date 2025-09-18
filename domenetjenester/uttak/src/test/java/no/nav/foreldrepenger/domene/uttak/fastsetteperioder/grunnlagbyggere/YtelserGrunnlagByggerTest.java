@@ -106,6 +106,41 @@ class YtelserGrunnlagByggerTest {
             .containsExactly(new PleiepengerPeriode(fom, tom, false));
     }
 
+    @Test
+    void skal_håndtere_innleggelse_i_helg() {
+        var ytelseBuilder = YtelseBuilder.oppdatere(Optional.empty());
+        var ytelseFom = LocalDate.of(2025, 9, 15);
+        var ytelseTom = ytelseFom.plusWeeks(2);
+        var aktørYtelseBuilder = InntektArbeidYtelseAggregatBuilder.AktørYtelseBuilder.oppdatere(Optional.empty())
+            .leggTilYtelse(ytelseBuilder
+                .medYtelseAnvist(ytelseBuilder.getAnvistBuilder()
+                    .medAnvistPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(ytelseFom, ytelseTom))
+                    .medUtbetalingsgradProsent(BigDecimal.TEN)
+                    .build())
+                .medKilde(Fagsystem.K9SAK)
+                .medYtelseType(RelatertYtelseType.PLEIEPENGER_SYKT_BARN));
+
+        var innleggelseFom = LocalDate.of(2025, 9, 20); //Lørdag
+        var innleggelseTom = LocalDate.of(2025, 9, 20);
+        var innleggelse = new PleiepengerInnleggelseEntitet.Builder()
+            .medPeriode(fraOgMedTilOgMed(innleggelseFom, innleggelseTom));
+        var pleiepengerGrunnlag = PleiepengerGrunnlagEntitet.Builder.oppdatere(Optional.empty())
+            .medInnleggelsePerioder(new PleiepengerPerioderEntitet.Builder()
+                .leggTil(innleggelse))
+            .build();
+
+        var input = new UttakInput(lagBehandlingReferanse(), null, iay(aktørYtelseBuilder),
+            new ForeldrepengerGrunnlag().medPleiepengerGrunnlag(pleiepengerGrunnlag));
+
+        var ytelser = new YtelserGrunnlagBygger().byggGrunnlag(input);
+
+        assertThat(ytelser.pleiepenger()).isPresent();
+        var perioder = ytelser.pleiepenger().orElseThrow().perioder();
+        assertThat(perioder)
+            .hasSize(1)
+            .containsExactly(new PleiepengerPeriode(ytelseFom, ytelseTom, false));
+    }
+
     private InntektArbeidYtelseGrunnlag iay() {
         return iay(InntektArbeidYtelseAggregatBuilder.AktørYtelseBuilder.oppdatere(Optional.empty()));
     }

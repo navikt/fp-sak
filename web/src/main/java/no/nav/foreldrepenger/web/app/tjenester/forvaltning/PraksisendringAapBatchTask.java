@@ -72,18 +72,17 @@ public class PraksisendringAapBatchTask implements ProsessTaskHandler {
              inner join Aksjonspunkt ap on ap.behandling_id = beh.id
              where ap.aksjonspunkt_def = '5052' and ap.aksjonspunkt_status = 'UTFO'
              and fag.id >= :fraOgMedId and fag.id <= :tilOgMedId) order by id)
-             where ROWNUM <= 10""", Fagsak.class)
-            .setParameter("fraOgMedId", fraOgMedId)
-            .setParameter("tilOgMedId", tilOgMedId);
+             where ROWNUM <= 10""", Fagsak.class).setParameter("fraOgMedId", fraOgMedId).setParameter("tilOgMedId", tilOgMedId);
         return query.getResultList();
     }
 
     private void opprettTaskForSak(Fagsak fagsak, boolean dryRun) {
-        if (dryRun) {
-            var erPåvirket = aapPraksisendringTjeneste.erPåvirketAvPraksisendring(fagsak.getId());
-            LOG.info("PÅVIRKET_AV_AAP_PRAKSISENDRING: {} fagsakId {}", erPåvirket, fagsak.getId());
-        } else {
-            // TODO lag tasker for å opprette revurderinger, tas i neste omgang når vi ser hvor mange det gjelder.
+        var erPåvirket = aapPraksisendringTjeneste.erPåvirketAvPraksisendring(fagsak.getId());
+        LOG.info("PÅVIRKET_AV_AAP_PRAKSISENDRING: {} fagsakId {}", erPåvirket, fagsak.getId());
+        if (!dryRun && erPåvirket) {
+            var prosessTaskData = ProsessTaskData.forProsessTask(PraksisendringAapSakTask.class);
+            prosessTaskData.setFagsak(fagsak.getSaksnummer().getVerdi(), fagsak.getId());
+            prosessTaskTjeneste.lagre(prosessTaskData);
         }
     }
 

@@ -19,6 +19,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.DokumentTypeId;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
+import no.nav.foreldrepenger.domene.bruker.NavBrukerTjeneste;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 
 @ApplicationScoped
@@ -27,6 +28,7 @@ public class VurderFagsystemFellesTjeneste {
     private FagsakTjeneste fagsakTjeneste;
     private VurderFagsystemFellesUtils fellesUtils;
     private Instance<VurderFagsystemTjeneste> vurderFagsystemTjenester;
+    private NavBrukerTjeneste navBrukerTjeneste;
 
 
     public VurderFagsystemFellesTjeneste(){
@@ -36,10 +38,12 @@ public class VurderFagsystemFellesTjeneste {
     @Inject
     public VurderFagsystemFellesTjeneste(FagsakTjeneste fagsakTjeneste,
                                          VurderFagsystemFellesUtils fellesUtils,
-                                         @Any Instance<VurderFagsystemTjeneste> vurderFagsystemTjenester) {
+                                         @Any Instance<VurderFagsystemTjeneste> vurderFagsystemTjenester,
+                                         NavBrukerTjeneste navBrukerTjeneste) {
         this.fagsakTjeneste = fagsakTjeneste;
         this.fellesUtils = fellesUtils;
         this.vurderFagsystemTjenester = vurderFagsystemTjenester;
+        this.navBrukerTjeneste = navBrukerTjeneste;
     }
 
     public BehandlendeFagsystem vurderFagsystem(VurderFagsystem vurderFagsystem) {
@@ -67,7 +71,13 @@ public class VurderFagsystemFellesTjeneste {
             return fellesUtils.standardUstrukturertDokumentVurdering(alleBrukersFagsaker).orElse(new BehandlendeFagsystem(MANUELL_VURDERING));
         }
 
-        return håndterHenvendelse(vurderFagsystem, ytelseType, alleBrukersFagsaker);
+        var vurdering = håndterHenvendelse(vurderFagsystem, ytelseType, alleBrukersFagsaker);
+        var tilVedtaksløsningenUtenSaksnummer = VEDTAKSLØSNING.equals(vurdering.behandlendeSystem()) && vurdering.getSaksnummer().isEmpty();
+        if (vurderFagsystem.isOpprettSakVedBehov() && tilVedtaksløsningenUtenSaksnummer) {
+            var fagsak = fagsakTjeneste.opprettFagsak(ytelseType, navBrukerTjeneste.hentEllerOpprettFraAktørId(vurderFagsystem.getAktørId()));
+            return new BehandlendeFagsystem(VEDTAKSLØSNING, fagsak.getSaksnummer());
+        }
+        return vurdering;
     }
 
     private BehandlendeFagsystem vurderSøknadMedSaksnummer(Saksnummer saksnummer) {

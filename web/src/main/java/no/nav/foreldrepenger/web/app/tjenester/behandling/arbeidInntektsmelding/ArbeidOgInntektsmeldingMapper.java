@@ -87,7 +87,7 @@ public class ArbeidOgInntektsmeldingMapper {
                 inntekstmeldingMangel.orElse(null),
                 vurderingPåInntektsmelding.map(ArbeidsforholdValg::getBegrunnelse).orElse(null),
                 vurderingPåInntektsmelding.map(ArbeidsforholdValg::getVurdering).orElse(null),
-                im.getKildesystem(),
+                im.getKildesystem() == null ? "" : im.getKildesystem(), // Enkelte eldre IM har ikke kildesystem, men frontend forventer NotNull
                 im.getStartDatoPermisjon().orElse(null),
                 im.getNaturalYtelser(),
                 refusjonsEndringer,

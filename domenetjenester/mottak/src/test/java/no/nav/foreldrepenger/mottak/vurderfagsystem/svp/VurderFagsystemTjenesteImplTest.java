@@ -1,5 +1,6 @@
 package no.nav.foreldrepenger.mottak.vurderfagsystem.svp;
 
+import static no.nav.foreldrepenger.mottak.vurderfagsystem.impl.BehandlingslagerTestUtil.lagNavBruker;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -32,7 +33,9 @@ import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.Svanger
 import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.SvpGrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
+import no.nav.foreldrepenger.domene.bruker.NavBrukerTjeneste;
 import no.nav.foreldrepenger.domene.typer.AktørId;
+import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.familiehendelse.FamilieHendelseTjeneste;
 import no.nav.foreldrepenger.mottak.dokumentmottak.MottatteDokumentTjeneste;
 import no.nav.foreldrepenger.mottak.vurderfagsystem.VurderFagsystem;
@@ -60,6 +63,8 @@ class VurderFagsystemTjenesteImplTest {
     private SvangerskapspengerRepository svangerskapspengerRepository;
     @Mock
     private MottatteDokumentTjeneste mottatteDokumentTjeneste;
+    @Mock
+    private NavBrukerTjeneste brukerTjeneste;
 
     @BeforeEach
     void setUp() {
@@ -73,7 +78,7 @@ class VurderFagsystemTjenesteImplTest {
         var fellesUtils = new VurderFagsystemFellesUtils(repositoryProvider, familieTjeneste, mottatteDokumentTjeneste, null, null,
             fagsakRelasjonTjeneste);
         var svpTjeneste = new VurderFagsystemTjenesteImpl(fellesUtils, behandlingRepository, svangerskapspengerRepository);
-        tjeneste = new VurderFagsystemFellesTjeneste(fagsakTjeneste, fellesUtils, new UnitTestLookupInstanceImpl<>(svpTjeneste));
+        tjeneste = new VurderFagsystemFellesTjeneste(fagsakTjeneste, fellesUtils, new UnitTestLookupInstanceImpl<>(svpTjeneste), brukerTjeneste);
     }
 
     @Test
@@ -164,8 +169,8 @@ class VurderFagsystemTjenesteImplTest {
         var vurderFagsystem = lagVurderfagsystem();
         vurderFagsystem.setDokumentTypeId(DokumentTypeId.SØKNAD_SVANGERSKAPSPENGER);
         vurderFagsystem.setBarnTermindato(LocalDate.now().plusMonths(2));
-
         vurderFagsystem.setStrukturertSøknad(true);
+        vurderFagsystem.setOpprettSakVedBehov(true); // Skal ikke overkjøre MANUELL_VURDERING!
 
         var fagsak1 = BehandlingslagerTestUtil.buildFagsak(FAGSAK_EN_ID, true, FagsakYtelseType.SVANGERSKAPSPENGER);
         when(fagsakRepository.hentForBruker(BRUKER_ID)).thenReturn(List.of(fagsak1));
@@ -200,6 +205,32 @@ class VurderFagsystemTjenesteImplTest {
         var result = tjeneste.vurderFagsystem(vurderFagsystem);
         assertThat(result.behandlendeSystem()).isEqualTo(BehandlendeFagsystem.BehandlendeSystem.VEDTAKSLØSNING);
         assertThat(result.getSaksnummer()).isEmpty();
+    }
+
+    @Test
+    void strukturertSøknadIngenMatchedeEllerPassendeFagsakSkalOppretteNyFagsakHvisOpprettSakVedBehovErSatt() {
+        var vurderFagsystem = lagVurderfagsystem();
+        vurderFagsystem.setDokumentTypeId(DokumentTypeId.SØKNAD_SVANGERSKAPSPENGER);
+        vurderFagsystem.setBarnTermindato(LocalDate.now().plusMonths(6));
+        vurderFagsystem.setStrukturertSøknad(true);
+        vurderFagsystem.setOpprettSakVedBehov(true);
+
+        var fagsak1 = BehandlingslagerTestUtil.buildFagsak(FAGSAK_EN_ID, false, FagsakYtelseType.SVANGERSKAPSPENGER);
+        when(fagsakRepository.hentForBruker(BRUKER_ID)).thenReturn(List.of(fagsak1));
+        var behandling1 = Behandling.forFørstegangssøknad(fagsak1).build();
+        when(behandlingRepository.hentSisteYtelsesBehandlingForFagsakId(FAGSAK_EN_ID)).thenReturn(Optional.of(behandling1));
+        var familieHendelse1 = BehandlingslagerTestUtil.byggFødselGrunnlag(LocalDate.now().minusMonths(6), null);
+        when(grunnlagRepository.hentAggregatHvisEksisterer(behandling1.getId())).thenReturn(Optional.of(familieHendelse1));
+
+        when(brukerTjeneste.hentEllerOpprettFraAktørId(vurderFagsystem.getAktørId())).thenReturn(lagNavBruker());
+        var nySak = new Saksnummer("123456789");
+        when(fagsakRepository.genererNyttSaksnummer()).thenReturn(nySak);
+
+        // ACT
+        var result = tjeneste.vurderFagsystem(vurderFagsystem);
+
+        assertThat(result.behandlendeSystem()).isEqualTo(BehandlendeFagsystem.BehandlendeSystem.VEDTAKSLØSNING);
+        assertThat(result.getSaksnummer()).hasValueSatisfying(s -> assertThat(s).isEqualTo(nySak));
     }
 
     @Test
