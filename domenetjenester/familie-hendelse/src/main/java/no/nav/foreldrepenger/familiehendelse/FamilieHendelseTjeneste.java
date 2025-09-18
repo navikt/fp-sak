@@ -191,9 +191,6 @@ public class FamilieHendelseTjeneste {
             familiehendelseEventPubliserer.fireEventTerminFødsel(behandlingId, tidligereGjeldendeFødselsdato, sisteGjeldendeFødselsdato);
         }
     }
-    public void fjernOverstyrtHendelse(Long behandlingId) {
-        familieGrunnlagRepository.slettOverstyrtData(behandlingId);
-    }
 
     public FamilieHendelseGrunnlagEntitet hentAggregat(Long behandlingId) {
         return familieGrunnlagRepository.hentAggregat(behandlingId);
@@ -273,10 +270,6 @@ public class FamilieHendelseTjeneste {
 
     private static boolean harRegistrertFødteBarn(FamilieHendelseEntitet fh) {
         return FØDSEL.equals(fh.getType()) && !fh.getBarna().isEmpty();
-    }
-
-    public void kopierGrunnlag(Long fraBehandlingId, Long tilBehandlingId) {
-        familieGrunnlagRepository.kopierGrunnlagFraEksisterendeBehandling(fraBehandlingId, tilBehandlingId);
     }
 
     static List<LocalDateInterval> utledPerioderForRegisterinnhenting(FamilieHendelseGrunnlagEntitet familieHendelseGrunnlag) {
