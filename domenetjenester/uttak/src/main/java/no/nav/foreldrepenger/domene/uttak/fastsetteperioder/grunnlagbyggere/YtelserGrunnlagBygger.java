@@ -51,6 +51,7 @@ public class YtelserGrunnlagBygger {
         var innlagt = fpGrunnlag.getPleiepengerGrunnlag()
             .flatMap(PleiepengerGrunnlagEntitet::getPerioderMedInnleggelse)
             .map(PleiepengerPerioderEntitet::getInnleggelser).orElseGet(List::of).stream()
+            .filter(s -> !s.getPeriode().erHelg())
             .map(i -> new LocalDateSegment<>(i.getPeriode().getFomDato(), VirkedagUtil.fredagLørdagTilSøndag(i.getPeriode().getTomDato()), Boolean.TRUE))
             .collect(Collectors.collectingAndThen(Collectors.toList(), l -> new LocalDateTimeline<>(l, StandardCombinators::alwaysTrueForMatch)))
             .compress();
