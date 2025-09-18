@@ -124,8 +124,9 @@ public class RegisterdataInnhenter {
         var rolleFiltrertFødselFREG = personopplysningInnhenter.innhentAlleFødteForIntervaller(behandling.getFagsakYtelseType(), behandling.getRelasjonsRolleType(), behandling.getAktørId(), fødselsIntervall);
         var filtrertFødselFREG = personopplysningInnhenter.innhentAlleFødteForIntervaller(behandling.getFagsakYtelseType(), behandling.getAktørId(), fødselsIntervall);
         if (rolleFiltrertFødselFREG.size() != filtrertFødselFREG.size()) {
-            LOG.info("Innhent FamilieHendelse ulike antall barn - sak {} rolle {} barn/rolle {} barn/alle {}", behandling.getSaksnummer().getVerdi(),
-                behandling.getRelasjonsRolleType(), rolleFiltrertFødselFREG, filtrertFødselFREG);
+            var funnetRoller = filtrertFødselFREG.stream().map(FødtBarnInfo::forelderRolle).collect(Collectors.toSet());
+            LOG.info("Brukerrolle sak {} Innhent FamilieHendelse  saksrolle {} registerRolle {} barn/saksrolle {} barn/alle {} ",
+                behandling.getSaksnummer().getVerdi(), behandling.getRelasjonsRolleType(), funnetRoller, rolleFiltrertFødselFREG, filtrertFødselFREG);
         }
         innhentPersoninformasjon(behandling, filtrertFødselFREG);
         innhentFamiliehendelse(behandling.getId(), rolleFiltrertFødselFREG.isEmpty() ? filtrertFødselFREG : rolleFiltrertFødselFREG);

@@ -69,9 +69,7 @@ public class FødselTjeneste {
         person.getForelderBarnRelasjon().stream()
             .filter(b -> ForelderBarnRelasjonRolle.BARN.equals(b.getRelatertPersonsRolle()))
             .filter(b -> relevantForelder(rolleType, b))
-            .map(ForelderBarnRelasjon::getRelatertPersonsIdent)
-            .filter(Objects::nonNull)
-            .map(i -> fraIdent(ytelseType, i))
+            .map(r -> fraForelderBarnRelasjon(ytelseType, r))
             .filter(Objects::nonNull)
             .forEach(alleBarn::add);
 
@@ -108,15 +106,15 @@ public class FødselTjeneste {
         if (rolleType == null || RelasjonsRolleType.UDEFINERT.equals(rolleType)) {
             return true;
         }
-        return switch (forelderBarnRelasjon.getMinRolleForPerson()) {
-            case MOR -> RelasjonsRolleType.MORA.equals(rolleType);
-            case FAR -> RelasjonsRolleType.FARA.equals(rolleType);
-            case MEDMOR -> RelasjonsRolleType.MEDMOR.equals(rolleType);
-            case BARN -> false;
-        };
+        var foreldersRolle = utledRolle(forelderBarnRelasjon.getMinRolleForPerson());
+        return foreldersRolle.equals(rolleType);
     }
 
-    private FødtBarnInfo fraIdent(FagsakYtelseType ytelseType, String barnIdent) {
+    private FødtBarnInfo fraForelderBarnRelasjon(FagsakYtelseType ytelseType, ForelderBarnRelasjon forelderBarnRelasjon) {
+        var barnIdent = forelderBarnRelasjon.getRelatertPersonsIdent();
+        if (barnIdent == null) {
+            return null;
+        }
         var request = new HentPersonQueryRequest();
         request.setIdent(barnIdent);
         var projection = new PersonResponseProjection()
@@ -146,7 +144,18 @@ public class FødselTjeneste {
                 .medIdent(new PersonIdent(barnIdent))
                 .medFødselsdato(fødselsdato)
                 .medDødsdato(dødssdato)
+                .medForelderRolle(utledRolle(forelderBarnRelasjon.getMinRolleForPerson()))
                 .build();
     }
+
+    private static RelasjonsRolleType utledRolle(ForelderBarnRelasjonRolle rolle) {
+        return switch (rolle) {
+            case MOR -> RelasjonsRolleType.MORA;
+            case FAR -> RelasjonsRolleType.FARA;
+            case MEDMOR -> RelasjonsRolleType.MEDMOR;
+            case BARN -> RelasjonsRolleType.UDEFINERT;
+        };
+    }
+
 
 }
