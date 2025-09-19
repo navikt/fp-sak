@@ -6,6 +6,8 @@ import java.time.LocalDateTime;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 
+import jakarta.validation.constraints.NotNull;
+
 /**
  * Asynk status returnert fra server ved long-polling jobs. Typisk flyt:
  * 1. Klient sender request, får HTTP 202 Accepted + Location (for status url)
@@ -17,7 +19,7 @@ public class AsyncPollingStatus {
 
     private Status status;
     private LocalDateTime eta;
-    private String message;
+    @NotNull private String message;
     private Long pollIntervalMillis;
     private URI location;
     private URI cancelUri;

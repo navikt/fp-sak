@@ -1,9 +1,11 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.søknad;
 
+import jakarta.validation.constraints.NotNull;
+
 import no.nav.foreldrepenger.behandlingslager.behandling.DokumentTypeId;
 
-public record ManglendeVedleggDto(DokumentTypeId dokumentType, String dokumentTittel,
-                                  String arbeidsgiverReferanse, boolean brukerHarSagtAtIkkeKommer) {
+public record ManglendeVedleggDto(@NotNull DokumentTypeId dokumentType, @NotNull String dokumentTittel,
+                                  String arbeidsgiverReferanse, @NotNull boolean brukerHarSagtAtIkkeKommer) {
 
     public ManglendeVedleggDto(DokumentTypeId dokumentType) {
         this(dokumentType, dokumentType.getNavn(), null, false);

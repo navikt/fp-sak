@@ -5,18 +5,20 @@ import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
+import jakarta.validation.constraints.NotNull;
+
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
 import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.SkjermlenkeType;
 
 public record HistorikkinnslagDto(UUID behandlingUuid,
-                                  HistorikkAktørDto aktør,
+                                  @NotNull HistorikkAktørDto aktør,
                                   SkjermlenkeType skjermlenke,
-                                  LocalDateTime opprettetTidspunkt,
+                                  @NotNull LocalDateTime opprettetTidspunkt,
                                   List<HistorikkInnslagDokumentLinkDto> dokumenter,
                                   String tittel,
-                                  List<Linje> linjer) {
+                                  @NotNull List<Linje> linjer) {
 
-    public record HistorikkAktørDto(HistorikkAktør type, String ident) {
+    public record HistorikkAktørDto(@NotNull HistorikkAktør type, String ident) {
         public static HistorikkAktørDto fra(HistorikkAktør aktør, String opprettetAv) {
             if (Set.of(HistorikkAktør.SAKSBEHANDLER, HistorikkAktør.BESLUTTER).contains(aktør)) {
                 return new HistorikkAktørDto(aktør, opprettetAv);
@@ -25,7 +27,7 @@ public record HistorikkinnslagDto(UUID behandlingUuid,
         }
     }
 
-    public record Linje(Type type, String tekst) {
+    public record Linje(@NotNull Type type, String tekst) {
         public static Linje tekstlinje(String tekst) {
             return new Linje(Type.TEKST, tekst);
         }

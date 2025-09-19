@@ -1,12 +1,14 @@
 package no.nav.foreldrepenger.domene.uttak;
 
+import jakarta.validation.constraints.NotNull;
+
 import java.time.LocalDate;
 
 public class UttakPeriodeEndringDto {
 
-    private LocalDate fom;
+    @NotNull private LocalDate fom;
 
-    private LocalDate tom;
+    @NotNull private LocalDate tom;
 
     private TypeEndring typeEndring;
 

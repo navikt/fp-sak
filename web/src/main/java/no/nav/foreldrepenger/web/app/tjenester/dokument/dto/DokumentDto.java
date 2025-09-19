@@ -6,19 +6,21 @@ import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
+import jakarta.validation.constraints.NotNull;
+
 import no.nav.foreldrepenger.dokumentarkiv.ArkivDokument;
 import no.nav.foreldrepenger.dokumentarkiv.ArkivJournalPost;
 import no.nav.foreldrepenger.dokumentarkiv.Kommunikasjonsretning;
 import no.nav.foreldrepenger.domene.typer.JournalpostId;
 
 public class DokumentDto {
-    private JournalpostId journalpostId;
-    private String dokumentId;
+    @NotNull private JournalpostId journalpostId;
+    @NotNull private String dokumentId;
     private List<Long> behandlinger;
     private List<UUID> behandlingUuidList;
     private LocalDateTime tidspunkt;
     private String tittel;
-    private Kommunikasjonsretning kommunikasjonsretning;
+    @NotNull private Kommunikasjonsretning kommunikasjonsretning;
     private String gjelderFor;
     private String arbeidsgiverReferanse;
 

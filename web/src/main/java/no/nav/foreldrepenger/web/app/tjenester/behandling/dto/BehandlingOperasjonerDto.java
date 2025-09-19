@@ -2,19 +2,21 @@ package no.nav.foreldrepenger.web.app.tjenester.behandling.dto;
 
 import java.util.UUID;
 
+import jakarta.validation.constraints.NotNull;
+
 import no.nav.foreldrepenger.domene.person.verge.dto.VergeBehandlingsmenyEnum;
 
 public record BehandlingOperasjonerDto(UUID uuid,
-                                       boolean behandlingKanBytteEnhet,
-                                       boolean behandlingKanHenlegges,
-                                       boolean behandlingKanGjenopptas,
-                                       boolean behandlingKanOpnesForEndringer,
-                                       boolean behandlingKanMerkesHaster,
-                                       boolean behandlingKanSettesPaVent,
-                                       boolean behandlingKanSendeMelding,
-                                       boolean behandlingFraBeslutter,
-                                       boolean behandlingTilGodkjenning,
-                                       VergeBehandlingsmenyEnum vergeBehandlingsmeny) {
+                                       @NotNull boolean behandlingKanBytteEnhet,
+                                       @NotNull boolean behandlingKanHenlegges,
+                                       @NotNull boolean behandlingKanGjenopptas,
+                                       @NotNull boolean behandlingKanOpnesForEndringer,
+                                       @NotNull boolean behandlingKanMerkesHaster,
+                                       @NotNull boolean behandlingKanSettesPaVent,
+                                       @NotNull boolean behandlingKanSendeMelding,
+                                       @NotNull boolean behandlingFraBeslutter,
+                                       @NotNull boolean behandlingTilGodkjenning,
+                                       @NotNull VergeBehandlingsmenyEnum vergeBehandlingsmeny) {
 
 
     public static BehandlingOperasjonerDto avsluttet(UUID uuid) {

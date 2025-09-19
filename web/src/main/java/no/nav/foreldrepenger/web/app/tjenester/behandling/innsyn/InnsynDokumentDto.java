@@ -1,12 +1,14 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.innsyn;
 
+import jakarta.validation.constraints.NotNull;
+
 public class InnsynDokumentDto {
 
-    private boolean fikkInnsyn;
+    @NotNull private boolean fikkInnsyn;
 
-    private String journalpostId;
+    @NotNull private String journalpostId;
 
-    private String dokumentId;
+    @NotNull private String dokumentId;
 
     public boolean isFikkInnsyn() {
         return fikkInnsyn;

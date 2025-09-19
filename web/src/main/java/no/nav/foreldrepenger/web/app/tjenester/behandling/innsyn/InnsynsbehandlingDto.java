@@ -4,15 +4,17 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
+import jakarta.validation.constraints.NotNull;
+
 import no.nav.foreldrepenger.behandlingslager.behandling.innsyn.InnsynResultatType;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.behandling.InnsynVedtaksdokumentasjonDto;
 
 public class InnsynsbehandlingDto {
 
-	private LocalDate innsynMottattDato;
-	private InnsynResultatType innsynResultatType;
-	private List<InnsynVedtaksdokumentasjonDto> vedtaksdokumentasjon  = new ArrayList<>();
-	private List<InnsynDokumentDto> dokumenter = new ArrayList<>();
+	@NotNull private LocalDate innsynMottattDato;
+	@NotNull private InnsynResultatType innsynResultatType;
+	@NotNull private List<InnsynVedtaksdokumentasjonDto> vedtaksdokumentasjon  = new ArrayList<>();
+	@NotNull private List<InnsynDokumentDto> dokumenter = new ArrayList<>();
 
 	public LocalDate getInnsynMottattDato() {
 		return innsynMottattDato;

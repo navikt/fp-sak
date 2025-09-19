@@ -1,16 +1,18 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto;
 
+import jakarta.validation.constraints.NotNull;
+
 import java.time.LocalDate;
 import java.util.List;
 
-public record UttakResultatPerioderDto(List<UttakResultatPeriodeDto> perioderSøker,
-                                       List<UttakResultatPeriodeDto> perioderAnnenpart,
+public record UttakResultatPerioderDto(@NotNull List<UttakResultatPeriodeDto> perioderSøker,
+                                       @NotNull List<UttakResultatPeriodeDto> perioderAnnenpart,
                                        boolean annenForelderHarRett,
                                        boolean aleneomsorg,
                                        boolean annenForelderRettEØS,
                                        boolean oppgittAnnenForelderRettEØS,
-                                       FilterDto årsakFilter,
-                                       LocalDate endringsdato) {
+                                       @NotNull FilterDto årsakFilter,
+                                       @NotNull LocalDate endringsdato) {
 
-    public record FilterDto(LocalDate kreverSammenhengendeUttakTom, boolean utenMinsterett, boolean søkerErMor) {}
+    public record FilterDto(@NotNull LocalDate kreverSammenhengendeUttakTom, @NotNull boolean utenMinsterett, @NotNull boolean søkerErMor) {}
 }

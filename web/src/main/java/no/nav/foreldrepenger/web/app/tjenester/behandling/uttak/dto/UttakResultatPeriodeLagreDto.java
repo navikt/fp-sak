@@ -52,6 +52,7 @@ public class UttakResultatPeriodeLagreDto {
     @ValidKodeverk
     private OppholdÅrsak oppholdÅrsak;
 
+    @NotNull
     private boolean flerbarnsdager;
 
     private boolean samtidigUttak;

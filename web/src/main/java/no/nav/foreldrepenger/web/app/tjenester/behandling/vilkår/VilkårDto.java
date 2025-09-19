@@ -4,16 +4,18 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.annotation.JsonRawValue;
 
+import jakarta.validation.constraints.NotNull;
+
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallType;
 
 public class VilkårDto {
 
-    private VilkårType vilkarType;
-    private VilkårUtfallType vilkarStatus;
+    @NotNull private VilkårType vilkarType;
+    @NotNull private VilkårUtfallType vilkarStatus;
     private String avslagKode;
     private String lovReferanse;
-    private Boolean overstyrbar;
+    @NotNull private Boolean overstyrbar;
 
     @JsonRawValue
     @JsonInclude(Include.NON_NULL)

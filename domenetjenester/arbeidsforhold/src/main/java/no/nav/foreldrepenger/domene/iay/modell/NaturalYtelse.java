@@ -4,6 +4,8 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.Objects;
 
+import jakarta.validation.constraints.NotNull;
+
 import no.nav.foreldrepenger.behandlingslager.diff.ChangeTracked;
 import no.nav.foreldrepenger.behandlingslager.diff.IndexKey;
 import no.nav.foreldrepenger.domene.iay.modell.kodeverk.NaturalYtelseType;
@@ -12,13 +14,13 @@ import no.nav.foreldrepenger.domene.typer.Beløp;
 
 public class NaturalYtelse implements IndexKey {
 
-    @ChangeTracked
+    @ChangeTracked @NotNull
     private DatoIntervallEntitet periode;
 
-    @ChangeTracked
+    @ChangeTracked @NotNull
     private Beløp beloepPerMnd;
 
-    private NaturalYtelseType type = NaturalYtelseType.UDEFINERT;
+    @NotNull private NaturalYtelseType type = NaturalYtelseType.UDEFINERT;
 
     NaturalYtelse() {
     }

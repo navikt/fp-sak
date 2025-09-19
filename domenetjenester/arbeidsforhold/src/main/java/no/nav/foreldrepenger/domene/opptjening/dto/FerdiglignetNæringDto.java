@@ -1,4 +1,6 @@
 package no.nav.foreldrepenger.domene.opptjening.dto;
 
-public record FerdiglignetNæringDto(String år, Long beløp) {
+import jakarta.validation.constraints.NotNull;
+
+public record FerdiglignetNæringDto(@NotNull String år, @NotNull Long beløp) {
 }
