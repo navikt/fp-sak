@@ -4,8 +4,6 @@ import java.time.LocalDate;
 import java.util.Objects;
 
 
-import io.swagger.v3.oas.annotations.media.Schema;
-
 import jakarta.validation.constraints.NotNull;
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBrukerKjønn;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Språkkode;

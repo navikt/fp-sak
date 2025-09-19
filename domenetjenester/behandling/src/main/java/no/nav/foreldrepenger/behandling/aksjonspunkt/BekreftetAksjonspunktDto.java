@@ -1,7 +1,5 @@
 package no.nav.foreldrepenger.behandling.aksjonspunkt;
 
-import com.fasterxml.jackson.annotation.JsonSubTypes;
-
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 
