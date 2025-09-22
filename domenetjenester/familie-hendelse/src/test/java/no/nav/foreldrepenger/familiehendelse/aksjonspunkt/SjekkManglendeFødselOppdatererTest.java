@@ -46,7 +46,6 @@ class SjekkManglendeFødselOppdatererTest {
         this.oppdaterer = new SjekkManglendeFødselOppdaterer(familieHendelseTjeneste, faktaFødselTjeneste);
     }
 
-    // TODO finn ut hvorfor denne testen ikke kjører som forventet
     @Test
     void skal_avklare_at_manglende_fødsel_ikke_kan_dokumenters() {
         var scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
@@ -263,8 +262,9 @@ class SjekkManglendeFødselOppdatererTest {
         var aksjonspunkt = behandling.getAksjonspunktFor(SJEKK_MANGLENDE_FØDSEL);
         var ref = BehandlingReferanse.fra(behandling);
 
+        var param = new AksjonspunktOppdaterParameter(ref, dtoDødFørFødsel, aksjonspunkt);
         assertThatExceptionOfType(FunksjonellException.class).isThrownBy(
-                () -> oppdaterer.oppdater(dtoDødFørFødsel, new AksjonspunktOppdaterParameter(ref, dtoDødFørFødsel, aksjonspunkt)))
+                () -> oppdaterer.oppdater(dtoDødFørFødsel, param))
             .withMessage("FP-076345:Dødsdato før fødselsdato");
     }
 }

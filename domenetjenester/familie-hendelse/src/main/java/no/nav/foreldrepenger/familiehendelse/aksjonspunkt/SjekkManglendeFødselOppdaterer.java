@@ -1,7 +1,5 @@
 package no.nav.foreldrepenger.familiehendelse.aksjonspunkt;
 
-import java.util.Optional;
-
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 

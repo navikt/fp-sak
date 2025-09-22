@@ -27,7 +27,7 @@ import no.nav.foreldrepenger.familiehendelse.event.FamiliehendelseEventPublisere
 import no.nav.foreldrepenger.skjæringstidspunkt.OpplysningsPeriodeTjeneste;
 import no.nav.vedtak.exception.FunksjonellException;
 
-public class FaktaFødselTjenesteTest extends EntityManagerAwareTest {
+class FaktaFødselTjenesteTest extends EntityManagerAwareTest {
     private static final LocalDate FØDSELSDATO = LocalDate.now();
     private static final LocalDate TERMINDATO = LocalDate.now();
 
@@ -64,8 +64,9 @@ public class FaktaFødselTjenesteTest extends EntityManagerAwareTest {
         var dto = new OverstyringFaktaOmFødselDto("Legger til dødsdato før fødselsdato", TERMINDATO, barnDtoListe);
         var fh = familieHendelseTjeneste.hentAggregat(behandling.getId());
 
+        var ref = BehandlingReferanse.fra(behandling);
         var exception = assertThrows(FunksjonellException.class,
-            () -> tjeneste.overstyrFaktaOmFødsel(BehandlingReferanse.fra(behandling), fh, Optional.of(dto.getTermindato()), dto.getBarn(),
+            () -> tjeneste.overstyrFaktaOmFødsel(ref, fh, Optional.of(dto.getTermindato()), dto.getBarn(),
                 dto.getBegrunnelse(), false));
         assertThat(exception).extracting("kode", "msg", "løsningsforslag")
             .containsExactly("FP-076345", "Dødsdato før fødselsdato", "Se over fødsels- og dødsdato");
