@@ -57,7 +57,7 @@ public class SjekkTerminbekreftelseOppdaterer implements AksjonspunktOppdaterer<
             !Objects.equals(getUtstedtdato(grunnlag), dto.getUtstedtdato()) ||
             !Objects.equals(getAntallBarnVedSøknadTerminbekreftelse(grunnlag), dto.getAntallBarn());
 
-        if (erEndret || grunnlag.getOverstyrtVersjon().isEmpty()) {
+        if (erEndret || grunnlag.getOverstyrtVersjon().isEmpty() || param.erBegrunnelseEndret()) {
             var historikkinnslag = lagHistorikkinnslag(dto, behandlingReferanse, grunnlag, erEndret);
             historikkinnslagRepository.lagre(historikkinnslag);
         }
