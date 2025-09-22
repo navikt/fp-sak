@@ -6,6 +6,9 @@ import java.util.Optional;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import no.nav.foreldrepenger.behandling.BehandlingRevurderingTjeneste;
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBrukerKjønn;
 import no.nav.foreldrepenger.behandlingslager.aktør.PersoninfoKjønn;
@@ -35,6 +38,7 @@ import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsgiver.VirksomhetTjeneste;
 import no.nav.foreldrepenger.domene.person.PersoninfoAdapter;
 import no.nav.foreldrepenger.domene.typer.AktørId;
+import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.mottak.dokumentpersiterer.MottattDokumentOversetter;
 import no.nav.foreldrepenger.mottak.dokumentpersiterer.NamespaceRef;
 import no.nav.foreldrepenger.mottak.dokumentpersiterer.SøknadDataFraTidligereVedtakTjeneste;
@@ -50,6 +54,8 @@ import no.nav.vedtak.felles.xml.soeknad.svangerskapspenger.v1.Svangerskapspenger
 @NamespaceRef(SøknadConstants.NAMESPACE)
 @ApplicationScoped
 public class SøknadOversetter implements MottattDokumentOversetter<SøknadWrapper> {
+
+    private static final Logger LOG = LoggerFactory.getLogger(SøknadOversetter.class);
 
     private VirksomhetTjeneste virksomhetTjeneste;
     private PersonopplysningRepository personopplysningRepository;
@@ -181,23 +187,28 @@ public class SøknadOversetter implements MottattDokumentOversetter<SøknadWrapp
         new OpptjeningOversetter(virksomhetTjeneste, iayTjeneste).byggOpptjeningsspesifikkeFelter(wrapper, behandling);
         new FamilieHendelseOversetter(familieHendelseRepository).oversettPersisterFamilieHendelse(wrapper, behandling, søknadBuilder);
         søknadBuilder.medErEndringssøknad(false);
-        var relasjonsRolleType = utledRolle(behandling.getFagsakYtelseType(), wrapper.getBruker(), behandlingId, aktørId);
+        var relasjonsRolleType = utledRolle(behandling.getFagsakYtelseType(), wrapper.getBruker(), behandling.getSaksnummer(), aktørId);
         var søknad = søknadBuilder.medRelasjonsRolleType(relasjonsRolleType).build();
         søknadRepository.lagreOgFlush(behandling, søknad);
         fagsakRepository.oppdaterRelasjonsRolle(behandling.getFagsakId(), søknad.getRelasjonsRolleType());
     }
 
-    private RelasjonsRolleType utledRolle(FagsakYtelseType ytelseType, Bruker bruker, Long behandlingId, AktørId aktørId) {
+    private RelasjonsRolleType utledRolle(FagsakYtelseType ytelseType, Bruker bruker, Saksnummer saksnummer, AktørId aktørId) {
         var kjønn = personinfoAdapter.hentBrukerKjønnForAktør(ytelseType, aktørId)
             .map(PersoninfoKjønn::getKjønn)
             .orElseThrow(() -> {
-                var msg = String.format("Søknad på behandling %s mangler RelasjonsRolleType", behandlingId);
-                throw new TekniskException("FP-931148", msg);
+                var msg = String.format("Søker i sak %s mangler kjønn", saksnummer.getVerdi());
+                return new TekniskException("FP-931148", msg);
             });
 
+        // Korriger kjønnsbasert inntil videre. Klart mest vanlig med misforståelser. Vurder UDEFINERT og aksjonspunkt.
+        // Mangler rolle i søknad, bruker kjønnsbasert antagelse
         if (bruker == null || bruker.getSoeknadsrolle() == null) {
-            return NavBrukerKjønn.MANN.equals(kjønn) ? RelasjonsRolleType.FARA : RelasjonsRolleType.MORA;
+            var valgtrolle = NavBrukerKjønn.MANN.equals(kjønn) ? RelasjonsRolleType.FARA : RelasjonsRolleType.MORA;
+            LOG.info("Brukerrolle sak {} mangler søknadsrolle utledet {}", saksnummer.getVerdi(), valgtrolle);
+            return valgtrolle;
         }
+        // Samsvar rolle / kjønn
         if (ForeldreType.MOR.getKode().equals(bruker.getSoeknadsrolle().getKode()) && erKvinne(kjønn)) {
             return RelasjonsRolleType.MORA;
         }
@@ -207,7 +218,10 @@ public class SøknadOversetter implements MottattDokumentOversetter<SøknadWrapp
         if (ForeldreType.MEDMOR.getKode().equals(bruker.getSoeknadsrolle().getKode()) && erKvinne(kjønn)) {
             return RelasjonsRolleType.MEDMOR;
         }
-        return NavBrukerKjønn.MANN.equals(kjønn) ? RelasjonsRolleType.FARA : RelasjonsRolleType.MORA;
+        // Korriger rolle.
+        var valgtrolle = NavBrukerKjønn.MANN.equals(kjønn) ? RelasjonsRolleType.FARA : RelasjonsRolleType.MORA;
+        LOG.info("Brukerrolle sak {} oppgitt {} utledet {}", saksnummer.getVerdi(), bruker.getSoeknadsrolle().getKode(), valgtrolle);
+        return valgtrolle;
     }
 
     private boolean erKvinne(NavBrukerKjønn kjønn) {

@@ -7,13 +7,9 @@ import java.util.List;
 
 public record FødselDto(@NotNull FødselDto.Søknad søknad, @NotNull FødselDto.Register register,@NotNull FødselDto.Gjeldende gjeldende) {
 
-    public record BarnHendelseData(@NotNull LocalDate fødselsdato, LocalDate dødsdato) {
+    public record BarnHendelseData(@NotNull LocalDate fødselsdato, LocalDate dødsdato, Integer barnNummer) {
     }
 
-    /*
-     * List<BarnHendelseData> barn er listen over barn som er født (registrert i søknaden) og som det søkes foreldrepenger for.
-     * int antallBarn er antall barn det er søkt om i søknaden, hvor barna ennå ikke er født.
-     * */
     public record Søknad(@NotNull List<BarnHendelseData> barn, LocalDate termindato, LocalDate utstedtdato, @NotNull int antallBarn) {
     }
 
