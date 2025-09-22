@@ -12,7 +12,7 @@ import no.nav.foreldrepenger.domene.typer.Beløp;
 
 public class Refusjon implements IndexKey {
 
-    @ChangeTracked @NotNull
+    @ChangeTracked
     private Beløp refusjonsbeløpMnd;
 
     @ChangeTracked @NotNull
@@ -22,7 +22,6 @@ public class Refusjon implements IndexKey {
     }
 
     public Refusjon(BigDecimal refusjonsbeløpMnd, LocalDate fom) {
-        // TODO: sjekk om denne er nødvendig. Frontend bruker som notnull
         this.refusjonsbeløpMnd = refusjonsbeløpMnd == null ? null : new Beløp(refusjonsbeløpMnd);
         this.fom = fom;
     }
@@ -37,7 +36,6 @@ public class Refusjon implements IndexKey {
         return IndexKey.createKey(fom, refusjonsbeløpMnd);
     }
 
-    @NotNull
     public Beløp getRefusjonsbeløp() {
         return refusjonsbeløpMnd;
     }

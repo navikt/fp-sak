@@ -8,7 +8,7 @@ public class OpptjeningDto {
 
     @NotNull private FastsattOpptjeningDto fastsattOpptjening;
     @NotNull private List<OpptjeningAktivitetDto> opptjeningAktivitetList;
-    @NotNull private List<FerdiglignetNæringDto> ferdiglignetNæring;
+    private List<FerdiglignetNæringDto> ferdiglignetNæring;
 
 
     public OpptjeningDto() {

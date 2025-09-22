@@ -31,7 +31,6 @@ public class FeriepengegrunnlagAndelDto {
     private String arbeidsgiverId;
 
     @JsonProperty(value = "arbeidsforholdId")
-    @NotNull
     @Valid
     private String arbeidsforholdId;
 
