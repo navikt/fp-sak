@@ -78,7 +78,7 @@ public class PraksisendringAapBatchTask implements ProsessTaskHandler {
 
     private void opprettTaskForSak(Fagsak fagsak, boolean dryRun) {
         var erPåvirket = aapPraksisendringTjeneste.erPåvirketAvPraksisendring(fagsak.getId());
-        LOG.info("PÅVIRKET_AV_AAP_PRAKSISENDRING: {} fagsakId {}", erPåvirket, fagsak.getId());
+        LOG.info("PÅVIRKET_AV_AAP_PRAKSISENDRING: {} saksnummer {} fagsakId {}", erPåvirket, fagsak.getSaksnummer(), fagsak.getId());
         if (!dryRun && erPåvirket) {
             var prosessTaskData = ProsessTaskData.forProsessTask(PraksisendringAapSakTask.class);
             prosessTaskData.setFagsak(fagsak.getSaksnummer().getVerdi(), fagsak.getId());
