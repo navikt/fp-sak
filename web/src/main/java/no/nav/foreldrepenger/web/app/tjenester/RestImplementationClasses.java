@@ -63,6 +63,7 @@ import no.nav.foreldrepenger.web.app.tjenester.kodeverk.KodeverkRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.los.LosRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.register.RedirectToRegisterRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.saksbehandler.InitielleLinksRestTjeneste;
+import no.nav.foreldrepenger.web.app.tjenester.tilbake.TilbakeRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.vedtak.VedtakRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.vedtak.vedtakfattet.VedtakJsonFeedRestTjeneste;
 import no.nav.foreldrepenger.web.server.abac.PipRestTjeneste;
@@ -79,7 +80,7 @@ public class RestImplementationClasses {
         classes.add(FagsakRestTjeneste.class);
         classes.add(BehandlingRestTjeneste.class);
         classes.add(BehandlingRestTjenestePathHack1.class);
-        classes.add(BehandlingBackendRestTjeneste.class);
+        classes.add(BehandlingBackendRestTjeneste.class); // TODO: Fjerne etter omlegging av fptilbake
         classes.add(BeregningsgrunnlagRestTjeneste.class);
         classes.add(AksjonspunktRestTjeneste.class);
         classes.add(DokumentRestTjeneste.class);
@@ -87,8 +88,6 @@ public class RestImplementationClasses {
         classes.add(HistorikkRestTjeneste.class);
         classes.add(BatchRestTjeneste.class);
         classes.add(VedtakJsonFeedRestTjeneste.class);
-        classes.add(FordelRestTjeneste.class);
-        classes.add(HendelserRestTjeneste.class);
         classes.add(UttakRestTjeneste.class);
         classes.add(BeregningsresultatRestTjeneste.class);
         classes.add(FeriepengegrunnlagRestTjeneste.class);
@@ -104,14 +103,13 @@ public class RestImplementationClasses {
         classes.add(AnkeRestTjeneste.class);
         classes.add(InnsynRestTjeneste.class);
         classes.add(PipRestTjeneste.class);
-        classes.add(TilbakekrevingRestTjeneste.class);
+        classes.add(TilbakekrevingRestTjeneste.class); // TODO: Fjerne etter omlegging av fptilbake (sjekk simulering)
         classes.add(AktoerRestTjeneste.class);
         classes.add(OppdragRestTjeneste.class);
         classes.add(SvangerskapspengerRestTjeneste.class);
         classes.add(IAYRegisterdataCallbackRestTjeneste.class);
         classes.add(VergeRestTjeneste.class);
         classes.add(BrevRestTjeneste.class);
-        classes.add(LosRestTjeneste.class);
         classes.add(RedirectToRegisterRestTjeneste.class);
         classes.add(OppgaverRestTjeneste.class);
         classes.add(FødselRestTjeneste.class);
@@ -119,13 +117,19 @@ public class RestImplementationClasses {
         // Søk infotrygd
         classes.add(InfotrygdOppslagRestTjeneste.class);
 
+        // Satellitt-applikasjoner
+        classes.add(FordelRestTjeneste.class);
+        classes.add(HendelserRestTjeneste.class); // Abonnent
+        classes.add(LosRestTjeneste.class);
+        classes.add(TilbakeRestTjeneste.class);
+        classes.add(FpOversiktRestTjeneste.class);
+
         // Formidlingstjenester
         classes.add(FormidlingRestTjeneste.class);
         classes.add(BeregningsgrunnlagFormidlingRestTjeneste.class);
         classes.add(TilkjentYtelseFormidlingRestTjeneste.class);
         classes.add(ArbeidsforholdInntektsmeldingFormidlingRestTjeneste.class);
 
-        classes.add(FpOversiktRestTjeneste.class);
         return Set.copyOf(classes);
     }
 
