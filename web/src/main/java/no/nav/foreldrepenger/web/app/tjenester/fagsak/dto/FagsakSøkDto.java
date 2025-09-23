@@ -21,7 +21,7 @@ public record FagsakSøkDto(@NotNull String saksnummer,
                            @NotNull String aktørId,
                            @NotNull PersonDto person,
                            @NotNull LocalDate barnFødt,
-                           @NotNull LocalDate opprettet,
+                           LocalDate opprettet,
                            LocalDate endret) {
 
     public FagsakSøkDto(Fagsak fagsak, PersonDto person, LocalDate barnFødt) {

@@ -9,7 +9,6 @@ public class TilbakekrevingValgDto {
 
     private Boolean grunnerTilReduksjon; //null når !erTilbakekrevingVilkårOppfylt
 
-    // TODO [JOHANNES] notnull ifølge frontend, stemmer ikke med kommentar her
     @NotNull private TilbakekrevingVidereBehandling videreBehandling;  //null når erTilbakekrevingVilkårOppfylt
 
     private String varseltekst;

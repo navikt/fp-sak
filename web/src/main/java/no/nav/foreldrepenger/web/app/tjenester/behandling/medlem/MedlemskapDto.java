@@ -74,7 +74,7 @@ public record MedlemskapDto(ManuellBehandlingResultat manuellBehandlingResultat,
         }
     }
 
-    record Oppholdstillatelse(@NotNull LocalDate fom, LocalDate tom, @NotNull OppholdstillatelseType type) {
+    record Oppholdstillatelse(LocalDate fom, LocalDate tom, @NotNull OppholdstillatelseType type) {
         public static Oppholdstillatelse map(OppholdstillatelseEntitet oe) {
             var fom = oe.getPeriode().getFomDato().isBefore(OPPHOLD_CUTOFF) ? null : oe.getPeriode().getFomDato();
             return new Oppholdstillatelse(fom, oe.getPeriode().getTomDato(), oe.getTillatelse());
