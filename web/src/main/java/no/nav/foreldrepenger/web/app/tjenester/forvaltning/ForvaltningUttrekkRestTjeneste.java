@@ -165,7 +165,7 @@ public class ForvaltningUttrekkRestTjeneste {
         var query = entityManager.createNativeQuery("""
             select behandling_id
             from aksjonspunkt
-            where aksjonspunkt_def = '5052' and aksjonspunkt_status = 'OPPR' and behandling_id > :fom and behandling_id <= :tom
+            where aksjonspunkt_def = '5029' and aksjonspunkt_status = 'OPPR' and behandling_id > :fom and behandling_id <= :tom
             """)
             .setParameter("fom", fom)
             .setParameter("tom", tom);
@@ -186,7 +186,7 @@ public class ForvaltningUttrekkRestTjeneste {
 
     private Optional<ProsessTaskData> lagFlyttBehandlingTilbakeTilStegTask(Long behandlingId) {
         var behandling = behandlingRepository.hentBehandling(behandlingId);
-        if (!BehandlingStegType.FASTSETT_SKJÆRINGSTIDSPUNKT_BEREGNING.equals(behandling.getAktivtBehandlingSteg())) {
+        if (!BehandlingStegType.SIMULER_OPPDRAG.equals(behandling.getAktivtBehandlingSteg())) {
             return Optional.empty();
         }
         var task = ProsessTaskData.forProsessTask(TilbakeføringTilStegTask.class);
