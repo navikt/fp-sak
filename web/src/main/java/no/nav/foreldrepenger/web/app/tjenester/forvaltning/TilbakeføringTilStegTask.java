@@ -43,7 +43,7 @@ public class TilbakeføringTilStegTask extends BehandlingProsessTask {
         if (behandling.isBehandlingPåVent()) {
             prosesseringTjeneste.taBehandlingAvVent(behandling);
         }
-        prosesseringTjeneste.reposisjonerBehandlingTilbakeTil(behandling, lås, BehandlingStegType.DEKNINGSGRAD);
+        prosesseringTjeneste.reposisjonerBehandlingTilbakeTil(behandling, lås, BehandlingStegType.SIMULER_OPPDRAG);
         if (behandling.isBehandlingPåVent()) {
             prosesseringTjeneste.taBehandlingAvVent(behandling);
         }
