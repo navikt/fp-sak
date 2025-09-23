@@ -19,14 +19,12 @@ public record FødselDto(@NotNull FødselDto.Søknad søknad, @NotNull FødselDt
     public record Gjeldende(Termin termin, FødselDto.Gjeldende.Utstedtdato utstedtdato,
                             @NotNull AntallBarn antallBarn, @NotNull List<FødselDto.Gjeldende.GjeldendeBarn> barn, @NotNull FødselDokumetasjonStatus fødselDokumetasjonStatus) {
 
-        // TODO [JOHANNES] -- frontend bruker termindato som notnull, men fra koden ser det ut som den kan bli null
         public record Termin(@NotNull Kilde kilde, @NotNull LocalDate termindato) {
         }
 
         public record AntallBarn(@NotNull Kilde kilde, @NotNull int antall) {
         }
 
-        // TODO [JOHANNES] -- frontend bruker utstedtdato som notnull, men fra koden ser det ut som den kan bli null
         public record Utstedtdato(@NotNull Kilde kilde, @NotNull LocalDate utstedtdato) {
         }
 

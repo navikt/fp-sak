@@ -21,7 +21,7 @@ public abstract class SoknadDto {
     @NotNull private Integer antallBarn;
     @NotNull private OppgittTilknytningDto oppgittTilknytning;
     @NotNull private List<ManglendeVedleggDto> manglendeVedlegg;
-    @NotNull private OppgittFordelingDto oppgittFordeling;
+    private OppgittFordelingDto oppgittFordeling;
     @NotNull private SøknadsfristDto søknadsfrist;
 
     protected SoknadDto() {
