@@ -1,5 +1,6 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.dto.behandling;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
@@ -21,10 +22,10 @@ public class FagsakBehandlingDto extends BehandlingDto {
     private BehandlingOperasjonerDto behandlingTillatteOperasjoner;
 
     @JsonProperty("brevmaler") @NotNull
-    private List<BrevmalDto> brevmaler;
+    private List<BrevmalDto> brevmaler = new ArrayList<>();
 
     @JsonProperty("totrinnskontrollÅrsaker") @NotNull
-    private List<TotrinnskontrollSkjermlenkeContextDto> totrinnskontrollÅrsaker;
+    private List<TotrinnskontrollSkjermlenkeContextDto> totrinnskontrollÅrsaker = new ArrayList<>();
 
     @JsonProperty("totrinnskontrollReadonly")
     private boolean totrinnskontrollReadonly = true;
