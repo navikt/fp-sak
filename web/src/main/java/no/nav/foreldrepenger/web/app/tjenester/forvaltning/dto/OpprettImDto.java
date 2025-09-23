@@ -9,7 +9,6 @@ import jakarta.ws.rs.QueryParam;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
-import no.nav.foreldrepenger.web.app.tjenester.tilbake.TilbakeRestTjeneste;
 import no.nav.vedtak.sikkerhet.abac.AbacDataAttributter;
 import no.nav.vedtak.sikkerhet.abac.AbacDto;
 //Midlertidig dto for forvaltningsendepunktet /opprettIMForesporselForBehandling i klassen ForvaltningsUttrekkRestTjeneste

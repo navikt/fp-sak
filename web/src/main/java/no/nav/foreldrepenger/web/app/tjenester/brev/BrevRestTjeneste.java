@@ -19,8 +19,6 @@ import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 
-import no.nav.foreldrepenger.web.app.tjenester.tilbake.TilbakeRestTjeneste;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
