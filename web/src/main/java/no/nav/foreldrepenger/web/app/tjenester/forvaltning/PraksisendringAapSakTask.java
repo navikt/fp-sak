@@ -50,25 +50,26 @@ public class PraksisendringAapSakTask extends FagsakProsessTask {
 
     @Override
     public void prosesser(ProsessTaskData prosessTaskData, Long fagsakId) {
-        LOG.info("aap.praksisendring.sak: Starter task revurder sak praksisendring beregning av AAP");
+        var saksnummer = prosessTaskData.getSaksnummer();
+        LOG.info("AAP_PRAKSISENDRING_SAK_TASK: Starter task revurder sak praksisendring beregning av AAP");
         var behandling = behandlingRepository.hentSisteYtelsesBehandlingForFagsakId(fagsakId).orElseThrow();
         if (behandling.erAvsluttet()) {
-            LOG.info("aap.praksisendring.sak: fagsakId {} Siste behandling er avsluttet, oppretter revurdering", fagsakId);
-            var revurdering = opprettRevurdering(prosessTaskData);
+            LOG.info("AAP_PRAKSISENDRING_SAK_TASK: fagsakId {} saksnummer {} Siste behandling er avsluttet, oppretter revurdering", fagsakId, saksnummer);
+            var revurdering = opprettRevurdering(prosessTaskData, saksnummer);
             behandlingProsesseringTjeneste.opprettTasksForStartBehandling(revurdering);
         } else if (behandling.erRevurdering()) {
-            LOG.info("aap.praksisendring.sak: fagsakId {} Siste behandling er åpen spesialbehandling, oppretter køet revurdering", fagsakId);
-            var revurdering = opprettRevurdering(prosessTaskData);
+            LOG.info("AAP_PRAKSISENDRING_SAK_TASK: fagsakId {} saksnummer {} Siste behandling er åpen spesialbehandling, oppretter køet revurdering", fagsakId, saksnummer);
+            var revurdering = opprettRevurdering(prosessTaskData, saksnummer);
             behandlingProsesseringTjeneste.enkøBehandling(revurdering);
         } else {
-            LOG.info("aap.praksisendring.sak: fagsakId {} Siste behandling er åpen førstegangsbehdling, gjør ingenting.", fagsakId);
+            LOG.info("AAP_PRAKSISENDRING_SAK_TASK: fagsakId {} saksnummer {} Siste behandling er åpen førstegangsbehdling, gjør ingenting.", fagsakId, saksnummer);
         }
     }
 
-    private Behandling opprettRevurdering(ProsessTaskData prosessTaskData) {
+    private Behandling opprettRevurdering(ProsessTaskData prosessTaskData, String saksnummer) {
         var fagsak = fagsakRepository.hentSakGittSaksnummer(new Saksnummer(prosessTaskData.getSaksnummer())).orElseThrow();
         var revurdering = revurderingTjeneste.opprettAutomatiskRevurdering(fagsak, BehandlingÅrsakType.FEIL_PRAKSIS_BG_AAP_KOMBI, BehandlendeEnhetTjeneste.getMidlertidigEnhet());
-        LOG.info("aap.praksisendring.sak: fagsakId {} Opprettet revurdering med uuid {}", fagsak.getId(), revurdering.getUuid());
+        LOG.info("AAP_PRAKSISENDRING_SAK_TASK: fagsakId {} saksnummer {} Opprettet revurdering med uuid {}", fagsak.getId(), saksnummer, revurdering.getUuid());
         return revurdering;
     }
 
