@@ -412,7 +412,7 @@ public class FordelRestTjeneste {
         @Override
         public AbacDataAttributter apply(Object obj) {
             var req = (AktørIdDto) obj;
-            return TilbakeRestTjeneste.opprett().leggTil(AppAbacAttributtType.AKTØR_ID, req.aktørId());
+            return AbacDataAttributter.opprett().leggTil(AppAbacAttributtType.AKTØR_ID, req.aktørId());
         }
     }
 
@@ -520,7 +520,7 @@ public class FordelRestTjeneste {
         @Override
         public AbacDataAttributter apply(Object obj) {
             var req = (JournalpostMottakDto) obj;
-            return TilbakeRestTjeneste.opprett()
+            return AbacDataAttributter.opprett()
                 .leggTil(AppAbacAttributtType.SAKSNUMMER, req.getSaksnummer());
         }
     }
@@ -530,7 +530,7 @@ public class FordelRestTjeneste {
         @Override
         public AbacDataAttributter apply(Object obj) {
             var req = (JournalpostKnyttningDto) obj;
-            return TilbakeRestTjeneste.opprett()
+            return AbacDataAttributter.opprett()
                 .leggTil(AppAbacAttributtType.JOURNALPOST_ID, req.journalpostIdDto().journalpostId())
                 .leggTil(AppAbacAttributtType.SAKSNUMMER, req.saksnummerDto().saksnummer());
         }
@@ -541,7 +541,7 @@ public class FordelRestTjeneste {
         @Override
         public AbacDataAttributter apply(Object obj) {
             var req = (VurderFagsystemDto) obj;
-            var abacDataAttributter = TilbakeRestTjeneste.opprett().leggTil(AppAbacAttributtType.AKTØR_ID, req.getAktørId());
+            var abacDataAttributter = AbacDataAttributter.opprett().leggTil(AppAbacAttributtType.AKTØR_ID, req.getAktørId());
 
             req.getJournalpostId().ifPresent(id -> abacDataAttributter.leggTil(AppAbacAttributtType.JOURNALPOST_ID, id));
             req.getSaksnummer().ifPresent(sn -> abacDataAttributter.leggTil(AppAbacAttributtType.SAKSNUMMER, sn));
@@ -554,7 +554,7 @@ public class FordelRestTjeneste {
         @Override
         public AbacDataAttributter apply(Object obj) {
             var req = (OpprettSakDto) obj;
-            return TilbakeRestTjeneste.opprett().leggTil(AppAbacAttributtType.AKTØR_ID, req.aktørId());
+            return AbacDataAttributter.opprett().leggTil(AppAbacAttributtType.AKTØR_ID, req.aktørId());
         }
     }
 
@@ -563,7 +563,7 @@ public class FordelRestTjeneste {
         @Override
         public AbacDataAttributter apply(Object obj) {
             var req = (OpprettSakV2Dto) obj;
-            return TilbakeRestTjeneste.opprett().leggTil(AppAbacAttributtType.AKTØR_ID, req.aktørId());
+            return AbacDataAttributter.opprett().leggTil(AppAbacAttributtType.AKTØR_ID, req.aktørId());
         }
     }
 
@@ -572,7 +572,7 @@ public class FordelRestTjeneste {
         @Override
         public AbacDataAttributter apply(Object obj) {
             var req = (SaksnummerDto) obj;
-            return TilbakeRestTjeneste.opprett().leggTil(StandardAbacAttributtType.SAKSNUMMER, req.saksnummer());
+            return AbacDataAttributter.opprett().leggTil(StandardAbacAttributtType.SAKSNUMMER, req.saksnummer());
         }
     }
 
@@ -580,7 +580,7 @@ public class FordelRestTjeneste {
         @Override
         public AbacDataAttributter apply(Object obj) {
             var req = (SakInntektsmeldingDto) obj;
-            return TilbakeRestTjeneste.opprett()
+            return AbacDataAttributter.opprett()
                 .leggTil(AppAbacAttributtType.AKTØR_ID, req.bruker().aktørId());
         }
     }

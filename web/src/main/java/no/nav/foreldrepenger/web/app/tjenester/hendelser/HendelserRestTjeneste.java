@@ -119,7 +119,7 @@ public class HendelserRestTjeneste {
 
         @Override
         public AbacDataAttributter apply(Object obj) {
-            var attributter = TilbakeRestTjeneste.opprett();
+            var attributter = AbacDataAttributter.opprett();
             if (obj instanceof AktørIdDto aktørIdDto) {
                 attributter.leggTil(AppAbacAttributtType.AKTØR_ID, aktørIdDto.getAktørId());
             } else if (obj instanceof Collection<?> c) {
@@ -138,7 +138,7 @@ public class HendelserRestTjeneste {
         @Override
         public AbacDataAttributter apply(Object obj) {
             var req = (HendelseWrapperDto) obj;
-            return TilbakeRestTjeneste.opprett().leggTil(AppAbacAttributtType.AKTØR_ID, new HashSet<>(req.getAlleAktørId()));
+            return AbacDataAttributter.opprett().leggTil(AppAbacAttributtType.AKTØR_ID, new HashSet<>(req.getAlleAktørId()));
         }
     }
 }

@@ -117,7 +117,7 @@ public class VergeRestTjeneste {
         @Override
         public AbacDataAttributter apply(Object obj) {
             var req = (VergeDto) obj;
-            var attributter = TilbakeRestTjeneste.opprett();
+            var attributter = AbacDataAttributter.opprett();
             Optional.ofNullable(req.fnr()).ifPresent(f -> attributter.leggTil(AppAbacAttributtType.FNR, f));
             return attributter;
         }

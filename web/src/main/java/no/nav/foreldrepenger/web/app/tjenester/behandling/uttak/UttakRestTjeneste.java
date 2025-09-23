@@ -208,7 +208,7 @@ public class UttakRestTjeneste {
         @Override
         public AbacDataAttributter apply(Object obj) {
             var req = (BehandlingMedUttaksperioderDto) obj;
-            return TilbakeRestTjeneste.opprett()
+            return AbacDataAttributter.opprett()
                 .leggTil(AppAbacAttributtType.BEHANDLING_UUID, req.getBehandlingUuid());
         }
     }

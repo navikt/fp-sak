@@ -27,6 +27,6 @@ public class HendelseTypeParam implements AbacDto {
 
     @Override
     public AbacDataAttributter abacAttributter() {
-        return TilbakeRestTjeneste.opprett(); // tom, i praksis rollebasert tilgang på JSON-feed
+        return AbacDataAttributter.opprett(); // tom, i praksis rollebasert tilgang på JSON-feed
     }
 }

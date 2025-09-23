@@ -40,6 +40,6 @@ public class PeriodeDto implements AbacDto {
 
     @Override
     public AbacDataAttributter abacAttributter() {
-        return TilbakeRestTjeneste.opprett();
+        return AbacDataAttributter.opprett();
     }
 }

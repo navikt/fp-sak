@@ -97,7 +97,7 @@ public class LeggTilOppgittNæringDto implements AbacDto {
 
     @Override
     public AbacDataAttributter abacAttributter() {
-        var abac = TilbakeRestTjeneste.opprett();
+        var abac = AbacDataAttributter.opprett();
         abac.leggTil(AppAbacAttributtType.BEHANDLING_UUID, behandlingUuid);
         return abac;
     }

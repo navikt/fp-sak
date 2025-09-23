@@ -277,7 +277,7 @@ public class BrevRestTjeneste {
         @Override
         public AbacDataAttributter apply(Object obj) {
             var req = (BestillDokumentDto) obj;
-            return TilbakeRestTjeneste.opprett().leggTil(AppAbacAttributtType.BEHANDLING_UUID, req.behandlingUuid());
+            return AbacDataAttributter.opprett().leggTil(AppAbacAttributtType.BEHANDLING_UUID, req.behandlingUuid());
         }
     }
 
@@ -285,7 +285,7 @@ public class BrevRestTjeneste {
         @Override
         public AbacDataAttributter apply(Object obj) {
             var req = (DokumentKvitteringDto) obj;
-            return TilbakeRestTjeneste.opprett().leggTil(AppAbacAttributtType.BEHANDLING_UUID, req.behandlingUuid());
+            return AbacDataAttributter.opprett().leggTil(AppAbacAttributtType.BEHANDLING_UUID, req.behandlingUuid());
         }
     }
 
@@ -293,7 +293,7 @@ public class BrevRestTjeneste {
         @Override
         public AbacDataAttributter apply(Object obj) {
             var req = (ForhåndsvisDokumentDto) obj;
-            return TilbakeRestTjeneste.opprett().leggTil(StandardAbacAttributtType.BEHANDLING_UUID, req.behandlingUuid());
+            return AbacDataAttributter.opprett().leggTil(StandardAbacAttributtType.BEHANDLING_UUID, req.behandlingUuid());
         }
     }
 
@@ -301,7 +301,7 @@ public class BrevRestTjeneste {
         @Override
         public AbacDataAttributter apply(Object obj) {
             var req = (MellomlagreHtmlDto) obj;
-            return TilbakeRestTjeneste.opprett().leggTil(StandardAbacAttributtType.BEHANDLING_UUID, req.behandlingUuid);
+            return AbacDataAttributter.opprett().leggTil(StandardAbacAttributtType.BEHANDLING_UUID, req.behandlingUuid);
         }
     }
 }

@@ -387,7 +387,7 @@ public class ForvaltningFagsakRestTjeneste {
         @Override
         public AbacDataAttributter apply(Object obj) {
             var req = (SokefeltDto) obj;
-            var attributter = TilbakeRestTjeneste.opprett();
+            var attributter = AbacDataAttributter.opprett();
             var søkestring = req.getSearchString();
             if (søkestring.length() == 13 /* guess - aktørId */) {
                 attributter.leggTil(AppAbacAttributtType.AKTØR_ID, søkestring);
@@ -402,7 +402,7 @@ public class ForvaltningFagsakRestTjeneste {
 
         @Override
         public AbacDataAttributter apply(Object obj) {
-            return TilbakeRestTjeneste.opprett();
+            return AbacDataAttributter.opprett();
         }
     }
 
@@ -437,7 +437,7 @@ public class ForvaltningFagsakRestTjeneste {
         @Override
         public AbacDataAttributter apply(Object obj) {
             var req = (ByttAktørRequestDto) obj;
-            return TilbakeRestTjeneste.opprett()
+            return AbacDataAttributter.opprett()
                 .leggTil(StandardAbacAttributtType.AKTØR_ID, req.utgåttAktørId().getId())
                 .leggTil(StandardAbacAttributtType.AKTØR_ID, req.gyldigAktørId().getId());
         }

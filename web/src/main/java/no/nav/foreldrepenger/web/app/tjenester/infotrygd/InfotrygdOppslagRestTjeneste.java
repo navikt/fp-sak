@@ -172,7 +172,7 @@ public class InfotrygdOppslagRestTjeneste {
         @Override
         public AbacDataAttributter apply(Object obj) {
             var req = (SokefeltDto) obj;
-            var attributter = TilbakeRestTjeneste.opprett();
+            var attributter = AbacDataAttributter.opprett();
             var søkestring = req.getSearchString();
             if (søkestring.length() == 13 /* guess - aktørId */) {
                 attributter.leggTil(AppAbacAttributtType.AKTØR_ID, søkestring);

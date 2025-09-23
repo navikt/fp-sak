@@ -16,7 +16,7 @@ public class BehandlingAbacSuppliers {
         @Override
         public AbacDataAttributter apply(Object obj) {
             var req = (BehandlingIdDto) obj;
-            var abac = TilbakeRestTjeneste.opprett();
+            var abac = AbacDataAttributter.opprett();
              if (req.getBehandlingUuid() != null) {
                 abac.leggTil(AppAbacAttributtType.BEHANDLING_UUID, req.getBehandlingUuid());
             } else {
@@ -31,14 +31,14 @@ public class BehandlingAbacSuppliers {
         @Override
         public AbacDataAttributter apply(Object obj) {
             var req = (UuidDto) obj;
-            return TilbakeRestTjeneste.opprett().leggTil(AppAbacAttributtType.BEHANDLING_UUID, req.getBehandlingUuid());
+            return AbacDataAttributter.opprett().leggTil(AppAbacAttributtType.BEHANDLING_UUID, req.getBehandlingUuid());
         }
     }
 
     public static class TaskgruppeAbacDataSupplier implements Function<Object, AbacDataAttributter> {
         @Override
         public AbacDataAttributter apply(Object obj) {
-            return TilbakeRestTjeneste.opprett();
+            return AbacDataAttributter.opprett();
         }
     }
 }

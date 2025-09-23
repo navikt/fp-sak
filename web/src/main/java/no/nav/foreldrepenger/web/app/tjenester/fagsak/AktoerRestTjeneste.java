@@ -74,7 +74,7 @@ public class AktoerRestTjeneste {
         @Override
         public AbacDataAttributter apply(Object obj) {
             var req = (AktoerIdDto) obj;
-            return TilbakeRestTjeneste.opprett().leggTil(AppAbacAttributtType.AKTØR_ID, req.getAktoerId());
+            return AbacDataAttributter.opprett().leggTil(AppAbacAttributtType.AKTØR_ID, req.getAktoerId());
         }
     }
 

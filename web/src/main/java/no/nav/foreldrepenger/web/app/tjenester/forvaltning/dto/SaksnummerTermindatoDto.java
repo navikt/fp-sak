@@ -54,7 +54,7 @@ public class SaksnummerTermindatoDto implements AbacDto {
 
     @Override
     public AbacDataAttributter abacAttributter() {
-        return TilbakeRestTjeneste.opprett()
+        return AbacDataAttributter.opprett()
             .leggTil(AppAbacAttributtType.SAKSNUMMER, saksnummer);
     }
 

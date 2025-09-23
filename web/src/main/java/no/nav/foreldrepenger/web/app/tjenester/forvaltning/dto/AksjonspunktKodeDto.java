@@ -28,7 +28,7 @@ public class AksjonspunktKodeDto implements AbacDto {
 
     @Override
     public AbacDataAttributter abacAttributter() {
-        var abac = TilbakeRestTjeneste.opprett();
+        var abac = AbacDataAttributter.opprett();
         if (aksjonspunktKode != null) {
             abac.leggTil(AppAbacAttributtType.AKSJONSPUNKT_DEFINISJON, getAksjonspunktDefinisjon());
         }

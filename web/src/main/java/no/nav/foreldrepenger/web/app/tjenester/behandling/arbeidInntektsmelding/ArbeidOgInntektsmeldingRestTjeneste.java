@@ -208,7 +208,7 @@ public class ArbeidOgInntektsmeldingRestTjeneste {
         @Override
         public AbacDataAttributter apply(Object obj) {
             var req = (ManglendeOpplysningerVurderingDto) obj;
-            return TilbakeRestTjeneste.opprett()
+            return AbacDataAttributter.opprett()
                 .leggTil(AppAbacAttributtType.BEHANDLING_UUID, req.getBehandlingUuid());
         }
     }
@@ -218,7 +218,7 @@ public class ArbeidOgInntektsmeldingRestTjeneste {
         @Override
         public AbacDataAttributter apply(Object obj) {
             var req = (ManueltArbeidsforholdDto) obj;
-            return TilbakeRestTjeneste.opprett()
+            return AbacDataAttributter.opprett()
                 .leggTil(AppAbacAttributtType.BEHANDLING_UUID, req.getBehandlingUuid());
         }
     }

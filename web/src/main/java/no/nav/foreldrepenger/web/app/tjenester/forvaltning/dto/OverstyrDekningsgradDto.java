@@ -31,7 +31,7 @@ public class OverstyrDekningsgradDto implements AbacDto {
 
     @Override
     public AbacDataAttributter abacAttributter() {
-        return TilbakeRestTjeneste.opprett()
+        return AbacDataAttributter.opprett()
             .leggTil(AppAbacAttributtType.SAKSNUMMER, saksnummer);
     }
 

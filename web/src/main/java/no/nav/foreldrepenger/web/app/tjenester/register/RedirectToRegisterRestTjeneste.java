@@ -105,10 +105,10 @@ public class RedirectToRegisterRestTjeneste {
         @Override
         public AbacDataAttributter apply(Object obj) {
             if (obj == null) {
-                return TilbakeRestTjeneste.opprett();
+                return AbacDataAttributter.opprett();
             }
             var req = (SaksnummerDto) obj;
-            return TilbakeRestTjeneste.opprett().leggTil(AppAbacAttributtType.SAKSNUMMER, req.getVerdi());
+            return AbacDataAttributter.opprett().leggTil(AppAbacAttributtType.SAKSNUMMER, req.getVerdi());
         }
     }
 }

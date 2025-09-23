@@ -57,10 +57,6 @@ public class TilbakeRestTjeneste {
         // Plattform trenger tom Ctor (Hibernate, CDI, etc)
     }
 
-    public static AbacDataAttributter opprett() {
-        return new AbacDataAttributter();
-    }
-
     @GET
     @Path(BEHANDLING_PART_PATH)
     @Operation(description = "Hent behandling for bruk i fptilbake", tags = "tilbake")
@@ -94,11 +90,11 @@ public class TilbakeRestTjeneste {
     }
 
     public record HenvisningRequestDto(@NotNull @Digits(integer = 18, fraction = 0) String saksnummer,
-                                              @NotNull @Min(0) @Max(Long.MAX_VALUE) Long henvisning) implements AbacDto {
+                                       @NotNull @Min(0) @Max(Long.MAX_VALUE) Long henvisning) implements AbacDto {
 
         @Override
         public AbacDataAttributter abacAttributter() {
-            return opprett()
+            return AbacDataAttributter.opprett()
                 .leggTil(AppAbacAttributtType.SAKSNUMMER, saksnummer);
         }
 

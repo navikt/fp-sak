@@ -83,7 +83,7 @@ public class OppgaverRestTjeneste {
 
         @Override
         public AbacDataAttributter apply(Object obj) {
-            return TilbakeRestTjeneste.opprett();
+            return AbacDataAttributter.opprett();
         }
     }
 }

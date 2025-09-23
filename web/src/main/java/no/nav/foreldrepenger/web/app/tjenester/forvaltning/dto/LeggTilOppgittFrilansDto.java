@@ -47,7 +47,7 @@ public class LeggTilOppgittFrilansDto implements AbacDto {
 
     @Override
     public AbacDataAttributter abacAttributter() {
-        var abac = TilbakeRestTjeneste.opprett();
+        var abac = AbacDataAttributter.opprett();
         if (getBehandlingUuid() != null) {
             abac.leggTil(AppAbacAttributtType.BEHANDLING_UUID, getBehandlingUuid());
         }

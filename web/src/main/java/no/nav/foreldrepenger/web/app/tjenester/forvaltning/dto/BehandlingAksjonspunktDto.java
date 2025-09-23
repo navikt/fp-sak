@@ -37,7 +37,7 @@ public class BehandlingAksjonspunktDto implements AbacDto {
 
     @Override
     public AbacDataAttributter abacAttributter() {
-        var abac = TilbakeRestTjeneste.opprett();
+        var abac = AbacDataAttributter.opprett();
         if (behandlingUuid != null) {
             abac.leggTil(AppAbacAttributtType.BEHANDLING_UUID, behandlingUuid);
         }

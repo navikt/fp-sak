@@ -25,7 +25,7 @@ public class OpprettImDto implements AbacDto {
 
     @Override
     public AbacDataAttributter abacAttributter() {
-        return TilbakeRestTjeneste.opprett();
+        return AbacDataAttributter.opprett();
     }
 
     public UUID getBehandlingUuid() {

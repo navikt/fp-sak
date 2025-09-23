@@ -138,7 +138,7 @@ public class EksternDelingYtelseInfoRestTjeneste {
         @Override
         public AbacDataAttributter apply(Object obj) {
             var req = (YtelseInfoEksternRequest) obj;
-            var attributter = TilbakeRestTjeneste.opprett();
+            var attributter = AbacDataAttributter.opprett();
             if (AktørId.erGyldigAktørId(req.ident())) {
                 attributter.leggTil(AppAbacAttributtType.AKTØR_ID, req.ident());
             } else if (PersonIdent.erGyldigFnr(req.ident())) {

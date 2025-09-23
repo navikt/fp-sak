@@ -16,7 +16,7 @@ public class SaksnummerAbacSupplier {
         @Override
         public AbacDataAttributter apply(Object obj) {
             var req = (SaksnummerDto) obj;
-            return TilbakeRestTjeneste.opprett().leggTil(AppAbacAttributtType.SAKSNUMMER, req.getVerdi());
+            return AbacDataAttributter.opprett().leggTil(AppAbacAttributtType.SAKSNUMMER, req.getVerdi());
         }
     }
 

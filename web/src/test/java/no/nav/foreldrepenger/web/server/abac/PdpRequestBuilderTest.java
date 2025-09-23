@@ -10,6 +10,8 @@ import java.util.Optional;
 import java.util.UUID;
 
 import no.nav.foreldrepenger.web.app.tjenester.tilbake.TilbakeRestTjeneste;
+import no.nav.vedtak.sikkerhet.abac.AbacDataAttributter;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -55,7 +57,7 @@ class PdpRequestBuilderTest {
 
     @Test
     void skal_hente_saksstatus_og_behandlingsstatus_når_behandlingId_er_input() {
-        var attributter = TilbakeRestTjeneste.opprett()
+        var attributter = AbacDataAttributter.opprett()
                 .leggTil(AppAbacAttributtType.BEHANDLING_UUID, BEHANDLING_UUID);
 
         var behandligStatus = BehandlingStatus.OPPRETTET;
@@ -75,7 +77,7 @@ class PdpRequestBuilderTest {
 
     @Test
     void skal_angi_saksnummer_gitt_journalpost_id_som_input() {
-        var attributter = TilbakeRestTjeneste.opprett()
+        var attributter = AbacDataAttributter.opprett()
                 .leggTil(AppAbacAttributtType.JOURNALPOST_ID, JOURNALPOST_ID);
 
         lenient().when(pipRepository.saksnummerForJournalpostId(Collections.singleton(JOURNALPOST_ID))).thenReturn(Collections.singleton(SAKSNUMMER));
@@ -86,7 +88,7 @@ class PdpRequestBuilderTest {
 
     @Test
     void skal_bare_sende_fnr_vider_til_pdp() {
-        var attributter = TilbakeRestTjeneste.opprett().leggTil(AppAbacAttributtType.FNR, PERSON_0);
+        var attributter = AbacDataAttributter.opprett().leggTil(AppAbacAttributtType.FNR, PERSON_0);
 
         var request = requestBuilder.lagAppRessursData(attributter);
         assertThat(request.getIdenter()).containsOnly(PERSON_0);
@@ -94,7 +96,7 @@ class PdpRequestBuilderTest {
 
     @Test
     void skal_ta_inn_aksjonspunkt_id_og_sende_videre_aksjonspunkt_typer() {
-        var attributter = TilbakeRestTjeneste.opprett()
+        var attributter = AbacDataAttributter.opprett()
                 .leggTil(AppAbacAttributtType.AKSJONSPUNKT_DEFINISJON, AksjonspunktDefinisjon.SJEKK_MANGLENDE_FØDSEL)
                 .leggTil(AppAbacAttributtType.AKSJONSPUNKT_DEFINISJON, AksjonspunktDefinisjon.OVERSTYRING_AV_FØDSELSVILKÅRET);
 
@@ -104,7 +106,7 @@ class PdpRequestBuilderTest {
 
     @Test
     void skal_slå_opp_og_sende_videre_fnr_når_aktør_id_er_input() {
-        var attributter = TilbakeRestTjeneste.opprett().leggTil(AppAbacAttributtType.AKTØR_ID, AKTØR_1.getId());
+        var attributter = AbacDataAttributter.opprett().leggTil(AppAbacAttributtType.AKTØR_ID, AKTØR_1.getId());
 
         var request = requestBuilder.lagAppRessursData(attributter);
         assertThat(request.getIdenter()).containsOnly(AKTØR_1.getId());
@@ -113,8 +115,8 @@ class PdpRequestBuilderTest {
     @Test
     void skal_ikke_godta_at_det_sendes_inn_fagsak_id_og_behandling_id_som_ikke_stemmer_overens() {
 
-        var attributter = TilbakeRestTjeneste.opprett().leggTil(AppAbacAttributtType.SAKSNUMMER, SAKSNUMMER_2.getVerdi());
-        attributter.leggTil(TilbakeRestTjeneste.opprett().leggTil(AppAbacAttributtType.BEHANDLING_UUID, BEHANDLING_UUID));
+        var attributter = AbacDataAttributter.opprett().leggTil(AppAbacAttributtType.SAKSNUMMER, SAKSNUMMER_2.getVerdi());
+        attributter.leggTil(AbacDataAttributter.opprett().leggTil(AppAbacAttributtType.BEHANDLING_UUID, BEHANDLING_UUID));
 
         when(pipRepository.hentDataForBehandlingUuid(BEHANDLING_UUID)).thenReturn(Optional.of(
                 new PipBehandlingsData(BehandlingStatus.OPPRETTET, "Z1234", 666L, BEHANDLING_UUID, FagsakStatus.OPPRETTET, SAKSNUMMER)));

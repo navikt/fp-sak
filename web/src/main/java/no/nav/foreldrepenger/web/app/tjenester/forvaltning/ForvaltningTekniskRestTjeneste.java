@@ -174,7 +174,7 @@ public class ForvaltningTekniskRestTjeneste {
     public static class AbacDataSupplier implements Function<Object, AbacDataAttributter> {
         @Override
         public AbacDataAttributter apply(Object obj) {
-            return TilbakeRestTjeneste.opprett();
+            return AbacDataAttributter.opprett();
         }
     }
 

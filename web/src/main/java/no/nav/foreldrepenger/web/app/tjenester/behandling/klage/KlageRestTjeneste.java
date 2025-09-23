@@ -315,7 +315,7 @@ public class KlageRestTjeneste {
         @Override
         public AbacDataAttributter apply(Object obj) {
             var req = (KlageVurderingResultatAksjonspunktMellomlagringDto) obj;
-            return TilbakeRestTjeneste.opprett()
+            return AbacDataAttributter.opprett()
                 .leggTil(AppAbacAttributtType.BEHANDLING_UUID, req.getBehandlingUuid());
         }
     }
@@ -324,7 +324,7 @@ public class KlageRestTjeneste {
         @Override
         public AbacDataAttributter apply(Object obj) {
             var req = (KlageFormKravAksjonspunktMellomlagringDto) obj;
-            return TilbakeRestTjeneste.opprett()
+            return AbacDataAttributter.opprett()
                 .leggTil(AppAbacAttributtType.BEHANDLING_UUID, req.behandlingUuid());
         }
     }

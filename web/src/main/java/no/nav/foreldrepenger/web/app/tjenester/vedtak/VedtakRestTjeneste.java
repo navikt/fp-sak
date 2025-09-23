@@ -199,7 +199,7 @@ public class VedtakRestTjeneste {
 
         @Override
         public AbacDataAttributter abacAttributter() {
-            return TilbakeRestTjeneste.opprett();
+            return AbacDataAttributter.opprett();
         }
     }
 

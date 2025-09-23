@@ -437,7 +437,7 @@ public class BehandlingRestTjeneste {
         @Override
         public AbacDataAttributter apply(Object obj) {
             var req = (DtoMedBehandlingId) obj;
-            return TilbakeRestTjeneste.opprett()
+            return AbacDataAttributter.opprett()
                 .leggTil(AppAbacAttributtType.BEHANDLING_UUID, req.getBehandlingUuid());
         }
     }
@@ -448,7 +448,7 @@ public class BehandlingRestTjeneste {
         public AbacDataAttributter apply(Object obj) {
             var req = (NyBehandlingDto) obj;
 
-            return TilbakeRestTjeneste.opprett().leggTil(AppAbacAttributtType.SAKSNUMMER, req.getSaksnummer());
+            return AbacDataAttributter.opprett().leggTil(AppAbacAttributtType.SAKSNUMMER, req.getSaksnummer());
         }
     }
 

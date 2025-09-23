@@ -45,7 +45,7 @@ public class SaksnummerAnnenpartIdentDto implements AbacDto {
 
     @Override
     public AbacDataAttributter abacAttributter() {
-        return TilbakeRestTjeneste.opprett()
+        return AbacDataAttributter.opprett()
             .leggTil(AppAbacAttributtType.FNR, identAnnenPart)
             .leggTil(AppAbacAttributtType.SAKSNUMMER, saksnummer);
     }

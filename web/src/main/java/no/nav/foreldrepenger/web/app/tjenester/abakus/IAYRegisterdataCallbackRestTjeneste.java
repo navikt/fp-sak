@@ -72,7 +72,7 @@ public class IAYRegisterdataCallbackRestTjeneste {
         @Override
         public AbacDataAttributter apply(Object obj) {
             var req = (CallbackDto) obj;
-            return TilbakeRestTjeneste.opprett().
+            return AbacDataAttributter.opprett().
                 leggTil(AppAbacAttributtType.BEHANDLING_UUID, req.getAvsenderRef().getReferanse());
         }
     }
