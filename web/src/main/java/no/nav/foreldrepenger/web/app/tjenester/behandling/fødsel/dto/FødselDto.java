@@ -1,38 +1,40 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.fødsel.dto;
 
+import jakarta.validation.constraints.NotNull;
+
 import java.time.LocalDate;
 import java.util.List;
 
-public record FødselDto(Søknad søknad, Register register, Gjeldende gjeldende) {
+public record FødselDto(@NotNull Søknad søknad, @NotNull Register register,@NotNull Gjeldende gjeldende) {
 
-    public record BarnHendelseData(LocalDate fødselsdato, LocalDate dødsdato, Integer barnNummer) {
+    public record BarnHendelseData(@NotNull LocalDate fødselsdato, LocalDate dødsdato, Integer barnNummer) {
     }
 
-    public record Søknad(List<BarnHendelseData> barn, LocalDate termindato, LocalDate utstedtdato, int antallBarn) {
+    public record Søknad(@NotNull List<BarnHendelseData> barn, LocalDate termindato, LocalDate utstedtdato, @NotNull int antallBarn) {
     }
 
-    public record Register(List<BarnHendelseData> barn) {
+    public record Register(@NotNull List<BarnHendelseData> barn) {
     }
 
-    public record Gjeldende(Termin termin, Utstedtdato utstedtdato, AntallBarn antallBarn,
-                            List<GjeldendeBarn> barn, FødselDokumetasjonStatus fødselDokumetasjonStatus) {
+    public record Gjeldende(Termin termin, Utstedtdato utstedtdato,
+                            @NotNull AntallBarn antallBarn, @NotNull List<GjeldendeBarn> barn, @NotNull FødselDokumetasjonStatus fødselDokumetasjonStatus) {
+
+        public record Termin(@NotNull Kilde kilde, @NotNull LocalDate termindato) {
+        }
+
+        public record AntallBarn(@NotNull Kilde kilde, @NotNull int antall) {
+        }
+
+        public record Utstedtdato(@NotNull Kilde kilde, @NotNull LocalDate utstedtdato) {
+        }
+
+        public record GjeldendeBarn(@NotNull Kilde kilde, @NotNull BarnHendelseData barn, @NotNull boolean kanOverstyres) {
+        }
 
         public enum FødselDokumetasjonStatus {
             DOKUMENTERT,
             IKKE_DOKUMENTERT,
             IKKE_VURDERT;
-        }
-
-        public record Termin(Kilde kilde, LocalDate termindato) {
-        }
-
-        public record AntallBarn(Kilde kilde, int antall) {
-        }
-
-        public record Utstedtdato(Kilde kilde, LocalDate utstedtdato) {
-        }
-
-        public record GjeldendeBarn(Kilde kilde, BarnHendelseData barn, boolean kanOverstyres) {
         }
     }
 }

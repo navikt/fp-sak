@@ -6,6 +6,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 
@@ -15,9 +16,9 @@ import no.nav.vedtak.util.InputValideringRegex;
 
 public class SvpArbeidsforholdDto {
 
-    private Long tilretteleggingId;
-    private LocalDate tilretteleggingBehovFom;
-    private List<SvpTilretteleggingDatoDto> tilretteleggingDatoer = new ArrayList<>();
+    @NotNull private Long tilretteleggingId;
+    @NotNull private LocalDate tilretteleggingBehovFom;
+    @NotNull private List<SvpTilretteleggingDatoDto> tilretteleggingDatoer = new ArrayList<>();
     private UttakArbeidType uttakArbeidType;
     private String arbeidsgiverReferanse;
     private String opplysningerOmRisiko;
@@ -26,11 +27,11 @@ public class SvpArbeidsforholdDto {
     private LocalDateTime mottattTidspunkt;
     private String internArbeidsforholdReferanse;
     private String eksternArbeidsforholdReferanse;
-    private boolean skalBrukes = true;
-    private boolean kanTilrettelegges = true;
+    @NotNull private boolean skalBrukes = true;
+    @NotNull private boolean kanTilrettelegges = true;
     private BigDecimal stillingsprosentStartTilrettelegging;
-    private List<VelferdspermisjonDto> velferdspermisjoner = new ArrayList<>();
-    private List<SvpAvklartOppholdPeriodeDto> avklarteOppholdPerioder = new ArrayList<>();
+    @NotNull private List<VelferdspermisjonDto> velferdspermisjoner = new ArrayList<>();
+    @NotNull private List<SvpAvklartOppholdPeriodeDto> avklarteOppholdPerioder = new ArrayList<>();
 
     @Size(max = 4000)
     @Pattern(regexp = InputValideringRegex.FRITEKST)

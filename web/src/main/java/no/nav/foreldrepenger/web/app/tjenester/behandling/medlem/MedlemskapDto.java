@@ -7,6 +7,8 @@ import java.util.Set;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 
+import jakarta.validation.constraints.NotNull;
+
 import no.nav.foreldrepenger.behandlingslager.aktør.OppholdstillatelseType;
 import no.nav.foreldrepenger.behandlingslager.aktør.PersonstatusType;
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapDekningType;
@@ -23,13 +25,13 @@ import no.nav.foreldrepenger.web.app.tjenester.behandling.personopplysning.Perso
 
 public record MedlemskapDto(ManuellBehandlingResultat manuellBehandlingResultat,
                             LegacyManuellBehandling legacyManuellBehandling,
-                            Set<Region> regioner,
-                            Set<Personstatus> personstatuser,
-                            Set<Utenlandsopphold> utenlandsopphold,
-                            Set<PersonadresseDto> adresser,
-                            Set<Oppholdstillatelse> oppholdstillatelser,
-                            Set<MedlemskapPeriode> medlemskapsperioder,
-                            Set<MedlemskapAvvik> avvik,
+                            @NotNull Set<Region> regioner,
+                            @NotNull Set<Personstatus> personstatuser,
+                            @NotNull Set<Utenlandsopphold> utenlandsopphold,
+                            @NotNull Set<PersonadresseDto> adresser,
+                            @NotNull Set<Oppholdstillatelse> oppholdstillatelser,
+                            @NotNull Set<MedlemskapPeriode> medlemskapsperioder,
+                            @NotNull Set<MedlemskapAvvik> avvik,
                             Annenpart annenpart) {
 
     private static final LocalDate OPPHOLD_CUTOFF = LocalDate.of(2018, 7, 1);
@@ -44,10 +46,10 @@ public record MedlemskapDto(ManuellBehandlingResultat manuellBehandlingResultat,
     /**
      * Settes når gammel vurdering finnes, og ikke ny?
      */
-    record LegacyManuellBehandling(Set<MedlemPeriode> perioder) {
+    record LegacyManuellBehandling(@NotNull Set<MedlemPeriode> perioder) {
 
         @JsonInclude(Include.NON_NULL)
-        record MedlemPeriode(LocalDate vurderingsdato,
+        record MedlemPeriode(@NotNull LocalDate vurderingsdato,
                              Boolean oppholdsrettVurdering,
                              Boolean erEosBorger,
                              Boolean lovligOppholdVurdering,
@@ -57,37 +59,37 @@ public record MedlemskapDto(ManuellBehandlingResultat manuellBehandlingResultat,
         }
     }
 
-    record Region(LocalDate fom, LocalDate tom, no.nav.foreldrepenger.behandlingslager.geografisk.Region type) {
+    record Region(@NotNull LocalDate fom, @NotNull LocalDate tom, @NotNull no.nav.foreldrepenger.behandlingslager.geografisk.Region type) {
     }
 
-    record Personstatus(LocalDate fom, LocalDate tom, PersonstatusType type) {
+    record Personstatus(@NotNull LocalDate fom, @NotNull LocalDate tom, @NotNull PersonstatusType type) {
         public static Personstatus map(PersonstatusIntervall pse) {
             return new Personstatus(pse.intervall().getFomDato(), pse.intervall().getTomDato(), pse.personstatus());
         }
     }
 
-    record Utenlandsopphold(LocalDate fom, LocalDate tom, Landkoder landkode) {
+    record Utenlandsopphold(@NotNull LocalDate fom, LocalDate tom, @NotNull Landkoder landkode) {
         public static Utenlandsopphold map(MedlemskapOppgittLandOppholdEntitet moloe) {
             return new Utenlandsopphold(moloe.getPeriodeFom(), moloe.getPeriodeTom(), moloe.getLand());
         }
     }
 
-    record Oppholdstillatelse(LocalDate fom, LocalDate tom, OppholdstillatelseType type) {
+    record Oppholdstillatelse(LocalDate fom, LocalDate tom, @NotNull OppholdstillatelseType type) {
         public static Oppholdstillatelse map(OppholdstillatelseEntitet oe) {
             var fom = oe.getPeriode().getFomDato().isBefore(OPPHOLD_CUTOFF) ? null : oe.getPeriode().getFomDato();
             return new Oppholdstillatelse(fom, oe.getPeriode().getTomDato(), oe.getTillatelse());
         }
     }
 
-    record MedlemskapPeriode(LocalDate fom, LocalDate tom, boolean erMedlem, String lovvalgsland, String studieland,
-                             MedlemskapType medlemskapType, MedlemskapDekningType dekningType, LocalDate beslutningsdato) {
+    record MedlemskapPeriode(@NotNull LocalDate fom, LocalDate tom, @NotNull boolean erMedlem, String lovvalgsland, String studieland,
+                             @NotNull MedlemskapType medlemskapType, @NotNull MedlemskapDekningType dekningType, @NotNull LocalDate beslutningsdato) {
         public static MedlemskapPeriode map(MedlemskapPerioderEntitet mpe) {
             return new MedlemskapPeriode(mpe.getFom(), mpe.getTom(), mpe.getErMedlem(), Landkoder.navnLesbart(mpe.getLovvalgLand()),
                 Landkoder.navnLesbart(mpe.getStudieland()), mpe.getMedlemskapType(), mpe.getDekningType(), mpe.getBeslutningsdato());
         }
     }
 
-    record Annenpart(Set<PersonadresseDto> adresser, Set<Region> regioner, Set<Personstatus> personstatuser) {
+    record Annenpart(@NotNull Set<PersonadresseDto> adresser, @NotNull Set<Region> regioner, @NotNull Set<Personstatus> personstatuser) {
     }
 }
 

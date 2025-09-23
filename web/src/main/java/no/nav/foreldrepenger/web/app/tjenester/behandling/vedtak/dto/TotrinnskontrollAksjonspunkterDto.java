@@ -3,18 +3,20 @@ package no.nav.foreldrepenger.web.app.tjenester.behandling.vedtak.dto;
 import java.util.List;
 import java.util.Set;
 
+import jakarta.validation.constraints.NotNull;
+
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.VurderÅrsak;
 import no.nav.foreldrepenger.domene.uttak.UttakPeriodeEndringDto;
 
 public class TotrinnskontrollAksjonspunkterDto {
 
-    private String aksjonspunktKode;
-    private List<TotrinnskontrollAktivitetDto> opptjeningAktiviteter;
+    @NotNull private String aksjonspunktKode;
+    @NotNull private List<TotrinnskontrollAktivitetDto> opptjeningAktiviteter;
     private TotrinnsBeregningDto beregningDto;
     private String besluttersBegrunnelse;
-    private Boolean totrinnskontrollGodkjent;
-    private Set<VurderÅrsak> vurderPaNyttArsaker;
-    private List<UttakPeriodeEndringDto> uttakPerioder;
+    @NotNull private Boolean totrinnskontrollGodkjent;
+    @NotNull private Set<VurderÅrsak> vurderPaNyttArsaker;
+    @NotNull private List<UttakPeriodeEndringDto> uttakPerioder;
 
     public String getAksjonspunktKode() {
         return aksjonspunktKode;

@@ -1,5 +1,7 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.svp;
 
+import jakarta.validation.constraints.NotNull;
+
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -10,9 +12,9 @@ public class SvpTilretteleggingDto {
 
     private LocalDate fødselsdato;
 
-    private List<SvpArbeidsforholdDto> arbeidsforholdListe = new ArrayList<>();
+    @NotNull private List<SvpArbeidsforholdDto> arbeidsforholdListe = new ArrayList<>();
 
-    private boolean saksbehandlet;
+    @NotNull private boolean saksbehandlet;
 
     public LocalDate getTermindato() {
         return termindato;

@@ -63,7 +63,7 @@ public record DokumentasjonVurderingBehovDto(@NotNull LocalDate fom, @NotNull Lo
         }
     }
 
-    record AktivitetskravGrunnlagArbeid(OrgNummer orgNummer, BigDecimal stillingsprosent, Permisjon permisjon) {
+    record AktivitetskravGrunnlagArbeid(@NotNull OrgNummer orgNummer, @NotNull BigDecimal stillingsprosent, @NotNull Permisjon permisjon) {
         static AktivitetskravGrunnlagArbeid from(AktivitetskravArbeidPeriodeEntitet e) {
             var stilling = Optional.ofNullable(e.getSumStillingsprosent()).map(Stillingsprosent::getVerdi).orElse(BigDecimal.ZERO);
             var permisjonsprosent = Optional.ofNullable(e.getSumPermisjonsprosent()).map(Stillingsprosent::getVerdi).orElse(BigDecimal.ZERO);
@@ -72,7 +72,7 @@ public record DokumentasjonVurderingBehovDto(@NotNull LocalDate fom, @NotNull Lo
         }
     }
 
-    private record Permisjon(BigDecimal prosent, AktivitetskravPermisjonType type) {
+    private record Permisjon(@NotNull BigDecimal prosent, @NotNull AktivitetskravPermisjonType type) {
 
     }
 }

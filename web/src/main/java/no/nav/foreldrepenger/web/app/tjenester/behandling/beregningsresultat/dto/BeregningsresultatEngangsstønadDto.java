@@ -1,10 +1,12 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.beregningsresultat.dto;
 
+import jakarta.validation.constraints.NotNull;
+
 public class BeregningsresultatEngangsstønadDto {
 
-    private Long beregnetTilkjentYtelse;
-    private Long satsVerdi;
-    private Integer antallBarn;
+    @NotNull private Long beregnetTilkjentYtelse;
+    @NotNull private Long satsVerdi;
+    @NotNull private Integer antallBarn;
 
     public BeregningsresultatEngangsstønadDto(Long beregnetTilkjentYtelse, Long satsVerdi, Integer antallBarn) {
         this.beregnetTilkjentYtelse = beregnetTilkjentYtelse;

@@ -1,15 +1,17 @@
 package no.nav.foreldrepenger.tilganger;
 
+import jakarta.validation.constraints.NotNull;
+
 import java.time.LocalDateTime;
 import java.util.Objects;
 
-public record InnloggetNavAnsattDto(String brukernavn,
-                                    String navn,
-                                    boolean kanSaksbehandle,
-                                    boolean kanVeilede,
-                                    boolean kanOverstyre,
-                                    boolean kanOppgavestyre,
-                                    boolean kanBehandleKode6,
+public record InnloggetNavAnsattDto(@NotNull String brukernavn,
+                                    @NotNull String navn,
+                                    @NotNull boolean kanSaksbehandle,
+                                    @NotNull boolean kanVeilede,
+                                    @NotNull boolean kanOverstyre,
+                                    @NotNull boolean kanOppgavestyre,
+                                    @NotNull boolean kanBehandleKode6,
                                     LocalDateTime funksjonellTid) {
 
     private InnloggetNavAnsattDto(Builder builder) {

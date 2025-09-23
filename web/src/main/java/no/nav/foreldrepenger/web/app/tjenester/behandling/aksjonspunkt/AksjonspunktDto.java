@@ -3,6 +3,8 @@ package no.nav.foreldrepenger.web.app.tjenester.behandling.aksjonspunkt;
 import java.time.LocalDateTime;
 import java.util.Set;
 
+import jakarta.validation.constraints.NotNull;
+
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktType;
@@ -10,17 +12,17 @@ import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.VurderÅrs
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
 
 public class AksjonspunktDto {
-    private AksjonspunktDefinisjon definisjon;
-    private AksjonspunktStatus status;
+    @NotNull private AksjonspunktDefinisjon definisjon;
+    @NotNull private AksjonspunktStatus status;
     private String begrunnelse;
     private VilkårType vilkarType;
-    private Boolean toTrinnsBehandling;
+    @NotNull private Boolean toTrinnsBehandling;
     private Boolean toTrinnsBehandlingGodkjent;
     private Set<VurderÅrsak> vurderPaNyttArsaker;
     private String besluttersBegrunnelse;
-    private AksjonspunktType aksjonspunktType;
-    private Boolean kanLoses;
-    private Boolean erAktivt;
+    @NotNull private AksjonspunktType aksjonspunktType;
+    @NotNull private Boolean kanLoses;
+    @NotNull private Boolean erAktivt;
     private LocalDateTime fristTid;
     private LocalDateTime endretTidspunkt;
     private String endretAv;
@@ -136,4 +138,5 @@ public class AksjonspunktDto {
     public void setEndretAv(String endretAv) {
         this.endretAv = endretAv;
     }
+
 }

@@ -6,19 +6,21 @@ import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import jakarta.validation.constraints.NotNull;
+
 import no.nav.foreldrepenger.domene.typer.JournalpostId;
 
 @JsonAutoDetect(getterVisibility=Visibility.NONE, setterVisibility=Visibility.NONE, fieldVisibility=Visibility.ANY)
 public class VurderInnsynDokumentDto {
 
-    @JsonProperty("fikkInnsyn")
+    @JsonProperty("fikkInnsyn") @NotNull
     private boolean fikkInnsyn;
 
-    @JsonProperty("journalpostId")
+    @JsonProperty("journalpostId") @NotNull
     @Digits(integer = 18, fraction = 0)
     private String journalpostId;
 
-    @JsonProperty("dokumentId")
+    @JsonProperty("dokumentId") @NotNull
     @Digits(integer = 18, fraction = 0)
     private String dokumentId;
 

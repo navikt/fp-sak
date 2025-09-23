@@ -3,6 +3,8 @@ package no.nav.foreldrepenger.web.app.tjenester.fagsak.dto;
 import java.util.Collection;
 import java.util.List;
 
+import jakarta.validation.constraints.NotNull;
+
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakStatus;
@@ -14,25 +16,25 @@ import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.behandling.FagsakB
 import no.nav.foreldrepenger.web.app.tjenester.behandling.historikk.HistorikkinnslagDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.kontroll.dto.KontrollresultatDto;
 
-public record FagsakFullDto(String saksnummer,
-                            FagsakYtelseType fagsakYtelseType,
-                            RelasjonsRolleType relasjonsRolleType,
-                            FagsakStatus status,
-                            String aktørId,
-                            boolean sakSkalTilInfotrygd,
-                            Integer dekningsgrad,
-                            PersonDto bruker,
-                            boolean brukerManglerAdresse,
+public record FagsakFullDto(@NotNull String saksnummer,
+                            @NotNull FagsakYtelseType fagsakYtelseType,
+                            @NotNull RelasjonsRolleType relasjonsRolleType,
+                            @NotNull FagsakStatus status,
+                            @NotNull String aktørId,
+                            @NotNull boolean sakSkalTilInfotrygd,
+                            @NotNull Integer dekningsgrad,
+                            @NotNull PersonDto bruker,
+                            @NotNull boolean brukerManglerAdresse,
                             PersonDto annenPart,
                             AnnenPartBehandlingDto annenpartBehandling,
                             SakHendelseDto familiehendelse,
-                            List<FagsakMarkeringDto> fagsakMarkeringer,
-                            List<BehandlingOpprettingDto> behandlingTypeKanOpprettes,
-                            List<FagsakBehandlingDto> behandlinger,
-                            List<HistorikkinnslagDto> historikkinnslag,
-                            List<FagsakNotatDto> notater,
-                            KontrollresultatDto kontrollResultat,
-                            boolean harVergeIÅpenBehandling) {
+                            @NotNull List<FagsakMarkeringDto> fagsakMarkeringer,
+                            @NotNull List<BehandlingOpprettingDto> behandlingTypeKanOpprettes,
+                            @NotNull List<FagsakBehandlingDto> behandlinger,
+                            @NotNull List<HistorikkinnslagDto> historikkinnslag,
+                            @NotNull List<FagsakNotatDto> notater,
+                            @NotNull KontrollresultatDto kontrollResultat,
+                            @NotNull boolean harVergeIÅpenBehandling) {
 
     public FagsakFullDto(Fagsak fagsak, Integer dekningsgrad, PersonDto bruker,
                          boolean brukerManglerAdresse,

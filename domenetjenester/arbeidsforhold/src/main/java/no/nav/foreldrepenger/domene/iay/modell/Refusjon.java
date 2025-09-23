@@ -4,6 +4,8 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.Objects;
 
+import jakarta.validation.constraints.NotNull;
+
 import no.nav.foreldrepenger.behandlingslager.diff.ChangeTracked;
 import no.nav.foreldrepenger.behandlingslager.diff.IndexKey;
 import no.nav.foreldrepenger.domene.typer.Beløp;
@@ -13,7 +15,7 @@ public class Refusjon implements IndexKey {
     @ChangeTracked
     private Beløp refusjonsbeløpMnd;
 
-    @ChangeTracked
+    @ChangeTracked @NotNull
     private LocalDate fom;
 
     public Refusjon() {

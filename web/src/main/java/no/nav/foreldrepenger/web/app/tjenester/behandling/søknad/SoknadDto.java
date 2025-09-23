@@ -6,6 +6,8 @@ import java.util.List;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
+import jakarta.validation.constraints.NotNull;
+
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME)
 @JsonSubTypes({
     @JsonSubTypes.Type(value = SoknadAdopsjonDto.class),
@@ -13,14 +15,14 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 })
 public abstract class SoknadDto {
 
-    private SøknadType soknadType;
-    private LocalDate mottattDato;
+    @NotNull private SøknadType soknadType;
+    @NotNull private LocalDate mottattDato;
     private String begrunnelseForSenInnsending;
-    private Integer antallBarn;
-    private OppgittTilknytningDto oppgittTilknytning;
-    private List<ManglendeVedleggDto> manglendeVedlegg;
+    @NotNull private Integer antallBarn;
+    @NotNull private OppgittTilknytningDto oppgittTilknytning;
+    @NotNull private List<ManglendeVedleggDto> manglendeVedlegg;
     private OppgittFordelingDto oppgittFordeling;
-    private SøknadsfristDto søknadsfrist;
+    @NotNull private SøknadsfristDto søknadsfrist;
 
     protected SoknadDto() {
     }

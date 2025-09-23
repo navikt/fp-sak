@@ -3,22 +3,24 @@ package no.nav.foreldrepenger.domene.opptjening.dto;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
+import jakarta.validation.constraints.NotNull;
+
 import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.OpptjeningAktivitetType;
 
 public class OpptjeningAktivitetDto {
 
-    private OpptjeningAktivitetType aktivitetType;
+    @NotNull private OpptjeningAktivitetType aktivitetType;
     private LocalDate originalFom;
     private LocalDate originalTom;
-    private LocalDate opptjeningFom;
-    private LocalDate opptjeningTom;
+    @NotNull private LocalDate opptjeningFom;
+    @NotNull private LocalDate opptjeningTom;
     private String arbeidsgiverReferanse;
     private String arbeidsforholdRef;
-    private BigDecimal stillingsandel;
+    @NotNull private BigDecimal stillingsandel;
     private LocalDate naringRegistreringsdato;
     private Boolean erManueltOpprettet;
     private Boolean erGodkjent;
-    private Boolean erEndret;
+    @NotNull private Boolean erEndret;
     private String begrunnelse;
     private Boolean erPeriodeEndret;
 

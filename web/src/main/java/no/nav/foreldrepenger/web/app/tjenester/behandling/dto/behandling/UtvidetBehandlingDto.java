@@ -6,6 +6,8 @@ import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import jakarta.validation.constraints.NotNull;
+
 import no.nav.foreldrepenger.web.app.tjenester.behandling.aksjonspunkt.AksjonspunktDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.AsyncPollingStatus;
 
@@ -16,15 +18,15 @@ public class UtvidetBehandlingDto extends BehandlingDto {
     private String ansvarligBeslutter;
 
     @JsonProperty("aksjonspunkt")
-    private Set<AksjonspunktDto> aksjonspunkt;
+    @NotNull private Set<AksjonspunktDto> aksjonspunkt;
 
-    @JsonProperty("harSøknad")
+    @JsonProperty("harSøknad") @NotNull
     private boolean harSøknad;
 
     @JsonProperty("harRegisterdata")
     private boolean harRegisterdata;
 
-    @JsonProperty("harSattEndringsdato")
+    @JsonProperty("harSattEndringsdato") @NotNull
     private boolean harSattEndringsdato;
 
     @JsonProperty("alleUttaksperioderAvslått")

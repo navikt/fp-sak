@@ -6,6 +6,8 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+
 import jakarta.ws.rs.ext.ContextResolver;
 import jakarta.ws.rs.ext.Provider;
 
@@ -48,6 +50,7 @@ public class JacksonJsonConfig implements ContextResolver<ObjectMapper> {
         om.registerModule(new JavaTimeModule());
         om.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
         om.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+        om.setDefaultPropertyInclusion(JsonInclude.Include.NON_NULL);
         om.registerModule(simpleModule);
 
         // registrer jackson JsonTypeName subtypes basert på rest implementasjoner
@@ -95,7 +98,7 @@ public class JacksonJsonConfig implements ContextResolver<ObjectMapper> {
      * Scan subtyper dynamisk fra WAR slik at superklasse slipper å
      * deklarere @JsonSubtypes.
      */
-    private static List<Class<?>> getJsonTypeNameClasses(URI classLocation) {
+    public static List<Class<?>> getJsonTypeNameClasses(URI classLocation) {
         IndexClasses indexClasses;
         indexClasses = IndexClasses.getIndexFor(classLocation);
         return indexClasses.getClassesWithAnnotation(JsonTypeName.class);

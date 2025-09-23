@@ -33,7 +33,7 @@ public record FaktaUttakPeriodeDto(@NotNull LocalDate fom,
                                    @Valid SamtidigUttaksprosent samtidigUttaksprosent,
                                    boolean flerbarnsdager,
                                    @ValidKodeverk MorsAktivitet morsAktivitet,
-                                   @ValidKodeverk FordelingPeriodeKilde periodeKilde,
+                                   @NotNull @ValidKodeverk FordelingPeriodeKilde periodeKilde,
                                    @Size(max = 4000) @Pattern(regexp = InputValideringRegex.FRITEKST) String begrunnelse) {
 
     @Override

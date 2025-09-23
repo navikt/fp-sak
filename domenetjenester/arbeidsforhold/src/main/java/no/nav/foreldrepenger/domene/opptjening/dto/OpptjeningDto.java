@@ -1,11 +1,13 @@
 package no.nav.foreldrepenger.domene.opptjening.dto;
 
+import jakarta.validation.constraints.NotNull;
+
 import java.util.List;
 
 public class OpptjeningDto {
 
-    private FastsattOpptjeningDto fastsattOpptjening;
-    private List<OpptjeningAktivitetDto> opptjeningAktivitetList;
+    @NotNull private FastsattOpptjeningDto fastsattOpptjening;
+    @NotNull private List<OpptjeningAktivitetDto> opptjeningAktivitetList;
     private List<FerdiglignetNæringDto> ferdiglignetNæring;
 
 

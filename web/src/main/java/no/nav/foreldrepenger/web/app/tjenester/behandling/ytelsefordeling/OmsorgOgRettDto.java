@@ -1,19 +1,21 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.ytelsefordeling;
 
+import jakarta.validation.constraints.NotNull;
+
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.Rettighetstype;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Landkoder;
 
-public record OmsorgOgRettDto(Søknad søknad,
+public record OmsorgOgRettDto(@NotNull Søknad søknad,
                               RegisterData registerdata,
                               ManuellBehandlingResultat manuellBehandlingResultat,
                               Rettighetstype rettighetstype,
-                              RelasjonsRolleType relasjonsRolleType) {
+                              @NotNull RelasjonsRolleType relasjonsRolleType) {
 
-    public record Søknad(Verdi søkerHarAleneomsorg, String annenpartIdent, Landkoder annenpartBostedsland, Rettighet annenpartRettighet) {
+    public record Søknad(@NotNull Verdi søkerHarAleneomsorg, String annenpartIdent, Landkoder annenpartBostedsland, Rettighet annenpartRettighet) {
     }
 
-    public record Rettighet(Verdi harRettNorge, Verdi harOppholdEØS, Verdi harRettEØS, Verdi harUføretrygd) {
+    public record Rettighet(@NotNull Verdi harRettNorge, @NotNull Verdi harOppholdEØS, @NotNull Verdi harRettEØS, @NotNull Verdi harUføretrygd) {
     }
     public enum Verdi {
         JA, NEI, IKKE_RELEVANT;
@@ -23,9 +25,9 @@ public record OmsorgOgRettDto(Søknad søknad,
         }
     }
 
-    public record RegisterData(Verdi harAnnenpartUføretrygd, Verdi harAnnenpartForeldrepenger, Verdi harAnnenpartEngangsstønad) {
+    public record RegisterData(@NotNull Verdi harAnnenpartUføretrygd, @NotNull Verdi harAnnenpartForeldrepenger, @NotNull Verdi harAnnenpartEngangsstønad) {
     }
 
-    public record ManuellBehandlingResultat(Verdi søkerHarAleneomsorg, Rettighet annenpartRettighet) {
+    public record ManuellBehandlingResultat(@NotNull Verdi søkerHarAleneomsorg, Rettighet annenpartRettighet) {
     }
 }

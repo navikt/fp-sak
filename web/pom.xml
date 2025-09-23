@@ -31,6 +31,12 @@
         </dependency>
 
         <dependency>
+            <groupId>no.nav.openapi.spec.utils</groupId>
+            <artifactId>openapi-spec-utils</artifactId>
+            <version>${openapi-spec-utils.version}</version>
+        </dependency>
+
+        <dependency>
             <groupId>no.nav.vedtak.prosesstask</groupId>
             <artifactId>prosesstask-kontekst</artifactId>
         </dependency>
