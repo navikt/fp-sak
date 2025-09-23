@@ -19,6 +19,6 @@ public record OppgaveDto(@NotNull OppgaveId oppgaveId, @NotNull OppgaveType oppg
     public record Beskrivelse(String header, @NotNull List<String> kommentarer) {
     }
 
-    public record Dokument(@NotNull JournalpostId journalpostId, @NotNull String dokumentId, @NotNull String tittel) {
+    public record Dokument(@NotNull JournalpostId journalpostId, @NotNull String dokumentId, String tittel) {
     }
 }
