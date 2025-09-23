@@ -34,9 +34,6 @@ public record MedlemskapDto(ManuellBehandlingResultat manuellBehandlingResultat,
                             @NotNull Set<MedlemskapAvvik> avvik,
                             Annenpart annenpart) {
 
-    private static final LocalDate OPPHOLD_CUTOFF = LocalDate.of(2018, 7, 1);
-
-
     /**
      * Settes hvis det krever manuell behandling og gammel vurdering ikke finnes.
      */
