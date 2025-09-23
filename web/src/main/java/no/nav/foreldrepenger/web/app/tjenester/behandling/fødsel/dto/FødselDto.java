@@ -5,7 +5,7 @@ import jakarta.validation.constraints.NotNull;
 import java.time.LocalDate;
 import java.util.List;
 
-public record FødselDto(@NotNull FødselDto.Søknad søknad, @NotNull FødselDto.Register register,@NotNull FødselDto.Gjeldende gjeldende) {
+public record FødselDto(@NotNull Søknad søknad, @NotNull Register register,@NotNull Gjeldende gjeldende) {
 
     public record BarnHendelseData(@NotNull LocalDate fødselsdato, LocalDate dødsdato, Integer barnNummer) {
     }
@@ -16,8 +16,8 @@ public record FødselDto(@NotNull FødselDto.Søknad søknad, @NotNull FødselDt
     public record Register(@NotNull List<BarnHendelseData> barn) {
     }
 
-    public record Gjeldende(Termin termin, FødselDto.Gjeldende.Utstedtdato utstedtdato,
-                            @NotNull AntallBarn antallBarn, @NotNull List<FødselDto.Gjeldende.GjeldendeBarn> barn, @NotNull FødselDokumetasjonStatus fødselDokumetasjonStatus) {
+    public record Gjeldende(Termin termin, Utstedtdato utstedtdato,
+                            @NotNull AntallBarn antallBarn, @NotNull List<GjeldendeBarn> barn, @NotNull FødselDokumetasjonStatus fødselDokumetasjonStatus) {
 
         public record Termin(@NotNull Kilde kilde, @NotNull LocalDate termindato) {
         }
