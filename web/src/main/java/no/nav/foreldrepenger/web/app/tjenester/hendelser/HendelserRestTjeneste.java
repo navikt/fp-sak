@@ -15,6 +15,8 @@ import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 
+import no.nav.foreldrepenger.web.app.tjenester.tilbake.TilbakeRestTjeneste;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -117,7 +119,7 @@ public class HendelserRestTjeneste {
 
         @Override
         public AbacDataAttributter apply(Object obj) {
-            var attributter = AbacDataAttributter.opprett();
+            var attributter = TilbakeRestTjeneste.opprett();
             if (obj instanceof AktørIdDto aktørIdDto) {
                 attributter.leggTil(AppAbacAttributtType.AKTØR_ID, aktørIdDto.getAktørId());
             } else if (obj instanceof Collection<?> c) {
@@ -136,7 +138,7 @@ public class HendelserRestTjeneste {
         @Override
         public AbacDataAttributter apply(Object obj) {
             var req = (HendelseWrapperDto) obj;
-            return AbacDataAttributter.opprett().leggTil(AppAbacAttributtType.AKTØR_ID, new HashSet<>(req.getAlleAktørId()));
+            return TilbakeRestTjeneste.opprett().leggTil(AppAbacAttributtType.AKTØR_ID, new HashSet<>(req.getAlleAktørId()));
         }
     }
 }

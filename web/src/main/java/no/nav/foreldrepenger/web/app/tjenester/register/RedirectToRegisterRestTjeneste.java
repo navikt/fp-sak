@@ -19,6 +19,7 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.domene.person.PersoninfoAdapter;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.SaksnummerDto;
+import no.nav.foreldrepenger.web.app.tjenester.tilbake.TilbakeRestTjeneste;
 import no.nav.foreldrepenger.web.server.abac.AppAbacAttributtType;
 import no.nav.vedtak.sikkerhet.abac.AbacDataAttributter;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
@@ -104,10 +105,10 @@ public class RedirectToRegisterRestTjeneste {
         @Override
         public AbacDataAttributter apply(Object obj) {
             if (obj == null) {
-                return AbacDataAttributter.opprett();
+                return TilbakeRestTjeneste.opprett();
             }
             var req = (SaksnummerDto) obj;
-            return AbacDataAttributter.opprett().leggTil(AppAbacAttributtType.SAKSNUMMER, req.getVerdi());
+            return TilbakeRestTjeneste.opprett().leggTil(AppAbacAttributtType.SAKSNUMMER, req.getVerdi());
         }
     }
 }

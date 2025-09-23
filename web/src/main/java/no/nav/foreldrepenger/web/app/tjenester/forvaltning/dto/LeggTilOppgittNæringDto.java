@@ -20,6 +20,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Schema;
+import no.nav.foreldrepenger.web.app.tjenester.tilbake.TilbakeRestTjeneste;
 import no.nav.foreldrepenger.web.server.abac.AppAbacAttributtType;
 import no.nav.vedtak.sikkerhet.abac.AbacDataAttributter;
 import no.nav.vedtak.sikkerhet.abac.AbacDto;
@@ -96,7 +97,7 @@ public class LeggTilOppgittNæringDto implements AbacDto {
 
     @Override
     public AbacDataAttributter abacAttributter() {
-        var abac = AbacDataAttributter.opprett();
+        var abac = TilbakeRestTjeneste.opprett();
         abac.leggTil(AppAbacAttributtType.BEHANDLING_UUID, behandlingUuid);
         return abac;
     }

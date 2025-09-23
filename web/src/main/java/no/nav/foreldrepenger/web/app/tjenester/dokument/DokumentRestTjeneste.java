@@ -23,6 +23,8 @@ import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 
+import no.nav.foreldrepenger.web.app.tjenester.tilbake.TilbakeRestTjeneste;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -180,7 +182,7 @@ public class DokumentRestTjeneste {
     public static class DokumentIdAbacSupplier implements Function<Object, AbacDataAttributter> {
         @Override
         public AbacDataAttributter apply(Object obj) {
-            return AbacDataAttributter.opprett();
+            return TilbakeRestTjeneste.opprett();
         }
     }
 
@@ -188,7 +190,7 @@ public class DokumentRestTjeneste {
         @Override
         public AbacDataAttributter apply(Object obj) {
             var req = (JournalpostIdDto) obj;
-            return AbacDataAttributter.opprett().leggTil(AppAbacAttributtType.JOURNALPOST_ID, req.getJournalpostId());
+            return TilbakeRestTjeneste.opprett().leggTil(AppAbacAttributtType.JOURNALPOST_ID, req.getJournalpostId());
         }
     }
 

@@ -25,6 +25,7 @@ import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 
+import no.nav.foreldrepenger.web.app.tjenester.tilbake.TilbakeRestTjeneste;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -171,7 +172,7 @@ public class InfotrygdOppslagRestTjeneste {
         @Override
         public AbacDataAttributter apply(Object obj) {
             var req = (SokefeltDto) obj;
-            var attributter = AbacDataAttributter.opprett();
+            var attributter = TilbakeRestTjeneste.opprett();
             var søkestring = req.getSearchString();
             if (søkestring.length() == 13 /* guess - aktørId */) {
                 attributter.leggTil(AppAbacAttributtType.AKTØR_ID, søkestring);

@@ -18,6 +18,7 @@ import jakarta.validation.constraints.Size;
 import jakarta.ws.rs.QueryParam;
 
 import io.swagger.v3.oas.annotations.Parameter;
+import no.nav.foreldrepenger.web.app.tjenester.tilbake.TilbakeRestTjeneste;
 import no.nav.vedtak.sikkerhet.abac.AbacDataAttributter;
 import no.nav.vedtak.sikkerhet.abac.AbacDto;
 
@@ -59,7 +60,7 @@ public class EndreInntektsmeldingDto implements AbacDto {
 
     @Override
     public AbacDataAttributter abacAttributter() {
-        return AbacDataAttributter.opprett();
+        return TilbakeRestTjeneste.opprett();
     }
 
     public UUID getBehandlingUuid() {

@@ -8,6 +8,7 @@ import jakarta.ws.rs.QueryParam;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import no.nav.foreldrepenger.web.app.tjenester.tilbake.TilbakeRestTjeneste;
 import no.nav.foreldrepenger.web.server.abac.AppAbacAttributtType;
 import no.nav.vedtak.sikkerhet.abac.AbacDataAttributter;
 import no.nav.vedtak.sikkerhet.abac.AbacDto;
@@ -30,7 +31,7 @@ public class ForvaltningBehandlingIdDto implements AbacDto {
 
     @Override
     public AbacDataAttributter abacAttributter() {
-        return AbacDataAttributter.opprett()
+        return TilbakeRestTjeneste.opprett()
             .leggTil(AppAbacAttributtType.BEHANDLING_UUID, getBehandlingUuid());
     }
 

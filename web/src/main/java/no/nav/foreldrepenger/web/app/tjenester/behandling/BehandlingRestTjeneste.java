@@ -66,6 +66,7 @@ import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.behandling.Behandl
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.behandling.UtvidetBehandlingDto;
 import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.SaksnummerAbacSupplier;
 import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.SaksnummerDto;
+import no.nav.foreldrepenger.web.app.tjenester.tilbake.TilbakeRestTjeneste;
 import no.nav.foreldrepenger.web.server.abac.AppAbacAttributtType;
 import no.nav.vedtak.exception.FunksjonellException;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
@@ -436,7 +437,7 @@ public class BehandlingRestTjeneste {
         @Override
         public AbacDataAttributter apply(Object obj) {
             var req = (DtoMedBehandlingId) obj;
-            return AbacDataAttributter.opprett()
+            return TilbakeRestTjeneste.opprett()
                 .leggTil(AppAbacAttributtType.BEHANDLING_UUID, req.getBehandlingUuid());
         }
     }
@@ -447,7 +448,7 @@ public class BehandlingRestTjeneste {
         public AbacDataAttributter apply(Object obj) {
             var req = (NyBehandlingDto) obj;
 
-            return AbacDataAttributter.opprett().leggTil(AppAbacAttributtType.SAKSNUMMER, req.getSaksnummer());
+            return TilbakeRestTjeneste.opprett().leggTil(AppAbacAttributtType.SAKSNUMMER, req.getSaksnummer());
         }
     }
 

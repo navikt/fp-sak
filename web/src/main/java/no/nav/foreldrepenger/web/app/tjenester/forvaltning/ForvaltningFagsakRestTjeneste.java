@@ -24,6 +24,8 @@ import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 
+import no.nav.foreldrepenger.web.app.tjenester.tilbake.TilbakeRestTjeneste;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -385,7 +387,7 @@ public class ForvaltningFagsakRestTjeneste {
         @Override
         public AbacDataAttributter apply(Object obj) {
             var req = (SokefeltDto) obj;
-            var attributter = AbacDataAttributter.opprett();
+            var attributter = TilbakeRestTjeneste.opprett();
             var søkestring = req.getSearchString();
             if (søkestring.length() == 13 /* guess - aktørId */) {
                 attributter.leggTil(AppAbacAttributtType.AKTØR_ID, søkestring);
@@ -400,7 +402,7 @@ public class ForvaltningFagsakRestTjeneste {
 
         @Override
         public AbacDataAttributter apply(Object obj) {
-            return AbacDataAttributter.opprett();
+            return TilbakeRestTjeneste.opprett();
         }
     }
 
@@ -435,7 +437,7 @@ public class ForvaltningFagsakRestTjeneste {
         @Override
         public AbacDataAttributter apply(Object obj) {
             var req = (ByttAktørRequestDto) obj;
-            return AbacDataAttributter.opprett()
+            return TilbakeRestTjeneste.opprett()
                 .leggTil(StandardAbacAttributtType.AKTØR_ID, req.utgåttAktørId().getId())
                 .leggTil(StandardAbacAttributtType.AKTØR_ID, req.gyldigAktørId().getId());
         }

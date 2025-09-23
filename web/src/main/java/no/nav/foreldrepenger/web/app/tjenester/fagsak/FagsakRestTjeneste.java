@@ -61,6 +61,7 @@ import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.LagreFagsakNotatDto;
 import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.SaksnummerAbacSupplier;
 import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.SaksnummerDto;
 import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.SokefeltDto;
+import no.nav.foreldrepenger.web.app.tjenester.tilbake.TilbakeRestTjeneste;
 import no.nav.foreldrepenger.web.server.abac.AppAbacAttributtType;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskGruppe;
@@ -175,7 +176,7 @@ public class FagsakRestTjeneste {
         @Override
         public AbacDataAttributter apply(Object obj) {
             var req = (SokefeltDto) obj;
-            var attributter = AbacDataAttributter.opprett();
+            var attributter = TilbakeRestTjeneste.opprett();
             var søkestring = req.getSearchString();
             if (AktørId.erGyldigAktørId(søkestring)) {
                 attributter.leggTil(AppAbacAttributtType.AKTØR_ID, søkestring);
@@ -261,7 +262,7 @@ public class FagsakRestTjeneste {
         @Override
         public AbacDataAttributter apply(Object obj) {
             var req = (EndreUtlandMarkeringDto) obj;
-            return AbacDataAttributter.opprett().leggTil(AppAbacAttributtType.SAKSNUMMER, req.saksnummer());
+            return TilbakeRestTjeneste.opprett().leggTil(AppAbacAttributtType.SAKSNUMMER, req.saksnummer());
         }
     }
 
@@ -270,7 +271,7 @@ public class FagsakRestTjeneste {
         @Override
         public AbacDataAttributter apply(Object obj) {
             var req = (LagreFagsakNotatDto) obj;
-            return AbacDataAttributter.opprett().leggTil(AppAbacAttributtType.SAKSNUMMER, req.saksnummer());
+            return TilbakeRestTjeneste.opprett().leggTil(AppAbacAttributtType.SAKSNUMMER, req.saksnummer());
         }
     }
 

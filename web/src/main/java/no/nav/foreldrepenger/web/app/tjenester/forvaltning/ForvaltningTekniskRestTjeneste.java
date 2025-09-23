@@ -18,6 +18,7 @@ import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.Response;
 
+import no.nav.foreldrepenger.web.app.tjenester.tilbake.TilbakeRestTjeneste;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -173,7 +174,7 @@ public class ForvaltningTekniskRestTjeneste {
     public static class AbacDataSupplier implements Function<Object, AbacDataAttributter> {
         @Override
         public AbacDataAttributter apply(Object obj) {
-            return AbacDataAttributter.opprett();
+            return TilbakeRestTjeneste.opprett();
         }
     }
 

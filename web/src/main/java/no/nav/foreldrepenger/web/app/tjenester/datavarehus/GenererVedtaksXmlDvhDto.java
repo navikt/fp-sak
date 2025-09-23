@@ -6,6 +6,7 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 
+import no.nav.foreldrepenger.web.app.tjenester.tilbake.TilbakeRestTjeneste;
 import no.nav.vedtak.sikkerhet.abac.AbacDataAttributter;
 import no.nav.vedtak.sikkerhet.abac.AbacDto;
 import no.nav.vedtak.util.InputValideringRegex;
@@ -58,6 +59,6 @@ public class GenererVedtaksXmlDvhDto implements AbacDto {
 
     @Override
     public AbacDataAttributter abacAttributter() {
-        return AbacDataAttributter.opprett();
+        return TilbakeRestTjeneste.opprett();
     }
 }

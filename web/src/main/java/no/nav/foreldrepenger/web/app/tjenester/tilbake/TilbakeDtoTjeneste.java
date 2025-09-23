@@ -27,7 +27,7 @@ import no.nav.foreldrepenger.produksjonsstyring.behandlingenhet.BehandlendeEnhet
 
 
 @ApplicationScoped
-public class TilbakeBehandlingFullTjeneste {
+public class TilbakeDtoTjeneste {
 
 
     private ØkonomioppdragRepository økonomioppdragRepository;
@@ -38,12 +38,12 @@ public class TilbakeBehandlingFullTjeneste {
     private BehandlingVedtakRepository behandlingVedtakRepository;
 
     @Inject
-    public TilbakeBehandlingFullTjeneste(ØkonomioppdragRepository økonomioppdragRepository,
-                                         TilbakekrevingRepository tilbakekrevingRepository,
-                                         VergeRepository vergeRepository,
-                                         BehandlendeEnhetTjeneste behandlendeEnhetTjeneste,
-                                         FamilieHendelseTjeneste familieHendelseTjeneste,
-                                         BehandlingVedtakRepository behandlingVedtakRepository) {
+    public TilbakeDtoTjeneste(ØkonomioppdragRepository økonomioppdragRepository,
+                              TilbakekrevingRepository tilbakekrevingRepository,
+                              VergeRepository vergeRepository,
+                              BehandlendeEnhetTjeneste behandlendeEnhetTjeneste,
+                              FamilieHendelseTjeneste familieHendelseTjeneste,
+                              BehandlingVedtakRepository behandlingVedtakRepository) {
         this.økonomioppdragRepository = økonomioppdragRepository;
         this.tilbakekrevingRepository = tilbakekrevingRepository;
         this.vergeRepository = vergeRepository;
@@ -53,79 +53,79 @@ public class TilbakeBehandlingFullTjeneste {
 
     }
 
-    public TilbakeBehandlingFullTjeneste() {
+    public TilbakeDtoTjeneste() {
         // Plattform trenger tom Ctor (Hibernate, CDI, etc)
     }
 
 
-    public TilbakeFullDto lagFpsakBehandlingFullDtoTjeneste(Behandling behandling) {
+    public TilbakeDto lagTilbakeDto(Behandling behandling) {
         var behandlingDto = getBehandlingDto(behandling);
-        var fagsak = new TilbakeFullDto.FagsakDto(behandling.getAktørId().getId(),
+        var fagsak = new TilbakeDto.FagsakDto(behandling.getAktørId().getId(),
             behandling.getSaksnummer().getVerdi(), mapTilYtelseType(behandling.getFagsakYtelseType()));
         var familieHendelseDto = getFamilieHendelseDto(behandling);
         var tilbakeValg = tilbakekrevingRepository.hent(behandling.getId())
-            .map(tv -> new TilbakeFullDto.FeilutbetalingDto(mapTilFeilutbetalingValgDto(tv.getVidereBehandling()), varseltekst(tv.getVarseltekst())))
+            .map(tv -> new TilbakeDto.FeilutbetalingDto(mapTilFeilutbetalingValgDto(tv.getVidereBehandling()), varseltekst(tv.getVarseltekst())))
             .orElse(null);
         var sendtOppdrag = økonomioppdragRepository.finnOppdragForBehandling(behandling.getId()).isPresent();
         var verge = vergeRepository.hentAggregat(behandling.getId())
             .flatMap(VergeAggregat::getVerge)
             .map(this::mapTilVergeDto).orElse(null);
-        return new TilbakeFullDto(behandlingDto, fagsak, familieHendelseDto, tilbakeValg, sendtOppdrag, verge);
+        return new TilbakeDto(behandlingDto, fagsak, familieHendelseDto, tilbakeValg, sendtOppdrag, verge);
     }
 
-    private TilbakeFullDto.FamilieHendelseDto getFamilieHendelseDto(Behandling behandling) {
+    private TilbakeDto.FamilieHendelseDto getFamilieHendelseDto(Behandling behandling) {
         var familieHendelse = familieHendelseTjeneste.finnAggregat(behandling.getId())
             .map(FamilieHendelseGrunnlagEntitet::getGjeldendeVersjon);
         var antallBarn = familieHendelse.map(FamilieHendelseEntitet::getAntallBarn).orElse(0);
         var familieHendelseType = familieHendelse.filter(FamilieHendelseEntitet::getGjelderAdopsjon).isPresent() ?
-            TilbakeFullDto.FamilieHendelseType.ADOPSJON : TilbakeFullDto.FamilieHendelseType.FØDSEL;
-        return new TilbakeFullDto.FamilieHendelseDto(familieHendelseType, antallBarn);
+            TilbakeDto.FamilieHendelseType.ADOPSJON : TilbakeDto.FamilieHendelseType.FØDSEL;
+        return new TilbakeDto.FamilieHendelseDto(familieHendelseType, antallBarn);
     }
 
-    private TilbakeFullDto.BehandlingDto getBehandlingDto(Behandling behandling) {
-        var henvisning = new TilbakeFullDto.HenvisningDto(behandling.getId());
+    private TilbakeDto.BehandlingDto getBehandlingDto(Behandling behandling) {
+        var henvisning = new TilbakeDto.HenvisningDto(behandling.getId());
         var enhet = behandlendeEnhetTjeneste.finnBehandlendeEnhetFor(behandling.getFagsak());
         var språk = mapSpråk(behandling.getFagsak().getNavBruker().getSpråkkode());
         var vedtaksdato = behandlingVedtakRepository.hentForBehandlingHvisEksisterer(behandling.getId())
             .map(BehandlingVedtak::getVedtakstidspunkt)
             .map(LocalDateTime::toLocalDate).orElse(null);
-        return new TilbakeFullDto.BehandlingDto(behandling.getUuid(), henvisning,
+        return new TilbakeDto.BehandlingDto(behandling.getUuid(), henvisning,
             enhet.enhetId(), enhet.enhetNavn(), språk, vedtaksdato);
     }
 
-    private static TilbakeFullDto.YtelseType mapTilYtelseType(FagsakYtelseType fagsakYtelseType) {
+    private static TilbakeDto.YtelseType mapTilYtelseType(FagsakYtelseType fagsakYtelseType) {
         return switch (fagsakYtelseType) {
-            case FORELDREPENGER -> TilbakeFullDto.YtelseType.FORELDREPENGER;
-            case SVANGERSKAPSPENGER -> TilbakeFullDto.YtelseType.SVANGERSKAPSPENGER;
-            case ENGANGSTØNAD -> TilbakeFullDto.YtelseType.ENGANGSSTØNAD;
+            case FORELDREPENGER -> TilbakeDto.YtelseType.FORELDREPENGER;
+            case SVANGERSKAPSPENGER -> TilbakeDto.YtelseType.SVANGERSKAPSPENGER;
+            case ENGANGSTØNAD -> TilbakeDto.YtelseType.ENGANGSSTØNAD;
             case UDEFINERT -> throw new IllegalStateException("Utviklerfeil: Udefinert ytelse type");
             case null -> throw new IllegalStateException("Utviklerfeil: Mangler ytelse type");
         };
     }
 
-    private static TilbakeFullDto.Språkkode mapSpråk(Språkkode språkkode) {
+    private static TilbakeDto.Språkkode mapSpråk(Språkkode språkkode) {
         return switch (språkkode) {
-            case NB -> TilbakeFullDto.Språkkode.NB;
-            case NN -> TilbakeFullDto.Språkkode.NN;
-            case EN -> TilbakeFullDto.Språkkode.EN;
-            case UDEFINERT -> TilbakeFullDto.Språkkode.NB;
-            case null -> TilbakeFullDto.Språkkode.NB;
+            case NB -> TilbakeDto.Språkkode.NB;
+            case NN -> TilbakeDto.Språkkode.NN;
+            case EN -> TilbakeDto.Språkkode.EN;
+            case UDEFINERT -> TilbakeDto.Språkkode.NB;
+            case null -> TilbakeDto.Språkkode.NB;
         };
     }
 
-    private static TilbakeFullDto.FeilutbetalingValg mapTilFeilutbetalingValgDto(TilbakekrevingVidereBehandling valg) {
+    private static TilbakeDto.FeilutbetalingValg mapTilFeilutbetalingValgDto(TilbakekrevingVidereBehandling valg) {
         return switch (valg) {
-            case INNTREKK -> TilbakeFullDto.FeilutbetalingValg.INNTREKK;
-            case IGNORER_TILBAKEKREVING -> TilbakeFullDto.FeilutbetalingValg.IGNORER;
-            case OPPRETT_TILBAKEKREVING -> TilbakeFullDto.FeilutbetalingValg.OPPRETT;
-            case TILBAKEKR_OPPDATER -> TilbakeFullDto.FeilutbetalingValg.OPPDATER;
+            case INNTREKK -> TilbakeDto.FeilutbetalingValg.INNTREKK;
+            case IGNORER_TILBAKEKREVING -> TilbakeDto.FeilutbetalingValg.IGNORER;
+            case OPPRETT_TILBAKEKREVING -> TilbakeDto.FeilutbetalingValg.OPPRETT;
+            case TILBAKEKR_OPPDATER -> TilbakeDto.FeilutbetalingValg.OPPDATER;
             case UDEFINIERT ->  null;
             case null ->  null;
         };
     }
 
-    private TilbakeFullDto.VergeDto mapTilVergeDto(VergeEntitet verge) {
-        return new TilbakeFullDto.VergeDto(mapTilVergetype(verge.getVergeType()),
+    private TilbakeDto.VergeDto mapTilVergeDto(VergeEntitet verge) {
+        return new TilbakeDto.VergeDto(mapTilVergetype(verge.getVergeType()),
                 verge.getBruker().map(Aktør::getAktørId).map(AktørId::getId).orElse(null),
                 verge.getVergeOrganisasjon().map(VergeOrganisasjonEntitet::getNavn).orElse(null),
                 verge.getVergeOrganisasjon().map(VergeOrganisasjonEntitet::getOrganisasjonsnummer).orElse(null),
@@ -133,13 +133,13 @@ public class TilbakeBehandlingFullTjeneste {
 
     }
 
-    private static TilbakeFullDto.VergeType mapTilVergetype(VergeType vergeType) {
+    private static TilbakeDto.VergeType mapTilVergetype(VergeType vergeType) {
         return switch (vergeType) {
-            case BARN -> TilbakeFullDto.VergeType.BARN;
-            case FBARN -> TilbakeFullDto.VergeType.FORELDRELØS;
-            case VOKSEN -> TilbakeFullDto.VergeType.VOKSEN;
-            case ADVOKAT -> TilbakeFullDto.VergeType.ADVOKAT;
-            case ANNEN_F -> TilbakeFullDto.VergeType.FULLMEKTIG;
+            case BARN -> TilbakeDto.VergeType.BARN;
+            case FBARN -> TilbakeDto.VergeType.FORELDRELØS;
+            case VOKSEN -> TilbakeDto.VergeType.VOKSEN;
+            case ADVOKAT -> TilbakeDto.VergeType.ADVOKAT;
+            case ANNEN_F -> TilbakeDto.VergeType.FULLMEKTIG;
             case null -> throw new IllegalStateException("Verge mangler type");
         };
     }

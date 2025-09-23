@@ -7,12 +7,12 @@ import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 
-public record TilbakeFullDto(@NotNull BehandlingDto behandling,
-                             @NotNull FagsakDto fagsak,
-                             @NotNull FamilieHendelseDto familieHendelse,
-                             FeilutbetalingDto feilutbetaling,
-                             boolean sendtoppdrag,
-                             VergeDto verge) {
+public record TilbakeDto(@NotNull BehandlingDto behandling,
+                         @NotNull FagsakDto fagsak,
+                         @NotNull FamilieHendelseDto familieHendelse,
+                         FeilutbetalingDto feilutbetaling,
+                         boolean sendtoppdrag,
+                         VergeDto verge) {
 
     public enum YtelseType { FORELDREPENGER, SVANGERSKAPSPENGER, ENGANGSSTØNAD }
 

@@ -22,6 +22,8 @@ import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 
+import no.nav.foreldrepenger.web.app.tjenester.tilbake.TilbakeRestTjeneste;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -233,7 +235,7 @@ public class AksjonspunktRestTjeneste {
         @Override
         public AbacDataAttributter apply(Object obj) {
             var req = (BekreftedeAksjonspunkterDto) obj;
-            var abac = AbacDataAttributter.opprett()
+            var abac = TilbakeRestTjeneste.opprett()
                 .leggTil(AppAbacAttributtType.BEHANDLING_UUID, req.getBehandlingUuid());
 
             req.getBekreftedeAksjonspunktDtoer().forEach(apDto -> {
@@ -254,7 +256,7 @@ public class AksjonspunktRestTjeneste {
         @Override
         public AbacDataAttributter apply(Object obj) {
             var req = (OverstyrteAksjonspunkterDto) obj;
-            var abac = AbacDataAttributter.opprett()
+            var abac = TilbakeRestTjeneste.opprett()
                 .leggTil(AppAbacAttributtType.BEHANDLING_UUID, req.getBehandlingUuid());
 
             req.getOverstyrteAksjonspunktDtoer().forEach(apDto -> abac.leggTil(AppAbacAttributtType.AKSJONSPUNKT_DEFINISJON, apDto.getAksjonspunktDefinisjon()));

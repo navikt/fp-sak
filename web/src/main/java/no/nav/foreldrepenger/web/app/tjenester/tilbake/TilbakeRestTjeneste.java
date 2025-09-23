@@ -6,6 +6,9 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Digits;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.GET;
@@ -23,6 +26,7 @@ import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.BehandlingAbacSupp
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.UuidDto;
 import no.nav.foreldrepenger.web.server.abac.AppAbacAttributtType;
 import no.nav.vedtak.sikkerhet.abac.AbacDataAttributter;
+import no.nav.vedtak.sikkerhet.abac.AbacDto;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
 import no.nav.vedtak.sikkerhet.abac.TilpassetAbacAttributt;
 import no.nav.vedtak.sikkerhet.abac.beskyttet.ActionType;
@@ -41,16 +45,20 @@ public class TilbakeRestTjeneste {
     public static final String HENVISNING_PART_PATH = "/henvisning";
 
     private BehandlingRepository behandlingRepository;
-    private TilbakeBehandlingFullTjeneste behandlingFullTjeneste;
+    private TilbakeDtoTjeneste behandlingFullTjeneste;
 
     @Inject
-    public TilbakeRestTjeneste(BehandlingRepository behandlingRepository, TilbakeBehandlingFullTjeneste behandlingFullTjeneste) {
+    public TilbakeRestTjeneste(BehandlingRepository behandlingRepository, TilbakeDtoTjeneste behandlingFullTjeneste) {
         this.behandlingRepository = behandlingRepository;
         this.behandlingFullTjeneste = behandlingFullTjeneste;
     }
 
     public TilbakeRestTjeneste() {
         // Plattform trenger tom Ctor (Hibernate, CDI, etc)
+    }
+
+    public static AbacDataAttributter opprett() {
+        return new AbacDataAttributter();
     }
 
     @GET
@@ -60,7 +68,7 @@ public class TilbakeRestTjeneste {
     public Response hentBehandlingForTilbake(@TilpassetAbacAttributt(supplierClass = BehandlingAbacSuppliers.UuidAbacDataSupplier.class)
                                                      @NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
         var behandling = behandlingRepository.hentBehandlingHvisFinnes(uuidDto.getBehandlingUuid());
-        var dto = behandling.map(behandlingFullTjeneste::lagFpsakBehandlingFullDtoTjeneste).orElse(null);
+        var dto = behandling.map(behandlingFullTjeneste::lagTilbakeDto).orElse(null);
         return Response.ok().entity(dto).build();
     }
 
@@ -72,7 +80,7 @@ public class TilbakeRestTjeneste {
     public Response hentBehandlingGittHenvisning(@TilpassetAbacAttributt(supplierClass = TilbakeRestTjeneste.HenvisningAbacDataSupplier.class)
                                      @Parameter(description = "KlageVurderingAdapter tilpasset til mellomlagring.") @Valid HenvisningRequestDto henvisningRequestDto) {
         var behandling = behandlingRepository.finnUnikBehandlingForBehandlingId(henvisningRequestDto.henvisning());
-        var dto = behandling.map(behandlingFullTjeneste::lagFpsakBehandlingFullDtoTjeneste).orElse(null);
+        var dto = behandling.map(behandlingFullTjeneste::lagTilbakeDto).orElse(null);
         return Response.ok().entity(dto).build();
     }
 
@@ -81,9 +89,18 @@ public class TilbakeRestTjeneste {
         @Override
         public AbacDataAttributter apply(Object obj) {
             var req = (HenvisningRequestDto) obj;
-            return AbacDataAttributter.opprett()
-                .leggTil(AppAbacAttributtType.SAKSNUMMER, req.saksnummer());
+            return AbacDataAttributter.opprett().leggTil(AppAbacAttributtType.SAKSNUMMER, req.saksnummer());
         }
     }
 
+    public record HenvisningRequestDto(@NotNull @Digits(integer = 18, fraction = 0) String saksnummer,
+                                              @NotNull @Min(0) @Max(Long.MAX_VALUE) Long henvisning) implements AbacDto {
+
+        @Override
+        public AbacDataAttributter abacAttributter() {
+            return opprett()
+                .leggTil(AppAbacAttributtType.SAKSNUMMER, saksnummer);
+        }
+
+    }
 }

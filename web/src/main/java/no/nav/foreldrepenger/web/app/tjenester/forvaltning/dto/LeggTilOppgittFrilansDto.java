@@ -15,6 +15,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import io.swagger.v3.oas.annotations.Parameter;
+import no.nav.foreldrepenger.web.app.tjenester.tilbake.TilbakeRestTjeneste;
 import no.nav.foreldrepenger.web.server.abac.AppAbacAttributtType;
 import no.nav.vedtak.sikkerhet.abac.AbacDataAttributter;
 import no.nav.vedtak.sikkerhet.abac.AbacDto;
@@ -46,7 +47,7 @@ public class LeggTilOppgittFrilansDto implements AbacDto {
 
     @Override
     public AbacDataAttributter abacAttributter() {
-        var abac = AbacDataAttributter.opprett();
+        var abac = TilbakeRestTjeneste.opprett();
         if (getBehandlingUuid() != null) {
             abac.leggTil(AppAbacAttributtType.BEHANDLING_UUID, getBehandlingUuid());
         }

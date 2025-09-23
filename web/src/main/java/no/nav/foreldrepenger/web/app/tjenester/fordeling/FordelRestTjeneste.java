@@ -64,6 +64,7 @@ import no.nav.foreldrepenger.mottak.dokumentmottak.SaksbehandlingDokumentmottakT
 import no.nav.foreldrepenger.mottak.vurderfagsystem.VurderFagsystem;
 import no.nav.foreldrepenger.mottak.vurderfagsystem.VurderFagsystemFellesTjeneste;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
+import no.nav.foreldrepenger.web.app.tjenester.tilbake.TilbakeRestTjeneste;
 import no.nav.foreldrepenger.web.server.abac.AppAbacAttributtType;
 import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.konfig.Tid;
@@ -411,7 +412,7 @@ public class FordelRestTjeneste {
         @Override
         public AbacDataAttributter apply(Object obj) {
             var req = (AktørIdDto) obj;
-            return AbacDataAttributter.opprett().leggTil(AppAbacAttributtType.AKTØR_ID, req.aktørId());
+            return TilbakeRestTjeneste.opprett().leggTil(AppAbacAttributtType.AKTØR_ID, req.aktørId());
         }
     }
 
@@ -519,7 +520,7 @@ public class FordelRestTjeneste {
         @Override
         public AbacDataAttributter apply(Object obj) {
             var req = (JournalpostMottakDto) obj;
-            return AbacDataAttributter.opprett()
+            return TilbakeRestTjeneste.opprett()
                 .leggTil(AppAbacAttributtType.SAKSNUMMER, req.getSaksnummer());
         }
     }
@@ -529,7 +530,7 @@ public class FordelRestTjeneste {
         @Override
         public AbacDataAttributter apply(Object obj) {
             var req = (JournalpostKnyttningDto) obj;
-            return AbacDataAttributter.opprett()
+            return TilbakeRestTjeneste.opprett()
                 .leggTil(AppAbacAttributtType.JOURNALPOST_ID, req.journalpostIdDto().journalpostId())
                 .leggTil(AppAbacAttributtType.SAKSNUMMER, req.saksnummerDto().saksnummer());
         }
@@ -540,7 +541,7 @@ public class FordelRestTjeneste {
         @Override
         public AbacDataAttributter apply(Object obj) {
             var req = (VurderFagsystemDto) obj;
-            var abacDataAttributter = AbacDataAttributter.opprett().leggTil(AppAbacAttributtType.AKTØR_ID, req.getAktørId());
+            var abacDataAttributter = TilbakeRestTjeneste.opprett().leggTil(AppAbacAttributtType.AKTØR_ID, req.getAktørId());
 
             req.getJournalpostId().ifPresent(id -> abacDataAttributter.leggTil(AppAbacAttributtType.JOURNALPOST_ID, id));
             req.getSaksnummer().ifPresent(sn -> abacDataAttributter.leggTil(AppAbacAttributtType.SAKSNUMMER, sn));
@@ -553,7 +554,7 @@ public class FordelRestTjeneste {
         @Override
         public AbacDataAttributter apply(Object obj) {
             var req = (OpprettSakDto) obj;
-            return AbacDataAttributter.opprett().leggTil(AppAbacAttributtType.AKTØR_ID, req.aktørId());
+            return TilbakeRestTjeneste.opprett().leggTil(AppAbacAttributtType.AKTØR_ID, req.aktørId());
         }
     }
 
@@ -562,7 +563,7 @@ public class FordelRestTjeneste {
         @Override
         public AbacDataAttributter apply(Object obj) {
             var req = (OpprettSakV2Dto) obj;
-            return AbacDataAttributter.opprett().leggTil(AppAbacAttributtType.AKTØR_ID, req.aktørId());
+            return TilbakeRestTjeneste.opprett().leggTil(AppAbacAttributtType.AKTØR_ID, req.aktørId());
         }
     }
 
@@ -571,7 +572,7 @@ public class FordelRestTjeneste {
         @Override
         public AbacDataAttributter apply(Object obj) {
             var req = (SaksnummerDto) obj;
-            return AbacDataAttributter.opprett().leggTil(StandardAbacAttributtType.SAKSNUMMER, req.saksnummer());
+            return TilbakeRestTjeneste.opprett().leggTil(StandardAbacAttributtType.SAKSNUMMER, req.saksnummer());
         }
     }
 
@@ -579,7 +580,7 @@ public class FordelRestTjeneste {
         @Override
         public AbacDataAttributter apply(Object obj) {
             var req = (SakInntektsmeldingDto) obj;
-            return AbacDataAttributter.opprett()
+            return TilbakeRestTjeneste.opprett()
                 .leggTil(AppAbacAttributtType.AKTØR_ID, req.bruker().aktørId());
         }
     }

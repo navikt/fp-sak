@@ -29,6 +29,7 @@ import no.nav.foreldrepenger.domene.person.verge.dto.VergeBackendDto;
 import no.nav.foreldrepenger.domene.person.verge.dto.VergeDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.BehandlingAbacSuppliers;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.UuidDto;
+import no.nav.foreldrepenger.web.app.tjenester.tilbake.TilbakeRestTjeneste;
 import no.nav.foreldrepenger.web.server.abac.AppAbacAttributtType;
 import no.nav.vedtak.sikkerhet.abac.AbacDataAttributter;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
@@ -116,7 +117,7 @@ public class VergeRestTjeneste {
         @Override
         public AbacDataAttributter apply(Object obj) {
             var req = (VergeDto) obj;
-            var attributter = AbacDataAttributter.opprett();
+            var attributter = TilbakeRestTjeneste.opprett();
             Optional.ofNullable(req.fnr()).ifPresent(f -> attributter.leggTil(AppAbacAttributtType.FNR, f));
             return attributter;
         }

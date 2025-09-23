@@ -4,6 +4,7 @@ import jakarta.validation.constraints.Digits;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 
+import no.nav.foreldrepenger.web.app.tjenester.tilbake.TilbakeRestTjeneste;
 import no.nav.vedtak.sikkerhet.abac.AbacDataAttributter;
 import no.nav.vedtak.sikkerhet.abac.AbacDto;
 
@@ -27,6 +28,6 @@ public class MaxAntallParam implements AbacDto{
 
     @Override
     public AbacDataAttributter abacAttributter() {
-        return AbacDataAttributter.opprett(); //tom, i praksis rollebasert tilgang på JSON-feed
+        return TilbakeRestTjeneste.opprett(); //tom, i praksis rollebasert tilgang på JSON-feed
     }
 }

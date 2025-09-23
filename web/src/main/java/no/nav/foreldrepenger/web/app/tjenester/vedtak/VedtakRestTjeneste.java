@@ -15,6 +15,8 @@ import jakarta.ws.rs.Path;
 import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.Response;
 
+import no.nav.foreldrepenger.web.app.tjenester.tilbake.TilbakeRestTjeneste;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -197,7 +199,7 @@ public class VedtakRestTjeneste {
 
         @Override
         public AbacDataAttributter abacAttributter() {
-            return AbacDataAttributter.opprett();
+            return TilbakeRestTjeneste.opprett();
         }
     }
 

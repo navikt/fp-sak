@@ -19,6 +19,8 @@ import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 
+import no.nav.foreldrepenger.web.app.tjenester.tilbake.TilbakeRestTjeneste;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -275,7 +277,7 @@ public class BrevRestTjeneste {
         @Override
         public AbacDataAttributter apply(Object obj) {
             var req = (BestillDokumentDto) obj;
-            return AbacDataAttributter.opprett().leggTil(AppAbacAttributtType.BEHANDLING_UUID, req.behandlingUuid());
+            return TilbakeRestTjeneste.opprett().leggTil(AppAbacAttributtType.BEHANDLING_UUID, req.behandlingUuid());
         }
     }
 
@@ -283,7 +285,7 @@ public class BrevRestTjeneste {
         @Override
         public AbacDataAttributter apply(Object obj) {
             var req = (DokumentKvitteringDto) obj;
-            return AbacDataAttributter.opprett().leggTil(AppAbacAttributtType.BEHANDLING_UUID, req.behandlingUuid());
+            return TilbakeRestTjeneste.opprett().leggTil(AppAbacAttributtType.BEHANDLING_UUID, req.behandlingUuid());
         }
     }
 
@@ -291,7 +293,7 @@ public class BrevRestTjeneste {
         @Override
         public AbacDataAttributter apply(Object obj) {
             var req = (ForhåndsvisDokumentDto) obj;
-            return AbacDataAttributter.opprett().leggTil(StandardAbacAttributtType.BEHANDLING_UUID, req.behandlingUuid());
+            return TilbakeRestTjeneste.opprett().leggTil(StandardAbacAttributtType.BEHANDLING_UUID, req.behandlingUuid());
         }
     }
 
@@ -299,7 +301,7 @@ public class BrevRestTjeneste {
         @Override
         public AbacDataAttributter apply(Object obj) {
             var req = (MellomlagreHtmlDto) obj;
-            return AbacDataAttributter.opprett().leggTil(StandardAbacAttributtType.BEHANDLING_UUID, req.behandlingUuid);
+            return TilbakeRestTjeneste.opprett().leggTil(StandardAbacAttributtType.BEHANDLING_UUID, req.behandlingUuid);
         }
     }
 }

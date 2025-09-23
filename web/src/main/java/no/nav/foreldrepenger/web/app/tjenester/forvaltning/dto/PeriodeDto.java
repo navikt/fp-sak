@@ -7,6 +7,7 @@ import jakarta.validation.constraints.NotNull;
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import no.nav.foreldrepenger.web.app.tjenester.tilbake.TilbakeRestTjeneste;
 import no.nav.vedtak.sikkerhet.abac.AbacDataAttributter;
 import no.nav.vedtak.sikkerhet.abac.AbacDto;
 
@@ -39,6 +40,6 @@ public class PeriodeDto implements AbacDto {
 
     @Override
     public AbacDataAttributter abacAttributter() {
-        return AbacDataAttributter.opprett();
+        return TilbakeRestTjeneste.opprett();
     }
 }

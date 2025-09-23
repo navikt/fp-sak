@@ -49,6 +49,7 @@ import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.UuidDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.klage.aksjonspunkt.KlageFormKravAksjonspunktMellomlagringDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.klage.aksjonspunkt.KlageHistorikkinnslag;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.klage.aksjonspunkt.KlageVurderingResultatAksjonspunktMellomlagringDto;
+import no.nav.foreldrepenger.web.app.tjenester.tilbake.TilbakeRestTjeneste;
 import no.nav.foreldrepenger.web.server.abac.AppAbacAttributtType;
 import no.nav.vedtak.sikkerhet.abac.AbacDataAttributter;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
@@ -314,7 +315,7 @@ public class KlageRestTjeneste {
         @Override
         public AbacDataAttributter apply(Object obj) {
             var req = (KlageVurderingResultatAksjonspunktMellomlagringDto) obj;
-            return AbacDataAttributter.opprett()
+            return TilbakeRestTjeneste.opprett()
                 .leggTil(AppAbacAttributtType.BEHANDLING_UUID, req.getBehandlingUuid());
         }
     }
@@ -323,7 +324,7 @@ public class KlageRestTjeneste {
         @Override
         public AbacDataAttributter apply(Object obj) {
             var req = (KlageFormKravAksjonspunktMellomlagringDto) obj;
-            return AbacDataAttributter.opprett()
+            return TilbakeRestTjeneste.opprett()
                 .leggTil(AppAbacAttributtType.BEHANDLING_UUID, req.behandlingUuid());
         }
     }
