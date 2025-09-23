@@ -42,25 +42,18 @@ public class FaktaFødselTjeneste {
         var overstyrtTermindato = familieHendelse.getOverstyrtVersjon().flatMap(FamilieHendelseEntitet::getTermindato);
         var søknadTermindato = familieHendelse.getSøknadVersjon().getTerminbekreftelse().map(TerminbekreftelseEntitet::getTermindato);
 
-        if (overstyrtTermindato.isEmpty() && søknadTermindato.isEmpty()) {
-            return null; // Ingen termindato tilgjengelig
-        }
-
         var kilde = bestemKilde(overstyrtTermindato, søknadTermindato);
-        var gjeldeneTermindato = utledTermindato(kilde, søknadTermindato, overstyrtTermindato);
-        return new FødselDto.Gjeldende.Termin(kilde, gjeldeneTermindato);
+        var gjeldeneTermindato = utledDato(kilde, søknadTermindato, overstyrtTermindato);
+
+        return gjeldeneTermindato.map(dato -> new FødselDto.Gjeldende.Termin(kilde, dato)).orElse(null);
+    }
+
+    private static Optional<LocalDate> utledDato(Kilde kilde, Optional<LocalDate> søknadDato, Optional<LocalDate> overstyrtDato) {
+        return kilde == Kilde.SØKNAD ? søknadDato : overstyrtDato;
     }
 
     private static Kilde bestemKilde(Optional<LocalDate> overstyrtDato, Optional<LocalDate> søknadDato) {
         return overstyrtDato.isEmpty() || Objects.equals(overstyrtDato, søknadDato) ? Kilde.SØKNAD : Kilde.SAKSBEHANDLER;
-    }
-
-    private static LocalDate utledUtstedtDato(Kilde kilde, Optional<LocalDate> søknadDato, Optional<LocalDate> overstyrtDato) {
-        return kilde == Kilde.SØKNAD ? søknadDato.orElse(null) : overstyrtDato.orElse(null);
-    }
-
-    private static LocalDate utledTermindato(Kilde kilde, Optional<LocalDate> søknadDato, Optional<LocalDate> overstyrtDato) {
-        return kilde == Kilde.SØKNAD ? søknadDato.orElse(null) : overstyrtDato.orElse(null);
     }
 
     private static Kilde bestemKilde(int søknadAntallBarn, Optional<Integer> bekreftetAntallBarn, Optional<Integer> overstyrtAntallBarn) {
@@ -108,6 +101,16 @@ public class FaktaFødselTjeneste {
         return barnListe.indexOf(barn) + 1;
     }
 
+    private static boolean utførtAksjonspunkt(Behandling behandling) {
+        return behandling.harUtførtAksjonspunktMedType(AksjonspunktDefinisjon.SJEKK_MANGLENDE_FØDSEL) || behandling.harUtførtAksjonspunktMedType(
+            AksjonspunktDefinisjon.OVERSTYRING_AV_FAKTA_OM_FØDSEL);
+    }
+
+    private static boolean sendtTilbakeFraBeslutter(Behandling behandling) {
+        return (behandling.harÅpentAksjonspunktMedType(AksjonspunktDefinisjon.SJEKK_MANGLENDE_FØDSEL) || behandling.harAksjonspunktMedType(
+            AksjonspunktDefinisjon.OVERSTYRING_AV_FAKTA_OM_FØDSEL)) && behandling.isToTrinnsBehandling();
+    }
+
     public FødselDto hentFaktaOmFødsel(Long behandlingId) {
         var familieHendelse = familieHendelseTjeneste.hentAggregat(behandlingId);
         var terminbekreftelse = familieHendelse.getSøknadVersjon().getTerminbekreftelse();
@@ -138,28 +141,14 @@ public class FaktaFødselTjeneste {
             .orElse(FødselDto.Gjeldende.FødselDokumetasjonStatus.IKKE_DOKUMENTERT);
     }
 
-    private static boolean utførtAksjonspunkt(Behandling behandling) {
-        return behandling.harUtførtAksjonspunktMedType(AksjonspunktDefinisjon.SJEKK_MANGLENDE_FØDSEL) || behandling.harUtførtAksjonspunktMedType(
-            AksjonspunktDefinisjon.OVERSTYRING_AV_FAKTA_OM_FØDSEL);
-    }
-
-    private static boolean sendtTilbakeFraBeslutter(Behandling behandling) {
-        return (behandling.harÅpentAksjonspunktMedType(AksjonspunktDefinisjon.SJEKK_MANGLENDE_FØDSEL) || behandling.harAksjonspunktMedType(
-            AksjonspunktDefinisjon.OVERSTYRING_AV_FAKTA_OM_FØDSEL)) && behandling.isToTrinnsBehandling();
-    }
-
     private FødselDto.Gjeldende.Utstedtdato mapUtstedtdato(FamilieHendelseGrunnlagEntitet familieHendelse) {
         var overstyrtUtstedtdato = familieHendelse.getOverstyrtVersjon()
             .flatMap(fhe -> fhe.getTerminbekreftelse().map(TerminbekreftelseEntitet::getUtstedtdato));
         var søknadUtstedtdato = familieHendelse.getSøknadVersjon().getTerminbekreftelse().map(TerminbekreftelseEntitet::getUtstedtdato);
 
-        if (overstyrtUtstedtdato.isEmpty() && søknadUtstedtdato.isEmpty()) {
-            return null; // Ingen utstedtdato tilgjengelig
-        }
-
         var kilde = bestemKilde(overstyrtUtstedtdato, søknadUtstedtdato);
-        var utstedtDato = utledUtstedtDato(kilde, søknadUtstedtdato, overstyrtUtstedtdato);
-        return new FødselDto.Gjeldende.Utstedtdato(kilde, utstedtDato);
+        var utstedtDato = utledDato(kilde, søknadUtstedtdato, overstyrtUtstedtdato);
+        return utstedtDato.map(dato -> new FødselDto.Gjeldende.Utstedtdato(kilde, dato)).orElse(null);
     }
 
     private List<FødselDto.Gjeldende.GjeldendeBarn> mapBarn(FamilieHendelseGrunnlagEntitet familieHendelse) {

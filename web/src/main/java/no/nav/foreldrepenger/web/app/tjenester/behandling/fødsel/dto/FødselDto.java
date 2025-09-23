@@ -3,7 +3,7 @@ package no.nav.foreldrepenger.web.app.tjenester.behandling.fødsel.dto;
 import java.time.LocalDate;
 import java.util.List;
 
-public record FødselDto(FødselDto.Søknad søknad, FødselDto.Register register, FødselDto.Gjeldende gjeldende) {
+public record FødselDto(Søknad søknad, Register register, Gjeldende gjeldende) {
 
     public record BarnHendelseData(LocalDate fødselsdato, LocalDate dødsdato, Integer barnNummer) {
     }
@@ -14,8 +14,8 @@ public record FødselDto(FødselDto.Søknad søknad, FødselDto.Register registe
     public record Register(List<BarnHendelseData> barn) {
     }
 
-    public record Gjeldende(Termin termin, FødselDto.Gjeldende.Utstedtdato utstedtdato, AntallBarn antallBarn,
-                            List<FødselDto.Gjeldende.GjeldendeBarn> barn, FødselDokumetasjonStatus fødselDokumetasjonStatus) {
+    public record Gjeldende(Termin termin, Utstedtdato utstedtdato, AntallBarn antallBarn,
+                            List<GjeldendeBarn> barn, FødselDokumetasjonStatus fødselDokumetasjonStatus) {
 
         public enum FødselDokumetasjonStatus {
             DOKUMENTERT,
