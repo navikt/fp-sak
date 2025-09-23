@@ -2,7 +2,6 @@ package no.nav.foreldrepenger.web.server.jetty;
 
 import static org.eclipse.jetty.ee11.webapp.MetaInfConfiguration.CONTAINER_JAR_PATTERN;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -63,7 +62,6 @@ public class JettyServer {
 
     protected void bootStrap() throws Exception {
         konfigurerLogging();
-        konfigurerSikkerhet();
 
         // Sett System.setProperty("task.manager.runner.threads", 10); til å endre antal prosesstask tråder. Default 10.
         // `maxPoolSize` bør være satt minst til verdien av `task.manager.runner.threads` + 1 + antall connections man ønsker.
@@ -75,12 +73,6 @@ public class JettyServer {
         start();
     }
 
-    private static void konfigurerSikkerhet() {
-        if (ENV.isLocal()) {
-            initTrustStore();
-        }
-    }
-
     /**
      * Vi bruker SLF4J + logback, Jersey brukes JUL for logging.
      * Setter opp en bridge til å få Jersey til å logge gjennom Logback også.
@@ -88,23 +80,6 @@ public class JettyServer {
     private void konfigurerLogging() {
         SLF4JBridgeHandler.removeHandlersForRootLogger();
         SLF4JBridgeHandler.install();
-    }
-
-    private static void initTrustStore() {
-        var trustStorePathProp = "javax.net.ssl.trustStore";
-        var trustStorePasswordProp = "javax.net.ssl.trustStorePassword";
-
-        var defaultLocation = ENV.getProperty("user.home", ".") + "/.modig/truststore.jks";
-        var storePath = ENV.getProperty(trustStorePathProp, defaultLocation);
-        var storeFile = new File(storePath);
-        if (!storeFile.exists()) {
-            throw new IllegalStateException(
-                "Finner ikke truststore i " + storePath + "\n\tKonfrigurer enten som System property '" + trustStorePathProp
-                    + "' eller environment variabel '" + trustStorePathProp.toUpperCase().replace('.', '_') + "'");
-        }
-        var password = ENV.getProperty(trustStorePasswordProp, "changeit");
-        System.setProperty(trustStorePathProp, storeFile.getAbsolutePath());
-        System.setProperty(trustStorePasswordProp, password);
     }
 
     private static void settJdniOppslag(DataSource dataSource) throws NamingException {

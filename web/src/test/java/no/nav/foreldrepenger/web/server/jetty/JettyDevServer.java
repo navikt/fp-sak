@@ -10,6 +10,9 @@ public class JettyDevServer extends JettyServer {
         // Konfigurerer tasker til å polle mer aggressivt, gjør at verdikjede kjører raskere lokalt
         System.setProperty("task.manager.polling.delay", "40");
         System.setProperty("task.manager.runner.threads", "4");
+        // Må være absolutte paths og ~ er ikke støttet i .properties filer
+        System.setProperty("KAFKA_KEYSTORE_PATH", ENV.getProperty("user.home", ".") + ENV.getProperty("KAFKA_KEYSTORE_PATH"));
+        System.setProperty("KAFKA_TRUSTSTORE_PATH", ENV.getProperty("user.home", ".") + ENV.getProperty("KAFKA_TRUSTSTORE_PATH"));
         jettyServer(args).bootStrap();
     }
 
