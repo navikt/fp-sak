@@ -18,7 +18,7 @@ public class UtvidetBehandlingDto extends BehandlingDto {
     private String ansvarligBeslutter;
 
     @JsonProperty("aksjonspunkt")
-    private Set<AksjonspunktDto> aksjonspunkt;
+    @NotNull private Set<AksjonspunktDto> aksjonspunkt;
 
     @JsonProperty("harSøknad") @NotNull
     private boolean harSøknad;
