@@ -222,7 +222,7 @@ public class SimulerOppdragSteg implements BehandlingSteg {
         return utbetResultat.flatMap(beregningsresultatEntitet -> behandling.getOriginalBehandlingId()
             .flatMap(orgId -> beregningsresultatRepository.hentUtbetBeregningsresultat(orgId).map(forrigeRes -> {
                 if (erBehandlingSomSkalTåleHøyereEtterbetaling) {
-                    return Etterbetalingtjeneste.finnSumSomVilBliEtterbetalt(LocalDate.now(), forrigeRes, beregningsresultatEntitet, BigDecimal.valueOf(60_000));
+                    return Etterbetalingtjeneste.finnSumSomVilBliEtterbetalt(LocalDate.now(), forrigeRes, beregningsresultatEntitet, BigDecimal.valueOf(200_000));
                 } else {
                     return Etterbetalingtjeneste.finnSumSomVilBliEtterbetalt(LocalDate.now(), forrigeRes, beregningsresultatEntitet);
                 }
