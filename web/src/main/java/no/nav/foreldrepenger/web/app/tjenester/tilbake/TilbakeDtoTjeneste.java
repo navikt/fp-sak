@@ -9,6 +9,8 @@ import no.nav.foreldrepenger.behandlingslager.aktør.Aktør;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseGrunnlagEntitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadEntitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.tilbakekreving.TilbakekrevingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.tilbakekreving.TilbakekrevingVidereBehandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtak;
@@ -36,6 +38,7 @@ public class TilbakeDtoTjeneste {
     private BehandlendeEnhetTjeneste behandlendeEnhetTjeneste;
     private FamilieHendelseTjeneste familieHendelseTjeneste;
     private BehandlingVedtakRepository behandlingVedtakRepository;
+    private SøknadRepository søknadRepository;
 
     @Inject
     public TilbakeDtoTjeneste(ØkonomioppdragRepository økonomioppdragRepository,
@@ -43,14 +46,15 @@ public class TilbakeDtoTjeneste {
                               VergeRepository vergeRepository,
                               BehandlendeEnhetTjeneste behandlendeEnhetTjeneste,
                               FamilieHendelseTjeneste familieHendelseTjeneste,
-                              BehandlingVedtakRepository behandlingVedtakRepository) {
+                              BehandlingVedtakRepository behandlingVedtakRepository,
+                              SøknadRepository søknadRepository) {
         this.økonomioppdragRepository = økonomioppdragRepository;
         this.tilbakekrevingRepository = tilbakekrevingRepository;
         this.vergeRepository = vergeRepository;
         this.behandlendeEnhetTjeneste = behandlendeEnhetTjeneste;
         this.familieHendelseTjeneste = familieHendelseTjeneste;
         this.behandlingVedtakRepository = behandlingVedtakRepository;
-
+        this.søknadRepository = søknadRepository;
     }
 
     public TilbakeDtoTjeneste() {
@@ -85,12 +89,18 @@ public class TilbakeDtoTjeneste {
     private TilbakeDto.BehandlingDto getBehandlingDto(Behandling behandling) {
         var henvisning = new TilbakeDto.HenvisningDto(behandling.getId());
         var enhet = behandlendeEnhetTjeneste.finnBehandlendeEnhetFor(behandling.getFagsak());
-        var språk = mapSpråk(behandling.getFagsak().getNavBruker().getSpråkkode());
+        var språk = mapSpråk(getSpråkkode(behandling));
         var vedtaksdato = behandlingVedtakRepository.hentForBehandlingHvisEksisterer(behandling.getId())
             .map(BehandlingVedtak::getVedtakstidspunkt)
             .map(LocalDateTime::toLocalDate).orElse(null);
         return new TilbakeDto.BehandlingDto(behandling.getUuid(), henvisning,
             enhet.enhetId(), enhet.enhetNavn(), språk, vedtaksdato);
+    }
+
+    private Språkkode getSpråkkode(Behandling behandling) {
+        return søknadRepository.hentSøknadHvisEksisterer(behandling.getId())
+            .map(SøknadEntitet::getSpråkkode)
+            .orElseGet(() -> behandling.getFagsak().getNavBruker().getSpråkkode());
     }
 
     private static TilbakeDto.YtelseType mapTilYtelseType(FagsakYtelseType fagsakYtelseType) {

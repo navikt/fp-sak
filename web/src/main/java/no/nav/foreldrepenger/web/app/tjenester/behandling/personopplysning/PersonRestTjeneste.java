@@ -39,8 +39,6 @@ public class PersonRestTjeneste {
     public static final String MEDLEMSKAP_V3_PATH = BASE_PATH + MEDLEMSKAP_V3_PART_PATH;
     private static final String PERSONOVERSIKT_PART_PATH = "/person/personoversikt";
     public static final String PERSONOVERSIKT_PATH = BASE_PATH + PERSONOVERSIKT_PART_PATH;
-    private static final String PERSONOPPLYSNINGER_TILBAKE_PART_PATH = "/person/personopplysninger-tilbake";
-    public static final String PERSONOPPLYSNINGER_TILBAKE_PATH = BASE_PATH + PERSONOPPLYSNINGER_TILBAKE_PART_PATH;
 
     private MedlemDtoTjeneste medlemDtoTjeneste;
     private PersonopplysningDtoPersonIdentTjeneste personopplysningFnrFinder;
@@ -61,18 +59,6 @@ public class PersonRestTjeneste {
         this.personopplysningDtoTjeneste = personopplysningTjeneste;
         this.personopplysningFnrFinder = personopplysningFnrFinder;
         this.behandlingsprosessTjeneste = behandlingsprosessTjeneste;
-    }
-
-    @GET
-    @Path(PERSONOPPLYSNINGER_TILBAKE_PART_PATH)
-    @Operation(description = "Hent informasjon om personopplysninger søker for tilbakekreving", tags = "behandling - person", responses = {
-        @ApiResponse(responseCode = "200", description = "Returnerer Personopplysninger, null hvis ikke finnes (GUI støtter ikke NOT_FOUND p.t.)", content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = PersonopplysningTilbakeDto.class)))
-    })
-    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK, sporingslogg = false)
-    public PersonopplysningTilbakeDto getPersonopplysningerTilbake(@TilpassetAbacAttributt(supplierClass = BehandlingAbacSuppliers.UuidAbacDataSupplier.class)
-        @NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
-        var behandlingId = getBehandlingsId(uuidDto.getBehandlingUuid());
-        return personopplysningDtoTjeneste.lagPersonopplysningTilbakeDto(behandlingId);
     }
 
     @GET

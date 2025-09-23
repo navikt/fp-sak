@@ -7,7 +7,6 @@ import java.util.Set;
 
 import no.nav.foreldrepenger.web.app.tjenester.abakus.IAYRegisterdataCallbackRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.batch.BatchRestTjeneste;
-import no.nav.foreldrepenger.web.app.tjenester.behandling.BehandlingBackendRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.BehandlingRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.BehandlingRestTjenestePathHack1;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.aksjonspunkt.AksjonspunktRestTjeneste;
@@ -21,7 +20,6 @@ import no.nav.foreldrepenger.web.app.tjenester.behandling.fødsel.FødselRestTje
 import no.nav.foreldrepenger.web.app.tjenester.behandling.historikk.HistorikkRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.innsyn.InnsynRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.klage.KlageRestTjeneste;
-import no.nav.foreldrepenger.web.app.tjenester.behandling.oppdrag.OppdragRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.opptjening.OpptjeningRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.personopplysning.PersonRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.svp.SvangerskapspengerRestTjeneste;
@@ -49,13 +47,13 @@ import no.nav.foreldrepenger.web.app.tjenester.forvaltning.ForvaltningFagsakRest
 import no.nav.foreldrepenger.web.app.tjenester.forvaltning.ForvaltningOppdragRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.forvaltning.ForvaltningOpptjeningRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.forvaltning.ForvaltningStegRestTjeneste;
-import no.nav.foreldrepenger.web.app.tjenester.forvaltning.stonadsstatistikk.ForvaltningStønadsstatistikkRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.forvaltning.ForvaltningSvangerskapspengerRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.forvaltning.ForvaltningSøknadRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.forvaltning.ForvaltningTekniskRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.forvaltning.ForvaltningUttakRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.forvaltning.ForvaltningUttrekkRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.forvaltning.fpoversikt.FpoversiktMigreringRestTjeneste;
+import no.nav.foreldrepenger.web.app.tjenester.forvaltning.stonadsstatistikk.ForvaltningStønadsstatistikkRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.fpoversikt.FpOversiktRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.hendelser.HendelserRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.infotrygd.InfotrygdOppslagRestTjeneste;
@@ -76,11 +74,11 @@ public class RestImplementationClasses {
 
     public static Collection<Class<?>> getImplementationClasses() {
         Set<Class<?>> classes = new HashSet<>();
+        // Frontend
         classes.add(InitielleLinksRestTjeneste.class);
         classes.add(FagsakRestTjeneste.class);
         classes.add(BehandlingRestTjeneste.class);
         classes.add(BehandlingRestTjenestePathHack1.class);
-        classes.add(BehandlingBackendRestTjeneste.class); // TODO: Fjerne etter omlegging av fptilbake
         classes.add(BeregningsgrunnlagRestTjeneste.class);
         classes.add(AksjonspunktRestTjeneste.class);
         classes.add(DokumentRestTjeneste.class);
@@ -103,9 +101,8 @@ public class RestImplementationClasses {
         classes.add(AnkeRestTjeneste.class);
         classes.add(InnsynRestTjeneste.class);
         classes.add(PipRestTjeneste.class);
-        classes.add(TilbakekrevingRestTjeneste.class); // TODO: Fjerne etter omlegging av fptilbake (sjekk simulering)
+        classes.add(TilbakekrevingRestTjeneste.class); // Brukes av Frontend/Simulering. Bør hente varseltekst til visning?
         classes.add(AktoerRestTjeneste.class);
-        classes.add(OppdragRestTjeneste.class);
         classes.add(SvangerskapspengerRestTjeneste.class);
         classes.add(IAYRegisterdataCallbackRestTjeneste.class);
         classes.add(VergeRestTjeneste.class);
