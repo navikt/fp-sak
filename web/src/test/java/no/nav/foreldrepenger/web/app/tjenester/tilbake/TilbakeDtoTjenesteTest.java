@@ -144,7 +144,8 @@ class TilbakeDtoTjenesteTest {
         }
         when(behandlendeEnhetTjeneste.finnBehandlendeEnhetFor(any(Fagsak.class))).thenReturn(BehandlendeEnhetTjeneste.getNasjonalEnhet());
         var fht = new FamilieHendelseTjeneste(null, provider.getFamilieHendelseRepository());
-        return new TilbakeDtoTjeneste(økonomioppdragRepository, tilbakekrevingRepository, vergeRepository, behandlendeEnhetTjeneste, fht, behandlingVedtakRepository);
+        return new TilbakeDtoTjeneste(økonomioppdragRepository, tilbakekrevingRepository, vergeRepository, behandlendeEnhetTjeneste, fht,
+            behandlingVedtakRepository, provider.getSøknadRepository());
     }
 
 }

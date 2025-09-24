@@ -7,8 +7,6 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBrukerKjønn;
-import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseEntitet;
-import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseGrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.OppgittAnnenPartEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonopplysningEntitet;
@@ -45,16 +43,6 @@ public class PersonopplysningDtoTjeneste {
         return aggregat.getAdresserFor(personopplysning.getAktørId(), SimpleLocalDateInterval.fraOgMedTomNotNull(Tid.TIDENES_BEGYNNELSE, Tid.TIDENES_ENDE)).stream()
             .map(PersonadresseDto::tilDto)
             .toList();
-    }
-
-    public PersonopplysningTilbakeDto lagPersonopplysningTilbakeDto(Long behandlingId) {
-        var behandling = behandlingRepository.hentBehandling(behandlingId);
-
-        var antallBarn = familieHendelseRepository.hentAggregatHvisEksisterer(behandlingId)
-            .map(FamilieHendelseGrunnlagEntitet::getGjeldendeVersjon)
-            .map(FamilieHendelseEntitet::getAntallBarn).orElse(0);
-
-        return new PersonopplysningTilbakeDto(behandling.getFagsak().getAktørId().getId(), antallBarn);
     }
 
     private boolean harOppgittLand(OppgittAnnenPartEntitet annenPart) {
