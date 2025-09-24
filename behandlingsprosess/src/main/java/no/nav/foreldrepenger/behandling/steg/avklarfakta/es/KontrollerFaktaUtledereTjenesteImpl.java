@@ -17,6 +17,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.Familie
 import no.nav.foreldrepenger.familiehendelse.kontrollerfakta.adopsjon.AksjonspunktUtlederForEngangsstønadAdopsjon;
 import no.nav.foreldrepenger.familiehendelse.kontrollerfakta.fødsel.AksjonspunktUtlederForEngangsstønadFødsel;
 import no.nav.foreldrepenger.familiehendelse.kontrollerfakta.omsorgsovertakelse.AksjonspunktUtlederForOmsorgsovertakelse;
+import no.nav.foreldrepenger.familiehendelse.kontrollerfakta.sammebarn.AksjonspunktUtlederForTidligereMottattYtelse;
 
 @ApplicationScoped
 class KontrollerFaktaUtledereTjenesteImpl implements KontrollerFaktaUtledere {

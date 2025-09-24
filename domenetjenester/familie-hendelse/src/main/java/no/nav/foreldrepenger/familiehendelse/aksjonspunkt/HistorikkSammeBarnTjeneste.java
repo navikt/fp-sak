@@ -26,7 +26,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallType;
 
 @ApplicationScoped
-class HistorikkSammeBarnTjeneste {
+public class HistorikkSammeBarnTjeneste {
     private HistorikkinnslagRepository historikkinnslagRepository;
 
     protected HistorikkSammeBarnTjeneste() {
@@ -85,7 +85,7 @@ class HistorikkSammeBarnTjeneste {
         };
     }
 
-    static SkjermlenkeType getSkjermlenkeType(VilkårType vilkårType, AksjonspunktDefinisjon aksjonspunktKode) {
+    public static SkjermlenkeType getSkjermlenkeType(VilkårType vilkårType, AksjonspunktDefinisjon aksjonspunktKode) {
         return switch (aksjonspunktKode) {
             case MANUELL_VURDERING_AV_SØKNADSFRISTVILKÅRET -> SkjermlenkeType.SOEKNADSFRIST;
             case MANUELL_VURDERING_AV_OMSORGSVILKÅRET -> SkjermlenkeType.PUNKT_FOR_OMSORG;

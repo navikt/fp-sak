@@ -30,6 +30,7 @@ public class AksjonspunktKodeDefinisjon {
     public static final String AVKLAR_OM_SØKER_ER_MANN_SOM_ADOPTERER_ALENE_KODE = "5006";
     public static final String AVKLAR_VILKÅR_FOR_OMSORGSOVERTAKELSE_KODE = "5008";
     public static final String AVKLAR_VILKÅR_FOR_FORELDREANSVAR_KODE = "5054";
+
     public static final String AVKLAR_VERGE_KODE = "5030";
     public static final String AVKLAR_OM_SØKER_HAR_MOTTATT_STØTTE_KODE = "5031";
 
