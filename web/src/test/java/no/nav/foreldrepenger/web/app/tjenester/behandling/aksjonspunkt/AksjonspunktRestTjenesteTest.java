@@ -29,9 +29,9 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingsresultatRepo
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.domene.vedtak.TotrinnTjeneste;
-import no.nav.foreldrepenger.familiehendelse.aksjonspunkt.dto.SjekkTerminbekreftelseAksjonspunktDto;
-import no.nav.foreldrepenger.familiehendelse.aksjonspunkt.dto.SjekkManglendeFødselAksjonspunktDto;
-import no.nav.foreldrepenger.familiehendelse.aksjonspunkt.dto.DokumentertBarnDto;
+import no.nav.foreldrepenger.familiehendelse.aksjonspunkt.fødsel.dto.SjekkTerminbekreftelseAksjonspunktDto;
+import no.nav.foreldrepenger.familiehendelse.aksjonspunkt.fødsel.dto.SjekkManglendeFødselAksjonspunktDto;
+import no.nav.foreldrepenger.familiehendelse.aksjonspunkt.fødsel.dto.DokumentertBarnDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto.FastsetteUttakDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.vedtak.aksjonspunkt.AksjonspunktGodkjenningDto;
 import no.nav.vedtak.exception.FunksjonellException;

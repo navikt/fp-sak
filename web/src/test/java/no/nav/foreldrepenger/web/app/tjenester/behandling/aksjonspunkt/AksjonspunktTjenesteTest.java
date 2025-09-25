@@ -36,8 +36,8 @@ import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.AbstractT
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerEngangsstønad;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
 import no.nav.foreldrepenger.dbstoette.CdiDbAwareTest;
-import no.nav.foreldrepenger.familiehendelse.aksjonspunkt.dto.SjekkTerminbekreftelseAksjonspunktDto;
-import no.nav.foreldrepenger.familiehendelse.aksjonspunkt.dto.OmsorgsvilkårAksjonspunktDto;
+import no.nav.foreldrepenger.familiehendelse.aksjonspunkt.fødsel.dto.SjekkTerminbekreftelseAksjonspunktDto;
+import no.nav.foreldrepenger.familiehendelse.aksjonspunkt.omsorg.dto.OmsorgsvilkårAksjonspunktDto;
 import no.nav.vedtak.sikkerhet.kontekst.IdentType;
 import no.nav.vedtak.sikkerhet.kontekst.KontekstHolder;
 import no.nav.vedtak.sikkerhet.kontekst.RequestKontekst;

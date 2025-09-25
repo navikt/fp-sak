@@ -23,7 +23,7 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import no.nav.foreldrepenger.domene.opptjening.dto.AvklarAktivitetsPerioderDto;
 import no.nav.foreldrepenger.domene.person.verge.dto.AvklarVergeDto;
 import no.nav.foreldrepenger.domene.rest.dto.VurderFaktaOmBeregningDto;
-import no.nav.foreldrepenger.familiehendelse.aksjonspunkt.dto.AvklarFaktaForOmsorgOgForeldreansvarAksjonspunktDto;
+import no.nav.foreldrepenger.familiehendelse.aksjonspunkt.omsorgsovertagelse.dto.AvklarFaktaForOmsorgOgForeldreansvarAksjonspunktDto;
 import no.nav.foreldrepenger.web.app.IndexClasses;
 import no.nav.foreldrepenger.web.app.tjenester.RestImplementationClasses;
 
