@@ -58,21 +58,6 @@ public abstract class FastsetteUttakDto extends BekreftetAksjonspunktDto {
 
     }
 
-    @Deprecated // TODO: TFP-6302: Opprydding
-    @JsonTypeName(AksjonspunktKodeDefinisjon.KONTROLLER_ANNENPART_EØS_KODE)
-    public static class FastsetteUttakKontrollerAnnenpartEØSDto extends FastsetteUttakDto {
-
-        @SuppressWarnings("unused")
-        private FastsetteUttakKontrollerAnnenpartEØSDto() {
-            // For Jackson
-        }
-
-        public FastsetteUttakKontrollerAnnenpartEØSDto(List<UttakResultatPeriodeLagreDto> perioder) {
-            super(perioder);
-        }
-
-    }
-
 
     @JsonTypeName(AksjonspunktKodeDefinisjon.KONTROLLER_REALITETSBEHANDLING_ELLER_KLAGE_KODE)
     public static class FastsetteUttakKontrollerRealitetsBehandlingEllerKlageDto extends FastsetteUttakDto {
