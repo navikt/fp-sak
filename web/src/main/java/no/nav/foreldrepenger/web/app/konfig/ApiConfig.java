@@ -13,7 +13,12 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 
+import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+
+import com.fasterxml.jackson.databind.SerializationFeature;
+
+import com.fasterxml.jackson.databind.json.JsonMapper;
 
 import io.swagger.v3.core.converter.ModelConverters;
 import io.swagger.v3.core.jackson.ModelResolver;
@@ -106,7 +111,15 @@ public class ApiConfig extends Application {
         // Det skjer ved at superklassen sier den har "oneOf" arvingene sine. Mens en arving sier den har "allOf" forelderen sin.
         // Ved å fjerne jsonSubType annotasjoner får vi heller en enveis-lenke der superklassen definerer arvingene sine med "oneOf".
         om.setAnnotationIntrospector(new NoJsonSubTypesAnnotationIntrospector());
-        return om;
+        return withDeterministicOutput(om);
+    }
+
+    protected static ObjectMapper withDeterministicOutput(final ObjectMapper om) {
+        return JsonMapper.builder(om.getFactory())
+            .enable(SerializationFeature.INDENT_OUTPUT)
+            .enable(SerializationFeature.ORDER_MAP_ENTRIES_BY_KEYS)
+            .enable(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY)
+            .build();
     }
 
     public static Set<Class<?>> allJsonTypeNameClasses() {
