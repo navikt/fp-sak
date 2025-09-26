@@ -114,6 +114,10 @@ public class ApiConfig extends Application {
         return withDeterministicOutput(om);
     }
 
+    /**
+     * OpenApi-spec som blir generert er ikke alltid konsekvent på rekkefølgen til properties.
+     * Ved å skru på disse flaggene blir output deterministic og det blir enklere å se hva som faktisk er diff fra forrige typegenerering
+     */
     protected static ObjectMapper withDeterministicOutput(final ObjectMapper om) {
         return JsonMapper.builder(om.getFactory())
             .enable(SerializationFeature.INDENT_OUTPUT)
