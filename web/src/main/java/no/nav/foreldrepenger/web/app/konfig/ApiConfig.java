@@ -13,7 +13,12 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 
+import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+
+import com.fasterxml.jackson.databind.SerializationFeature;
+
+import com.fasterxml.jackson.databind.json.JsonMapper;
 
 import io.swagger.v3.core.converter.ModelConverters;
 import io.swagger.v3.core.jackson.ModelResolver;
@@ -101,7 +106,13 @@ public class ApiConfig extends Application {
     }
 
     private static ObjectMapper lagObjectMapperUtenJsonSubTypeAnnotasjoner() {
-        final var om = ObjectMapperFactory.createJson();
+        final var om = JsonMapper.builder(ObjectMapperFactory.createJson().getFactory())
+            // OpenApi-spec som blir generert er ikke alltid konsekvent på rekkefølgen til properties.
+            // Ved å skru på disse flaggene blir output deterministic og det blir enklere å se hva som faktisk er diff fra forrige typegenerering
+            .enable(SerializationFeature.ORDER_MAP_ENTRIES_BY_KEYS)
+            .enable(MapperFeature.SORT_CREATOR_PROPERTIES_FIRST)
+            .enable(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY)
+            .build();
         // Fjern alle annotasjoner om JsonSubTypes. Hvis disse er med i generasjon av openapi spec får vi sirkulære avhengigheter.
         // Det skjer ved at superklassen sier den har "oneOf" arvingene sine. Mens en arving sier den har "allOf" forelderen sin.
         // Ved å fjerne jsonSubType annotasjoner får vi heller en enveis-lenke der superklassen definerer arvingene sine med "oneOf".
