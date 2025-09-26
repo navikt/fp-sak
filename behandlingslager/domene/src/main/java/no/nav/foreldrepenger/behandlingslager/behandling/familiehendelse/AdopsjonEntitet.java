@@ -70,6 +70,11 @@ public class AdopsjonEntitet extends BaseEntitet {
     @Column(name = "omsorg_vilkaar_type", nullable = false)
     private OmsorgsovertakelseVilkårType omsorgsovertakelseVilkårType = OmsorgsovertakelseVilkårType.UDEFINERT;
 
+    @ChangeTracked
+    @Convert(converter = VilkårHjemmel.KodeverdiConverter.class)
+    @Column(name = "vilkaar_hjemmel", nullable = false)
+    private VilkårHjemmel vilkårHjemmel = VilkårHjemmel.UDEFINERT;
+
     AdopsjonEntitet() {
         // Hibernate
     }
@@ -178,6 +183,14 @@ public class AdopsjonEntitet extends BaseEntitet {
 
     void setFamilieHendelse(FamilieHendelseEntitet familieHendelse) {
         this.familieHendelse = familieHendelse;
+    }
+
+    public VilkårHjemmel getVilkårHjemmel() {
+        return vilkårHjemmel;
+    }
+
+    public void setVilkårHjemmel(VilkårHjemmel vilkårHjemmel) {
+        this.vilkårHjemmel = vilkårHjemmel;
     }
 
     public static class Builder {

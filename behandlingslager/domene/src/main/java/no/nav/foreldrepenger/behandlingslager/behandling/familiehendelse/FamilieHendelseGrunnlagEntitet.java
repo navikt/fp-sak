@@ -100,6 +100,11 @@ public class FamilieHendelseGrunnlagEntitet extends BaseEntitet {
         return Optional.ofNullable(bekreftetHendelse);
     }
 
+
+    public Long getBehandlingId() {
+        return behandlingId;
+    }
+
     void setBehandling(Long behandlingId) {
         Objects.requireNonNull(behandlingId, "behandlingId");
         this.behandlingId = behandlingId;

@@ -303,6 +303,10 @@ public class FamilieHendelseBuilder {
             this.kladd.setOmsorgsovertakelseVilkårType(vilkårType);
             return this;
         }
+        public AdopsjonBuilder medVilkårHjemmel(VilkårHjemmel vilkårHjemmel) {
+            this.kladd.setVilkårHjemmel(vilkårHjemmel);
+            return this;
+        }
 
         AdopsjonEntitet build() {
             return kladd;
