@@ -202,7 +202,7 @@ public class KøKontroller {
         var åpenBehandling = behandlingRevurderingTjeneste.finnÅpenYtelsesbehandling(fagsak.getId());
         if (åpenBehandling.isPresent()) {
             // Køes hvis finnes berørt, ellers legg dokument på åpen behandling
-            return åpenBehandling.filter(SpesialBehandling::erSpesialBehandling).isPresent();
+            return åpenBehandling.filter(b -> SpesialBehandling.erSpesialBehandling(b) || b.harBehandlingÅrsak(BehandlingÅrsakType.FEIL_PRAKSIS_BG_AAP_KOMBI)).isPresent();
         }
         return behandlingRevurderingTjeneste.finnKøetYtelsesbehandling(fagsak.getId()).isPresent() || flytkontroll.nyRevurderingSkalVente(fagsak);
     }
