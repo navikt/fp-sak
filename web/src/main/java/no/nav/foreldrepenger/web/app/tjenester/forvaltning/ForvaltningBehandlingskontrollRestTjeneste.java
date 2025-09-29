@@ -17,6 +17,7 @@ import jakarta.ws.rs.core.Response;
 import io.swagger.v3.oas.annotations.Operation;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
+import no.nav.foreldrepenger.behandlingslager.behandling.SpesialBehandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingsprosess.prosessering.BehandlingProsesseringTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.ForvaltningBehandlingIdDto;
@@ -67,6 +68,29 @@ public class ForvaltningBehandlingskontrollRestTjeneste {
         } else {
             behandlingProsesseringTjeneste.opprettTasksForFortsettBehandling(behandling);
         }
+        return Response.ok().build();
+    }
+
+    @POST
+    @Path("/sikreOppdaterteRegisterdata")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Operation(description = "DRIFT: Sørge for at behandlingen blir oppdatert med ferske registerdata.", summary = "Oppdaterer og fortsetter behandlingen.", tags = "FORVALTNING-behandlingskontroll")
+    @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.DRIFT, sporingslogg = false)
+    public Response sikreOppdaterteRegisterdata(@BeanParam @Valid ForvaltningBehandlingIdDto dto) {
+
+        var behandling = behandlingRepository.hentBehandling(dto.getBehandlingUuid());
+        if (behandling.erSaksbehandlingAvsluttet()) {
+            throw new TekniskException("FP-823453", "Saksbehandling avsluttet");
+        }
+        if (!behandling.erYtelseBehandling()) {
+            throw new TekniskException("FP-823454", "Behandlingen er ikke ytelsebehandling");
+        }
+        if (SpesialBehandling.skalGrunnlagBeholdes(behandling)) {
+            throw new TekniskException("FP-823455", "Behandlingen skal ikke hente nye registerdata");
+        }
+
+        behandlingRepository.oppdaterSistOppdatertTidspunkt(behandling, LocalDateTime.now().minusWeeks(1).minusDays(1));
+        behandlingProsesseringTjeneste.opprettTasksForGjenopptaOppdaterFortsett(behandling, LocalDateTime.now());
         return Response.ok().build();
     }
 }
