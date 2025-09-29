@@ -74,7 +74,7 @@ public class ForvaltningBehandlingskontrollRestTjeneste {
     @POST
     @Path("/sikreOppdaterteRegisterdata")
     @Consumes(MediaType.APPLICATION_JSON)
-    @Operation(description = "DRIFT: Sørge for at behandlingen blir oppdatert med ferske registerdata.", summary = "Oppretter en FortsettBehandlingTask som vil prosessere behandlingen. For håndtering av tilfelle der behandlingen har endt i limbo uten automtisk gjenoppliving.", tags = "FORVALTNING-behandlingskontroll")
+    @Operation(description = "DRIFT: Sørge for at behandlingen blir oppdatert med ferske registerdata.", summary = "Oppdaterer og fortsetter behandlingen.", tags = "FORVALTNING-behandlingskontroll")
     @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.DRIFT, sporingslogg = false)
     public Response sikreOppdaterteRegisterdata(@BeanParam @Valid ForvaltningBehandlingIdDto dto) {
 
