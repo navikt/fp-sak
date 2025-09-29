@@ -27,9 +27,9 @@ public class JettyDevServer extends JettyServer {
     }
 
     private static void initTrustStoreAndKeyStore() {
-        var keystoreRelativPath = ENV.getProperty("KEYSTORE_RELATIV_PATH");
-        var truststoreRelativPath = ENV.getProperty("TRUSTSTORE_RELATIV_PATH");
-        var keystoreTruststorePassword = ENV.getProperty("JAVAX_NET_SSL_PASSWORD");
+        var keystoreRelativPath = ENV.getProperty("keystore.relativ.path");
+        var truststoreRelativPath = ENV.getProperty("truststore.relativ.path");
+        var keystoreTruststorePassword = ENV.getProperty("vtp.ssl.passord");
         var absolutePathHome = ENV.getProperty("user.home", ".");
         System.setProperty("javax.net.ssl.trustStore", absolutePathHome + truststoreRelativPath);
         System.setProperty("javax.net.ssl.keyStore", absolutePathHome + keystoreRelativPath);
