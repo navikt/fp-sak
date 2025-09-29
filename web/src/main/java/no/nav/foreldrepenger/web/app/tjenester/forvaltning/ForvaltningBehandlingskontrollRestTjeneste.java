@@ -69,4 +69,23 @@ public class ForvaltningBehandlingskontrollRestTjeneste {
         }
         return Response.ok().build();
     }
+
+    @POST
+    @Path("/sikreOppdatertRegisterdata")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Operation(description = "DRIFT: Opprett en manuell FortsettBehandlingTask for en behandling.", summary = "Oppretter en FortsettBehandlingTask som vil prosessere behandlingen. For håndtering av tilfelle der behandlingen har endt i limbo uten automtisk gjenoppliving.", tags = "FORVALTNING-behandlingskontroll")
+    @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.DRIFT, sporingslogg = false)
+    public Response sikreOppdatertRegisterdata(@BeanParam @Valid ForvaltningBehandlingIdDto dto) {
+
+        var behandling = behandlingRepository.hentBehandling(dto.getBehandlingUuid());
+        if (behandling.erSaksbehandlingAvsluttet()) {
+            throw new TekniskException("FP-823453", "Saksbehandling avsluttet");
+        }
+        if (!behandling.erYtelseBehandling()) {
+            throw new TekniskException("FP-823454", "Behandlingen er ikke ytelsebehandling");
+        }
+
+        behandlingRepository.oppdaterSistOppdatertTidspunkt(behandling, LocalDateTime.now().minusWeeks(1).minusDays(1));
+        return Response.ok().build();
+    }
 }

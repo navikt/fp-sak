@@ -33,6 +33,7 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import no.nav.foreldrepenger.behandling.FagsakRelasjonTjeneste;
+import no.nav.foreldrepenger.behandlingslager.behandling.SpesialBehandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonopplysningRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
@@ -54,6 +55,7 @@ import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.SaksnummerDto;
 import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.SokefeltDto;
 import no.nav.foreldrepenger.web.app.tjenester.fordeling.OpprettSakTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.KobleFagsakerDto;
+import no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.SaksnummerBrukerRolleDto;
 import no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.SaksnummerJournalpostDto;
 import no.nav.foreldrepenger.web.server.abac.AppAbacAttributtType;
 import no.nav.foreldrepenger.web.server.abac.InvaliderSakPersonCacheObserverKlient;
@@ -238,6 +240,38 @@ public class ForvaltningFagsakRestTjeneste {
 
     private boolean erFagsakRelasjonKoblet(FagsakRelasjon fagsakRelasjon) {
         return fagsakRelasjon != null && fagsakRelasjon.getFagsakNrEn() != null && fagsakRelasjon.getFagsakNrTo().isPresent();
+    }
+
+    @POST
+    @Path("/endreSaksrolle")
+    @Consumes(APPLICATION_JSON)
+    @Produces(APPLICATION_JSON)
+    @Operation(description = "Oppdaterer brukes rolle i fagsaken", tags = "FORVALTNING-fagsak", responses = {
+        @ApiResponse(responseCode = "200", description = "Fagsaker frakoblet.", content = @Content(mediaType = APPLICATION_JSON, schema = @Schema(implementation = String.class))),
+        @ApiResponse(responseCode = "400", description = "Ukjent fagsak oppgitt."),
+        @ApiResponse(responseCode = "500", description = "Feilet pga ukjent feil.")
+    })
+    @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.FAGSAK, sporingslogg = true)
+    public Response endreSaksrolle(@BeanParam @Valid SaksnummerBrukerRolleDto dto) {
+        var saksnummer = new Saksnummer(dto.getSaksnummer());
+        var responstekst = "Saksrolle endret.";
+        var nyRolle = switch (dto.getRolle()) {
+            case MOR -> no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType.MORA;
+            case FAR -> no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType.FARA;
+            case MEDMOR -> no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType.MEDMOR;
+        };
+        var fagsak = fagsakRepository.hentSakGittSaksnummer(saksnummer).orElseThrow();
+        var åpnebehandlinger = behandlingRepository.hentÅpneYtelseBehandlingerForFagsakId(fagsak.getId());
+        if (åpnebehandlinger.stream().anyMatch(SpesialBehandling::erSpesialBehandling)) {
+            return Response.status(Response.Status.BAD_REQUEST.getStatusCode(), "Åpen berørt behandling").build();
+        } else if (!åpnebehandlinger.isEmpty()) {
+            responstekst = responstekst + " Åpen behandling - hopp tilbake til KOARB pga STP";
+        }  else {
+            responstekst = responstekst + " Opprett revurdering fra meny.";
+        }
+        fagsakRepository.oppdaterRelasjonsRolle(fagsak.getId(), nyRolle);
+        LOG.info("Brukerrolle sak {} oppdatert til {}", saksnummer.getVerdi(), nyRolle);
+        return Response.ok(responstekst).build();
     }
 
     @POST
