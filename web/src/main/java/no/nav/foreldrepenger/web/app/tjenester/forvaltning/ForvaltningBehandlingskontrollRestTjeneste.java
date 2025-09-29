@@ -17,6 +17,7 @@ import jakarta.ws.rs.core.Response;
 import io.swagger.v3.oas.annotations.Operation;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
+import no.nav.foreldrepenger.behandlingslager.behandling.SpesialBehandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingsprosess.prosessering.BehandlingProsesseringTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.ForvaltningBehandlingIdDto;
@@ -71,11 +72,11 @@ public class ForvaltningBehandlingskontrollRestTjeneste {
     }
 
     @POST
-    @Path("/sikreOppdatertRegisterdata")
+    @Path("/sikreOppdaterteRegisterdata")
     @Consumes(MediaType.APPLICATION_JSON)
-    @Operation(description = "DRIFT: Opprett en manuell FortsettBehandlingTask for en behandling.", summary = "Oppretter en FortsettBehandlingTask som vil prosessere behandlingen. For håndtering av tilfelle der behandlingen har endt i limbo uten automtisk gjenoppliving.", tags = "FORVALTNING-behandlingskontroll")
+    @Operation(description = "DRIFT: Sørge for at behandlingen blir oppdatert med ferske registerdata.", summary = "Oppretter en FortsettBehandlingTask som vil prosessere behandlingen. For håndtering av tilfelle der behandlingen har endt i limbo uten automtisk gjenoppliving.", tags = "FORVALTNING-behandlingskontroll")
     @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.DRIFT, sporingslogg = false)
-    public Response sikreOppdatertRegisterdata(@BeanParam @Valid ForvaltningBehandlingIdDto dto) {
+    public Response sikreOppdaterteRegisterdata(@BeanParam @Valid ForvaltningBehandlingIdDto dto) {
 
         var behandling = behandlingRepository.hentBehandling(dto.getBehandlingUuid());
         if (behandling.erSaksbehandlingAvsluttet()) {
@@ -84,8 +85,12 @@ public class ForvaltningBehandlingskontrollRestTjeneste {
         if (!behandling.erYtelseBehandling()) {
             throw new TekniskException("FP-823454", "Behandlingen er ikke ytelsebehandling");
         }
+        if (SpesialBehandling.skalGrunnlagBeholdes(behandling)) {
+            throw new TekniskException("FP-823455", "Behandlingen skal ikke hente nye registerdata");
+        }
 
         behandlingRepository.oppdaterSistOppdatertTidspunkt(behandling, LocalDateTime.now().minusWeeks(1).minusDays(1));
+        behandlingProsesseringTjeneste.opprettTasksForGjenopptaOppdaterFortsett(behandling, LocalDateTime.now());
         return Response.ok().build();
     }
 }
