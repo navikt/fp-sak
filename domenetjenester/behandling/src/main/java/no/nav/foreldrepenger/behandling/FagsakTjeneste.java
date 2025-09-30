@@ -64,6 +64,18 @@ public class FagsakTjeneste {
         // Oppdatering basert på søkers oppgitte relasjon til barn
         var oppgittRelasjonsRolle = søknadRepository.hentSøknadHvisEksisterer(behandling.getId())
                 .map(SøknadEntitet::getRelasjonsRolleType);
+        var registerRelasjonRolle = finnBarnetsRelasjonTilSøker(barnSøktStønadFor, personopplysninger)
+            .map(PersonRelasjonEntitet::getRelasjonsrolle);
+
+        if (oppgittRelasjonsRolle.isPresent() && !Objects.equals(behandling.getRelasjonsRolleType(), oppgittRelasjonsRolle.get())) {
+            LOG.info("Brukerrolle sak {} resterendesteg saksrolle {} søknadsrolle {}",
+                behandling.getSaksnummer().getVerdi(), behandling.getRelasjonsRolleType(), oppgittRelasjonsRolle.get());
+        }
+        if (registerRelasjonRolle.isPresent() && !Objects.equals(behandling.getRelasjonsRolleType(), registerRelasjonRolle.get())) {
+            LOG.info("Brukerrolle sak {} resterendesteg saksrolle {} registerrolle {}",
+                behandling.getSaksnummer().getVerdi(), behandling.getRelasjonsRolleType(), registerRelasjonRolle.get());
+        }
+        // Avvik sak/søknad + oppdatering
         if (oppgittRelasjonsRolle.isPresent()) {
             if (!Objects.equals(behandling.getRelasjonsRolleType(), oppgittRelasjonsRolle.get())) {
                 LOG.info("oppdaterRelasjonsRolle fagsak har {} fra søknad {}", fagsak.getRelasjonsRolleType().getKode(),
@@ -74,17 +86,13 @@ public class FagsakTjeneste {
         }
 
         // Oppdatering basert på søkers registrerte relasjon til barn
-        var funnetRelasjon = finnBarnetsRelasjonTilSøker(barnSøktStønadFor, personopplysninger);
-        if (funnetRelasjon.isPresent()) {
-            var brukerRolle = funnetRelasjon.map(PersonRelasjonEntitet::getRelasjonsrolle);
-            if (brukerRolle.isPresent()) {
-                if (!Objects.equals(behandling.getRelasjonsRolleType(), brukerRolle.get())) {
-                    LOG.info("oppdaterRelasjonsRolle fagsak har {} fra register {}", fagsak.getRelasjonsRolleType().getKode(),
-                        brukerRolle.get().getKode());
-                    fagsakRepository.oppdaterRelasjonsRolle(fagsak.getId(), brukerRolle.get());
-                }
-                return;
+        if (registerRelasjonRolle.isPresent()) {
+            if (!Objects.equals(behandling.getRelasjonsRolleType(), registerRelasjonRolle.get())) {
+                LOG.info("oppdaterRelasjonsRolle fagsak har {} fra register {}", fagsak.getRelasjonsRolleType().getKode(),
+                    registerRelasjonRolle.get().getKode());
+                fagsakRepository.oppdaterRelasjonsRolle(fagsak.getId(), registerRelasjonRolle.get());
             }
+            return;
         }
         LOG.info("oppdaterRelasjonsRolle fagsak har {} ingen oppdatering", fagsak.getRelasjonsRolleType().getKode());
     }
