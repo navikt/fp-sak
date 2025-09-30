@@ -79,6 +79,11 @@
       "cluster": "prod-gcp"
     },
     {
+      "app": "fpsoknad",
+      "namespace": "teamforeldrepenger",
+      "cluster": "prod-gcp"
+    },
+    {
       "app": "fpinntektsmelding",
       "namespace": "teamforeldrepenger",
       "cluster": "prod-gcp"
