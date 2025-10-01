@@ -1,48 +1,133 @@
 package no.nav.foreldrepenger.web.app.tjenester.brev;
 
+import static no.nav.foreldrepenger.web.app.tjenester.brev.BrevGrunnlagDto.Barn;
+import static no.nav.foreldrepenger.web.app.tjenester.brev.BrevGrunnlagDto.BehandlingÅrsakType;
+import static no.nav.foreldrepenger.web.app.tjenester.brev.BrevGrunnlagDto.FamilieHendelse;
+import static no.nav.foreldrepenger.web.app.tjenester.brev.BrevGrunnlagDto.InnsynBehandling;
+import static no.nav.foreldrepenger.web.app.tjenester.brev.BrevGrunnlagDto.Inntektsmelding;
+import static no.nav.foreldrepenger.web.app.tjenester.brev.BrevGrunnlagDto.KlageBehandling;
+import static no.nav.foreldrepenger.web.app.tjenester.brev.BrevGrunnlagDto.Rettigheter;
+import static no.nav.foreldrepenger.web.app.tjenester.brev.BrevGrunnlagDto.SvangerskapspengerUttak;
+import static no.nav.foreldrepenger.web.app.tjenester.brev.BrevGrunnlagDto.Verge;
+import static no.nav.foreldrepenger.web.app.tjenester.brev.EnumMapper.mapArbeidsforholdIkkeOppfyltÅrsak;
+import static no.nav.foreldrepenger.web.app.tjenester.brev.EnumMapper.mapBehandlingResultatType;
+import static no.nav.foreldrepenger.web.app.tjenester.brev.EnumMapper.mapBehandlingType;
+import static no.nav.foreldrepenger.web.app.tjenester.brev.EnumMapper.mapFagsakStatus;
+import static no.nav.foreldrepenger.web.app.tjenester.brev.EnumMapper.mapFagsakYtelseType;
+import static no.nav.foreldrepenger.web.app.tjenester.brev.EnumMapper.mapFpPeriodeResultatType;
+import static no.nav.foreldrepenger.web.app.tjenester.brev.EnumMapper.mapInnsynResultatType;
+import static no.nav.foreldrepenger.web.app.tjenester.brev.EnumMapper.mapKlageHjemmel;
+import static no.nav.foreldrepenger.web.app.tjenester.brev.EnumMapper.mapKlageMedholdÅrsak;
+import static no.nav.foreldrepenger.web.app.tjenester.brev.EnumMapper.mapKlageVurdering;
+import static no.nav.foreldrepenger.web.app.tjenester.brev.EnumMapper.mapKlageVurderingOmgjør;
+import static no.nav.foreldrepenger.web.app.tjenester.brev.EnumMapper.mapRelasjonsRolleType;
+import static no.nav.foreldrepenger.web.app.tjenester.brev.EnumMapper.mapRettighetstype;
+import static no.nav.foreldrepenger.web.app.tjenester.brev.EnumMapper.mapSpråkkode;
+import static no.nav.foreldrepenger.web.app.tjenester.brev.EnumMapper.mapStønadskontoType;
+import static no.nav.foreldrepenger.web.app.tjenester.brev.EnumMapper.mapSvpPeriodeResultatType;
+import static no.nav.foreldrepenger.web.app.tjenester.brev.EnumMapper.mapSvpUttakArbeidType;
+import static no.nav.foreldrepenger.web.app.tjenester.brev.EnumMapper.mapVergeType;
+
+import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.UUID;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.DekningsgradTjeneste;
+import no.nav.foreldrepenger.behandling.RelatertBehandlingTjeneste;
+import no.nav.foreldrepenger.behandling.klage.KlageVurderingTjeneste;
+import no.nav.foreldrepenger.behandling.revurdering.ytelse.UttakInputTjeneste;
+import no.nav.foreldrepenger.behandlingslager.aktør.Aktør;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
-import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingsresultatRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsak;
+import no.nav.foreldrepenger.behandlingslager.behandling.DokumentKategori;
 import no.nav.foreldrepenger.behandlingslager.behandling.KonsekvensForYtelsen;
+import no.nav.foreldrepenger.behandlingslager.behandling.MottattDokument;
+import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
+import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.beregning.EngangsstønadBeregningRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.dokument.BehandlingDokumentEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.dokument.BehandlingDokumentRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.eøs.EøsUttakRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.eøs.EøsUttaksperiodeEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.AdopsjonEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.TerminbekreftelseEntitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.innsyn.InnsynRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageFormkravEntitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageHjemmel;
+import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageVurderingResultat;
+import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageVurdertAv;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
+import no.nav.foreldrepenger.behandlingslager.behandling.repository.MottatteDokumentRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.ufore.UføretrygdRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtakRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.verge.VergeOrganisasjonEntitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.verge.VergeRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.Avslagsårsak;
-import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.MorsAktivitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.Rettighetstype;
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.DokumentasjonVurdering;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeType;
+import no.nav.foreldrepenger.behandlingslager.fagsak.Dekningsgrad;
+import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
-import no.nav.foreldrepenger.behandlingslager.geografisk.Språkkode;
+import no.nav.foreldrepenger.behandlingslager.uttak.PeriodeResultatType;
+import no.nav.foreldrepenger.behandlingslager.uttak.Uttaksperiodegrense;
+import no.nav.foreldrepenger.behandlingslager.uttak.UttaksperiodegrenseRepository;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.MorsStillingsprosent;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.StønadskontoType;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.Trekkdager;
+import no.nav.foreldrepenger.behandlingslager.uttak.svp.SvangerskapspengerUttakResultatArbeidsforholdEntitet;
+import no.nav.foreldrepenger.behandlingslager.uttak.svp.SvangerskapspengerUttakResultatPeriodeEntitet;
+import no.nav.foreldrepenger.behandlingslager.uttak.svp.SvangerskapspengerUttakResultatRepository;
+import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
+import no.nav.foreldrepenger.domene.arbeidInntektsmelding.ArbeidsforholdInntektsmeldingMangelTjeneste;
+import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
+import no.nav.foreldrepenger.domene.arbeidsforhold.InntektsmeldingTjeneste;
+import no.nav.foreldrepenger.domene.iay.modell.AktørArbeid;
 import no.nav.foreldrepenger.domene.medlem.MedlemTjeneste;
+import no.nav.foreldrepenger.domene.prosess.BeregningTjeneste;
+import no.nav.foreldrepenger.domene.typer.AktørId;
+import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttak;
+import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakPeriode;
+import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakPeriodeAktivitet;
+import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakTjeneste;
+import no.nav.foreldrepenger.domene.uttak.TapteDagerFpffTjeneste;
 import no.nav.foreldrepenger.domene.uttak.Uttak;
 import no.nav.foreldrepenger.domene.uttak.UttakTjeneste;
 import no.nav.foreldrepenger.domene.uttak.beregnkontoer.UtregnetStønadskontoTjeneste;
+import no.nav.foreldrepenger.domene.uttak.input.UttakInput;
+import no.nav.foreldrepenger.domene.uttak.saldo.StønadskontoSaldoTjeneste;
+import no.nav.foreldrepenger.domene.vedtak.VedtakTjeneste;
 import no.nav.foreldrepenger.domene.ytelsefordeling.YtelseFordelingTjeneste;
 import no.nav.foreldrepenger.familiehendelse.FamilieHendelseTjeneste;
+import no.nav.foreldrepenger.kontrakter.fpsak.beregningsgrunnlag.v2.BeregningsgrunnlagDto;
+import no.nav.foreldrepenger.kontrakter.fpsak.inntektsmeldinger.ArbeidsforholdInntektsmeldingerDto;
+import no.nav.foreldrepenger.kontrakter.fpsak.tilkjentytelse.TilkjentYtelseDagytelseDto;
+import no.nav.foreldrepenger.kontrakter.fpsak.tilkjentytelse.TilkjentYtelseEngangsstønadDto;
+import no.nav.foreldrepenger.produksjonsstyring.tilbakekreving.FptilbakeRestKlient;
+import no.nav.foreldrepenger.produksjonsstyring.tilbakekreving.TilbakeBehandlingDto;
+import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.Stønadskontotype;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
+import no.nav.foreldrepenger.skjæringstidspunkt.overganger.UtsettelseCore2021;
+import no.nav.foreldrepenger.web.app.tjenester.formidling.arbeidsforholdInntektsmelding.ArbeidsforholdInntektsmeldingDtoTjeneste;
+import no.nav.foreldrepenger.web.app.tjenester.formidling.beregningsgrunnlag.BeregningsgrunnlagFormidlingV2DtoTjeneste;
+import no.nav.foreldrepenger.web.app.tjenester.formidling.tilkjentytelse.TilkjentYtelseFormidlingDtoTjeneste;
 
 @ApplicationScoped
 class BrevGrunnlagTjeneste {
@@ -50,20 +135,42 @@ class BrevGrunnlagTjeneste {
     private SøknadRepository søknadRepository;
     private BehandlingRepository behandlingRepository;
     private BehandlingsresultatRepository behandlingsresultatRepository;
+    private UføretrygdRepository uføretrygdRepository;
+    private BehandlingDokumentRepository behandlingDokumentRepository;
+    private EøsUttakRepository eøsUttakRepository;
+    private EngangsstønadBeregningRepository engangsstønadBeregningRepository;
+    private BeregningsresultatRepository beregningsresultatRepository;
+    private MottatteDokumentRepository mottatteDokumentRepository;
+    private UttaksperiodegrenseRepository uttaksperiodegrenseRepository;
+    private VergeRepository vergeRepository;
+    private InnsynRepository innsynRepository;
+    private SvangerskapspengerUttakResultatRepository svpRepository;
+    private BehandlingVedtakRepository behandlingVedtakRepository;
 
     private FamilieHendelseTjeneste familieHendelseTjeneste;
     private UttakTjeneste uttakTjeneste;
+    private ForeldrepengerUttakTjeneste foreldrepengerUttakTjeneste;
     private MedlemTjeneste medlemTjeneste;
-    private EøsUttakRepository eøsUttakRepository;
     private UtregnetStønadskontoTjeneste utregnetStønadskontoTjeneste;
     private YtelseFordelingTjeneste ytelseFordelingTjeneste;
-    private UføretrygdRepository uføretrygdRepository;
-    private BehandlingDokumentRepository behandlingDokumentRepository;
     private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
     private DekningsgradTjeneste dekningsgradTjeneste;
+    private BeregningTjeneste beregningTjeneste;
+    private InntektArbeidYtelseTjeneste inntektArbeidYtelseTjeneste;
+    private ArbeidsforholdInntektsmeldingMangelTjeneste arbeidsforholdInntektsmeldingMangelTjeneste;
+    private InntektsmeldingTjeneste inntektsmeldingTjeneste;
+    private KlageVurderingTjeneste klageVurderingTjeneste;
+    private VedtakTjeneste vedtakTjeneste;
+    private RelatertBehandlingTjeneste relatertBehandlingTjeneste;
+    private TapteDagerFpffTjeneste tapteDagerFpffTjeneste;
+    private UttakInputTjeneste uttakInputTjeneste;
+    private StønadskontoSaldoTjeneste stønadskontoSaldoTjeneste;
+
+    private FptilbakeRestKlient fptilbakeRestKlient;
 
     @Inject
     public BrevGrunnlagTjeneste(BehandlingRepositoryProvider repositoryProvider,
+                                InnsynRepository innsynRepository,
                                 FamilieHendelseTjeneste familieHendelseTjeneste,
                                 UttakTjeneste uttakTjeneste,
                                 MedlemTjeneste medlemTjeneste,
@@ -72,10 +179,25 @@ class BrevGrunnlagTjeneste {
                                 YtelseFordelingTjeneste ytelseFordelingTjeneste,
                                 UføretrygdRepository uføretrygdRepository,
                                 BehandlingDokumentRepository behandlingDokumentRepository,
+                                ForeldrepengerUttakTjeneste foreldrepengerUttakTjeneste,
                                 SkjæringstidspunktTjeneste skjæringstidspunktTjeneste,
-                                DekningsgradTjeneste dekningsgradTjeneste) {
+                                DekningsgradTjeneste dekningsgradTjeneste,
+                                EngangsstønadBeregningRepository engangsstønadBeregningRepository,
+                                BeregningTjeneste beregningTjeneste,
+                                InntektArbeidYtelseTjeneste inntektArbeidYtelseTjeneste,
+                                ArbeidsforholdInntektsmeldingMangelTjeneste arbeidsforholdInntektsmeldingMangelTjeneste,
+                                InntektsmeldingTjeneste inntektsmeldingTjeneste,
+                                VergeRepository vergeRepository,
+                                KlageVurderingTjeneste klageVurderingTjeneste,
+                                FptilbakeRestKlient fptilbakeRestKlient,
+                                VedtakTjeneste vedtakTjeneste,
+                                RelatertBehandlingTjeneste relatertBehandlingTjeneste,
+                                TapteDagerFpffTjeneste tapteDagerFpffTjeneste,
+                                UttakInputTjeneste uttakInputTjeneste,
+                                StønadskontoSaldoTjeneste stønadskontoSaldoTjeneste) {
         this.søknadRepository = repositoryProvider.getSøknadRepository();
         this.behandlingsresultatRepository = repositoryProvider.getBehandlingsresultatRepository();
+        this.innsynRepository = innsynRepository;
         this.familieHendelseTjeneste = familieHendelseTjeneste;
         this.uttakTjeneste = uttakTjeneste;
         this.medlemTjeneste = medlemTjeneste;
@@ -85,8 +207,27 @@ class BrevGrunnlagTjeneste {
         this.ytelseFordelingTjeneste = ytelseFordelingTjeneste;
         this.uføretrygdRepository = uføretrygdRepository;
         this.behandlingDokumentRepository = behandlingDokumentRepository;
+        this.foreldrepengerUttakTjeneste = foreldrepengerUttakTjeneste;
         this.skjæringstidspunktTjeneste = skjæringstidspunktTjeneste;
         this.dekningsgradTjeneste = dekningsgradTjeneste;
+        this.engangsstønadBeregningRepository = engangsstønadBeregningRepository;
+        this.beregningTjeneste = beregningTjeneste;
+        this.inntektArbeidYtelseTjeneste = inntektArbeidYtelseTjeneste;
+        this.arbeidsforholdInntektsmeldingMangelTjeneste = arbeidsforholdInntektsmeldingMangelTjeneste;
+        this.beregningsresultatRepository = repositoryProvider.getBeregningsresultatRepository();
+        this.mottatteDokumentRepository = repositoryProvider.getMottatteDokumentRepository();
+        this.inntektsmeldingTjeneste = inntektsmeldingTjeneste;
+        this.uttaksperiodegrenseRepository = repositoryProvider.getUttaksperiodegrenseRepository();
+        this.vergeRepository = vergeRepository;
+        this.klageVurderingTjeneste = klageVurderingTjeneste;
+        this.fptilbakeRestKlient = fptilbakeRestKlient;
+        this.vedtakTjeneste = vedtakTjeneste;
+        this.svpRepository = repositoryProvider.getSvangerskapspengerUttakResultatRepository();
+        this.relatertBehandlingTjeneste = relatertBehandlingTjeneste;
+        this.behandlingVedtakRepository = repositoryProvider.getBehandlingVedtakRepository();
+        this.tapteDagerFpffTjeneste = tapteDagerFpffTjeneste;
+        this.uttakInputTjeneste = uttakInputTjeneste;
+        this.stønadskontoSaldoTjeneste = stønadskontoSaldoTjeneste;
     }
 
     BrevGrunnlagTjeneste() {
@@ -94,7 +235,14 @@ class BrevGrunnlagTjeneste {
     }
 
     BrevGrunnlagDto toDto(Behandling behandling) {
-        var uuid = behandling.getUuid();
+        //TODO TFP-6069 gå igjennom undefined kodeverdier
+
+        var saksnummer = behandling.getFagsak().getSaksnummer().getVerdi();
+        var ytelseType = mapFagsakYtelseType(behandling.getFagsak().getYtelseType());
+        var fagsakStatus = mapFagsakStatus(behandling.getFagsak().getStatus());
+        var relasjonsRolleType = mapRelasjonsRolleType(behandling.getRelasjonsRolleType());
+        var aktørId = behandling.getAktørId().getId();
+        var dekningsgrad = finnDekningsgrad(behandling);
         var behandlingType = mapBehandlingType(behandling.getType());
 
         var opprettet = behandling.getOpprettetDato();
@@ -104,124 +252,405 @@ class BrevGrunnlagTjeneste {
         var automatiskBehandlet = behandling.isToTrinnsBehandling() || behandlingType == BrevGrunnlagDto.BehandlingType.KLAGE;
         var familieHendelse = finnFamilieHendelse(behandling.getId()).orElse(null);
         var originalBehandlingFamilieHendelse = behandling.getOriginalBehandlingId().flatMap(this::finnFamilieHendelse).orElse(null);
-        var rettigheter = utledRettigheter(behandling);
+        var rettigheter = utledRettigheter(behandling).orElse(null);
         var behandlingsresultat = finnBehandlingsresultat(behandling).orElse(null);
         var behandlingÅrsakTyper = finnBehandlingÅrsakTyper(behandling);
-        return new BrevGrunnlagDto(uuid, behandlingType, opprettet, avsluttet, behandlendeEnhet, språkkode, automatiskBehandlet, familieHendelse,
-            originalBehandlingFamilieHendelse, rettigheter, behandlingsresultat, behandlingÅrsakTyper);
+        var tilkjentYtelseEngangsstønad = finnTilkjentYtelseEngangsstønad(behandling).orElse(null);
+        var tilkjentYtelseDagytelse = finnTilkjentYtelseDagytelse(behandling).orElse(null);
+        var beregningsgrunnlag = finnBeregningsgrunnlag(behandling).orElse(null);
+        var inntektsmeldingerStatus = finnInntektsmeldingerStatus(behandling);
+        var førsteSøknadMottattDato = finnFørsteSøknadMottattDato(behandling.getFagsak()).orElse(null);
+        var sisteSøknadMottattDato = finnSisteSøknadMottattDato(behandling.getFagsak()).orElse(null);
+        var inntektsmeldinger = finnInntektsmeldinger(behandling);
+        var søknadMottattDato = finnSøknadMottattDato(behandling).orElse(null);
+        var nyStartDatoVedUtsattOppstart = finnNyStartDatoVedUtsattOppstart(behandling).orElse(null);
+        var verge = finnVerge(behandling).orElse(null);
+        var klageBehandling = finnKlageBehandling(behandling).orElse(null);
+        var innsynBehandling = finnInnsynBehandling(behandling).orElse(null);
+        var svangerskapspengerUttak = finnSvangerskapspengerUttak(behandling).orElse(null);
+        var foreldrepengerUttak = finnForeldrepengerUttak(behandling).orElse(null);
+        return new BrevGrunnlagDto(saksnummer, ytelseType, fagsakStatus, relasjonsRolleType, aktørId, dekningsgrad, behandlingType, opprettet,
+            avsluttet, behandlendeEnhet, språkkode, automatiskBehandlet, familieHendelse, originalBehandlingFamilieHendelse, rettigheter,
+            behandlingsresultat, behandlingÅrsakTyper, tilkjentYtelseEngangsstønad, tilkjentYtelseDagytelse, beregningsgrunnlag,
+            inntektsmeldingerStatus, førsteSøknadMottattDato, sisteSøknadMottattDato, søknadMottattDato, inntektsmeldinger,
+            nyStartDatoVedUtsattOppstart, verge, klageBehandling, innsynBehandling, svangerskapspengerUttak, foreldrepengerUttak);
     }
 
-    private List<BrevGrunnlagDto.BehandlingÅrsakType> finnBehandlingÅrsakTyper(Behandling behandling) {
-        return behandling.getBehandlingÅrsaker().stream().map(BrevGrunnlagTjeneste::mapBehandlingÅrsakType).toList();
+    private Optional<BrevGrunnlagDto.ForeldrepengerUttak> finnForeldrepengerUttak(Behandling behandling) {
+        if (behandling.getFagsakYtelseType() != FagsakYtelseType.FORELDREPENGER || harUttakTilManuellBehandling(behandling)) {
+            return Optional.empty();
+        }
+        var uttakInput = uttakInputTjeneste.lagInput(behandling);
+        var stønadskontoer = finnStønadskontoer(uttakInput);
+        var perioderSøker = finnUttakResultatPerioderSøker(behandling.getId());
+        var annenpartUttaksperioder = annenpartBehandling(behandling).flatMap(ab -> foreldrepengerUttakTjeneste.hentHvisEksisterer(ab.getId()))
+            .map(BrevGrunnlagTjeneste::finnUttakResultatPerioder)
+            .orElse(List.of());
+        var tapteDagerFpff = finnTapteDagerFpff(uttakInput, stønadskontoer);
+        if (perioderSøker.isEmpty() && annenpartUttaksperioder.isEmpty() && stønadskontoer.isEmpty()) {
+            return Optional.empty();
+        }
+        // Fpformidling trenger også å få tak i uttaksresultatet når bare annen part har uttak
+        return Optional.of(new BrevGrunnlagDto.ForeldrepengerUttak(stønadskontoer, tapteDagerFpff, perioderSøker, annenpartUttaksperioder));
     }
 
-    private static BrevGrunnlagDto.BehandlingÅrsakType mapBehandlingÅrsakType(BehandlingÅrsak behandlingÅrsak) {
-        return switch (behandlingÅrsak.getBehandlingÅrsakType()) {
-            case RE_FEIL_I_LOVANDVENDELSE -> BrevGrunnlagDto.BehandlingÅrsakType.RE_FEIL_I_LOVANDVENDELSE;
-            case RE_FEIL_REGELVERKSFORSTÅELSE -> BrevGrunnlagDto.BehandlingÅrsakType.RE_FEIL_REGELVERKSFORSTÅELSE;
-            case RE_FEIL_ELLER_ENDRET_FAKTA -> BrevGrunnlagDto.BehandlingÅrsakType.RE_FEIL_ELLER_ENDRET_FAKTA;
-            case RE_FEIL_PROSESSUELL -> BrevGrunnlagDto.BehandlingÅrsakType.RE_FEIL_PROSESSUELL;
-            case RE_ANNET -> BrevGrunnlagDto.BehandlingÅrsakType.RE_ANNET;
-            case RE_OPPLYSNINGER_OM_MEDLEMSKAP -> BrevGrunnlagDto.BehandlingÅrsakType.RE_OPPLYSNINGER_OM_MEDLEMSKAP;
-            case RE_OPPLYSNINGER_OM_OPPTJENING -> BrevGrunnlagDto.BehandlingÅrsakType.RE_OPPLYSNINGER_OM_OPPTJENING;
-            case RE_OPPLYSNINGER_OM_FORDELING -> BrevGrunnlagDto.BehandlingÅrsakType.RE_OPPLYSNINGER_OM_FORDELING;
-            case RE_OPPLYSNINGER_OM_INNTEKT -> BrevGrunnlagDto.BehandlingÅrsakType.RE_OPPLYSNINGER_OM_INNTEKT;
-            case RE_OPPLYSNINGER_OM_FØDSEL -> BrevGrunnlagDto.BehandlingÅrsakType.RE_OPPLYSNINGER_OM_FØDSEL;
-            case RE_OPPLYSNINGER_OM_DØD -> BrevGrunnlagDto.BehandlingÅrsakType.RE_OPPLYSNINGER_OM_DØD;
-            case RE_OPPLYSNINGER_OM_SØKERS_REL -> BrevGrunnlagDto.BehandlingÅrsakType.RE_OPPLYSNINGER_OM_SØKERS_REL;
-            case RE_OPPLYSNINGER_OM_SØKNAD_FRIST -> BrevGrunnlagDto.BehandlingÅrsakType.RE_OPPLYSNINGER_OM_SØKNAD_FRIST;
-            case RE_OPPLYSNINGER_OM_BEREGNINGSGRUNNLAG -> BrevGrunnlagDto.BehandlingÅrsakType.RE_OPPLYSNINGER_OM_BEREGNINGSGRUNNLAG;
-            case RE_KLAGE_UTEN_END_INNTEKT -> BrevGrunnlagDto.BehandlingÅrsakType.RE_KLAGE_UTEN_END_INNTEKT;
-            case RE_KLAGE_MED_END_INNTEKT -> BrevGrunnlagDto.BehandlingÅrsakType.RE_KLAGE_MED_END_INNTEKT;
-            case ETTER_KLAGE -> BrevGrunnlagDto.BehandlingÅrsakType.ETTER_KLAGE;
-            case RE_MANGLER_FØDSEL -> BrevGrunnlagDto.BehandlingÅrsakType.RE_MANGLER_FØDSEL;
-            case RE_MANGLER_FØDSEL_I_PERIODE -> BrevGrunnlagDto.BehandlingÅrsakType.RE_MANGLER_FØDSEL_I_PERIODE;
-            case RE_AVVIK_ANTALL_BARN -> BrevGrunnlagDto.BehandlingÅrsakType.RE_AVVIK_ANTALL_BARN;
-            case RE_ENDRING_FRA_BRUKER -> BrevGrunnlagDto.BehandlingÅrsakType.RE_ENDRING_FRA_BRUKER;
-            case RE_ENDRET_INNTEKTSMELDING -> BrevGrunnlagDto.BehandlingÅrsakType.RE_ENDRET_INNTEKTSMELDING;
-            case BERØRT_BEHANDLING -> BrevGrunnlagDto.BehandlingÅrsakType.BERØRT_BEHANDLING;
-            case REBEREGN_FERIEPENGER -> BrevGrunnlagDto.BehandlingÅrsakType.REBEREGN_FERIEPENGER;
-            case RE_UTSATT_START -> BrevGrunnlagDto.BehandlingÅrsakType.RE_UTSATT_START;
-            case RE_SATS_REGULERING -> BrevGrunnlagDto.BehandlingÅrsakType.RE_SATS_REGULERING;
-            case ENDRE_DEKNINGSGRAD -> BrevGrunnlagDto.BehandlingÅrsakType.ENDRE_DEKNINGSGRAD;
-            case INFOBREV_BEHANDLING -> BrevGrunnlagDto.BehandlingÅrsakType.INFOBREV_BEHANDLING;
-            case INFOBREV_OPPHOLD -> BrevGrunnlagDto.BehandlingÅrsakType.INFOBREV_OPPHOLD;
-            case INFOBREV_PÅMINNELSE -> BrevGrunnlagDto.BehandlingÅrsakType.INFOBREV_PÅMINNELSE;
-            case OPPHØR_YTELSE_NYTT_BARN -> BrevGrunnlagDto.BehandlingÅrsakType.OPPHØR_YTELSE_NYTT_BARN;
-            case RE_HENDELSE_FØDSEL -> BrevGrunnlagDto.BehandlingÅrsakType.RE_HENDELSE_FØDSEL;
-            case RE_HENDELSE_DØD_FORELDER -> BrevGrunnlagDto.BehandlingÅrsakType.RE_HENDELSE_DØD_FORELDER;
-            case RE_HENDELSE_DØD_BARN -> BrevGrunnlagDto.BehandlingÅrsakType.RE_HENDELSE_DØD_BARN;
-            case RE_HENDELSE_DØDFØDSEL -> BrevGrunnlagDto.BehandlingÅrsakType.RE_HENDELSE_DØDFØDSEL;
-            case RE_HENDELSE_UTFLYTTING -> BrevGrunnlagDto.BehandlingÅrsakType.RE_HENDELSE_UTFLYTTING;
-            case RE_VEDTAK_PLEIEPENGER -> BrevGrunnlagDto.BehandlingÅrsakType.RE_VEDTAK_PLEIEPENGER;
-            case FEIL_PRAKSIS_UTSETTELSE -> BrevGrunnlagDto.BehandlingÅrsakType.FEIL_PRAKSIS_UTSETTELSE;
-            case FEIL_PRAKSIS_IVERKS_UTSET -> BrevGrunnlagDto.BehandlingÅrsakType.FEIL_PRAKSIS_IVERKS_UTSET;
-            case FEIL_PRAKSIS_BG_AAP_KOMBI -> BrevGrunnlagDto.BehandlingÅrsakType.FEIL_PRAKSIS_BG_AAP_KOMBI;
-            case KLAGE_TILBAKEBETALING -> BrevGrunnlagDto.BehandlingÅrsakType.KLAGE_TILBAKEBETALING;
-            case RE_OPPLYSNINGER_OM_YTELSER -> BrevGrunnlagDto.BehandlingÅrsakType.RE_OPPLYSNINGER_OM_YTELSER;
-            case RE_REGISTEROPPLYSNING -> BrevGrunnlagDto.BehandlingÅrsakType.RE_REGISTEROPPLYSNING;
-            case KØET_BEHANDLING -> BrevGrunnlagDto.BehandlingÅrsakType.KØET_BEHANDLING;
-            case RE_TILSTØTENDE_YTELSE_INNVILGET -> BrevGrunnlagDto.BehandlingÅrsakType.RE_TILSTØTENDE_YTELSE_INNVILGET;
-            case RE_TILSTØTENDE_YTELSE_OPPHØRT -> BrevGrunnlagDto.BehandlingÅrsakType.RE_TILSTØTENDE_YTELSE_OPPHØRT;
-            case UDEFINERT -> BrevGrunnlagDto.BehandlingÅrsakType.UDEFINERT;
-        };
+    private boolean harUttakTilManuellBehandling(Behandling behandling) {
+        return foreldrepengerUttakTjeneste.hentHvisEksisterer(behandling.getId())
+            .map(ForeldrepengerUttak::getGjeldendePerioder)
+            .orElse(List.of())
+            .stream()
+            .anyMatch(p -> p.getResultatType() == PeriodeResultatType.MANUELL_BEHANDLING);
     }
 
-    private Optional<BrevGrunnlagDto.BehandlingsresultatDto> finnBehandlingsresultat(Behandling behandling) {
+    private List<BrevGrunnlagDto.ForeldrepengerUttak.Stønadskonto> finnStønadskontoer(UttakInput input) {
+        var kontoutregning = utregnetStønadskontoTjeneste.gjeldendeKontoutregning(input.getBehandlingReferanse());
+        var saldoUtregning = stønadskontoSaldoTjeneste.finnSaldoUtregning(input);
+        return saldoUtregning.stønadskontoer().stream().map(k -> {
+            var kontoUvidelser = finnKontoUtvidelser(k, kontoutregning);
+            return new BrevGrunnlagDto.ForeldrepengerUttak.Stønadskonto(mapStønadskontoType(k), saldoUtregning.getMaxDager(k),
+                saldoUtregning.saldo(k), kontoUvidelser.orElse(null));
+        }).toList();
+    }
+
+    private static Optional<BrevGrunnlagDto.ForeldrepengerUttak.KontoUtvidelser> finnKontoUtvidelser(Stønadskontotype stønadskonto,
+                                                                                                     Map<StønadskontoType, Integer> kontoUtregning) {
+        if (!Stønadskontotype.FELLESPERIODE.equals(stønadskonto) && !Stønadskontotype.FORELDREPENGER.equals(stønadskonto)) {
+            return Optional.empty();
+        }
+        int prematurdager = kontoUtregning.getOrDefault(StønadskontoType.TILLEGG_PREMATUR, 0);
+        int flerbarnsdager = kontoUtregning.getOrDefault(StønadskontoType.TILLEGG_FLERBARN, 0);
+
+        if (prematurdager > 0 || flerbarnsdager > 0) {
+            return Optional.of(new BrevGrunnlagDto.ForeldrepengerUttak.KontoUtvidelser(prematurdager, flerbarnsdager));
+        }
+        return Optional.empty();
+    }
+
+    private int finnTapteDagerFpff(UttakInput input, List<BrevGrunnlagDto.ForeldrepengerUttak.Stønadskonto> konti) {
+        if (konti.stream().noneMatch(k -> k.stønadskontotype() == BrevGrunnlagDto.ForeldrepengerUttak.StønadskontoType.FORELDREPENGER_FØR_FØDSEL)) {
+            return 0;
+        }
+        var saldoFpff = konti.stream()
+            .filter(k -> k.stønadskontotype() == BrevGrunnlagDto.ForeldrepengerUttak.StønadskontoType.FORELDREPENGER_FØR_FØDSEL)
+            .map(BrevGrunnlagDto.ForeldrepengerUttak.Stønadskonto::saldo)
+            .findAny()
+            .orElseThrow();
+        return tapteDagerFpffTjeneste.antallTapteDagerFpff(input, saldoFpff);
+    }
+
+    private Optional<Behandling> annenpartBehandling(Behandling søkersBehandling) {
+        if (harVedtak(søkersBehandling)) {
+            return relatertBehandlingTjeneste.hentAnnenPartsGjeldendeBehandlingPåVedtakstidspunkt(søkersBehandling);
+        }
+        return relatertBehandlingTjeneste.hentAnnenPartsGjeldendeVedtattBehandling(søkersBehandling.getSaksnummer());
+    }
+
+    private boolean harVedtak(Behandling søkersBehandling) {
+        return behandlingVedtakRepository.hentForBehandlingHvisEksisterer(søkersBehandling.getId()).isPresent();
+    }
+
+    private List<BrevGrunnlagDto.ForeldrepengerUttak.Periode> finnUttakResultatPerioderSøker(Long behandlingId) {
+        return foreldrepengerUttakTjeneste.hentHvisEksisterer(behandlingId).map(BrevGrunnlagTjeneste::finnUttakResultatPerioder).orElse(List.of());
+    }
+
+    private static List<BrevGrunnlagDto.ForeldrepengerUttak.Periode> finnUttakResultatPerioder(ForeldrepengerUttak uttakResultat) {
+        return uttakResultat.getGjeldendePerioder()
+            .stream()
+            .map(BrevGrunnlagTjeneste::map)
+            .sorted(Comparator.comparing(BrevGrunnlagDto.ForeldrepengerUttak.Periode::fom))
+            .toList();
+    }
+
+    private static BrevGrunnlagDto.ForeldrepengerUttak.Periode map(ForeldrepengerUttakPeriode periode) {
+        var periodeRsesultatType = mapFpPeriodeResultatType(periode.getResultatType());
+        var aktiviteter = periode.getAktiviteter().stream().map(BrevGrunnlagTjeneste::map).toList();
+        return new BrevGrunnlagDto.ForeldrepengerUttak.Periode(periode.getFom(), periode.getTom(), aktiviteter, periodeRsesultatType,
+            periode.getResultatÅrsak().getKode(), periode.getGraderingAvslagÅrsak().getKode(), periode.getResultatÅrsak().getLovHjemmelData(),
+            periode.getGraderingAvslagÅrsak().getLovHjemmelData(), periode.getTidligstMottatttDato(),
+            utledOmUtbetalingErRedusertTilMorsStillingsprosent(periode));
+    }
+
+    private static boolean utledOmUtbetalingErRedusertTilMorsStillingsprosent(ForeldrepengerUttakPeriode periode) {
+        if (periode.harRedusertUtbetaling() && MorsAktivitet.ARBEID.equals(periode.getMorsAktivitet()) && periode.getDokumentasjonVurdering()
+            .isPresent()) {
+            var morsStillingsprosent = periode.getDokumentasjonVurdering()
+                .map(DokumentasjonVurdering::morsStillingsprosent)
+                .map(MorsStillingsprosent::decimalValue)
+                .orElse(BigDecimal.ZERO);
+
+            var morsStillingsProsentErUnder75 =
+                (morsStillingsprosent.compareTo(BigDecimal.ZERO) != 0) && morsStillingsprosent.compareTo(BigDecimal.valueOf(75)) < 0;
+            var minstEnPeriodeHarUtbetalingLikMorsStillingsprosent = periode.getAktiviteter()
+                .stream()
+                .anyMatch(aktivitet -> aktivitet.getUtbetalingsgrad().decimalValue().compareTo(morsStillingsprosent) == 0);
+            boolean morsAktivitetGodkjent = periode.getDokumentasjonVurdering()
+                .map(dokvurdering -> dokvurdering.type().equals(DokumentasjonVurdering.Type.MORS_AKTIVITET_GODKJENT))
+                .orElse(false);
+            var graderingEllerSamtidigUttak = periode.isSamtidigUttak() || periode.isGraderingInnvilget();
+
+            return morsStillingsProsentErUnder75 && minstEnPeriodeHarUtbetalingLikMorsStillingsprosent && morsAktivitetGodkjent
+                && !graderingEllerSamtidigUttak;
+        }
+        return false;
+    }
+
+    private static BrevGrunnlagDto.ForeldrepengerUttak.Aktivitet map(ForeldrepengerUttakPeriodeAktivitet aktivitet) {
+        var stønadskontoType = mapStønadskontoType(aktivitet.getTrekkonto());
+        var arbeidsgiverReferanse = aktivitet.getArbeidsgiver().map(Arbeidsgiver::getIdentifikator).orElse(null);
+        var arbeidsforholdId = aktivitet.getArbeidsforholdRef() == null ? null : aktivitet.getArbeidsforholdRef().getReferanse();
+        return new BrevGrunnlagDto.ForeldrepengerUttak.Aktivitet(stønadskontoType, aktivitet.getTrekkdager().decimalValue(),
+            aktivitet.getArbeidsprosent(), arbeidsgiverReferanse, arbeidsforholdId, aktivitet.getUtbetalingsgrad().decimalValue(),
+            mapSvpUttakArbeidType(aktivitet.getUttakArbeidType()), aktivitet.isSøktGraderingForAktivitetIPeriode());
+    }
+
+    private Optional<SvangerskapspengerUttak> finnSvangerskapspengerUttak(Behandling behandling) {
+        if (behandling.getFagsakYtelseType() != FagsakYtelseType.SVANGERSKAPSPENGER) {
+            return Optional.empty();
+        }
+        var optionalUttakResultat = svpRepository.hentHvisEksisterer(behandling.getId());
+        if (optionalUttakResultat.isEmpty()) {
+            return Optional.empty();
+        }
+        var uttakResultat = optionalUttakResultat.get();
+
+        List<SvangerskapspengerUttak.UttakArbeidsforhold> arbeidsforholdDtos = new ArrayList<>();
+        for (var arbeidsforholdEntitet : uttakResultat.getUttaksResultatArbeidsforhold()) {
+
+            var uttakResultatPeriodeDtos = arbeidsforholdEntitet.getPerioder().stream().map(this::mapSvpUttakResultatPeriodeDto).toList();
+            arbeidsforholdDtos.add(
+                mapSvpUttakResultatArbeidsforholdDto(arbeidsforholdEntitet, sortSvpUttakResultatPeriodeDtoer(uttakResultatPeriodeDtos)));
+        }
+
+        return Optional.of(new SvangerskapspengerUttak(arbeidsforholdDtos));
+    }
+
+    private List<SvangerskapspengerUttak.Periode> sortSvpUttakResultatPeriodeDtoer(List<SvangerskapspengerUttak.Periode> uttakResultatPeriodeDtos) {
+        return uttakResultatPeriodeDtos.stream().sorted(Comparator.comparing(SvangerskapspengerUttak.Periode::fom)).toList();
+    }
+
+    private SvangerskapspengerUttak.Periode mapSvpUttakResultatPeriodeDto(SvangerskapspengerUttakResultatPeriodeEntitet svangerskapspengerUttakResultatPeriodeEntitet) {
+        return new SvangerskapspengerUttak.Periode(svangerskapspengerUttakResultatPeriodeEntitet.getFom(),
+            svangerskapspengerUttakResultatPeriodeEntitet.getTom(), svangerskapspengerUttakResultatPeriodeEntitet.getUtbetalingsgrad().decimalValue(),
+            mapSvpPeriodeResultatType(svangerskapspengerUttakResultatPeriodeEntitet.getPeriodeResultatType()),
+            svangerskapspengerUttakResultatPeriodeEntitet.getPeriodeIkkeOppfyltÅrsak().getKode());
+    }
+
+    private SvangerskapspengerUttak.UttakArbeidsforhold mapSvpUttakResultatArbeidsforholdDto(SvangerskapspengerUttakResultatArbeidsforholdEntitet perArbeidsforhold,
+                                                                                             List<SvangerskapspengerUttak.Periode> periodeDtoer) {
+        var arbeidsforholdIkkeOppfyltÅrsak = mapArbeidsforholdIkkeOppfyltÅrsak(perArbeidsforhold.getArbeidsforholdIkkeOppfyltÅrsak());
+        var arbeidsgiverReferanse = perArbeidsforhold.getArbeidsgiver() != null ? perArbeidsforhold.getArbeidsgiver().getIdentifikator() : null;
+        var uttakArbeidType = mapSvpUttakArbeidType(perArbeidsforhold.getUttakArbeidType());
+        return new SvangerskapspengerUttak.UttakArbeidsforhold(arbeidsforholdIkkeOppfyltÅrsak, arbeidsgiverReferanse, uttakArbeidType, periodeDtoer);
+    }
+
+    private Optional<InnsynBehandling> finnInnsynBehandling(Behandling behandling) {
+        var lagreteVedtak = vedtakTjeneste.hentLagreteVedtakPåFagsak(behandling.getFagsakId());
+        var innsynOpt = innsynRepository.hentForBehandling(behandling.getId());
+        if (innsynOpt.isEmpty() || lagreteVedtak.isEmpty()) {
+            return Optional.empty();
+        }
+        var resultat = mapInnsynResultatType(innsynOpt.get().getInnsynResultatType());
+        var dokumenter = innsynOpt.get()
+            .getInnsynDokumenter()
+            .stream()
+            .map(d -> new InnsynBehandling.InnsynDokument(d.isFikkInnsyn(), d.getJournalpostId().getVerdi(), d.getDokumentId()))
+            .toList();
+        return Optional.of(new InnsynBehandling(resultat, dokumenter));
+    }
+
+    private Optional<KlageBehandling> finnKlageBehandling(Behandling behandling) {
+        var klageResultat = klageVurderingTjeneste.hentKlageResultatHvisEksisterer(behandling);
+        if (klageResultat.isEmpty()) {
+            return Optional.empty();
+        }
+        var påklagdBehandling = klageResultat.get().getPåKlagdBehandlingId().map(behandlingRepository::hentBehandling);
+        var ytelseType = påklagdBehandling.map(Behandling::getFagsakYtelseType).orElse(FagsakYtelseType.UDEFINERT);
+        var nfpVurdering = klageVurderingTjeneste.hentKlageVurderingResultat(behandling, KlageVurdertAv.NFP)
+            .map(BrevGrunnlagTjeneste::mapKlageVurderingResultatDto)
+            .orElseGet(BrevGrunnlagTjeneste::dummyKlageVurderingResultatDtoForNFP);
+        var nkVurdering = klageVurderingTjeneste.hentKlageVurderingResultat(behandling, KlageVurdertAv.NK)
+            .map(BrevGrunnlagTjeneste::mapKlageVurderingResultatDto);
+        var nfpFormkravEntitet = klageVurderingTjeneste.hentKlageFormkrav(behandling, KlageVurdertAv.NFP);
+        var klageMottattDato = klageVurderingTjeneste.getKlageMottattDato(behandling).orElse(null);
+        var nfpFormkrav = nfpFormkravEntitet.map(fk -> mapKlageFormkravResultatDto(fk, påklagdBehandling, fptilbakeRestKlient));
+        var kaFormkrav = klageVurderingTjeneste.hentKlageFormkrav(behandling, KlageVurdertAv.NK)
+            .map(fk -> mapKlageFormkravResultatDto(fk, påklagdBehandling, fptilbakeRestKlient));
+
+        return Optional.of(new KlageBehandling(nfpFormkrav.orElse(null), nfpVurdering, kaFormkrav.orElse(null), nkVurdering.orElse(null),
+            KlageHjemmel.getHjemlerForYtelse(ytelseType).stream().map(EnumMapper::mapKlageHjemmel).toList(),
+            behandling.harÅpentAksjonspunktMedType(AksjonspunktDefinisjon.AUTO_VENT_PÅ_KABAL_KLAGE), klageResultat.get().erBehandletAvKabal(),
+            klageMottattDato));
+    }
+
+
+    private static KlageBehandling.KlageFormkravResultat mapKlageFormkravResultatDto(KlageFormkravEntitet klageFormkrav,
+                                                                                     Optional<Behandling> påklagdBehandling,
+                                                                                     FptilbakeRestKlient fptilbakeRestKlient) {
+        var paKlagdEksternBehandlingUuid = klageFormkrav.hentKlageResultat().getPåKlagdEksternBehandlingUuid();
+        Optional<TilbakeBehandlingDto> tilbakekrevingVedtakDto = påklagdBehandling.isPresent() ? Optional.empty() : paKlagdEksternBehandlingUuid.flatMap(
+            b -> hentPåklagdBehandlingIdForEksternApplikasjon(b, fptilbakeRestKlient));
+        var behandlingId = påklagdBehandling.map(Behandling::getId)
+            .orElseGet(() -> tilbakekrevingVedtakDto.map(TilbakeBehandlingDto::id).orElse(null));
+        var behandlingUuid = påklagdBehandling.map(Behandling::getUuid)
+            .orElseGet(() -> tilbakekrevingVedtakDto.map(TilbakeBehandlingDto::uuid).orElse(null));
+        var behandlingType = påklagdBehandling.map(Behandling::getType)
+            .orElseGet(() -> tilbakekrevingVedtakDto.map(TilbakeBehandlingDto::type).orElse(null));
+        var avvistÅrsaker = klageFormkrav.hentAvvistÅrsaker().stream().map(EnumMapper::mapKlageAvvistÅrsak).toList();
+        return new KlageBehandling.KlageFormkravResultat(behandlingId, behandlingUuid, mapBehandlingType(behandlingType),
+            klageFormkrav.hentBegrunnelse(), klageFormkrav.erKlagerPart(), klageFormkrav.erKonkret(), klageFormkrav.erFristOverholdt(),
+            klageFormkrav.erSignert(), avvistÅrsaker);
+    }
+
+    private static KlageBehandling.KlageVurderingResultat mapKlageVurderingResultatDto(KlageVurderingResultat klageVurderingResultat) {
+        var klageVurdering = mapKlageVurdering(klageVurderingResultat.getKlageVurdering());
+        var klageMedholdÅrsak = mapKlageMedholdÅrsak(klageVurderingResultat.getKlageMedholdÅrsak());
+        var klageVurderingOmgjør = mapKlageVurderingOmgjør(klageVurderingResultat.getKlageVurderingOmgjør());
+        var klageHjemmel = mapKlageHjemmel(klageVurderingResultat.getKlageHjemmel());
+        return new KlageBehandling.KlageVurderingResultat(klageVurderingResultat.getKlageVurdertAv().getKode(), klageVurdering,
+            klageVurderingResultat.getBegrunnelse(), klageMedholdÅrsak, klageVurderingOmgjør, klageHjemmel,
+            klageVurderingResultat.isGodkjentAvMedunderskriver(), klageVurderingResultat.getFritekstTilBrev());
+    }
+
+    private static KlageBehandling.KlageVurderingResultat dummyKlageVurderingResultatDtoForNFP() {
+        return new KlageBehandling.KlageVurderingResultat(KlageVurdertAv.NFP.getKode(), KlageBehandling.KlageVurdering.UDEFINERT, null,
+            KlageBehandling.KlageMedholdÅrsak.UDEFINERT, KlageBehandling.KlageVurderingOmgjør.UDEFINERT, KlageBehandling.KlageHjemmel.UDEFINERT,
+            false, null);
+    }
+
+    private static Optional<TilbakeBehandlingDto> hentPåklagdBehandlingIdForEksternApplikasjon(UUID paKlagdEksternBehandlingUuid,
+                                                                                               FptilbakeRestKlient fptilbakeRestKlient) {
+        return Optional.ofNullable(fptilbakeRestKlient.hentBehandlingInfo(paKlagdEksternBehandlingUuid));
+    }
+
+    private BrevGrunnlagDto.Dekningsgrad finnDekningsgrad(Behandling behandling) {
+        return dekningsgradTjeneste.finnGjeldendeDekningsgradHvisEksisterer(BehandlingReferanse.fra(behandling))
+            .map(this::mapDekningsgrad)
+            .orElse(null);
+    }
+
+    private BrevGrunnlagDto.Dekningsgrad mapDekningsgrad(Dekningsgrad dekningsgrad) {
+        return dekningsgrad.isÅtti() ? BrevGrunnlagDto.Dekningsgrad.ÅTTI : BrevGrunnlagDto.Dekningsgrad.HUNDRE;
+    }
+
+    private Optional<Verge> finnVerge(Behandling behandling) {
+        return vergeRepository.hentAggregat(behandling.getId()).flatMap(vergeAggregat -> vergeAggregat.getVerge().map(verge -> {
+            var vergeType = mapVergeType(verge.getVergeType());
+            var aktørId = verge.getBruker().map(Aktør::getAktørId).map(AktørId::getId).orElse(null);
+            return new Verge(aktørId, verge.getVergeOrganisasjon().map(VergeOrganisasjonEntitet::getNavn).orElse(null),
+                verge.getVergeOrganisasjon().map(VergeOrganisasjonEntitet::getOrganisasjonsnummer).orElse(null), verge.getGyldigFom(),
+                verge.getGyldigTom(), vergeType);
+        }));
+    }
+
+    private Optional<LocalDate> finnNyStartDatoVedUtsattOppstart(Behandling behandling) {
+        return behandlingsresultatRepository.hentHvisEksisterer(behandling.getId())
+            .filter(br -> BehandlingResultatType.FORELDREPENGER_SENERE.equals(br.getBehandlingResultatType()))
+            .flatMap(br -> ytelseFordelingTjeneste.hentAggregatHvisEksisterer(behandling.getId()))
+            .map(yfa -> Optional.ofNullable(yfa.getOppgittFordeling()))
+            .flatMap(UtsettelseCore2021::finnFørsteDatoFraSøknad);
+    }
+
+    private Optional<LocalDate> finnSøknadMottattDato(Behandling behandling) {
+        return uttaksperiodegrenseRepository.hentHvisEksisterer(behandling.getId()).map(Uttaksperiodegrense::getMottattDato);
+    }
+
+    private List<Inntektsmelding> finnInntektsmeldinger(Behandling behandling) {
+        var skjæringstidspunkt = skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandling.getId());
+        var ref = BehandlingReferanse.fra(behandling);
+        return inntektArbeidYtelseTjeneste.finnGrunnlag(behandling.getId()).map(g -> {
+            var dato = skjæringstidspunkt.getUtledetSkjæringstidspunkt();
+            var inntektsmeldinger = inntektsmeldingTjeneste.hentInntektsmeldinger(ref, dato, g,
+                skjæringstidspunkt.getFørsteUttaksdatoSøknad().isPresent());
+            return inntektsmeldinger.stream()
+                .map(inntektsmelding -> new Inntektsmelding(inntektsmelding.getArbeidsgiver().getIdentifikator(),
+                    inntektsmelding.getInnsendingstidspunkt()))
+                .toList();
+        }).orElseGet(List::of);
+    }
+
+    private Optional<LocalDate> finnFørsteSøknadMottattDato(Fagsak fagsak) {
+        var søknader = finnSøknadsdokumenter(fagsak);
+        return søknader.stream().map(MottattDokument::getMottattDato).min(LocalDate::compareTo);
+    }
+
+    private Optional<LocalDate> finnSisteSøknadMottattDato(Fagsak fagsak) {
+        var søknader = finnSøknadsdokumenter(fagsak);
+        return søknader.stream().map(MottattDokument::getMottattDato).max(LocalDate::compareTo);
+    }
+
+    private List<MottattDokument> finnSøknadsdokumenter(Fagsak fagsak) {
+        return mottatteDokumentRepository.hentMottatteDokumentMedFagsakId(fagsak.getId())
+            .stream()
+            .filter(md -> md.getDokumentKategori().equals(DokumentKategori.SØKNAD))
+            .toList();
+    }
+
+    private ArbeidsforholdInntektsmeldingerDto finnInntektsmeldingerStatus(Behandling behandling) {
+        var ref = BehandlingReferanse.fra(behandling);
+        var stp = skjæringstidspunktTjeneste.getSkjæringstidspunkter(ref.behandlingId());
+        var alleYrkesaktiviteter = inntektArbeidYtelseTjeneste.hentGrunnlag(ref.behandlingId())
+            .getAktørArbeidFraRegister(ref.aktørId())
+            .map(AktørArbeid::hentAlleYrkesaktiviteter)
+            .orElse(Collections.emptyList());
+        var arbeidsforholdInntektsmeldingStatuser = arbeidsforholdInntektsmeldingMangelTjeneste.finnStatusForInntektsmeldingArbeidsforhold(ref, stp);
+
+        return ArbeidsforholdInntektsmeldingDtoTjeneste.mapInntektsmeldingStatus(arbeidsforholdInntektsmeldingStatuser, alleYrkesaktiviteter,
+            stp.getUtledetSkjæringstidspunkt());
+    }
+
+    private Optional<BeregningsgrunnlagDto> finnBeregningsgrunnlag(Behandling behandling) {
+        return beregningTjeneste.hent(BehandlingReferanse.fra(behandling)).flatMap(bg -> new BeregningsgrunnlagFormidlingV2DtoTjeneste(bg).map());
+    }
+
+    private Optional<TilkjentYtelseDagytelseDto> finnTilkjentYtelseDagytelse(Behandling behandling) {
+        return beregningsresultatRepository.hentUtbetBeregningsresultat(behandling.getId()).map(TilkjentYtelseFormidlingDtoTjeneste::mapDagytelse);
+    }
+
+    private Optional<TilkjentYtelseEngangsstønadDto> finnTilkjentYtelseEngangsstønad(Behandling behandling) {
+        if (behandling.getFagsakYtelseType() != FagsakYtelseType.ENGANGSTØNAD) {
+            return Optional.empty();
+        }
+        return engangsstønadBeregningRepository.hentEngangsstønadBeregning(behandling.getId())
+            .map(b -> new TilkjentYtelseEngangsstønadDto(b.getBeregnetTilkjentYtelse()));
+    }
+
+    private List<BehandlingÅrsakType> finnBehandlingÅrsakTyper(Behandling behandling) {
+        return behandling.getBehandlingÅrsaker().stream().map(EnumMapper::mapBehandlingÅrsakType).toList();
+    }
+
+    private Optional<BrevGrunnlagDto.Behandlingsresultat> finnBehandlingsresultat(Behandling behandling) {
         return behandlingsresultatRepository.hentHvisEksisterer(behandling.getId()).map(behandlingsresultat -> {
             var medlemskapOpphørsårsak = finnMedlemskapOpphørsÅrsak(behandling).orElse(null);
             var medlemskapFom = medlemTjeneste.hentMedlemFomDato(behandling.getId()).orElse(null);
             var behandlingResultatType = mapBehandlingResultatType(behandlingsresultat.getBehandlingResultatType());
-            var avslagsårsak = mapAvslagsårsak(behandlingsresultat.getAvslagsårsak());
+            var avslagsårsak = behandlingsresultat.getAvslagsårsak().getKode();
             var fritekst = finnAvslagsårsakFritekst(behandling).orElse(null);
             var stp = finnSkjæringstidspunktForBehandling(behandling, behandlingsresultat).orElse(null);
             var endretDekningsgrad = dekningsgradTjeneste.behandlingHarEndretDekningsgrad(BehandlingReferanse.fra(behandling));
             var opphørsdato = finnOpphørsdato(behandling).orElse(null);
             var konsekvenserForYtelsen = finnKonsekvenserForYtelsen(behandlingsresultat);
             var vilkårTyper = finnVilkårTyper(behandlingsresultat);
-            return new BrevGrunnlagDto.BehandlingsresultatDto(medlemskapOpphørsårsak, medlemskapFom, behandlingResultatType, avslagsårsak, fritekst,
-                stp, endretDekningsgrad, opphørsdato, konsekvenserForYtelsen, vilkårTyper);
+            return new BrevGrunnlagDto.Behandlingsresultat(medlemskapOpphørsårsak, medlemskapFom, behandlingResultatType, avslagsårsak, fritekst, stp,
+                endretDekningsgrad, opphørsdato, konsekvenserForYtelsen, vilkårTyper);
         });
     }
 
-    private static List<BrevGrunnlagDto.BehandlingsresultatDto.VilkårType> finnVilkårTyper(Behandlingsresultat behandlingsresultat) {
-        return behandlingsresultat.getVilkårResultat().getVilkårTyper().stream().map(BrevGrunnlagTjeneste::mapVilkårType).toList();
+    private static List<BrevGrunnlagDto.Behandlingsresultat.VilkårType> finnVilkårTyper(Behandlingsresultat behandlingsresultat) {
+        return behandlingsresultat.getVilkårResultat().getVilkårTyper().stream().map(EnumMapper::mapVilkårType).toList();
     }
 
-    private static BrevGrunnlagDto.BehandlingsresultatDto.VilkårType mapVilkårType(VilkårType vilkårType) {
-        return switch (vilkårType) {
-            case FØDSELSVILKÅRET_MOR -> BrevGrunnlagDto.BehandlingsresultatDto.VilkårType.FØDSELSVILKÅRET_MOR;
-            case FØDSELSVILKÅRET_FAR_MEDMOR -> BrevGrunnlagDto.BehandlingsresultatDto.VilkårType.FØDSELSVILKÅRET_FAR_MEDMOR;
-            case ADOPSJONSVILKARET_FORELDREPENGER -> BrevGrunnlagDto.BehandlingsresultatDto.VilkårType.ADOPSJONSVILKARET_FORELDREPENGER;
-            case MEDLEMSKAPSVILKÅRET -> BrevGrunnlagDto.BehandlingsresultatDto.VilkårType.MEDLEMSKAPSVILKÅRET;
-            case MEDLEMSKAPSVILKÅRET_FORUTGÅENDE -> BrevGrunnlagDto.BehandlingsresultatDto.VilkårType.MEDLEMSKAPSVILKÅRET_FORUTGÅENDE;
-            case MEDLEMSKAPSVILKÅRET_LØPENDE -> BrevGrunnlagDto.BehandlingsresultatDto.VilkårType.MEDLEMSKAPSVILKÅRET_LØPENDE;
-            case SØKNADSFRISTVILKÅRET -> BrevGrunnlagDto.BehandlingsresultatDto.VilkårType.SØKNADSFRISTVILKÅRET;
-            case ADOPSJONSVILKÅRET_ENGANGSSTØNAD -> BrevGrunnlagDto.BehandlingsresultatDto.VilkårType.ADOPSJONSVILKÅRET_ENGANGSSTØNAD;
-            case OMSORGSVILKÅRET -> BrevGrunnlagDto.BehandlingsresultatDto.VilkårType.OMSORGSVILKÅRET;
-            case FORELDREANSVARSVILKÅRET_2_LEDD -> BrevGrunnlagDto.BehandlingsresultatDto.VilkårType.FORELDREANSVARSVILKÅRET_2_LEDD;
-            case FORELDREANSVARSVILKÅRET_4_LEDD -> BrevGrunnlagDto.BehandlingsresultatDto.VilkårType.FORELDREANSVARSVILKÅRET_4_LEDD;
-            case SØKERSOPPLYSNINGSPLIKT -> BrevGrunnlagDto.BehandlingsresultatDto.VilkårType.SØKERSOPPLYSNINGSPLIKT;
-            case OPPTJENINGSPERIODEVILKÅR -> BrevGrunnlagDto.BehandlingsresultatDto.VilkårType.OPPTJENINGSPERIODEVILKÅR;
-            case OPPTJENINGSVILKÅRET -> BrevGrunnlagDto.BehandlingsresultatDto.VilkårType.OPPTJENINGSVILKÅRET;
-            case BEREGNINGSGRUNNLAGVILKÅR -> BrevGrunnlagDto.BehandlingsresultatDto.VilkårType.BEREGNINGSGRUNNLAGVILKÅR;
-            case SVANGERSKAPSPENGERVILKÅR -> BrevGrunnlagDto.BehandlingsresultatDto.VilkårType.SVANGERSKAPSPENGERVILKÅR;
-            case UDEFINERT -> BrevGrunnlagDto.BehandlingsresultatDto.VilkårType.UDEFINERT;
-        };
-    }
-
-    private List<BrevGrunnlagDto.BehandlingsresultatDto.KonsekvensForYtelsen> finnKonsekvenserForYtelsen(Behandlingsresultat br) {
+    private List<BrevGrunnlagDto.Behandlingsresultat.KonsekvensForYtelsen> finnKonsekvenserForYtelsen(Behandlingsresultat br) {
         return br.getKonsekvenserForYtelsen().stream().map(BrevGrunnlagTjeneste::mapKonsekvensForYtelsen).toList();
     }
 
-    private static BrevGrunnlagDto.BehandlingsresultatDto.KonsekvensForYtelsen mapKonsekvensForYtelsen(KonsekvensForYtelsen konsekvensForYtelsen) {
+    private static BrevGrunnlagDto.Behandlingsresultat.KonsekvensForYtelsen mapKonsekvensForYtelsen(KonsekvensForYtelsen konsekvensForYtelsen) {
         return switch (konsekvensForYtelsen) {
-            case FORELDREPENGER_OPPHØRER -> BrevGrunnlagDto.BehandlingsresultatDto.KonsekvensForYtelsen.FORELDREPENGER_OPPHØRER;
-            case ENDRING_I_BEREGNING -> BrevGrunnlagDto.BehandlingsresultatDto.KonsekvensForYtelsen.ENDRING_I_BEREGNING;
-            case ENDRING_I_UTTAK -> BrevGrunnlagDto.BehandlingsresultatDto.KonsekvensForYtelsen.ENDRING_I_UTTAK;
-            case ENDRING_I_FORDELING_AV_YTELSEN -> BrevGrunnlagDto.BehandlingsresultatDto.KonsekvensForYtelsen.ENDRING_I_FORDELING_AV_YTELSEN;
-            case INGEN_ENDRING -> BrevGrunnlagDto.BehandlingsresultatDto.KonsekvensForYtelsen.INGEN_ENDRING;
-            case UDEFINERT -> BrevGrunnlagDto.BehandlingsresultatDto.KonsekvensForYtelsen.UDEFINERT;
+            case FORELDREPENGER_OPPHØRER -> BrevGrunnlagDto.Behandlingsresultat.KonsekvensForYtelsen.FORELDREPENGER_OPPHØRER;
+            case ENDRING_I_BEREGNING -> BrevGrunnlagDto.Behandlingsresultat.KonsekvensForYtelsen.ENDRING_I_BEREGNING;
+            case ENDRING_I_UTTAK -> BrevGrunnlagDto.Behandlingsresultat.KonsekvensForYtelsen.ENDRING_I_UTTAK;
+            case ENDRING_I_FORDELING_AV_YTELSEN -> BrevGrunnlagDto.Behandlingsresultat.KonsekvensForYtelsen.ENDRING_I_FORDELING_AV_YTELSEN;
+            case INGEN_ENDRING -> BrevGrunnlagDto.Behandlingsresultat.KonsekvensForYtelsen.INGEN_ENDRING;
+            case UDEFINERT -> BrevGrunnlagDto.Behandlingsresultat.KonsekvensForYtelsen.UDEFINERT;
         };
     }
 
@@ -232,21 +661,20 @@ class BrevGrunnlagTjeneste {
         return uttakTjeneste.hentHvisEksisterer(behandling.getId()).flatMap(Uttak::opphørsdato);
     }
 
-    private Optional<BrevGrunnlagDto.BehandlingsresultatDto.SkjæringstidspunktDto> finnSkjæringstidspunktForBehandling(Behandling behandling,
-                                                                                                                       Behandlingsresultat behandlingsresultat) {
+    private Optional<BrevGrunnlagDto.Behandlingsresultat.Skjæringstidspunkt> finnSkjæringstidspunktForBehandling(Behandling behandling,
+                                                                                                                 Behandlingsresultat behandlingsresultat) {
         if (!behandling.erYtelseBehandling() || behandlingsresultat.isBehandlingHenlagt()) {
             return Optional.empty();
         }
         try {
             var stp = skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandling.getId());
-            return Optional.of(
-                new BrevGrunnlagDto.BehandlingsresultatDto.SkjæringstidspunktDto(stp.getUtledetSkjæringstidspunkt(), stp.utenMinsterett()));
+            return Optional.of(new BrevGrunnlagDto.Behandlingsresultat.Skjæringstidspunkt(stp.getUtledetSkjæringstidspunkt(), stp.utenMinsterett()));
         } catch (Exception e) {
             return Optional.empty();
         }
     }
 
-    private Optional<BrevGrunnlagDto.BehandlingsresultatDto.Fritekst> finnAvslagsårsakFritekst(Behandling behandling) {
+    private Optional<BrevGrunnlagDto.Behandlingsresultat.Fritekst> finnAvslagsårsakFritekst(Behandling behandling) {
         return behandlingDokumentRepository.hentHvisEksisterer(behandling.getId())
             .filter(BehandlingDokumentEntitet::harFritekst)
             .map(behandlingDokument -> {
@@ -254,123 +682,23 @@ class BrevGrunnlagTjeneste {
                 var fritekst = Optional.ofNullable(behandlingDokument.getOverstyrtBrevFritekstHtml())
                     .orElse(behandlingDokument.getOverstyrtBrevFritekst());
                 var avslagsarsakFritekst = behandlingDokument.getVedtakFritekst();
-                return new BrevGrunnlagDto.BehandlingsresultatDto.Fritekst(overskrift, fritekst, avslagsarsakFritekst);
+                return new BrevGrunnlagDto.Behandlingsresultat.Fritekst(overskrift, fritekst, avslagsarsakFritekst);
             });
     }
 
-    private BrevGrunnlagDto.BehandlingsresultatDto.Avslagsårsak mapAvslagsårsak(Avslagsårsak avslagsårsak) {
-        return switch (avslagsårsak) {
-            case SØKT_FOR_TIDLIG -> BrevGrunnlagDto.BehandlingsresultatDto.Avslagsårsak.SØKT_FOR_TIDLIG;
-            case SØKER_ER_MEDMOR -> BrevGrunnlagDto.BehandlingsresultatDto.Avslagsårsak.SØKER_ER_MEDMOR;
-            case SØKER_ER_FAR -> BrevGrunnlagDto.BehandlingsresultatDto.Avslagsårsak.SØKER_ER_FAR;
-            case BARN_OVER_15_ÅR -> BrevGrunnlagDto.BehandlingsresultatDto.Avslagsårsak.BARN_OVER_15_ÅR;
-            case EKTEFELLES_SAMBOERS_BARN -> BrevGrunnlagDto.BehandlingsresultatDto.Avslagsårsak.EKTEFELLES_SAMBOERS_BARN;
-            case MANN_ADOPTERER_IKKE_ALENE -> BrevGrunnlagDto.BehandlingsresultatDto.Avslagsårsak.MANN_ADOPTERER_IKKE_ALENE;
-            case SØKT_FOR_SENT -> BrevGrunnlagDto.BehandlingsresultatDto.Avslagsårsak.SØKT_FOR_SENT;
-            case SØKER_ER_IKKE_BARNETS_FAR_O -> BrevGrunnlagDto.BehandlingsresultatDto.Avslagsårsak.SØKER_ER_IKKE_BARNETS_FAR_O;
-            case MOR_IKKE_DØD -> BrevGrunnlagDto.BehandlingsresultatDto.Avslagsårsak.MOR_IKKE_DØD;
-            case MOR_IKKE_DØD_VED_FØDSEL_OMSORG -> BrevGrunnlagDto.BehandlingsresultatDto.Avslagsårsak.MOR_IKKE_DØD_VED_FØDSEL_OMSORG;
-            case ENGANGSSTØNAD_ALLEREDE_UTBETALT_TIL_MOR ->
-                BrevGrunnlagDto.BehandlingsresultatDto.Avslagsårsak.ENGANGSSTØNAD_ALLEREDE_UTBETALT_TIL_MOR;
-            case FAR_HAR_IKKE_OMSORG_FOR_BARNET -> BrevGrunnlagDto.BehandlingsresultatDto.Avslagsårsak.FAR_HAR_IKKE_OMSORG_FOR_BARNET;
-            case BARN_IKKE_UNDER_15_ÅR -> BrevGrunnlagDto.BehandlingsresultatDto.Avslagsårsak.BARN_IKKE_UNDER_15_ÅR;
-            case SØKER_HAR_IKKE_FORELDREANSVAR -> BrevGrunnlagDto.BehandlingsresultatDto.Avslagsårsak.SØKER_HAR_IKKE_FORELDREANSVAR;
-            case SØKER_HAR_HATT_VANLIG_SAMVÆR_MED_BARNET ->
-                BrevGrunnlagDto.BehandlingsresultatDto.Avslagsårsak.SØKER_HAR_HATT_VANLIG_SAMVÆR_MED_BARNET;
-            case SØKER_ER_IKKE_BARNETS_FAR_F -> BrevGrunnlagDto.BehandlingsresultatDto.Avslagsårsak.SØKER_ER_IKKE_BARNETS_FAR_F;
-            case OMSORGSOVERTAKELSE_ETTER_56_UKER -> BrevGrunnlagDto.BehandlingsresultatDto.Avslagsårsak.OMSORGSOVERTAKELSE_ETTER_56_UKER;
-            case IKKE_FORELDREANSVAR_ALENE_ETTER_BARNELOVA ->
-                BrevGrunnlagDto.BehandlingsresultatDto.Avslagsårsak.IKKE_FORELDREANSVAR_ALENE_ETTER_BARNELOVA;
-            case MANGLENDE_DOKUMENTASJON -> BrevGrunnlagDto.BehandlingsresultatDto.Avslagsårsak.MANGLENDE_DOKUMENTASJON;
-            case SØKER_ER_IKKE_MEDLEM -> BrevGrunnlagDto.BehandlingsresultatDto.Avslagsårsak.SØKER_ER_IKKE_MEDLEM;
-            case SØKER_ER_UTVANDRET -> BrevGrunnlagDto.BehandlingsresultatDto.Avslagsårsak.SØKER_ER_UTVANDRET;
-            case SØKER_HAR_IKKE_LOVLIG_OPPHOLD -> BrevGrunnlagDto.BehandlingsresultatDto.Avslagsårsak.SØKER_HAR_IKKE_LOVLIG_OPPHOLD;
-            case SØKER_HAR_IKKE_OPPHOLDSRETT -> BrevGrunnlagDto.BehandlingsresultatDto.Avslagsårsak.SØKER_HAR_IKKE_OPPHOLDSRETT;
-            case SØKER_ER_IKKE_BOSATT -> BrevGrunnlagDto.BehandlingsresultatDto.Avslagsårsak.SØKER_ER_IKKE_BOSATT;
-            case FØDSELSDATO_IKKE_OPPGITT_ELLER_REGISTRERT ->
-                BrevGrunnlagDto.BehandlingsresultatDto.Avslagsårsak.FØDSELSDATO_IKKE_OPPGITT_ELLER_REGISTRERT;
-            case INGEN_BARN_DOKUMENTERT_PÅ_FAR_MEDMOR -> BrevGrunnlagDto.BehandlingsresultatDto.Avslagsårsak.INGEN_BARN_DOKUMENTERT_PÅ_FAR_MEDMOR;
-            case MOR_FYLLER_IKKE_VILKÅRET_FOR_SYKDOM -> BrevGrunnlagDto.BehandlingsresultatDto.Avslagsårsak.MOR_FYLLER_IKKE_VILKÅRET_FOR_SYKDOM;
-            case BRUKER_ER_IKKE_REGISTRERT_SOM_FAR_MEDMOR_TIL_BARNET ->
-                BrevGrunnlagDto.BehandlingsresultatDto.Avslagsårsak.BRUKER_ER_IKKE_REGISTRERT_SOM_FAR_MEDMOR_TIL_BARNET;
-            case ENGANGSTØNAD_ER_ALLEREDE_UTBETAL_TIL_MOR ->
-                BrevGrunnlagDto.BehandlingsresultatDto.Avslagsårsak.ENGANGSTØNAD_ER_ALLEREDE_UTBETAL_TIL_MOR;
-            case FORELDREPENGER_ER_ALLEREDE_UTBETALT_TIL_MOR ->
-                BrevGrunnlagDto.BehandlingsresultatDto.Avslagsårsak.FORELDREPENGER_ER_ALLEREDE_UTBETALT_TIL_MOR;
-            case ENGANGSSTØNAD_ER_ALLEREDE_UTBETALT_TIL_FAR_MEDMOR ->
-                BrevGrunnlagDto.BehandlingsresultatDto.Avslagsårsak.ENGANGSSTØNAD_ER_ALLEREDE_UTBETALT_TIL_FAR_MEDMOR;
-            case FORELDREPENGER_ER_ALLEREDE_UTBETALT_TIL_FAR_MEDMOR ->
-                BrevGrunnlagDto.BehandlingsresultatDto.Avslagsårsak.FORELDREPENGER_ER_ALLEREDE_UTBETALT_TIL_FAR_MEDMOR;
-            case IKKE_TILSTREKKELIG_OPPTJENING -> BrevGrunnlagDto.BehandlingsresultatDto.Avslagsårsak.IKKE_TILSTREKKELIG_OPPTJENING;
-            case FOR_LAVT_BEREGNINGSGRUNNLAG -> BrevGrunnlagDto.BehandlingsresultatDto.Avslagsårsak.FOR_LAVT_BEREGNINGSGRUNNLAG;
-            case STEBARNSADOPSJON_IKKE_FLERE_DAGER_IGJEN ->
-                BrevGrunnlagDto.BehandlingsresultatDto.Avslagsårsak.STEBARNSADOPSJON_IKKE_FLERE_DAGER_IGJEN;
-            case SØKER_INNFLYTTET_FOR_SENT -> BrevGrunnlagDto.BehandlingsresultatDto.Avslagsårsak.SØKER_INNFLYTTET_FOR_SENT;
-            case SØKER_IKKE_GRAVID_KVINNE -> BrevGrunnlagDto.BehandlingsresultatDto.Avslagsårsak.SØKER_IKKE_GRAVID_KVINNE;
-            case SØKER_ER_IKKE_I_ARBEID -> BrevGrunnlagDto.BehandlingsresultatDto.Avslagsårsak.SØKER_ER_IKKE_I_ARBEID;
-            case SØKER_HAR_MOTTATT_SYKEPENGER -> BrevGrunnlagDto.BehandlingsresultatDto.Avslagsårsak.SØKER_HAR_MOTTATT_SYKEPENGER;
-            case ARBEIDSTAKER_HAR_IKKE_DOKUMENTERT_RISIKOFAKTORER ->
-                BrevGrunnlagDto.BehandlingsresultatDto.Avslagsårsak.ARBEIDSTAKER_HAR_IKKE_DOKUMENTERT_RISIKOFAKTORER;
-            case ARBEIDSTAKER_KAN_OMPLASSERES -> BrevGrunnlagDto.BehandlingsresultatDto.Avslagsårsak.ARBEIDSTAKER_KAN_OMPLASSERES;
-            case SN_FL_HAR_IKKE_DOKUMENTERT_RISIKOFAKTORER ->
-                BrevGrunnlagDto.BehandlingsresultatDto.Avslagsårsak.SN_FL_HAR_IKKE_DOKUMENTERT_RISIKOFAKTORER;
-            case SN_FL_HAR_MULIGHET_TIL_Å_TILRETTELEGGE_SITT_VIRKE ->
-                BrevGrunnlagDto.BehandlingsresultatDto.Avslagsårsak.SN_FL_HAR_MULIGHET_TIL_Å_TILRETTELEGGE_SITT_VIRKE;
-            case INGEN_BEREGNINGSREGLER_TILGJENGELIG_I_LØSNINGEN ->
-                BrevGrunnlagDto.BehandlingsresultatDto.Avslagsårsak.INGEN_BEREGNINGSREGLER_TILGJENGELIG_I_LØSNINGEN;
-            case UDEFINERT -> BrevGrunnlagDto.BehandlingsresultatDto.Avslagsårsak.UDEFINERT;
-        };
-    }
-
-    private static BrevGrunnlagDto.BehandlingsresultatDto.BehandlingResultatType mapBehandlingResultatType(BehandlingResultatType behandlingResultatType) {
-        return switch (behandlingResultatType) {
-            case IKKE_FASTSATT -> BrevGrunnlagDto.BehandlingsresultatDto.BehandlingResultatType.IKKE_FASTSATT;
-            case INNVILGET -> BrevGrunnlagDto.BehandlingsresultatDto.BehandlingResultatType.INNVILGET;
-            case AVSLÅTT -> BrevGrunnlagDto.BehandlingsresultatDto.BehandlingResultatType.AVSLÅTT;
-            case OPPHØR -> BrevGrunnlagDto.BehandlingsresultatDto.BehandlingResultatType.OPPHØR;
-            case HENLAGT_SØKNAD_TRUKKET -> BrevGrunnlagDto.BehandlingsresultatDto.BehandlingResultatType.HENLAGT_SØKNAD_TRUKKET;
-            case HENLAGT_FEILOPPRETTET -> BrevGrunnlagDto.BehandlingsresultatDto.BehandlingResultatType.HENLAGT_FEILOPPRETTET;
-            case HENLAGT_BRUKER_DØD -> BrevGrunnlagDto.BehandlingsresultatDto.BehandlingResultatType.HENLAGT_BRUKER_DØD;
-            case MERGET_OG_HENLAGT -> BrevGrunnlagDto.BehandlingsresultatDto.BehandlingResultatType.MERGET_OG_HENLAGT;
-            case HENLAGT_SØKNAD_MANGLER -> BrevGrunnlagDto.BehandlingsresultatDto.BehandlingResultatType.HENLAGT_SØKNAD_MANGLER;
-            case FORELDREPENGER_ENDRET -> BrevGrunnlagDto.BehandlingsresultatDto.BehandlingResultatType.FORELDREPENGER_ENDRET;
-            case FORELDREPENGER_SENERE -> BrevGrunnlagDto.BehandlingsresultatDto.BehandlingResultatType.FORELDREPENGER_SENERE;
-            case INGEN_ENDRING -> BrevGrunnlagDto.BehandlingsresultatDto.BehandlingResultatType.INGEN_ENDRING;
-            case MANGLER_BEREGNINGSREGLER -> BrevGrunnlagDto.BehandlingsresultatDto.BehandlingResultatType.MANGLER_BEREGNINGSREGLER;
-            case KLAGE_AVVIST -> BrevGrunnlagDto.BehandlingsresultatDto.BehandlingResultatType.KLAGE_AVVIST;
-            case KLAGE_MEDHOLD -> BrevGrunnlagDto.BehandlingsresultatDto.BehandlingResultatType.KLAGE_MEDHOLD;
-            case KLAGE_DELVIS_MEDHOLD -> BrevGrunnlagDto.BehandlingsresultatDto.BehandlingResultatType.KLAGE_DELVIS_MEDHOLD;
-            case KLAGE_OMGJORT_UGUNST -> BrevGrunnlagDto.BehandlingsresultatDto.BehandlingResultatType.KLAGE_OMGJORT_UGUNST;
-            case KLAGE_YTELSESVEDTAK_OPPHEVET -> BrevGrunnlagDto.BehandlingsresultatDto.BehandlingResultatType.KLAGE_YTELSESVEDTAK_OPPHEVET;
-            case KLAGE_YTELSESVEDTAK_STADFESTET -> BrevGrunnlagDto.BehandlingsresultatDto.BehandlingResultatType.KLAGE_YTELSESVEDTAK_STADFESTET;
-            case KLAGE_TILBAKEKREVING_VEDTAK_STADFESTET ->
-                BrevGrunnlagDto.BehandlingsresultatDto.BehandlingResultatType.KLAGE_TILBAKEKREVING_VEDTAK_STADFESTET;
-            case HENLAGT_KLAGE_TRUKKET -> BrevGrunnlagDto.BehandlingsresultatDto.BehandlingResultatType.HENLAGT_KLAGE_TRUKKET;
-            case HJEMSENDE_UTEN_OPPHEVE -> BrevGrunnlagDto.BehandlingsresultatDto.BehandlingResultatType.HJEMSENDE_UTEN_OPPHEVE;
-            case ANKE_AVVIST -> BrevGrunnlagDto.BehandlingsresultatDto.BehandlingResultatType.ANKE_AVVIST;
-            case ANKE_MEDHOLD -> BrevGrunnlagDto.BehandlingsresultatDto.BehandlingResultatType.ANKE_MEDHOLD;
-            case ANKE_DELVIS_MEDHOLD -> BrevGrunnlagDto.BehandlingsresultatDto.BehandlingResultatType.ANKE_DELVIS_MEDHOLD;
-            case ANKE_OMGJORT_UGUNST -> BrevGrunnlagDto.BehandlingsresultatDto.BehandlingResultatType.ANKE_OMGJORT_UGUNST;
-            case ANKE_OPPHEVE_OG_HJEMSENDE -> BrevGrunnlagDto.BehandlingsresultatDto.BehandlingResultatType.ANKE_OPPHEVE_OG_HJEMSENDE;
-            case ANKE_HJEMSENDE_UTEN_OPPHEV -> BrevGrunnlagDto.BehandlingsresultatDto.BehandlingResultatType.ANKE_HJEMSENDE_UTEN_OPPHEV;
-            case ANKE_YTELSESVEDTAK_STADFESTET -> BrevGrunnlagDto.BehandlingsresultatDto.BehandlingResultatType.ANKE_YTELSESVEDTAK_STADFESTET;
-            case HENLAGT_ANKE_TRUKKET -> BrevGrunnlagDto.BehandlingsresultatDto.BehandlingResultatType.HENLAGT_ANKE_TRUKKET;
-            case INNSYN_INNVILGET -> BrevGrunnlagDto.BehandlingsresultatDto.BehandlingResultatType.INNSYN_INNVILGET;
-            case INNSYN_DELVIS_INNVILGET -> BrevGrunnlagDto.BehandlingsresultatDto.BehandlingResultatType.INNSYN_DELVIS_INNVILGET;
-            case INNSYN_AVVIST -> BrevGrunnlagDto.BehandlingsresultatDto.BehandlingResultatType.INNSYN_AVVIST;
-            case HENLAGT_INNSYN_TRUKKET -> BrevGrunnlagDto.BehandlingsresultatDto.BehandlingResultatType.HENLAGT_INNSYN_TRUKKET;
-        };
-    }
-
-    private BrevGrunnlagDto.RettigheterDto utledRettigheter(Behandling behandling) {
+    private Optional<Rettigheter> utledRettigheter(Behandling behandling) {
+        if (behandling.getFagsakYtelseType() != FagsakYtelseType.FORELDREPENGER || ytelseFordelingTjeneste.hentAggregatHvisEksisterer(
+            behandling.getId()).isEmpty()) {
+            return Optional.empty();
+        }
         var opprinnelig = opprinneligRettighetstype(behandling);
         var gjeldende = gjeldendeRettighetstype(behandling);
 
         var eøsUttak = utledEøsUttak(behandling);
-        return new BrevGrunnlagDto.RettigheterDto(opprinnelig, gjeldende, eøsUttak.orElse(null));
+        return Optional.of(new Rettigheter(mapRettighetstype(opprinnelig), mapRettighetstype(gjeldende), eøsUttak.orElse(null)));
     }
 
-    private Optional<BrevGrunnlagDto.RettigheterDto.EøsUttakDto> utledEøsUttak(Behandling behandling) {
+    private Optional<Rettigheter.EøsUttak> utledEøsUttak(Behandling behandling) {
         return eøsUttakRepository.hentGrunnlag(behandling.getId()).flatMap(eøsUttak -> {
             var fom = eøsUttak.getFom();
             if (fom.isEmpty()) {
@@ -390,8 +718,7 @@ class BrevGrunnlagTjeneste {
                 .setScale(0, RoundingMode.UP)
                 .intValue();
             var forbruktFellesperiodeInt = forbruktFellesperiode.decimalValue().setScale(0, RoundingMode.DOWN).intValue();
-            return Optional.of(
-                new BrevGrunnlagDto.RettigheterDto.EøsUttakDto(fom.get(), tom, forbruktFellesperiodeInt, Math.max(fellesperiodeINorge, 0)));
+            return Optional.of(new Rettigheter.EøsUttak(fom.get(), tom, forbruktFellesperiodeInt, Math.max(fellesperiodeINorge, 0)));
         });
     }
 
@@ -423,22 +750,19 @@ class BrevGrunnlagTjeneste {
         return yfa.avklartAnnenForelderHarRettEØS() ? Rettighetstype.BEGGE_RETT_EØS : Rettighetstype.BEGGE_RETT;
     }
 
-    private Optional<BrevGrunnlagDto.MedlemskapOpphørsÅrsak> finnMedlemskapOpphørsÅrsak(Behandling behandling) {
+    private Optional<String> finnMedlemskapOpphørsÅrsak(Behandling behandling) {
         return uttakTjeneste.hentHvisEksisterer(behandling.getId())
             .filter(Uttak::harAvslagPgaMedlemskap)
             .flatMap(u -> medlemTjeneste.hentAvslagsårsak(behandling.getId()))
-            .map(BrevGrunnlagTjeneste::map);
+            .map(Avslagsårsak::getKode);
     }
 
-    private Optional<BrevGrunnlagDto.FamilieHendelseDto> finnFamilieHendelse(Long behandlingId) {
+    private Optional<FamilieHendelse> finnFamilieHendelse(Long behandlingId) {
         return familieHendelseTjeneste.finnAggregat(behandlingId).map(fh -> {
-            var barn = fh.getGjeldendeBarna()
-                .stream()
-                .map(b -> new BrevGrunnlagDto.BarnDto(b.getFødselsdato(), b.getDødsdato().orElse(null)))
-                .toList();
+            var barn = fh.getGjeldendeBarna().stream().map(b -> new Barn(b.getFødselsdato(), b.getDødsdato().orElse(null))).toList();
             var termindato = fh.getGjeldendeTerminbekreftelse().map(TerminbekreftelseEntitet::getTermindato).orElse(null);
             var antallBarn = fh.getGjeldendeAntallBarn();
-            return new BrevGrunnlagDto.FamilieHendelseDto(barn, termindato, antallBarn,
+            return new FamilieHendelse(barn, termindato, antallBarn,
                 fh.getGjeldendeAdopsjon().map(AdopsjonEntitet::getOmsorgsovertakelseDato).orElse(null));
         });
     }
@@ -448,39 +772,5 @@ class BrevGrunnlagTjeneste {
             .map(SøknadEntitet::getSpråkkode)
             .orElseGet(() -> behandling.getFagsak().getNavBruker().getSpråkkode());
         return mapSpråkkode(språkkode);
-    }
-
-    private static BrevGrunnlagDto.MedlemskapOpphørsÅrsak map(Avslagsårsak avslagsårsak) {
-        return switch (avslagsårsak) {
-            case Avslagsårsak.SØKER_ER_IKKE_MEDLEM -> BrevGrunnlagDto.MedlemskapOpphørsÅrsak.SØKER_ER_IKKE_MEDLEM;
-            case Avslagsårsak.SØKER_ER_UTVANDRET -> BrevGrunnlagDto.MedlemskapOpphørsÅrsak.SØKER_ER_UTVANDRET;
-            case Avslagsårsak.SØKER_HAR_IKKE_LOVLIG_OPPHOLD -> BrevGrunnlagDto.MedlemskapOpphørsÅrsak.SØKER_HAR_IKKE_LOVLIG_OPPHOLD;
-            case Avslagsårsak.SØKER_HAR_IKKE_OPPHOLDSRETT -> BrevGrunnlagDto.MedlemskapOpphørsÅrsak.SØKER_HAR_IKKE_OPPHOLDSRETT;
-            case Avslagsårsak.SØKER_ER_IKKE_BOSATT -> BrevGrunnlagDto.MedlemskapOpphørsÅrsak.SØKER_ER_IKKE_BOSATT;
-            case Avslagsårsak.SØKER_INNFLYTTET_FOR_SENT -> BrevGrunnlagDto.MedlemskapOpphørsÅrsak.SØKER_INNFLYTTET_FOR_SENT;
-            default -> throw new IllegalStateException("Ny medlemskap avslag ikke støttet i brev" + avslagsårsak);
-        };
-    }
-
-    private static BrevGrunnlagDto.Språkkode mapSpråkkode(Språkkode språkkode) {
-        return switch (språkkode) {
-            case NB -> BrevGrunnlagDto.Språkkode.BOKMÅL;
-            case NN -> BrevGrunnlagDto.Språkkode.NYNORSK;
-            case EN -> BrevGrunnlagDto.Språkkode.ENGELSK;
-            case UDEFINERT -> throw new IllegalStateException("Unexpected value: " + språkkode);
-        };
-    }
-
-    private static BrevGrunnlagDto.BehandlingType mapBehandlingType(BehandlingType type) {
-        return switch (type) {
-            case FØRSTEGANGSSØKNAD -> BrevGrunnlagDto.BehandlingType.FØRSTEGANGSSØKNAD;
-            case KLAGE -> BrevGrunnlagDto.BehandlingType.KLAGE;
-            case REVURDERING -> BrevGrunnlagDto.BehandlingType.REVURDERING;
-            case ANKE -> BrevGrunnlagDto.BehandlingType.ANKE;
-            case INNSYN -> BrevGrunnlagDto.BehandlingType.INNSYN;
-            case TILBAKEKREVING_ORDINÆR -> BrevGrunnlagDto.BehandlingType.TILBAKEKREVING_ORDINÆR;
-            case TILBAKEKREVING_REVURDERING -> BrevGrunnlagDto.BehandlingType.TILBAKEKREVING_REVURDERING;
-            case UDEFINERT -> throw new IllegalStateException("Unexpected value: " + type);
-        };
     }
 }

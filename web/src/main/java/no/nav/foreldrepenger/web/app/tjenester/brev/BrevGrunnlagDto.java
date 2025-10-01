@@ -1,15 +1,47 @@
 package no.nav.foreldrepenger.web.app.tjenester.brev;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
-import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.Rettighetstype;
+import no.nav.foreldrepenger.kontrakter.fpsak.beregningsgrunnlag.v2.BeregningsgrunnlagDto;
+import no.nav.foreldrepenger.kontrakter.fpsak.inntektsmeldinger.ArbeidsforholdInntektsmeldingerDto;
+import no.nav.foreldrepenger.kontrakter.fpsak.tilkjentytelse.TilkjentYtelseDagytelseDto;
+import no.nav.foreldrepenger.kontrakter.fpsak.tilkjentytelse.TilkjentYtelseEngangsstønadDto;
 
-record BrevGrunnlagDto(UUID uuid, BehandlingType type, LocalDateTime opprettet, LocalDateTime avsluttet, String behandlendeEnhet, Språkkode språkkode,
-                       boolean automatiskBehandlet, FamilieHendelseDto familieHendelse, FamilieHendelseDto originalBehandlingFamilieHendelse,
-                       RettigheterDto rettigheter, BehandlingsresultatDto behandlingsresultat, List<BehandlingÅrsakType> behandlingÅrsakTyper) {
+record BrevGrunnlagDto(String saksnummer, FagsakYtelseType fagsakYtelseType, FagsakStatus fagsakStatus, RelasjonsRolleType relasjonsRolleType,
+                       String aktørId, Dekningsgrad dekningsgrad, BehandlingType type, LocalDateTime opprettet, LocalDateTime avsluttet,
+                       String behandlendeEnhet, Språkkode språkkode, boolean automatiskBehandlet, FamilieHendelse familieHendelse,
+                       FamilieHendelse originalBehandlingFamilieHendelse, Rettigheter rettigheter, Behandlingsresultat behandlingsresultat,
+                       List<BehandlingÅrsakType> behandlingÅrsakTyper, TilkjentYtelseEngangsstønadDto tilkjentYtelseEngangsstønad,
+                       TilkjentYtelseDagytelseDto tilkjentYtelseDagytelse, BeregningsgrunnlagDto beregningsgrunnlag,
+                       ArbeidsforholdInntektsmeldingerDto inntektsmeldingerStatus, LocalDate førsteSøknadMottattDato,
+                       //Ser på mottatt dato på dokument
+                       LocalDate sisteSøknadMottattDato, //Ser på mottatt dato på dokument
+                       LocalDate søknadMottattDato, //Uttaksperiodegrense (når den anses å være mottatt)
+                       List<Inntektsmelding> inntektsmeldinger, LocalDate nyStartDatoVedUtsattOppstart, Verge verge, KlageBehandling klageBehandling,
+                       InnsynBehandling innsynBehandling, SvangerskapspengerUttak svangerskapspengerUttak, ForeldrepengerUttak foreldrepengerUttak) {
+    enum FagsakYtelseType {
+        ENGANGSTØNAD,
+        FORELDREPENGER,
+        SVANGERSKAPSPENGER,
+    }
+
+    enum FagsakStatus {
+        OPPRETTET,
+        UNDER_BEHANDLING,
+        LØPENDE,
+        AVSLUTTET,
+    }
+
+    enum RelasjonsRolleType {
+        FARA,
+        MORA,
+        MEDMOR,
+    }
+
     enum BehandlingType {
         FØRSTEGANGSSØKNAD,
         REVURDERING,
@@ -76,37 +108,206 @@ record BrevGrunnlagDto(UUID uuid, BehandlingType type, LocalDateTime opprettet, 
         UDEFINERT,
     }
 
-    record RettigheterDto(Rettighetstype opprinnelig,  //søknad eller forrige vedtak
-                          Rettighetstype gjeldende, EøsUttakDto eøsUttak) {
-        record EøsUttakDto(LocalDate fom, LocalDate tom, int forbruktFellesperiode, int fellesperiodeINorge) {
+    enum Dekningsgrad {
+        HUNDRE,
+        ÅTTI
+    }
+
+    record ForeldrepengerUttak(List<Stønadskonto> stønadskontoer, int tapteDagerFpff, List<Periode> perioderSøker, List<Periode> perioderAnnenpart) {
+        record Periode(LocalDate fom, LocalDate tom, List<Aktivitet> aktiviteter, PeriodeResultatType periodeResultatType, String periodeResultatÅrsak,
+                       String graderingAvslagÅrsak, String periodeResultatÅrsakLovhjemmel, String graderingsAvslagÅrsakLovhjemmel, LocalDate tidligstMottattDato,
+                       boolean erUtbetalingRedusertTilMorsStillingsprosent) {
+        }
+
+        record Aktivitet(StønadskontoType stønadskontoType, BigDecimal trekkdager, BigDecimal prosentArbeid, String arbeidsgiverReferanse,String arbeidsforholdId,
+                         BigDecimal utbetalingsgrad, UttakArbeidType uttakArbeidType, boolean gradering) {
+        }
+
+        record Stønadskonto(StønadskontoType stønadskontotype, int maxDager, int saldo, KontoUtvidelser kontoUtvidelser) {
+
+        }
+
+        record KontoUtvidelser(int prematurdager, int flerbarnsdager) {
+
+        }
+
+        enum PeriodeResultatType {
+            INNVILGET, AVSLÅTT, MANUELL_BEHANDLING
+        }
+
+        enum StønadskontoType {
+            FELLESPERIODE,
+            MØDREKVOTE,
+            FEDREKVOTE,
+            FORELDREPENGER,
+            FORELDREPENGER_FØR_FØDSEL,
+            UDEFINERT,
         }
     }
 
-    record FamilieHendelseDto(List<BarnDto> barn, LocalDate termindato, int antallBarn, LocalDate omsorgsovertakelse) {
+    enum UttakArbeidType {
+        ORDINÆRT_ARBEID,
+        SELVSTENDIG_NÆRINGSDRIVENDE,
+        FRILANS,
+        ANNET,
     }
 
-    record BarnDto(LocalDate fødselsdato, LocalDate dødsdato) {
+    record SvangerskapspengerUttak(List<UttakArbeidsforhold> uttakArbeidsforhold) {
+
+        record UttakArbeidsforhold(ArbeidsforholdIkkeOppfyltÅrsak arbeidsforholdIkkeOppfyltÅrsak, String arbeidsgiverReferanse,
+                                   UttakArbeidType arbeidType, List<Periode> perioder) {
+
+        }
+
+        record Periode(LocalDate fom, LocalDate tom, BigDecimal utbetalingsgrad, PeriodeResultatType periodeResultatType,
+                       String periodeIkkeOppfyltÅrsak) {
+        }
+
+        enum ArbeidsforholdIkkeOppfyltÅrsak {
+            INGEN,
+            HELE_UTTAKET_ER_ETTER_3_UKER_FØR_TERMINDATO,
+            UTTAK_KUN_PÅ_HELG,
+            ARBEIDSGIVER_KAN_TILRETTELEGGE,
+            ARBEIDSGIVER_KAN_TILRETTELEGGE_FREM_TIL_3_UKER_FØR_TERMIN,
+        }
+
+        enum PeriodeResultatType {
+            INNVILGET,
+            AVSLÅTT,
+            MANUELL_BEHANDLING,
+        }
+    }
+
+    record Inntektsmelding(String arbeidsgiverReferanse, LocalDateTime innsendingstidspunkt) {
+    }
+
+    record Rettigheter(Rettighetstype opprinnelig,  //søknad eller forrige vedtak
+                       Rettighetstype gjeldende, EøsUttak eøsUttak) {
+        record EøsUttak(LocalDate fom, LocalDate tom, int forbruktFellesperiode, int fellesperiodeINorge) {
+        }
+
+        enum Rettighetstype {
+            ALENEOMSORG,
+            BEGGE_RETT,
+            BEGGE_RETT_EØS,
+            BARE_MOR_RETT,
+            BARE_FAR_RETT,
+            BARE_FAR_RETT_MOR_UFØR,
+        }
+    }
+
+    record FamilieHendelse(List<Barn> barn, LocalDate termindato, int antallBarn, LocalDate omsorgsovertakelse) {
+    }
+
+    record Barn(LocalDate fødselsdato, LocalDate dødsdato) {
+    }
+
+    record Verge(String aktørId, String navn, String organisasjonsnummer, LocalDate gyldigFom, LocalDate gyldigTom, VergeType vergeType) {
+
+        enum VergeType {
+            BARN,
+            FBARN,
+            VOKSEN,
+            ADVOKAT,
+            ANNEN_F,
+        }
+    }
+
+    record InnsynBehandling(InnsynResultatType innsynResultatType, List<InnsynDokument> dokumenter) {
+
+        enum InnsynResultatType {
+            INNVILGET,
+            DELVIS_INNVILGET,
+            AVVIST,
+            UDEFINERT,
+        }
+
+        record InnsynDokument(boolean fikkInnsyn, String journalpostId, String dokumentId) {
+        }
+    }
+
+    record KlageBehandling(KlageFormkravResultat klageFormkravResultatNFP, KlageVurderingResultat klageVurderingResultatNFP,
+                           KlageFormkravResultat klageFormkravResultatKA, KlageVurderingResultat klageVurderingResultatNK,
+                           List<KlageHjemmel> aktuelleHjemler, boolean underBehandlingKabal, boolean behandletAvKabal, LocalDate mottattDato) {
+
+        record KlageFormkravResultat(Long påklagdBehandlingId, UUID påklagdBehandlingUuid, BehandlingType påklagdBehandlingType, String begrunnelse,
+                                     boolean erKlagerPart, boolean erKlageKonkret, boolean erKlagefirstOverholdt, boolean erSignert,
+                                     List<KlageAvvistÅrsak> avvistÅrsaker) {
+        }
+
+        record KlageVurderingResultat(String klageVurdertAv, KlageVurdering klageVurdering, String begrunnelse, KlageMedholdÅrsak klageMedholdÅrsak,
+                                      KlageVurderingOmgjør klageVurderingOmgjør, KlageHjemmel klageHjemmel, boolean godkjentAvMedunderskriver,
+                                      String fritekstTilBrev) {
+        }
+
+        enum KlageVurdering {
+            OPPHEVE_YTELSESVEDTAK,
+            STADFESTE_YTELSESVEDTAK,
+            MEDHOLD_I_KLAGE,
+            AVVIS_KLAGE,
+            HJEMSENDE_UTEN_Å_OPPHEVE,
+            UDEFINERT,
+        }
+
+        enum KlageMedholdÅrsak {
+            NYE_OPPLYSNINGER,
+            ULIK_REGELVERKSTOLKNING,
+            ULIK_VURDERING,
+            PROSESSUELL_FEIL,
+            UDEFINERT,
+        }
+
+        enum KlageVurderingOmgjør {
+            GUNST_MEDHOLD_I_KLAGE,
+            DELVIS_MEDHOLD_I_KLAGE,
+            UGUNST_MEDHOLD_I_KLAGE,
+            UDEFINERT,
+        }
+
+        enum KlageAvvistÅrsak {
+            KLAGET_FOR_SENT,
+            KLAGE_UGYLDIG,
+            IKKE_PAKLAGD_VEDTAK,
+            KLAGER_IKKE_PART,
+            IKKE_KONKRET,
+            IKKE_SIGNERT,
+            UDEFINERT,
+        }
+
+        enum KlageHjemmel {
+            MEDLEM,
+            SVANGERSKAP,
+            FORELDRE,
+            OPPTJENING,
+            BEREGNING,
+            DAGER,
+            UTTAK,
+            UTSETTELSE,
+            KVOTER,
+            AKTIVITET,
+            BFHR,
+            FARALENE,
+            GRADERING,
+            ENGANGS,
+            OPPTJENINGSTID,
+            OPPLYSNINGSPLIKT,
+            FREMSETT,
+            TILBAKE,
+            EØS_YTELSE,
+            EØS_OPPTJEN,
+            UDEFINERT,
+        }
 
     }
 
-    enum MedlemskapOpphørsÅrsak {
-        SØKER_ER_IKKE_MEDLEM,
-        SØKER_ER_UTVANDRET,
-        SØKER_HAR_IKKE_LOVLIG_OPPHOLD,
-        SØKER_HAR_IKKE_OPPHOLDSRETT,
-        SØKER_ER_IKKE_BOSATT,
-        SØKER_INNFLYTTET_FOR_SENT,
-    }
-
-    record BehandlingsresultatDto(MedlemskapOpphørsÅrsak medlemskapOpphørsårsak, LocalDate medlemskapFom,
-                                  BehandlingResultatType behandlingResultatType, Avslagsårsak avslagsårsak, Fritekst avslagsarsakFritekst,
-                                  SkjæringstidspunktDto skjæringstidspunkt, boolean endretDekningsgrad, LocalDate opphørsdato,
-                                  List<KonsekvensForYtelsen> konsekvenserForYtelsen, List<VilkårType> vilkårTyper) {
+    record Behandlingsresultat(String medlemskapOpphørsårsak, LocalDate medlemskapFom, BehandlingResultatType behandlingResultatType,
+                               String avslagsårsak, Fritekst avslagsarsakFritekst, Skjæringstidspunkt skjæringstidspunkt, boolean endretDekningsgrad,
+                               LocalDate opphørsdato, List<KonsekvensForYtelsen> konsekvenserForYtelsen, List<VilkårType> vilkårTyper) {
 
         record Fritekst(String overskrift, String fritekst, String avslagsarsakFritekst) {
         }
 
-        record SkjæringstidspunktDto(LocalDate dato, boolean utenMinsterett) {
+        record Skjæringstidspunkt(LocalDate dato, boolean utenMinsterett) {
         }
 
         enum VilkårType {
@@ -173,54 +374,6 @@ record BrevGrunnlagDto(UUID uuid, BehandlingType type, LocalDateTime opprettet, 
             INNSYN_DELVIS_INNVILGET,
             INNSYN_AVVIST,
             HENLAGT_INNSYN_TRUKKET,
-        }
-
-        enum Avslagsårsak {
-            SØKT_FOR_TIDLIG,
-            SØKER_ER_MEDMOR,
-            SØKER_ER_FAR,
-            BARN_OVER_15_ÅR,
-            EKTEFELLES_SAMBOERS_BARN,
-            MANN_ADOPTERER_IKKE_ALENE,
-            SØKT_FOR_SENT,
-            SØKER_ER_IKKE_BARNETS_FAR_O,
-            MOR_IKKE_DØD,
-            MOR_IKKE_DØD_VED_FØDSEL_OMSORG,
-            ENGANGSSTØNAD_ALLEREDE_UTBETALT_TIL_MOR,
-            FAR_HAR_IKKE_OMSORG_FOR_BARNET,
-            BARN_IKKE_UNDER_15_ÅR,
-            SØKER_HAR_IKKE_FORELDREANSVAR,
-            SØKER_HAR_HATT_VANLIG_SAMVÆR_MED_BARNET,
-            SØKER_ER_IKKE_BARNETS_FAR_F,
-            OMSORGSOVERTAKELSE_ETTER_56_UKER,
-            IKKE_FORELDREANSVAR_ALENE_ETTER_BARNELOVA,
-            MANGLENDE_DOKUMENTASJON,
-            SØKER_ER_IKKE_MEDLEM,
-            SØKER_ER_UTVANDRET,
-            SØKER_HAR_IKKE_LOVLIG_OPPHOLD,
-            SØKER_HAR_IKKE_OPPHOLDSRETT,
-            SØKER_ER_IKKE_BOSATT,
-            FØDSELSDATO_IKKE_OPPGITT_ELLER_REGISTRERT,
-            INGEN_BARN_DOKUMENTERT_PÅ_FAR_MEDMOR,
-            MOR_FYLLER_IKKE_VILKÅRET_FOR_SYKDOM,
-            BRUKER_ER_IKKE_REGISTRERT_SOM_FAR_MEDMOR_TIL_BARNET,
-            ENGANGSTØNAD_ER_ALLEREDE_UTBETAL_TIL_MOR,
-            FORELDREPENGER_ER_ALLEREDE_UTBETALT_TIL_MOR,
-            ENGANGSSTØNAD_ER_ALLEREDE_UTBETALT_TIL_FAR_MEDMOR,
-            FORELDREPENGER_ER_ALLEREDE_UTBETALT_TIL_FAR_MEDMOR,
-            IKKE_TILSTREKKELIG_OPPTJENING,
-            FOR_LAVT_BEREGNINGSGRUNNLAG,
-            STEBARNSADOPSJON_IKKE_FLERE_DAGER_IGJEN,
-            SØKER_INNFLYTTET_FOR_SENT,
-            SØKER_IKKE_GRAVID_KVINNE,
-            SØKER_ER_IKKE_I_ARBEID,
-            SØKER_HAR_MOTTATT_SYKEPENGER,
-            ARBEIDSTAKER_HAR_IKKE_DOKUMENTERT_RISIKOFAKTORER,
-            ARBEIDSTAKER_KAN_OMPLASSERES,
-            SN_FL_HAR_IKKE_DOKUMENTERT_RISIKOFAKTORER,
-            SN_FL_HAR_MULIGHET_TIL_Å_TILRETTELEGGE_SITT_VIRKE,
-            INGEN_BEREGNINGSREGLER_TILGJENGELIG_I_LØSNINGEN,
-            UDEFINERT,
         }
     }
 }
