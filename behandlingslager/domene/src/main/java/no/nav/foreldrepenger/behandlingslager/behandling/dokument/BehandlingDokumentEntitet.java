@@ -83,6 +83,10 @@ public class BehandlingDokumentEntitet extends BaseEntitet {
         bestilteDokumenter.add(bestiltDokument);
     }
 
+    public boolean harFritekst() {
+        return getOverstyrtBrevFritekstHtml() != null || getOverstyrtBrevFritekst() != null || getVedtakFritekst() != null;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
