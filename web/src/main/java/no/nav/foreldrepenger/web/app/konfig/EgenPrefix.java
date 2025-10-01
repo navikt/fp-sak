@@ -15,35 +15,12 @@ public class EgenPrefix extends TypeNameResolver {
         this.setUseFqn(true);
     }
 
-    private boolean hasPreviouslyResolvedToOtherClass(String name, Class<?> cls) {
-        Class<?> prevCls = (Class)this.previouslyResolvedTo.get(name);
-        if (cls != null && prevCls != null) {
-            return !prevCls.equals(cls);
-        } else {
-            return false;
-        }
-    }
-
-    private String strippedName(String fqn, Class<?> cls) {
-        String dtoNavn = fqn.replaceAll("^.*\\.", "");
-
-        if (!this.hasPreviouslyResolvedToOtherClass(dtoNavn, cls)) {
-            return dtoNavn;
-        }
-
-        return fqn;
+    private String strippedName(String fqn) {
+        return fqn.replaceAll("^.*\\.", "");
     }
 
     protected String getNameOfClass(Class<?> cls) {
-        String name = this.strippedName(super.getNameOfClass(cls), cls);
-        if (this.hasPreviouslyResolvedToOtherClass(name, cls)) {
-            Class<?> otherClass = (Class)this.previouslyResolvedTo.get(name);
-            if (otherClass != null) {
-                throw new IllegalArgumentException("Type name \"" + name + "\", (for class" + cls.getName() + ") has previously resolved to another class (" + otherClass.getName() + ")");
-            } else {
-                throw new IllegalArgumentException("Type name \"" + name + "\", (for class" + cls.getName() + ") has previously resolved to another class");
-            }
-        }
+        String name = this.strippedName(super.getNameOfClass(cls));
 
         var dtoNavnErTatt = this.previouslyResolvedTo.get(name) != null;
 
@@ -58,9 +35,6 @@ public class EgenPrefix extends TypeNameResolver {
         }
 
         this.previouslyResolvedTo.put(name, cls);
-//        var antallDtoMedDot = this.previouslyResolvedTo.keySet().stream().filter(k -> k.contains(".")).count();
-//        System.out.println(antallDtoMedDot);
         return name;
-
     }
 }
