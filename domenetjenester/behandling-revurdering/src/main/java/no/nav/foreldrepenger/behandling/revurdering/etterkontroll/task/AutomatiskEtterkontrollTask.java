@@ -2,6 +2,7 @@ package no.nav.foreldrepenger.behandling.revurdering.etterkontroll.task;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -14,6 +15,7 @@ import no.nav.foreldrepenger.behandling.revurdering.RevurderingHistorikk;
 import no.nav.foreldrepenger.behandling.revurdering.etterkontroll.tjeneste.EtterkontrollTjeneste;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.aktør.FødtBarnInfo;
+import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.etterkontroll.EtterkontrollRepository;
@@ -23,6 +25,7 @@ import no.nav.foreldrepenger.behandlingslager.task.FagsakProsessTask;
 import no.nav.foreldrepenger.domene.person.PersoninfoAdapter;
 import no.nav.foreldrepenger.familiehendelse.FamilieHendelseTjeneste;
 import no.nav.foreldrepenger.produksjonsstyring.behandlingenhet.BehandlendeEnhetTjeneste;
+import no.nav.fpsak.tidsserie.LocalDateInterval;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 
@@ -76,6 +79,7 @@ public class AutomatiskEtterkontrollTask extends FagsakProsessTask {
         if (familieHendelseGrunnlag != null) {
             var intervaller = familieHendelseTjeneste.forventetFødselsIntervaller(BehandlingReferanse.fra(behandling));
             barnFødtIPeriode.addAll(personinfoAdapter.innhentAlleFødteForBehandlingIntervaller(behandling.getFagsakYtelseType(), behandling.getAktørId(), intervaller));
+            loggDiff(behandling, intervaller, barnFødtIPeriode);
             if (!barnFødtIPeriode.isEmpty()) {
                 revurderingHistorikk.opprettHistorikkinnslagForFødsler(behandling, barnFødtIPeriode);
             }
@@ -91,5 +95,18 @@ public class AutomatiskEtterkontrollTask extends FagsakProsessTask {
 
             automatiskEtterkontrollTjeneste.opprettRevurdering(behandling, årsak, enhet);
         });
+    }
+
+    private void loggDiff(Behandling behandling, List<LocalDateInterval> fødselsIntervall, List<FødtBarnInfo> filtrertFødselFREG) {
+        var funnetRoller = filtrertFødselFREG.stream().map(FødtBarnInfo::forelderRolle).collect(Collectors.toSet());
+        var rolleFiltrertFødselFREG = personinfoAdapter.innhentAlleFødteForBehandlingIntervaller(behandling.getFagsakYtelseType(), behandling.getRelasjonsRolleType(), behandling.getAktørId(), fødselsIntervall);
+        if (rolleFiltrertFødselFREG.size() != filtrertFødselFREG.size()) {
+            LOG.info("Brukerrolle sak {} Etterkontroll avvik1 saksrolle {} registerRolle {} barn/saksrolle {} barn/alle {} ",
+                behandling.getSaksnummer().getVerdi(), behandling.getRelasjonsRolleType(), funnetRoller, rolleFiltrertFødselFREG, filtrertFødselFREG);
+        }
+        if (!funnetRoller.contains(behandling.getRelasjonsRolleType())) {
+            LOG.info("Brukerrolle sak {} Etterkontroll avvik2 saksrolle {} registerRolle {} barn/alle {} ",
+                behandling.getSaksnummer().getVerdi(), behandling.getRelasjonsRolleType(), funnetRoller, filtrertFødselFREG);
+        }
     }
 }
