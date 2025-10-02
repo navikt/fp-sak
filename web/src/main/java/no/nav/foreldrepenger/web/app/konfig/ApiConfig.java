@@ -82,8 +82,7 @@ public class ApiConfig extends Application {
 
             // Her ber vi den om å inkludere pakkenavn i typenavnet. Da risikerer vi ikke kollisjon ved like typenavn. fqn = fully-qualified-name.
             // Ved kollisjon vil den som er sist prosessert overskrive alle tidligere.
-            var typeNameResolver =new PrefixStrippingFQNTypeNameResolver("no.nav.foreldrepenger.web.app.", "no.nav.");
-            typeNameResolver.setUseFqn(true);
+            var typeNameResolver = new EgenPrefix();
 
             ModelConverters.getInstance().addConverter(new ModelResolver(lagObjectMapperUtenJsonSubTypeAnnotasjoner(),  typeNameResolver));
 
