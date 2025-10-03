@@ -69,8 +69,9 @@ public class MapIAYTilKalkulusInput {
     }
 
     public static InntektArbeidYtelseGrunnlagDto mapIAY(InntektArbeidYtelseGrunnlag grunnlag,
-                                                 List<Inntektsmelding> inntektsmeldinger,
-                                                 BehandlingReferanse referanse) {
+                                                        List<Inntektsmelding> inntektsmeldinger,
+                                                        BehandlingReferanse referanse,
+                                                        List<Inntektsmelding> alleInntektsmeldingerForSak) {
         var inntektArbeidYtelseGrunnlagDto = new InntektArbeidYtelseGrunnlagDto();
 
         grunnlag.getAktørInntektFraRegister(referanse.aktørId())
@@ -85,8 +86,11 @@ public class MapIAYTilKalkulusInput {
         grunnlag.getGjeldendeOppgittOpptjening()
             .ifPresent(oo -> inntektArbeidYtelseGrunnlagDto.medOppgittOpptjeningDto(mapTilOppgittOpptjeningDto(oo)));
 
-        inntektArbeidYtelseGrunnlagDto.medInntektsmeldingerDto(mapInntektsmeldingTilDto(inntektsmeldinger));
+        inntektArbeidYtelseGrunnlagDto.medInntektsmeldingerDto(mapInntektsmeldingerTilDto(inntektsmeldinger));
+
         inntektArbeidYtelseGrunnlagDto.medArbeidsforholdInformasjonDto(grunnlag.getArbeidsforholdInformasjon().map(MapIAYTilKalkulusInput::mapTilArbeidsforholdInformasjonDto).orElse(null));
+
+        inntektArbeidYtelseGrunnlagDto.medAlleInntektsmeldingerPåSak(mapInntektsmeldinger(alleInntektsmeldingerForSak));
 
         return inntektArbeidYtelseGrunnlagDto;
     }
@@ -117,8 +121,13 @@ public class MapIAYTilKalkulusInput {
         return new ArbeidsforholdInformasjonDto(overstyringer, referanser);
     }
 
-    private static InntektsmeldingerDto mapInntektsmeldingTilDto(List<Inntektsmelding> inntektsmeldinger) {
-        var mappedeInntektsmeldinger = inntektsmeldinger.stream().map(inntektsmelding -> {
+    private static InntektsmeldingerDto mapInntektsmeldingerTilDto(List<Inntektsmelding> inntektsmeldinger) {
+        var mappedeInntektsmeldinger = mapInntektsmeldinger(inntektsmeldinger);
+        return mappedeInntektsmeldinger.isEmpty() ? null : new InntektsmeldingerDto(mappedeInntektsmeldinger);
+    }
+
+    private static List<InntektsmeldingDto> mapInntektsmeldinger(List<Inntektsmelding> inntektsmeldinger) {
+        return inntektsmeldinger.stream().map(inntektsmelding -> {
             Aktør aktør = mapTilAktør(inntektsmelding.getArbeidsgiver());
             var inntektBeløp = no.nav.folketrygdloven.kalkulus.felles.v1.Beløp.fra((inntektsmelding.getInntektBeløp().getVerdi()));
             var naturalYtelseDtos = inntektsmelding.getNaturalYtelser()
@@ -142,9 +151,8 @@ public class MapIAYTilKalkulusInput {
                 inntektsmelding.getRefusjonBeløpPerMnd().getVerdi()) : null;
 
             return new InntektsmeldingDto(aktør, inntektBeløp, naturalYtelseDtos, refusjonDtos, internArbeidsforholdRefDto, startDato,
-                refusjonOpphører, refusjonBeløp, null);
+                refusjonOpphører, refusjonBeløp, null, inntektsmelding.getInnsendingstidspunkt().toLocalDate());
         }).toList();
-        return mappedeInntektsmeldinger.isEmpty() ? null : new InntektsmeldingerDto(mappedeInntektsmeldinger);
     }
 
     private static YtelserDto mapAktørYtelse(AktørYtelse aktørYtelse) {
