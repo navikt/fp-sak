@@ -35,3 +35,4 @@ dep.txt
 .env
 /lsp/
 .DS_Store
+.tool_versions
