@@ -49,8 +49,7 @@ class BrevRestTjenesteTest {
         when(behandlingRepository.hentBehandling(anyLong())).thenReturn(mock(Behandling.class));
 
         brevRestTjeneste = new BrevRestTjeneste(dokumentForhåndsvisningTjenesteMock, dokumentBestillerTjenesteMock,
-            dokumentBehandlingTjenesteMock, behandlingRepository, arbeidsforholdInntektsmeldingMangelTjeneste, mock(HistorikkinnslagRepository.class),
-            null);
+            dokumentBehandlingTjenesteMock, behandlingRepository, arbeidsforholdInntektsmeldingMangelTjeneste, mock(HistorikkinnslagRepository.class));
     }
 
     @Test

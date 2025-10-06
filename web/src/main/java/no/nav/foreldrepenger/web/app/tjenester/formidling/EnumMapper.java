@@ -1,13 +1,13 @@
-package no.nav.foreldrepenger.web.app.tjenester.brev;
+package no.nav.foreldrepenger.web.app.tjenester.formidling;
 
-import static no.nav.foreldrepenger.web.app.tjenester.brev.BrevGrunnlagDto.Behandlingsresultat;
-import static no.nav.foreldrepenger.web.app.tjenester.brev.BrevGrunnlagDto.BehandlingÅrsakType;
-import static no.nav.foreldrepenger.web.app.tjenester.brev.BrevGrunnlagDto.ForeldrepengerUttak;
-import static no.nav.foreldrepenger.web.app.tjenester.brev.BrevGrunnlagDto.InnsynBehandling;
-import static no.nav.foreldrepenger.web.app.tjenester.brev.BrevGrunnlagDto.KlageBehandling;
-import static no.nav.foreldrepenger.web.app.tjenester.brev.BrevGrunnlagDto.Rettigheter;
-import static no.nav.foreldrepenger.web.app.tjenester.brev.BrevGrunnlagDto.SvangerskapspengerUttak;
-import static no.nav.foreldrepenger.web.app.tjenester.brev.BrevGrunnlagDto.Verge;
+import static no.nav.foreldrepenger.web.app.tjenester.formidling.BrevGrunnlagDto.Behandlingsresultat;
+import static no.nav.foreldrepenger.web.app.tjenester.formidling.BrevGrunnlagDto.BehandlingÅrsakType;
+import static no.nav.foreldrepenger.web.app.tjenester.formidling.BrevGrunnlagDto.ForeldrepengerUttak;
+import static no.nav.foreldrepenger.web.app.tjenester.formidling.BrevGrunnlagDto.InnsynBehandling;
+import static no.nav.foreldrepenger.web.app.tjenester.formidling.BrevGrunnlagDto.KlageBehandling;
+import static no.nav.foreldrepenger.web.app.tjenester.formidling.BrevGrunnlagDto.Rettigheter;
+import static no.nav.foreldrepenger.web.app.tjenester.formidling.BrevGrunnlagDto.SvangerskapspengerUttak;
+import static no.nav.foreldrepenger.web.app.tjenester.formidling.BrevGrunnlagDto.Verge;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
@@ -46,10 +46,10 @@ final class EnumMapper {
         };
     }
 
-    static ForeldrepengerUttak.PeriodeResultatType mapFpPeriodeResultatType(PeriodeResultatType resultatType) {
+    static BrevGrunnlagDto.PeriodeResultatType mapPeriodeResultatType(PeriodeResultatType resultatType) {
         return switch (resultatType) {
-            case INNVILGET -> ForeldrepengerUttak.PeriodeResultatType.INNVILGET;
-            case AVSLÅTT -> ForeldrepengerUttak.PeriodeResultatType.AVSLÅTT;
+            case INNVILGET -> BrevGrunnlagDto.PeriodeResultatType.INNVILGET;
+            case AVSLÅTT -> BrevGrunnlagDto.PeriodeResultatType.AVSLÅTT;
             case MANUELL_BEHANDLING -> throw new IllegalStateException("Unexpected value: " + resultatType);
         };
     }
@@ -62,14 +62,6 @@ final class EnumMapper {
             case FORELDREPENGER -> ForeldrepengerUttak.StønadskontoType.FORELDREPENGER;
             case FORELDREPENGER_FØR_FØDSEL -> ForeldrepengerUttak.StønadskontoType.FORELDREPENGER_FØR_FØDSEL;
             case UDEFINERT -> ForeldrepengerUttak.StønadskontoType.UDEFINERT;
-        };
-    }
-
-    static SvangerskapspengerUttak.PeriodeResultatType mapSvpPeriodeResultatType(PeriodeResultatType periodeResultatType) {
-        return switch (periodeResultatType) {
-            case INNVILGET -> SvangerskapspengerUttak.PeriodeResultatType.INNVILGET;
-            case AVSLÅTT -> SvangerskapspengerUttak.PeriodeResultatType.AVSLÅTT;
-            case MANUELL_BEHANDLING -> SvangerskapspengerUttak.PeriodeResultatType.MANUELL_BEHANDLING;
         };
     }
 
@@ -133,7 +125,7 @@ final class EnumMapper {
         return switch (klageAvvistÅrsak) {
             case KLAGET_FOR_SENT -> KlageBehandling.KlageAvvistÅrsak.KLAGET_FOR_SENT;
             case KLAGE_UGYLDIG -> KlageBehandling.KlageAvvistÅrsak.KLAGE_UGYLDIG;
-            case IKKE_PAKLAGD_VEDTAK -> KlageBehandling.KlageAvvistÅrsak.IKKE_PAKLAGD_VEDTAK;
+            case IKKE_PAKLAGD_VEDTAK -> KlageBehandling.KlageAvvistÅrsak.IKKE_PÅKLAGD_VEDTAK;
             case KLAGER_IKKE_PART -> KlageBehandling.KlageAvvistÅrsak.KLAGER_IKKE_PART;
             case IKKE_KONKRET -> KlageBehandling.KlageAvvistÅrsak.IKKE_KONKRET;
             case IKKE_SIGNERT -> KlageBehandling.KlageAvvistÅrsak.IKKE_SIGNERT;
@@ -176,7 +168,8 @@ final class EnumMapper {
             case FARA -> BrevGrunnlagDto.RelasjonsRolleType.FARA;
             case MORA -> BrevGrunnlagDto.RelasjonsRolleType.MORA;
             case MEDMOR -> BrevGrunnlagDto.RelasjonsRolleType.MEDMOR;
-            case BARN, EKTE, REGISTRERT_PARTNER, ANNEN_PART_FRA_SØKNAD, UDEFINERT ->
+            case UDEFINERT -> null;
+            case BARN, EKTE, REGISTRERT_PARTNER, ANNEN_PART_FRA_SØKNAD ->
                 throw new IllegalStateException("Unexpected value: " + relasjonsRolleType);
         };
     }

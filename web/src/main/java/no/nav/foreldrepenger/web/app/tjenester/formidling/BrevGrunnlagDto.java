@@ -1,4 +1,4 @@
-package no.nav.foreldrepenger.web.app.tjenester.brev;
+package no.nav.foreldrepenger.web.app.tjenester.formidling;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -11,13 +11,13 @@ import no.nav.foreldrepenger.kontrakter.fpsak.inntektsmeldinger.ArbeidsforholdIn
 import no.nav.foreldrepenger.kontrakter.fpsak.tilkjentytelse.TilkjentYtelseDagytelseDto;
 import no.nav.foreldrepenger.kontrakter.fpsak.tilkjentytelse.TilkjentYtelseEngangsstønadDto;
 
-record BrevGrunnlagDto(String saksnummer, FagsakYtelseType fagsakYtelseType, FagsakStatus fagsakStatus, RelasjonsRolleType relasjonsRolleType,
-                       String aktørId, Dekningsgrad dekningsgrad, BehandlingType type, LocalDateTime opprettet, LocalDateTime avsluttet,
-                       String behandlendeEnhet, Språkkode språkkode, boolean automatiskBehandlet, FamilieHendelse familieHendelse,
-                       FamilieHendelse originalBehandlingFamilieHendelse, Rettigheter rettigheter, Behandlingsresultat behandlingsresultat,
-                       List<BehandlingÅrsakType> behandlingÅrsakTyper, TilkjentYtelseEngangsstønadDto tilkjentYtelseEngangsstønad,
-                       TilkjentYtelseDagytelseDto tilkjentYtelseDagytelse, BeregningsgrunnlagDto beregningsgrunnlag,
-                       ArbeidsforholdInntektsmeldingerDto inntektsmeldingerStatus, LocalDate førsteSøknadMottattDato,
+record BrevGrunnlagDto(UUID uuid, String saksnummer, FagsakYtelseType fagsakYtelseType, FagsakStatus fagsakStatus,
+                       RelasjonsRolleType relasjonsRolleType, String aktørId, Dekningsgrad dekningsgrad, BehandlingType behandlingType,
+                       LocalDateTime opprettet, LocalDateTime avsluttet, String behandlendeEnhet, Språkkode språkkode, boolean automatiskBehandlet,
+                       FamilieHendelse familieHendelse, FamilieHendelse originalBehandlingFamilieHendelse, Rettigheter rettigheter,
+                       Behandlingsresultat behandlingsresultat, List<BehandlingÅrsakType> behandlingÅrsakTyper, TilkjentYtelse tilkentYtelse,
+                       BeregningsgrunnlagDto beregningsgrunnlag, ArbeidsforholdInntektsmeldingerDto inntektsmeldingerStatus,
+                       LocalDate førsteSøknadMottattDato,
                        //Ser på mottatt dato på dokument
                        LocalDate sisteSøknadMottattDato, //Ser på mottatt dato på dokument
                        LocalDate søknadMottattDato, //Uttaksperiodegrense (når den anses å være mottatt)
@@ -113,14 +113,19 @@ record BrevGrunnlagDto(String saksnummer, FagsakYtelseType fagsakYtelseType, Fag
         ÅTTI
     }
 
-    record ForeldrepengerUttak(List<Stønadskonto> stønadskontoer, int tapteDagerFpff, List<Periode> perioderSøker, List<Periode> perioderAnnenpart) {
-        record Periode(LocalDate fom, LocalDate tom, List<Aktivitet> aktiviteter, PeriodeResultatType periodeResultatType, String periodeResultatÅrsak,
-                       String graderingAvslagÅrsak, String periodeResultatÅrsakLovhjemmel, String graderingsAvslagÅrsakLovhjemmel, LocalDate tidligstMottattDato,
-                       boolean erUtbetalingRedusertTilMorsStillingsprosent) {
+    record TilkjentYtelse(TilkjentYtelseEngangsstønadDto engangsstønad, TilkjentYtelseEngangsstønadDto originalBehandlingEngangsstønad,
+                          TilkjentYtelseDagytelseDto dagytelse) {
+    }
+
+    record ForeldrepengerUttak(List<Stønadskonto> stønadskontoer, int tapteDagerFpff, List<Periode> perioderSøker, List<Periode> perioderAnnenpart,
+                               boolean ønskerJustertUttakVedFødsel) {
+        record Periode(LocalDate fom, LocalDate tom, List<Aktivitet> aktiviteter, PeriodeResultatType periodeResultatType,
+                       String periodeResultatÅrsak, String graderingAvslagÅrsak, String periodeResultatÅrsakLovhjemmel,
+                       String graderingsAvslagÅrsakLovhjemmel, LocalDate tidligstMottattDato, boolean erUtbetalingRedusertTilMorsStillingsprosent) {
         }
 
-        record Aktivitet(StønadskontoType stønadskontoType, BigDecimal trekkdager, BigDecimal prosentArbeid, String arbeidsgiverReferanse,String arbeidsforholdId,
-                         BigDecimal utbetalingsgrad, UttakArbeidType uttakArbeidType, boolean gradering) {
+        record Aktivitet(StønadskontoType stønadskontoType, BigDecimal trekkdager, BigDecimal prosentArbeid, String arbeidsgiverReferanse,
+                         String arbeidsforholdId, BigDecimal utbetalingsgrad, UttakArbeidType uttakArbeidType, boolean gradering) {
         }
 
         record Stønadskonto(StønadskontoType stønadskontotype, int maxDager, int saldo, KontoUtvidelser kontoUtvidelser) {
@@ -129,10 +134,6 @@ record BrevGrunnlagDto(String saksnummer, FagsakYtelseType fagsakYtelseType, Fag
 
         record KontoUtvidelser(int prematurdager, int flerbarnsdager) {
 
-        }
-
-        enum PeriodeResultatType {
-            INNVILGET, AVSLÅTT, MANUELL_BEHANDLING
         }
 
         enum StønadskontoType {
@@ -152,6 +153,12 @@ record BrevGrunnlagDto(String saksnummer, FagsakYtelseType fagsakYtelseType, Fag
         ANNET,
     }
 
+    enum PeriodeResultatType {
+        INNVILGET,
+        AVSLÅTT,
+        MANUELL_BEHANDLING
+    }
+
     record SvangerskapspengerUttak(List<UttakArbeidsforhold> uttakArbeidsforhold) {
 
         record UttakArbeidsforhold(ArbeidsforholdIkkeOppfyltÅrsak arbeidsforholdIkkeOppfyltÅrsak, String arbeidsgiverReferanse,
@@ -160,7 +167,7 @@ record BrevGrunnlagDto(String saksnummer, FagsakYtelseType fagsakYtelseType, Fag
         }
 
         record Periode(LocalDate fom, LocalDate tom, BigDecimal utbetalingsgrad, PeriodeResultatType periodeResultatType,
-                       String periodeIkkeOppfyltÅrsak) {
+                       String periodeIkkeOppfyltÅrsak, String periodeIkkeOppfyltÅrsakHjemmel) {
         }
 
         enum ArbeidsforholdIkkeOppfyltÅrsak {
@@ -169,12 +176,6 @@ record BrevGrunnlagDto(String saksnummer, FagsakYtelseType fagsakYtelseType, Fag
             UTTAK_KUN_PÅ_HELG,
             ARBEIDSGIVER_KAN_TILRETTELEGGE,
             ARBEIDSGIVER_KAN_TILRETTELEGGE_FREM_TIL_3_UKER_FØR_TERMIN,
-        }
-
-        enum PeriodeResultatType {
-            INNVILGET,
-            AVSLÅTT,
-            MANUELL_BEHANDLING,
         }
     }
 
@@ -267,7 +268,7 @@ record BrevGrunnlagDto(String saksnummer, FagsakYtelseType fagsakYtelseType, Fag
         enum KlageAvvistÅrsak {
             KLAGET_FOR_SENT,
             KLAGE_UGYLDIG,
-            IKKE_PAKLAGD_VEDTAK,
+            IKKE_PÅKLAGD_VEDTAK,
             KLAGER_IKKE_PART,
             IKKE_KONKRET,
             IKKE_SIGNERT,
@@ -301,10 +302,10 @@ record BrevGrunnlagDto(String saksnummer, FagsakYtelseType fagsakYtelseType, Fag
     }
 
     record Behandlingsresultat(String medlemskapOpphørsårsak, LocalDate medlemskapFom, BehandlingResultatType behandlingResultatType,
-                               String avslagsårsak, Fritekst avslagsarsakFritekst, Skjæringstidspunkt skjæringstidspunkt, boolean endretDekningsgrad,
+                               String avslagsårsak, Fritekst fritekst, Skjæringstidspunkt skjæringstidspunkt, boolean endretDekningsgrad,
                                LocalDate opphørsdato, List<KonsekvensForYtelsen> konsekvenserForYtelsen, List<VilkårType> vilkårTyper) {
 
-        record Fritekst(String overskrift, String fritekst, String avslagsarsakFritekst) {
+        record Fritekst(String overskrift, String brødtekst, String avslagsarsakFritekst) {
         }
 
         record Skjæringstidspunkt(LocalDate dato, boolean utenMinsterett) {

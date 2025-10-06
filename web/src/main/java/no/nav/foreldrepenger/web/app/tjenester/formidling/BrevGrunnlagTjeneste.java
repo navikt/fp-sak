@@ -1,38 +1,36 @@
-package no.nav.foreldrepenger.web.app.tjenester.brev;
+package no.nav.foreldrepenger.web.app.tjenester.formidling;
 
-import static no.nav.foreldrepenger.web.app.tjenester.brev.BrevGrunnlagDto.Barn;
-import static no.nav.foreldrepenger.web.app.tjenester.brev.BrevGrunnlagDto.BehandlingÅrsakType;
-import static no.nav.foreldrepenger.web.app.tjenester.brev.BrevGrunnlagDto.FamilieHendelse;
-import static no.nav.foreldrepenger.web.app.tjenester.brev.BrevGrunnlagDto.InnsynBehandling;
-import static no.nav.foreldrepenger.web.app.tjenester.brev.BrevGrunnlagDto.Inntektsmelding;
-import static no.nav.foreldrepenger.web.app.tjenester.brev.BrevGrunnlagDto.KlageBehandling;
-import static no.nav.foreldrepenger.web.app.tjenester.brev.BrevGrunnlagDto.Rettigheter;
-import static no.nav.foreldrepenger.web.app.tjenester.brev.BrevGrunnlagDto.SvangerskapspengerUttak;
-import static no.nav.foreldrepenger.web.app.tjenester.brev.BrevGrunnlagDto.Verge;
-import static no.nav.foreldrepenger.web.app.tjenester.brev.EnumMapper.mapArbeidsforholdIkkeOppfyltÅrsak;
-import static no.nav.foreldrepenger.web.app.tjenester.brev.EnumMapper.mapBehandlingResultatType;
-import static no.nav.foreldrepenger.web.app.tjenester.brev.EnumMapper.mapBehandlingType;
-import static no.nav.foreldrepenger.web.app.tjenester.brev.EnumMapper.mapFagsakStatus;
-import static no.nav.foreldrepenger.web.app.tjenester.brev.EnumMapper.mapFagsakYtelseType;
-import static no.nav.foreldrepenger.web.app.tjenester.brev.EnumMapper.mapFpPeriodeResultatType;
-import static no.nav.foreldrepenger.web.app.tjenester.brev.EnumMapper.mapInnsynResultatType;
-import static no.nav.foreldrepenger.web.app.tjenester.brev.EnumMapper.mapKlageHjemmel;
-import static no.nav.foreldrepenger.web.app.tjenester.brev.EnumMapper.mapKlageMedholdÅrsak;
-import static no.nav.foreldrepenger.web.app.tjenester.brev.EnumMapper.mapKlageVurdering;
-import static no.nav.foreldrepenger.web.app.tjenester.brev.EnumMapper.mapKlageVurderingOmgjør;
-import static no.nav.foreldrepenger.web.app.tjenester.brev.EnumMapper.mapRelasjonsRolleType;
-import static no.nav.foreldrepenger.web.app.tjenester.brev.EnumMapper.mapRettighetstype;
-import static no.nav.foreldrepenger.web.app.tjenester.brev.EnumMapper.mapSpråkkode;
-import static no.nav.foreldrepenger.web.app.tjenester.brev.EnumMapper.mapStønadskontoType;
-import static no.nav.foreldrepenger.web.app.tjenester.brev.EnumMapper.mapSvpPeriodeResultatType;
-import static no.nav.foreldrepenger.web.app.tjenester.brev.EnumMapper.mapSvpUttakArbeidType;
-import static no.nav.foreldrepenger.web.app.tjenester.brev.EnumMapper.mapVergeType;
+import static no.nav.foreldrepenger.web.app.tjenester.formidling.BrevGrunnlagDto.Barn;
+import static no.nav.foreldrepenger.web.app.tjenester.formidling.BrevGrunnlagDto.BehandlingÅrsakType;
+import static no.nav.foreldrepenger.web.app.tjenester.formidling.BrevGrunnlagDto.FamilieHendelse;
+import static no.nav.foreldrepenger.web.app.tjenester.formidling.BrevGrunnlagDto.InnsynBehandling;
+import static no.nav.foreldrepenger.web.app.tjenester.formidling.BrevGrunnlagDto.Inntektsmelding;
+import static no.nav.foreldrepenger.web.app.tjenester.formidling.BrevGrunnlagDto.KlageBehandling;
+import static no.nav.foreldrepenger.web.app.tjenester.formidling.BrevGrunnlagDto.Rettigheter;
+import static no.nav.foreldrepenger.web.app.tjenester.formidling.BrevGrunnlagDto.SvangerskapspengerUttak;
+import static no.nav.foreldrepenger.web.app.tjenester.formidling.BrevGrunnlagDto.Verge;
+import static no.nav.foreldrepenger.web.app.tjenester.formidling.EnumMapper.mapArbeidsforholdIkkeOppfyltÅrsak;
+import static no.nav.foreldrepenger.web.app.tjenester.formidling.EnumMapper.mapBehandlingResultatType;
+import static no.nav.foreldrepenger.web.app.tjenester.formidling.EnumMapper.mapBehandlingType;
+import static no.nav.foreldrepenger.web.app.tjenester.formidling.EnumMapper.mapFagsakStatus;
+import static no.nav.foreldrepenger.web.app.tjenester.formidling.EnumMapper.mapFagsakYtelseType;
+import static no.nav.foreldrepenger.web.app.tjenester.formidling.EnumMapper.mapInnsynResultatType;
+import static no.nav.foreldrepenger.web.app.tjenester.formidling.EnumMapper.mapKlageHjemmel;
+import static no.nav.foreldrepenger.web.app.tjenester.formidling.EnumMapper.mapKlageMedholdÅrsak;
+import static no.nav.foreldrepenger.web.app.tjenester.formidling.EnumMapper.mapKlageVurdering;
+import static no.nav.foreldrepenger.web.app.tjenester.formidling.EnumMapper.mapKlageVurderingOmgjør;
+import static no.nav.foreldrepenger.web.app.tjenester.formidling.EnumMapper.mapPeriodeResultatType;
+import static no.nav.foreldrepenger.web.app.tjenester.formidling.EnumMapper.mapRelasjonsRolleType;
+import static no.nav.foreldrepenger.web.app.tjenester.formidling.EnumMapper.mapRettighetstype;
+import static no.nav.foreldrepenger.web.app.tjenester.formidling.EnumMapper.mapSpråkkode;
+import static no.nav.foreldrepenger.web.app.tjenester.formidling.EnumMapper.mapStønadskontoType;
+import static no.nav.foreldrepenger.web.app.tjenester.formidling.EnumMapper.mapSvpUttakArbeidType;
+import static no.nav.foreldrepenger.web.app.tjenester.formidling.EnumMapper.mapVergeType;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
@@ -45,6 +43,7 @@ import jakarta.inject.Inject;
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.DekningsgradTjeneste;
 import no.nav.foreldrepenger.behandling.RelatertBehandlingTjeneste;
+import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
 import no.nav.foreldrepenger.behandling.klage.KlageVurderingTjeneste;
 import no.nav.foreldrepenger.behandling.revurdering.ytelse.UttakInputTjeneste;
 import no.nav.foreldrepenger.behandlingslager.aktør.Aktør;
@@ -169,32 +168,32 @@ class BrevGrunnlagTjeneste {
     private FptilbakeRestKlient fptilbakeRestKlient;
 
     @Inject
-    public BrevGrunnlagTjeneste(BehandlingRepositoryProvider repositoryProvider,
-                                InnsynRepository innsynRepository,
-                                FamilieHendelseTjeneste familieHendelseTjeneste,
-                                UttakTjeneste uttakTjeneste,
-                                MedlemTjeneste medlemTjeneste,
-                                EøsUttakRepository eøsUttakRepository,
-                                UtregnetStønadskontoTjeneste utregnetStønadskontoTjeneste,
-                                YtelseFordelingTjeneste ytelseFordelingTjeneste,
-                                UføretrygdRepository uføretrygdRepository,
-                                BehandlingDokumentRepository behandlingDokumentRepository,
-                                ForeldrepengerUttakTjeneste foreldrepengerUttakTjeneste,
-                                SkjæringstidspunktTjeneste skjæringstidspunktTjeneste,
-                                DekningsgradTjeneste dekningsgradTjeneste,
-                                EngangsstønadBeregningRepository engangsstønadBeregningRepository,
-                                BeregningTjeneste beregningTjeneste,
-                                InntektArbeidYtelseTjeneste inntektArbeidYtelseTjeneste,
-                                ArbeidsforholdInntektsmeldingMangelTjeneste arbeidsforholdInntektsmeldingMangelTjeneste,
-                                InntektsmeldingTjeneste inntektsmeldingTjeneste,
-                                VergeRepository vergeRepository,
-                                KlageVurderingTjeneste klageVurderingTjeneste,
-                                FptilbakeRestKlient fptilbakeRestKlient,
-                                VedtakTjeneste vedtakTjeneste,
-                                RelatertBehandlingTjeneste relatertBehandlingTjeneste,
-                                TapteDagerFpffTjeneste tapteDagerFpffTjeneste,
-                                UttakInputTjeneste uttakInputTjeneste,
-                                StønadskontoSaldoTjeneste stønadskontoSaldoTjeneste) {
+    BrevGrunnlagTjeneste(BehandlingRepositoryProvider repositoryProvider,
+                         InnsynRepository innsynRepository,
+                         FamilieHendelseTjeneste familieHendelseTjeneste,
+                         UttakTjeneste uttakTjeneste,
+                         MedlemTjeneste medlemTjeneste,
+                         EøsUttakRepository eøsUttakRepository,
+                         UtregnetStønadskontoTjeneste utregnetStønadskontoTjeneste,
+                         YtelseFordelingTjeneste ytelseFordelingTjeneste,
+                         UføretrygdRepository uføretrygdRepository,
+                         BehandlingDokumentRepository behandlingDokumentRepository,
+                         ForeldrepengerUttakTjeneste foreldrepengerUttakTjeneste,
+                         SkjæringstidspunktTjeneste skjæringstidspunktTjeneste,
+                         DekningsgradTjeneste dekningsgradTjeneste,
+                         EngangsstønadBeregningRepository engangsstønadBeregningRepository,
+                         BeregningTjeneste beregningTjeneste,
+                         InntektArbeidYtelseTjeneste inntektArbeidYtelseTjeneste,
+                         ArbeidsforholdInntektsmeldingMangelTjeneste arbeidsforholdInntektsmeldingMangelTjeneste,
+                         InntektsmeldingTjeneste inntektsmeldingTjeneste,
+                         VergeRepository vergeRepository,
+                         KlageVurderingTjeneste klageVurderingTjeneste,
+                         FptilbakeRestKlient fptilbakeRestKlient,
+                         VedtakTjeneste vedtakTjeneste,
+                         RelatertBehandlingTjeneste relatertBehandlingTjeneste,
+                         TapteDagerFpffTjeneste tapteDagerFpffTjeneste,
+                         UttakInputTjeneste uttakInputTjeneste,
+                         StønadskontoSaldoTjeneste stønadskontoSaldoTjeneste) {
         this.søknadRepository = repositoryProvider.getSøknadRepository();
         this.behandlingsresultatRepository = repositoryProvider.getBehandlingsresultatRepository();
         this.innsynRepository = innsynRepository;
@@ -234,7 +233,7 @@ class BrevGrunnlagTjeneste {
         //CDI
     }
 
-    BrevGrunnlagDto toDto(Behandling behandling) {
+    BrevGrunnlagDto lagGrunnlagDto(Behandling behandling) {
         //TODO TFP-6069 gå igjennom undefined kodeverdier
 
         var saksnummer = behandling.getFagsak().getSaksnummer().getVerdi();
@@ -252,28 +251,46 @@ class BrevGrunnlagTjeneste {
         var automatiskBehandlet = behandling.isToTrinnsBehandling() || behandlingType == BrevGrunnlagDto.BehandlingType.KLAGE;
         var familieHendelse = finnFamilieHendelse(behandling.getId()).orElse(null);
         var originalBehandlingFamilieHendelse = behandling.getOriginalBehandlingId().flatMap(this::finnFamilieHendelse).orElse(null);
-        var rettigheter = utledRettigheter(behandling).orElse(null);
         var behandlingsresultat = finnBehandlingsresultat(behandling).orElse(null);
         var behandlingÅrsakTyper = finnBehandlingÅrsakTyper(behandling);
-        var tilkjentYtelseEngangsstønad = finnTilkjentYtelseEngangsstønad(behandling).orElse(null);
-        var tilkjentYtelseDagytelse = finnTilkjentYtelseDagytelse(behandling).orElse(null);
-        var beregningsgrunnlag = finnBeregningsgrunnlag(behandling).orElse(null);
-        var inntektsmeldingerStatus = finnInntektsmeldingerStatus(behandling);
         var førsteSøknadMottattDato = finnFørsteSøknadMottattDato(behandling.getFagsak()).orElse(null);
         var sisteSøknadMottattDato = finnSisteSøknadMottattDato(behandling.getFagsak()).orElse(null);
-        var inntektsmeldinger = finnInntektsmeldinger(behandling);
+        var ref = BehandlingReferanse.fra(behandling);
+        var rettigheter = utledRettigheter(behandling).orElse(null);
+        var beregningsgrunnlag = finnBeregningsgrunnlag(behandling).orElse(null);
         var søknadMottattDato = finnSøknadMottattDato(behandling).orElse(null);
         var nyStartDatoVedUtsattOppstart = finnNyStartDatoVedUtsattOppstart(behandling).orElse(null);
         var verge = finnVerge(behandling).orElse(null);
         var klageBehandling = finnKlageBehandling(behandling).orElse(null);
         var innsynBehandling = finnInnsynBehandling(behandling).orElse(null);
-        var svangerskapspengerUttak = finnSvangerskapspengerUttak(behandling).orElse(null);
-        var foreldrepengerUttak = finnForeldrepengerUttak(behandling).orElse(null);
-        return new BrevGrunnlagDto(saksnummer, ytelseType, fagsakStatus, relasjonsRolleType, aktørId, dekningsgrad, behandlingType, opprettet,
-            avsluttet, behandlendeEnhet, språkkode, automatiskBehandlet, familieHendelse, originalBehandlingFamilieHendelse, rettigheter,
-            behandlingsresultat, behandlingÅrsakTyper, tilkjentYtelseEngangsstønad, tilkjentYtelseDagytelse, beregningsgrunnlag,
-            inntektsmeldingerStatus, førsteSøknadMottattDato, sisteSøknadMottattDato, søknadMottattDato, inntektsmeldinger,
-            nyStartDatoVedUtsattOppstart, verge, klageBehandling, innsynBehandling, svangerskapspengerUttak, foreldrepengerUttak);
+
+        var stp = finnSkjæringstidspunktForBehandling(behandling);
+        var tilkjentYtelse = stp.flatMap(_ -> finnTilkjentYtelse(behandling)).orElse(null);
+        var inntektsmeldingerStatus = stp.flatMap(skjæringstidspunkt -> finnInntektsmeldingerStatus(ref, skjæringstidspunkt)).orElse(null);
+        var inntektsmeldinger = stp.map(s -> finnInntektsmeldinger(behandling, s)).orElse(List.of());
+        var svangerskapspengerUttak = stp.flatMap(_ -> finnSvangerskapspengerUttak(behandling)).orElse(null);
+        var foreldrepengerUttak = stp.flatMap(_ -> finnForeldrepengerUttak(behandling)).orElse(null);
+
+        return new BrevGrunnlagDto(behandling.getUuid(), saksnummer, ytelseType, fagsakStatus, relasjonsRolleType, aktørId, dekningsgrad,
+            behandlingType, opprettet, avsluttet, behandlendeEnhet, språkkode, automatiskBehandlet, familieHendelse,
+            originalBehandlingFamilieHendelse, rettigheter, behandlingsresultat, behandlingÅrsakTyper, tilkjentYtelse,
+            beregningsgrunnlag, inntektsmeldingerStatus, førsteSøknadMottattDato, sisteSøknadMottattDato, søknadMottattDato,
+            inntektsmeldinger, nyStartDatoVedUtsattOppstart, verge, klageBehandling, innsynBehandling, svangerskapspengerUttak, foreldrepengerUttak);
+    }
+
+    private Optional<BrevGrunnlagDto.TilkjentYtelse> finnTilkjentYtelse(Behandling behandling) {
+        var engangsstønad = finnTilkjentYtelseEngangsstønad(behandling).orElse(null);
+        var originalBehandlingEngangsstønad = behandling.getOriginalBehandlingId()
+            .flatMap(b -> {
+                var originalBehandling = behandlingRepository.hentBehandling(b);
+                return finnTilkjentYtelseEngangsstønad(originalBehandling);
+            })
+            .orElse(null);
+        var dagytelse = finnTilkjentYtelseDagytelse(behandling).orElse(null);
+        if (engangsstønad == null && originalBehandlingEngangsstønad == null && dagytelse == null) {
+            return Optional.empty();
+        }
+        return Optional.of(new BrevGrunnlagDto.TilkjentYtelse(engangsstønad, originalBehandlingEngangsstønad, dagytelse));
     }
 
     private Optional<BrevGrunnlagDto.ForeldrepengerUttak> finnForeldrepengerUttak(Behandling behandling) {
@@ -281,17 +298,19 @@ class BrevGrunnlagTjeneste {
             return Optional.empty();
         }
         var uttakInput = uttakInputTjeneste.lagInput(behandling);
-        var stønadskontoer = finnStønadskontoer(uttakInput);
         var perioderSøker = finnUttakResultatPerioderSøker(behandling.getId());
         var annenpartUttaksperioder = annenpartBehandling(behandling).flatMap(ab -> foreldrepengerUttakTjeneste.hentHvisEksisterer(ab.getId()))
             .map(BrevGrunnlagTjeneste::finnUttakResultatPerioder)
             .orElse(List.of());
-        var tapteDagerFpff = finnTapteDagerFpff(uttakInput, stønadskontoer);
-        if (perioderSøker.isEmpty() && annenpartUttaksperioder.isEmpty() && stønadskontoer.isEmpty()) {
+        // Fpformidling trenger også å få tak i uttaksresultatet når bare annen part har uttak
+        if (perioderSøker.isEmpty() && annenpartUttaksperioder.isEmpty()) {
             return Optional.empty();
         }
-        // Fpformidling trenger også å få tak i uttaksresultatet når bare annen part har uttak
-        return Optional.of(new BrevGrunnlagDto.ForeldrepengerUttak(stønadskontoer, tapteDagerFpff, perioderSøker, annenpartUttaksperioder));
+        var stønadskontoer = finnStønadskontoer(uttakInput);
+        var tapteDagerFpff = finnTapteDagerFpff(uttakInput, stønadskontoer);
+        var ønskerJustertUttakVedFødsel = ytelseFordelingTjeneste.hentAggregat(behandling.getId()).getGjeldendeFordeling().ønskerJustertVedFødsel();
+        return Optional.of(new BrevGrunnlagDto.ForeldrepengerUttak(stønadskontoer, tapteDagerFpff, perioderSøker, annenpartUttaksperioder,
+            ønskerJustertUttakVedFødsel));
     }
 
     private boolean harUttakTilManuellBehandling(Behandling behandling) {
@@ -362,7 +381,7 @@ class BrevGrunnlagTjeneste {
     }
 
     private static BrevGrunnlagDto.ForeldrepengerUttak.Periode map(ForeldrepengerUttakPeriode periode) {
-        var periodeRsesultatType = mapFpPeriodeResultatType(periode.getResultatType());
+        var periodeRsesultatType = mapPeriodeResultatType(periode.getResultatType());
         var aktiviteter = periode.getAktiviteter().stream().map(BrevGrunnlagTjeneste::map).toList();
         return new BrevGrunnlagDto.ForeldrepengerUttak.Periode(periode.getFom(), periode.getTom(), aktiviteter, periodeRsesultatType,
             periode.getResultatÅrsak().getKode(), periode.getGraderingAvslagÅrsak().getKode(), periode.getResultatÅrsak().getLovHjemmelData(),
@@ -431,8 +450,9 @@ class BrevGrunnlagTjeneste {
     private SvangerskapspengerUttak.Periode mapSvpUttakResultatPeriodeDto(SvangerskapspengerUttakResultatPeriodeEntitet svangerskapspengerUttakResultatPeriodeEntitet) {
         return new SvangerskapspengerUttak.Periode(svangerskapspengerUttakResultatPeriodeEntitet.getFom(),
             svangerskapspengerUttakResultatPeriodeEntitet.getTom(), svangerskapspengerUttakResultatPeriodeEntitet.getUtbetalingsgrad().decimalValue(),
-            mapSvpPeriodeResultatType(svangerskapspengerUttakResultatPeriodeEntitet.getPeriodeResultatType()),
-            svangerskapspengerUttakResultatPeriodeEntitet.getPeriodeIkkeOppfyltÅrsak().getKode());
+            mapPeriodeResultatType(svangerskapspengerUttakResultatPeriodeEntitet.getPeriodeResultatType()),
+            svangerskapspengerUttakResultatPeriodeEntitet.getPeriodeIkkeOppfyltÅrsak().getKode(),
+            svangerskapspengerUttakResultatPeriodeEntitet.getPeriodeIkkeOppfyltÅrsak().getLovHjemmelData());
     }
 
     private SvangerskapspengerUttak.UttakArbeidsforhold mapSvpUttakResultatArbeidsforholdDto(SvangerskapspengerUttakResultatArbeidsforholdEntitet perArbeidsforhold,
@@ -554,8 +574,7 @@ class BrevGrunnlagTjeneste {
         return uttaksperiodegrenseRepository.hentHvisEksisterer(behandling.getId()).map(Uttaksperiodegrense::getMottattDato);
     }
 
-    private List<Inntektsmelding> finnInntektsmeldinger(Behandling behandling) {
-        var skjæringstidspunkt = skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandling.getId());
+    private List<Inntektsmelding> finnInntektsmeldinger(Behandling behandling, Skjæringstidspunkt skjæringstidspunkt) {
         var ref = BehandlingReferanse.fra(behandling);
         return inntektArbeidYtelseTjeneste.finnGrunnlag(behandling.getId()).map(g -> {
             var dato = skjæringstidspunkt.getUtledetSkjæringstidspunkt();
@@ -585,17 +604,19 @@ class BrevGrunnlagTjeneste {
             .toList();
     }
 
-    private ArbeidsforholdInntektsmeldingerDto finnInntektsmeldingerStatus(Behandling behandling) {
-        var ref = BehandlingReferanse.fra(behandling);
-        var stp = skjæringstidspunktTjeneste.getSkjæringstidspunkter(ref.behandlingId());
-        var alleYrkesaktiviteter = inntektArbeidYtelseTjeneste.hentGrunnlag(ref.behandlingId())
-            .getAktørArbeidFraRegister(ref.aktørId())
+    private Optional<ArbeidsforholdInntektsmeldingerDto> finnInntektsmeldingerStatus(BehandlingReferanse ref, Skjæringstidspunkt stp) {
+        if (ref.fagsakYtelseType() == FagsakYtelseType.ENGANGSTØNAD) {
+            return Optional.empty();
+        }
+        var alleYrkesaktiviteter = inntektArbeidYtelseTjeneste.finnGrunnlag(ref.behandlingId())
+            .flatMap(iay -> iay.getAktørArbeidFraRegister(ref.aktørId()))
             .map(AktørArbeid::hentAlleYrkesaktiviteter)
-            .orElse(Collections.emptyList());
+            .orElse(List.of());
         var arbeidsforholdInntektsmeldingStatuser = arbeidsforholdInntektsmeldingMangelTjeneste.finnStatusForInntektsmeldingArbeidsforhold(ref, stp);
 
-        return ArbeidsforholdInntektsmeldingDtoTjeneste.mapInntektsmeldingStatus(arbeidsforholdInntektsmeldingStatuser, alleYrkesaktiviteter,
-            stp.getUtledetSkjæringstidspunkt());
+        return Optional.of(
+            ArbeidsforholdInntektsmeldingDtoTjeneste.mapInntektsmeldingStatus(arbeidsforholdInntektsmeldingStatuser, alleYrkesaktiviteter,
+                stp.getUtledetSkjæringstidspunkt()));
     }
 
     private Optional<BeregningsgrunnlagDto> finnBeregningsgrunnlag(Behandling behandling) {
@@ -623,9 +644,10 @@ class BrevGrunnlagTjeneste {
             var medlemskapOpphørsårsak = finnMedlemskapOpphørsÅrsak(behandling).orElse(null);
             var medlemskapFom = medlemTjeneste.hentMedlemFomDato(behandling.getId()).orElse(null);
             var behandlingResultatType = mapBehandlingResultatType(behandlingsresultat.getBehandlingResultatType());
-            var avslagsårsak = behandlingsresultat.getAvslagsårsak().getKode();
-            var fritekst = finnAvslagsårsakFritekst(behandling).orElse(null);
-            var stp = finnSkjæringstidspunktForBehandling(behandling, behandlingsresultat).orElse(null);
+            var avslagsårsak = behandlingsresultat.getAvslagsårsak() == null ? null : behandlingsresultat.getAvslagsårsak().getKode();
+            var fritekst = finnFritekst(behandling).orElse(null);
+            var stp = finnSkjæringstidspunktForBehandling(behandling).map(
+                s -> new BrevGrunnlagDto.Behandlingsresultat.Skjæringstidspunkt(s.getUtledetSkjæringstidspunkt(), s.utenMinsterett())).orElse(null);
             var endretDekningsgrad = dekningsgradTjeneste.behandlingHarEndretDekningsgrad(BehandlingReferanse.fra(behandling));
             var opphørsdato = finnOpphørsdato(behandling).orElse(null);
             var konsekvenserForYtelsen = finnKonsekvenserForYtelsen(behandlingsresultat);
@@ -661,28 +683,26 @@ class BrevGrunnlagTjeneste {
         return uttakTjeneste.hentHvisEksisterer(behandling.getId()).flatMap(Uttak::opphørsdato);
     }
 
-    private Optional<BrevGrunnlagDto.Behandlingsresultat.Skjæringstidspunkt> finnSkjæringstidspunktForBehandling(Behandling behandling,
-                                                                                                                 Behandlingsresultat behandlingsresultat) {
-        if (!behandling.erYtelseBehandling() || behandlingsresultat.isBehandlingHenlagt()) {
+    private Optional<Skjæringstidspunkt> finnSkjæringstidspunktForBehandling(Behandling behandling) {
+        if (!behandling.erYtelseBehandling()) {
             return Optional.empty();
         }
         try {
-            var stp = skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandling.getId());
-            return Optional.of(new BrevGrunnlagDto.Behandlingsresultat.Skjæringstidspunkt(stp.getUtledetSkjæringstidspunkt(), stp.utenMinsterett()));
+            return Optional.ofNullable(skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandling.getId()));
         } catch (Exception e) {
             return Optional.empty();
         }
     }
 
-    private Optional<BrevGrunnlagDto.Behandlingsresultat.Fritekst> finnAvslagsårsakFritekst(Behandling behandling) {
+    private Optional<BrevGrunnlagDto.Behandlingsresultat.Fritekst> finnFritekst(Behandling behandling) {
         return behandlingDokumentRepository.hentHvisEksisterer(behandling.getId())
             .filter(BehandlingDokumentEntitet::harFritekst)
             .map(behandlingDokument -> {
                 var overskrift = behandlingDokument.getOverstyrtBrevOverskrift();
-                var fritekst = Optional.ofNullable(behandlingDokument.getOverstyrtBrevFritekstHtml())
+                var brødtekst = Optional.ofNullable(behandlingDokument.getOverstyrtBrevFritekstHtml())
                     .orElse(behandlingDokument.getOverstyrtBrevFritekst());
                 var avslagsarsakFritekst = behandlingDokument.getVedtakFritekst();
-                return new BrevGrunnlagDto.Behandlingsresultat.Fritekst(overskrift, fritekst, avslagsarsakFritekst);
+                return new BrevGrunnlagDto.Behandlingsresultat.Fritekst(overskrift, brødtekst, avslagsarsakFritekst);
             });
     }
 
@@ -713,7 +733,7 @@ class BrevGrunnlagTjeneste {
                 .orElse(Trekkdager.ZERO);
             var maksdagerFellesperiode = utregnetStønadskontoTjeneste.gjeldendeKontoutregning(BehandlingReferanse.fra(behandling))
                 .get(StønadskontoType.FELLESPERIODE);
-            var fellesperiodeINorge = new Trekkdager(maksdagerFellesperiode).subtract(forbruktFellesperiode)
+            var fellesperiodeINorge = new Trekkdager(maksdagerFellesperiode == null ? 0 : maksdagerFellesperiode).subtract(forbruktFellesperiode)
                 .decimalValue()
                 .setScale(0, RoundingMode.UP)
                 .intValue();
@@ -751,6 +771,9 @@ class BrevGrunnlagTjeneste {
     }
 
     private Optional<String> finnMedlemskapOpphørsÅrsak(Behandling behandling) {
+        if (behandling.getFagsakYtelseType() == FagsakYtelseType.ENGANGSTØNAD) {
+            return Optional.empty();
+        }
         return uttakTjeneste.hentHvisEksisterer(behandling.getId())
             .filter(Uttak::harAvslagPgaMedlemskap)
             .flatMap(u -> medlemTjeneste.hentAvslagsårsak(behandling.getId()))

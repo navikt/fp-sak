@@ -36,8 +36,6 @@ import no.nav.vedtak.sikkerhet.abac.beskyttet.ResourceType;
 public class FormidlingRestTjeneste {
 
     public static final String BASE_PATH = "/formidling";
-    public static final String RESSURSER_PART_PATH = "/ressurser";
-    public static final String RESSURSER_PATH = BASE_PATH + RESSURSER_PART_PATH;
     public static final String UTSATT_START_PART_PATH = "/utsattstart";
     public static final String UTSATT_START_PATH = BASE_PATH + UTSATT_START_PART_PATH;
     public static final String MOTTATT_DATO_SØKNADSFRIST_PART_PATH = "/motattDatoSøknad";
@@ -47,16 +45,19 @@ public class FormidlingRestTjeneste {
     private BehandlingFormidlingDtoTjeneste behandlingFormidlingDtoTjeneste;
     private StartdatoUtsattDtoTjeneste startdatoUtsattDtoTjeneste;
     private UttaksperiodegrenseRepository uttaksperiodegrenseRepository;
+    private BrevGrunnlagTjeneste brevGrunnlagTjeneste;
 
     @Inject
     public FormidlingRestTjeneste(BehandlingRepository behandlingRepository,
                                   BehandlingFormidlingDtoTjeneste behandlingFormidlingDtoTjeneste,
                                   StartdatoUtsattDtoTjeneste startdatoUtsattDtoTjeneste,
-                                  UttaksperiodegrenseRepository uttaksperiodegrenseRepository) {
+                                  UttaksperiodegrenseRepository uttaksperiodegrenseRepository,
+                                  BrevGrunnlagTjeneste brevGrunnlagTjeneste) {
         this.behandlingRepository = behandlingRepository;
         this.behandlingFormidlingDtoTjeneste = behandlingFormidlingDtoTjeneste;
         this.startdatoUtsattDtoTjeneste = startdatoUtsattDtoTjeneste;
         this.uttaksperiodegrenseRepository = uttaksperiodegrenseRepository;
+        this.brevGrunnlagTjeneste = brevGrunnlagTjeneste;
     }
 
     public FormidlingRestTjeneste() {
@@ -64,7 +65,20 @@ public class FormidlingRestTjeneste {
     }
 
     @GET
-    @Path(RESSURSER_PART_PATH)
+    @Path("/grunnlag")
+    @Produces(MediaType.APPLICATION_JSON)
+    @Operation(description = "Henter felles brevdata for brevproduksjon.", tags = "formidling")
+    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK, sporingslogg = true)
+    public Response hentBrevGrunnlag(@TilpassetAbacAttributt(supplierClass = BehandlingAbacSuppliers.BehandlingIdAbacDataSupplier.class)
+                                         @NotNull @Parameter(description = "UUID for behandlingen") @QueryParam("behandlingId") @Valid BehandlingIdDto behandlingIdDto) {
+        var dto = behandlingRepository.hentBehandlingHvisFinnes(behandlingIdDto.getBehandlingUuid())
+            .map(behandling -> brevGrunnlagTjeneste.lagGrunnlagDto(behandling))
+            .orElse(null);
+        return Response.ok().entity(dto).build();
+    }
+
+    @GET
+    @Path("/ressurser")
     @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
     @Operation(description = "Hent behandling med tilhørende ressurslenker for bruk i formidling", tags = "formidling")
     @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK, sporingslogg = true)

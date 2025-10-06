@@ -79,7 +79,6 @@ public class BrevRestTjeneste {
     private BehandlingRepository behandlingRepository;
     private ArbeidsforholdInntektsmeldingMangelTjeneste arbeidsforholdInntektsmeldingMangelTjeneste;
     private HistorikkinnslagRepository historikkinnslagRepository;
-    private BrevGrunnlagTjeneste brevGrunnlagTjeneste;
 
     public BrevRestTjeneste() {
         // For Rest-CDI
@@ -91,25 +90,13 @@ public class BrevRestTjeneste {
                             DokumentBehandlingTjeneste dokumentBehandlingTjeneste,
                             BehandlingRepository behandlingRepository,
                             ArbeidsforholdInntektsmeldingMangelTjeneste arbeidsforholdInntektsmeldingMangelTjeneste,
-                            HistorikkinnslagRepository historikkinnslagRepository,
-                            BrevGrunnlagTjeneste brevGrunnlagTjeneste) {
+                            HistorikkinnslagRepository historikkinnslagRepository) {
         this.dokumentForhåndsvisningTjeneste = dokumentForhåndsvisningTjeneste;
         this.dokumentBestillerTjeneste = dokumentBestillerTjeneste;
         this.dokumentBehandlingTjeneste = dokumentBehandlingTjeneste;
         this.behandlingRepository = behandlingRepository;
         this.arbeidsforholdInntektsmeldingMangelTjeneste = arbeidsforholdInntektsmeldingMangelTjeneste;
         this.historikkinnslagRepository = historikkinnslagRepository;
-        this.brevGrunnlagTjeneste = brevGrunnlagTjeneste;
-    }
-
-    @GET
-    @Path("/brev/behandling")
-    @Produces(MediaType.APPLICATION_JSON)
-    @Operation(description = "Henter felles brevdata for brevproduksjon.", tags = "formidling")
-    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK, sporingslogg = true)
-    public Response hentBrevGrunnlag(@TilpassetAbacAttributt(supplierClass = BehandlingAbacSuppliers.UuidAbacDataSupplier.class) @NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
-        var dto = behandlingRepository.hentBehandlingHvisFinnes(uuidDto.getBehandlingUuid()).map(behandling -> brevGrunnlagTjeneste.toDto(behandling)).orElse(null);
-        return Response.ok().entity(dto).build();
     }
 
     @POST
