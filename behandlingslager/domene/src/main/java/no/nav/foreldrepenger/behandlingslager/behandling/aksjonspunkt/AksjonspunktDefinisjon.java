@@ -51,7 +51,7 @@ public enum AksjonspunktDefinisjon implements Kodeverdi {
             AksjonspunktType.MANUELL, "Sjekk manglende fødsel", BehandlingStegType.SØKERS_RELASJON_TIL_BARN, VurderingspunktType.INN,
             VilkårType.FØDSELSVILKÅRET_MOR, SkjermlenkeType.FAKTA_OM_FOEDSEL, ENTRINN, EnumSet.of(ES, FP)),
     VURDER_OMSORGSOVERTAKELSEVILKÅRET(AksjonspunktKodeDefinisjon.VURDER_OMSORGSOVERTAKELSEVILKÅRET,
-            AksjonspunktType.MANUELL, "Sjekk manglende fødsel", BehandlingStegType.SØKERS_RELASJON_TIL_BARN, VurderingspunktType.UT,
+            AksjonspunktType.MANUELL, "Vurder vilkår for adopsjon eller foreldreansvar", BehandlingStegType.SØKERS_RELASJON_TIL_BARN, VurderingspunktType.UT,
             VilkårType.OMSORGSOVERTAKELSEVILKÅR, SkjermlenkeType.FAKTA_OM_OMSORGSOVERTAKELSE, TOTRINN, EnumSet.of(ES, FP)),
     AVKLAR_ADOPSJONSDOKUMENTAJON(AksjonspunktKodeDefinisjon.AVKLAR_ADOPSJONSDOKUMENTAJON_KODE,
             AksjonspunktType.MANUELL, "Avklar adopsjonsdokumentasjon", BehandlingStegType.SØKERS_RELASJON_TIL_BARN, VurderingspunktType.INN,
