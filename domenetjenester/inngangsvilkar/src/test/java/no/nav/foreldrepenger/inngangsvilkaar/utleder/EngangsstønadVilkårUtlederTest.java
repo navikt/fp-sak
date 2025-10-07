@@ -84,7 +84,7 @@ class EngangsstønadVilkårUtlederTest {
         // Arrange
         var scenario = ScenarioFarSøkerEngangsstønad.forAdopsjon();
         scenario.medSøknadHendelse().medAdopsjon(scenario.medSøknadHendelse().getAdopsjonBuilder().medOmsorgsovertakelseDato(LocalDate.now())
-            .medOmsorgovertalseVilkårType(OmsorgsovertakelseVilkårType.OMSORGSVILKÅRET));
+            .medOmsorgovertalseVilkårType(OmsorgsovertakelseVilkårType.ES_OMSORGSVILKÅRET));
         scenario.medSøknad().medFarSøkerType(FarSøkerType.ANDRE_FORELDER_DØD);
         var behandling = scenario.lagMocked();
         var repositoryProvider = scenario.mockBehandlingRepositoryProvider();
@@ -105,7 +105,7 @@ class EngangsstønadVilkårUtlederTest {
         // Arrange
         var scenario = ScenarioFarSøkerEngangsstønad.forFødsel();
         scenario.medSøknadHendelse().medAdopsjon(scenario.medSøknadHendelse().getAdopsjonBuilder()
-            .medOmsorgovertalseVilkårType(OmsorgsovertakelseVilkårType.OMSORGSVILKÅRET).medOmsorgsovertakelseDato(LocalDate.now()));
+            .medOmsorgovertalseVilkårType(OmsorgsovertakelseVilkårType.ES_OMSORGSVILKÅRET).medOmsorgsovertakelseDato(LocalDate.now()));
         scenario.medSøknad().medFarSøkerType(FarSøkerType.OVERTATT_OMSORG_F);
         var behandling = scenario.lagMocked();
         var repositoryProvider = scenario.mockBehandlingRepositoryProvider();

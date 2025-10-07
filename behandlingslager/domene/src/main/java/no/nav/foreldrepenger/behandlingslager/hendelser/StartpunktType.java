@@ -74,7 +74,7 @@ public enum StartpunktType implements Kodeverdi {
         VILKÅR_HÅNDTERT_INNEN_STARTPUNKT.get(StartpunktType.INNGANGSVILKÅR_MEDLEMSKAP)
             .addAll(Set.of(VilkårType.FØDSELSVILKÅRET_MOR, VilkårType.FØDSELSVILKÅRET_FAR_MEDMOR, VilkårType.ADOPSJONSVILKÅRET_ENGANGSSTØNAD,
                 VilkårType.ADOPSJONSVILKARET_FORELDREPENGER, VilkårType.OMSORGSVILKÅRET, VilkårType.FORELDREANSVARSVILKÅRET_2_LEDD,
-                VilkårType.FORELDREANSVARSVILKÅRET_4_LEDD, VilkårType.SVANGERSKAPSPENGERVILKÅR));
+                VilkårType.FORELDREANSVARSVILKÅRET_4_LEDD, VilkårType.SVANGERSKAPSPENGERVILKÅR, VilkårType.OMSORGSOVERTAKELSEVILKÅR));
 
         VILKÅR_HÅNDTERT_INNEN_STARTPUNKT.put(StartpunktType.OPPTJENING,
             VILKÅR_HÅNDTERT_INNEN_STARTPUNKT.values().stream().flatMap(Collection::stream).collect(toSet()));

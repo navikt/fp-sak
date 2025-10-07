@@ -31,6 +31,8 @@ public class AksjonspunktKodeDefinisjon {
     public static final String AVKLAR_VILKÅR_FOR_OMSORGSOVERTAKELSE_KODE = "5008";
     public static final String AVKLAR_VILKÅR_FOR_FORELDREANSVAR_KODE = "5054";
 
+    public static final String VURDER_OMSORGSOVERTAKELSEVILKÅRET = "5018";
+
     public static final String AVKLAR_VERGE_KODE = "5030";
     public static final String AVKLAR_OM_SØKER_HAR_MOTTATT_STØTTE_KODE = "5031";
 
@@ -151,8 +153,8 @@ public class AksjonspunktKodeDefinisjon {
     public static final boolean TILBAKE = true;
     public static final boolean FORBLI = false;
 
-    // Ledige aksjonspunktkoder 5001-5102
-    // 5018, 5100
+    // Ledige aksjonspunktkoder 5001-5103
+    // 5100
 
     // Utgåtte aksjonspunktkoder. Helst ikke gjenbruk 5nnn til andre formål enn det opprinnelige før det har gått noe tid
     //  "5009"

@@ -50,7 +50,8 @@ public class InngangsvilkårGrunnlagBygger {
     }
 
     private static boolean adopsjonsvilkåretOppfylt(VilkårResultat vilkårResultat) {
-        return vilkårAvTypeErOppfylt(vilkårResultat, VilkårType.ADOPSJONSVILKARET_FORELDREPENGER);
+        return vilkårAvTypeErOppfylt(vilkårResultat, VilkårType.ADOPSJONSVILKARET_FORELDREPENGER) ||
+            vilkårAvTypeErOppfylt(vilkårResultat, VilkårType.OMSORGSOVERTAKELSEVILKÅR);
     }
 
     private static boolean fødselsvilkårOppfylt(VilkårResultat vilkårResultat, BehandlingReferanse ref) {
