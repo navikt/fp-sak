@@ -24,7 +24,6 @@ import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -305,7 +304,7 @@ public class StønadsstatistikkTjeneste {
         if (FamilieHendelseType.OMSORG.equals(familiehendelse.getType())) {
             return HendelseType.OMSORGSOVERTAKELSE;
         }
-        var stebarnsAdopsjon = familiehendelse.getAdopsjon().filter(a -> Objects.equals(a.getErEktefellesBarn(), Boolean.TRUE)).isPresent();
+        var stebarnsAdopsjon = familiehendelse.getAdopsjon().filter(AdopsjonEntitet::isStebarnsadopsjon).isPresent();
         return stebarnsAdopsjon ? HendelseType.STEBARNSADOPSJON : HendelseType.ADOPSJON;
     }
 

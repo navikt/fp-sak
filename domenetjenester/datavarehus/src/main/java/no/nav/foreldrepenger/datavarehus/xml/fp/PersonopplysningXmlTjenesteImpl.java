@@ -389,8 +389,8 @@ public class PersonopplysningXmlTjenesteImpl extends PersonopplysningXmlTjeneste
     private void setAdopsjon(FamilieHendelse familieHendelse, FamilieHendelseGrunnlagEntitet familieHendelseGrunnlag) {
         familieHendelseGrunnlag.getGjeldendeAdopsjon().ifPresent(adopsjonhendelse -> {
             var adopsjon = personopplysningObjectFactory.createAdopsjon();
-            if (adopsjonhendelse.getErEktefellesBarn() != null) {
-                adopsjon.setErEktefellesBarn(VedtakXmlUtil.lagBooleanOpplysning(adopsjonhendelse.getErEktefellesBarn()));
+            if (adopsjonhendelse.isStebarnsadopsjon()) {
+                adopsjon.setErEktefellesBarn(VedtakXmlUtil.lagBooleanOpplysning(adopsjonhendelse.isStebarnsadopsjon()));
             }
             familieHendelseGrunnlag.getGjeldendeBarna().forEach(aBarn -> adopsjon.getAdopsjonsbarn().add(leggTilAdopsjonsbarn(aBarn)));
             if (adopsjonhendelse.getAdoptererAlene() != null) {

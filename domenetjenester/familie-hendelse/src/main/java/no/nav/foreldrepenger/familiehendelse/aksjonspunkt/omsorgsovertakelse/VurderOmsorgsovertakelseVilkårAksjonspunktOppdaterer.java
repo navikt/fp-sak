@@ -123,7 +123,7 @@ public class VurderOmsorgsovertakelseVilkårAksjonspunktOppdaterer implements Ak
         var utfall = avslagsårsak == null ? VilkårUtfallType.OPPFYLT : VilkårUtfallType.IKKE_OPPFYLT;
         var omsorgsovertakelsedato = dto.getOmsorgsovertakelseDato();
         var fødselsdatoer = dto.getFødselsdatoer();
-        var ektefellesBarn = dto.getEktefellesBarn();
+        var ektefellesBarn = Objects.equals(dto.getEktefellesBarn(), Boolean.TRUE) || OmsorgsovertakelseVilkårType.FP_STEBARNSADOPSJONSVILKÅRET.equals(dto.getDelvilkår());
 
         var grunnlag = familieHendelseTjeneste.hentAggregat(ref.behandlingId());
         var gjeldendeAdopsjon = grunnlag.getGjeldendeAdopsjon().orElseThrow();
@@ -149,7 +149,7 @@ public class VurderOmsorgsovertakelseVilkårAksjonspunktOppdaterer implements Ak
             .addLinje(fraTilEquals("Adopsjons- og omsorgsvilkåret", null, utfall))
             .addLinje(fraTilEquals("Delvilkår", gjeldendeAdopsjon.getOmsorgovertakelseVilkår(), delvilkår))
             .addLinje(fraTilEquals("Omsorgsovertakelsesdato", gjeldendeAdopsjon.getOmsorgsovertakelseDato(), dto.getOmsorgsovertakelseDato()))
-            .addLinje(fraTilEquals("Ektefelles barn", gjeldendeAdopsjon.getErEktefellesBarn(), ektefellesBarn));
+            .addLinje(fraTilEquals("Stebarnsadopsjon", gjeldendeAdopsjon.isStebarnsadopsjon(), ektefellesBarn));
         for (int i = 0; i < Math.max(fødselsdatoer.size(), gjeldendeBarn.size()); i++) {
             var gjeldende = gjeldendeBarn.get(i);
             var oppdatert = fødselsdatoer.get(i);

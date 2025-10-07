@@ -71,7 +71,7 @@ public class OmsorgsovertakelseTjeneste {
 
         var søknadData = new OmsorgsovertakelseDto.Søknad(getBarn(familieHendelse.getSøknadVersjon()),
             fraSøknad.map(AdopsjonEntitet::getOmsorgsovertakelseDato).orElse(null),
-            fraSøknad.map(AdopsjonEntitet::getErEktefellesBarn).orElse(null),
+            fraSøknad.map(AdopsjonEntitet::isStebarnsadopsjon).orElse(null),
             fraSøknad.map(AdopsjonEntitet::getAnkomstNorgeDato).orElse(null),
             familieHendelse.getSøknadVersjon().getAntallBarn(),
             utledDelvilkår(behandling.getFagsakYtelseType(), familieHendelse.getSøknadVersjon(), farSøkerType));
@@ -110,8 +110,8 @@ public class OmsorgsovertakelseTjeneste {
 
         var gjeldendeErEktefellesBarn = familieHendelse.getOverstyrtVersjon()
             .flatMap(FamilieHendelseEntitet::getAdopsjon)
-            .map(AdopsjonEntitet::getErEktefellesBarn)
-            .or(() -> familieHendelse.getSøknadVersjon().getAdopsjon().map(AdopsjonEntitet::getErEktefellesBarn));
+            .map(AdopsjonEntitet::isStebarnsadopsjon)
+            .or(() -> familieHendelse.getSøknadVersjon().getAdopsjon().map(AdopsjonEntitet::isStebarnsadopsjon));
 
         var gjeldendeAnkomstNorgeDato = familieHendelse.getOverstyrtVersjon()
             .flatMap(FamilieHendelseEntitet::getAdopsjon)
