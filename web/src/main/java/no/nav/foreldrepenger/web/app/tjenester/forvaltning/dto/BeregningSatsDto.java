@@ -23,9 +23,7 @@ public class BeregningSatsDto implements AbacDto {
 
     @NotNull
     @QueryParam("satsType")
-    @Pattern(regexp = "^(?:ENGANG|GRUNNBELØP|GSNITT)$")
-    @Schema(allowableValues = {"ENGANG", "GRUNNBELØP", "GSNITT"})
-    private String satsType;
+    private BeregningSatsType satsType;
 
     @NotNull
     @Parameter(description = "YYYY-MM-DD")
@@ -49,7 +47,7 @@ public class BeregningSatsDto implements AbacDto {
     public BeregningSatsDto(BeregningSats sats) {
         this.satsFom = sats.getPeriode().getFomDato().toString();
         this.satsTom = sats.getPeriode().getTomDato().toString();
-        this.satsType = sats.getSatsType().getKode();
+        this.satsType = sats.getSatsType();
         this.satsVerdi = sats.getVerdi();
     }
 
@@ -66,7 +64,7 @@ public class BeregningSatsDto implements AbacDto {
     }
 
     public BeregningSatsType getSatsType() {
-        return BeregningSatsType.fraKode(satsType);
+        return satsType;
     }
 
     public LocalDate getSatsFom() {

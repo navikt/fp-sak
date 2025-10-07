@@ -1,5 +1,7 @@
 package no.nav.foreldrepenger.web.app.konfig;
 
+import static no.nav.foreldrepenger.web.app.jackson.JacksonJsonConfig.getJsonTypeNameClasses;
+
 import java.net.URISyntaxException;
 import java.util.Collection;
 import java.util.Collections;
@@ -15,9 +17,7 @@ import java.util.stream.Stream;
 
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
-
 import com.fasterxml.jackson.databind.SerializationFeature;
-
 import com.fasterxml.jackson.databind.json.JsonMapper;
 
 import io.swagger.v3.core.converter.ModelConverters;
@@ -28,6 +28,7 @@ import jakarta.ws.rs.ApplicationPath;
 import jakarta.ws.rs.core.Application;
 
 import no.nav.openapi.spec.utils.openapi.DiscriminatorModelConverter;
+import no.nav.openapi.spec.utils.openapi.EnumVarnamesConverter;
 import no.nav.openapi.spec.utils.openapi.JsonSubTypesModelConverter;
 
 import no.nav.openapi.spec.utils.openapi.NoJsonSubTypesAnnotationIntrospector;
@@ -46,8 +47,6 @@ import io.swagger.v3.oas.models.servers.Server;
 import no.nav.foreldrepenger.konfig.Environment;
 import no.nav.foreldrepenger.web.app.tjenester.RestImplementationClasses;
 import no.nav.vedtak.exception.TekniskException;
-
-import static no.nav.foreldrepenger.web.app.jackson.JacksonJsonConfig.getJsonTypeNameClasses;
 
 @ApplicationPath(ApiConfig.API_URI)
 public class ApiConfig extends Application {
@@ -91,6 +90,7 @@ public class ApiConfig extends Application {
             ModelConverters.getInstance().addConverter(new RegisteredSubtypesModelConverter(registeredSubtypes));
             ModelConverters.getInstance().addConverter(new JsonSubTypesModelConverter());
             ModelConverters.getInstance().addConverter(new DiscriminatorModelConverter(new RefToClassLookup()));
+            ModelConverters.getInstance().addConverter(new EnumVarnamesConverter());
 
             var context = new GenericOpenApiContextBuilder<>()
                 .openApiConfiguration(oasConfig)

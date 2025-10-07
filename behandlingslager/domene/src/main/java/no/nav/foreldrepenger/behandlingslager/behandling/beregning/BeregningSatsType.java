@@ -39,17 +39,6 @@ public enum BeregningSatsType implements Kodeverdi {
         this.navn = navn;
     }
 
-    public static BeregningSatsType fraKode(String kode) {
-        if (kode == null) {
-            return null;
-        }
-        var ad = KODER.get(kode);
-        if (ad == null) {
-            throw new IllegalArgumentException("Ukjent BeregningSatsType: " + kode);
-        }
-        return ad;
-    }
-
     public static Map<String, BeregningSatsType> kodeMap() {
         return Collections.unmodifiableMap(KODER);
     }
@@ -71,6 +60,17 @@ public enum BeregningSatsType implements Kodeverdi {
 
     @Converter(autoApply = true)
     public static class KodeverdiConverter implements AttributeConverter<BeregningSatsType, String> {
+
+        public static BeregningSatsType fraKode(String kode) {
+            if (kode == null) {
+                return null;
+            }
+            var ad = KODER.get(kode);
+            if (ad == null) {
+                throw new IllegalArgumentException("Ukjent BeregningSatsType: " + kode);
+            }
+            return ad;
+        }
 
         @Override
         public String convertToDatabaseColumn(BeregningSatsType attribute) {
