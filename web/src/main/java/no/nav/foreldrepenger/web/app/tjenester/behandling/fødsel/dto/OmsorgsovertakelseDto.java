@@ -10,7 +10,8 @@ import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.Omsorgs
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.Avslagsårsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallType;
 
-public record OmsorgsovertakelseDto(@NotNull Søknad søknad, @NotNull Register register, @NotNull Gjeldende gjeldende,
+public record OmsorgsovertakelseDto(@NotNull Omsorgsovertakelse søknad, @NotNull Register register,
+                                    @NotNull Kilde kildeGjeldende, @NotNull Omsorgsovertakelse gjeldende,
                                     SaksbehandlerVurdering saksbehandlerVurdering,
                                     List<OmsorgsovertakelseVilkårType> aktuelleDelvilkår,
                                     Map<OmsorgsovertakelseVilkårType, List<Avslagsårsak>> aktuelleDelvilkårAvslagsårsaker) {
@@ -22,24 +23,10 @@ public record OmsorgsovertakelseDto(@NotNull Søknad søknad, @NotNull Register 
     public record BarnHendelseData(@NotNull LocalDate fødselsdato, LocalDate dødsdato, Integer barnNummer) {
     }
 
-    public record Søknad(@NotNull List<BarnHendelseData> barn, LocalDate omsorgsovertakelseDato, Boolean erEktefellesBarn, LocalDate ankomstNorgeDato,
-                         @NotNull int antallBarn, OmsorgsovertakelseVilkårType delvilkår) {
+    public record Omsorgsovertakelse(@NotNull List<BarnHendelseData> barn, LocalDate omsorgsovertakelseDato, @NotNull int antallBarn,
+                                     OmsorgsovertakelseVilkårType delvilkår, Boolean erEktefellesBarn,LocalDate ankomstNorgeDato) {
     }
 
     public record Register(@NotNull List<BarnHendelseData> barn) {
-    }
-
-    public record Gjeldende(@NotNull Omsorgsovertakelse omsorgsovertakelse, @NotNull AntallBarn antallBarn, @NotNull List<GjeldendeBarn> barn) {
-
-        public record Omsorgsovertakelse(@NotNull Kilde kilde, LocalDate omsorgsovertakelseDato,
-                                         OmsorgsovertakelseVilkårType delvilkår, Boolean ektefellesBarn, LocalDate ankomstNorgeDato) {
-        }
-
-        public record AntallBarn(@NotNull Kilde kilde, @NotNull int antall) {
-        }
-
-        public record GjeldendeBarn(@NotNull Kilde kilde, @NotNull BarnHendelseData barn, @NotNull boolean kanOverstyres) {
-        }
-
     }
 }

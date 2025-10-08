@@ -1,22 +1,17 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.fødsel;
 
-import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.AdopsjonEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseEntitet;
-import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseGrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseType;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.OmsorgsovertakelseVilkårType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
@@ -67,19 +62,15 @@ public class OmsorgsovertakelseTjeneste {
 
         var farSøkerType = søknadRepository.hentSøknadHvisEksisterer(behandlingId).map(SøknadEntitet::getFarSøkerType).orElse(FarSøkerType.UDEFINERT);
         var familieHendelse = familieHendelseTjeneste.hentAggregat(behandlingId);
-        var fraSøknad = familieHendelse.getSøknadVersjon().getAdopsjon();
 
-        var søknadData = new OmsorgsovertakelseDto.Søknad(getBarn(familieHendelse.getSøknadVersjon()),
-            fraSøknad.map(AdopsjonEntitet::getOmsorgsovertakelseDato).orElse(null),
-            fraSøknad.map(AdopsjonEntitet::isStebarnsadopsjon).orElse(null),
-            fraSøknad.map(AdopsjonEntitet::getAnkomstNorgeDato).orElse(null),
-            familieHendelse.getSøknadVersjon().getAntallBarn(),
-            utledDelvilkår(behandling.getFagsakYtelseType(), familieHendelse.getSøknadVersjon(), farSøkerType));
+        var søknadData = lagOmsorgsovertakelse(familieHendelse.getSøknadVersjon(), behandling.getFagsakYtelseType(), farSøkerType);
 
         var registerData = new OmsorgsovertakelseDto.Register(familieHendelse.getBekreftetVersjon().map(this::getBarn).orElseGet(Collections::emptyList));
 
-        var gjeldendeData = new OmsorgsovertakelseDto.Gjeldende(mapGjeldendeData(familieHendelse, behandling.getFagsakYtelseType(), farSøkerType),
-            mapAntallBarn(familieHendelse), mapBarn(familieHendelse));
+        var gjeldendeKilde = familieHendelse.getOverstyrtVersjon().isPresent() ? Kilde.SAKSBEHANDLER : Kilde.SØKNAD;
+        var gjeldendeData = familieHendelse.getOverstyrtVersjon()
+            .map(overstyrt -> lagOmsorgsovertakelse(overstyrt, behandling.getFagsakYtelseType(), farSøkerType))
+            .orElse(søknadData);
 
         var aktuelleVilkår = YTELSE_DELVILKÅR.getOrDefault(behandling.getFagsakYtelseType(), List.of());
         var aktuelleAvslagsårsaker = aktuelleVilkår.stream()
@@ -91,115 +82,20 @@ public class OmsorgsovertakelseTjeneste {
             .map(v -> new OmsorgsovertakelseDto.SaksbehandlerVurdering(v.getGjeldendeVilkårUtfall(), v.getAvslagsårsak()))
             .orElse(null);
 
-        return new OmsorgsovertakelseDto(søknadData, registerData, gjeldendeData, tidligereValg, aktuelleVilkår, aktuelleAvslagsårsaker);
+        return new OmsorgsovertakelseDto(søknadData, registerData, gjeldendeKilde, gjeldendeData, tidligereValg, aktuelleVilkår, aktuelleAvslagsårsaker);
     }
 
-
-    private static OmsorgsovertakelseDto.Gjeldende.Omsorgsovertakelse mapGjeldendeData(FamilieHendelseGrunnlagEntitet familieHendelse,
-                                                                                       FagsakYtelseType ytelseType,
-                                                                                       FarSøkerType farSøkerType) {
-        var kilde = familieHendelse.getOverstyrtVersjon().isPresent() ? Kilde.SAKSBEHANDLER : Kilde.SØKNAD;
-        var gjeldendeOmsorgsovertagelseDato = familieHendelse.getOverstyrtVersjon()
-            .flatMap(FamilieHendelseEntitet::getAdopsjon)
-            .map(AdopsjonEntitet::getOmsorgsovertakelseDato)
-            .or(() -> familieHendelse.getSøknadVersjon().getAdopsjon().map(AdopsjonEntitet::getOmsorgsovertakelseDato));
-
-        var gjeldendeDelvilkår = familieHendelse.getOverstyrtVersjon()
-            .map(fh -> utledDelvilkår(ytelseType, fh, farSøkerType))
-            .orElseGet(() -> utledDelvilkår(ytelseType, familieHendelse.getSøknadVersjon(), farSøkerType));
-
-        var gjeldendeErEktefellesBarn = familieHendelse.getOverstyrtVersjon()
-            .flatMap(FamilieHendelseEntitet::getAdopsjon)
-            .map(AdopsjonEntitet::isStebarnsadopsjon)
-            .or(() -> familieHendelse.getSøknadVersjon().getAdopsjon().map(AdopsjonEntitet::isStebarnsadopsjon));
-
-        var gjeldendeAnkomstNorgeDato = familieHendelse.getOverstyrtVersjon()
-            .flatMap(FamilieHendelseEntitet::getAdopsjon)
-            .map(AdopsjonEntitet::getAnkomstNorgeDato)
-            .or(() -> familieHendelse.getSøknadVersjon().getAdopsjon().map(AdopsjonEntitet::getAnkomstNorgeDato));
-
-        return new OmsorgsovertakelseDto.Gjeldende.Omsorgsovertakelse(kilde, gjeldendeOmsorgsovertagelseDato.orElse(null),
-            gjeldendeDelvilkår, gjeldendeErEktefellesBarn.orElse(null), gjeldendeAnkomstNorgeDato.orElse(null));
-    }
-
-    private static Kilde bestemKilde(int søknadAntallBarn, Optional<Integer> bekreftetAntallBarn, Optional<Integer> overstyrtAntallBarn) {
-
-        if (overstyrtAntallBarn.isPresent() && !Objects.equals(overstyrtAntallBarn.get(), søknadAntallBarn)) {
-            return Kilde.SAKSBEHANDLER;
-        }
-        if (bekreftetAntallBarn.isPresent() && !Objects.equals(bekreftetAntallBarn.get(), søknadAntallBarn)) {
-            return Kilde.FOLKEREGISTER;
-        }
-        return Kilde.SØKNAD;
-    }
-
-    private static OmsorgsovertakelseDto.Gjeldende.AntallBarn mapAntallBarn(FamilieHendelseGrunnlagEntitet familieHendelse) {
-        var søknadAntallBarn = familieHendelse.getSøknadVersjon().getAntallBarn();
-        var bekreftetAntallBarn = familieHendelse.getBekreftetVersjon().map(FamilieHendelseEntitet::getAntallBarn);
-        var overstyrtAntallBarn = familieHendelse.getOverstyrtVersjon().map(FamilieHendelseEntitet::getAntallBarn);
-
-        var kilde = bestemKilde(søknadAntallBarn, bekreftetAntallBarn, overstyrtAntallBarn);
-
-        var antallBarn = switch (kilde) {
-            case SØKNAD -> søknadAntallBarn;
-            case FOLKEREGISTER -> bekreftetAntallBarn.orElse(søknadAntallBarn);
-            case SAKSBEHANDLER -> overstyrtAntallBarn.orElse(søknadAntallBarn);
-        };
-
-        return new OmsorgsovertakelseDto.Gjeldende.AntallBarn(kilde, antallBarn);
-    }
-
-    private static boolean erSammeBarn(OmsorgsovertakelseDto.BarnHendelseData bekreftetBarn, OmsorgsovertakelseDto.BarnHendelseData overstyrtBarn) {
-        return Objects.equals(bekreftetBarn.fødselsdato(), overstyrtBarn.fødselsdato()) && Objects.equals(bekreftetBarn.dødsdato(),
-            overstyrtBarn.dødsdato());
-    }
-
-    private static List<OmsorgsovertakelseDto.Gjeldende.GjeldendeBarn> sorterRiktigRekkefølgerPåGjeldendeBarn(ArrayList<OmsorgsovertakelseDto.Gjeldende.GjeldendeBarn> gjeldendeBarn) {
-        var folkeregisterBarn = gjeldendeBarn.stream().filter(b -> b.kilde() == Kilde.FOLKEREGISTER).toList();
-        var overstyrteBarn = gjeldendeBarn.stream()
-            .filter(b -> b.kilde() != Kilde.FOLKEREGISTER)
-            .sorted(Comparator.comparingInt(barn -> barn.barn().barnNummer()))
-            .toList();
-        return Stream.concat(folkeregisterBarn.stream(), overstyrteBarn.stream()).toList();
+    private OmsorgsovertakelseDto.Omsorgsovertakelse lagOmsorgsovertakelse(FamilieHendelseEntitet familieHendelse, FagsakYtelseType ytelseType, FarSøkerType farSøkerType) {
+        return new OmsorgsovertakelseDto.Omsorgsovertakelse(getBarn(familieHendelse),
+            familieHendelse.getAdopsjon().map(AdopsjonEntitet::getOmsorgsovertakelseDato).orElse(null),
+            familieHendelse.getAntallBarn(),
+            utledDelvilkår(ytelseType, familieHendelse, farSøkerType),
+            familieHendelse.getAdopsjon().map(AdopsjonEntitet::isStebarnsadopsjon).orElse(null),
+            familieHendelse.getAdopsjon().map(AdopsjonEntitet::getAnkomstNorgeDato).orElse(null));
     }
 
     private static <T> int getBarnNummer(T barn, List<T> barnListe) {
         return barnListe.indexOf(barn) + 1;
-    }
-
-    private List<OmsorgsovertakelseDto.Gjeldende.GjeldendeBarn> mapBarn(FamilieHendelseGrunnlagEntitet familieHendelse) {
-        var gjeldendeBarn = new ArrayList<OmsorgsovertakelseDto.Gjeldende.GjeldendeBarn>();
-        var søknadBarn = familieHendelse.getSøknadVersjon().getBarna();
-        var bekreftedeBarn = familieHendelse.getBekreftetVersjon().map(this::getBarn).orElseGet(Collections::emptyList);
-        var overstyrtBarn = familieHendelse.getOverstyrtVersjon().map(this::getBarn).orElseGet(Collections::emptyList);
-
-        if (!bekreftedeBarn.isEmpty()) {
-            bekreftedeBarn.stream().map(barn -> new OmsorgsovertakelseDto.Gjeldende.GjeldendeBarn(Kilde.FOLKEREGISTER, barn, false)).forEach(gjeldendeBarn::add);
-        }
-
-        if (!overstyrtBarn.isEmpty()) {
-            var bekreftedeBarnMap = bekreftedeBarn.stream()
-                .collect(
-                    Collectors.groupingBy(OmsorgsovertakelseDto.BarnHendelseData::barnNummer, Collectors.collectingAndThen(Collectors.toList(), List::getFirst)));
-
-            overstyrtBarn.forEach(barn -> {
-                var bekreftetBarn = bekreftedeBarnMap.get(barn.barnNummer());
-                if (bekreftetBarn == null || !erSammeBarn(bekreftetBarn, barn)) {
-                    gjeldendeBarn.add(new OmsorgsovertakelseDto.Gjeldende.GjeldendeBarn(Kilde.SAKSBEHANDLER, barn, true));
-                }
-            });
-
-            return sorterRiktigRekkefølgerPåGjeldendeBarn(gjeldendeBarn);
-        }
-
-        if (bekreftedeBarn.isEmpty() && !søknadBarn.isEmpty()) {
-            søknadBarn.stream()
-                .map(barn -> new OmsorgsovertakelseDto.Gjeldende.GjeldendeBarn(Kilde.SØKNAD,
-                    new OmsorgsovertakelseDto.BarnHendelseData(barn.getFødselsdato(), barn.getDødsdato().orElse(null), barn.getBarnNummer()), true))
-                .forEach(gjeldendeBarn::add);
-        }
-
-        return gjeldendeBarn;
     }
 
     private List<OmsorgsovertakelseDto.BarnHendelseData> getBarn(FamilieHendelseEntitet familieHendelse) {
@@ -213,7 +109,7 @@ public class OmsorgsovertakelseTjeneste {
         if (familieHendelse == null || familieHendelse.getAdopsjon().isEmpty()) {
             return null;
         }
-        var adopsjon = familieHendelse.getAdopsjon().get();
+        var adopsjon = familieHendelse.getAdopsjon().orElseThrow();
         if (adopsjon.getOmsorgovertakelseVilkår() != null && !OmsorgsovertakelseVilkårType.UDEFINERT.equals(adopsjon.getOmsorgovertakelseVilkår())) {
             return adopsjon.getOmsorgovertakelseVilkår();
         }
