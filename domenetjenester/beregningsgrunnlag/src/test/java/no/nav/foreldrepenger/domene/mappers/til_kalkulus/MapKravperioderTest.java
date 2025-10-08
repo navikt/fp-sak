@@ -54,7 +54,7 @@ class MapKravperioderTest {
         lagRegisterArbeid(ag, ref, førStp(500), etterSTP(500));
         aktiveInntektsmeldinger.add(lagIM(ag, ref, 500_000, 500_000, STP));
 
-        var resultat = MapKravperioder.map(BEHANDLING_REF, STPT, aktiveInntektsmeldinger, byggIAY());
+        var resultat = MapKravperioder.map(BEHANDLING_REF, STPT, aktiveInntektsmeldinger, byggIAY().getInntektsmeldinger().get().getAlleInntektsmeldinger(), byggIAY());
 
         assertThat(resultat).hasSize(1);
         assertKrav(resultat, ag, ref, 500_000, STP, Tid.TIDENES_ENDE);
@@ -71,7 +71,7 @@ class MapKravperioderTest {
         aktiveInntektsmeldinger.add(lagIM(ag, ref, 500_000, 500_000, STP));
         aktiveInntektsmeldinger.add(lagIM(ag2, ref2, 300_000, 300_000, STP));
 
-        var resultat = MapKravperioder.map(BEHANDLING_REF, STPT, aktiveInntektsmeldinger, byggIAY());
+        var resultat = MapKravperioder.map(BEHANDLING_REF, STPT, aktiveInntektsmeldinger, byggIAY().getInntektsmeldinger().get().getAlleInntektsmeldinger(), byggIAY());
 
         assertThat(resultat).hasSize(2);
         assertKrav(resultat, ag, ref, 500_000, STP, Tid.TIDENES_ENDE);
@@ -87,7 +87,7 @@ class MapKravperioderTest {
         lagRegisterArbeid(ag, ref2, førStp(200), etterSTP(100));
         aktiveInntektsmeldinger.add(lagIM(ag, InternArbeidsforholdRef.nullRef(), 500_000, 500_000, STP));
 
-        var resultat = MapKravperioder.map(BEHANDLING_REF, STPT, aktiveInntektsmeldinger, byggIAY());
+        var resultat = MapKravperioder.map(BEHANDLING_REF, STPT, aktiveInntektsmeldinger, byggIAY().getInntektsmeldinger().get().getAlleInntektsmeldinger(), byggIAY());
 
         assertThat(resultat).hasSize(1);
         assertKrav(resultat, ag, InternArbeidsforholdRef.nullRef(), 500_000, STP, Tid.TIDENES_ENDE);
@@ -101,7 +101,7 @@ class MapKravperioderTest {
         lagRegisterArbeid(ag, InternArbeidsforholdRef.nullRef(), etterSTP(50), Tid.TIDENES_ENDE);
         aktiveInntektsmeldinger.add(lagIM(ag, InternArbeidsforholdRef.nullRef(), 500_000, 500_000, STP));
 
-        var resultat = MapKravperioder.map(BEHANDLING_REF, STPT, aktiveInntektsmeldinger, byggIAY());
+        var resultat = MapKravperioder.map(BEHANDLING_REF, STPT, aktiveInntektsmeldinger, byggIAY().getInntektsmeldinger().get().getAlleInntektsmeldinger(), byggIAY());
 
         assertThat(resultat).hasSize(1);
         assertKrav(resultat, ag, InternArbeidsforholdRef.nullRef(), 500_000, STP, Tid.TIDENES_ENDE);
@@ -114,7 +114,7 @@ class MapKravperioderTest {
         lagOverstyrtArbeid(ag, ref, førStp(500), etterSTP(500));
         aktiveInntektsmeldinger.add(lagIM(ag, ref, 500_000, 500_000, STP));
 
-        var resultat = MapKravperioder.map(BEHANDLING_REF, STPT, aktiveInntektsmeldinger, byggIAY());
+        var resultat = MapKravperioder.map(BEHANDLING_REF, STPT, aktiveInntektsmeldinger, byggIAY().getInntektsmeldinger().get().getAlleInntektsmeldinger(), byggIAY());
 
         assertThat(resultat).hasSize(1);
         assertKrav(resultat, ag, ref, 500_000, STP, Tid.TIDENES_ENDE);
@@ -131,7 +131,7 @@ class MapKravperioderTest {
         aktiveInntektsmeldinger.add(lagIM(ag1, ref1, 500_000, 500_000, STP));
         aktiveInntektsmeldinger.add(lagIM(ag2, ref2, 150_000, 150_000, STP));
 
-        var resultat = MapKravperioder.map(BEHANDLING_REF, STPT, aktiveInntektsmeldinger, byggIAY());
+        var resultat = MapKravperioder.map(BEHANDLING_REF, STPT, aktiveInntektsmeldinger, byggIAY().getInntektsmeldinger().get().getAlleInntektsmeldinger(), byggIAY());
 
         assertThat(resultat).hasSize(2);
         assertKrav(resultat, ag1, ref1, 500_000, STP, Tid.TIDENES_ENDE);
@@ -150,7 +150,7 @@ class MapKravperioderTest {
         aktiveInntektsmeldinger.add(aktivIM);
         var alleIMPåSak = Arrays.asList(aktivIM, tidligereInnsendtIM);
 
-        var resultat = MapKravperioder.map(BEHANDLING_REF, STPT, alleIMPåSak, byggIAY());
+        var resultat = MapKravperioder.map(BEHANDLING_REF, STPT, alleIMPåSak, byggIAY().getInntektsmeldinger().get().getAlleInntektsmeldinger(), byggIAY());
 
         assertThat(resultat).hasSize(1);
         var krav = resultat.get(0);
@@ -189,7 +189,7 @@ class MapKravperioderTest {
         aktiveInntektsmeldinger.add(aktivIM);
         var alleIMPåSak = Arrays.asList(aktivIM, tidligereInnsendtIM);
 
-        var resultat = MapKravperioder.map(BEHANDLING_REF, STPT, alleIMPåSak, byggIAY());
+        var resultat = MapKravperioder.map(BEHANDLING_REF, STPT, alleIMPåSak, byggIAY().getInntektsmeldinger().get().getAlleInntektsmeldinger(), byggIAY());
 
         assertThat(resultat).hasSize(1);
         var krav = resultat.get(0);

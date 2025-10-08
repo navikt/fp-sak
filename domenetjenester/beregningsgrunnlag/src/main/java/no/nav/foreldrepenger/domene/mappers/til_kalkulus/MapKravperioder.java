@@ -26,7 +26,6 @@ import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.domene.iay.modell.AktivitetsAvtale;
 import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlag;
 import no.nav.foreldrepenger.domene.iay.modell.Inntektsmelding;
-import no.nav.foreldrepenger.domene.iay.modell.InntektsmeldingAggregat;
 import no.nav.foreldrepenger.domene.iay.modell.Yrkesaktivitet;
 import no.nav.foreldrepenger.domene.iay.modell.YrkesaktivitetFilter;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
@@ -39,10 +38,8 @@ public class MapKravperioder {
 
     public static List<KravperioderPrArbeidsforhold> map(BehandlingReferanse referanse, Skjæringstidspunkt stp,
                                                          Collection<Inntektsmelding> alleInntektsmeldingerPåSak,
+                                                         List<Inntektsmelding> aktiveInntektsmeldinger,
                                                          InntektArbeidYtelseGrunnlag grunnlagDto) {
-        var aktiveInntektsmeldinger = grunnlagDto.getInntektsmeldinger()
-            .map(InntektsmeldingAggregat::getAlleInntektsmeldinger)
-            .orElse(Collections.emptyList());
         var filter = new YrkesaktivitetFilter(grunnlagDto.getArbeidsforholdInformasjon(),
             grunnlagDto.getAktørArbeidFraRegister(referanse.aktørId()));
         var yrkesaktiviteter = filter.getYrkesaktiviteter();
