@@ -93,7 +93,7 @@ public class OmsorgsovertakelseTjeneste {
             familieHendelse.getAdopsjon().map(AdopsjonEntitet::getOmsorgsovertakelseDato).orElse(null),
             familieHendelse.getAntallBarn(),
             utledDelvilkår(ytelseType, familieHendelse, farSøkerType),
-            familieHendelse.getAdopsjon().map(AdopsjonEntitet::isStebarnsadopsjon).orElse(null),
+            familieHendelse.getAdopsjon().map(AdopsjonEntitet::getErEktefellesBarn).orElse(null),
             familieHendelse.getAdopsjon().map(AdopsjonEntitet::getAnkomstNorgeDato).orElse(null));
     }
 

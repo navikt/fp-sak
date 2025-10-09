@@ -37,12 +37,6 @@ public class OmsorgsovertakelseTjenesteTest extends EntityManagerAwareTest {
             repositoryProvider.getSøknadRepository(), repositoryProvider.getBehandlingsresultatRepository());
     }
 
-    // Cases:
-    // * Kun søknad, ingen register eller saksbehandlet
-    // * Søknad + register, ikke saksbehandlet
-    // * Saksbehandlet og innvilget
-    // * Saksbehandlet og avslått
-
     @Test
     void skal_kunne_hente_fakta_om_omsorgsovertakelse_kun_søknad() {
         // Arrange

@@ -220,7 +220,7 @@ class VurderOmsorgsovertakelseVilkårAksjonspunktOppdatererTest extends EntityMa
         assertThat(historikk.getFirst().getLinjer().stream().map(HistorikkinnslagLinje::getTekst).anyMatch("begrunnelse."::equals)).isTrue();
         assertThat(historikk.getFirst().getLinjer().stream().map(HistorikkinnslagLinje::getTekst).anyMatch("__Delvilkår__ er endret fra Adopsjon §14-5 første ledd til __Stebarnsadopsjon §14-5 tredje ledd__."::equals)).isTrue();
         assertThat(historikk.getFirst().getLinjer().stream().map(HistorikkinnslagLinje::getTekst).anyMatch("__Omsorgsovertakelsesdato__ er endret fra 09.10.2025 til __16.10.2025__."::equals)).isTrue();
-        assertThat(historikk.getFirst().getLinjer().stream().map(HistorikkinnslagLinje::getTekst).anyMatch("__Stebarnsadopsjon__ er endret fra Nei til __Ja__."::equals)).isTrue();
+        assertThat(historikk.getFirst().getLinjer().stream().map(HistorikkinnslagLinje::getTekst).anyMatch("__Ektefelles barn__ er endret fra Nei til __Ja__."::equals)).isTrue();
         assertThat(historikk.getFirst().getLinjer().stream().map(HistorikkinnslagLinje::getTekst).anyMatch("__Antall barn__ er endret fra 2 til __1__."::equals)).isTrue();
         assertThat(historikk.getFirst().getLinjer().stream().map(HistorikkinnslagLinje::getTekst).anyMatch("__Fødselsdato__ __09.10.2007__ er fjernet."::equals)).isTrue();
     }

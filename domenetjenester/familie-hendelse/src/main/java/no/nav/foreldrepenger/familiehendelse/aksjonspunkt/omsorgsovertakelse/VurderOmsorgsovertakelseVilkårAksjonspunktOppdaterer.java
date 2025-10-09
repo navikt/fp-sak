@@ -152,7 +152,7 @@ public class VurderOmsorgsovertakelseVilkårAksjonspunktOppdaterer implements Ak
             .addLinje(fraTilEquals("Adopsjons- og omsorgsvilkåret", null, utfall))
             .addLinje(fraTilEquals("Delvilkår", gjeldendeAdopsjon.getOmsorgovertakelseVilkår(), delvilkår))
             .addLinje(fraTilEquals("Omsorgsovertakelsesdato", gjeldendeAdopsjon.getOmsorgsovertakelseDato(), dto.getOmsorgsovertakelseDato()))
-            .addLinje(fraTilEquals("Stebarnsadopsjon", gjeldendeAdopsjon.isStebarnsadopsjon(), ektefellesBarn))
+            .addLinje(fraTilEquals("Ektefelles barn", gjeldendeAdopsjon.getErEktefellesBarn(), ektefellesBarn))
             .addLinje(fraTilEquals("Antall barn", gjeldendeBarn.size(), fødselsdatoer.size()));
         var maxIndexGjeldende = gjeldendeBarn.keySet().stream().max(Comparator.naturalOrder()).orElse(0);
         var maxIndexOppdatert = fødselsdatoer.keySet().stream().max(Comparator.naturalOrder()).orElse(0);

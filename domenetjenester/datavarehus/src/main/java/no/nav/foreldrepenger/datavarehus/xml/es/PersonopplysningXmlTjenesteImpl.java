@@ -275,8 +275,8 @@ public class PersonopplysningXmlTjenesteImpl extends PersonopplysningXmlTjeneste
 
             var adopsjon = personopplysningObjectFactory.createAdopsjon();
             var adopsjonhendelse = adopsjonhendelseOptional.get();
-            if (adopsjonhendelse.isStebarnsadopsjon()) {
-                var erEktefellesBarn = VedtakXmlUtil.lagBooleanOpplysning(adopsjonhendelse.isStebarnsadopsjon());
+            if (adopsjonhendelse.getErEktefellesBarn() != null) {
+                var erEktefellesBarn = VedtakXmlUtil.lagBooleanOpplysning(adopsjonhendelse.getErEktefellesBarn());
                 adopsjon.setErEktefellesBarn(erEktefellesBarn);
             }
 
