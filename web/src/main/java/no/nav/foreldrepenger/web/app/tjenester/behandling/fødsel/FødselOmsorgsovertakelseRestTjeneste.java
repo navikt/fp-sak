@@ -66,7 +66,7 @@ public class FødselOmsorgsovertakelseRestTjeneste {
     @Path(FAKTA_OMSORGSOVERTAKELSE_PART_PATH)
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    @Operation(description = "Hent fakta om fødsel i behandling", tags = "behandling - omsorgsovertakelse",
+    @Operation(description = "Hent fakta om adopsjon og foreldreansvar i behandling", tags = "behandling - omsorgsovertakelse",
         responses = {@ApiResponse(responseCode = "200", description = "Returnerer Fakta om adopsjon og foreldreansvar)",
             content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = OmsorgsovertakelseDto.class)))})
     @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK, sporingslogg = false)
