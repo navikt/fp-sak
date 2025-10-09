@@ -374,6 +374,8 @@ public class BehandlingDtoTjeneste {
 
         familieHendelseRepository.hentAggregatHvisEksisterer(behandling.getId())
             .ifPresent(f -> dto.leggTil(get(FødselOmsorgsovertakelseRestTjeneste.FAKTA_FODSEL_PATH, "fakta-fødsel", uuidDto)));
+        familieHendelseRepository.hentAggregatHvisEksisterer(behandling.getId())
+            .ifPresent(f -> dto.leggTil(get(FødselOmsorgsovertakelseRestTjeneste.FAKTA_OMSORGSOVERTAKELSE_PATH, "fakta-omsorgsovertakelse", uuidDto)));
 
         dto.leggTil(get(PersonRestTjeneste.PERSONOVERSIKT_PATH, "behandling-personoversikt", uuidDto));
         dto.leggTil(get(PersonRestTjeneste.MEDLEMSKAP_V3_PATH, "soeker-medlemskap-v3", uuidDto));
