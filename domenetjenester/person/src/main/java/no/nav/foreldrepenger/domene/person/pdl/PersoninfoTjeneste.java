@@ -1,11 +1,9 @@
 package no.nav.foreldrepenger.domene.person.pdl;
 
 import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 
@@ -14,36 +12,32 @@ import jakarta.inject.Inject;
 
 import no.nav.foreldrepenger.behandlingslager.aktør.AdresseType;
 import no.nav.foreldrepenger.behandlingslager.aktør.FamilierelasjonVL;
-import no.nav.foreldrepenger.behandlingslager.aktør.NavBrukerKjønn;
 import no.nav.foreldrepenger.behandlingslager.aktør.Personinfo;
 import no.nav.foreldrepenger.behandlingslager.aktør.PersonstatusType;
 import no.nav.foreldrepenger.behandlingslager.aktør.historikk.Gyldighetsperiode;
 import no.nav.foreldrepenger.behandlingslager.aktør.historikk.Personhistorikkinfo;
+import no.nav.foreldrepenger.behandlingslager.aktør.historikk.PersonstatusPeriode;
+import no.nav.foreldrepenger.behandlingslager.aktør.historikk.StatsborgerskapPeriode;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.SivilstandType;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.domene.tid.AbstractLocalDateInterval;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.PersonIdent;
-import no.nav.pdl.Doedsfall;
 import no.nav.pdl.DoedsfallResponseProjection;
-import no.nav.pdl.Foedselsdato;
 import no.nav.pdl.FoedselsdatoResponseProjection;
 import no.nav.pdl.FolkeregisteridentifikatorResponseProjection;
 import no.nav.pdl.ForelderBarnRelasjon;
 import no.nav.pdl.ForelderBarnRelasjonResponseProjection;
 import no.nav.pdl.ForelderBarnRelasjonRolle;
 import no.nav.pdl.HentPersonQueryRequest;
-import no.nav.pdl.Kjoenn;
 import no.nav.pdl.KjoennResponseProjection;
-import no.nav.pdl.KjoennType;
-import no.nav.pdl.Navn;
 import no.nav.pdl.NavnResponseProjection;
-import no.nav.pdl.Person;
 import no.nav.pdl.PersonResponseProjection;
 import no.nav.pdl.Sivilstand;
 import no.nav.pdl.SivilstandResponseProjection;
 import no.nav.pdl.Sivilstandstype;
+import no.nav.vedtak.konfig.Tid;
 
 @ApplicationScoped
 public class PersoninfoTjeneste {
@@ -121,18 +115,6 @@ public class PersoninfoTjeneste {
 
         var person = pdlKlient.hentPerson(ytelseType, query, projection);
 
-        if (person.getFolkeregisteridentifikator() == null || person.getFolkeregisteridentifikator().isEmpty()) {
-            pdlKlient.sjekkUtenIdentifikatorFalskIdentitet(ytelseType, aktørId);
-        }
-
-        var fødselsdato = person.getFoedselsdato().stream()
-            .map(Foedselsdato::getFoedselsdato)
-            .filter(Objects::nonNull)
-            .findFirst().map(d -> LocalDate.parse(d, DateTimeFormatter.ISO_LOCAL_DATE)).orElse(null);
-        var dødssdato = person.getDoedsfall().stream()
-            .map(Doedsfall::getDoedsdato)
-            .filter(Objects::nonNull)
-            .findFirst().map(d -> LocalDate.parse(d, DateTimeFormatter.ISO_LOCAL_DATE)).orElse(null);
         var sivilstand = person.getSivilstand().stream()
             .map(Sivilstand::getType)
             .findFirst()
@@ -140,6 +122,35 @@ public class PersoninfoTjeneste {
         var familierelasjoner = mapFamilierelasjoner(person.getForelderBarnRelasjon(), person.getSivilstand());
 
         var filter = Gyldighetsperiode.innenfor(null, null);
+
+
+        if (!PersonMappers.harIdentifikator(person)) {
+            var falskIdent = pdlKlient.sjekkUtenIdentifikatorFalskIdentitet(ytelseType, aktørId, personIdent);
+            if (falskIdent != null) {
+                var pdlStatus = AnnetPeriodisertMapper.mapPersonstatus(person.getFolkeregisterpersonstatus(), filter, falskIdent.fødselsdato());
+                var statsborgerskap = AnnetPeriodisertMapper.mapStatsborgerskap(person.getStatsborgerskap(), filter, falskIdent.fødselsdato());
+                var adresser = adresseMapper.mapAdresser(person, filter, falskIdent.fødselsdato());
+                if (pdlStatus.isEmpty()) {
+                    pdlStatus = List.of(new PersonstatusPeriode(Gyldighetsperiode.innenfor(null, null), PersonstatusType.UTPE));
+                }
+                if (statsborgerskap.isEmpty()) {
+                    statsborgerskap = List.of(new StatsborgerskapPeriode(Gyldighetsperiode.innenfor(null, null), falskIdent.statsborgerskap()));
+                }
+                new Personinfo.Builder().medAktørId(aktørId).medPersonIdent(falskIdent.personIdent())
+                    .medNavn(falskIdent.navn())
+                    .medFødselsdato(Optional.ofNullable(falskIdent.fødselsdato()).orElse(Tid.TIDENES_BEGYNNELSE))
+                    .medNavBrukerKjønn(falskIdent.kjønn())
+                    .medPersonstatusPerioder(pdlStatus)
+                    .medSivilstandType(sivilstand)
+                    .medLandkoder(statsborgerskap)
+                    .medFamilierelasjon(familierelasjoner)
+                    .medAdressePerioder(adresser)
+                    .build();
+            }
+        }
+
+        var fødselsdato = PersonMappers.mapFødselsdato(person);
+        var dødssdato = PersonMappers.mapDødsdato(person);
         var pdlStatus = AnnetPeriodisertMapper.mapPersonstatus(person.getFolkeregisterpersonstatus(), filter, fødselsdato);
         var statsborgerskap = AnnetPeriodisertMapper.mapStatsborgerskap(person.getStatsborgerskap(), filter, fødselsdato);
         var adresser = adresseMapper.mapAdresser(person, filter, fødselsdato);
@@ -150,10 +161,10 @@ public class PersoninfoTjeneste {
         }
 
         return new Personinfo.Builder().medAktørId(aktørId).medPersonIdent(personIdent)
-            .medNavn(person.getNavn().stream().map(PersoninfoTjeneste::mapNavn).findFirst().orElse("MANGLER NAVN"))
+            .medNavn(PersonMappers.mapNavn(person, aktørId))
             .medFødselsdato(fødselsdato)
             .medDødsdato(dødssdato)
-            .medNavBrukerKjønn(mapKjønn(person))
+            .medNavBrukerKjønn(PersonMappers.mapKjønn(person))
             .medPersonstatusPerioder(pdlStatus)
             .medSivilstandType(sivilstand)
             .medLandkoder(statsborgerskap)
@@ -179,20 +190,6 @@ public class PersoninfoTjeneste {
             AnnetPeriodisertMapper.mapOpphold(person.getOpphold(), filter, fødselsdato),
             AnnetPeriodisertMapper.mapStatsborgerskap(person.getStatsborgerskap(), filter, fødselsdato),
             adresseMapper.mapAdresser(person, filter, fødselsdato));
-    }
-
-    static String mapNavn(Navn navn) {
-        return navn.getFornavn() + PdlKlientLogCause.leftPad(navn.getMellomnavn()) + PdlKlientLogCause.leftPad(navn.getEtternavn());
-    }
-
-    private static NavBrukerKjønn mapKjønn(Person person) {
-        var kode = person.getKjoenn().stream()
-            .map(Kjoenn::getKjoenn)
-            .filter(Objects::nonNull)
-            .findFirst().orElse(KjoennType.UKJENT);
-        if (KjoennType.MANN.equals(kode))
-            return NavBrukerKjønn.MANN;
-        return KjoennType.KVINNE.equals(kode) ? NavBrukerKjønn.KVINNE : NavBrukerKjønn.UDEFINERT;
     }
 
     private static Set<FamilierelasjonVL> mapFamilierelasjoner(List<ForelderBarnRelasjon> familierelasjoner, List<Sivilstand> sivilstandliste) {

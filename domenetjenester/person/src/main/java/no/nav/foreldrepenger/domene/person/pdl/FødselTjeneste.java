@@ -21,9 +21,7 @@ import no.nav.foreldrepenger.domene.typer.PersonIdent;
 import no.nav.fpsak.tidsserie.LocalDateInterval;
 import no.nav.pdl.DoedfoedtBarn;
 import no.nav.pdl.DoedfoedtBarnResponseProjection;
-import no.nav.pdl.Doedsfall;
 import no.nav.pdl.DoedsfallResponseProjection;
-import no.nav.pdl.Foedselsdato;
 import no.nav.pdl.FoedselsdatoResponseProjection;
 import no.nav.pdl.Folkeregisterpersonstatus;
 import no.nav.pdl.FolkeregisterpersonstatusResponseProjection;
@@ -123,14 +121,8 @@ public class FødselTjeneste {
                 .folkeregisterpersonstatus(new FolkeregisterpersonstatusResponseProjection().forenkletStatus().status());
         var barn = pdlKlient.hentPerson(ytelseType, request, projection);
 
-        var fødselsdato = barn.getFoedselsdato().stream()
-                .map(Foedselsdato::getFoedselsdato)
-                .filter(Objects::nonNull)
-                .findFirst().map(d -> LocalDate.parse(d, DateTimeFormatter.ISO_LOCAL_DATE)).orElse(null);
-        var dødssdato = barn.getDoedsfall().stream()
-                .map(Doedsfall::getDoedsdato)
-                .filter(Objects::nonNull)
-                .findFirst().map(d -> LocalDate.parse(d, DateTimeFormatter.ISO_LOCAL_DATE)).orElse(null);
+        var fødselsdato = PersonMappers.mapFødselsdato(barn);
+        var dødssdato = PersonMappers.mapDødsdato(barn);
         var pdlStatus = barn.getFolkeregisterpersonstatus().stream()
             .map(Folkeregisterpersonstatus::getStatus)
             .findFirst().map(PersonstatusType::fraFregPersonstatus).orElse(PersonstatusType.UDEFINERT);
