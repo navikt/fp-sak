@@ -42,9 +42,11 @@ public class FødselOmsorgsovertakelseRestTjeneste {
     private OmsorgsovertakelseTjeneste omsorgsovertakelseTjeneste;
 
     @Inject
-    public FødselOmsorgsovertakelseRestTjeneste(BehandlingsprosessTjeneste behandlingsprosessTjeneste, FaktaFødselTjeneste faktaFødselTjeneste) {
+    public FødselOmsorgsovertakelseRestTjeneste(BehandlingsprosessTjeneste behandlingsprosessTjeneste, FaktaFødselTjeneste faktaFødselTjeneste,
+                                                OmsorgsovertakelseTjeneste omsorgsovertakelseTjeneste) {
         this.behandlingsprosessTjeneste = behandlingsprosessTjeneste;
         this.faktaFødselTjeneste = faktaFødselTjeneste;
+        this.omsorgsovertakelseTjeneste = omsorgsovertakelseTjeneste;
     }
 
     FødselOmsorgsovertakelseRestTjeneste() {
