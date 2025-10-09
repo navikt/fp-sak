@@ -2,6 +2,7 @@ package no.nav.foreldrepenger.familiehendelse.aksjonspunkt.omsorgsovertakelse;
 
 import static no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagLinjeBuilder.fraTilEquals;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -17,6 +18,8 @@ import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterer;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdateringTransisjon;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.DtoTilServiceAdapter;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.OppdateringResultat;
+import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingsresultatRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.OmsorgsovertakelseVilkårType;
@@ -26,10 +29,10 @@ import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAkt�
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.SkjermlenkeType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.Avslagsårsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultat;
-import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultatRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallType;
 import no.nav.foreldrepenger.familiehendelse.FamilieHendelseTjeneste;
@@ -54,7 +57,7 @@ public class VurderOmsorgsovertakelseVilkårAksjonspunktOppdaterer implements Ak
 
     private HistorikkinnslagRepository historikkinnslagRepository;
     private BehandlingRepository behandlingRepository;
-    private VilkårResultatRepository resultatRepository;
+    private BehandlingsresultatRepository behandlingsresultatRepository;
     private FamilieHendelseTjeneste familieHendelseTjeneste;
     private OpplysningsPeriodeTjeneste opplysningsPeriodeTjeneste;
 
@@ -63,27 +66,25 @@ public class VurderOmsorgsovertakelseVilkårAksjonspunktOppdaterer implements Ak
     }
 
     @Inject
-    public VurderOmsorgsovertakelseVilkårAksjonspunktOppdaterer(HistorikkinnslagRepository historikkinnslagRepository,
-                                                                BehandlingRepository behandlingRepository,
-                                                                VilkårResultatRepository resultatRepository,
+    public VurderOmsorgsovertakelseVilkårAksjonspunktOppdaterer(BehandlingRepositoryProvider repositoryProvider,
                                                                 FamilieHendelseTjeneste familieHendelseTjeneste,
                                                                 OpplysningsPeriodeTjeneste opplysningsPeriodeTjeneste) {
-        this.historikkinnslagRepository = historikkinnslagRepository;
-        this.behandlingRepository = behandlingRepository;
-        this.resultatRepository = resultatRepository;
+        this.historikkinnslagRepository = repositoryProvider.getHistorikkinnslagRepository();
+        this.behandlingRepository = repositoryProvider.getBehandlingRepository();
+        this.behandlingsresultatRepository = repositoryProvider.getBehandlingsresultatRepository();
         this.familieHendelseTjeneste = familieHendelseTjeneste;
         this.opplysningsPeriodeTjeneste = opplysningsPeriodeTjeneste;
     }
 
     @Override
     public OppdateringResultat oppdater(VurderOmsorgsovertakelseVilkårAksjonspunktDto dto, AksjonspunktOppdaterParameter param) {
-        var avslagskode = dto.getAvslagskode();
-        if (avslagskode != null && !VilkårType.OMSORGSOVERTAKELSEVILKÅR.getAvslagsårsaker().contains(avslagskode)) {
-            throw new IllegalArgumentException("Ugyldig avslagsårsak for adopsjon/omsorgsvilkåret");
-        }
         var delvilkår = dto.getDelvilkår();
         if (delvilkår == null || OmsorgsovertakelseVilkårType.UDEFINERT.equals(delvilkår)) {
             throw new IllegalArgumentException("Ikke valgt delvilkår under adopsjon/omsorgsvilkåret");
+        }
+        var avslagskode = dto.getAvslagskode();
+        if (avslagskode != null && !delvilkår.getAvslagsårsaker().contains(avslagskode)) {
+            throw new IllegalArgumentException("Ugyldig avslagsårsak for adopsjon/omsorgsvilkåret");
         }
 
         var ref = param.getRef();
@@ -96,7 +97,9 @@ public class VurderOmsorgsovertakelseVilkårAksjonspunktOppdaterer implements Ak
         // Midlertidig sjekk + fjerning av legacy aksjonspunkter og vilkår
         behandling.getÅpneAksjonspunkter(LEGACY_AKSJONSPUNKT)
             .forEach(ap -> resultatBuilder.medEkstraAksjonspunktResultat(ap.getAksjonspunktDefinisjon(), AksjonspunktStatus.AVBRUTT));
-        resultatRepository.hentHvisEksisterer(behandling.getId()).map(VilkårResultat::getVilkårene).orElseGet(List::of).stream()
+        behandlingsresultatRepository.hentHvisEksisterer(behandling.getId())
+            .map(Behandlingsresultat::getVilkårResultat)
+            .map(VilkårResultat::getVilkårene).orElseGet(List::of).stream()
             .filter(v -> LEGACY_VILKÅR.contains(v.getVilkårType()))
             .forEach(fjernet -> resultatBuilder.fjernVilkårType(fjernet.getVilkårType()));
 
@@ -149,8 +152,12 @@ public class VurderOmsorgsovertakelseVilkårAksjonspunktOppdaterer implements Ak
             .addLinje(fraTilEquals("Adopsjons- og omsorgsvilkåret", null, utfall))
             .addLinje(fraTilEquals("Delvilkår", gjeldendeAdopsjon.getOmsorgovertakelseVilkår(), delvilkår))
             .addLinje(fraTilEquals("Omsorgsovertakelsesdato", gjeldendeAdopsjon.getOmsorgsovertakelseDato(), dto.getOmsorgsovertakelseDato()))
-            .addLinje(fraTilEquals("Stebarnsadopsjon", gjeldendeAdopsjon.isStebarnsadopsjon(), ektefellesBarn));
-        for (int i = 0; i < Math.max(fødselsdatoer.size(), gjeldendeBarn.size()); i++) {
+            .addLinje(fraTilEquals("Stebarnsadopsjon", gjeldendeAdopsjon.isStebarnsadopsjon(), ektefellesBarn))
+            .addLinje(fraTilEquals("Antall barn", gjeldendeBarn.size(), fødselsdatoer.size()));
+        var maxIndexGjeldende = gjeldendeBarn.keySet().stream().max(Comparator.naturalOrder()).orElse(0);
+        var maxIndexOppdatert = fødselsdatoer.keySet().stream().max(Comparator.naturalOrder()).orElse(0);
+        var maxIndex = Math.max(maxIndexGjeldende, maxIndexOppdatert) + 1;
+        for (int i = 0; i < maxIndex; i++) {
             var gjeldende = gjeldendeBarn.get(i);
             var oppdatert = fødselsdatoer.get(i);
             historikkinnslagBuilder.addLinje(fraTilEquals("Fødselsdato", gjeldende, oppdatert));
