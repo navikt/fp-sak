@@ -10,6 +10,8 @@ import java.util.stream.Collectors;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
+import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingsresultatRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.AdopsjonEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseType;
@@ -19,7 +21,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.søknad.FarSøkerType;
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultat;
-import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultatRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallType;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
@@ -40,7 +41,7 @@ public class OmsorgsovertakelseTjeneste {
     private FamilieHendelseTjeneste familieHendelseTjeneste;
     private BehandlingRepository behandlingRepository;
     private SøknadRepository søknadRepository;
-    private VilkårResultatRepository vilkårResultatRepository;
+    private BehandlingsresultatRepository behandlingsresultatRepository;
 
     OmsorgsovertakelseTjeneste() {
         // For CDI proxy
@@ -50,11 +51,11 @@ public class OmsorgsovertakelseTjeneste {
     public OmsorgsovertakelseTjeneste(FamilieHendelseTjeneste familieHendelseTjeneste,
                                       BehandlingRepository behandlingRepository,
                                       SøknadRepository søknadRepository,
-                                      VilkårResultatRepository vilkårResultatRepository) {
+                                      BehandlingsresultatRepository behandlingsresultatRepository) {
         this.familieHendelseTjeneste = familieHendelseTjeneste;
         this.behandlingRepository = behandlingRepository;
         this.søknadRepository = søknadRepository;
-        this.vilkårResultatRepository = vilkårResultatRepository;
+        this.behandlingsresultatRepository = behandlingsresultatRepository;
     }
 
     public OmsorgsovertakelseDto hentOmsorgsovertakelse(Long behandlingId) {
@@ -75,7 +76,9 @@ public class OmsorgsovertakelseTjeneste {
         var aktuelleVilkår = YTELSE_DELVILKÅR.getOrDefault(behandling.getFagsakYtelseType(), List.of());
         var aktuelleAvslagsårsaker = aktuelleVilkår.stream()
             .collect(Collectors.toMap(Function.identity(), OmsorgsovertakelseVilkårType::getAvslagsårsaker));
-        var tidligereValg = vilkårResultatRepository.hentHvisEksisterer(behandlingId).map(VilkårResultat::getVilkårene).orElseGet(List::of).stream()
+        var tidligereValg = behandlingsresultatRepository.hentHvisEksisterer(behandlingId)
+            .map(Behandlingsresultat::getVilkårResultat)
+            .map(VilkårResultat::getVilkårene).orElseGet(List::of).stream()
             .filter(v -> VilkårType.OMSORGSOVERTAKELSEVILKÅR.equals(v.getVilkårType()))
             .filter(v -> v.getAvslagsårsak() != null || VilkårUtfallType.erFastsatt(v.getGjeldendeVilkårUtfall()))
             .findFirst()
