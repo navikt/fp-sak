@@ -46,11 +46,13 @@ public class InngangsvilkårGrunnlagBygger {
 
     private static boolean foreldreansvarsvilkåretOppfylt(VilkårResultat vilkårResultat) {
         //Bare 2. ledd for foreldrepenger
-        return vilkårAvTypeErOppfylt(vilkårResultat, VilkårType.FORELDREANSVARSVILKÅRET_2_LEDD);
+        return vilkårAvTypeErOppfylt(vilkårResultat, VilkårType.FORELDREANSVARSVILKÅRET_2_LEDD)  ||
+            vilkårAvTypeErOppfylt(vilkårResultat, VilkårType.OMSORGSOVERTAKELSEVILKÅR);
     }
 
     private static boolean adopsjonsvilkåretOppfylt(VilkårResultat vilkårResultat) {
-        return vilkårAvTypeErOppfylt(vilkårResultat, VilkårType.ADOPSJONSVILKARET_FORELDREPENGER);
+        return vilkårAvTypeErOppfylt(vilkårResultat, VilkårType.ADOPSJONSVILKARET_FORELDREPENGER) ||
+            vilkårAvTypeErOppfylt(vilkårResultat, VilkårType.OMSORGSOVERTAKELSEVILKÅR);
     }
 
     private static boolean fødselsvilkårOppfylt(VilkårResultat vilkårResultat, BehandlingReferanse ref) {

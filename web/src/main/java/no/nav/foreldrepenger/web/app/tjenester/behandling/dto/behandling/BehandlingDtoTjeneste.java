@@ -76,7 +76,7 @@ import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.HenleggBehandlingD
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.ReåpneBehandlingDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.SettBehandlingPaVentDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.UuidDto;
-import no.nav.foreldrepenger.web.app.tjenester.behandling.fødsel.FødselRestTjeneste;
+import no.nav.foreldrepenger.web.app.tjenester.behandling.fødsel.FødselOmsorgsovertakelseRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.innsyn.InnsynRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.klage.KlageRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.klage.aksjonspunkt.KlageFormKravAksjonspunktMellomlagringDto;
@@ -373,7 +373,9 @@ public class BehandlingDtoTjeneste {
         dto.leggTil(get(FamiliehendelseRestTjeneste.FAMILIEHENDELSE_V3_PATH, "familiehendelse-v3", uuidDto));
 
         familieHendelseRepository.hentAggregatHvisEksisterer(behandling.getId())
-            .ifPresent(f -> dto.leggTil(get(FødselRestTjeneste.FAKTA_FODSEL_PATH, "fakta-fødsel", uuidDto)));
+            .ifPresent(f -> dto.leggTil(get(FødselOmsorgsovertakelseRestTjeneste.FAKTA_FODSEL_PATH, "fakta-fødsel", uuidDto)));
+        familieHendelseRepository.hentAggregatHvisEksisterer(behandling.getId())
+            .ifPresent(f -> dto.leggTil(get(FødselOmsorgsovertakelseRestTjeneste.FAKTA_OMSORGSOVERTAKELSE_PATH, "fakta-omsorgsovertakelse", uuidDto)));
 
         dto.leggTil(get(PersonRestTjeneste.PERSONOVERSIKT_PATH, "behandling-personoversikt", uuidDto));
         dto.leggTil(get(PersonRestTjeneste.MEDLEMSKAP_V3_PATH, "soeker-medlemskap-v3", uuidDto));

@@ -39,9 +39,9 @@ import no.nav.vedtak.exception.FunksjonellException;
 public class AvklarOmsorgOgForeldreansvarOppdaterer implements AksjonspunktOppdaterer<AvklarFaktaForOmsorgOgForeldreansvarAksjonspunktDto> {
 
     private static final Map<VilkårType, OmsorgsovertakelseVilkårType> MAP_VILKÅR_OMSORGSVILKÅR = Map.of(VilkårType.OMSORGSVILKÅRET,
-        OmsorgsovertakelseVilkårType.OMSORGSVILKÅRET, VilkårType.FORELDREANSVARSVILKÅRET_2_LEDD,
-        OmsorgsovertakelseVilkårType.FORELDREANSVARSVILKÅRET_2_LEDD, VilkårType.FORELDREANSVARSVILKÅRET_4_LEDD,
-        OmsorgsovertakelseVilkårType.FORELDREANSVARSVILKÅRET_4_LEDD);
+        OmsorgsovertakelseVilkårType.ES_OMSORGSVILKÅRET, VilkårType.FORELDREANSVARSVILKÅRET_2_LEDD,
+        OmsorgsovertakelseVilkårType.ES_FORELDREANSVARSVILKÅRET_2_LEDD, VilkårType.FORELDREANSVARSVILKÅRET_4_LEDD,
+        OmsorgsovertakelseVilkårType.ES_FORELDREANSVARSVILKÅRET_4_LEDD);
 
     private FamilieHendelseTjeneste familieHendelseTjeneste;
     private BehandlingsresultatRepository behandlingsresultatRepository;
@@ -167,13 +167,13 @@ public class AvklarOmsorgOgForeldreansvarOppdaterer implements AksjonspunktOppda
 
     private OmsorgsovertakelseVilkårType finnTekstBasertPåOmsorgsvilkår(VilkårType vilkårType) {
         if (VilkårType.OMSORGSVILKÅRET.equals(vilkårType)) {
-            return OmsorgsovertakelseVilkårType.OMSORGSVILKÅRET;
+            return OmsorgsovertakelseVilkårType.ES_OMSORGSVILKÅRET;
         }
         if (VilkårType.FORELDREANSVARSVILKÅRET_2_LEDD.equals(vilkårType)) {
-            return OmsorgsovertakelseVilkårType.FORELDREANSVARSVILKÅRET_2_LEDD;
+            return OmsorgsovertakelseVilkårType.ES_FORELDREANSVARSVILKÅRET_2_LEDD;
         }
         if (VilkårType.FORELDREANSVARSVILKÅRET_4_LEDD.equals(vilkårType)) {
-            return OmsorgsovertakelseVilkårType.FORELDREANSVARSVILKÅRET_4_LEDD;
+            return OmsorgsovertakelseVilkårType.ES_FORELDREANSVARSVILKÅRET_4_LEDD;
         }
         return null;
     }

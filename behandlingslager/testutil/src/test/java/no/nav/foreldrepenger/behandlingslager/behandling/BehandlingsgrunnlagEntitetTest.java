@@ -290,7 +290,7 @@ class BehandlingsgrunnlagEntitetTest extends EntityManagerAwareTest {
         var oppdatere = familieGrunnlagRepository.opprettBuilderForOverstyring(behandling.getId());
         oppdatere.medAdopsjon(oppdatere.getAdopsjonBuilder()
             .medOmsorgsovertakelseDato(omsorgsovertakelsesdato)
-            .medOmsorgovertalseVilkårType(OmsorgsovertakelseVilkårType.OMSORGSVILKÅRET));
+            .medOmsorgovertalseVilkårType(OmsorgsovertakelseVilkårType.ES_OMSORGSVILKÅRET));
         familieGrunnlagRepository.lagreOverstyrtHendelse(behandling.getId(), oppdatere);
 
         var søknad = new SøknadEntitet.Builder().medMottattDato(LocalDate.now()).medSøknadsdato(LocalDate.now()).build();
@@ -303,7 +303,7 @@ class BehandlingsgrunnlagEntitetTest extends EntityManagerAwareTest {
         assertThat(bekreftetVersjon).isPresent();
         assertThat(bekreftetVersjon.get().getAdopsjon()).isPresent();
         assertThat(bekreftetVersjon.get().getAdopsjon().get().getOmsorgsovertakelseDato()).isEqualTo(omsorgsovertakelsesdato);
-        assertThat(bekreftetVersjon.get().getAdopsjon().get().getOmsorgovertakelseVilkår()).isEqualTo(OmsorgsovertakelseVilkårType.OMSORGSVILKÅRET);
+        assertThat(bekreftetVersjon.get().getAdopsjon().get().getOmsorgovertakelseVilkår()).isEqualTo(OmsorgsovertakelseVilkårType.ES_OMSORGSVILKÅRET);
     }
 
     @Test

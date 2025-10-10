@@ -23,6 +23,7 @@ public class VurderSøkersRelasjonTilBarnStegImpl extends InngangsvilkårStegImp
             VilkårType.ADOPSJONSVILKARET_FORELDREPENGER,
             VilkårType.FØDSELSVILKÅRET_MOR,
             VilkårType.FØDSELSVILKÅRET_FAR_MEDMOR,
+            VilkårType.OMSORGSOVERTAKELSEVILKÅR,
             VilkårType.OMSORGSVILKÅRET,
             VilkårType.FORELDREANSVARSVILKÅRET_2_LEDD,
             VilkårType.FORELDREANSVARSVILKÅRET_4_LEDD);

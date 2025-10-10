@@ -20,30 +20,36 @@ import no.nav.foreldrepenger.web.app.tjenester.behandling.aksjonspunkt.Behandlin
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.BehandlingAbacSuppliers;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.UuidDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.fødsel.dto.FødselDto;
+import no.nav.foreldrepenger.web.app.tjenester.behandling.fødsel.dto.OmsorgsovertakelseDto;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
 import no.nav.vedtak.sikkerhet.abac.TilpassetAbacAttributt;
 import no.nav.vedtak.sikkerhet.abac.beskyttet.ActionType;
 import no.nav.vedtak.sikkerhet.abac.beskyttet.ResourceType;
 
-@Path(FødselRestTjeneste.BASE_PATH)
+@Path(FødselOmsorgsovertakelseRestTjeneste.BASE_PATH)
 @ApplicationScoped
 @Transactional
-public class FødselRestTjeneste {
+public class FødselOmsorgsovertakelseRestTjeneste {
 
-    static final String BASE_PATH = "/behandling/fodsel";
-    private static final String FAKTA_FODSEL_PART_PATH = "/fakta-fodsel";
+    static final String BASE_PATH = "/behandling";
+    private static final String FAKTA_FODSEL_PART_PATH = "/fodsel/fakta-fodsel";
     public static final String FAKTA_FODSEL_PATH = BASE_PATH + FAKTA_FODSEL_PART_PATH;
+    private static final String FAKTA_OMSORGSOVERTAKELSE_PART_PATH = "/omsorgsovertakelse/fakta-omsorgsovertakelse";
+    public static final String FAKTA_OMSORGSOVERTAKELSE_PATH = BASE_PATH + FAKTA_OMSORGSOVERTAKELSE_PART_PATH;
 
     private BehandlingsprosessTjeneste behandlingsprosessTjeneste;
     private FaktaFødselTjeneste faktaFødselTjeneste;
+    private OmsorgsovertakelseTjeneste omsorgsovertakelseTjeneste;
 
     @Inject
-    public FødselRestTjeneste(BehandlingsprosessTjeneste behandlingsprosessTjeneste, FaktaFødselTjeneste faktaFødselTjeneste) {
+    public FødselOmsorgsovertakelseRestTjeneste(BehandlingsprosessTjeneste behandlingsprosessTjeneste, FaktaFødselTjeneste faktaFødselTjeneste,
+                                                OmsorgsovertakelseTjeneste omsorgsovertakelseTjeneste) {
         this.behandlingsprosessTjeneste = behandlingsprosessTjeneste;
         this.faktaFødselTjeneste = faktaFødselTjeneste;
+        this.omsorgsovertakelseTjeneste = omsorgsovertakelseTjeneste;
     }
 
-    FødselRestTjeneste() {
+    FødselOmsorgsovertakelseRestTjeneste() {
         // for CDI proxy
     }
 
@@ -55,5 +61,17 @@ public class FødselRestTjeneste {
     public FødselDto hentFødsel(@TilpassetAbacAttributt(supplierClass = BehandlingAbacSuppliers.UuidAbacDataSupplier.class) @NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
         var behandlingId = behandlingsprosessTjeneste.hentBehandling(uuidDto.getBehandlingUuid()).getId();
         return faktaFødselTjeneste.hentFaktaOmFødsel(behandlingId);
+    }
+
+    @Path(FAKTA_OMSORGSOVERTAKELSE_PART_PATH)
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
+    @Operation(description = "Hent fakta om adopsjon og foreldreansvar i behandling", tags = "behandling - omsorgsovertakelse",
+        responses = {@ApiResponse(responseCode = "200", description = "Returnerer Fakta om adopsjon og foreldreansvar)",
+            content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = OmsorgsovertakelseDto.class)))})
+    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK, sporingslogg = false)
+    public OmsorgsovertakelseDto hentOmsorgsovertakelse(@TilpassetAbacAttributt(supplierClass = BehandlingAbacSuppliers.UuidAbacDataSupplier.class) @NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
+        var behandlingId = behandlingsprosessTjeneste.hentBehandling(uuidDto.getBehandlingUuid()).getId();
+        return omsorgsovertakelseTjeneste.hentOmsorgsovertakelse(behandlingId);
     }
 }

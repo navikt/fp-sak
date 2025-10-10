@@ -28,7 +28,6 @@ public enum Avslagsårsak implements Kodeverdi, ÅrsakskodeMedLovreferanse {
     MOR_IKKE_DØD_VED_FØDSEL_OMSORG("1010", "Mor ikke død ved fødsel/omsorg", null),
     ENGANGSSTØNAD_ALLEREDE_UTBETALT_TIL_MOR("1011", "Engangsstønad er allerede utbetalt til mor", "{\"fagsakYtelseType\": [{\"ES\": [{\"kategori\": \"FP_VK1\", \"lovreferanse\": \"§ 14-17 1. ledd\"}, {\"kategori\": \"FP_VK4\", \"lovreferanse\": \"§ 14-17 1. ledd\"}, {\"kategori\": \"FP_VK5\", \"lovreferanse\": \"§ 14-17 3. ledd\"}]}, {\"FP\": [{\"kategori\": \"FP_VK1\", \"lovreferanse\": \"§ 14-5 1. ledd\"}, {\"kategori\": \"FP_VK11\", \"lovreferanse\": \"§ 14-5 1. ledd\"}, {\"kategori\": \"FP_VK16\", \"lovreferanse\": \"§ 14-5 2. ledd\"}]}]}"),
     FAR_HAR_IKKE_OMSORG_FOR_BARNET("1012", "Far har ikke omsorg for barnet", null),
-    BARN_IKKE_UNDER_15_ÅR("1013", "Barn ikke under 15 år", "{\"fagsakYtelseType\": [{\"FP\": [{\"kategori\": \"FP_VK_8\", \"lovreferanse\": \"14-5\"}]}]}"),
     SØKER_HAR_IKKE_FORELDREANSVAR("1014", "Søker har ikke foreldreansvar", "{\"fagsakYtelseType\": [{\"FP\": [{\"kategori\": \"FP_VK_8\", \"lovreferanse\": \"14-5\"}]}]}"),
     SØKER_HAR_HATT_VANLIG_SAMVÆR_MED_BARNET("1015", "Søker har hatt vanlig samvær med barnet", "{\"fagsakYtelseType\": [{\"FP\": [{\"kategori\": \"FP_VK_8\", \"lovreferanse\": \"14-5\"}]}]}"),
     SØKER_ER_IKKE_BARNETS_FAR_F("1016", "Søker er ikke barnets far", null),

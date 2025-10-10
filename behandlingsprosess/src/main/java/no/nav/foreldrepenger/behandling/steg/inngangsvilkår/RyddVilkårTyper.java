@@ -6,6 +6,7 @@ import static no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårT
 import static no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType.FORELDREANSVARSVILKÅRET_4_LEDD;
 import static no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType.FØDSELSVILKÅRET_FAR_MEDMOR;
 import static no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType.FØDSELSVILKÅRET_MOR;
+import static no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType.OMSORGSOVERTAKELSEVILKÅR;
 import static no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType.OMSORGSVILKÅRET;
 
 import java.util.EnumMap;
@@ -43,6 +44,8 @@ class RyddVilkårTyper {
         OPPRYDDER_FOR_AVKLARTE_DATA.put(FORELDREANSVARSVILKÅRET_2_LEDD,
             r -> r.familieGrunnlagRepository.slettAvklarteData(r.behandling.getId(), r.kontekst.getSkriveLås()));
         OPPRYDDER_FOR_AVKLARTE_DATA.put(FORELDREANSVARSVILKÅRET_4_LEDD,
+            r -> r.familieGrunnlagRepository.slettAvklarteData(r.behandling.getId(), r.kontekst.getSkriveLås()));
+        OPPRYDDER_FOR_AVKLARTE_DATA.put(OMSORGSOVERTAKELSEVILKÅR,
             r -> r.familieGrunnlagRepository.slettAvklarteData(r.behandling.getId(), r.kontekst.getSkriveLås()));
     }
 

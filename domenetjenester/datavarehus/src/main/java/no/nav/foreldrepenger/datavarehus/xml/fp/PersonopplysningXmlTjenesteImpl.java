@@ -16,6 +16,7 @@ import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseGrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseType;
+import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.OmsorgsovertakelseVilkårType;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.UidentifisertBarn;
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonAdresseEntitet;
@@ -395,6 +396,9 @@ public class PersonopplysningXmlTjenesteImpl extends PersonopplysningXmlTjeneste
             familieHendelseGrunnlag.getGjeldendeBarna().forEach(aBarn -> adopsjon.getAdopsjonsbarn().add(leggTilAdopsjonsbarn(aBarn)));
             if (adopsjonhendelse.getAdoptererAlene() != null) {
                 adopsjon.setAdoptererAlene(VedtakXmlUtil.lagBooleanOpplysning(adopsjonhendelse.getAdoptererAlene()));
+            }
+            if (adopsjonhendelse.getOmsorgovertakelseVilkår() != null && !OmsorgsovertakelseVilkårType.UDEFINERT.equals(adopsjonhendelse.getOmsorgovertakelseVilkår())) {
+                adopsjon.setOmsorgvilkaartype(VedtakXmlUtil.lagKodeverksOpplysning(adopsjonhendelse.getOmsorgovertakelseVilkår()));
             }
             if (adopsjonhendelse.getOmsorgsovertakelseDato() != null) {
                 VedtakXmlUtil.lagDateOpplysning(adopsjonhendelse.getOmsorgsovertakelseDato()).ifPresent(adopsjon::setOmsorgsovertakelsesdato);
