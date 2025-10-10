@@ -99,7 +99,7 @@ public class PersoninfoTjeneste {
         query.setIdent(personIdent.getIdent());
 
         var projection = new PersonResponseProjection()
-            .folkeregisteridentifikator(new FolkeregisteridentifikatorResponseProjection().identifikasjonsnummer())
+            .folkeregisteridentifikator(new FolkeregisteridentifikatorResponseProjection().identifikasjonsnummer().status())
             .navn(new NavnResponseProjection().fornavn().mellomnavn().etternavn())
             .foedselsdato(new FoedselsdatoResponseProjection().foedselsdato())
             .doedsfall(new DoedsfallResponseProjection().doedsdato())

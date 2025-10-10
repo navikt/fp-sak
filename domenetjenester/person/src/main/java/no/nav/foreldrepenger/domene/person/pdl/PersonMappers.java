@@ -33,7 +33,8 @@ public class PersonMappers {
 
     public static boolean harIdentifikator(Collection<Folkeregisteridentifikator> folkeregisteridentifikator) {
         return folkeregisteridentifikator.stream()
-            .anyMatch(i -> i.getStatus().equals("I_BRUK"));
+            .map(Folkeregisteridentifikator::getStatus)
+            .anyMatch("I_BRUK"::equals);
     }
 
     public static NavBrukerKjønn mapKjønn(Person person) {
