@@ -139,9 +139,8 @@ public class AdopsjonEntitet extends BaseEntitet {
         this.omsorgsovertakelseVilkårType = omsorgsovertakelseVilkårType;
     }
 
-    public Boolean isStebarnsadopsjon() {
-        var erEktefellesBarn = getErEktefellesBarn();
-        return erEktefellesBarn != null ? erEktefellesBarn : Boolean.valueOf(false);
+    public boolean isStebarnsadopsjon() {
+        return Objects.equals(getErEktefellesBarn(), Boolean.TRUE) || OmsorgsovertakelseVilkårType.FP_STEBARNSADOPSJONSVILKÅRET.equals(getOmsorgovertakelseVilkår());
     }
 
 

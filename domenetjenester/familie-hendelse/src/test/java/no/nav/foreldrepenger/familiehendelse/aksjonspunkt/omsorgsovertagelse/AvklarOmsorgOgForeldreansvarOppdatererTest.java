@@ -78,7 +78,7 @@ class AvklarOmsorgOgForeldreansvarOppdatererTest extends EntityManagerAwareTest 
         assertThat(gjellendeVersjon.getAntallBarn()).isEqualTo(2);
         assertThat(adopsjon).hasValueSatisfying(value -> {
             assertThat(value.getOmsorgsovertakelseDato()).as("omsorgsovertakelsesDato").isEqualTo(LocalDate.now());
-            assertThat(value.getOmsorgovertakelseVilkår()).as("omsorgsovertakelsesVilkår").isEqualTo(OmsorgsovertakelseVilkårType.OMSORGSVILKÅRET);
+            assertThat(value.getOmsorgovertakelseVilkår()).as("omsorgsovertakelsesVilkår").isEqualTo(OmsorgsovertakelseVilkårType.ES_OMSORGSVILKÅRET);
         });
     }
 

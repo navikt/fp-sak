@@ -131,20 +131,20 @@ class FamilieHendelseRepositoryTest extends EntityManagerAwareTest {
 
         hendelseBuilder = repository.opprettBuilderForOverstyring(behandling.getId());
         hendelseBuilder.medAdopsjon(hendelseBuilder.getAdopsjonBuilder()
-            .medOmsorgovertalseVilkårType(OmsorgsovertakelseVilkårType.FORELDREANSVARSVILKÅRET_2_LEDD));
+            .medOmsorgovertalseVilkårType(OmsorgsovertakelseVilkårType.ES_FORELDREANSVARSVILKÅRET_2_LEDD));
         repository.lagreOverstyrtHendelse(behandling.getId(), hendelseBuilder);
 
         familieHendelseGrunnlag = repository.hentAggregat(behandling.getId());
 
         assertThat(familieHendelseGrunnlag.getSøknadVersjon()).isNotNull();
         assertThat(familieHendelseGrunnlag.getOverstyrtVersjon().get().getAdopsjon().get().getOmsorgovertakelseVilkår())
-            .isEqualTo(OmsorgsovertakelseVilkårType.FORELDREANSVARSVILKÅRET_2_LEDD);
+            .isEqualTo(OmsorgsovertakelseVilkårType.ES_FORELDREANSVARSVILKÅRET_2_LEDD);
         assertThat(familieHendelseGrunnlag.getSøknadVersjon().getBarna()).hasSize(1);
         assertThat(familieHendelseGrunnlag.getSøknadVersjon().getAntallBarn()).isEqualTo(1);
 
         var hendelseBuilder1 = repository.opprettBuilderForOverstyring(behandling.getId());
         hendelseBuilder1.medAdopsjon(hendelseBuilder1.getAdopsjonBuilder()
-            .medOmsorgovertalseVilkårType(OmsorgsovertakelseVilkårType.FORELDREANSVARSVILKÅRET_4_LEDD));
+            .medOmsorgovertalseVilkårType(OmsorgsovertakelseVilkårType.ES_FORELDREANSVARSVILKÅRET_4_LEDD));
         repository.lagreOverstyrtHendelse(behandling.getId(), hendelseBuilder1);
 
         familieHendelseGrunnlag = repository.hentAggregat(behandling.getId());
@@ -152,7 +152,7 @@ class FamilieHendelseRepositoryTest extends EntityManagerAwareTest {
         assertThat(familieHendelseGrunnlag.getBekreftetVersjon()).isNotPresent();
         assertThat(familieHendelseGrunnlag.getOverstyrtVersjon().get().getAdopsjon()).isPresent();
         assertThat(familieHendelseGrunnlag.getOverstyrtVersjon().get().getAdopsjon().get().getOmsorgovertakelseVilkår())
-            .isEqualTo(OmsorgsovertakelseVilkårType.FORELDREANSVARSVILKÅRET_4_LEDD);
+            .isEqualTo(OmsorgsovertakelseVilkårType.ES_FORELDREANSVARSVILKÅRET_4_LEDD);
         assertThat(familieHendelseGrunnlag.getSøknadVersjon()).isNotNull();
         assertThat(familieHendelseGrunnlag.getSøknadVersjon().getBarna()).hasSize(1);
         assertThat(familieHendelseGrunnlag.getSøknadVersjon().getAntallBarn()).isEqualTo(1);
@@ -177,17 +177,17 @@ class FamilieHendelseRepositoryTest extends EntityManagerAwareTest {
 
         hendelseBuilder = repository.opprettBuilderForOverstyring(behandling.getId());
         hendelseBuilder.medAdopsjon(hendelseBuilder.getAdopsjonBuilder()
-            .medOmsorgovertalseVilkårType(OmsorgsovertakelseVilkårType.OMSORGSVILKÅRET));
+            .medOmsorgovertalseVilkårType(OmsorgsovertakelseVilkårType.ES_OMSORGSVILKÅRET));
         repository.lagreOverstyrtHendelse(behandling.getId(), hendelseBuilder);
 
         var hendelseBuilder1 = repository.opprettBuilderForOverstyring(behandling.getId());
         hendelseBuilder1.medAdopsjon(hendelseBuilder1.getAdopsjonBuilder()
-            .medOmsorgovertalseVilkårType(OmsorgsovertakelseVilkårType.FORELDREANSVARSVILKÅRET_2_LEDD));
+            .medOmsorgovertalseVilkårType(OmsorgsovertakelseVilkårType.ES_FORELDREANSVARSVILKÅRET_2_LEDD));
         repository.lagreOverstyrtHendelse(behandling.getId(), hendelseBuilder1);
 
         var hendelseBuilder2 = repository.opprettBuilderForOverstyring(behandling.getId());
         hendelseBuilder2.medAdopsjon(hendelseBuilder2.getAdopsjonBuilder()
-            .medOmsorgovertalseVilkårType(OmsorgsovertakelseVilkårType.FORELDREANSVARSVILKÅRET_4_LEDD));
+            .medOmsorgovertalseVilkårType(OmsorgsovertakelseVilkårType.ES_FORELDREANSVARSVILKÅRET_4_LEDD));
         repository.lagreOverstyrtHendelse(behandling.getId(), hendelseBuilder2);
 
         var familieHendelseGrunnlag = repository.hentAggregat(behandling.getId());

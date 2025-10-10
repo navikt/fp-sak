@@ -16,7 +16,7 @@ import no.nav.foreldrepenger.web.app.tjenester.behandling.arbeidsforhold.Inntekt
 import no.nav.foreldrepenger.web.app.tjenester.behandling.beregningsgrunnlag.BeregningsgrunnlagRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.beregningsresultat.BeregningsresultatRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.beregningsresultat.FeriepengegrunnlagRestTjeneste;
-import no.nav.foreldrepenger.web.app.tjenester.behandling.fødsel.FødselRestTjeneste;
+import no.nav.foreldrepenger.web.app.tjenester.behandling.fødsel.FødselOmsorgsovertakelseRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.historikk.HistorikkRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.innsyn.InnsynRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.klage.KlageRestTjeneste;
@@ -109,7 +109,7 @@ public class RestImplementationClasses {
         classes.add(BrevRestTjeneste.class);
         classes.add(RedirectToRegisterRestTjeneste.class);
         classes.add(OppgaverRestTjeneste.class);
-        classes.add(FødselRestTjeneste.class);
+        classes.add(FødselOmsorgsovertakelseRestTjeneste.class);
 
         // Søk infotrygd
         classes.add(InfotrygdOppslagRestTjeneste.class);
