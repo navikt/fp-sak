@@ -8,7 +8,10 @@ import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.lenient;
 
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Map;
+
+import no.nav.foreldrepenger.familiehendelse.aksjonspunkt.omsorgsovertakelse.dto.OmsorgsovertakelseBarnDto;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -75,7 +78,7 @@ class VurderOmsorgsovertakelseVilkårAksjonspunktOppdatererTest extends EntityMa
         var behandling = scenario.lagre(repositoryProvider);
 
 
-        var dto = new VurderOmsorgsovertakelseVilkårAksjonspunktDto("begrunnelse", OMSORGSOVERTAKELSESDATO, Map.of(1, FØDSELSDATO),
+        var dto = new VurderOmsorgsovertakelseVilkårAksjonspunktDto("begrunnelse", OMSORGSOVERTAKELSESDATO, List.of(new OmsorgsovertakelseBarnDto(FØDSELSDATO, 1)),
             null, OmsorgsovertakelseVilkårType.FP_STEBARNSADOPSJONSVILKÅRET, true);
 
         var vilkårBuilder = VilkårResultat.builder();
@@ -131,7 +134,7 @@ class VurderOmsorgsovertakelseVilkårAksjonspunktOppdatererTest extends EntityMa
         var behandling = scenario.lagre(repositoryProvider);
 
 
-        var dto = new VurderOmsorgsovertakelseVilkårAksjonspunktDto("begrunnelse", omsorgsovertakelsesdato, Map.of(1, fødselsdato),
+        var dto = new VurderOmsorgsovertakelseVilkårAksjonspunktDto("begrunnelse", omsorgsovertakelsesdato, List.of(new OmsorgsovertakelseBarnDto(FØDSELSDATO, 1)),
             Avslagsårsak.SØKER_HAR_HATT_VANLIG_SAMVÆR_MED_BARNET, OmsorgsovertakelseVilkårType.ES_FORELDREANSVARSVILKÅRET_2_LEDD, false);
 
         var vilkårBuilder = VilkårResultat.builder();
@@ -186,7 +189,7 @@ class VurderOmsorgsovertakelseVilkårAksjonspunktOppdatererTest extends EntityMa
 
 
         var dto = new VurderOmsorgsovertakelseVilkårAksjonspunktDto("begrunnelse", OMSORGSOVERTAKELSESDATO.plusWeeks(1),
-            Map.of(1, FØDSELSDATO), null, OmsorgsovertakelseVilkårType.FP_STEBARNSADOPSJONSVILKÅRET, true);
+            List.of(new OmsorgsovertakelseBarnDto(FØDSELSDATO, 1)), null, OmsorgsovertakelseVilkårType.FP_STEBARNSADOPSJONSVILKÅRET, true);
 
         var vilkårBuilder = VilkårResultat.builder();
         var oppdateringResultat = oppdater(behandling, dto, vilkårBuilder);
@@ -231,17 +234,17 @@ class VurderOmsorgsovertakelseVilkårAksjonspunktOppdatererTest extends EntityMa
         // Arrange
         var tjeneste = new VurderOmsorgsovertakelseVilkårAksjonspunktOppdaterer(repositoryProvider, familieHendelseTjeneste, opplysningsPeriodeTjeneste);
 
-        var dto1 = new VurderOmsorgsovertakelseVilkårAksjonspunktDto("begrunnelse", OMSORGSOVERTAKELSESDATO, Map.of(1, FØDSELSDATO),
+        var dto1 = new VurderOmsorgsovertakelseVilkårAksjonspunktDto("begrunnelse", OMSORGSOVERTAKELSESDATO, List.of(new OmsorgsovertakelseBarnDto(FØDSELSDATO, 1)),
             Avslagsårsak.SØKER_ER_IKKE_MEDLEM, OmsorgsovertakelseVilkårType.ES_FORELDREANSVARSVILKÅRET_2_LEDD, false);
         var param1 = new AksjonspunktOppdaterParameter(null, dto1, null);
         assertThrows(IllegalArgumentException.class, () -> tjeneste.oppdater(dto1, param1));
 
-        var dto2 = new VurderOmsorgsovertakelseVilkårAksjonspunktDto("begrunnelse", OMSORGSOVERTAKELSESDATO, Map.of(1, FØDSELSDATO),
+        var dto2 = new VurderOmsorgsovertakelseVilkårAksjonspunktDto("begrunnelse", OMSORGSOVERTAKELSESDATO, List.of(new OmsorgsovertakelseBarnDto(FØDSELSDATO, 1)),
             Avslagsårsak.SØKER_HAR_IKKE_FORELDREANSVAR, OmsorgsovertakelseVilkårType.UDEFINERT, false);
         var param2 = new AksjonspunktOppdaterParameter(null, dto2, null);
         assertThrows(IllegalArgumentException.class, () -> tjeneste.oppdater(dto2, param2));
 
-        var dto3 = new VurderOmsorgsovertakelseVilkårAksjonspunktDto("begrunnelse", OMSORGSOVERTAKELSESDATO, Map.of(1, FØDSELSDATO),
+        var dto3 = new VurderOmsorgsovertakelseVilkårAksjonspunktDto("begrunnelse", OMSORGSOVERTAKELSESDATO, List.of(new OmsorgsovertakelseBarnDto(FØDSELSDATO, 1)),
             Avslagsårsak.SØKER_HAR_HATT_VANLIG_SAMVÆR_MED_BARNET, OmsorgsovertakelseVilkårType.FP_ADOPSJONSVILKÅRET, false);
         var param3 = new AksjonspunktOppdaterParameter(null, dto3, null);
         assertThrows(IllegalArgumentException.class, () -> tjeneste.oppdater(dto3, param3));
@@ -258,7 +261,6 @@ class VurderOmsorgsovertakelseVilkårAksjonspunktOppdatererTest extends EntityMa
     private void byggVilkårResultat(VilkårResultat.Builder vilkårBuilder, OppdateringResultat delresultat) {
         delresultat.getVilkårUtfallSomSkalLeggesTil()
             .forEach(v -> vilkårBuilder.manueltVilkår(v.getVilkårType(), v.getVilkårUtfallType(), v.getAvslagsårsak()));
-        delresultat.getVilkårTyperSomSkalFjernes().forEach(vilkårBuilder::fjernVilkår); // TODO: Vilkår burde ryddes på ein annen måte enn dette
     }
 
 }

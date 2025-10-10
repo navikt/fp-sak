@@ -36,6 +36,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultat
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallType;
 import no.nav.foreldrepenger.familiehendelse.FamilieHendelseTjeneste;
+import no.nav.foreldrepenger.familiehendelse.aksjonspunkt.omsorgsovertakelse.dto.OmsorgsovertakelseBarnDto;
 import no.nav.foreldrepenger.familiehendelse.aksjonspunkt.omsorgsovertakelse.dto.VurderOmsorgsovertakelseVilkårAksjonspunktDto;
 import no.nav.foreldrepenger.skjæringstidspunkt.OpplysningsPeriodeTjeneste;
 
@@ -80,11 +81,16 @@ public class VurderOmsorgsovertakelseVilkårAksjonspunktOppdaterer implements Ak
     public OppdateringResultat oppdater(VurderOmsorgsovertakelseVilkårAksjonspunktDto dto, AksjonspunktOppdaterParameter param) {
         var delvilkår = dto.getDelvilkår();
         if (delvilkår == null || OmsorgsovertakelseVilkårType.UDEFINERT.equals(delvilkår)) {
-            throw new IllegalArgumentException("Ikke valgt delvilkår under adopsjon/omsorgsvilkåret");
+            throw new IllegalArgumentException("Ikke valgt delvilkår under omsorgsovertakelsesvilkåret");
         }
         var avslagskode = dto.getAvslagskode();
         if (avslagskode != null && !delvilkår.getAvslagsårsaker().contains(avslagskode)) {
-            throw new IllegalArgumentException("Ugyldig avslagsårsak for adopsjon/omsorgsvilkåret");
+            throw new IllegalArgumentException("Ugyldig avslagsårsak for omsorgsovertakelsesvilkåret");
+        }
+        var fødselsdatoer = dto.getFødselsdatoer().stream()
+            .collect(Collectors.groupingBy(OmsorgsovertakelseBarnDto::barnNummer, Collectors.toList()));
+        if (fødselsdatoer.values().stream().anyMatch(l -> l.size() > 1)) {
+            throw new IllegalArgumentException("Duplikate barnNummer i fødselsdatoer for omsorgsovertakelsesvilkåret");
         }
 
         var ref = param.getRef();
@@ -125,7 +131,8 @@ public class VurderOmsorgsovertakelseVilkårAksjonspunktOppdaterer implements Ak
                                                    VurderOmsorgsovertakelseVilkårAksjonspunktDto dto) {
         var utfall = avslagsårsak == null ? VilkårUtfallType.OPPFYLT : VilkårUtfallType.IKKE_OPPFYLT;
         var omsorgsovertakelsedato = dto.getOmsorgsovertakelseDato();
-        var fødselsdatoer = dto.getFødselsdatoer();
+        var fødselsdatoer = dto.getFødselsdatoer().stream()
+            .collect(Collectors.toMap(OmsorgsovertakelseBarnDto::barnNummer, OmsorgsovertakelseBarnDto::fødselsdato));
         var ektefellesBarn = Objects.equals(dto.getEktefellesBarn(), Boolean.TRUE) || OmsorgsovertakelseVilkårType.FP_STEBARNSADOPSJONSVILKÅRET.equals(dto.getDelvilkår());
 
         var grunnlag = familieHendelseTjeneste.hentAggregat(ref.behandlingId());

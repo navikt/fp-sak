@@ -1,7 +1,7 @@
 package no.nav.foreldrepenger.familiehendelse.aksjonspunkt.omsorgsovertakelse.dto;
 
 import java.time.LocalDate;
-import java.util.Map;
+import java.util.List;
 
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
@@ -31,7 +31,7 @@ public class VurderOmsorgsovertakelseVilkårAksjonspunktDto extends BekreftetAks
     @Valid
     @NotNull
     @Size(max = 9)
-    private Map<Integer, LocalDate> fødselsdatoer;
+    private List<OmsorgsovertakelseBarnDto> fødselsdatoer;
 
     @NotNull
     private Boolean ektefellesBarn;
@@ -42,7 +42,7 @@ public class VurderOmsorgsovertakelseVilkårAksjonspunktDto extends BekreftetAks
 
     public VurderOmsorgsovertakelseVilkårAksjonspunktDto(String begrunnelse,
                                                          LocalDate omsorgsovertakelseDato,
-                                                         Map<Integer, LocalDate> fødselsdatoer,
+                                                         List<OmsorgsovertakelseBarnDto> fødselsdatoer,
                                                          Avslagsårsak avslagskode,
                                                          OmsorgsovertakelseVilkårType delvilkår,
                                                          Boolean ektefellesBarn) {
@@ -60,7 +60,7 @@ public class VurderOmsorgsovertakelseVilkårAksjonspunktDto extends BekreftetAks
         return omsorgsovertakelseDato;
     }
 
-    public Map<Integer, LocalDate> getFødselsdatoer() {
+    public List<OmsorgsovertakelseBarnDto> getFødselsdatoer() {
         return fødselsdatoer;
     }
 

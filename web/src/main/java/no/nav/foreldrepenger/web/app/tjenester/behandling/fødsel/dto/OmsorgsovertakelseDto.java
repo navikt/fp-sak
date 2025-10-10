@@ -15,7 +15,6 @@ public record OmsorgsovertakelseDto(@NotNull Omsorgsovertakelse søknad,
                                     @NotNull Kilde kildeGjeldende,
                                     @NotNull Omsorgsovertakelse gjeldende,
                                     SaksbehandlerVurdering saksbehandlerVurdering,
-                                    @NotNull List<OmsorgsovertakelseVilkårType> aktuelleDelvilkår,
                                     @NotNull Map<OmsorgsovertakelseVilkårType, List<Avslagsårsak>> aktuelleDelvilkårAvslagsårsaker) {
 
 
