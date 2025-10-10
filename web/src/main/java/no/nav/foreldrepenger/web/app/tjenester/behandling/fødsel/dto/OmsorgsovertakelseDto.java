@@ -10,11 +10,13 @@ import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.Omsorgs
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.Avslagsårsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallType;
 
-public record OmsorgsovertakelseDto(@NotNull Omsorgsovertakelse søknad, @NotNull Register register,
-                                    @NotNull Kilde kildeGjeldende, @NotNull Omsorgsovertakelse gjeldende,
+public record OmsorgsovertakelseDto(@NotNull Omsorgsovertakelse søknad,
+                                    @NotNull Register register,
+                                    @NotNull Kilde kildeGjeldende,
+                                    @NotNull Omsorgsovertakelse gjeldende,
                                     SaksbehandlerVurdering saksbehandlerVurdering,
-                                    List<OmsorgsovertakelseVilkårType> aktuelleDelvilkår,
-                                    Map<OmsorgsovertakelseVilkårType, List<Avslagsårsak>> aktuelleDelvilkårAvslagsårsaker) {
+                                    @NotNull List<OmsorgsovertakelseVilkårType> aktuelleDelvilkår,
+                                    @NotNull Map<OmsorgsovertakelseVilkårType, List<Avslagsårsak>> aktuelleDelvilkårAvslagsårsaker) {
 
 
     public record SaksbehandlerVurdering(@NotNull VilkårUtfallType vilkårUtfallType, Avslagsårsak avslagsårsak) {
