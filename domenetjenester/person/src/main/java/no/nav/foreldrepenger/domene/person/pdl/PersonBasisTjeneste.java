@@ -47,13 +47,13 @@ public class PersonBasisTjeneste {
         var query = new HentPersonQueryRequest();
         query.setIdent(aktørId.getId());
         var projection = new PersonResponseProjection()
-            .folkeregisteridentifikator(new FolkeregisteridentifikatorResponseProjection().identifikasjonsnummer())
+            .folkeregisteridentifikator(new FolkeregisteridentifikatorResponseProjection().identifikasjonsnummer().status())
             .navn(new NavnResponseProjection().fornavn().mellomnavn().etternavn())
             .adressebeskyttelse(new AdressebeskyttelseResponseProjection().gradering());
 
         var person = pdlKlient.hentPerson(ytelseType, query, projection);
 
-        if (person.getFolkeregisteridentifikator() == null || person.getFolkeregisteridentifikator().isEmpty()) {
+        if (!PersonMappers.harIdentifikator(person)) {
             var falskIdent = pdlKlient.sjekkUtenIdentifikatorFalskIdentitet(ytelseType, aktørId, personIdent);
             if (falskIdent != null) {
                 return new PersoninfoVisning(aktørId, falskIdent.personIdent(), falskIdent.navn(), Diskresjonskode.UDEFINERT);
@@ -67,7 +67,7 @@ public class PersonBasisTjeneste {
         var query = new HentPersonQueryRequest();
         query.setIdent(aktørId.getId());
         var projection = new PersonResponseProjection()
-            .folkeregisteridentifikator(new FolkeregisteridentifikatorResponseProjection().identifikasjonsnummer())
+            .folkeregisteridentifikator(new FolkeregisteridentifikatorResponseProjection().identifikasjonsnummer().status())
             .navn(new NavnResponseProjection().fornavn().mellomnavn().etternavn())
             .foedselsdato(new FoedselsdatoResponseProjection().foedselsdato())
             .doedsfall(new DoedsfallResponseProjection().doedsdato())
@@ -76,7 +76,7 @@ public class PersonBasisTjeneste {
 
         var person = pdlKlient.hentPerson(ytelseType, query, projection);
 
-        if (person.getFolkeregisteridentifikator() == null || person.getFolkeregisteridentifikator().isEmpty()) {
+        if (!PersonMappers.harIdentifikator(person)) {
             var falskIdent = pdlKlient.sjekkUtenIdentifikatorFalskIdentitet(ytelseType, aktørId, personIdent);
             if (falskIdent != null) {
                 return new PersoninfoBasis(aktørId, falskIdent.personIdent(), falskIdent.navn(),
