@@ -59,7 +59,7 @@ public class OmsorgsovertakelseTjenesteTest extends EntityManagerAwareTest {
         assertThat(gjeldende.erEktefellesBarn()).isTrue();
         assertThat(omsorgsovertakelseDto.register()).isNotNull();
         assertThat(omsorgsovertakelseDto.register().barn()).isEmpty();
-        assertThat(omsorgsovertakelseDto.aktuelleDelvilkår()).hasSize(3);
+        assertThat(omsorgsovertakelseDto.aktuelleDelvilkårAvslagsårsaker().keySet()).hasSize(3);
         assertThat(omsorgsovertakelseDto.aktuelleDelvilkårAvslagsårsaker().get(OmsorgsovertakelseVilkårType.FP_STEBARNSADOPSJONSVILKÅRET)).hasSize(6);
         assertThat(omsorgsovertakelseDto.saksbehandlerVurdering()).isNull();
     }
@@ -87,7 +87,7 @@ public class OmsorgsovertakelseTjenesteTest extends EntityManagerAwareTest {
         assertThat(gjeldende.erEktefellesBarn()).isFalse();
         assertThat(omsorgsovertakelseDto.register()).isNotNull();
         assertThat(omsorgsovertakelseDto.register().barn()).hasSize(2);
-        assertThat(omsorgsovertakelseDto.aktuelleDelvilkår()).hasSize(4);
+        assertThat(omsorgsovertakelseDto.aktuelleDelvilkårAvslagsårsaker().keySet()).hasSize(4);
         assertThat(omsorgsovertakelseDto.aktuelleDelvilkårAvslagsårsaker().get(OmsorgsovertakelseVilkårType.ES_ADOPSJONSVILKÅRET)).hasSize(7);
         assertThat(omsorgsovertakelseDto.saksbehandlerVurdering()).isNull();
     }
@@ -132,7 +132,7 @@ public class OmsorgsovertakelseTjenesteTest extends EntityManagerAwareTest {
         assertThat(gjeldende.omsorgsovertakelseDato()).isEqualTo(OMSORGSOVERTAGELSEDATO.minusWeeks(1));
         assertThat(gjeldende.erEktefellesBarn()).isFalse();
         assertThat(gjeldende.barn()).hasSize(1);
-        assertThat(omsorgsovertakelseDto.aktuelleDelvilkår()).hasSize(4);
+        assertThat(omsorgsovertakelseDto.aktuelleDelvilkårAvslagsårsaker().keySet()).hasSize(4);
         assertThat(omsorgsovertakelseDto.aktuelleDelvilkårAvslagsårsaker().get(OmsorgsovertakelseVilkårType.ES_FORELDREANSVARSVILKÅRET_2_LEDD)).hasSize(7);
         var vurdering = omsorgsovertakelseDto.saksbehandlerVurdering();
         assertThat(vurdering).isNotNull();
@@ -178,7 +178,7 @@ public class OmsorgsovertakelseTjenesteTest extends EntityManagerAwareTest {
         assertThat(gjeldende.omsorgsovertakelseDato()).isEqualTo(OMSORGSOVERTAGELSEDATO);
         assertThat(gjeldende.erEktefellesBarn()).isFalse();
         assertThat(gjeldende.barn()).hasSize(1);
-        assertThat(omsorgsovertakelseDto.aktuelleDelvilkår()).hasSize(3);
+        assertThat(omsorgsovertakelseDto.aktuelleDelvilkårAvslagsårsaker().keySet()).hasSize(3);
         assertThat(omsorgsovertakelseDto.aktuelleDelvilkårAvslagsårsaker().get(OmsorgsovertakelseVilkårType.FP_FORELDREANSVARSVILKÅRET_2_LEDD)).hasSize(9);
         var vurdering = omsorgsovertakelseDto.saksbehandlerVurdering();
         assertThat(vurdering).isNotNull();

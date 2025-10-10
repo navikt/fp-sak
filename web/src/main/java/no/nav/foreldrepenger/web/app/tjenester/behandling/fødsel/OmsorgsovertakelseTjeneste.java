@@ -73,8 +73,7 @@ public class OmsorgsovertakelseTjeneste {
             .map(overstyrt -> lagOmsorgsovertakelse(overstyrt, behandling.getFagsakYtelseType(), farSøkerType))
             .orElse(søknadData);
 
-        var aktuelleVilkår = YTELSE_DELVILKÅR.getOrDefault(behandling.getFagsakYtelseType(), List.of());
-        var aktuelleAvslagsårsaker = aktuelleVilkår.stream()
+        var aktuelleAvslagsårsaker = YTELSE_DELVILKÅR.getOrDefault(behandling.getFagsakYtelseType(), List.of()).stream()
             .collect(Collectors.toMap(Function.identity(), OmsorgsovertakelseVilkårType::getAvslagsårsaker));
         var tidligereValg = behandlingsresultatRepository.hentHvisEksisterer(behandlingId)
             .map(Behandlingsresultat::getVilkårResultat)
@@ -85,7 +84,7 @@ public class OmsorgsovertakelseTjeneste {
             .map(v -> new OmsorgsovertakelseDto.SaksbehandlerVurdering(v.getGjeldendeVilkårUtfall(), v.getAvslagsårsak()))
             .orElse(null);
 
-        return new OmsorgsovertakelseDto(søknadData, registerData, gjeldendeKilde, gjeldendeData, tidligereValg, aktuelleVilkår, aktuelleAvslagsårsaker);
+        return new OmsorgsovertakelseDto(søknadData, registerData, gjeldendeKilde, gjeldendeData, tidligereValg, aktuelleAvslagsårsaker);
     }
 
     private OmsorgsovertakelseDto.Omsorgsovertakelse lagOmsorgsovertakelse(FamilieHendelseEntitet familieHendelse, FagsakYtelseType ytelseType, FarSøkerType farSøkerType) {
