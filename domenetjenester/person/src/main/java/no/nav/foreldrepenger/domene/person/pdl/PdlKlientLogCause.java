@@ -14,9 +14,13 @@ import jakarta.ws.rs.ProcessingException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import no.nav.foreldrepenger.behandlingslager.aktør.NavBrukerKjønn;
+import no.nav.foreldrepenger.behandlingslager.aktør.PersoninfoFalskIdentitet;
 import no.nav.foreldrepenger.behandlingslager.aktør.PersonstatusType;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
+import no.nav.foreldrepenger.behandlingslager.geografisk.Landkoder;
 import no.nav.foreldrepenger.domene.typer.AktørId;
+import no.nav.foreldrepenger.domene.typer.PersonIdent;
 import no.nav.pdl.FalskIdentitetIdentifiserendeInformasjonResponseProjection;
 import no.nav.pdl.FalskIdentitetResponseProjection;
 import no.nav.pdl.Folkeregisterpersonstatus;
@@ -28,6 +32,7 @@ import no.nav.pdl.PersonnavnResponseProjection;
 import no.nav.vedtak.exception.IntegrasjonException;
 import no.nav.vedtak.felles.integrasjon.person.PdlException;
 import no.nav.vedtak.felles.integrasjon.person.Persondata;
+import no.nav.vedtak.konfig.Tid;
 
 @ApplicationScoped
 public class PdlKlientLogCause {
@@ -80,7 +85,7 @@ public class PdlKlientLogCause {
     }
 
     // Man kan tenke seg å hente rett ident eller navn/statsborgerskap fra falskIdentitet-informasjonen. Se an frekvens og innhold
-    public void sjekkUtenIdentifikatorFalskIdentitet(FagsakYtelseType ytelseType, AktørId aktørId) {
+    public PersoninfoFalskIdentitet sjekkUtenIdentifikatorFalskIdentitet(FagsakYtelseType ytelseType, AktørId aktørId, PersonIdent personIdent) {
         try {
             var query = new HentPersonQueryRequest();
             query.setIdent(aktørId.getId());
@@ -92,8 +97,10 @@ public class PdlKlientLogCause {
 
             var falskIdentitetPerson = hentPerson(ytelseType, query, projection);
             loggUtenIdentifikatorFalskIdentitet(falskIdentitetPerson, aktørId);
+            return lagPersonFalskIdentitet(falskIdentitetPerson, aktørId, personIdent);
         } catch (Exception e) {
             LOG.warn("Person uten folkeregisteridentifikator aktør {} - fikk feil ved oppslag falsk identitet", aktørId);
+            return  null;
         }
     }
 
@@ -114,14 +121,13 @@ public class PdlKlientLogCause {
             } else if (falskIdentitetPerson.getFalskIdentitet().getRettIdentitetVedIdentifikasjonsnummer() != null) {
                 LOG.warn("Falsk identitet aktør {} har rettIdentitetVedIdentifikasjonsnummer {}", aktørId, falskIdentitetPerson.getFalskIdentitet().getRettIdentitetVedIdentifikasjonsnummer());
             } else if (falskIdentitetPerson.getFalskIdentitet().getRettIdentitetVedOpplysninger() != null) {
-                var kjønn = falskIdentitetPerson.getFalskIdentitet().getRettIdentitetVedOpplysninger().getKjoenn();
-                var statsborgerskap = falskIdentitetPerson.getFalskIdentitet().getRettIdentitetVedOpplysninger().getStatsborgerskap();
-                var fødselsdato = falskIdentitetPerson.getFalskIdentitet().getRettIdentitetVedOpplysninger().getFoedselsdato();
-                var navn = Optional.ofNullable(falskIdentitetPerson.getFalskIdentitet().getRettIdentitetVedOpplysninger().getPersonnavn())
-                    .map(p -> Optional.ofNullable(p.getFornavn()).orElse("UtenFN")
-                        + leftPad(Optional.ofNullable(p.getMellomnavn()).orElse("UtenMN"))
-                        + leftPad(Optional.ofNullable(p.getEtternavn()).map(e -> "ETTERN").orElse("UtenEN")))
-                    .orElse("UtenNavn");
+                var rettIdentitet = falskIdentitetPerson.getFalskIdentitet().getRettIdentitetVedOpplysninger();
+                var kjønn = rettIdentitet.getKjoenn();
+                var statsborgerskap = rettIdentitet.getStatsborgerskap();
+                var fødselsdato = rettIdentitet.getFoedselsdato();
+                var navn = rettIdentitet.getPersonnavn().getFornavn()
+                        + PersonMappers.leftPad(Optional.ofNullable(rettIdentitet.getPersonnavn().getMellomnavn()).orElse("UtenMN"))
+                        + "ETTERN";
                 LOG.warn("Falsk identitet aktør {} har rettIdentitetVedOpplysninger navn {} fdato {} kjønn {} statsborger {}", aktørId, navn, fødselsdato, kjønn, statsborgerskap);
             } else {
                 LOG.warn("Falsk identitet aktør {} mangler info om rett identitet", aktørId);
@@ -132,8 +138,29 @@ public class PdlKlientLogCause {
         }
     }
 
-    public static String leftPad(String navn) {
-        return Optional.ofNullable(navn).map(n -> " " + navn).orElse("");
+    public PersoninfoFalskIdentitet lagPersonFalskIdentitet(Person falskIdentitetPerson, AktørId aktørId, PersonIdent personIdent) {
+        if (falskIdentitetPerson.getFalskIdentitet() != null && falskIdentitetPerson.getFalskIdentitet().getErFalsk()) {
+            // Falsk Identitet skal mangle personidentifikator, ha opphørt personstatus og kanskje informasjon i falskIdentitet
+            if (Objects.equals(falskIdentitetPerson.getFalskIdentitet().getRettIdentitetErUkjent(), Boolean.TRUE)) {
+                return new PersoninfoFalskIdentitet(aktørId, null, "Falsk Identitet", null, null, Landkoder.XUK, PersonstatusType.UTPE);
+            } else if (falskIdentitetPerson.getFalskIdentitet().getRettIdentitetVedIdentifikasjonsnummer() != null) {
+                throw new IllegalStateException("Falsk identitet: rettIdentitetVedIdentifikasjonsnummer finnes");
+            } else if (falskIdentitetPerson.getFalskIdentitet().getRettIdentitetVedOpplysninger() != null) {
+                var rettIdentitet = falskIdentitetPerson.getFalskIdentitet().getRettIdentitetVedOpplysninger();
+                var kjønn = Optional.ofNullable(rettIdentitet.getKjoenn()).map(PersonMappers::mapKjønn).orElse(NavBrukerKjønn.UDEFINERT);
+                var navn = PersonMappers.mapNavn(rettIdentitet.getPersonnavn());
+                var fødselsdato = Optional.ofNullable(rettIdentitet.getFoedselsdato()).map(PersonMappers::mapDato).orElse(Tid.TIDENES_BEGYNNELSE);
+                var statsborgerskap = rettIdentitet.getStatsborgerskap().stream()
+                    .map(Landkoder::fraKodeDefaultUdefinert)
+                    .filter(l -> !Landkoder.UDEFINERT.equals(l) && !Landkoder.XUK.equals(l))
+                    .findFirst().orElse(Landkoder.XUK);
+                return new PersoninfoFalskIdentitet(aktørId, personIdent, navn, fødselsdato, kjønn, statsborgerskap, PersonstatusType.UTPE);
+            } else {
+                throw new IllegalStateException("Falsk identitet: mangler delopplysning");
+            }
+        } else {
+            return null;
+        }
     }
 
     public Person hentPerson(FagsakYtelseType ytelseType, HentPersonQueryRequest q, PersonResponseProjection p, boolean ignoreNotFound) {
