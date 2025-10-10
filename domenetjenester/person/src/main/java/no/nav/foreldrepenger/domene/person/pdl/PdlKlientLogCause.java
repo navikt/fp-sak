@@ -142,7 +142,7 @@ public class PdlKlientLogCause {
         if (falskIdentitetPerson.getFalskIdentitet() != null && falskIdentitetPerson.getFalskIdentitet().getErFalsk()) {
             // Falsk Identitet skal mangle personidentifikator, ha opphørt personstatus og kanskje informasjon i falskIdentitet
             if (Objects.equals(falskIdentitetPerson.getFalskIdentitet().getRettIdentitetErUkjent(), Boolean.TRUE)) {
-                return new PersoninfoFalskIdentitet(aktørId, null, "Falsk Identitet", null, null, Landkoder.XUK, PersonstatusType.UTPE);
+                return new PersoninfoFalskIdentitet(aktørId, personIdent, "Falsk Identitet", Tid.TIDENES_BEGYNNELSE, NavBrukerKjønn.UDEFINERT, Landkoder.XUK, PersonstatusType.UTPE);
             } else if (falskIdentitetPerson.getFalskIdentitet().getRettIdentitetVedIdentifikasjonsnummer() != null) {
                 throw new IllegalStateException("Falsk identitet: rettIdentitetVedIdentifikasjonsnummer finnes");
             } else if (falskIdentitetPerson.getFalskIdentitet().getRettIdentitetVedOpplysninger() != null) {
