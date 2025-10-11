@@ -1,8 +1,8 @@
 package no.nav.foreldrepenger.inngangsvilkaar.utleder;
 
-import static no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType.ADOPSJONSVILKÅRET_ENGANGSSTØNAD;
 import static no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType.FØDSELSVILKÅRET_MOR;
-import static no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType.MEDLEMSKAPSVILKÅRET;
+import static no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType.MEDLEMSKAPSVILKÅRET_FORUTGÅENDE;
+import static no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType.OMSORGSOVERTAKELSEVILKÅR;
 import static no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType.SØKERSOPPLYSNINGSPLIKT;
 import static no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType.SØKNADSFRISTVILKÅRET;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -36,7 +36,7 @@ class EngangsstønadVilkårUtlederTest {
         var utledeteVilkår = EngangsstønadVilkårUtleder.utledVilkårFor(behandling, familieHendelseType);
 
         // Assert
-        assertThat(utledeteVilkår).contains(FØDSELSVILKÅRET_MOR, MEDLEMSKAPSVILKÅRET, SØKNADSFRISTVILKÅRET, SØKERSOPPLYSNINGSPLIKT);
+        assertThat(utledeteVilkår).contains(FØDSELSVILKÅRET_MOR, MEDLEMSKAPSVILKÅRET_FORUTGÅENDE, SØKNADSFRISTVILKÅRET, SØKERSOPPLYSNINGSPLIKT);
     }
 
     @Test
@@ -55,7 +55,7 @@ class EngangsstønadVilkårUtlederTest {
         var utledeteVilkår = EngangsstønadVilkårUtleder.utledVilkårFor(behandling, familieHendelseType);
 
         // Assert
-        assertThat(utledeteVilkår).contains(ADOPSJONSVILKÅRET_ENGANGSSTØNAD, MEDLEMSKAPSVILKÅRET, SØKNADSFRISTVILKÅRET, SØKERSOPPLYSNINGSPLIKT);
+        assertThat(utledeteVilkår).contains(OMSORGSOVERTAKELSEVILKÅR, MEDLEMSKAPSVILKÅRET_FORUTGÅENDE, SØKNADSFRISTVILKÅRET, SØKERSOPPLYSNINGSPLIKT);
     }
 
     @Test
@@ -76,7 +76,7 @@ class EngangsstønadVilkårUtlederTest {
         var utledeteVilkår = EngangsstønadVilkårUtleder.utledVilkårFor(behandling, familieHendelseType);
 
         // Assert
-        assertThat(utledeteVilkår).contains(ADOPSJONSVILKÅRET_ENGANGSSTØNAD, MEDLEMSKAPSVILKÅRET, SØKNADSFRISTVILKÅRET, SØKERSOPPLYSNINGSPLIKT);
+        assertThat(utledeteVilkår).contains(OMSORGSOVERTAKELSEVILKÅR, MEDLEMSKAPSVILKÅRET_FORUTGÅENDE, SØKNADSFRISTVILKÅRET, SØKERSOPPLYSNINGSPLIKT);
     }
 
     @Test
@@ -97,7 +97,7 @@ class EngangsstønadVilkårUtlederTest {
         var utledeteVilkår = EngangsstønadVilkårUtleder.utledVilkårFor(behandling, familieHendelseType);
 
         // Assert
-        assertThat(utledeteVilkår).contains(MEDLEMSKAPSVILKÅRET, SØKNADSFRISTVILKÅRET, SØKERSOPPLYSNINGSPLIKT);
+        assertThat(utledeteVilkår).contains(MEDLEMSKAPSVILKÅRET_FORUTGÅENDE, SØKNADSFRISTVILKÅRET, SØKERSOPPLYSNINGSPLIKT);
     }
 
     @Test
@@ -118,6 +118,6 @@ class EngangsstønadVilkårUtlederTest {
         var utledeteVilkår = EngangsstønadVilkårUtleder.utledVilkårFor(behandling, familieHendelseType);
 
         // Assert
-        assertThat(utledeteVilkår).contains(MEDLEMSKAPSVILKÅRET, SØKNADSFRISTVILKÅRET, SØKERSOPPLYSNINGSPLIKT);
+        assertThat(utledeteVilkår).contains(MEDLEMSKAPSVILKÅRET_FORUTGÅENDE, SØKNADSFRISTVILKÅRET, SØKERSOPPLYSNINGSPLIKT);
     }
 }

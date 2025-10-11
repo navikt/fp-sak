@@ -10,6 +10,7 @@ import static no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårT
 import static no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType.FØDSELSVILKÅRET_FAR_MEDMOR;
 import static no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType.FØDSELSVILKÅRET_MOR;
 import static no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType.MEDLEMSKAPSVILKÅRET;
+import static no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType.OMSORGSOVERTAKELSEVILKÅR;
 import static no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType.OPPTJENINGSPERIODEVILKÅR;
 import static no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType.OPPTJENINGSVILKÅRET;
 import static no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType.SØKERSOPPLYSNINGSPLIKT;
@@ -25,8 +26,11 @@ import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.Familie
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
+import no.nav.foreldrepenger.konfig.Environment;
 
 public final class ForeldrepengerVilkårUtleder  {
+
+    private static final boolean IS_PROD = Environment.current().isProd();
 
     private static final Set<VilkårType> STANDARDVILKÅR = Set.of(
         MEDLEMSKAPSVILKÅRET,
@@ -49,15 +53,27 @@ public final class ForeldrepengerVilkårUtleder  {
     }
 
     private static VilkårType finnFamilieHendelseVilkår(Behandling behandling, FamilieHendelseType hendelseType) {
-        if (ADOPSJON.equals(hendelseType)) {
-            return ADOPSJONSVILKARET_FORELDREPENGER;
-        } else if (OMSORG.equals(hendelseType)) {
-            return FORELDREANSVARSVILKÅRET_2_LEDD;
-        } else if (FØDSEL.equals(hendelseType) || TERMIN.equals(hendelseType)) {
-            var rolle = behandling.getRelasjonsRolleType();
-            return RelasjonsRolleType.FARA.equals(rolle) || RelasjonsRolleType.MEDMOR.equals(rolle) ?
-                FØDSELSVILKÅRET_FAR_MEDMOR : FØDSELSVILKÅRET_MOR;
+        if (IS_PROD) {
+            if (ADOPSJON.equals(hendelseType)) {
+                return ADOPSJONSVILKARET_FORELDREPENGER;
+            } else if (OMSORG.equals(hendelseType)) {
+                return FORELDREANSVARSVILKÅRET_2_LEDD;
+            } else if (FØDSEL.equals(hendelseType) || TERMIN.equals(hendelseType)) {
+                var rolle = behandling.getRelasjonsRolleType();
+                return RelasjonsRolleType.FARA.equals(rolle) || RelasjonsRolleType.MEDMOR.equals(rolle) ?
+                    FØDSELSVILKÅRET_FAR_MEDMOR : FØDSELSVILKÅRET_MOR;
+            }
+            throw kunneIkkeUtledeVilkårFor(behandling.getId(), hendelseType.getNavn());
+        } else {
+            if (ADOPSJON.equals(hendelseType) || OMSORG.equals(hendelseType)) {
+                return OMSORGSOVERTAKELSEVILKÅR;
+            } else if (FØDSEL.equals(hendelseType) || TERMIN.equals(hendelseType)) {
+                var rolle = behandling.getRelasjonsRolleType();
+                return RelasjonsRolleType.FARA.equals(rolle) || RelasjonsRolleType.MEDMOR.equals(rolle) ?
+                    FØDSELSVILKÅRET_FAR_MEDMOR : FØDSELSVILKÅRET_MOR;
+            }
+            throw kunneIkkeUtledeVilkårFor(behandling.getId(), hendelseType.getNavn());
         }
-        throw kunneIkkeUtledeVilkårFor(behandling.getId(), hendelseType.getNavn());
+
     }
 }
