@@ -18,9 +18,12 @@ import no.nav.foreldrepenger.familiehendelse.kontrollerfakta.adopsjon.Aksjonspun
 import no.nav.foreldrepenger.familiehendelse.kontrollerfakta.fødsel.AksjonspunktUtlederForEngangsstønadFødsel;
 import no.nav.foreldrepenger.familiehendelse.kontrollerfakta.omsorgsovertakelse.AksjonspunktUtlederForOmsorgsovertakelse;
 import no.nav.foreldrepenger.familiehendelse.kontrollerfakta.sammebarn.AksjonspunktUtlederForTidligereMottattYtelse;
+import no.nav.foreldrepenger.konfig.Environment;
 
 @ApplicationScoped
 class KontrollerFaktaUtledereTjenesteImpl implements KontrollerFaktaUtledere {
+
+    private static final boolean IS_PROD = Environment.current().isProd();
 
     private FamilieHendelseRepository familieHendelseRepository;
 
@@ -55,12 +58,14 @@ class KontrollerFaktaUtledereTjenesteImpl implements KontrollerFaktaUtledere {
             utlederHolder.leggTil(AksjonspunktUtlederForEngangsstønadFødsel.class);
         }
 
-        if (FamilieHendelseType.ADOPSJON.equals(familieHendelseType)) {
-            utlederHolder.leggTil(AksjonspunktUtlederForEngangsstønadAdopsjon.class);
-        }
+        if (IS_PROD) {
+            if (FamilieHendelseType.ADOPSJON.equals(familieHendelseType)) {
+                utlederHolder.leggTil(AksjonspunktUtlederForEngangsstønadAdopsjon.class);
+            }
 
-        if (FamilieHendelseType.OMSORG.equals(familieHendelseType)) {
-            utlederHolder.leggTil(AksjonspunktUtlederForOmsorgsovertakelse.class);
+            if (FamilieHendelseType.OMSORG.equals(familieHendelseType)) {
+                utlederHolder.leggTil(AksjonspunktUtlederForOmsorgsovertakelse.class);
+            }
         }
 
         return utlederHolder.getUtledere();
