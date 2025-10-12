@@ -30,6 +30,7 @@ import no.nav.pdl.ForelderBarnRelasjonResponseProjection;
 import no.nav.pdl.ForelderBarnRelasjonRolle;
 import no.nav.pdl.HentPersonQueryRequest;
 import no.nav.pdl.PersonResponseProjection;
+import no.nav.vedtak.felles.integrasjon.person.PersonMappers;
 
 @ApplicationScoped
 public class FødselTjeneste {
@@ -122,19 +123,20 @@ public class FødselTjeneste {
         var barn = pdlKlient.hentPerson(ytelseType, request, projection);
 
         var fødselsdato = PersonMappers.mapFødselsdato(barn);
-        var dødssdato = PersonMappers.mapDødsdato(barn);
-        var pdlStatus = barn.getFolkeregisterpersonstatus().stream()
+        var dødssdato = LokalPersonMapper.mapDødsdato(barn);
+        var pdlStatusOpphørt = barn.getFolkeregisterpersonstatus().stream()
             .map(Folkeregisterpersonstatus::getStatus)
-            .findFirst().map(PersonstatusType::fraFregPersonstatus).orElse(PersonstatusType.UDEFINERT);
+            .map(PersonstatusType::fraFregPersonstatus)
+            .anyMatch(PersonstatusType.UTPE::equals);
 
         // Opphørte personer kan mangle fødselsdato mm. Håndtere dette + gi feil hvis fødselsdato mangler i andre tilfelle
-        if (PersonstatusType.UTPE.equals(pdlStatus) && fødselsdato == null) {
+        if (pdlStatusOpphørt && fødselsdato.isEmpty()) {
             return null;
         }
 
         return new FødtBarnInfo.Builder()
                 .medIdent(new PersonIdent(barnIdent))
-                .medFødselsdato(fødselsdato)
+                .medFødselsdato(fødselsdato.orElseThrow())
                 .medDødsdato(dødssdato)
                 .medForelderRolle(utledRolle(forelderBarnRelasjon.getMinRolleForPerson()))
                 .build();

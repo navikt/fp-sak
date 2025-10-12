@@ -77,8 +77,7 @@ public class PersoninfoAdapter {
 
     public boolean sjekkOmBrukerManglerAdresse(FagsakYtelseType ytelseType, AktørId aktørId) {
         var manglerAdresse = Optional.ofNullable(MANGLER_ADRESSE.get(aktørId))
-            .or(() -> aktørConsumer.hentPersonIdentForAktørId(aktørId).map(i -> personinfoTjeneste.brukerManglerAdresse(ytelseType, i)))
-            .orElse(Boolean.TRUE);
+            .orElseGet(() -> personinfoTjeneste.brukerManglerAdresse(ytelseType, aktørId));
         MANGLER_ADRESSE.put(aktørId, manglerAdresse);
         return manglerAdresse;
     }
@@ -126,12 +125,12 @@ public class PersoninfoAdapter {
 
     public Optional<PersoninfoArbeidsgiver> hentBrukerArbeidsgiverForAktør(AktørId aktørId) {
         var funnetFnr = hentFnr(aktørId);
-        return funnetFnr.flatMap(fnr -> basisTjeneste.hentPrivatArbeidsgiverPersoninfo(FagsakYtelseType.FORELDREPENGER, aktørId, fnr));
+        return funnetFnr.map(fnr -> basisTjeneste.hentPrivatArbeidsgiverPersoninfo(FagsakYtelseType.FORELDREPENGER, aktørId, fnr));
     }
 
     public Optional<PersoninfoArbeidsgiver> hentBrukerVergeForAktør(AktørId aktørId) {
         var funnetFnr = hentFnr(aktørId);
-        return funnetFnr.flatMap(fnr -> basisTjeneste.hentVergePersoninfo(FagsakYtelseType.FORELDREPENGER, aktørId, fnr));
+        return funnetFnr.map(fnr -> basisTjeneste.hentVergePersoninfo(FagsakYtelseType.FORELDREPENGER, aktørId, fnr));
     }
 
     public Optional<PersoninfoKjønn> hentBrukerKjønnForAktør(FagsakYtelseType ytelseType, AktørId aktørId) {

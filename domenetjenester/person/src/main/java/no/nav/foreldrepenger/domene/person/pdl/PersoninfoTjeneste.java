@@ -4,7 +4,6 @@ import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 
 import jakarta.enterprise.context.ApplicationScoped;
@@ -13,7 +12,6 @@ import jakarta.inject.Inject;
 import no.nav.foreldrepenger.behandlingslager.aktør.AdresseType;
 import no.nav.foreldrepenger.behandlingslager.aktør.FamilierelasjonVL;
 import no.nav.foreldrepenger.behandlingslager.aktør.Personinfo;
-import no.nav.foreldrepenger.behandlingslager.aktør.PersonstatusType;
 import no.nav.foreldrepenger.behandlingslager.aktør.historikk.Gyldighetsperiode;
 import no.nav.foreldrepenger.behandlingslager.aktør.historikk.Personhistorikkinfo;
 import no.nav.foreldrepenger.behandlingslager.aktør.historikk.PersonstatusPeriode;
@@ -37,6 +35,7 @@ import no.nav.pdl.PersonResponseProjection;
 import no.nav.pdl.Sivilstand;
 import no.nav.pdl.SivilstandResponseProjection;
 import no.nav.pdl.Sivilstandstype;
+import no.nav.vedtak.felles.integrasjon.person.PersonMappers;
 import no.nav.vedtak.konfig.Tid;
 
 @ApplicationScoped
@@ -82,9 +81,9 @@ public class PersoninfoTjeneste {
         this.adresseMapper = mapper;
     }
 
-    public boolean brukerManglerAdresse(FagsakYtelseType ytelseType, PersonIdent personIdent) {
+    public boolean brukerManglerAdresse(FagsakYtelseType ytelseType, AktørId aktørId) {
         var query = new HentPersonQueryRequest();
-        query.setIdent(personIdent.getIdent());
+        query.setIdent(aktørId.getId());
 
         var person = pdlKlient.hentPerson(ytelseType, query, AdresseMapper.leggTilAdresseQuery(new PersonResponseProjection(), false));
 
@@ -96,7 +95,7 @@ public class PersoninfoTjeneste {
     public Personinfo hentPersoninfo(FagsakYtelseType ytelseType, AktørId aktørId, PersonIdent personIdent, boolean erBarn) {
 
         var query = new HentPersonQueryRequest();
-        query.setIdent(personIdent.getIdent());
+        query.setIdent(aktørId.getId());
 
         var projection = new PersonResponseProjection()
             .folkeregisteridentifikator(new FolkeregisteridentifikatorResponseProjection().identifikasjonsnummer().status())
@@ -124,21 +123,21 @@ public class PersoninfoTjeneste {
         var filter = Gyldighetsperiode.innenfor(null, null);
 
 
-        if (!PersonMappers.harIdentifikator(person)) {
-            var falskIdent = pdlKlient.sjekkUtenIdentifikatorFalskIdentitet(ytelseType, aktørId, personIdent);
+        if (PersonMappers.manglerIdentifikator(person)) {
+            var falskIdent = pdlKlient.sjekkUtenIdentifikatorFalskIdentitet(aktørId);
             if (falskIdent != null) {
                 var pdlStatus = AnnetPeriodisertMapper.mapPersonstatus(person.getFolkeregisterpersonstatus(), filter, falskIdent.fødselsdato());
                 var statsborgerskap = AnnetPeriodisertMapper.mapStatsborgerskap(person.getStatsborgerskap(), filter, falskIdent.fødselsdato());
                 var adresser = adresseMapper.mapAdresser(person, filter, falskIdent.fødselsdato());
                 if (pdlStatus.isEmpty()) {
-                    pdlStatus = List.of(new PersonstatusPeriode(Gyldighetsperiode.innenfor(null, null), PersonstatusType.UTPE));
+                    pdlStatus = List.of(new PersonstatusPeriode(Gyldighetsperiode.innenfor(null, null), falskIdent.personstatus()));
                 }
                 if (statsborgerskap.isEmpty()) {
                     statsborgerskap = List.of(new StatsborgerskapPeriode(Gyldighetsperiode.innenfor(null, null), falskIdent.statsborgerskap()));
                 }
-                new Personinfo.Builder().medAktørId(aktørId).medPersonIdent(falskIdent.personIdent())
+                new Personinfo.Builder().medAktørId(aktørId).medPersonIdent(personIdent)
                     .medNavn(falskIdent.navn())
-                    .medFødselsdato(Optional.ofNullable(falskIdent.fødselsdato()).orElse(Tid.TIDENES_BEGYNNELSE))
+                    .medFødselsdato(falskIdent.fødselsdato())
                     .medNavBrukerKjønn(falskIdent.kjønn())
                     .medPersonstatusPerioder(pdlStatus)
                     .medSivilstandType(sivilstand)
@@ -149,22 +148,17 @@ public class PersoninfoTjeneste {
             }
         }
 
-        var fødselsdato = PersonMappers.mapFødselsdato(person);
-        var dødssdato = PersonMappers.mapDødsdato(person);
+        var fødselsdato = PersonMappers.mapFødselsdato(person).orElse(Tid.TIDENES_BEGYNNELSE);
+        var dødssdato = LokalPersonMapper.mapDødsdato(person);
         var pdlStatus = AnnetPeriodisertMapper.mapPersonstatus(person.getFolkeregisterpersonstatus(), filter, fødselsdato);
         var statsborgerskap = AnnetPeriodisertMapper.mapStatsborgerskap(person.getStatsborgerskap(), filter, fødselsdato);
         var adresser = adresseMapper.mapAdresser(person, filter, fødselsdato);
 
-        // Opphørte personer kan mangle fødselsdato mm. Håndtere dette + gi feil hvis fødselsdato mangler i andre tilfelle
-        if (fødselsdato == null && !pdlStatus.isEmpty() && pdlStatus.stream().allMatch(ps -> PersonstatusType.UTPE.equals(ps.personstatus()))) {
-            return null;
-        }
-
         return new Personinfo.Builder().medAktørId(aktørId).medPersonIdent(personIdent)
-            .medNavn(PersonMappers.mapNavn(person, aktørId))
+            .medNavn(LokalPersonMapper.mapNavn(person))
             .medFødselsdato(fødselsdato)
             .medDødsdato(dødssdato)
-            .medNavBrukerKjønn(PersonMappers.mapKjønn(person))
+            .medNavBrukerKjønn(LokalPersonMapper.mapKjønn(person))
             .medPersonstatusPerioder(pdlStatus)
             .medSivilstandType(sivilstand)
             .medLandkoder(statsborgerskap)

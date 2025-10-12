@@ -35,7 +35,7 @@
         <svp-uttak.version>2.4.5</svp-uttak.version>
         <fp-ytelse-beregn.version>1.0.4</fp-ytelse-beregn.version>
 
-        <felles.version>7.6.6</felles.version>
+        <felles.version>7.6.7</felles.version>
         <prosesstask.version>5.2.1</prosesstask.version>
         <openapi-spec-utils.version>2.0.6</openapi-spec-utils.version>
         <fp-kontrakter.version>9.4.3</fp-kontrakter.version>
