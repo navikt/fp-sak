@@ -1,6 +1,7 @@
 package no.nav.foreldrepenger.domene.person.pdl;
 
 import java.time.LocalDate;
+import java.time.Month;
 import java.util.Optional;
 
 import jakarta.enterprise.context.ApplicationScoped;
@@ -15,8 +16,6 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.PersonIdent;
 import no.nav.foreldrepenger.konfig.Environment;
-import no.nav.pdl.Adressebeskyttelse;
-import no.nav.pdl.AdressebeskyttelseGradering;
 import no.nav.pdl.AdressebeskyttelseResponseProjection;
 import no.nav.pdl.DoedsfallResponseProjection;
 import no.nav.pdl.FoedselsdatoResponseProjection;
@@ -26,11 +25,13 @@ import no.nav.pdl.KjoennResponseProjection;
 import no.nav.pdl.NavnResponseProjection;
 import no.nav.pdl.Person;
 import no.nav.pdl.PersonResponseProjection;
+import no.nav.vedtak.felles.integrasjon.person.PersonMappers;
 
 @ApplicationScoped
 public class PersonBasisTjeneste {
 
     private static final boolean IS_PROD = Environment.current().isProd();
+    private static final LocalDate DUMMY_VOKSEN_FØDT = LocalDate.of(1900, Month.JANUARY, 1);
 
     private PdlKlientLogCause pdlKlient;
 
@@ -53,14 +54,14 @@ public class PersonBasisTjeneste {
 
         var person = pdlKlient.hentPerson(ytelseType, query, projection);
 
-        if (!PersonMappers.harIdentifikator(person)) {
-            var falskIdent = pdlKlient.sjekkUtenIdentifikatorFalskIdentitet(ytelseType, aktørId, personIdent);
+        if (PersonMappers.manglerIdentifikator(person)) {
+            var falskIdent = pdlKlient.sjekkUtenIdentifikatorFalskIdentitet(aktørId);
             if (falskIdent != null) {
-                return new PersoninfoVisning(aktørId, falskIdent.personIdent(), falskIdent.navn(), Diskresjonskode.UDEFINERT);
+                return new PersoninfoVisning(aktørId, personIdent, falskIdent.navn(), Diskresjonskode.UDEFINERT);
             }
         }
 
-        return new PersoninfoVisning(aktørId, personIdent, PersonMappers.mapNavn(person, aktørId), getDiskresjonskode(person));
+        return new PersoninfoVisning(aktørId, personIdent, LokalPersonMapper.mapNavn(person), getDiskresjonskode(person));
     }
 
     public PersoninfoBasis hentBasisPersoninfo(FagsakYtelseType ytelseType, AktørId aktørId, PersonIdent personIdent) {
@@ -76,22 +77,23 @@ public class PersonBasisTjeneste {
 
         var person = pdlKlient.hentPerson(ytelseType, query, projection);
 
-        if (!PersonMappers.harIdentifikator(person)) {
-            var falskIdent = pdlKlient.sjekkUtenIdentifikatorFalskIdentitet(ytelseType, aktørId, personIdent);
+        if (PersonMappers.manglerIdentifikator(person)) {
+            var falskIdent = pdlKlient.sjekkUtenIdentifikatorFalskIdentitet(aktørId);
             if (falskIdent != null) {
-                return new PersoninfoBasis(aktørId, falskIdent.personIdent(), falskIdent.navn(),
+                return new PersoninfoBasis(aktørId, personIdent, falskIdent.navn(),
                     falskIdent.fødselsdato(), null, falskIdent.kjønn(), Diskresjonskode.UDEFINERT.getKode());
             }
         }
 
-        var fødselsdato = Optional.ofNullable(PersonMappers.mapFødselsdato(person))
-            .orElseGet(() -> IS_PROD ? null : LocalDate.now().minusDays(1));
-        var dødsdato = PersonMappers.mapDødsdato(person);
-        return new PersoninfoBasis(aktørId, personIdent, PersonMappers.mapNavn(person, aktørId), fødselsdato, dødsdato,
-            PersonMappers.mapKjønn(person), getDiskresjonskode(person).getKode());
+        var fødselsdato = PersonMappers.mapFødselsdato(person)
+            .or(() -> IS_PROD ? Optional.empty() : Optional.of(LocalDate.now().minusDays(1)))
+            .orElseThrow(() -> new IllegalStateException("Fødselsdato mangler i PDL")); // Behold denne for videre analyse
+        var dødsdato = LokalPersonMapper.mapDødsdato(person);
+        return new PersoninfoBasis(aktørId, personIdent, LokalPersonMapper.mapNavn(person), fødselsdato, dødsdato,
+            LokalPersonMapper.mapKjønn(person), getDiskresjonskode(person).getKode());
     }
 
-    public Optional<PersoninfoArbeidsgiver> hentPrivatArbeidsgiverPersoninfo(FagsakYtelseType ytelseType, AktørId aktørId, PersonIdent personIdent) {
+    public PersoninfoArbeidsgiver hentPrivatArbeidsgiverPersoninfo(FagsakYtelseType ytelseType, AktørId aktørId, PersonIdent personIdent) {
         var query = new HentPersonQueryRequest();
         query.setIdent(aktørId.getId());
         var projection = new PersonResponseProjection()
@@ -100,17 +102,15 @@ public class PersonBasisTjeneste {
 
         var person = pdlKlient.hentPersonTilgangsnektSomInfo(ytelseType, query, projection);
 
-        var fødselsdato = PersonMappers.mapFødselsdato(person);
+        var fødselsdato = LokalPersonMapper.mapFødselsdatoEllerDefault(person, DUMMY_VOKSEN_FØDT);
 
-        var arbeidsgiver = new PersoninfoArbeidsgiver.Builder().medAktørId(aktørId).medPersonIdent(personIdent)
-            .medNavn(PersonMappers.mapNavn(person, aktørId))
+        return new PersoninfoArbeidsgiver.Builder().medAktørId(aktørId).medPersonIdent(personIdent)
+            .medNavn(LokalPersonMapper.mapNavn(person))
             .medFødselsdato(fødselsdato)
             .build();
-
-        return person.getNavn().isEmpty() || person.getFoedselsdato().isEmpty() ? Optional.empty() : Optional.of(arbeidsgiver);
     }
 
-    public Optional<PersoninfoArbeidsgiver> hentVergePersoninfo(FagsakYtelseType ytelseType, AktørId aktørId, PersonIdent personIdent) {
+    public PersoninfoArbeidsgiver hentVergePersoninfo(FagsakYtelseType ytelseType, AktørId aktørId, PersonIdent personIdent) {
         var query = new HentPersonQueryRequest();
         query.setIdent(aktørId.getId());
         var projection = new PersonResponseProjection()
@@ -119,14 +119,12 @@ public class PersonBasisTjeneste {
 
         var person = pdlKlient.hentPerson(ytelseType, query, projection);
 
-        var fødselsdato = PersonMappers.mapFødselsdato(person);
+        var fødselsdato = LokalPersonMapper.mapFødselsdatoEllerDefault(person, DUMMY_VOKSEN_FØDT);
 
-        var arbeidsgiver = new PersoninfoArbeidsgiver.Builder().medAktørId(aktørId).medPersonIdent(personIdent)
-            .medNavn(PersonMappers.mapNavn(person, aktørId))
+        return new PersoninfoArbeidsgiver.Builder().medAktørId(aktørId).medPersonIdent(personIdent)
+            .medNavn(LokalPersonMapper.mapNavn(person))
             .medFødselsdato(fødselsdato)
             .build();
-
-        return person.getNavn().isEmpty() || person.getFoedselsdato().isEmpty() ? Optional.empty() : Optional.of(arbeidsgiver);
     }
 
     public Optional<PersoninfoKjønn> hentKjønnPersoninfo(FagsakYtelseType ytelseType, AktørId aktørId) {
@@ -138,19 +136,19 @@ public class PersonBasisTjeneste {
         var person = pdlKlient.hentPerson(ytelseType, query, projection);
 
         var kjønn = new PersoninfoKjønn.Builder().medAktørId(aktørId)
-            .medNavBrukerKjønn(PersonMappers.mapKjønn(person))
+            .medNavBrukerKjønn(LokalPersonMapper.mapKjønn(person))
             .build();
         return person.getKjoenn().isEmpty() ? Optional.empty() : Optional.of(kjønn);
     }
 
     private Diskresjonskode getDiskresjonskode(Person person) {
-        var kode = person.getAdressebeskyttelse().stream()
-            .map(Adressebeskyttelse::getGradering)
-            .filter(g -> !AdressebeskyttelseGradering.UGRADERT.equals(g))
-            .findFirst().orElse(null);
-        if (AdressebeskyttelseGradering.STRENGT_FORTROLIG.equals(kode) || AdressebeskyttelseGradering.STRENGT_FORTROLIG_UTLAND.equals(kode))
-            return Diskresjonskode.KODE6;
-        return AdressebeskyttelseGradering.FORTROLIG.equals(kode) ? Diskresjonskode.KODE7 : Diskresjonskode.UDEFINERT;
+        var kode = PersonMappers.mapAdressebeskyttelse(person);
+        return switch (kode) {
+            case STRENGT_FORTROLIG, STRENGT_FORTROLIG_UTLAND -> Diskresjonskode.KODE6;
+            case FORTROLIG -> Diskresjonskode.KODE7;
+            case null, default -> Diskresjonskode.UDEFINERT;
+        };
+
     }
 
 }
