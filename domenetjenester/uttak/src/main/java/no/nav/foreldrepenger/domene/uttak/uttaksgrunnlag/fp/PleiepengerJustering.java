@@ -70,17 +70,6 @@ final class PleiepengerJustering {
             .toList();
     }
 
-    static List<LocalDateSegment<PleiepengerUtsettelse>> pleiepengerUtsettelser100(AktørId aktørId, InntektArbeidYtelseGrunnlag inntektArbeidYtelseGrunnlag) {
-        return inntektArbeidYtelseGrunnlag.getAktørYtelseFraRegister(aktørId)
-            .map(AktørYtelse::getAlleYtelser).orElse(List.of()).stream()
-            .filter(ytelse1 -> K9SAK.equals(ytelse1.getKilde()))
-            .filter(ytelse1 -> RelatertYtelseType.PLEIEPENGER.contains(ytelse1.getRelatertYtelseType()))
-            .flatMap(ytelse -> ytelse.getYtelseAnvist().stream()
-                .filter(ya -> !ya.getUtbetalingsgradProsent().orElse(Stillingsprosent.HUNDRED).erNulltall())
-                .map(ya -> mapTilSegment(ytelse, ya)))
-            .toList();
-    }
-
     static List<OppgittPeriodeEntitet> combine(List<LocalDateSegment<PleiepengerUtsettelse>> pleiepengerUtsettelser,
                                                List<OppgittPeriodeEntitet> foreldrepenger) {
         var foreldrepengerTimeline = oppgittPeriodeTimeline(foreldrepenger);
