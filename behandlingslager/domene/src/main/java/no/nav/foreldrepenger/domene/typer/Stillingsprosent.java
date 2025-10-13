@@ -114,7 +114,7 @@ public class Stillingsprosent implements Serializable, IndexKey, TraverseValue, 
     }
 
     public boolean erNulltall() {
-        return verdi != null && verdi.intValue() == 0;
+        return verdi != null && verdi.compareTo(BigDecimal.ZERO) == 0;
     }
 
     public Stillingsprosent add(Stillingsprosent stillingsprosent) {
