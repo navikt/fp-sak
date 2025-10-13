@@ -11,6 +11,8 @@ import jakarta.inject.Inject;
 import jakarta.persistence.EntityManager;
 
 import org.hibernate.jpa.HibernateHints;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import no.nav.foreldrepenger.behandlingslager.TraverseEntityGraphFactory;
 import no.nav.foreldrepenger.behandlingslager.diff.DiffEntity;
@@ -38,6 +40,8 @@ import no.nav.vedtak.felles.jpa.HibernateVerktøy;
  */
 @ApplicationScoped
 public class PersonopplysningRepository {
+
+    private static final Logger LOG = LoggerFactory.getLogger(PersonopplysningRepository.class);
 
     private EntityManager entityManager;
 
@@ -164,7 +168,16 @@ public class PersonopplysningRepository {
             build.getOppgittAnnenPart().ifPresent(oppgittAnnenPart -> entityManager.persist(oppgittAnnenPart));
 
             entityManager.persist(build);
-            entityManager.flush();
+            try {
+                entityManager.flush();
+            } catch (Exception e) {
+                build.getRegisterVersjon().ifPresent(r -> r.getPersonopplysninger().forEach(p -> LOG.info("POFeil personopplysning fødsel {} død {}", p.getFødselsdato(), p.getDødsdato())));
+                build.getRegisterVersjon().ifPresent(r -> r.getStatsborgerskap().forEach(p -> LOG.info("POFeil statsborger fom {} tom {}", p.getPeriode().getFomDato(), p.getPeriode().getTomDato())));
+                build.getRegisterVersjon().ifPresent(r -> r.getPersonstatus().forEach(p -> LOG.info("POFeil pstatus fom {} tom {}", p.getPeriode().getFomDato(), p.getPeriode().getTomDato())));
+                build.getRegisterVersjon().ifPresent(r -> r.getOppholdstillatelser().forEach(p -> LOG.info("POFeil opphold fom {} tom {}", p.getPeriode().getFomDato(), p.getPeriode().getTomDato())));
+                build.getRegisterVersjon().ifPresent(r -> r.getAdresser().forEach(p -> LOG.info("POFeil adresse fom {} tom {}", p.getPeriode().getFomDato(), p.getPeriode().getTomDato())));
+                throw e;
+            }
         }
     }
 
