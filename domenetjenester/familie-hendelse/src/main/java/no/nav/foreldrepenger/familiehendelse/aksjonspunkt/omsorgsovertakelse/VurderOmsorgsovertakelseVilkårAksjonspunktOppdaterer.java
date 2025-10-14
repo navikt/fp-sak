@@ -39,6 +39,7 @@ import no.nav.foreldrepenger.familiehendelse.FamilieHendelseTjeneste;
 import no.nav.foreldrepenger.familiehendelse.aksjonspunkt.omsorgsovertakelse.dto.OmsorgsovertakelseBarnDto;
 import no.nav.foreldrepenger.familiehendelse.aksjonspunkt.omsorgsovertakelse.dto.VurderOmsorgsovertakelseVilkårAksjonspunktDto;
 import no.nav.foreldrepenger.skjæringstidspunkt.OpplysningsPeriodeTjeneste;
+import no.nav.vedtak.exception.FunksjonellException;
 
 /**
  * Håndterer oppdatering av adopsjon/omsorgsvilkåret.
@@ -79,9 +80,17 @@ public class VurderOmsorgsovertakelseVilkårAksjonspunktOppdaterer implements Ak
 
     @Override
     public OppdateringResultat oppdater(VurderOmsorgsovertakelseVilkårAksjonspunktDto dto, AksjonspunktOppdaterParameter param) {
+        if (dto.getFødselsdatoer().isEmpty() && dto.getAvslagskode() == null) {
+            throw new FunksjonellException("FP-765324", "Vilkår oppfylt uten barn", "Du må velge minst ett barn eller avslå.");
+        }
         var delvilkår = dto.getDelvilkår();
         if (delvilkår == null || OmsorgsovertakelseVilkårType.UDEFINERT.equals(delvilkår)) {
-            throw new IllegalArgumentException("Ikke valgt delvilkår under omsorgsovertakelsesvilkåret");
+            throw new FunksjonellException("FP-765324", "Ikke valgt delvilkår", "Du må velge ett av undervilkårene." );
+        }
+        if ((OmsorgsovertakelseVilkårType.FP_ADOPSJONSVILKÅRET.equals(delvilkår) && dto.getEktefellesBarn())
+            || (OmsorgsovertakelseVilkårType.FP_STEBARNSADOPSJONSVILKÅRET.equals(delvilkår) && !dto.getEktefellesBarn())) {
+            throw new FunksjonellException("FP-765324", "Ugyldig kombinasjon av undervilkår og ektefelles barn",
+                "Du må velge Nei for ektefelles barn ved adopsjon og Ja for stebarnsadopsjon.");
         }
         var avslagskode = dto.getAvslagskode();
         if (avslagskode != null && !delvilkår.getAvslagsårsaker().contains(avslagskode)) {
