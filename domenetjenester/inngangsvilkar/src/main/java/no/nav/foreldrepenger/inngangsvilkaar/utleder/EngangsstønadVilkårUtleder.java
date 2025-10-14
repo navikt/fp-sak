@@ -6,7 +6,7 @@ import static no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.
 import static no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseType.TERMIN;
 import static no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType.ADOPSJONSVILKÅRET_ENGANGSSTØNAD;
 import static no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType.FØDSELSVILKÅRET_MOR;
-import static no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType.MEDLEMSKAPSVILKÅRET;
+import static no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType.MEDLEMSKAPSVILKÅRET_FORUTGÅENDE;
 import static no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType.SØKERSOPPLYSNINGSPLIKT;
 import static no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType.SØKNADSFRISTVILKÅRET;
 import static no.nav.foreldrepenger.inngangsvilkaar.utleder.VilkårUtlederFeil.behandlingsmotivKanIkkeUtledes;
@@ -20,6 +20,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
+import no.nav.foreldrepenger.konfig.Environment;
 
 /*
  * Denne klassen for å utlede vilkår følger funksjonell flyt som vist i
@@ -28,8 +29,9 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 
 public final class EngangsstønadVilkårUtleder  {
 
-    // Medlemskap er standard, men vilkår velges. TODO erstatt med medlemskap-forutgående tidlig 2025
-    private static final Set<VilkårType> STANDARDVILKÅR = Set.of(MEDLEMSKAPSVILKÅRET,
+    private static final boolean IS_PROD = Environment.current().isProd();
+
+    private static final Set<VilkårType> STANDARDVILKÅR = Set.of(MEDLEMSKAPSVILKÅRET_FORUTGÅENDE,
         SØKNADSFRISTVILKÅRET,
         SØKERSOPPLYSNINGSPLIKT);
 
@@ -47,14 +49,24 @@ public final class EngangsstønadVilkårUtleder  {
     }
 
     private static Optional<VilkårType> finnFamilieHendelseVilkår(Behandling behandling, FamilieHendelseType hendelseType) {
-        if (ADOPSJON.equals(hendelseType)) {
-            return Optional.of(ADOPSJONSVILKÅRET_ENGANGSSTØNAD);
-        } else if (OMSORG.equals(hendelseType)) {
-            return Optional.empty(); // Vilkåret velges manuelt som del av Aksjonspunkt AVKLAR_VILKÅR_FOR_OMSORGSOVERTAKELSE
-        } else if (FØDSEL.equals(hendelseType) || TERMIN.equals(hendelseType)) {
-            return Optional.of(FØDSELSVILKÅRET_MOR);
+        if (IS_PROD) {
+            if (ADOPSJON.equals(hendelseType)) {
+                return Optional.of(ADOPSJONSVILKÅRET_ENGANGSSTØNAD);
+            } else if (OMSORG.equals(hendelseType)) {
+                return Optional.empty(); // Vilkåret velges manuelt som del av Aksjonspunkt AVKLAR_VILKÅR_FOR_OMSORGSOVERTAKELSE
+            } else if (FØDSEL.equals(hendelseType) || TERMIN.equals(hendelseType)) {
+                return Optional.of(FØDSELSVILKÅRET_MOR);
+            }
+            throw kunneIkkeUtledeVilkårFor(behandling.getId(), hendelseType.getNavn());
+        } else {
+            if (ADOPSJON.equals(hendelseType) || OMSORG.equals(hendelseType)) {
+                return Optional.of(VilkårType.OMSORGSOVERTAKELSEVILKÅR);
+            } else if (FØDSEL.equals(hendelseType) || TERMIN.equals(hendelseType)) {
+                return Optional.of(FØDSELSVILKÅRET_MOR);
+            }
+            throw kunneIkkeUtledeVilkårFor(behandling.getId(), hendelseType.getNavn());
         }
-        throw kunneIkkeUtledeVilkårFor(behandling.getId(), hendelseType.getNavn());
+
     }
 
 }
