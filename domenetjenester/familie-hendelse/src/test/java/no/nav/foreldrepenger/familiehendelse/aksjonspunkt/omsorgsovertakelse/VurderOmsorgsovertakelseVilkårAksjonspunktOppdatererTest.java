@@ -9,9 +9,6 @@ import static org.mockito.Mockito.lenient;
 
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Map;
-
-import no.nav.foreldrepenger.familiehendelse.aksjonspunkt.omsorgsovertakelse.dto.OmsorgsovertakelseBarnDto;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -39,8 +36,10 @@ import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioF
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
 import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
 import no.nav.foreldrepenger.familiehendelse.FamilieHendelseTjeneste;
+import no.nav.foreldrepenger.familiehendelse.aksjonspunkt.omsorgsovertakelse.dto.OmsorgsovertakelseBarnDto;
 import no.nav.foreldrepenger.familiehendelse.aksjonspunkt.omsorgsovertakelse.dto.VurderOmsorgsovertakelseVilkårAksjonspunktDto;
 import no.nav.foreldrepenger.skjæringstidspunkt.OpplysningsPeriodeTjeneste;
+import no.nav.vedtak.exception.FunksjonellException;
 
 @ExtendWith(MockitoExtension.class)
 class VurderOmsorgsovertakelseVilkårAksjonspunktOppdatererTest extends EntityManagerAwareTest {
@@ -231,23 +230,36 @@ class VurderOmsorgsovertakelseVilkårAksjonspunktOppdatererTest extends EntityMa
 
     @Test
     void valideringer() {
-        // Arrange
+        // Ugyldig avslagsårsak utenfor domenet
+        validerDto(new VurderOmsorgsovertakelseVilkårAksjonspunktDto("begrunnelse", OMSORGSOVERTAKELSESDATO, List.of(new OmsorgsovertakelseBarnDto(FØDSELSDATO, 1)),
+            Avslagsårsak.SØKER_ER_IKKE_MEDLEM, OmsorgsovertakelseVilkårType.ES_FORELDREANSVARSVILKÅRET_2_LEDD, false), IllegalArgumentException.class);
+
+        // udefinert delvilkår
+        validerDto(new VurderOmsorgsovertakelseVilkårAksjonspunktDto("begrunnelse", OMSORGSOVERTAKELSESDATO, List.of(new OmsorgsovertakelseBarnDto(FØDSELSDATO, 1)),
+            null, OmsorgsovertakelseVilkårType.UDEFINERT, false), FunksjonellException.class);
+
+        // Ugyldig avslagsårsak for delvilkår
+        validerDto(new VurderOmsorgsovertakelseVilkårAksjonspunktDto("begrunnelse", OMSORGSOVERTAKELSESDATO, List.of(new OmsorgsovertakelseBarnDto(FØDSELSDATO, 1)),
+            Avslagsårsak.SØKER_HAR_HATT_VANLIG_SAMVÆR_MED_BARNET, OmsorgsovertakelseVilkårType.FP_ADOPSJONSVILKÅRET, false), IllegalArgumentException.class);
+
+        // Mangler barn og oppfylt
+        validerDto(new VurderOmsorgsovertakelseVilkårAksjonspunktDto("begrunnelse", OMSORGSOVERTAKELSESDATO, List.of(),
+            null, OmsorgsovertakelseVilkårType.FP_FORELDREANSVARSVILKÅRET_2_LEDD, false), FunksjonellException.class);
+
+        // Mismatch FP-delvilkår steadopsjon og ikke ektefelles barn
+        validerDto(new VurderOmsorgsovertakelseVilkårAksjonspunktDto("begrunnelse", OMSORGSOVERTAKELSESDATO, List.of(new OmsorgsovertakelseBarnDto(FØDSELSDATO, 1)),
+            null, OmsorgsovertakelseVilkårType.FP_STEBARNSADOPSJONSVILKÅRET, false), FunksjonellException.class);
+
+        // Mismatch FP-delvilkår vanlig adopsjon og ektefelles barn
+        validerDto(new VurderOmsorgsovertakelseVilkårAksjonspunktDto("begrunnelse", OMSORGSOVERTAKELSESDATO, List.of(new OmsorgsovertakelseBarnDto(FØDSELSDATO, 1)),
+            null, OmsorgsovertakelseVilkårType.FP_ADOPSJONSVILKÅRET, true), FunksjonellException.class);
+
+    }
+
+    private void validerDto(VurderOmsorgsovertakelseVilkårAksjonspunktDto dto, Class<? extends Exception> exceptionClass) {
         var tjeneste = new VurderOmsorgsovertakelseVilkårAksjonspunktOppdaterer(repositoryProvider, familieHendelseTjeneste, opplysningsPeriodeTjeneste);
-
-        var dto1 = new VurderOmsorgsovertakelseVilkårAksjonspunktDto("begrunnelse", OMSORGSOVERTAKELSESDATO, List.of(new OmsorgsovertakelseBarnDto(FØDSELSDATO, 1)),
-            Avslagsårsak.SØKER_ER_IKKE_MEDLEM, OmsorgsovertakelseVilkårType.ES_FORELDREANSVARSVILKÅRET_2_LEDD, false);
-        var param1 = new AksjonspunktOppdaterParameter(null, dto1, null);
-        assertThrows(IllegalArgumentException.class, () -> tjeneste.oppdater(dto1, param1));
-
-        var dto2 = new VurderOmsorgsovertakelseVilkårAksjonspunktDto("begrunnelse", OMSORGSOVERTAKELSESDATO, List.of(new OmsorgsovertakelseBarnDto(FØDSELSDATO, 1)),
-            Avslagsårsak.SØKER_HAR_IKKE_FORELDREANSVAR, OmsorgsovertakelseVilkårType.UDEFINERT, false);
-        var param2 = new AksjonspunktOppdaterParameter(null, dto2, null);
-        assertThrows(IllegalArgumentException.class, () -> tjeneste.oppdater(dto2, param2));
-
-        var dto3 = new VurderOmsorgsovertakelseVilkårAksjonspunktDto("begrunnelse", OMSORGSOVERTAKELSESDATO, List.of(new OmsorgsovertakelseBarnDto(FØDSELSDATO, 1)),
-            Avslagsårsak.SØKER_HAR_HATT_VANLIG_SAMVÆR_MED_BARNET, OmsorgsovertakelseVilkårType.FP_ADOPSJONSVILKÅRET, false);
-        var param3 = new AksjonspunktOppdaterParameter(null, dto3, null);
-        assertThrows(IllegalArgumentException.class, () -> tjeneste.oppdater(dto3, param3));
+        var param = new AksjonspunktOppdaterParameter(null, dto, null);
+        assertThrows(exceptionClass, () -> tjeneste.oppdater(dto, param));
     }
 
     private OppdateringResultat oppdater(Behandling behandling, VurderOmsorgsovertakelseVilkårAksjonspunktDto dto, VilkårResultat.Builder vilkårBuilder) {
