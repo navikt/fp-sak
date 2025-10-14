@@ -56,6 +56,7 @@ import no.nav.foreldrepenger.domene.uttak.UttakTjeneste;
 import no.nav.foreldrepenger.domene.uttak.beregnkontoer.UtregnetStønadskontoTjeneste;
 import no.nav.foreldrepenger.domene.vedtak.TotrinnTjeneste;
 import no.nav.foreldrepenger.domene.vedtak.intern.VedtaksbrevStatusUtleder;
+import no.nav.foreldrepenger.konfig.Environment;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 import no.nav.foreldrepenger.web.app.rest.ResourceLink;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.BehandlingRestTjeneste;
@@ -105,6 +106,8 @@ import no.nav.foreldrepenger.web.app.tjenester.familiehendelse.FamiliehendelseRe
 
 @ApplicationScoped
 public class BehandlingDtoTjeneste {
+
+    private static final boolean IS_PROD = Environment.current().isProd();
 
     private VergeRepository vergeRepository;
     private BeregningTjeneste beregningTjeneste;
@@ -372,10 +375,15 @@ public class BehandlingDtoTjeneste {
 
         dto.leggTil(get(FamiliehendelseRestTjeneste.FAMILIEHENDELSE_V3_PATH, "familiehendelse-v3", uuidDto));
 
-        familieHendelseRepository.hentAggregatHvisEksisterer(behandling.getId())
-            .ifPresent(f -> dto.leggTil(get(FødselOmsorgsovertakelseRestTjeneste.FAKTA_FODSEL_PATH, "fakta-fødsel", uuidDto)));
-        familieHendelseRepository.hentAggregatHvisEksisterer(behandling.getId())
-            .ifPresent(f -> dto.leggTil(get(FødselOmsorgsovertakelseRestTjeneste.FAKTA_OMSORGSOVERTAKELSE_PATH, "fakta-omsorgsovertakelse", uuidDto)));
+        familieHendelseRepository.hentAggregatHvisEksisterer(behandling.getId()).ifPresent(f -> {
+            if (f.getGjeldendeVersjon().getGjelderAdopsjon()) {
+                if (!IS_PROD){
+                    dto.leggTil(get(FødselOmsorgsovertakelseRestTjeneste.FAKTA_OMSORGSOVERTAKELSE_PATH, "fakta-omsorgsovertakelse", uuidDto));
+                }
+            } else {
+                dto.leggTil(get(FødselOmsorgsovertakelseRestTjeneste.FAKTA_FODSEL_PATH, "fakta-fødsel", uuidDto));
+            }
+        });
 
         dto.leggTil(get(PersonRestTjeneste.PERSONOVERSIKT_PATH, "behandling-personoversikt", uuidDto));
         dto.leggTil(get(PersonRestTjeneste.MEDLEMSKAP_V3_PATH, "soeker-medlemskap-v3", uuidDto));
