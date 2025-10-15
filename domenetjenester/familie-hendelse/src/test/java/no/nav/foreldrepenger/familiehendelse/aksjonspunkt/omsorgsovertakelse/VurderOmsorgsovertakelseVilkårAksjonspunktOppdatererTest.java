@@ -49,6 +49,7 @@ class VurderOmsorgsovertakelseVilkårAksjonspunktOppdatererTest extends EntityMa
 
     private BehandlingRepositoryProvider repositoryProvider;
     private FamilieHendelseTjeneste familieHendelseTjeneste;
+    private OmsorgsovertakelseVilkårTypeUtleder delvilkårUtleder;
     @Mock
     private OpplysningsPeriodeTjeneste opplysningsPeriodeTjeneste;
 
@@ -57,6 +58,7 @@ class VurderOmsorgsovertakelseVilkårAksjonspunktOppdatererTest extends EntityMa
         lenient().when(opplysningsPeriodeTjeneste.utledFikspunktForRegisterInnhenting(anyLong(), any())).thenReturn(LocalDate.now());
         repositoryProvider = new BehandlingRepositoryProvider(getEntityManager());
         familieHendelseTjeneste = new FamilieHendelseTjeneste(null, repositoryProvider.getFamilieHendelseRepository());
+        delvilkårUtleder = new OmsorgsovertakelseVilkårTypeUtleder(repositoryProvider.getSøknadRepository());
     }
 
     @Test
@@ -257,14 +259,14 @@ class VurderOmsorgsovertakelseVilkårAksjonspunktOppdatererTest extends EntityMa
     }
 
     private void validerDto(VurderOmsorgsovertakelseVilkårAksjonspunktDto dto, Class<? extends Exception> exceptionClass) {
-        var tjeneste = new VurderOmsorgsovertakelseVilkårAksjonspunktOppdaterer(repositoryProvider, familieHendelseTjeneste, opplysningsPeriodeTjeneste);
+        var tjeneste = new VurderOmsorgsovertakelseVilkårAksjonspunktOppdaterer(repositoryProvider, familieHendelseTjeneste, opplysningsPeriodeTjeneste, delvilkårUtleder);
         var param = new AksjonspunktOppdaterParameter(null, dto, null);
         assertThrows(exceptionClass, () -> tjeneste.oppdater(dto, param));
     }
 
     private OppdateringResultat oppdater(Behandling behandling, VurderOmsorgsovertakelseVilkårAksjonspunktDto dto, VilkårResultat.Builder vilkårBuilder) {
         var aksjonspunkt = behandling.getAksjonspunktFor(dto.getAksjonspunktDefinisjon());
-        var resultat = new VurderOmsorgsovertakelseVilkårAksjonspunktOppdaterer(repositoryProvider, familieHendelseTjeneste, opplysningsPeriodeTjeneste)
+        var resultat = new VurderOmsorgsovertakelseVilkårAksjonspunktOppdaterer(repositoryProvider, familieHendelseTjeneste, opplysningsPeriodeTjeneste, delvilkårUtleder)
             .oppdater(dto, new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling), dto, aksjonspunkt));
         byggVilkårResultat(vilkårBuilder, resultat);
         return resultat;

@@ -36,9 +36,7 @@ public enum OmsorgsovertakelseVilkårType implements Kodeverdi {
         Avslagsårsak.STEBARNSADOPSJON_IKKE_FLERE_DAGER_IGJEN),
     FP_FORELDREANSVARSVILKÅRET_2_LEDD("FP_VK_8F", "Foreldreansvar §14-5 andre ledd",
         Avslagsårsak.SØKER_HAR_IKKE_FORELDREANSVAR,
-        Avslagsårsak.SØKER_HAR_HATT_VANLIG_SAMVÆR_MED_BARNET,
-        Avslagsårsak.ENGANGSSTØNAD_ER_ALLEREDE_UTBETALT_TIL_FAR_MEDMOR,
-        Avslagsårsak.FORELDREPENGER_ER_ALLEREDE_UTBETALT_TIL_FAR_MEDMOR),
+        Avslagsårsak.SØKER_HAR_HATT_VANLIG_SAMVÆR_MED_BARNET),
     FP_STEBARNSADOPSJONSVILKÅRET("FP_VK_16S", "Stebarnsadopsjon §14-5 tredje ledd",
         Avslagsårsak.STEBARNSADOPSJON_IKKE_FLERE_DAGER_IGJEN),
 

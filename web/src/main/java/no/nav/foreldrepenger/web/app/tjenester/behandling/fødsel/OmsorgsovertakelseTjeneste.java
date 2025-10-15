@@ -10,21 +10,19 @@ import java.util.stream.Collectors;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
+import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingsresultatRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.AdopsjonEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseEntitet;
-import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseType;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.OmsorgsovertakelseVilkårType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.søknad.FarSøkerType;
-import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadEntitet;
-import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallType;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.familiehendelse.FamilieHendelseTjeneste;
+import no.nav.foreldrepenger.familiehendelse.aksjonspunkt.omsorgsovertakelse.OmsorgsovertakelseVilkårTypeUtleder;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.fødsel.dto.Kilde;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.fødsel.dto.OmsorgsovertakelseDto;
 
@@ -40,7 +38,7 @@ public class OmsorgsovertakelseTjeneste {
 
     private FamilieHendelseTjeneste familieHendelseTjeneste;
     private BehandlingRepository behandlingRepository;
-    private SøknadRepository søknadRepository;
+    private OmsorgsovertakelseVilkårTypeUtleder delvilkårUtleder;
     private BehandlingsresultatRepository behandlingsresultatRepository;
 
     OmsorgsovertakelseTjeneste() {
@@ -50,27 +48,27 @@ public class OmsorgsovertakelseTjeneste {
     @Inject
     public OmsorgsovertakelseTjeneste(FamilieHendelseTjeneste familieHendelseTjeneste,
                                       BehandlingRepository behandlingRepository,
-                                      SøknadRepository søknadRepository,
+                                      OmsorgsovertakelseVilkårTypeUtleder delvilkårUtleder,
                                       BehandlingsresultatRepository behandlingsresultatRepository) {
         this.familieHendelseTjeneste = familieHendelseTjeneste;
         this.behandlingRepository = behandlingRepository;
-        this.søknadRepository = søknadRepository;
+        this.delvilkårUtleder = delvilkårUtleder;
         this.behandlingsresultatRepository = behandlingsresultatRepository;
     }
 
     public OmsorgsovertakelseDto hentOmsorgsovertakelse(Long behandlingId) {
         var behandling = behandlingRepository.hentBehandling(behandlingId);
+        var ref = BehandlingReferanse.fra(behandling);
 
-        var farSøkerType = søknadRepository.hentSøknadHvisEksisterer(behandlingId).map(SøknadEntitet::getFarSøkerType).orElse(FarSøkerType.UDEFINERT);
         var familieHendelse = familieHendelseTjeneste.hentAggregat(behandlingId);
 
-        var søknadData = lagOmsorgsovertakelse(familieHendelse.getSøknadVersjon(), behandling.getFagsakYtelseType(), farSøkerType);
+        var søknadData = lagOmsorgsovertakelse(familieHendelse.getSøknadVersjon(), ref);
 
         var registerData = new OmsorgsovertakelseDto.Register(familieHendelse.getBekreftetVersjon().map(this::getBarn).orElseGet(Collections::emptyList));
 
         var gjeldendeKilde = familieHendelse.getOverstyrtVersjon().isPresent() ? Kilde.SAKSBEHANDLER : Kilde.SØKNAD;
         var gjeldendeData = familieHendelse.getOverstyrtVersjon()
-            .map(overstyrt -> lagOmsorgsovertakelse(overstyrt, behandling.getFagsakYtelseType(), farSøkerType))
+            .map(overstyrt -> lagOmsorgsovertakelse(overstyrt, ref))
             .orElse(søknadData);
 
         var aktuelleAvslagsårsaker = YTELSE_DELVILKÅR.getOrDefault(behandling.getFagsakYtelseType(), List.of()).stream()
@@ -87,11 +85,11 @@ public class OmsorgsovertakelseTjeneste {
         return new OmsorgsovertakelseDto(søknadData, registerData, gjeldendeKilde, gjeldendeData, tidligereValg, aktuelleAvslagsårsaker);
     }
 
-    private OmsorgsovertakelseDto.Omsorgsovertakelse lagOmsorgsovertakelse(FamilieHendelseEntitet familieHendelse, FagsakYtelseType ytelseType, FarSøkerType farSøkerType) {
+    private OmsorgsovertakelseDto.Omsorgsovertakelse lagOmsorgsovertakelse(FamilieHendelseEntitet familieHendelse, BehandlingReferanse ref) {
         return new OmsorgsovertakelseDto.Omsorgsovertakelse(getBarn(familieHendelse),
             familieHendelse.getAdopsjon().map(AdopsjonEntitet::getOmsorgsovertakelseDato).orElse(null),
             familieHendelse.getAntallBarn(),
-            utledDelvilkår(ytelseType, familieHendelse, farSøkerType),
+            delvilkårUtleder.utledDelvilkår(ref, familieHendelse),
             familieHendelse.getAdopsjon().map(AdopsjonEntitet::getErEktefellesBarn).orElse(null),
             familieHendelse.getAdopsjon().map(AdopsjonEntitet::getAnkomstNorgeDato).orElse(null));
     }
@@ -107,38 +105,4 @@ public class OmsorgsovertakelseTjeneste {
             .toList();
     }
 
-    private static OmsorgsovertakelseVilkårType utledDelvilkår(FagsakYtelseType ytelseType, FamilieHendelseEntitet familieHendelse, FarSøkerType farSøkerType) {
-        if (familieHendelse == null || familieHendelse.getAdopsjon().isEmpty()) {
-            return null;
-        }
-        var adopsjon = familieHendelse.getAdopsjon().orElseThrow();
-        if (adopsjon.getOmsorgovertakelseVilkår() != null && !OmsorgsovertakelseVilkårType.UDEFINERT.equals(adopsjon.getOmsorgovertakelseVilkår())) {
-            return adopsjon.getOmsorgovertakelseVilkår();
-        }
-        if (FamilieHendelseType.ADOPSJON.equals(familieHendelse.getType())) {
-            return switch (ytelseType) {
-                case ENGANGSTØNAD -> OmsorgsovertakelseVilkårType.ES_ADOPSJONSVILKÅRET;
-                case FORELDREPENGER -> adopsjon.isStebarnsadopsjon() ? OmsorgsovertakelseVilkårType.FP_STEBARNSADOPSJONSVILKÅRET : OmsorgsovertakelseVilkårType.FP_ADOPSJONSVILKÅRET;
-                default -> null;
-            };
-        } else if (FamilieHendelseType.OMSORG.equals(familieHendelse.getType()) || !FarSøkerType.UDEFINERT.equals(farSøkerType)) {
-            return switch (ytelseType) {
-                case ENGANGSTØNAD -> utledEngangsstønadVilkår(farSøkerType);
-                case FORELDREPENGER -> OmsorgsovertakelseVilkårType.FP_FORELDREANSVARSVILKÅRET_2_LEDD;
-                default -> null;
-            };
-        } else {
-            return null;
-        }
-    }
-
-    private static OmsorgsovertakelseVilkårType utledEngangsstønadVilkår(FarSøkerType farSøkerType) {
-        return switch (farSøkerType) {
-            case ADOPTERER_ALENE -> OmsorgsovertakelseVilkårType.ES_ADOPSJONSVILKÅRET;
-            case ANDRE_FORELDER_DØD -> OmsorgsovertakelseVilkårType.ES_FORELDREANSVARSVILKÅRET_2_LEDD;
-            case OVERTATT_OMSORG -> OmsorgsovertakelseVilkårType.ES_FORELDREANSVARSVILKÅRET_4_LEDD;
-            case OVERTATT_OMSORG_F, ANDRE_FORELD_DØD_F -> OmsorgsovertakelseVilkårType.ES_OMSORGSVILKÅRET;
-            case UDEFINERT -> null;
-        };
-    }
 }
