@@ -33,7 +33,7 @@ public enum SkjermlenkeType implements Kodeverdi {
     FAKTA_OM_ARBEIDSFORHOLD_PERMISJON("FAKTA_OM_ARBEIDSFORHOLD_PERMISJON", "Fakta om arbeidsforhold med permisjon uten sluttdato"),
     FAKTA_OM_BEREGNING("FAKTA_OM_BEREGNING", "Fakta om beregning"),
     FAKTA_OM_FOEDSEL("FAKTA_OM_FOEDSEL", "Fakta om fødsel"),
-    FAKTA_OM_OMSORGSOVERTAKELSE("FAKTA_OM_OMSORGSOVERTAKELSE", "Fakta om adopsjon og omsorg"),
+    FAKTA_OM_OMSORGSOVERTAKELSE("FAKTA_OM_OMSORGSOVERTAKELSE", "Fakta om omsorgsovertakelse"),
     FAKTA_OM_FORDELING("FAKTA_OM_FORDELING", "Fakta om fordeling"),
     FAKTA_OM_MEDLEMSKAP("FAKTA_OM_MEDLEMSKAP", "Fakta om medlemskap"),
     FAKTA_OM_OMSORG_OG_FORELDREANSVAR("FAKTA_OM_OMSORG_OG_FORELDREANSVAR", "Fakta om omsorg og foreldreansvar"),

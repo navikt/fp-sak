@@ -22,6 +22,8 @@ import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingsresultatRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktStatus;
+import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.AdopsjonEntitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.OmsorgsovertakelseVilkårType;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.UidentifisertBarn;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.UidentifisertBarnEntitet;
@@ -62,6 +64,7 @@ public class VurderOmsorgsovertakelseVilkårAksjonspunktOppdaterer implements Ak
     private BehandlingsresultatRepository behandlingsresultatRepository;
     private FamilieHendelseTjeneste familieHendelseTjeneste;
     private OpplysningsPeriodeTjeneste opplysningsPeriodeTjeneste;
+    private OmsorgsovertakelseVilkårTypeUtleder delvilkårUtleder;
 
     protected VurderOmsorgsovertakelseVilkårAksjonspunktOppdaterer() {
         // for CDI proxy
@@ -70,12 +73,14 @@ public class VurderOmsorgsovertakelseVilkårAksjonspunktOppdaterer implements Ak
     @Inject
     public VurderOmsorgsovertakelseVilkårAksjonspunktOppdaterer(BehandlingRepositoryProvider repositoryProvider,
                                                                 FamilieHendelseTjeneste familieHendelseTjeneste,
-                                                                OpplysningsPeriodeTjeneste opplysningsPeriodeTjeneste) {
+                                                                OpplysningsPeriodeTjeneste opplysningsPeriodeTjeneste,
+                                                                OmsorgsovertakelseVilkårTypeUtleder delvilkårUtleder) {
         this.historikkinnslagRepository = repositoryProvider.getHistorikkinnslagRepository();
         this.behandlingRepository = repositoryProvider.getBehandlingRepository();
         this.behandlingsresultatRepository = repositoryProvider.getBehandlingsresultatRepository();
         this.familieHendelseTjeneste = familieHendelseTjeneste;
         this.opplysningsPeriodeTjeneste = opplysningsPeriodeTjeneste;
+        this.delvilkårUtleder = delvilkårUtleder;
     }
 
     @Override
@@ -148,6 +153,10 @@ public class VurderOmsorgsovertakelseVilkårAksjonspunktOppdaterer implements Ak
         var gjeldendeAdopsjon = grunnlag.getGjeldendeAdopsjon().orElseThrow();
         var gjeldendeBarn = Optional.ofNullable(grunnlag.getGjeldendeBarna()).orElseGet(List::of).stream()
             .collect(Collectors.toMap(UidentifisertBarn::getBarnNummer, UidentifisertBarn::getFødselsdato));
+        var gjeldendeDelvilkår = grunnlag.getOverstyrtVersjon().flatMap(FamilieHendelseEntitet::getAdopsjon)
+            .map(AdopsjonEntitet::getOmsorgovertakelseVilkår)
+            .or(() -> Optional.of(delvilkårUtleder.utledDelvilkår(ref, grunnlag.getSøknadVersjon())))
+            .orElse(OmsorgsovertakelseVilkårType.UDEFINERT);
 
         var oppdatertOverstyrtHendelse = familieHendelseTjeneste.opprettBuilderForOverstyring(ref.behandlingId());
         oppdatertOverstyrtHendelse.tilbakestillBarn()
@@ -166,7 +175,7 @@ public class VurderOmsorgsovertakelseVilkårAksjonspunktOppdaterer implements Ak
             .medBehandlingId(ref.behandlingId())
             .medTittel(SkjermlenkeType.FAKTA_OM_OMSORGSOVERTAKELSE)
             .addLinje(fraTilEquals("Adopsjons- og omsorgsvilkåret", null, utfall))
-            .addLinje(fraTilEquals("Delvilkår", gjeldendeAdopsjon.getOmsorgovertakelseVilkår(), delvilkår))
+            .addLinje(fraTilEquals("Delvilkår", gjeldendeDelvilkår, delvilkår))
             .addLinje(fraTilEquals("Omsorgsovertakelsesdato", gjeldendeAdopsjon.getOmsorgsovertakelseDato(), dto.getOmsorgsovertakelseDato()))
             .addLinje(fraTilEquals("Ektefelles barn", gjeldendeAdopsjon.getErEktefellesBarn(), ektefellesBarn))
             .addLinje(fraTilEquals("Antall barn", gjeldendeBarn.size(), fødselsdatoer.size()));

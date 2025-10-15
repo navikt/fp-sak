@@ -20,6 +20,7 @@ import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioM
 import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.familiehendelse.FamilieHendelseTjeneste;
+import no.nav.foreldrepenger.familiehendelse.aksjonspunkt.omsorgsovertakelse.OmsorgsovertakelseVilkårTypeUtleder;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.fødsel.dto.Kilde;
 
 public class OmsorgsovertakelseTjenesteTest extends EntityManagerAwareTest {
@@ -33,8 +34,9 @@ public class OmsorgsovertakelseTjenesteTest extends EntityManagerAwareTest {
     void setUp() {
         repositoryProvider = new BehandlingRepositoryProvider(getEntityManager());
         var fhTjeneste = new FamilieHendelseTjeneste(null, repositoryProvider.getFamilieHendelseRepository());
+        var delvilkårUtleder = new OmsorgsovertakelseVilkårTypeUtleder(repositoryProvider.getSøknadRepository());
         tjeneste = new OmsorgsovertakelseTjeneste(fhTjeneste, repositoryProvider.getBehandlingRepository(),
-            repositoryProvider.getSøknadRepository(), repositoryProvider.getBehandlingsresultatRepository());
+            delvilkårUtleder, repositoryProvider.getBehandlingsresultatRepository());
     }
 
     @Test
@@ -179,7 +181,7 @@ public class OmsorgsovertakelseTjenesteTest extends EntityManagerAwareTest {
         assertThat(gjeldende.erEktefellesBarn()).isFalse();
         assertThat(gjeldende.barn()).hasSize(1);
         assertThat(omsorgsovertakelseDto.aktuelleDelvilkårAvslagsårsaker().keySet()).hasSize(3);
-        assertThat(omsorgsovertakelseDto.aktuelleDelvilkårAvslagsårsaker().get(OmsorgsovertakelseVilkårType.FP_FORELDREANSVARSVILKÅRET_2_LEDD)).hasSize(9);
+        assertThat(omsorgsovertakelseDto.aktuelleDelvilkårAvslagsårsaker().get(OmsorgsovertakelseVilkårType.FP_FORELDREANSVARSVILKÅRET_2_LEDD)).hasSize(7);
         var vurdering = omsorgsovertakelseDto.saksbehandlerVurdering();
         assertThat(vurdering).isNotNull();
         assertThat(vurdering.vilkårUtfallType()).isEqualTo(VilkårUtfallType.IKKE_OPPFYLT);
