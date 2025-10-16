@@ -267,6 +267,7 @@ record BrevGrunnlagDto(UUID uuid, String saksnummer, FagsakYtelseType fagsakYtel
             OPPTJENINGSVILKÅRET,
             BEREGNINGSGRUNNLAGVILKÅR,
             SVANGERSKAPSPENGERVILKÅR,
+            OMSORGSOVERTAKELSEVILKÅR,
             UDEFINERT,
         }
 

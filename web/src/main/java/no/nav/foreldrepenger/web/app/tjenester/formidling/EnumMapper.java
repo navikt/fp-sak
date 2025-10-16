@@ -166,6 +166,7 @@ final class EnumMapper {
         return switch (vilkårType) {
             case FØDSELSVILKÅRET_MOR -> Behandlingsresultat.VilkårType.FØDSELSVILKÅRET_MOR;
             case FØDSELSVILKÅRET_FAR_MEDMOR -> Behandlingsresultat.VilkårType.FØDSELSVILKÅRET_FAR_MEDMOR;
+            case OMSORGSOVERTAKELSEVILKÅR -> Behandlingsresultat.VilkårType.OMSORGSOVERTAKELSEVILKÅR;
             case ADOPSJONSVILKARET_FORELDREPENGER -> Behandlingsresultat.VilkårType.ADOPSJONSVILKARET_FORELDREPENGER;
             case MEDLEMSKAPSVILKÅRET -> Behandlingsresultat.VilkårType.MEDLEMSKAPSVILKÅRET;
             case MEDLEMSKAPSVILKÅRET_FORUTGÅENDE -> Behandlingsresultat.VilkårType.MEDLEMSKAPSVILKÅRET_FORUTGÅENDE;
