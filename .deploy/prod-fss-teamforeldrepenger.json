@@ -1,10 +1,20 @@
 {
   "environment": "prod",
   "kafkaPool": "nav-prod",
-  "oracleconfig": "oracle/data/prod/config/fpsak",
-  "oraclefpsaksecret": "oracle/data/prod/creds/fpsak-fpsak",
-  "oracledvhsecret": "oracle/data/prod/creds/fpsak-fpsak_hist",
-  "fpsakserviceuser": "serviceuser/data/prod/srvfpsak",
+  "vault": {
+    "mountPath": "/var/run/secrets/nais.io",
+    "db": {
+      "secretsPath": "oracle/data/dev/creds/fpsak-fpsak",
+      "configPath": "oracle/data/dev/config/fpsak"
+    },
+    "dvhDb": {
+      "secretsPath": "oracle/data/dev/creds/fpsak-fpsak_hist",
+      "configPath": "oracle/data/dev/config/fpsak"
+    },
+    "serviceuser": {
+      "secretsPath": "serviceuser/data/prod/srvfpsak"
+    }
+  },
   "minReplicas": "3",
   "maxReplicas": "9",
   "limits": {
@@ -20,9 +30,18 @@
     "https://fpsak-api.prod-fss-pub.nais.io"
   ],
   "groups": [
-    "73107205-17ec-4a07-a56e-e0a8542f90c9",
-    "77f05833-ebfd-45fb-8be7-88eca8e7418f",
-    "0d226374-4748-4367-a38a-062dcad70034"
+    {
+      "uuid": "73107205-17ec-4a07-a56e-e0a8542f90c9",
+      "kommentar": "saksbehandler"
+    },
+    {
+      "uuid": "77f05833-ebfd-45fb-8be7-88eca8e7418f",
+      "kommentar": "veileder"
+    },
+    {
+      "uuid": "0d226374-4748-4367-a38a-062dcad70034",
+      "kommentar": "drift"
+    }
   ],
   "AZURE_IAC_RULES": [
     {
