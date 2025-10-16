@@ -15,6 +15,9 @@ import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
@@ -42,6 +45,8 @@ public class ArbeidsforholdInntektsmeldingFormidlingRestTjeneste {
     static final String BASE_PATH = "/formidling/arbeidInntektsmelding";
     private static final String INNTEKTSMELDING_STATUS_PART_PATH = "/inntektsmelding-status";
     public static final String INNTEKTSMELDING_STATUS_PATH = BASE_PATH + INNTEKTSMELDING_STATUS_PART_PATH;
+    private static final Logger LOG = LoggerFactory.getLogger(ArbeidsforholdInntektsmeldingFormidlingRestTjeneste.class);
+
 
     private BehandlingRepository behandlingRepository;
     private InntektArbeidYtelseTjeneste inntektArbeidYtelseTjeneste;
@@ -69,6 +74,8 @@ public class ArbeidsforholdInntektsmeldingFormidlingRestTjeneste {
     @Path(INNTEKTSMELDING_STATUS_PART_PATH)
     public Response hentStatusInntektsmeldinger(@TilpassetAbacAttributt(supplierClass = BehandlingAbacSuppliers.UuidAbacDataSupplier.class)
                                                      @NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
+        LOG.info("Formidlingapi - hentStatusInntektsmeldinger kalles fortsatt");
+
         var uid = Optional.ofNullable(uuidDto.getBehandlingUuid());
         var behandling = uid.flatMap(u -> behandlingRepository.hentBehandlingHvisFinnes(u));
         if (behandling.isEmpty()) {

@@ -111,6 +111,7 @@ public class DokumentRestTjeneste {
     @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK, sporingslogg = false)
     public Collection<MottattDokumentDto> hentAlleMottatteDokumenterForBehandling(@TilpassetAbacAttributt(supplierClass = BehandlingAbacSuppliers.UuidAbacDataSupplier.class)
             @NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
+        LOG.info("Formidlingapi - hentAlleMottatteDokumenterForBehandling kalles fortsatt");
         var behandling = behandlingRepository.hentBehandling(uuidDto.getBehandlingUuid());
         return mottatteDokumentRepository.hentMottatteDokumentMedFagsakId(behandling.getFagsakId()).stream()
             .map(MottattDokumentDto::new)

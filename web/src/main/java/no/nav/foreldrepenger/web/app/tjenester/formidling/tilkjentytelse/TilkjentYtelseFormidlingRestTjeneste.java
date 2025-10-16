@@ -14,6 +14,9 @@ import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatRepository;
@@ -41,6 +44,8 @@ public class TilkjentYtelseFormidlingRestTjeneste {
     private static final String TILKJENT_YTELSE_ENGANGSSTØNAD_PART_PATH = "/engangsstonad";
     public static final String TILKJENT_YTELSE_DAGYTELSE_PATH = BASE_PATH + TILKJENT_YTELSE_DAGYTELSE_PART_PATH;
     public static final String TILKJENT_YTELSE_ENGAGSSTØNAD_PATH = BASE_PATH + TILKJENT_YTELSE_ENGANGSSTØNAD_PART_PATH;
+    private static final Logger LOG = LoggerFactory.getLogger(TilkjentYtelseFormidlingRestTjeneste.class);
+
 
     private BehandlingRepository behandlingRepository;
     private BeregningsresultatRepository beregningsresultatRepository;
@@ -66,6 +71,8 @@ public class TilkjentYtelseFormidlingRestTjeneste {
     @Path(TILKJENT_YTELSE_DAGYTELSE_PART_PATH)
     public Response hentTilkjentYtelseDagytelseFormidling(@TilpassetAbacAttributt(supplierClass = BehandlingAbacSuppliers.UuidAbacDataSupplier.class)
                                                      @NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
+        LOG.info("Formidlingapi - hentTilkjentYtelseDagytelseFormidling kalles fortsatt");
+
         var uid = Optional.ofNullable(uuidDto.getBehandlingUuid());
         var dto = uid.flatMap(behandlingRepository::hentBehandlingHvisFinnes)
             .flatMap(beh -> beregningsresultatRepository.hentUtbetBeregningsresultat(beh.getId()))
@@ -84,6 +91,8 @@ public class TilkjentYtelseFormidlingRestTjeneste {
     @Path(TILKJENT_YTELSE_ENGANGSSTØNAD_PART_PATH)
     public Response hentTilkjentYtelseEngangsstonadFormidling(@TilpassetAbacAttributt(supplierClass = BehandlingAbacSuppliers.UuidAbacDataSupplier.class)
                                                           @NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
+
+        LOG.info("Formidlingapi - hentTilkjentYtelseEngangsstonadFormidling kalles fortsatt");
         var uid = Optional.ofNullable(uuidDto.getBehandlingUuid());
         var dto = uid.flatMap(behandlingRepository::hentBehandlingHvisFinnes)
             .flatMap(beh -> beregningRepository.hentEngangsstønadBeregning(beh.getId()))
