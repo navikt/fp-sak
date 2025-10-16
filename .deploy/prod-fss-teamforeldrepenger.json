@@ -4,12 +4,12 @@
   "vault": {
     "mountPath": "/var/run/secrets/nais.io",
     "db": {
-      "secretsPath": "oracle/data/dev/creds/fpsak-fpsak",
-      "configPath": "oracle/data/dev/config/fpsak"
+      "secretsPath": "oracle/data/prod/creds/fpsak-fpsak",
+      "configPath": "oracle/data/prod/config/fpsak"
     },
     "dvhDb": {
-      "secretsPath": "oracle/data/dev/creds/fpsak-fpsak_hist",
-      "configPath": "oracle/data/dev/config/fpsak"
+      "secretsPath": "oracle/data/prod/creds/fpsak-fpsak_hist",
+      "configPath": "oracle/data/prod/config/fpsak"
     },
     "serviceuser": {
       "secretsPath": "serviceuser/data/prod/srvfpsak"
