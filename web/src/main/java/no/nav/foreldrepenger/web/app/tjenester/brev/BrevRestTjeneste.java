@@ -267,6 +267,7 @@ public class BrevRestTjeneste {
     @Operation(description = "Sjekk har varsel sendt om revurdering", tags = "brev")
     @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK, sporingslogg = false)
     public Boolean harSendtVarselOmRevurdering(@TilpassetAbacAttributt(supplierClass = BehandlingAbacSuppliers.UuidAbacDataSupplier.class) @NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
+        LOG.info("Formidlingapi - harSendtVarselOmRevurdering kalles fortsatt");
         var behandling = behandlingRepository.hentBehandling(uuidDto.getBehandlingUuid());
         return dokumentBehandlingTjeneste.erDokumentBestilt(behandling.getId(), DokumentMalType.VARSEL_OM_REVURDERING);
     }

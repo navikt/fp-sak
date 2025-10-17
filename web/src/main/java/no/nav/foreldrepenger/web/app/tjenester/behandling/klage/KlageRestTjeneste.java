@@ -40,7 +40,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageVurderingOmg
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageVurderingResultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageVurdertAv;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.repository.MottatteDokumentRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.produksjonsstyring.tilbakekreving.FptilbakeRestKlient;
 import no.nav.foreldrepenger.produksjonsstyring.tilbakekreving.TilbakeBehandlingDto;
@@ -78,7 +77,6 @@ public class KlageRestTjeneste {
     private BehandlingRepository behandlingRepository;
     private KlageVurderingTjeneste klageVurderingTjeneste;
     private FptilbakeRestKlient fptilbakeRestKlient;
-    private MottatteDokumentRepository mottatteDokumentRepository;
     private KlageHistorikkinnslag klageFormkravHistorikk;
     private BehandlingEventPubliserer behandlingEventPubliserer;
 
@@ -90,13 +88,11 @@ public class KlageRestTjeneste {
     public KlageRestTjeneste(BehandlingRepository behandlingRepository,
                              KlageVurderingTjeneste klageVurderingTjeneste,
                              FptilbakeRestKlient fptilbakeRestKlient,
-                             MottatteDokumentRepository mottatteDokumentRepository,
                              KlageHistorikkinnslag klageFormkravHistorikk,
                              BehandlingEventPubliserer behandlingEventPubliserer) {
         this.behandlingRepository = behandlingRepository;
         this.klageVurderingTjeneste = klageVurderingTjeneste;
         this.fptilbakeRestKlient = fptilbakeRestKlient;
-        this.mottatteDokumentRepository = mottatteDokumentRepository;
         this.klageFormkravHistorikk = klageFormkravHistorikk;
         this.behandlingEventPubliserer = behandlingEventPubliserer;
     }

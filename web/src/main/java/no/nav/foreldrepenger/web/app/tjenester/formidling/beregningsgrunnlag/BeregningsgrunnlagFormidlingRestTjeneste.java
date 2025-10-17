@@ -14,6 +14,9 @@ import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
@@ -38,6 +41,8 @@ public class BeregningsgrunnlagFormidlingRestTjeneste {
     static final String BASE_PATH = "/formidling";
     private static final String BEREGNINGSGRUNNLAG_PART_PATH = "/beregningsgrunnlag/v2";
     public static final String BEREGNINGSGRUNNLAG_PATH = BASE_PATH + BEREGNINGSGRUNNLAG_PART_PATH;
+    private static final Logger LOG = LoggerFactory.getLogger(BeregningsgrunnlagFormidlingRestTjeneste.class);
+
 
     private BehandlingRepository behandlingRepository;
     private BeregningTjeneste beregningTjeneste;
@@ -59,6 +64,7 @@ public class BeregningsgrunnlagFormidlingRestTjeneste {
     @Path(BEREGNINGSGRUNNLAG_PART_PATH)
     public Response hentBeregningsgrunnlagFormidlingV2(@TilpassetAbacAttributt(supplierClass = BehandlingAbacSuppliers.UuidAbacDataSupplier.class)
                                                      @NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
+        LOG.info("Formidlingapi - hentBeregningsgrunnlagFormidlingV2 kalles fortsatt");
         var uid = Optional.ofNullable(uuidDto.getBehandlingUuid());
         var dto = uid.flatMap(behandlingRepository::hentBehandlingHvisFinnes)
             .map(BehandlingReferanse::fra)
