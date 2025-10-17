@@ -42,14 +42,24 @@ public class JettyServer {
     private static final Logger LOG = LoggerFactory.getLogger(JettyServer.class);
     private static final Environment ENV = Environment.current();
 
-    private static final String CONTEXT_PATH = ENV.getProperty("context.path","/fpsak");
+    private static final String CONTEXT_PATH = ENV.getProperty("context.path", "/fpsak");
     private static final String JETTY_SCAN_LOCATIONS = "^.*jersey-.*\\.jar$|^.*felles-.*\\.jar$|^.*/app\\.jar$";
     private static final String JETTY_LOCAL_CLASSES = "^.*/target/classes/|";
 
     private final Integer serverPort;
 
-    public static void main(String[] args) throws Exception {
+    static void main() throws Exception {
+        hentSystembruker();
         jettyServer().bootStrap();
+    }
+
+    private static void hentSystembruker() {
+        if (System.getProperty("systembruker.username") == null) {
+            System.setProperty("systembruker.username", VaultUtil.lesFilVerdi("serviceuser", "username"));
+        }
+        if (System.getProperty("systembruker.password") == null) {
+            System.setProperty("systembruker.password", VaultUtil.lesFilVerdi("serviceuser", "password"));
+        }
     }
 
     protected static JettyServer jettyServer() {
@@ -125,8 +135,7 @@ public class JettyServer {
     }
 
     private static ContextHandler createContext() throws IOException {
-        var ctx = new WebAppContext(CONTEXT_PATH, null, simpleConstraints(), null,
-            new ErrorPageErrorHandler(), ServletContextHandler.NO_SESSIONS);
+        var ctx = new WebAppContext(CONTEXT_PATH, null, simpleConstraints(), null, new ErrorPageErrorHandler(), ServletContextHandler.NO_SESSIONS);
 
         ctx.setParentLoaderPriority(true);
 
