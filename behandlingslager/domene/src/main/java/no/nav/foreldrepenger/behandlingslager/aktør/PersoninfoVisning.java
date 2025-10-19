@@ -15,6 +15,7 @@ public record PersoninfoVisning(AktørId aktørId,
         requireNonNull(aktørId, "Navbruker må ha aktørId");
         requireNonNull(personIdent, "Navbruker må ha fødselsnummer");
         requireNonNull(navn, "Navbruker må ha navn");
+        requireNonNull(diskresjonskode, "Navbruker må ha diskresjonskode");
     }
 
 }

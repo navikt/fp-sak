@@ -63,9 +63,9 @@ public class ArbeidsgiverTjeneste {
             var personinfo = hentInformasjonFraPDL(arbeidsgiver);
             if (personinfo.isPresent()) {
                 var info = personinfo.get();
-                var fødselsdato = info.getFødselsdato().format(DateTimeFormatter.ofPattern("dd.MM.yyyy"));
-                var nyOpplysninger = new ArbeidsgiverOpplysninger(arbeidsgiver.getAktørId(), fødselsdato, info.getNavn(),
-                        info.getFødselsdato());
+                var fødselsdato = info.fødselsdato().format(DateTimeFormatter.ofPattern("dd.MM.yyyy"));
+                var nyOpplysninger = new ArbeidsgiverOpplysninger(arbeidsgiver.getAktørId(), fødselsdato, info.navn(),
+                        info.fødselsdato());
                 CACHE.put(arbeidsgiver.getIdentifikator(), nyOpplysninger);
                 return nyOpplysninger;
             } else {

@@ -67,12 +67,12 @@ public class PersoninfoAdapter {
         this.krrSpråkKlient = krrSpråkKlient;
     }
 
-    public Optional<Personinfo> innhentPersonopplysningerFor(FagsakYtelseType ytelseType, AktørId aktørId) {
-        return aktørConsumer.hentPersonIdentForAktørId(aktørId).map(i -> hentKjerneinformasjon(ytelseType, aktørId, i, false));
+    public Optional<Personinfo> innhentPersonopplysningerFor(FagsakYtelseType ytelseType, AktørId aktørId, boolean inkluderOpphørte) {
+        return aktørConsumer.hentPersonIdentForAktørId(aktørId).flatMap(i -> hentKjerneinformasjon(ytelseType, aktørId, i, false, inkluderOpphørte));
     }
 
-    public Optional<Personinfo> innhentPersonopplysningerFor(FagsakYtelseType ytelseType, PersonIdent personIdent, boolean erBarn) {
-        return aktørConsumer.hentAktørIdForPersonIdent(personIdent).map(a -> hentKjerneinformasjon(ytelseType, a, personIdent, erBarn));
+    public Optional<Personinfo> innhentPersonopplysningerFor(FagsakYtelseType ytelseType, PersonIdent personIdent, boolean erBarn, boolean inkluderOpphørte) {
+        return aktørConsumer.hentAktørIdForPersonIdent(personIdent).flatMap(a -> hentKjerneinformasjon(ytelseType, a, personIdent, erBarn, inkluderOpphørte));
     }
 
     public boolean sjekkOmBrukerManglerAdresse(FagsakYtelseType ytelseType, AktørId aktørId) {
@@ -82,8 +82,8 @@ public class PersoninfoAdapter {
         return manglerAdresse;
     }
 
-    private Personinfo hentKjerneinformasjon(FagsakYtelseType ytelseType, AktørId aktørId, PersonIdent personIdent, boolean erBarn) {
-        return personinfoTjeneste.hentPersoninfo(ytelseType, aktørId, personIdent, erBarn);
+    private Optional<Personinfo> hentKjerneinformasjon(FagsakYtelseType ytelseType, AktørId aktørId, PersonIdent personIdent, boolean erBarn, boolean inkluderOpphørte) {
+        return Optional.ofNullable(personinfoTjeneste.hentPersoninfo(ytelseType, aktørId, personIdent, erBarn, inkluderOpphørte));
     }
 
     public Personhistorikkinfo innhentPersonopplysningerHistorikk(FagsakYtelseType ytelseType, AktørId aktørId,

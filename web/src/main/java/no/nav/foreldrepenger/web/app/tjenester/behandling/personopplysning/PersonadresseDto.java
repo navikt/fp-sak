@@ -1,6 +1,6 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.personopplysning;
 
-import static no.nav.foreldrepenger.web.app.util.StringUtils.formaterMedStoreOgSmåBokstaver;
+import static no.nav.vedtak.util.StringCaseUtils.formaterMedStoreOgSmåBokstaver;
 
 import java.time.LocalDate;
 

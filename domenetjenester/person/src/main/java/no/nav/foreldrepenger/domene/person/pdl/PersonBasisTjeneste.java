@@ -1,7 +1,6 @@
 package no.nav.foreldrepenger.domene.person.pdl;
 
 import java.time.LocalDate;
-import java.time.Month;
 import java.util.Optional;
 
 import jakarta.enterprise.context.ApplicationScoped;
@@ -12,6 +11,7 @@ import no.nav.foreldrepenger.behandlingslager.aktør.PersoninfoBasis;
 import no.nav.foreldrepenger.behandlingslager.aktør.PersoninfoKjønn;
 import no.nav.foreldrepenger.behandlingslager.aktør.PersoninfoVisning;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.Diskresjonskode;
+import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonopplysningEntitet;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.PersonIdent;
@@ -31,7 +31,7 @@ import no.nav.vedtak.felles.integrasjon.person.PersonMappers;
 public class PersonBasisTjeneste {
 
     private static final boolean IS_PROD = Environment.current().isProd();
-    private static final LocalDate DUMMY_VOKSEN_FØDT = LocalDate.of(1900, Month.JANUARY, 1);
+    private static final LocalDate DUMMY_VOKSEN_FØDT = PersonopplysningEntitet.DUMMY_FØDSELSDATO;
 
     private PdlKlientLogCause pdlKlient;
 
@@ -57,7 +57,7 @@ public class PersonBasisTjeneste {
         if (PersonMappers.manglerIdentifikator(person)) {
             var falskIdent = pdlKlient.sjekkUtenIdentifikatorFalskIdentitet(aktørId);
             if (falskIdent != null) {
-                return new PersoninfoVisning(aktørId, personIdent, falskIdent.navn(), Diskresjonskode.UDEFINERT);
+                return new PersoninfoVisning(aktørId, personIdent, "FalskId: " + falskIdent.navn(), Diskresjonskode.UDEFINERT);
             }
         }
 
@@ -80,8 +80,9 @@ public class PersonBasisTjeneste {
         if (PersonMappers.manglerIdentifikator(person)) {
             var falskIdent = pdlKlient.sjekkUtenIdentifikatorFalskIdentitet(aktørId);
             if (falskIdent != null) {
-                return new PersoninfoBasis(aktørId, personIdent, falskIdent.navn(),
-                    falskIdent.fødselsdato(), null, falskIdent.kjønn(), Diskresjonskode.UDEFINERT.getKode());
+                var brukFødselsdato = Optional.ofNullable(falskIdent.fødselsdato()).orElse(DUMMY_VOKSEN_FØDT);
+                return new PersoninfoBasis(aktørId, personIdent, "FalskId: " + falskIdent.navn(), brukFødselsdato, null,
+                    falskIdent.kjønn(), Diskresjonskode.UDEFINERT);
             }
         }
 
@@ -90,7 +91,7 @@ public class PersonBasisTjeneste {
             .orElseThrow(() -> new IllegalStateException("Fødselsdato mangler i PDL")); // Behold denne for videre analyse
         var dødsdato = LokalPersonMapper.mapDødsdato(person);
         return new PersoninfoBasis(aktørId, personIdent, LokalPersonMapper.mapNavn(person), fødselsdato, dødsdato,
-            LokalPersonMapper.mapKjønn(person), getDiskresjonskode(person).getKode());
+            LokalPersonMapper.mapKjønn(person), getDiskresjonskode(person));
     }
 
     public PersoninfoArbeidsgiver hentPrivatArbeidsgiverPersoninfo(FagsakYtelseType ytelseType, AktørId aktørId, PersonIdent personIdent) {
@@ -104,10 +105,7 @@ public class PersonBasisTjeneste {
 
         var fødselsdato = LokalPersonMapper.mapFødselsdatoEllerDefault(person, DUMMY_VOKSEN_FØDT);
 
-        return new PersoninfoArbeidsgiver.Builder().medAktørId(aktørId).medPersonIdent(personIdent)
-            .medNavn(LokalPersonMapper.mapNavn(person))
-            .medFødselsdato(fødselsdato)
-            .build();
+        return new PersoninfoArbeidsgiver(aktørId, personIdent, LokalPersonMapper.mapNavn(person), fødselsdato);
     }
 
     public PersoninfoArbeidsgiver hentVergePersoninfo(FagsakYtelseType ytelseType, AktørId aktørId, PersonIdent personIdent) {
@@ -121,10 +119,7 @@ public class PersonBasisTjeneste {
 
         var fødselsdato = LokalPersonMapper.mapFødselsdatoEllerDefault(person, DUMMY_VOKSEN_FØDT);
 
-        return new PersoninfoArbeidsgiver.Builder().medAktørId(aktørId).medPersonIdent(personIdent)
-            .medNavn(LokalPersonMapper.mapNavn(person))
-            .medFødselsdato(fødselsdato)
-            .build();
+        return new PersoninfoArbeidsgiver(aktørId, personIdent, LokalPersonMapper.mapNavn(person), fødselsdato);
     }
 
     public Optional<PersoninfoKjønn> hentKjønnPersoninfo(FagsakYtelseType ytelseType, AktørId aktørId) {
@@ -135,10 +130,7 @@ public class PersonBasisTjeneste {
 
         var person = pdlKlient.hentPerson(ytelseType, query, projection);
 
-        var kjønn = new PersoninfoKjønn.Builder().medAktørId(aktørId)
-            .medNavBrukerKjønn(LokalPersonMapper.mapKjønn(person))
-            .build();
-        return person.getKjoenn().isEmpty() ? Optional.empty() : Optional.of(kjønn);
+        return person.getKjoenn().isEmpty() ? Optional.empty() : Optional.of(new PersoninfoKjønn(aktørId, LokalPersonMapper.mapKjønn(person)));
     }
 
     private Diskresjonskode getDiskresjonskode(Person person) {

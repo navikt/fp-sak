@@ -1,24 +1,14 @@
 package no.nav.foreldrepenger.behandlingslager.aktør;
 
+import static java.util.Objects.requireNonNull;
+
 import no.nav.foreldrepenger.behandlingslager.geografisk.Språkkode;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 
-public class PersoninfoSpråk {
+public record PersoninfoSpråk(AktørId aktørId, Språkkode foretrukketSpråk) {
 
-    private AktørId aktørId;
-    private Språkkode foretrukketSpråk;
-
-    public PersoninfoSpråk(AktørId aktørId, Språkkode foretrukketSpråk) {
-        this.aktørId = aktørId;
-        this.foretrukketSpråk = foretrukketSpråk;
-    }
-
-    public AktørId getAktørId() {
-        return aktørId;
-    }
-
-    public Språkkode getForetrukketSpråk() {
-        return foretrukketSpråk;
+    public PersoninfoSpråk {
+        requireNonNull(aktørId, "Navbruker må ha aktørId");
     }
 
 }
