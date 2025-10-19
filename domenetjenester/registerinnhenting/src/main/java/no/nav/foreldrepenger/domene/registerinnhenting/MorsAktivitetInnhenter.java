@@ -134,6 +134,7 @@ public class MorsAktivitetInnhenter {
                 nyGrunnlagTilDato, behandling.getFagsakYtelseType())
             .stream()
             .filter(a -> Set.of(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD, ArbeidType.MARITIMT_ARBEIDSFORHOLD).contains(a.arbeidType()))
+            .filter(a -> a.arbeidsgiver().getErVirksomhet())
             .toList();
 
         if (arbeidsforholdInfo.isEmpty()) {
