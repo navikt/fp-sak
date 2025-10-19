@@ -142,7 +142,7 @@ public class PersoninfoTjeneste {
                 if (statsborgerskap.isEmpty()) {
                     statsborgerskap = List.of(new StatsborgerskapPeriode(Gyldighetsperiode.innenfor(brukFødselsdato, null), falskIdent.statsborgerskap()));
                 }
-                new Personinfo.Builder().medAktørId(aktørId).medPersonIdent(personIdent)
+                return new Personinfo.Builder().medAktørId(aktørId).medPersonIdent(personIdent)
                     .medNavn(falskIdent.navn())
                     .medFødselsdato(brukFødselsdato)
                     .medNavBrukerKjønn(falskIdent.kjønn())
