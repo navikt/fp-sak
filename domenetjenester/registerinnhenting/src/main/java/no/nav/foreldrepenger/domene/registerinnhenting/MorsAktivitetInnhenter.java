@@ -134,15 +134,19 @@ public class MorsAktivitetInnhenter {
                 nyGrunnlagTilDato, behandling.getFagsakYtelseType())
             .stream()
             .filter(a -> Set.of(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD, ArbeidType.MARITIMT_ARBEIDSFORHOLD).contains(a.arbeidType()))
-            .filter(a -> a.arbeidsgiver().getErVirksomhet())
             .toList();
 
         if (arbeidsforholdInfo.isEmpty()) {
             LOG.info("MorsAktivitetInnhenter: Finner ingen aktivitet på mor for behandlingId: {}", behandling.getId());
             return Optional.empty();
         }
+        if (arbeidsforholdInfo.stream().anyMatch(a -> !a.arbeidsgiver().getErVirksomhet())) {
+            LOG.warn("MorsAktivitetInnhenter: Ignorerer mors private arbeidsgiver for saksnummer {}", behandling.getSaksnummer().getVerdi());
+        }
 
-        var mapAvOrgnrOgAvtaler = arbeidsforholdInfo.stream().collect(Collectors.groupingBy(this::aktivitetskravNøkkel));
+        var mapAvOrgnrOgAvtaler = arbeidsforholdInfo.stream()
+            .filter(a -> a.arbeidsgiver().getErVirksomhet())
+            .collect(Collectors.groupingBy(this::aktivitetskravNøkkel));
         var perioderBuilder = lagAktivitetskravPerioderBuilder(mapAvOrgnrOgAvtaler, nyGrunnlagFraDato, nyHøyesteAktivitetskravDato);
 
         return Optional.of(new MorAktivitet(nyGrunnlagFraDato, nyGrunnlagTilDato, perioderBuilder));
