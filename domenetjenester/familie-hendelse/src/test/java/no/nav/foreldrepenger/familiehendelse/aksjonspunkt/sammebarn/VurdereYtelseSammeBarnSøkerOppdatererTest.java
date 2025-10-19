@@ -2,7 +2,7 @@ package no.nav.foreldrepenger.familiehendelse.aksjonspunkt.sammebarn;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import no.nav.foreldrepenger.familiehendelse.aksjonspunkt.HistorikkSammeBarnTjeneste;
+import java.time.LocalDate;
 
 import org.junit.jupiter.api.Test;
 
@@ -20,6 +20,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallTy
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioFarSøkerEngangsstønad;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.personopplysning.Personopplysning;
 import no.nav.foreldrepenger.domene.typer.AktørId;
+import no.nav.foreldrepenger.familiehendelse.aksjonspunkt.HistorikkSammeBarnTjeneste;
 import no.nav.foreldrepenger.familiehendelse.aksjonspunkt.sammebarn.dto.VurdereYtelseSammeBarnSøkerAksjonspunktDto;
 
 class VurdereYtelseSammeBarnSøkerOppdatererTest {
@@ -70,6 +71,7 @@ class VurdereYtelseSammeBarnSøkerOppdatererTest {
                 Personopplysning.builder()
                     .aktørId(AktørId.dummy())
                     .navn("Forelder")
+                    .fødselsdato(LocalDate.now().minusYears(29))
             )
             .build();
 

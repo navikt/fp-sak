@@ -248,7 +248,7 @@ class VergeTjenesteTest extends EntityManagerAwareTest {
 
             // Assert
             assertThatExceptionOfType(TekniskException.class).isThrownBy(() -> vergeTjeneste.fjernVerge(behandling, skriveLås))
-                .withMessage("FP-199772:Kan ikke fjerne verge fra eksisterende grunnlag som ikke finnes");
+                .withMessage("FP-199772: Kan ikke fjerne verge fra eksisterende grunnlag som ikke finnes");
 
             assertThat(vergeRepository.hentAggregat(behandling.getId()).flatMap(VergeAggregat::getVerge)).isEmpty();
             var historikkinnslag = historikkRepository.hent(behandling.getSaksnummer());

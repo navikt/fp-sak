@@ -246,11 +246,11 @@ public class PersonopplysningXmlTjenesteImpl extends PersonopplysningXmlTjeneste
         var personopplysning = personopplysningerAggregat.getSøker();
         var opplysningAdresser = personopplysningerAggregat.getAdresserFor(personopplysning.getAktørId(), SimpleLocalDateInterval.enDag(stp.getUtledetSkjæringstidspunkt()));
         if (opplysningAdresser != null) {
-            opplysningAdresser.forEach(addresse -> personopplysninger.getAdresse().add(lagAdresse(personopplysning, addresse)));
+            opplysningAdresser.forEach(addresse -> personopplysninger.getAdresse().add(lagAdresse(addresse)));
         }
     }
 
-    private Addresse lagAdresse(PersonopplysningEntitet personopplysning, PersonAdresseEntitet adresseFraBehandling) {
+    private Addresse lagAdresse(PersonAdresseEntitet adresseFraBehandling) {
         var adresse = personopplysningObjectFactory.createAddresse();
         adresse.setAddresseType(VedtakXmlUtil.lagKodeverksOpplysning(adresseFraBehandling.getAdresseType()));
         adresse.setAddresselinje1(VedtakXmlUtil.lagStringOpplysning(adresseFraBehandling.getAdresselinje1()));
@@ -261,7 +261,6 @@ public class PersonopplysningXmlTjenesteImpl extends PersonopplysningXmlTjeneste
             adresse.setAddresselinje3(VedtakXmlUtil.lagStringOpplysning(adresseFraBehandling.getAdresselinje3()));
         }
         adresse.setLand(VedtakXmlUtil.lagStringOpplysning(adresseFraBehandling.getLand().getNavn()));
-        adresse.setMottakersNavn(VedtakXmlUtil.lagStringOpplysning(personopplysning.getNavn()));
         adresse.setPostnummer(VedtakXmlUtil.lagStringOpplysning(adresseFraBehandling.getPostnummer()));
         return adresse;
     }

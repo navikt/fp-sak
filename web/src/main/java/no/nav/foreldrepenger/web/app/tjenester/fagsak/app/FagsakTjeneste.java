@@ -33,7 +33,6 @@ import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.FagsakBackendDto;
 import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.FagsakSøkDto;
 import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.PersonDto;
 import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.SakHendelseDto;
-import no.nav.foreldrepenger.web.app.util.StringUtils;
 
 @ApplicationScoped
 public class FagsakTjeneste {
@@ -147,8 +146,8 @@ public class FagsakTjeneste {
     }
 
     private static PersonDto mapFraPersoninfoBasisTilPersonDto(PersoninfoBasis pi, Språkkode språkkode) {
-        return new PersonDto(pi.aktørId().getId(), StringUtils.formaterMedStoreOgSmåBokstaver(pi.navn()), pi.personIdent().getIdent(), pi.kjønn(),
-            pi.diskresjonskode(), pi.fødselsdato(), pi.dødsdato(), pi.dødsdato(), språkkode);
+        return new PersonDto(pi.aktørId().getId(), pi.navn(), pi.personIdent().getIdent(), pi.kjønn(),
+            pi.diskresjonskode().getKode(), pi.fødselsdato(), pi.dødsdato(), pi.dødsdato(), språkkode);
     }
 
     private FagsakBackendDto mapFraFagsakTilFagsakDto(Fagsak fagsak) {

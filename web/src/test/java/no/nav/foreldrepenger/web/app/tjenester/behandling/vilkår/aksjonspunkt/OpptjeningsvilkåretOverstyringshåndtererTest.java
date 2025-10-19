@@ -126,6 +126,6 @@ class OpptjeningsvilkåretOverstyringshåndtererTest {
         //Act
         assertThatThrownBy(() -> aksjonspunktTjeneste.overstyrAksjonspunkter(dto, behandling, lås))
             .isInstanceOf(FunksjonellException.class)
-            .hasMessage("FP-093923:Kan ikke overstyre vilkår. Det må være minst en aktivitet for at opptjeningsvilkåret skal kunne overstyres.");
+            .hasMessage("FP-093923: Kan ikke overstyre vilkår. Det må være minst en aktivitet for at opptjeningsvilkåret skal kunne overstyres.");
     }
 }

@@ -43,8 +43,8 @@ public class VergeDtoTjeneste {
         } else {
             var vergeAktør = verge.getBruker().map(Aktør::getAktørId).flatMap(personinfoAdapter::hentBrukerVergeForAktør);
             return VergeDto.person(verge.getVergeType(), verge.getGyldigFom(), verge.getGyldigTom(),
-                vergeAktør.map(PersoninfoArbeidsgiver::getNavn).orElse(null),
-                vergeAktør.map(PersoninfoArbeidsgiver::getPersonIdent).map(PersonIdent::getIdent).orElse(null));
+                vergeAktør.map(PersoninfoArbeidsgiver::navn).orElse(null),
+                vergeAktør.map(PersoninfoArbeidsgiver::personIdent).map(PersonIdent::getIdent).orElse(null));
         }
     }
 

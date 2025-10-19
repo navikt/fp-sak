@@ -109,7 +109,7 @@ class SøknadMapperTest {
             new YtelseFordelingTjeneste(repositoryProvider.getYtelsesFordelingRepository()), new FpUttakRepository(entityManager),
             repositoryProvider.getBehandlingRepository());
 
-        kvinne = new PersoninfoKjønn.Builder().medAktørId(STD_KVINNE_AKTØR_ID).medNavBrukerKjønn(NavBrukerKjønn.KVINNE).build();
+        kvinne = new PersoninfoKjønn(STD_KVINNE_AKTØR_ID, NavBrukerKjønn.KVINNE);
         ytelseSøknadMapper = new YtelseSøknadMapper(personinfoAdapter, virksomhetTjeneste);
     }
 

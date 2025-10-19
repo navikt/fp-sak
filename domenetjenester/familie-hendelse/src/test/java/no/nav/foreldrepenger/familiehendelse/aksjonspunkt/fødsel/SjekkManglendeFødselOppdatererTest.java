@@ -264,6 +264,6 @@ class SjekkManglendeFødselOppdatererTest {
         var param = new AksjonspunktOppdaterParameter(ref, dtoDødFørFødsel, aksjonspunkt);
         assertThatExceptionOfType(FunksjonellException.class).isThrownBy(
                 () -> oppdaterer.oppdater(dtoDødFørFødsel, param))
-            .withMessage("FP-076345:Dødsdato før fødselsdato");
+            .withMessage("FP-076345: Dødsdato før fødselsdato");
     }
 }

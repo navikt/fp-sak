@@ -195,7 +195,8 @@ public class SøknadOversetter implements MottattDokumentOversetter<SøknadWrapp
 
     private RelasjonsRolleType utledRolle(FagsakYtelseType ytelseType, Bruker bruker, Saksnummer saksnummer, AktørId aktørId) {
         var kjønn = personinfoAdapter.hentBrukerKjønnForAktør(ytelseType, aktørId)
-            .map(PersoninfoKjønn::getKjønn)
+            .map(PersoninfoKjønn::kjønn)
+            .filter(k -> !NavBrukerKjønn.UDEFINERT.equals(k))
             .orElseThrow(() -> {
                 var msg = String.format("Søker i sak %s mangler kjønn", saksnummer.getVerdi());
                 return new TekniskException("FP-931148", msg);
