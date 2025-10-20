@@ -134,7 +134,7 @@ public class FaktaFødselTjeneste {
 
             addLinjeForAntallBarn(fh, oppdatertFødselStatus, historikkinnslag);
 
-            if (oppdatertFødselStatus.size() != gjeldendeFødselStatus.size() || !oppdatertFødselStatus.containsAll(gjeldendeFødselStatus)) {
+            if (!oppdatertFødselStatus.equals(gjeldendeFødselStatus)) {
                 addLinjerForBarn(oppdatertFødselStatus, gjeldendeFødselStatus, historikkinnslag);
             }
         }
