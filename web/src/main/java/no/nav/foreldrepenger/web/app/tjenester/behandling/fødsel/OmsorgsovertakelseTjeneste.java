@@ -16,6 +16,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingsresultatRepo
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.AdopsjonEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.OmsorgsovertakelseVilkårType;
+import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.UidentifisertBarn;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
@@ -94,14 +95,11 @@ public class OmsorgsovertakelseTjeneste {
             familieHendelse.getAdopsjon().map(AdopsjonEntitet::getAnkomstNorgeDato).orElse(null));
     }
 
-    private static <T> int getBarnNummer(T barn, List<T> barnListe) {
-        return barnListe.indexOf(barn) + 1;
-    }
-
     private List<OmsorgsovertakelseDto.BarnHendelseData> getBarn(FamilieHendelseEntitet familieHendelse) {
         return Optional.ofNullable(familieHendelse).map(FamilieHendelseEntitet::getBarna).orElseGet(List::of).stream()
+            .sorted(UidentifisertBarn.FØDSEL_COMPARATOR)
             .map(barn -> new OmsorgsovertakelseDto.BarnHendelseData(barn.getFødselsdato(), barn.getDødsdato().orElse(null),
-                getBarnNummer(barn, familieHendelse.getBarna())))
+                barn.getBarnNummer()))
             .toList();
     }
 

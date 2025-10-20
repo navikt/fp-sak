@@ -15,7 +15,6 @@ import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterParameter;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
-import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.UidentifisertBarnEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.FarSøkerType;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioFarSøkerEngangsstønad;
@@ -48,7 +47,7 @@ class BekreftDokumentasjonOppdatererTest extends EntityManagerAwareTest {
         scenario.medSøknad().medFarSøkerType(FarSøkerType.ADOPTERER_ALENE);
         scenario.medSøknadHendelse()
             .medAdopsjon(scenario.medSøknadHendelse().getAdopsjonBuilder().medOmsorgsovertakelseDato(opprinneligOvertakelsesdato))
-            .leggTilBarn(new UidentifisertBarnEntitet(opprinneligFødselsdato));
+            .leggTilBarn(opprinneligFødselsdato);
         scenario.medBekreftetHendelse()
             .medAdopsjon(scenario.medBekreftetHendelse().getAdopsjonBuilder().medOmsorgsovertakelseDato(opprinneligOvertakelsesdato))
             .leggTilBarn(opprinneligFødselsdato);

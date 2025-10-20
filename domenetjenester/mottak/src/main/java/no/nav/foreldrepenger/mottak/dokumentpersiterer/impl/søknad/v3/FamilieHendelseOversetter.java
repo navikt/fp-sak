@@ -1,5 +1,6 @@
 package no.nav.foreldrepenger.mottak.dokumentpersiterer.impl.søknad.v3;
 
+import java.util.Comparator;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -101,7 +102,7 @@ public class FamilieHendelseOversetter  {
     private void byggOmsorgsovertakelsesrelaterteFelter(Omsorgsovertakelse omsorgsovertakelse,
                                                         FamilieHendelseBuilder hendelseBuilder,
                                                         SøknadEntitet.Builder søknadBuilder) {
-        var fødselsdatoene = omsorgsovertakelse.getFoedselsdato();
+        var fødselsdatoene = omsorgsovertakelse.getFoedselsdato().stream().sorted(Comparator.naturalOrder()).toList();
 
         hendelseBuilder.tilbakestillBarn().medAntallBarn(omsorgsovertakelse.getAntallBarn());
         var familieHendelseAdopsjon = hendelseBuilder.getAdopsjonBuilder().medOmsorgsovertakelseDato(omsorgsovertakelse.getOmsorgsovertakelsesdato());
@@ -121,7 +122,7 @@ public class FamilieHendelseOversetter  {
 
 
     private void byggAdopsjonsrelaterteFelter(Adopsjon adopsjon, FamilieHendelseBuilder hendelseBuilder) {
-        var fødselsdatoene = adopsjon.getFoedselsdato();
+        var fødselsdatoene = adopsjon.getFoedselsdato().stream().sorted(Comparator.naturalOrder()).toList();
 
         hendelseBuilder.tilbakestillBarn().medAntallBarn(adopsjon.getAntallBarn());
         var familieHendelseAdopsjon = hendelseBuilder.getAdopsjonBuilder()
