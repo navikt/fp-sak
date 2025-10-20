@@ -82,7 +82,7 @@ public class Personinfo {
     }
 
     public static class Builder {
-        private Personinfo personinfoMal;
+        private final Personinfo personinfoMal;
 
         public Builder() {
             personinfoMal = new Personinfo();

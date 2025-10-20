@@ -55,7 +55,7 @@ public class NavBrukerTjeneste {
         var refresh = sistoppdatert.isBefore(refreshGrense);
         if (refresh) {
             var språk = personinfoAdapter.hentForetrukketSpråk(aktørId);
-            var brukspråk = språk != null && språk.getForetrukketSpråk() != null ? språk.getForetrukketSpråk() : Språkkode.NB;
+            var brukspråk = språk != null && språk.foretrukketSpråk() != null ? språk.foretrukketSpråk() : Språkkode.NB;
             return brukerRepository.oppdaterSpråk(aktørId, brukspråk);
         }
         return bruker;
@@ -63,7 +63,7 @@ public class NavBrukerTjeneste {
 
     private NavBruker opprettBruker(AktørId aktørId) {
         var språk = personinfoAdapter.hentForetrukketSpråk(aktørId);
-        var brukspråk = språk != null && språk.getForetrukketSpråk() != null ? språk.getForetrukketSpråk() : Språkkode.NB;
+        var brukspråk = språk != null && språk.foretrukketSpråk() != null ? språk.foretrukketSpråk() : Språkkode.NB;
         return NavBruker.opprettNy(aktørId, brukspråk);
     }
 

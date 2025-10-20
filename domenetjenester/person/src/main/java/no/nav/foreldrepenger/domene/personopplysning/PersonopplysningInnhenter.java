@@ -235,7 +235,7 @@ public class PersonopplysningInnhenter {
     }
 
     private Optional<Personinfo> innhentAktørId(FagsakYtelseType ytelseType, AktørId aktørId, Map<PersonIdent, Personinfo> innhentet) {
-        var personinfo = personinfoAdapter.innhentPersonopplysningerFor(ytelseType, aktørId);
+        var personinfo = personinfoAdapter.innhentPersonopplysningerFor(ytelseType, aktørId, true);
         personinfo.ifPresent(pi -> innhentet.put(pi.getPersonIdent(), pi));
         return personinfo;
     }
@@ -243,7 +243,7 @@ public class PersonopplysningInnhenter {
     private Optional<Personinfo> innhentPersonIdent(FagsakYtelseType ytelseType, PersonIdent ident, boolean erBarn, Map<PersonIdent, Personinfo> innhentet) {
         if (innhentet.get(ident) != null)
             return Optional.of(innhentet.get(ident));
-        var personinfo = personinfoAdapter.innhentPersonopplysningerFor(ytelseType, ident, erBarn);
+        var personinfo = personinfoAdapter.innhentPersonopplysningerFor(ytelseType, ident, erBarn, false);
         personinfo.ifPresent(pi -> innhentet.put(pi.getPersonIdent(), pi));
         return personinfo;
     }

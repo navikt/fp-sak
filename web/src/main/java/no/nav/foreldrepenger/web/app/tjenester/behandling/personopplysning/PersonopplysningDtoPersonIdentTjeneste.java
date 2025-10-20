@@ -16,7 +16,6 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.domene.person.PersoninfoAdapter;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.PersonIdent;
-import no.nav.foreldrepenger.web.app.util.StringUtils;
 
 @ApplicationScoped
 public class PersonopplysningDtoPersonIdentTjeneste {
@@ -66,7 +65,7 @@ public class PersonopplysningDtoPersonIdentTjeneste {
     }
 
     private String findNavn(AktørId aktørId, Function<AktørId, Optional<PersoninfoVisning>> piDiskresjonFinder) {
-        return aktørId == null ? "Navnløs" : piDiskresjonFinder.apply(aktørId).map(PersoninfoVisning::navn).map(StringUtils::formaterMedStoreOgSmåBokstaver).orElse("Navnløs");
+        return aktørId == null ? "Navnløs" : piDiskresjonFinder.apply(aktørId).map(PersoninfoVisning::navn).orElse("Ukjent Navn");
     }
 
     /** Lag en funksjon som husker resultat av tidligere input. Nyttig for repeterende lookups */

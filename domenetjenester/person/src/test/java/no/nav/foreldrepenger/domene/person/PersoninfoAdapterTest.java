@@ -68,8 +68,8 @@ class PersoninfoAdapterTest {
         lenient().when(aktørConsumer.hentAktørIdForPersonIdent(FNR_BARN)).thenReturn(Optional.of(AKTØR_ID_BARN));
         lenient().when(aktørConsumer.hentPersonIdentForAktørId(AKTØR_ID_SØKER)).thenReturn(Optional.of(FNR_SØKER));
         lenient().when(aktørConsumer.hentPersonIdentForAktørId(AKTØR_ID_BARN)).thenReturn(Optional.of(FNR_BARN));
-        lenient().when(personinfoTjeneste.hentPersoninfo(FagsakYtelseType.FORELDREPENGER, AKTØR_ID_BARN, FNR_BARN, true)).thenReturn(kjerneinfobarn);
-        lenient().when(personinfoTjeneste.hentPersoninfo(FagsakYtelseType.FORELDREPENGER, AKTØR_ID_SØKER, FNR_SØKER, false)).thenReturn(kjerneinfoSøker);
+        lenient().when(personinfoTjeneste.hentPersoninfo(FagsakYtelseType.FORELDREPENGER, AKTØR_ID_BARN, FNR_BARN, true, false)).thenReturn(kjerneinfobarn);
+        lenient().when(personinfoTjeneste.hentPersoninfo(FagsakYtelseType.FORELDREPENGER, AKTØR_ID_SØKER, FNR_SØKER, false, true)).thenReturn(kjerneinfoSøker);
 
         mockPersoninfo = mock(Personinfo.class);
         lenient().when(mockPersoninfo.getFødselsdato()).thenReturn(LocalDate.now()); // trenger bare en verdi
@@ -81,7 +81,7 @@ class PersoninfoAdapterTest {
     void skal_innhente_saksopplysninger_for_søker() {
         lenient().when(mockPersoninfo.getAktørId()).thenReturn(AKTØR_ID_SØKER);
 
-        var søker = adapter.innhentPersonopplysningerFor(FagsakYtelseType.FORELDREPENGER, AKTØR_ID_SØKER).orElse(null);
+        var søker = adapter.innhentPersonopplysningerFor(FagsakYtelseType.FORELDREPENGER, AKTØR_ID_SØKER, true).orElse(null);
 
         assertThat(søker).isNotNull();
         assertThat(søker.getAktørId()).isEqualTo(AKTØR_ID_SØKER);
@@ -92,7 +92,7 @@ class PersoninfoAdapterTest {
     void skal_innhente_saksopplysninger_for_barn() {
         lenient().when(mockPersoninfo.getAktørId()).thenReturn(AKTØR_ID_BARN);
 
-        var barn = adapter.innhentPersonopplysningerFor(FagsakYtelseType.FORELDREPENGER, FNR_BARN, true);
+        var barn = adapter.innhentPersonopplysningerFor(FagsakYtelseType.FORELDREPENGER, FNR_BARN, true, false);
 
         assertThat(barn).isPresent();
         assertThat(barn.get().getAktørId()).isEqualTo(AKTØR_ID_BARN);

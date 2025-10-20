@@ -1,6 +1,7 @@
 package no.nav.foreldrepenger.behandlingslager.behandling.personopplysning;
 
 import java.time.LocalDate;
+import java.time.Month;
 import java.util.Objects;
 
 import jakarta.persistence.AttributeOverride;
@@ -26,6 +27,8 @@ import no.nav.foreldrepenger.domene.typer.HarAktørId;
 @Table(name = "PO_PERSONOPPLYSNING")
 public class PersonopplysningEntitet extends BaseEntitet implements HarAktørId, IndexKey {
 
+    public static LocalDate DUMMY_FØDSELSDATO = LocalDate.of(1899, Month.DECEMBER, 31);
+
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "SEQ_PO_PERSONOPPLYSNING")
     private Long id;
@@ -45,7 +48,7 @@ public class PersonopplysningEntitet extends BaseEntitet implements HarAktørId,
     @Column(name = "sivilstand_type", nullable = false)
     private SivilstandType sivilstand = SivilstandType.UOPPGITT;
 
-    @ChangeTracked()
+    @ChangeTracked
     @Column(name = "navn")
     private String navn;
 
@@ -106,7 +109,13 @@ public class PersonopplysningEntitet extends BaseEntitet implements HarAktørId,
     }
 
     void setNavn(String navn) {
-        this.navn = navn;
+        // Navn er gjort om til Titlecase fom felles:7.6.8. Kilden er historisk uppercase så beholder konvensjon på eksisterende verdier
+        var beholdUppercase = this.navn != null && this.navn.equals(this.navn.toUpperCase());
+        if (navn != null && beholdUppercase) {
+            this.navn = navn.toUpperCase();
+        } else {
+            this.navn = navn;
+        }
     }
 
     public NavBrukerKjønn getKjønn() {
@@ -126,7 +135,13 @@ public class PersonopplysningEntitet extends BaseEntitet implements HarAktørId,
     }
 
     void setFødselsdato(LocalDate fødselsdato) {
-        this.fødselsdato = fødselsdato;
+        if (fødselsdato == null) {
+            throw new IllegalArgumentException("Personopplysning: fødselsdato er null");
+        }
+        // Dersom input = DUMMY: Behold evt nåværende verdi
+        if (this.fødselsdato == null || !fødselsdato.equals(DUMMY_FØDSELSDATO)) {
+            this.fødselsdato = fødselsdato;
+        }
     }
 
     public LocalDate getDødsdato() {
