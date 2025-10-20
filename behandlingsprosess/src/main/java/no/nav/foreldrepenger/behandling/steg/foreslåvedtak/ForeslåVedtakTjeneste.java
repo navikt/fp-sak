@@ -12,6 +12,7 @@ import jakarta.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingskontroll.BehandleStegResultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
@@ -27,6 +28,8 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakEgenskapRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.egenskaper.FagsakMarkering;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentBehandlingTjeneste;
+import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagGrunnlag;
+import no.nav.foreldrepenger.domene.prosess.BeregningTjeneste;
 import no.nav.foreldrepenger.domene.vedtak.impl.KlageAnkeVedtakTjeneste;
 
 @ApplicationScoped
@@ -41,6 +44,7 @@ class ForeslåVedtakTjeneste {
     private KlageAnkeVedtakTjeneste klageAnkeVedtakTjeneste;
     private DokumentBehandlingTjeneste dokumentBehandlingTjeneste;
     private FagsakEgenskapRepository fagsakEgenskapRepository;
+    private BeregningTjeneste beregningTjeneste;
 
     protected ForeslåVedtakTjeneste() {
         // CDI proxy
@@ -53,7 +57,8 @@ class ForeslåVedtakTjeneste {
                           KlageAnkeVedtakTjeneste klageAnkeVedtakTjeneste,
                           SjekkMotEksisterendeOppgaverTjeneste sjekkMotEksisterendeOppgaverTjeneste,
                           DokumentBehandlingTjeneste dokumentBehandlingTjeneste,
-                          FagsakEgenskapRepository fagsakEgenskapRepository) {
+                          FagsakEgenskapRepository fagsakEgenskapRepository,
+                          BeregningTjeneste beregningTjeneste) {
         this.sjekkMotEksisterendeOppgaverTjeneste = sjekkMotEksisterendeOppgaverTjeneste;
         this.fagsakRepository = fagsakRepository;
         this.behandlingsresultatRepository = behandlingsresultatRepository;
@@ -61,6 +66,7 @@ class ForeslåVedtakTjeneste {
         this.behandlingRepository = behandlingRepository;
         this.dokumentBehandlingTjeneste = dokumentBehandlingTjeneste;
         this.fagsakEgenskapRepository = fagsakEgenskapRepository;
+        this.beregningTjeneste = beregningTjeneste;
     }
 
     public BehandleStegResultat foreslåVedtak(Behandling behandling) {
@@ -75,10 +81,6 @@ class ForeslåVedtakTjeneste {
         }
 
         List<AksjonspunktDefinisjon> aksjonspunktDefinisjoner = new ArrayList<>(aksjonspunkterFraSteg);
-        if (behandling.harAvbruttAlleAksjonspunktAvTyper(AksjonspunktDefinisjon.getAvvikIBeregning())) {
-            dokumentBehandlingTjeneste.nullstillVedtakFritekstHvisFinnes(behandling.getId());
-        }
-
         if (KlageAnkeVedtakTjeneste.behandlingErKlageEllerAnke(behandling)) {
             if (klageAnkeVedtakTjeneste.erKlageResultatHjemsendt(behandling) || klageAnkeVedtakTjeneste.erBehandletAvKabal(behandling)) {
                 behandling.nullstillToTrinnsBehandling();
@@ -91,6 +93,10 @@ class ForeslåVedtakTjeneste {
                 harÅpneKlagerEllerAnker(behandling.getFagsak())) {
                 aksjonspunktDefinisjoner.add(AksjonspunktDefinisjon.VURDERE_INNTEKTSMELDING_FØR_VEDTAK);
             }
+        }
+
+        if (skalNullstilleUtfyllendeFritekstForVedtak(behandling)) {
+            dokumentBehandlingTjeneste.nullstillVedtakFritekstHvisFinnes(behandling.getId());
         }
 
         håndterToTrinn(behandling, aksjonspunktDefinisjoner);
@@ -108,6 +114,42 @@ class ForeslåVedtakTjeneste {
 
         return aksjonspunktDefinisjoner.isEmpty() ? BehandleStegResultat.utførtUtenAksjonspunkter()
                 : BehandleStegResultat.utførtMedAksjonspunkter(aksjonspunktDefinisjoner);
+    }
+
+    private boolean skalNullstilleUtfyllendeFritekstForVedtak(Behandling behandling) {
+        if (!behandling.erYtelseBehandling()) {
+            return false;
+        }
+
+        if (!skalUtføreTotrinnsbehandling(behandling)) {
+            return true;
+        }
+
+        var behandlingsresultatOpt = behandlingsresultatRepository.hentHvisEksisterer(behandling.getId());
+        if (behandlingsresultatOpt.isEmpty() || !behandlingsresultatOpt.get().isBehandlingInnvilget()) {
+            return false;
+        }
+
+        var aksjonspunktAvvikIBeregning = behandling.getAksjonspunkter().stream()
+            .filter(ap -> AksjonspunktDefinisjon.getAvvikIBeregning().contains(ap.getAksjonspunktDefinisjon()))
+            .toList();
+        var harAksjonspunktAvvikIBeregningOgAlleErAvbrutt = aksjonspunktAvvikIBeregning.isEmpty() || aksjonspunktAvvikIBeregning.stream().allMatch(Aksjonspunkt::erAvbrutt);
+        return harAksjonspunktAvvikIBeregningOgAlleErAvbrutt && !harManueltFastsatteAndelerPåStp(behandling);
+    }
+
+    private boolean harManueltFastsatteAndelerPåStp(Behandling behandling) {
+        var beregningsgrunnlagOpt = beregningTjeneste.hent(BehandlingReferanse.fra(behandling))
+            .flatMap(BeregningsgrunnlagGrunnlag::getBeregningsgrunnlag);
+        if (beregningsgrunnlagOpt.isEmpty()) {
+            return false;
+        }
+        var beregningsgrunnlag = beregningsgrunnlagOpt.get();
+        var skjæringstidspunkt = beregningsgrunnlag.getSkjæringstidspunkt();
+        var periodePåStp = beregningsgrunnlag.getBeregningsgrunnlagPerioder().stream()
+            .filter(p -> p.getPeriode().inkluderer(skjæringstidspunkt))
+            .findFirst()
+            .orElseThrow();
+        return periodePåStp.getBeregningsgrunnlagPrStatusOgAndelList().stream().anyMatch(a -> a.getOverstyrtPrÅr() != null);
     }
 
     private boolean harTidligereOverstyringAvVedtaksbrevUtenAtDetBlirAksjonspunktForeslåVedtak(Behandling behandling, List<AksjonspunktDefinisjon> aksjonspunktDefinisjoner) {
@@ -134,8 +176,6 @@ class ForeslåVedtakTjeneste {
             LOG.info("To-trinn fjernet på behandling={}", behandling.getId());
             if (skalOppretteForeslåVedtakManuelt(behandling)) {
                 aksjonspunktDefinisjoner.add(AksjonspunktDefinisjon.FORESLÅ_VEDTAK_MANUELT);
-            } else {
-                dokumentBehandlingTjeneste.nullstillVedtakFritekstHvisFinnes(behandling.getId());
             }
         }
     }

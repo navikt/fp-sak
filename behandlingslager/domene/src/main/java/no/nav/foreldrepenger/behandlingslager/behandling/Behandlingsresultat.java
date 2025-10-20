@@ -270,6 +270,10 @@ public class Behandlingsresultat extends BaseEntitet {
         }
     }
 
+    public boolean isBehandlingInnvilget() {
+        return BehandlingResultatType.getAlleInnvilgetKoder().contains(behandlingResultatType);
+    }
+
     public boolean isBehandlingHenlagt() {
         return BehandlingResultatType.getAlleHenleggelseskoder().contains(behandlingResultatType);
     }
