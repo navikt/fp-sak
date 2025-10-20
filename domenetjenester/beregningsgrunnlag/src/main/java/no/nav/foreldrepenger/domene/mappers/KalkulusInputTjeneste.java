@@ -13,7 +13,6 @@ import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektsmeldingTjeneste;
 import no.nav.foreldrepenger.domene.mappers.til_kalkulus.MapIAYTilKalkulusInput;
 import no.nav.foreldrepenger.domene.mappers.til_kalkulus.MapKalkulusYtelsegrunnlag;
-import no.nav.foreldrepenger.domene.mappers.til_kalkulus.MapKravperioder;
 import no.nav.foreldrepenger.domene.mappers.til_kalkulus.MapOpptjeningTilKalkulusInput;
 import no.nav.foreldrepenger.domene.opptjening.OpptjeningForBeregningTjeneste;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
@@ -54,11 +53,9 @@ public class KalkulusInputTjeneste {
         }
         var alleInntektsmeldingerForSak = inntektsmeldingTjeneste.hentAlleInntektsmeldingerForFagsak(ref.saksnummer());
         var inntektsmeldingerForBehandling = inntektsmeldingTjeneste.hentInntektsmeldinger(ref, skjæringstidspunkt.getUtledetSkjæringstidspunkt(), iayGrunnlag, true);
-        var kravperioderDto = MapKravperioder.map(ref, skjæringstidspunkt, alleInntektsmeldingerForSak, inntektsmeldingerForBehandling, iayGrunnlag);
         var iayDto = MapIAYTilKalkulusInput.mapIAY(iayGrunnlag, inntektsmeldingerForBehandling, ref, alleInntektsmeldingerForSak);
         var opptjeningDto = MapOpptjeningTilKalkulusInput.mapOpptjening(opptjeningAktiviteter.get(), iayGrunnlag, ref, skjæringstidspunkt);
         var kalkulatorInputDto = new KalkulatorInputDto(iayDto, opptjeningDto, skjæringstidspunkt.getSkjæringstidspunktOpptjening());
-        kalkulatorInputDto.medRefusjonsperioderPrInntektsmelding(kravperioderDto);
         var ytelseMapper = FagsakYtelseTypeRef.Lookup.find(ytelsegrunnlagMappere, ref.fagsakYtelseType()).orElseThrow();
         YtelsespesifiktGrunnlagDto ytelsegrunnlag = ytelseMapper.mapYtelsegrunnlag(ref, skjæringstidspunkt);
         kalkulatorInputDto.medYtelsespesifiktGrunnlag(ytelsegrunnlag);
