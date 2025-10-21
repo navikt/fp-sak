@@ -26,18 +26,20 @@ import no.nav.vedtak.exception.FunksjonellException;
 /**
  * Håndterer oppdatering av Aksjonspunkt og endringshistorikk ved vurdering av ytelse knyttet til samme barn.
  */
-public abstract class VurdereYtelseSammeBarnOppdaterer implements AksjonspunktOppdaterer<AvslagbartAksjonspunktDto> {
+@ApplicationScoped
+@DtoTilServiceAdapter(dto = VurdereYtelseSammeBarnSøkerAksjonspunktDto.class, adapter = AksjonspunktOppdaterer.class)
+public class VurdereYtelseSammeBarnSøkerOppdaterer implements AksjonspunktOppdaterer<AvslagbartAksjonspunktDto> {
 
     private HistorikkSammeBarnTjeneste historikkSammeBarnTjeneste;
     private BehandlingsresultatRepository behandlingsresultatRepository;
 
     @Inject
-    VurdereYtelseSammeBarnOppdaterer(HistorikkSammeBarnTjeneste historikkSammeBarnTjeneste, BehandlingsresultatRepository behandlingsresultatRepository) {
+    VurdereYtelseSammeBarnSøkerOppdaterer(HistorikkSammeBarnTjeneste historikkSammeBarnTjeneste, BehandlingsresultatRepository behandlingsresultatRepository) {
         this.historikkSammeBarnTjeneste = historikkSammeBarnTjeneste;
         this.behandlingsresultatRepository = behandlingsresultatRepository;
     }
 
-    protected VurdereYtelseSammeBarnOppdaterer() {
+    protected VurdereYtelseSammeBarnSøkerOppdaterer() {
         // for CDI proxy
     }
 
@@ -73,23 +75,11 @@ public abstract class VurdereYtelseSammeBarnOppdaterer implements AksjonspunktOp
         var relevanteVilkårTyper = Set.of(
             VilkårType.FØDSELSVILKÅRET_MOR,
             VilkårType.FØDSELSVILKÅRET_FAR_MEDMOR,
-            VilkårType.ADOPSJONSVILKÅRET_ENGANGSSTØNAD
+            VilkårType.ADOPSJONSVILKÅRET_ENGANGSSTØNAD,
+            VilkårType.OMSORGSOVERTAKELSEVILKÅR
         );
         return behandlingsresultat.getVilkårResultat().getVilkårene().stream()
             .filter(v -> relevanteVilkårTyper.contains(v.getVilkårType()))
             .findFirst();
-    }
-
-    @ApplicationScoped
-    @DtoTilServiceAdapter(dto = VurdereYtelseSammeBarnSøkerAksjonspunktDto.class, adapter = AksjonspunktOppdaterer.class)
-    public static class VurdereYtelseSammeBarnSøkerOppdaterer extends VurdereYtelseSammeBarnOppdaterer {
-        VurdereYtelseSammeBarnSøkerOppdaterer() {
-            // for CDI proxy
-        }
-
-        @Inject
-        public VurdereYtelseSammeBarnSøkerOppdaterer(HistorikkSammeBarnTjeneste historikkSammeBarnTjeneste, BehandlingsresultatRepository behandlingsresultatRepository) {
-            super(historikkSammeBarnTjeneste, behandlingsresultatRepository);
-        }
     }
 }

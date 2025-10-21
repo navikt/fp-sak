@@ -86,7 +86,7 @@ class VurdereYtelseSammeBarnSøkerOppdatererTest {
                                              BehandlingRepositoryProvider repositoryProvider) {
         var aksjonspunkt = behandling.getAksjonspunktFor(dto.getAksjonspunktDefinisjon());
         // Act
-        var resultat = new VurdereYtelseSammeBarnOppdaterer.VurdereYtelseSammeBarnSøkerOppdaterer(
+        var resultat = new VurdereYtelseSammeBarnSøkerOppdaterer(
             new HistorikkSammeBarnTjeneste(repositoryProvider.getHistorikkinnslagRepository()), repositoryProvider.getBehandlingsresultatRepository())
             .oppdater(dto, new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling), dto, aksjonspunkt));
         byggVilkårResultat(vilkårBuilder, resultat);
