@@ -54,9 +54,9 @@ class KodeverkRestTjenesteTest {
         var map = (Map<String, List<?>>) gruppertKodeliste.get(Avslagsårsak.class.getSimpleName());
         assertThat(map).containsKeys(VilkårType.ADOPSJONSVILKÅRET_ENGANGSSTØNAD.getKode(), VilkårType.MEDLEMSKAPSVILKÅRET.getKode());
 
-        var avslagsårsaker = (List<Map<String, String>>) map.get(VilkårType.ADOPSJONSVILKÅRET_ENGANGSSTØNAD.getKode());
+        var avslagsårsaker = (List<Map<String, String>>) map.get(VilkårType.OMSORGSOVERTAKELSEVILKÅR.getKode());
         assertThat(avslagsårsaker.stream().map(k -> ((Map) k).get("kode")).toList())
-                .contains(Avslagsårsak.ENGANGSSTØNAD_ALLEREDE_UTBETALT_TIL_MOR.getKode(),
+                .contains(Avslagsårsak.ENGANGSTØNAD_ER_ALLEREDE_UTBETAL_TIL_MOR.getKode(),
                         Avslagsårsak.ENGANGSSTØNAD_ER_ALLEREDE_UTBETALT_TIL_FAR_MEDMOR.getKode());
     }
 
