@@ -42,13 +42,13 @@ public class JettyServer {
     private static final Logger LOG = LoggerFactory.getLogger(JettyServer.class);
     private static final Environment ENV = Environment.current();
 
-    private static final String CONTEXT_PATH = ENV.getProperty("context.path","/fpsak");
+    private static final String CONTEXT_PATH = ENV.getProperty("context.path", "/fpsak");
     private static final String JETTY_SCAN_LOCATIONS = "^.*jersey-.*\\.jar$|^.*felles-.*\\.jar$|^.*/app\\.jar$";
     private static final String JETTY_LOCAL_CLASSES = "^.*/target/classes/|";
 
     private final Integer serverPort;
 
-    public static void main(String[] args) throws Exception {
+    static void main() throws Exception {
         jettyServer().bootStrap();
     }
 
@@ -62,6 +62,7 @@ public class JettyServer {
 
     protected void bootStrap() throws Exception {
         konfigurerLogging();
+        konfigurerSystembruker();
 
         // Sett System.setProperty("task.manager.runner.threads", 10); til å endre antal prosesstask tråder. Default 10.
         // `maxPoolSize` bør være satt minst til verdien av `task.manager.runner.threads` + 1 + antall connections man ønsker.
@@ -80,6 +81,18 @@ public class JettyServer {
     private void konfigurerLogging() {
         SLF4JBridgeHandler.removeHandlersForRootLogger();
         SLF4JBridgeHandler.install();
+    }
+
+    /* Brukes kun for å kunne samhandle med Økonomi via JMS */
+    private static void konfigurerSystembruker() {
+        settSystembrukerVerdiHvisMangler("systembruker.username", "username");
+        settSystembrukerVerdiHvisMangler("systembruker.password", "password");
+    }
+
+    private static void settSystembrukerVerdiHvisMangler(String key, String filNavn) {
+        if (ENV.getProperty(key) == null) {
+            System.getProperties().computeIfAbsent(key, _ -> VaultUtil.lesFilVerdi("serviceuser", filNavn));
+        }
     }
 
     private static void settJdniOppslag(DataSource dataSource) throws NamingException {
@@ -125,8 +138,7 @@ public class JettyServer {
     }
 
     private static ContextHandler createContext() throws IOException {
-        var ctx = new WebAppContext(CONTEXT_PATH, null, simpleConstraints(), null,
-            new ErrorPageErrorHandler(), ServletContextHandler.NO_SESSIONS);
+        var ctx = new WebAppContext(CONTEXT_PATH, null, simpleConstraints(), null, new ErrorPageErrorHandler(), ServletContextHandler.NO_SESSIONS);
 
         ctx.setParentLoaderPriority(true);
 
