@@ -1,4 +1,4 @@
-package no.nav.foreldrepenger.web.app.tjenester.formidling.beregningsgrunnlag;
+package no.nav.foreldrepenger.web.app.tjenester.formidling;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -7,6 +7,7 @@ import java.time.LocalDate;
 
 import org.junit.jupiter.api.Test;
 
+import no.nav.foreldrepenger.behandlingslager.behandling.beregning.AktivitetStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.OpptjeningAktivitetType;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.domene.modell.BGAndelArbeidsforhold;
@@ -16,13 +17,12 @@ import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagGrunnlagBuilder;
 import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagPeriode;
 import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagPrStatusOgAndel;
 import no.nav.foreldrepenger.domene.modell.BesteberegningGrunnlag;
-import no.nav.foreldrepenger.behandlingslager.behandling.beregning.AktivitetStatus;
 import no.nav.foreldrepenger.domene.modell.kodeverk.AndelKilde;
 import no.nav.foreldrepenger.domene.modell.kodeverk.BeregningsgrunnlagTilstand;
 import no.nav.foreldrepenger.domene.modell.kodeverk.Hjemmel;
 import no.nav.foreldrepenger.domene.modell.kodeverk.PeriodeÅrsak;
 
-class BeregningsgrunnlagFormidlingV2DtoTjenesteTest {
+class BrevGrunnlagBeregningsgrunnlagTjenesteTest {
     private static final BigDecimal NAT_BORTFALT = BigDecimal.valueOf(3232);
     private static final BigDecimal NAT_TILKOMMET = BigDecimal.valueOf(2120);
     private static final BigDecimal BRUTTO = BigDecimal.valueOf(444432);
@@ -37,7 +37,7 @@ class BeregningsgrunnlagFormidlingV2DtoTjenesteTest {
             .build(BeregningsgrunnlagTilstand.FASTSATT);
 
         // Act
-        var dto = new BeregningsgrunnlagFormidlingV2DtoTjeneste(gr).map().orElse(null);
+        var dto = new BrevGrunnlagBeregningsgrunnlagTjeneste(gr).map().orElse(null);
 
         // Assert
         assertThat(dto).isNotNull();

@@ -21,9 +21,6 @@ import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.MediaType;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -46,10 +43,8 @@ import no.nav.foreldrepenger.behandlingslager.virksomhet.OrgNummer;
 import no.nav.foreldrepenger.behandlingsprosess.prosessering.BehandlingProsesseringTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektsmeldingTjeneste;
-import no.nav.foreldrepenger.domene.arbeidsforhold.dto.AlleInntektsmeldingerDtoMapper;
 import no.nav.foreldrepenger.domene.arbeidsforhold.dto.IAYYtelseDto;
 import no.nav.foreldrepenger.domene.arbeidsforhold.dto.IayYtelseDtoMapper;
-import no.nav.foreldrepenger.domene.arbeidsforhold.dto.InntektsmeldingerDto;
 import no.nav.foreldrepenger.domene.arbeidsgiver.ArbeidsgiverTjeneste;
 import no.nav.foreldrepenger.domene.iay.modell.AktørArbeid;
 import no.nav.foreldrepenger.domene.iay.modell.AktørInntekt;
@@ -89,12 +84,8 @@ public class InntektArbeidYtelseRestTjeneste {
     private static final String INNTEKT_ARBEID_YTELSE_PART_PATH = "/inntekt-arbeid-ytelse";
     public static final String INNTEKT_ARBEID_YTELSE_PATH = BASE_PATH + INNTEKT_ARBEID_YTELSE_PART_PATH;
 
-    private static final String ALLE_INNTEKTSMELDINGER_PART_PATH = "/inntektsmeldinger-alle";
-    public static final String ALLE_INNTEKTSMELDINGER_PATH = BASE_PATH + ALLE_INNTEKTSMELDINGER_PART_PATH;
-
     private static final String ARBEIDSGIVERE_OPPLYSNINGER_PART_PATH = "/arbeidsgivere-opplysninger";
     public static final String ARBEIDSGIVERE_OPPLYSNINGER_PATH = BASE_PATH + ARBEIDSGIVERE_OPPLYSNINGER_PART_PATH;
-    private static final Logger LOG = LoggerFactory.getLogger(InntektArbeidYtelseRestTjeneste.class);
 
     private BehandlingRepository behandlingRepository;
     private IayYtelseDtoMapper ytelseMapper;
@@ -103,7 +94,6 @@ public class InntektArbeidYtelseRestTjeneste {
     private ArbeidsgiverTjeneste arbeidsgiverTjeneste;
     private YtelseFordelingTjeneste ytelseFordelingTjeneste;
     private SvangerskapspengerRepository svangerskapspengerRepository;
-    private AlleInntektsmeldingerDtoMapper alleInntektsmeldingerMapper;
 
     private InntektArbeidYtelseTjeneste iayTjeneste;
     private FpOppdragRestKlient fpOppdragRestKlient;
@@ -123,7 +113,6 @@ public class InntektArbeidYtelseRestTjeneste {
                                            YtelseFordelingTjeneste ytelseFordelingTjeneste,
                                            SvangerskapspengerRepository svangerskapspengerRepository,
                                            SkjæringstidspunktTjeneste skjæringstidspunktTjeneste,
-                                           AlleInntektsmeldingerDtoMapper alleInntektsmeldingerMapper,
                                            FpOppdragRestKlient fpOppdragRestKlient,
                                            BehandlingProsesseringTjeneste behandlingProsesseringTjeneste,
                                            InntektsmeldingTjeneste inntektsmeldingTjeneste) {
@@ -135,7 +124,6 @@ public class InntektArbeidYtelseRestTjeneste {
         this.arbeidsgiverTjeneste = arbeidsgiverTjeneste;
         this.ytelseFordelingTjeneste = ytelseFordelingTjeneste;
         this.svangerskapspengerRepository = svangerskapspengerRepository;
-        this.alleInntektsmeldingerMapper = alleInntektsmeldingerMapper;
         this.fpOppdragRestKlient = fpOppdragRestKlient;
         this.behandlingProsesseringTjeneste = behandlingProsesseringTjeneste;
         this.inntektsmeldingTjeneste = inntektsmeldingTjeneste;
@@ -177,21 +165,6 @@ public class InntektArbeidYtelseRestTjeneste {
 
     private Optional<AktørId> getAnnenPart(Long behandlingId) {
         return personopplysningTjeneste.hentOppgittAnnenPartAktørId(behandlingId);
-    }
-
-    @GET
-    @Path(ALLE_INNTEKTSMELDINGER_PART_PATH)
-    @Operation(description = "Hent informasjon om inntektsmelding", summary = "Returnerer info om alle inntektsmeldinger.", tags = "inntekt-arbeid-ytelse", responses = {@ApiResponse(responseCode = "200", description = "Returnerer InntektsmeldingerDto, null hvis ikke eksisterer (GUI støtter ikke NOT_FOUND p.t.)", content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = InntektsmeldingerDto.class)))})
-    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK, sporingslogg = false)
-    public InntektsmeldingerDto getAlleInntektsmeldinger(@TilpassetAbacAttributt(supplierClass = BehandlingAbacSuppliers.UuidAbacDataSupplier.class)
-                                                          @NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
-        LOG.info("Formidlingapi - getAlleInntektsmeldinger kalles fortsatt");
-        var behandling = behandlingRepository.hentBehandling(uuidDto.getBehandlingUuid());
-        var skjæringstidspunkt = skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandling.getId());
-        var ref = BehandlingReferanse.fra(behandling);
-        return iayTjeneste.finnGrunnlag(behandling.getId())
-            .map(g -> alleInntektsmeldingerMapper.mapInntektsmeldinger(ref, skjæringstidspunkt, g))
-            .orElseGet(() -> new InntektsmeldingerDto(List.of()));
     }
 
     @GET

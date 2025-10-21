@@ -4,15 +4,16 @@ import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.Relasj
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakStatus;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
+import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.Redirect;
 
 /**
- * Brukes for backend oppslag av fagsak. Fødselsdato saneres herfra
+ * Brukes av frontend til polling på status. Se {@link Redirect}
  */
-public record FagsakBackendDto(String saksnummer, FagsakYtelseType fagsakYtelseType, FagsakStatus status, RelasjonsRolleType relasjonsRolleType,
-                               String aktørId, Integer dekningsgrad) {
+public record FagsakDto(String saksnummer, FagsakYtelseType fagsakYtelseType, FagsakStatus status, RelasjonsRolleType relasjonsRolleType,
+                        String aktørId, Integer dekningsgrad) {
 
 
-    public FagsakBackendDto(Fagsak fagsak, Integer dekningsgrad) {
+    public FagsakDto(Fagsak fagsak, Integer dekningsgrad) {
         this(fagsak.getSaksnummer().getVerdi(), fagsak.getYtelseType(), fagsak.getStatus(), fagsak.getRelasjonsRolleType(),
             fagsak.getAktørId().getId(), dekningsgrad);
     }

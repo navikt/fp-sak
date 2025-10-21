@@ -47,12 +47,9 @@ import no.nav.foreldrepenger.domene.typer.JournalpostId;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.web.app.exceptions.FeilDto;
 import no.nav.foreldrepenger.web.app.exceptions.FeilType;
-import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.BehandlingAbacSuppliers;
-import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.UuidDto;
 import no.nav.foreldrepenger.web.app.tjenester.dokument.dto.DokumentDto;
 import no.nav.foreldrepenger.web.app.tjenester.dokument.dto.DokumentIdDto;
 import no.nav.foreldrepenger.web.app.tjenester.dokument.dto.JournalpostIdDto;
-import no.nav.foreldrepenger.web.app.tjenester.dokument.dto.MottattDokumentDto;
 import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.SaksnummerAbacSupplier;
 import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.SaksnummerDto;
 import no.nav.foreldrepenger.web.server.abac.AppAbacAttributtType;
@@ -71,8 +68,6 @@ public class DokumentRestTjeneste {
     private static final Logger LOG = LoggerFactory.getLogger(DokumentRestTjeneste.class);
 
     static final String BASE_PATH = "/dokument";
-    private static final String MOTTATT_DOKUMENTER_PART_PATH = "/hent-mottattdokumentliste";
-    public static final String MOTTATT_DOKUMENTER_PATH = BASE_PATH + MOTTATT_DOKUMENTER_PART_PATH;
     private static final String DOKUMENTER_PART_PATH = "/hent-dokumentliste";
     public static final String DOKUMENTER_PATH = BASE_PATH + DOKUMENTER_PART_PATH;
     private static final String DOKUMENT_PART_PATH = "/hent-dokument";
@@ -101,21 +96,6 @@ public class DokumentRestTjeneste {
         this.mottatteDokumentRepository = mottatteDokumentRepository;
         this.virksomhetTjeneste = virksomhetTjeneste;
         this.behandlingRepository = behandlingRepository;
-    }
-
-
-    @GET
-    @Produces(MediaType.APPLICATION_JSON)
-    @Path(MOTTATT_DOKUMENTER_PART_PATH)
-    @Operation(description = "Henter listen av mottatte dokumenter knyttet til en fagsak", tags = "dokument")
-    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK, sporingslogg = false)
-    public Collection<MottattDokumentDto> hentAlleMottatteDokumenterForBehandling(@TilpassetAbacAttributt(supplierClass = BehandlingAbacSuppliers.UuidAbacDataSupplier.class)
-            @NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
-        LOG.info("Formidlingapi - hentAlleMottatteDokumenterForBehandling kalles fortsatt");
-        var behandling = behandlingRepository.hentBehandling(uuidDto.getBehandlingUuid());
-        return mottatteDokumentRepository.hentMottatteDokumentMedFagsakId(behandling.getFagsakId()).stream()
-            .map(MottattDokumentDto::new)
-            .toList();
     }
 
     @GET

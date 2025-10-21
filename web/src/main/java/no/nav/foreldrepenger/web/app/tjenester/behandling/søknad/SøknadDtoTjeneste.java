@@ -24,8 +24,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.OppgittRettighetEntitet;
-import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelseFordelingAggregat;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Dekningsgrad;
 import no.nav.foreldrepenger.behandlingslager.uttak.Uttaksperiodegrense;
 import no.nav.foreldrepenger.behandlingslager.uttak.UttaksperiodegrenseRepository;
@@ -89,26 +87,6 @@ public class SøknadDtoTjeneste {
         } else {
             return lagSoknadAdopsjonDto(søknad, fhGrunnlag.getSøknadVersjon(), ref);
         }
-    }
-
-    public Optional<SoknadBackendDto> mapForBackend(Behandling behandling) {
-        return søknadRepository.hentSøknadHvisEksisterer(behandling.getId())
-            .map(søknad -> getBackendDto(behandling, søknad));
-    }
-
-    private SoknadBackendDto getBackendDto(Behandling behandling, SøknadEntitet søknad) {
-        var familieHendelse = familieHendelseRepository.hentAggregat(behandling.getId()).getSøknadVersjon();
-
-        var soknadBackendDto = new SoknadBackendDto();
-        soknadBackendDto.setMottattDato(søknad.getMottattDato());
-        soknadBackendDto.setSoknadType(familieHendelse.getGjelderFødsel() ? SøknadType.FØDSEL : SøknadType.ADOPSJON);
-
-        ytelseFordelingTjeneste.hentAggregatHvisEksisterer(behandling.getId())
-            .map(YtelseFordelingAggregat::getOppgittRettighet)
-            .map(OppgittRettighetEntitet::getHarAleneomsorgForBarnet)
-            .ifPresent(soknadBackendDto::setOppgittAleneomsorg);
-
-        return soknadBackendDto;
     }
 
     private SoknadDto lagSoknadFodselDto(SøknadEntitet søknad, FamilieHendelseEntitet familieHendelse, BehandlingReferanse ref) {

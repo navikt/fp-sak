@@ -38,7 +38,6 @@ public class TilbakekrevingRestTjeneste {
     private static final String VALG_PART_PATH = "/valg";
     public static final String VALG_PATH = BASE_PATH + VALG_PART_PATH;
     private static final String VARSELTEKST_PART_PATH = "/varseltekst";
-    public static final String VARSELTEKST_PATH = BASE_PATH + VARSELTEKST_PART_PATH;
 
     private BehandlingRepository behandlingRepository;
     private TilbakekrevingRepository tilbakekrevingRepository;

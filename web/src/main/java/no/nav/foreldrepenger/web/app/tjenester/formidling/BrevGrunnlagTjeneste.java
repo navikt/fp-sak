@@ -117,9 +117,6 @@ import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 import no.nav.foreldrepenger.skjæringstidspunkt.overganger.UtsettelseCore2021;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.app.SaldoerDtoTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.formidling.BrevGrunnlagDto.Foreldrepenger.Stønadskonto;
-import no.nav.foreldrepenger.web.app.tjenester.formidling.arbeidsforholdInntektsmelding.ArbeidsforholdInntektsmeldingDtoTjeneste;
-import no.nav.foreldrepenger.web.app.tjenester.formidling.beregningsgrunnlag.BeregningsgrunnlagFormidlingV2DtoTjeneste;
-import no.nav.foreldrepenger.web.app.tjenester.formidling.tilkjentytelse.TilkjentYtelseFormidlingDtoTjeneste;
 
 @ApplicationScoped
 class BrevGrunnlagTjeneste {
@@ -562,16 +559,16 @@ class BrevGrunnlagTjeneste {
         var arbeidsforholdInntektsmeldingStatuser = arbeidsforholdInntektsmeldingMangelTjeneste.finnStatusForInntektsmeldingArbeidsforhold(ref, stp);
 
         return Optional.of(
-            ArbeidsforholdInntektsmeldingDtoTjeneste.mapInntektsmeldingStatus(arbeidsforholdInntektsmeldingStatuser, alleYrkesaktiviteter,
+            BrevGrunnlagArbeidsforholdInntektsmeldingTjeneste.mapInntektsmeldingStatus(arbeidsforholdInntektsmeldingStatuser, alleYrkesaktiviteter,
                 stp.getUtledetSkjæringstidspunkt()));
     }
 
     private Optional<BeregningsgrunnlagDto> finnBeregningsgrunnlag(Behandling behandling) {
-        return beregningTjeneste.hent(BehandlingReferanse.fra(behandling)).flatMap(bg -> new BeregningsgrunnlagFormidlingV2DtoTjeneste(bg).map());
+        return beregningTjeneste.hent(BehandlingReferanse.fra(behandling)).flatMap(bg -> new BrevGrunnlagBeregningsgrunnlagTjeneste(bg).map());
     }
 
     private Optional<TilkjentYtelseDagytelseDto> finnTilkjentYtelseDagytelse(Behandling behandling) {
-        return beregningsresultatRepository.hentUtbetBeregningsresultat(behandling.getId()).map(TilkjentYtelseFormidlingDtoTjeneste::mapDagytelse);
+        return beregningsresultatRepository.hentUtbetBeregningsresultat(behandling.getId()).map(BrevGrunnlagTilkjentYtelseTjeneste::mapDagytelse);
     }
 
     private Optional<TilkjentYtelseEngangsstønadDto> finnTilkjentYtelseEngangsstønad(Behandling behandling) {

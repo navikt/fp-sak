@@ -7,7 +7,6 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotNull;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.POST;
@@ -21,11 +20,8 @@ import jakarta.ws.rs.core.Response;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.headers.Header;
-import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
-import no.nav.foreldrepenger.domene.person.verge.dto.VergeBackendDto;
 import no.nav.foreldrepenger.domene.person.verge.dto.VergeDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.BehandlingAbacSuppliers;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.UuidDto;
@@ -43,8 +39,6 @@ import no.nav.vedtak.sikkerhet.abac.beskyttet.ResourceType;
 public class VergeRestTjeneste {
 
     public static final String BASE_PATH = "/verge";
-    private static final String VERGE_BACKEND_PART_PATH = "/backend";
-    public static final String VERGE_BACKEND_PATH = BASE_PATH + VERGE_BACKEND_PART_PATH;
 
     private static final String VERGE_FJERN_PART_PATH = "/fjern";
     public static final String VERGE_FJERN_PATH = BASE_PATH + VERGE_FJERN_PART_PATH;
@@ -72,18 +66,6 @@ public class VergeRestTjeneste {
     public VergeDto hentVerge(@TilpassetAbacAttributt(supplierClass = BehandlingAbacSuppliers.UuidAbacDataSupplier.class) @QueryParam(UuidDto.NAME) @Parameter(description = "Behandling uuid") @Valid UuidDto queryParam) {
         var behandling = behandlingRepository.hentBehandling(queryParam.getBehandlingUuid());
         return vergeTjeneste.hentVerge(behandling);
-    }
-
-    @GET
-    @Path(VERGE_BACKEND_PART_PATH)
-    @Operation(description = "Henter verge/fullmektig på behandlingen for bruk backend", tags = "verge", responses = {
-        @ApiResponse(responseCode = "200", description = "Verge hvis eksisterer ellers null", content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = VergeBackendDto.class)))
-    })
-    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK, sporingslogg = false)
-    public VergeBackendDto getVergeBackend(@TilpassetAbacAttributt(supplierClass = BehandlingAbacSuppliers.UuidAbacDataSupplier.class)
-                                           @NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto queryParam) {
-        var behandling = behandlingRepository.hentBehandling(queryParam.getBehandlingUuid());
-        return vergeTjeneste.hentVergeForBackend(behandling);
     }
 
     @POST

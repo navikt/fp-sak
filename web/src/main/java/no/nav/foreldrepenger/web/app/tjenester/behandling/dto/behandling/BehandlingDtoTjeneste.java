@@ -96,7 +96,6 @@ import no.nav.foreldrepenger.web.app.tjenester.behandling.verge.VergeRestTjenest
 import no.nav.foreldrepenger.web.app.tjenester.behandling.ytelsefordeling.YtelsefordelingRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.brev.BrevRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.dokument.DokumentRestTjeneste;
-import no.nav.foreldrepenger.web.app.tjenester.fagsak.FagsakRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.SaksnummerDto;
 import no.nav.foreldrepenger.web.app.tjenester.familiehendelse.FamiliehendelseRestTjeneste;
 
@@ -304,9 +303,6 @@ public class BehandlingDtoTjeneste {
         var dto = new UtvidetBehandlingDto();
         settStandardfelterUtvidet(behandling, dto, erBehandlingMedGjeldendeVedtak);
 
-        var saksnummerDto = new SaksnummerDto(behandling.getSaksnummer());
-        dto.leggTil(get(FagsakRestTjeneste.FAGSAK_PATH, "fagsak", saksnummerDto));
-
         leggTilLenkerForBehandlingsoperasjoner(behandling, dto);
 
         var uuidDto = new UuidDto(behandling.getUuid());
@@ -361,8 +357,6 @@ public class BehandlingDtoTjeneste {
         dto.setHarRegisterdata(harInnhentetRegisterData);
         dto.setHarSøknad(harSakenSøknad);
         dto.leggTil(get(SøknadRestTjeneste.SOKNAD_PATH, "soknad", uuidDto));
-        dto.leggTil(get(SøknadRestTjeneste.SOKNAD_BACKEND_PATH, "soknad-backend", uuidDto));
-        dto.leggTil(get(DokumentRestTjeneste.MOTTATT_DOKUMENTER_PATH, "mottattdokument", uuidDto));
 
         if (dto.isErAktivPapirsoknad()) {
             return dto;
