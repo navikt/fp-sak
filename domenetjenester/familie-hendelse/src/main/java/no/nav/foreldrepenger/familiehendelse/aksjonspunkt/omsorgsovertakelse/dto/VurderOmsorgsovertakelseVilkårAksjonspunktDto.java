@@ -31,7 +31,7 @@ public class VurderOmsorgsovertakelseVilkårAksjonspunktDto extends BekreftetAks
     @Valid
     @NotNull
     @Size(max = 9)
-    private List<OmsorgsovertakelseBarnDto> fødselsdatoer;
+    private List<OmsorgsovertakelseBarnDto> barn;
 
     @NotNull
     private Boolean ektefellesBarn;
@@ -49,7 +49,7 @@ public class VurderOmsorgsovertakelseVilkårAksjonspunktDto extends BekreftetAks
 
         super(begrunnelse);
         this.omsorgsovertakelseDato = omsorgsovertakelseDato;
-        this.fødselsdatoer = fødselsdatoer;
+        this.barn = fødselsdatoer;
         this.avslagskode = avslagskode;
         this.delvilkår = delvilkår;
         this.ektefellesBarn = ektefellesBarn;
@@ -60,8 +60,8 @@ public class VurderOmsorgsovertakelseVilkårAksjonspunktDto extends BekreftetAks
         return omsorgsovertakelseDato;
     }
 
-    public List<OmsorgsovertakelseBarnDto> getFødselsdatoer() {
-        return fødselsdatoer;
+    public List<OmsorgsovertakelseBarnDto> getBarn() {
+        return barn;
     }
 
     public Avslagsårsak getAvslagskode() {
