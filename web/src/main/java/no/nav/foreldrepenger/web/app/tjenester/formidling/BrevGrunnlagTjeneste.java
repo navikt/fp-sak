@@ -28,6 +28,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 
 import jakarta.enterprise.context.ApplicationScoped;
@@ -69,6 +70,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtak
 import no.nav.foreldrepenger.behandlingslager.behandling.verge.VergeOrganisasjonEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.verge.VergeRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.Avslagsårsak;
+import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.MorsAktivitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.Rettighetstype;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.DokumentasjonVurdering;
@@ -603,7 +605,12 @@ class BrevGrunnlagTjeneste {
     }
 
     private static List<BrevGrunnlagDto.Behandlingsresultat.VilkårType> finnVilkårTyper(Behandlingsresultat behandlingsresultat) {
-        return behandlingsresultat.getVilkårResultat().getVilkårTyper().stream().map(EnumMapper::mapVilkårType).toList();
+        return Optional.ofNullable(behandlingsresultat.getVilkårResultat())
+            .map(VilkårResultat::getVilkårTyper)
+            .orElse(Set.of())
+            .stream()
+            .map(EnumMapper::mapVilkårType)
+            .toList();
     }
 
     private List<BrevGrunnlagDto.Behandlingsresultat.KonsekvensForYtelsen> finnKonsekvenserForYtelsen(Behandlingsresultat br) {
