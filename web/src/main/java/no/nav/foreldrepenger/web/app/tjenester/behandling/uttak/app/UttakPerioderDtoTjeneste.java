@@ -1,6 +1,5 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.app;
 
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -15,11 +14,8 @@ import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtakRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.AvklarteUttakDatoerEntitet;
-import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.MorsAktivitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelseFordelingAggregat;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelsesFordelingRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.DokumentasjonVurdering;
-import no.nav.foreldrepenger.behandlingslager.uttak.fp.MorsStillingsprosent;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlag;
@@ -145,29 +141,12 @@ public class UttakPerioderDtoTjeneste {
             .medOppholdÅrsak(periode.getOppholdÅrsak())
             .medPeriodeType(periode.getSøktKonto())
             .medMottattDato(periode.getMottattDato())
-            .medTidligstMottattDato(periode.getTidligstMottatttDato())
-            .medErUtbetalingRedusertTilMorsStillingsprosent(utledOmUtbetalingErRedusertTilMorsStillingsprosent(periode))
             .build();
 
         for (var aktivitet : periode.getAktiviteter()) {
             dto.leggTilAktivitet(map(aktivitet, inntektArbeidYtelseGrunnlag));
         }
         return dto;
-    }
-
-    private boolean utledOmUtbetalingErRedusertTilMorsStillingsprosent(ForeldrepengerUttakPeriode periode) {
-        if (periode.harRedusertUtbetaling() && MorsAktivitet.ARBEID.equals(periode.getMorsAktivitet()) && periode.getDokumentasjonVurdering().isPresent()) {
-            var morsStillingsprosent = periode.getDokumentasjonVurdering().map(DokumentasjonVurdering::morsStillingsprosent).map(
-                MorsStillingsprosent::decimalValue).orElse(BigDecimal.ZERO);
-
-            var morsStillingsProsentErUnder75 = (morsStillingsprosent.compareTo(BigDecimal.ZERO) != 0) && morsStillingsprosent.compareTo(BigDecimal.valueOf(75)) < 0 ;
-            var minstEnPeriodeHarUtbetalingLikMorsStillingsprosent =  periode.getAktiviteter().stream().anyMatch(aktivitet -> aktivitet.getUtbetalingsgrad().decimalValue().compareTo(morsStillingsprosent) == 0);
-            boolean morsAktivitetGodkjent = periode.getDokumentasjonVurdering().map(dokvurdering -> dokvurdering.type().equals(DokumentasjonVurdering.Type.MORS_AKTIVITET_GODKJENT)).orElse(false);
-            var graderingEllerSamtidigUttak = periode.isSamtidigUttak() || periode.isGraderingInnvilget();
-
-            return morsStillingsProsentErUnder75 && minstEnPeriodeHarUtbetalingLikMorsStillingsprosent && morsAktivitetGodkjent && !graderingEllerSamtidigUttak;
-        }
-        return false;
     }
 
     private List<UttakResultatPeriodeDto> sortedByFom(List<UttakResultatPeriodeDto> list) {

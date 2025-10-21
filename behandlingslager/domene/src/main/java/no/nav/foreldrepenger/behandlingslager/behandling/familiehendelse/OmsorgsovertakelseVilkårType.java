@@ -46,7 +46,7 @@ public enum OmsorgsovertakelseVilkårType implements Kodeverdi {
     ;
 
     private static final Set<Avslagsårsak> FELLES_ÅRSAKER = Set.of(Avslagsårsak.BARN_OVER_15_ÅR,
-        Avslagsårsak.ENGANGSSTØNAD_ALLEREDE_UTBETALT_TIL_MOR, Avslagsårsak.FORELDREPENGER_ER_ALLEREDE_UTBETALT_TIL_MOR,
+        Avslagsårsak.ENGANGSTØNAD_ER_ALLEREDE_UTBETAL_TIL_MOR, Avslagsårsak.FORELDREPENGER_ER_ALLEREDE_UTBETALT_TIL_MOR,
         Avslagsårsak.ENGANGSSTØNAD_ER_ALLEREDE_UTBETALT_TIL_FAR_MEDMOR, Avslagsårsak.FORELDREPENGER_ER_ALLEREDE_UTBETALT_TIL_FAR_MEDMOR);
 
     private static final Map<String, OmsorgsovertakelseVilkårType> KODER = new LinkedHashMap<>();

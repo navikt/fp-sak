@@ -54,12 +54,12 @@ public final class MottattDokumentXmlParser {
                 dokumentParserKonfig.additionalClasses);
             return MottattDokumentWrapper.tilXmlWrapper(mottattDokument);
         } catch (Exception e) {
-            throw parseException(namespace);
+            throw parseException(namespace, e);
         }
     }
 
-    private static TekniskException parseException(String namespace) {
-        return new TekniskException("FP-312346", "Feil ved parsing av ukjent journaldokument-type med namespace " + namespace);
+    private static TekniskException parseException(String namespace, Exception e) {
+        return new TekniskException("FP-312346", "Feil ved parsing av ukjent journaldokument-type med namespace " + namespace, e);
     }
 
     private static String hentNamespace(String xml) {
@@ -67,7 +67,7 @@ public final class MottattDokumentXmlParser {
         try {
             namespace = retrieveNameSpaceOfXML(xml);
         } catch (Exception e) {
-            throw parseException("ukjent");
+            throw parseException("ukjent", e);
         }
         return namespace;
     }

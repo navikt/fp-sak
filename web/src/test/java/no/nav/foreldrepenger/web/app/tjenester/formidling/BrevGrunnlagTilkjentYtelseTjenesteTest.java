@@ -1,10 +1,9 @@
-package no.nav.foreldrepenger.web.app.tjenester.formidling.tilkjentytelse;
+package no.nav.foreldrepenger.web.app.tjenester.formidling;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 
 import org.junit.jupiter.api.Test;
 
@@ -12,13 +11,12 @@ import no.nav.foreldrepenger.behandlingslager.behandling.beregning.AktivitetStat
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatAndel;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatPeriode;
-import no.nav.foreldrepenger.behandlingslager.behandling.beregning.EngangsstønadBeregning;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.Inntektskategori;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 import no.nav.foreldrepenger.kontrakter.fpsak.tilkjentytelse.TilkjentYtelseDagytelseDto;
 
-class TilkjentYtelseFormidlingDtoTjenesteTest {
+class BrevGrunnlagTilkjentYtelseTjenesteTest {
 
     @Test
     void skal_teste_mapping_av_tilkjent_ytelse_dagytelse() {
@@ -40,7 +38,7 @@ class TilkjentYtelseFormidlingDtoTjenesteTest {
             .build(periode);
 
         // Act
-        var mappetResultat = TilkjentYtelseFormidlingDtoTjeneste.mapDagytelse(res);
+        var mappetResultat = BrevGrunnlagTilkjentYtelseTjeneste.mapDagytelse(res);
 
         // Assert
         assertThat(mappetResultat).isNotNull();
@@ -59,18 +57,5 @@ class TilkjentYtelseFormidlingDtoTjenesteTest {
         assertThat(mappetAndel.stillingsprosent()).isEqualByComparingTo(andel.getStillingsprosent());
         assertThat(mappetAndel.arbeidsgiverReferanse()).isEqualTo(andel.getArbeidsgiver().get().getIdentifikator());
         assertThat(mappetAndel.arbeidsforholdId()).isEqualTo(andel.getArbeidsforholdRef().getReferanse());
-    }
-
-    @Test
-    void skal_teste_engangsstønad_mapping() {
-        // Arrange
-        var resultat = new EngangsstønadBeregning(1L, 93000, 1, 93000, LocalDateTime.now());
-
-        // Act
-        var mappetResultat = TilkjentYtelseFormidlingDtoTjeneste.mapEngangsstønad(resultat);
-
-        // Assert
-        assertThat(mappetResultat).isNotNull();
-        assertThat(mappetResultat.beregnetTilkjentYtelse()).isEqualTo(resultat.getBeregnetTilkjentYtelse());
     }
 }

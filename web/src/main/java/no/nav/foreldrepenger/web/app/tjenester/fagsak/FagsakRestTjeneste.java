@@ -54,7 +54,7 @@ import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.behandling.Prosess
 import no.nav.foreldrepenger.web.app.tjenester.fagsak.app.FagsakFullTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.fagsak.app.FagsakTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.EndreUtlandMarkeringDto;
-import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.FagsakBackendDto;
+import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.FagsakDto;
 import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.FagsakFullDto;
 import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.FagsakSøkDto;
 import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.LagreFagsakNotatDto;
@@ -146,7 +146,7 @@ public class FagsakRestTjeneste {
     @Produces(MediaType.APPLICATION_JSON)
     // re-enable hvis endres til ikke-tom @Path(FAGSAK_PART_PATH)
     @Operation(description = "Hent fagsak for saksnummer", tags = "fagsak", responses = {
-            @ApiResponse(responseCode = "200", description = "Returnerer fagsak", content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = FagsakBackendDto.class))),
+            @ApiResponse(responseCode = "200", description = "Returnerer fagsak", content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = FagsakDto.class))),
             @ApiResponse(responseCode = "404", description = "Fagsak ikke tilgjengelig")
     })
     @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK, sporingslogg = false)

@@ -61,14 +61,19 @@ spec:
   vault:
     enabled: true
     paths:
-      - mountPath: /var/run/secrets/nais.io/defaultDSconfig
-        kvPath: {{oracleconfig}}
-      - mountPath: /var/run/secrets/nais.io/defaultDS
-        kvPath:  {{oraclefpsaksecret}}
-      - mountPath: /var/run/secrets/nais.io/dvhDS
-        kvPath:  {{oracledvhsecret}}
-      - mountPath: /var/run/secrets/nais.io/serviceuser
-        kvPath: {{fpsakserviceuser}}
+      - mountPath: {{vault.mountPath}}/defaultDSconfig
+        kvPath: {{vault.db.configPath}}
+      - mountPath: {{vault.mountPath}}/defaultDS
+        kvPath: {{vault.db.secretsPath}}
+      - mountPath: {{vault.mountPath}}/dvhDSconfig
+        kvPath: {{vault.dvhDb.configPath}}
+      - mountPath: {{vault.mountPath}}/dvhDS
+        kvPath: {{vault.dvhDb.secretsPath}}
+      - mountPath: {{vault.mountPath}}/serviceuser
+        kvPath: {{vault.serviceuser.secretsPath}}
+  env:
+    - name: VAULT_MOUNT_PATH
+      value: "{{vault.mountPath}}"
   azure:
     application:
       enabled: true
@@ -78,7 +83,7 @@ spec:
           - "azp_name"
         groups:
           {{#each groups as |group|}}
-            - id: "{{group}}"
+            - id: "{{group.uuid}}"
           {{/each}}
   {{#if AZURE_IAC_RULES}}
   accessPolicy:

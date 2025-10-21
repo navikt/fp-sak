@@ -75,9 +75,6 @@ public enum Avslagsårsak implements Kodeverdi, ÅrsakskodeMedLovreferanse {
 
     public static final String KODEVERK = "AVSLAGSARSAK";
 
-    private static final Set<Avslagsårsak> ALLEREDE_UTBETALT_ENGANGSSTØNAD_ÅRSAKER = Set.of(ENGANGSSTØNAD_ALLEREDE_UTBETALT_TIL_MOR,
-        ENGANGSTØNAD_ER_ALLEREDE_UTBETAL_TIL_MOR, ENGANGSSTØNAD_ER_ALLEREDE_UTBETALT_TIL_FAR_MEDMOR);
-
 
     // TODO endre fra raw json
     private String lovReferanse;
@@ -141,10 +138,6 @@ public enum Avslagsårsak implements Kodeverdi, ÅrsakskodeMedLovreferanse {
     @Override
     public String getLovHjemmelData() {
         return lovReferanse;
-    }
-
-    public boolean erAlleredeUtbetaltEngangsstønad() {
-        return ALLEREDE_UTBETALT_ENGANGSSTØNAD_ÅRSAKER.contains(this);
     }
 
     @Converter(autoApply = true)

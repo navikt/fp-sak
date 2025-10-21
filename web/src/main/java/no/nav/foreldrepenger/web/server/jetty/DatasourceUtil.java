@@ -10,6 +10,7 @@ import io.micrometer.core.instrument.Metrics;
 import no.nav.foreldrepenger.konfig.Environment;
 
 class DatasourceUtil {
+
     private static final Environment ENV = Environment.current();
 
     private DatasourceUtil() {
@@ -17,9 +18,9 @@ class DatasourceUtil {
 
     static HikariDataSource createDatasource(String schemaName, int maxPoolSize, int minIdle) {
         var config = new HikariConfig();
-        config.setJdbcUrl(ENV.getRequiredProperty(schemaName + ".url"));
-        config.setUsername(ENV.getRequiredProperty(schemaName + ".username"));
-        config.setPassword(ENV.getRequiredProperty(schemaName + ".password"));
+        config.setJdbcUrl(hentEllerBeregnVerdiHvisMangler(schemaName + ".url",schemaName + "config", "jdbc_url"));
+        config.setUsername(hentEllerBeregnVerdiHvisMangler(schemaName + ".username", schemaName, "username"));
+        config.setPassword(hentEllerBeregnVerdiHvisMangler(schemaName + ".password", schemaName, "password"));
         config.setConnectionTimeout(TimeUnit.SECONDS.toMillis(2));
         config.setMinimumIdle(minIdle);
         config.setMaximumPoolSize(maxPoolSize);
@@ -31,5 +32,13 @@ class DatasourceUtil {
         config.setDataSourceProperties(dsProperties);
 
         return new HikariDataSource(config);
+    }
+
+    /* Denne gir lazy loading og feiler ikke ved lokalt kjøring uten vault mount */
+    private static String hentEllerBeregnVerdiHvisMangler(String key, String mappeNavn, String filNavn) {
+        if (ENV.getProperty(key) == null) {
+            System.getProperties().computeIfAbsent(key, _ -> VaultUtil.lesFilVerdi(mappeNavn, filNavn));
+        }
+        return ENV.getRequiredProperty(key);
     }
 }

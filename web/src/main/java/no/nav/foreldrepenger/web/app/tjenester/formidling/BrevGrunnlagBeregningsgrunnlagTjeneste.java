@@ -1,4 +1,4 @@
-package no.nav.foreldrepenger.web.app.tjenester.formidling.beregningsgrunnlag;
+package no.nav.foreldrepenger.web.app.tjenester.formidling;
 
 import java.math.BigDecimal;
 import java.util.Collection;
@@ -34,12 +34,12 @@ import no.nav.foreldrepenger.kontrakter.fpsak.beregningsgrunnlag.v2.kodeverk.Hje
 import no.nav.foreldrepenger.kontrakter.fpsak.beregningsgrunnlag.v2.kodeverk.OpptjeningAktivitetDto;
 import no.nav.foreldrepenger.kontrakter.fpsak.beregningsgrunnlag.v2.kodeverk.PeriodeÅrsakDto;
 
-public class BeregningsgrunnlagFormidlingV2DtoTjeneste {
+public class BrevGrunnlagBeregningsgrunnlagTjeneste {
 
     private final BeregningsgrunnlagGrunnlag grunnlag;
-    private static final Logger LOG = LoggerFactory.getLogger(BeregningsgrunnlagFormidlingV2DtoTjeneste.class);
+    private static final Logger LOG = LoggerFactory.getLogger(BrevGrunnlagBeregningsgrunnlagTjeneste.class);
 
-    public BeregningsgrunnlagFormidlingV2DtoTjeneste(BeregningsgrunnlagGrunnlag grunnlag) {
+    public BrevGrunnlagBeregningsgrunnlagTjeneste(BeregningsgrunnlagGrunnlag grunnlag) {
         this.grunnlag = Objects.requireNonNull(grunnlag, "beregningsgrunnlaggrunnlag");
     }
 
