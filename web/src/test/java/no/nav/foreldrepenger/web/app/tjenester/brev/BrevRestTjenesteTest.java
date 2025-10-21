@@ -83,20 +83,6 @@ class BrevRestTjenesteTest {
     }
 
     @Test
-    void harSendtVarselOmRevurdering() {
-        // Arrange
-        when(dokumentBehandlingTjenesteMock.erDokumentBestilt(any(), any())).thenReturn(true);
-        when(behandlingRepository.hentBehandling(any(UUID.class))).thenReturn(mock(Behandling.class));
-
-        // Act
-        var harSendt = brevRestTjeneste.harSendtVarselOmRevurdering(new UuidDto(UUID.randomUUID()));
-
-        // Assert
-        verify(dokumentBehandlingTjenesteMock).erDokumentBestilt(any(), any());
-        assertThat(harSendt).isTrue();
-    }
-
-    @Test
     void redigert_html_skal_være_null_hvis_en_ikke_finner_i_dokumentbehandling_entitet() {
         // Arrange
         var brevProdusertAvFpdokgen = "html";

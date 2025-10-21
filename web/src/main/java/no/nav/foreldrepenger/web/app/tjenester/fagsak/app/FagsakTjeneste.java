@@ -29,7 +29,7 @@ import no.nav.foreldrepenger.familiehendelse.FamilieHendelseTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.VurderProsessTaskStatusForPollingApi;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.AsyncPollingStatus;
 import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.AktoerInfoDto;
-import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.FagsakBackendDto;
+import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.FagsakDto;
 import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.FagsakSøkDto;
 import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.PersonDto;
 import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.SakHendelseDto;
@@ -109,7 +109,7 @@ public class FagsakTjeneste {
         return fagsakRepository.hentForBruker(aktørId).stream().map(f -> mapFraFagsakTilFagsakSøkDto(f, brukerinfo)).toList();
     }
 
-    public Optional<FagsakBackendDto> hentFagsakDtoForSaksnummer(Saksnummer saksnummer) {
+    public Optional<FagsakDto> hentFagsakDtoForSaksnummer(Saksnummer saksnummer) {
         return hentFagsakForSaksnummer(saksnummer).map(this::mapFraFagsakTilFagsakDto);
     }
 
@@ -150,12 +150,12 @@ public class FagsakTjeneste {
             pi.diskresjonskode().getKode(), pi.fødselsdato(), pi.dødsdato(), pi.dødsdato(), språkkode);
     }
 
-    private FagsakBackendDto mapFraFagsakTilFagsakDto(Fagsak fagsak) {
+    private FagsakDto mapFraFagsakTilFagsakDto(Fagsak fagsak) {
         var dekningsgrad = hentSisteYtelsesBehandling(fagsak)
             .flatMap(b -> dekningsgradTjeneste.finnGjeldendeDekningsgradHvisEksisterer(BehandlingReferanse.fra(b)))
             .map(Dekningsgrad::getVerdi)
             .orElse(null);
-        return new FagsakBackendDto(fagsak, dekningsgrad);
+        return new FagsakDto(fagsak, dekningsgrad);
     }
 
     private FagsakSøkDto mapFraFagsakTilFagsakSøkDto(Fagsak fagsak, PersoninfoBasis pi) {

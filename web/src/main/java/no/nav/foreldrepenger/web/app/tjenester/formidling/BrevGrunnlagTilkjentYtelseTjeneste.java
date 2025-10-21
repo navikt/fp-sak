@@ -1,4 +1,4 @@
-package no.nav.foreldrepenger.web.app.tjenester.formidling.tilkjentytelse;
+package no.nav.foreldrepenger.web.app.tjenester.formidling;
 
 import java.util.List;
 import java.util.Optional;
@@ -8,25 +8,19 @@ import no.nav.foreldrepenger.behandlingslager.behandling.beregning.AktivitetStat
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatAndel;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatPeriode;
-import no.nav.foreldrepenger.behandlingslager.behandling.beregning.EngangsstønadBeregning;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.kontrakter.fpsak.tilkjentytelse.TilkjentYtelseDagytelseDto;
-import no.nav.foreldrepenger.kontrakter.fpsak.tilkjentytelse.TilkjentYtelseEngangsstønadDto;
 
-public final class TilkjentYtelseFormidlingDtoTjeneste {
+public final class BrevGrunnlagTilkjentYtelseTjeneste {
 
-    private TilkjentYtelseFormidlingDtoTjeneste() {
+    private BrevGrunnlagTilkjentYtelseTjeneste() {
         // Skjuler default konstruktør
-    }
-
-    public static TilkjentYtelseEngangsstønadDto mapEngangsstønad(EngangsstønadBeregning engangsstønadBeregning) {
-        return new TilkjentYtelseEngangsstønadDto(engangsstønadBeregning.getBeregnetTilkjentYtelse());
     }
 
     public static TilkjentYtelseDagytelseDto mapDagytelse(BeregningsresultatEntitet bgRes) {
         var perioder = bgRes.getBeregningsresultatPerioder()
             .stream()
-            .map(TilkjentYtelseFormidlingDtoTjeneste::mapPeriode)
+            .map(BrevGrunnlagTilkjentYtelseTjeneste::mapPeriode)
             .toList();
         return new TilkjentYtelseDagytelseDto(perioder);
     }
@@ -34,9 +28,9 @@ public final class TilkjentYtelseFormidlingDtoTjeneste {
     private static TilkjentYtelseDagytelseDto.TilkjentYtelsePeriodeDto mapPeriode(BeregningsresultatPeriode resultatPeriode) {
         var andelMap = resultatPeriode.getBeregningsresultatAndelList()
             .stream()
-            .collect(Collectors.groupingBy(TilkjentYtelseFormidlingDtoTjeneste::genererAndelKey));
+            .collect(Collectors.groupingBy(BrevGrunnlagTilkjentYtelseTjeneste::genererAndelKey));
 
-        var andeler = andelMap.values().stream().map(TilkjentYtelseFormidlingDtoTjeneste::mapAndeler).toList();
+        var andeler = andelMap.values().stream().map(BrevGrunnlagTilkjentYtelseTjeneste::mapAndeler).toList();
 
         return new TilkjentYtelseDagytelseDto.TilkjentYtelsePeriodeDto(resultatPeriode.getBeregningsresultatPeriodeFom(),
             resultatPeriode.getBeregningsresultatPeriodeTom(), resultatPeriode.getDagsats(), andeler);

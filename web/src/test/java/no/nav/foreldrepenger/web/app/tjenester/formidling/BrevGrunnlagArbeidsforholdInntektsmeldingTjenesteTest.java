@@ -1,4 +1,4 @@
-package no.nav.foreldrepenger.web.app.tjenester.formidling.arbeidsforholdInntektsmelding;
+package no.nav.foreldrepenger.web.app.tjenester.formidling;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -17,7 +17,7 @@ import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 import no.nav.foreldrepenger.domene.typer.Stillingsprosent;
 
-class ArbeidsforholdInntektsmeldingDtoTjenesteTest {
+class BrevGrunnlagArbeidsforholdInntektsmeldingTjenesteTest {
 
     @Test
     void skal_teste_alle_im_mottatt() {
@@ -34,7 +34,7 @@ class ArbeidsforholdInntektsmeldingDtoTjenesteTest {
         yaBuilder.leggTilAktivitetsAvtale(aa);
         var arbeidImStatus = new ArbeidsforholdInntektsmeldingStatus(ag, ref, ArbeidsforholdInntektsmeldingStatus.InntektsmeldingStatus.MOTTATT);
 
-        var arbeidsforholdInntektsmeldinger = ArbeidsforholdInntektsmeldingDtoTjeneste.mapInntektsmeldingStatus(Arrays.asList(arbeidImStatus),
+        var arbeidsforholdInntektsmeldinger = BrevGrunnlagArbeidsforholdInntektsmeldingTjeneste.mapInntektsmeldingStatus(Arrays.asList(arbeidImStatus),
             Arrays.asList(yaBuilder.build()), stp);
 
         assertThat(arbeidsforholdInntektsmeldinger).isNotNull();
@@ -61,7 +61,7 @@ class ArbeidsforholdInntektsmeldingDtoTjenesteTest {
 
 
         var arbeidImStatus = new ArbeidsforholdInntektsmeldingStatus(ag, ref, ArbeidsforholdInntektsmeldingStatus.InntektsmeldingStatus.IKKE_MOTTAT);
-        var arbeidsforholdInntektsmeldinger = ArbeidsforholdInntektsmeldingDtoTjeneste.mapInntektsmeldingStatus(Arrays.asList(arbeidImStatus),
+        var arbeidsforholdInntektsmeldinger = BrevGrunnlagArbeidsforholdInntektsmeldingTjeneste.mapInntektsmeldingStatus(Arrays.asList(arbeidImStatus),
             Arrays.asList(yaBuilder.build()), stp);
 
         assertThat(arbeidsforholdInntektsmeldinger).isNotNull();
@@ -98,7 +98,7 @@ class ArbeidsforholdInntektsmeldingDtoTjenesteTest {
         var arbeidImStatus2 = new ArbeidsforholdInntektsmeldingStatus(ag, ref2,
             ArbeidsforholdInntektsmeldingStatus.InntektsmeldingStatus.IKKE_MOTTAT);
 
-        var arbeidsforholdInntektsmeldinger = ArbeidsforholdInntektsmeldingDtoTjeneste.mapInntektsmeldingStatus(
+        var arbeidsforholdInntektsmeldinger = BrevGrunnlagArbeidsforholdInntektsmeldingTjeneste.mapInntektsmeldingStatus(
             Arrays.asList(arbeidImStatus1, arbeidImStatus2), Arrays.asList(yaBuilder1.build(), yaBuilder2.build()), stp);
 
         assertThat(arbeidsforholdInntektsmeldinger).isNotNull();

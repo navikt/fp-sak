@@ -222,20 +222,6 @@ public class KlageRestTjeneste {
                 .medGjelderVedtak(apDto.paKlagdBehandlingUuid() != null);
     }
 
-    @GET
-    @Path(MOTTATT_KLAGEDOKUMENT_V2_PART_PATH)
-    @Operation(description = "Hent mottatt klagedokument for en klagebehandling", summary = "Kan returnere dokument uten verdier i hvis det ikke finnes noe klagedokument på behandlingen", tags = "klage", responses = {
-            @ApiResponse(responseCode = "200", description = "Returnerer mottatt klagedokument", content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = MottattKlagedokumentDto.class)))
-    })
-    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK, sporingslogg = false)
-    public MottattKlagedokumentDto getMottattKlagedokument(@TilpassetAbacAttributt(supplierClass = BehandlingAbacSuppliers.UuidAbacDataSupplier.class)
-            @NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
-        var behandling = behandlingRepository.hentBehandling(uuidDto.getBehandlingUuid());
-
-        var klageMottattDato = klageVurderingTjeneste.getKlageMottattDato(behandling).orElse(null);
-        return new MottattKlagedokumentDto(klageMottattDato);
-    }
-
     private KlagebehandlingDto mapFra(Behandling behandling) {
 
         var klageResultat = klageVurderingTjeneste.hentEvtOpprettKlageResultat(behandling);

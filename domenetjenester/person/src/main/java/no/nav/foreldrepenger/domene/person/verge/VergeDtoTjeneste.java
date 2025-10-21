@@ -11,9 +11,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.verge.VergeAggregat;
 import no.nav.foreldrepenger.behandlingslager.behandling.verge.VergeEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.verge.VergeOrganisasjonEntitet;
 import no.nav.foreldrepenger.domene.person.PersoninfoAdapter;
-import no.nav.foreldrepenger.domene.person.verge.dto.VergeBackendDto;
 import no.nav.foreldrepenger.domene.person.verge.dto.VergeDto;
-import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.PersonIdent;
 
 @ApplicationScoped
@@ -46,16 +44,5 @@ public class VergeDtoTjeneste {
                 vergeAktør.map(PersoninfoArbeidsgiver::navn).orElse(null),
                 vergeAktør.map(PersoninfoArbeidsgiver::personIdent).map(PersonIdent::getIdent).orElse(null));
         }
-    }
-
-    public Optional<VergeBackendDto> lagVergeBackendDto(VergeAggregat vergeAggregat) {
-        return vergeAggregat.getVerge().map(v -> mapTilBackendDto(vergeAggregat, v));
-    }
-
-    private VergeBackendDto mapTilBackendDto(VergeAggregat vergeAggregat, VergeEntitet verge) {
-        return new VergeBackendDto(vergeAggregat.getAktørId().map(AktørId::getId).orElse(null),
-            verge.getVergeOrganisasjon().map(VergeOrganisasjonEntitet::getNavn).orElse(null),
-            verge.getVergeOrganisasjon().map(VergeOrganisasjonEntitet::getOrganisasjonsnummer).orElse(null),
-            verge.getGyldigFom(), verge.getGyldigTom(), verge.getVergeType());
     }
 }

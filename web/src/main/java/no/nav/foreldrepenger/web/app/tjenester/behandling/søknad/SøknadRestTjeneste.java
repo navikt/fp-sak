@@ -34,8 +34,6 @@ public class SøknadRestTjeneste {
     static final String BASE_PATH = "/behandling";
     private static final String SOKNAD_PART_PATH = "/soknad";
     public static final String SOKNAD_PATH = BASE_PATH + SOKNAD_PART_PATH;
-    private static final String SOKNAD_BACKEND_PART_PATH = "/soknad-backend";
-    public static final String SOKNAD_BACKEND_PATH = BASE_PATH + SOKNAD_BACKEND_PART_PATH;
 
     private BehandlingRepository behandlingRepository;
     private SøknadDtoTjeneste dtoMapper;
@@ -61,17 +59,5 @@ public class SøknadRestTjeneste {
         @NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
         var behandling = behandlingRepository.hentBehandling(uuidDto.getBehandlingUuid());
         return dtoMapper.mapFra(behandling).orElse(null);
-    }
-
-    @GET
-    @Path(SOKNAD_BACKEND_PART_PATH)
-    @Operation(description = "Hent informasjon om søknad", tags = "søknad", responses = {
-        @ApiResponse(responseCode = "200", description = "RReturnerer forenklet søknad til andre applikasjoner", content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = SoknadDto.class)))
-    })
-    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK, sporingslogg = false)
-    public SoknadBackendDto getSøknadBackend(@TilpassetAbacAttributt(supplierClass = BehandlingAbacSuppliers.UuidAbacDataSupplier.class)
-        @NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
-        var behandling = behandlingRepository.hentBehandling(uuidDto.getBehandlingUuid());
-        return dtoMapper.mapForBackend(behandling).orElse(null);
     }
 }

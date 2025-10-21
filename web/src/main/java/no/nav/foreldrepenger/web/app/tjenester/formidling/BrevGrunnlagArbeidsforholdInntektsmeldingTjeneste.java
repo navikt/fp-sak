@@ -1,4 +1,4 @@
-package no.nav.foreldrepenger.web.app.tjenester.formidling.arbeidsforholdInntektsmelding;
+package no.nav.foreldrepenger.web.app.tjenester.formidling;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -15,9 +15,9 @@ import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 import no.nav.foreldrepenger.domene.typer.Stillingsprosent;
 import no.nav.foreldrepenger.kontrakter.fpsak.inntektsmeldinger.ArbeidsforholdInntektsmeldingerDto;
 
-public class ArbeidsforholdInntektsmeldingDtoTjeneste {
+public class BrevGrunnlagArbeidsforholdInntektsmeldingTjeneste {
 
-    private ArbeidsforholdInntektsmeldingDtoTjeneste() {
+    private BrevGrunnlagArbeidsforholdInntektsmeldingTjeneste() {
         // Skjuler default konstruktør
     }
 

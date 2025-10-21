@@ -62,8 +62,6 @@ public class BrevRestTjeneste {
     private static final Logger LOG = LoggerFactory.getLogger(BrevRestTjeneste.class);
 
     static final String BASE_PATH = "/brev";
-    private static final String VARSEL_REVURDERING_PART_PATH = "/varsel/revurdering";
-    public static final String VARSEL_REVURDERING_PATH = BASE_PATH + VARSEL_REVURDERING_PART_PATH;
     private static final String BREV_VIS_PART_PATH = "/forhandsvis";
     public static final String BREV_VIS_PATH = BASE_PATH + BREV_VIS_PART_PATH;
     private static final String BREV_BESTILL_PART_PATH = "/bestill";
@@ -259,17 +257,6 @@ public class BrevRestTjeneste {
     public void kvitteringV3(@TilpassetAbacAttributt(supplierClass = DokumentKvitteringDataSupplier.class) @Valid DokumentKvitteringDto kvitto) {
         dokumentBehandlingTjeneste.kvitterSendtBrev(
             new DokumentKvittering(kvitto.behandlingUuid(), kvitto.dokumentbestillingUuid(), kvitto.journalpostId(), kvitto.dokumentId()));
-    }
-
-    @GET
-    @Path(VARSEL_REVURDERING_PART_PATH)
-    @Produces(MediaType.APPLICATION_JSON + ";charset=utf-8")
-    @Operation(description = "Sjekk har varsel sendt om revurdering", tags = "brev")
-    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK, sporingslogg = false)
-    public Boolean harSendtVarselOmRevurdering(@TilpassetAbacAttributt(supplierClass = BehandlingAbacSuppliers.UuidAbacDataSupplier.class) @NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
-        LOG.info("Formidlingapi - harSendtVarselOmRevurdering kalles fortsatt");
-        var behandling = behandlingRepository.hentBehandling(uuidDto.getBehandlingUuid());
-        return dokumentBehandlingTjeneste.erDokumentBestilt(behandling.getId(), DokumentMalType.VARSEL_OM_REVURDERING);
     }
 
     public static class BrevAbacDataSupplier implements Function<Object, AbacDataAttributter> {
