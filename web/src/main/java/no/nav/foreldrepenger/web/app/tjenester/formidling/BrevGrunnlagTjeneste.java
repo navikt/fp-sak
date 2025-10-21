@@ -287,8 +287,8 @@ class BrevGrunnlagTjeneste {
         var dekningsgrad = finnDekningsgrad(behandling);
         var rettigheter = utledRettigheter(behandling);
         var nyStartDatoVedUtsattOppstart = finnNyStartDatoVedUtsattOppstart(behandling);
-        if (perioderSøker.isEmpty() && annenpartUttaksperioder.isEmpty() && dekningsgrad.isEmpty() && rettigheter.isEmpty()
-            && nyStartDatoVedUtsattOppstart.isEmpty()) {
+        if ((perioderSøker.isEmpty() && annenpartUttaksperioder.isEmpty() && dekningsgrad.isEmpty() && rettigheter.isEmpty()
+            && nyStartDatoVedUtsattOppstart.isEmpty()) || uttakInput.getYtelsespesifiktGrunnlag() == null) {
             return Optional.empty();
         }
         var stønadskontoer = finnStønadskontoer(uttakInput);
