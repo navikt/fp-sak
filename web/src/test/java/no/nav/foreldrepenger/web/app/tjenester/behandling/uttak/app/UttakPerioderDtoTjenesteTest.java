@@ -16,10 +16,8 @@ import no.nav.foreldrepenger.behandling.FagsakRelasjonTjeneste;
 import no.nav.foreldrepenger.behandling.RelatertBehandlingTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
-import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.MorsAktivitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.OppgittRettighetEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelseFordelingAggregat;
-import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.DokumentasjonVurdering;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeType;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.AbstractTestScenario;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioFarSøkerForeldrepenger;
@@ -28,7 +26,6 @@ import no.nav.foreldrepenger.behandlingslager.uttak.PeriodeResultatType;
 import no.nav.foreldrepenger.behandlingslager.uttak.Utbetalingsgrad;
 import no.nav.foreldrepenger.behandlingslager.uttak.UttakArbeidType;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.FpUttakRepository;
-import no.nav.foreldrepenger.behandlingslager.uttak.fp.MorsStillingsprosent;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.PeriodeResultatÅrsak;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.SamtidigUttaksprosent;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakAktivitetEntitet;
@@ -47,7 +44,6 @@ import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 import no.nav.foreldrepenger.domene.typer.Stillingsprosent;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakTjeneste;
 import no.nav.foreldrepenger.skjæringstidspunkt.overganger.UtsettelseCore2021;
-import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto.UttakResultatPeriodeDto;
 
 class UttakPerioderDtoTjenesteTest extends EntityManagerAwareTest {
 
@@ -439,81 +435,5 @@ class UttakPerioderDtoTjenesteTest extends EntityManagerAwareTest {
     private UttakResultatPeriodeEntitet.Builder periodeBuilder(LocalDate fom, LocalDate tom) {
         return new UttakResultatPeriodeEntitet.Builder(fom, tom)
             .medResultatType(PeriodeResultatType.INNVILGET, PeriodeResultatÅrsak.UKJENT);
-    }
-
-    @Test
-    void skal_sette_erUtbetalingRedusertTilMorsStillingsprosent_til_true_når_aktivitetskrav_og_utbetaling_er_redusert_med_mors_stillingsprosent() {
-        var perioder = new UttakResultatPerioderEntitet();
-        var periodeType = UttakPeriodeType.FORELDREPENGER;
-        var mottattDato = LocalDate.now();
-        var internArbeidsforholdId = InternArbeidsforholdRef.nyRef();
-        var arbeidsgiver = Arbeidsgiver.virksomhet(orgnr);
-        var uttakAktivitet = new UttakAktivitetEntitet.Builder()
-            .medArbeidsforhold(arbeidsgiver, internArbeidsforholdId)
-            .medUttakArbeidType(UttakArbeidType.ORDINÆRT_ARBEID)
-            .build();
-        var periodeSøknad = new UttakResultatPeriodeSøknadEntitet.Builder()
-            .medUttakPeriodeType(periodeType)
-            .medMorsAktivitet(MorsAktivitet.ARBEID)
-            .medDokumentasjonVurdering(new DokumentasjonVurdering(DokumentasjonVurdering.Type.MORS_AKTIVITET_GODKJENT, new MorsStillingsprosent(BigDecimal.valueOf(55))))
-            .medMottattDato(mottattDato)
-            .build();
-        var periode = periodeBuilder(LocalDate.now(), LocalDate.now().plusWeeks(2))
-            .medGraderingInnvilget(false)
-            .medSamtidigUttak(false)
-            .medResultatType(PeriodeResultatType.INNVILGET, PeriodeResultatÅrsak.UKJENT)
-            .medPeriodeSoknad(periodeSøknad)
-            .build();
-        var periodeAktivitet = new UttakResultatPeriodeAktivitetEntitet.Builder(periode, uttakAktivitet)
-            .medTrekkonto(UttakPeriodeType.FORELDREPENGER)
-            .medErSøktGradering(false)
-            .medArbeidsprosent(BigDecimal.ZERO)
-            .medUtbetalingsgrad(new Utbetalingsgrad(55))
-            .build();
-        periode.leggTilAktivitet(periodeAktivitet);
-        perioder.leggTilPeriode(periode);
-
-
-        var behandling = morBehandlingMedUttak(perioder);
-
-        var result = tjeneste().mapFra(behandling);
-        assertThat(result.perioderSøker().stream().anyMatch(UttakResultatPeriodeDto::getErUtbetalingRedusertTilMorsStillingsprosent)).isTrue();
-    }
-    @Test
-    void skal_sette_erUtbetalingRedusertTilMorsStillingsprosent_til_false_når_utbetalingen_erRedusert_men_innvilget_gradering() {
-        var perioder = new UttakResultatPerioderEntitet();
-        var periodeType = UttakPeriodeType.FORELDREPENGER;
-        var mottattDato = LocalDate.now();
-        var internArbeidsforholdId = InternArbeidsforholdRef.nyRef();
-        var arbeidsgiver = Arbeidsgiver.virksomhet(orgnr);
-        var uttakAktivitet = new UttakAktivitetEntitet.Builder()
-            .medArbeidsforhold(arbeidsgiver, internArbeidsforholdId)
-            .medUttakArbeidType(UttakArbeidType.ORDINÆRT_ARBEID)
-            .build();
-        var periodeSøknad = new UttakResultatPeriodeSøknadEntitet.Builder()
-            .medUttakPeriodeType(periodeType)
-            .medMorsAktivitet(MorsAktivitet.ARBEID)
-            .medDokumentasjonVurdering(new DokumentasjonVurdering(DokumentasjonVurdering.Type.MORS_AKTIVITET_GODKJENT, new MorsStillingsprosent(BigDecimal.valueOf(40))))
-            .medMottattDato(mottattDato)
-            .build();
-        var periode = periodeBuilder(LocalDate.now(), LocalDate.now().plusWeeks(2))
-            .medGraderingInnvilget(true)
-            .medSamtidigUttak(false)
-            .medResultatType(PeriodeResultatType.INNVILGET, PeriodeResultatÅrsak.UKJENT)
-            .medPeriodeSoknad(periodeSøknad)
-            .build();
-        var periodeAktivitet = new UttakResultatPeriodeAktivitetEntitet.Builder(periode, uttakAktivitet)
-            .medTrekkonto(UttakPeriodeType.FORELDREPENGER)
-            .medErSøktGradering(true)
-            .medArbeidsprosent(BigDecimal.valueOf(60))
-            .medUtbetalingsgrad(new Utbetalingsgrad(40))
-            .build();
-        periode.leggTilAktivitet(periodeAktivitet);
-        perioder.leggTilPeriode(periode);
-
-        var behandling = morBehandlingMedUttak(perioder);
-
-        var result = tjeneste().mapFra(behandling);
-        assertThat(result.perioderSøker().stream().anyMatch(UttakResultatPeriodeDto::getErUtbetalingRedusertTilMorsStillingsprosent)).isFalse();
     }
 }

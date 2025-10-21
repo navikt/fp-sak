@@ -5,9 +5,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-
 import jakarta.validation.constraints.NotNull;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeType;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.OppholdÅrsak;
@@ -36,8 +36,6 @@ public class UttakResultatPeriodeDto {
     private UttakUtsettelseType utsettelseType;
     @NotNull private OppholdÅrsak oppholdÅrsak;
     private LocalDate mottattDato;
-    private LocalDate tidligstMottattDato; // brukes bare i formidling, ikke i front end
-    private boolean erUtbetalingRedusertTilMorsStillingsprosent; // brukes bare i formidling, ikke i front end
 
     private UttakResultatPeriodeDto() {
 
@@ -112,26 +110,8 @@ public class UttakResultatPeriodeDto {
         return oppholdÅrsak;
     }
 
-    @JsonProperty("periodeResultatÅrsakLovhjemmel")
-    public String getPeriodeResultatÅrsakLovhjemmel() {
-        return periodeResultatÅrsak == null ? null : periodeResultatÅrsak.getLovHjemmelData();
-    }
-
-    @JsonProperty("graderingsAvslagÅrsakLovhjemmel")
-    public String getGraderingsAvslagÅrsakLovhjemmel() {
-        return graderingAvslagÅrsak == null ? null : graderingAvslagÅrsak.getLovHjemmelData();
-    }
-
     public LocalDate getMottattDato() {
         return mottattDato;
-    }
-
-    public LocalDate getTidligstMottattDato() {
-        return tidligstMottattDato;
-    }
-
-    public boolean getErUtbetalingRedusertTilMorsStillingsprosent() {
-        return erUtbetalingRedusertTilMorsStillingsprosent;
     }
 
     public static class Builder {
@@ -206,16 +186,6 @@ public class UttakResultatPeriodeDto {
 
         public Builder medMottattDato(LocalDate mottattDato) {
             kladd.mottattDato = mottattDato;
-            return this;
-        }
-
-        public Builder medTidligstMottattDato(LocalDate tidligstMottattDato) {
-            kladd.tidligstMottattDato = tidligstMottattDato;
-            return this;
-        }
-
-        public Builder medErUtbetalingRedusertTilMorsStillingsprosent(boolean erUtbetalingRedusertTilMorsStillingsprosent) {
-            kladd.erUtbetalingRedusertTilMorsStillingsprosent = erUtbetalingRedusertTilMorsStillingsprosent;
             return this;
         }
 
