@@ -21,7 +21,7 @@ public record OmsorgsovertakelseDto(@NotNull Omsorgsovertakelse søknad,
     public record SaksbehandlerVurdering(@NotNull VilkårUtfallType vilkårUtfallType, Avslagsårsak avslagsårsak) {
     }
 
-    public record BarnHendelseData(@NotNull LocalDate fødselsdato, LocalDate dødsdato, Integer barnNummer) {
+    public record BarnHendelseData(@NotNull LocalDate fødselsdato, LocalDate dødsdato, @NotNull Integer barnNummer) {
     }
 
     public record Omsorgsovertakelse(@NotNull List<BarnHendelseData> barn, LocalDate omsorgsovertakelseDato, @NotNull int antallBarn,

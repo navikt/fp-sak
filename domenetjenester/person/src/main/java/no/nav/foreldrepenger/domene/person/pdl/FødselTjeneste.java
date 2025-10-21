@@ -3,6 +3,7 @@ package no.nav.foreldrepenger.domene.person.pdl;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 
@@ -34,6 +35,9 @@ import no.nav.vedtak.felles.integrasjon.person.PersonMappers;
 
 @ApplicationScoped
 public class FødselTjeneste {
+
+    private static final Comparator<FødtBarnInfo> FØDTBARNINFO_COMPARATOR = Comparator.comparing(FødtBarnInfo::fødselsdato, Comparator.naturalOrder())
+        .thenComparing(FødtBarnInfo::dødsdato, Comparator.nullsFirst(Comparator.naturalOrder()));
 
     private static final Logger LOG = LoggerFactory.getLogger(FødselTjeneste.class);
 
@@ -74,6 +78,7 @@ public class FødselTjeneste {
 
         return alleBarn.stream()
                 .filter(fBI -> intervaller.stream().anyMatch(i -> i.encloses(fBI.fødselsdato())))
+                .sorted(FØDTBARNINFO_COMPARATOR)
                 .toList();
     }
 

@@ -18,6 +18,7 @@ import no.nav.foreldrepenger.behandling.aksjonspunkt.OppdateringResultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseGrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.TerminbekreftelseEntitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.UidentifisertBarn;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagLinjeBuilder;
@@ -31,6 +32,10 @@ import no.nav.vedtak.exception.FunksjonellException;
 
 @ApplicationScoped
 public class FaktaFødselTjeneste {
+
+    private static final Comparator<DokumentertBarnDto> DOKBARN_COMPARATOR = Comparator.comparing(DokumentertBarnDto::fødselsdato, Comparator.naturalOrder())
+        .thenComparing(DokumentertBarnDto::dødsdato, Comparator.nullsFirst(Comparator.naturalOrder()));
+
     private FamilieHendelseTjeneste familieHendelseTjeneste;
     private OpplysningsPeriodeTjeneste opplysningsPeriodeTjeneste;
     private HistorikkinnslagRepository historikkinnslagRepository;
@@ -84,7 +89,7 @@ public class FaktaFødselTjeneste {
 
         if (barna.isPresent()) {
             oppdatere.medFødselType().tilbakestillBarn().medAntallBarn(barna.get().size());
-            barna.get().forEach(b -> oppdatere.leggTilBarn(b.fødselsdato(), b.dødsdato()));
+            barna.get().stream().sorted(DOKBARN_COMPARATOR).forEach(b -> oppdatere.leggTilBarn(b.fødselsdato(), b.dødsdato()));
         } else {
             resetBarna(familieHendelse, oppdatere);
         }
@@ -124,8 +129,8 @@ public class FaktaFødselTjeneste {
         historikkinnslag.addLinje(new HistorikkinnslagLinjeBuilder().bold("Er barnet født?").tekst(format(barna.isPresent())));
 
         if (barna.isPresent()) {
-            var oppdatertFødselStatus = barna.get().stream().map(FødselStatus::new).toList();
-            var gjeldendeFødselStatus = fh.getGjeldendeBarna().stream().map(FødselStatus::new).toList();
+            var oppdatertFødselStatus = barna.get().stream().map(FødselStatus::new).sorted(UidentifisertBarn.FØDSEL_COMPARATOR).toList();
+            var gjeldendeFødselStatus = fh.getGjeldendeBarna().stream().map(FødselStatus::new).sorted(UidentifisertBarn.FØDSEL_COMPARATOR).toList();
 
             addLinjeForAntallBarn(fh, oppdatertFødselStatus, historikkinnslag);
 

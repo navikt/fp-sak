@@ -1,6 +1,7 @@
 package no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse;
 
 import java.time.LocalDate;
+import java.util.Comparator;
 import java.util.Optional;
 
 /**
@@ -9,9 +10,16 @@ import java.util.Optional;
  */
 public interface UidentifisertBarn {
 
+    Comparator<UidentifisertBarn> FØDSEL_COMPARATOR = Comparator.comparing(UidentifisertBarn::getFødselsdato, Comparator.naturalOrder())
+            .thenComparing(UidentifisertBarn::getDødsdatoNullable, Comparator.nullsFirst(Comparator.naturalOrder()));
+
     LocalDate getFødselsdato();
 
     Optional<LocalDate> getDødsdato();
+
+    default LocalDate getDødsdatoNullable() {
+        return getDødsdato().orElse(null);
+    }
 
     Integer getBarnNummer();
 

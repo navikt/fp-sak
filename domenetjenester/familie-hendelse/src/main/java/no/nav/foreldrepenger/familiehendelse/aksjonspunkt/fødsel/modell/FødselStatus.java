@@ -74,8 +74,6 @@ public class FødselStatus implements UidentifisertBarn, Comparable<FødselStatu
 
     @Override
     public int compareTo(FødselStatus other) {
-        return Comparator.comparing((FødselStatus p) -> p.fødselsdato)
-            .thenComparing(p -> p.dødsdato, Comparator.nullsLast(Comparator.naturalOrder()))
-            .compare(this, other);
+        return UidentifisertBarn.FØDSEL_COMPARATOR.compare(this, other);
     }
 }

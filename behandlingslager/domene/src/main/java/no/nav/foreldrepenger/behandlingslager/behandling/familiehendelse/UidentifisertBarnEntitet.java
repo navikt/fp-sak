@@ -46,9 +46,8 @@ public class UidentifisertBarnEntitet extends BaseEntitet implements Uidentifise
 
     /**
      * Bruker ikke builder pattern siden få felter.
-     * Denne constructor får være public.
      */
-    public UidentifisertBarnEntitet(LocalDate fødselsdato) {
+    private UidentifisertBarnEntitet(LocalDate fødselsdato) {
         this.fødselsdato = fødselsdato;
     }
 
