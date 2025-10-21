@@ -75,8 +75,7 @@ public class VurdereYtelseSammeBarnSøkerOppdaterer implements AksjonspunktOppda
         var relevanteVilkårTyper = Set.of(
             VilkårType.FØDSELSVILKÅRET_MOR,
             VilkårType.FØDSELSVILKÅRET_FAR_MEDMOR,
-            VilkårType.ADOPSJONSVILKÅRET_ENGANGSSTØNAD,
-            VilkårType.OMSORGSOVERTAKELSEVILKÅR
+            VilkårType.ADOPSJONSVILKÅRET_ENGANGSSTØNAD
         );
         return behandlingsresultat.getVilkårResultat().getVilkårene().stream()
             .filter(v -> relevanteVilkårTyper.contains(v.getVilkårType()))
