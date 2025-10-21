@@ -85,7 +85,7 @@ public class VurderOmsorgsovertakelseVilkårAksjonspunktOppdaterer implements Ak
 
     @Override
     public OppdateringResultat oppdater(VurderOmsorgsovertakelseVilkårAksjonspunktDto dto, AksjonspunktOppdaterParameter param) {
-        if (dto.getFødselsdatoer().isEmpty() && dto.getAvslagskode() == null) {
+        if (dto.getBarn().isEmpty() && dto.getAvslagskode() == null) {
             throw new FunksjonellException("FP-765324", "Vilkår oppfylt uten barn", "Du må velge minst ett barn eller avslå.");
         }
         var delvilkår = dto.getDelvilkår();
@@ -101,7 +101,7 @@ public class VurderOmsorgsovertakelseVilkårAksjonspunktOppdaterer implements Ak
         if (avslagskode != null && !delvilkår.getAvslagsårsaker().contains(avslagskode)) {
             throw new IllegalArgumentException("Ugyldig avslagsårsak for omsorgsovertakelsesvilkåret");
         }
-        var fødselsdatoer = dto.getFødselsdatoer().stream()
+        var fødselsdatoer = dto.getBarn().stream()
             .collect(Collectors.groupingBy(OmsorgsovertakelseBarnDto::barnNummer, Collectors.toList()));
         if (fødselsdatoer.values().stream().anyMatch(l -> l.size() > 1)) {
             throw new IllegalArgumentException("Duplikate barnNummer i fødselsdatoer for omsorgsovertakelsesvilkåret");
@@ -145,7 +145,7 @@ public class VurderOmsorgsovertakelseVilkårAksjonspunktOppdaterer implements Ak
                                                    VurderOmsorgsovertakelseVilkårAksjonspunktDto dto) {
         var utfall = avslagsårsak == null ? VilkårUtfallType.OPPFYLT : VilkårUtfallType.IKKE_OPPFYLT;
         var omsorgsovertakelsedato = dto.getOmsorgsovertakelseDato();
-        var fødselsdatoer = dto.getFødselsdatoer().stream()
+        var fødselsdatoer = dto.getBarn().stream()
             .collect(Collectors.toMap(OmsorgsovertakelseBarnDto::barnNummer, OmsorgsovertakelseBarnDto::fødselsdato));
         var ektefellesBarn = Objects.equals(dto.getEktefellesBarn(), Boolean.TRUE) || OmsorgsovertakelseVilkårType.FP_STEBARNSADOPSJONSVILKÅRET.equals(dto.getDelvilkår());
 
@@ -160,7 +160,7 @@ public class VurderOmsorgsovertakelseVilkårAksjonspunktOppdaterer implements Ak
 
         var oppdatertOverstyrtHendelse = familieHendelseTjeneste.opprettBuilderForOverstyring(ref.behandlingId());
         oppdatertOverstyrtHendelse.tilbakestillBarn()
-            .medAntallBarn(dto.getFødselsdatoer().size())
+            .medAntallBarn(dto.getBarn().size())
             .medAdopsjon(oppdatertOverstyrtHendelse.getAdopsjonBuilder()
                 .medOmsorgsovertakelseDato(omsorgsovertakelsedato)
                 .medOmsorgovertalseVilkårType(delvilkår)
