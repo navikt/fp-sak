@@ -1,15 +1,17 @@
 package no.nav.foreldrepenger.web.server.jetty;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+
+import java.nio.file.Path;
+
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-
 class VaultUtilTest {
 
-    protected static final String TEST_RESOURCES_PATH = "src/test/resources";
+    protected static final String TEST_RESOURCES_PATH = Path.of("src/test/resources").toString();
 
     @BeforeEach
     void setUp() {
@@ -33,6 +35,6 @@ class VaultUtilTest {
         var filNavn = "user";
 
         var message = assertThrows(IllegalStateException.class, () -> VaultUtil.lesFilVerdi(mappeNavn, filNavn));
-        assertThat(message.getMessage()).startsWith("Mangler vault konfig for %s/%s/%s".formatted(TEST_RESOURCES_PATH, mappeNavn, filNavn));
+        assertThat(message.getMessage()).startsWith("Mangler vault konfig for " + Path.of("%s/%s/%s".formatted(TEST_RESOURCES_PATH, mappeNavn, filNavn)));
     }
 }

@@ -10,22 +10,16 @@ import jakarta.persistence.Converter;
 import com.fasterxml.jackson.annotation.JsonValue;
 
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
-import no.nav.foreldrepenger.behandlingslager.kodeverk.ÅrsakskodeMedLovreferanse;
 
-public enum KlageAvvistÅrsak implements Kodeverdi, ÅrsakskodeMedLovreferanse {
+public enum KlageAvvistÅrsak implements Kodeverdi {
 
-    KLAGET_FOR_SENT("KLAGET_FOR_SENT", "Bruker har klaget for sent",
-            "{\"klageAvvistAarsak\":{\"NFP\": {\"lovreferanser\": [\"31\", \"33\"]},\"KA\": {\"lovreferanser\": [\"31\", \"34\"]}}}"),
-    KLAGE_UGYLDIG("KLAGE_UGYLDIG", "Klagen er ugyldig", null),
-    IKKE_PAKLAGD_VEDTAK("IKKE_PAKLAGD_VEDTAK", "Ikke påklagd et vedtak",
-            "{\"klageAvvistAarsak\":{\"NFP\": {\"lovreferanser\": [\"28\", \"33\"]},\"KA\": {\"lovreferanser\": [\"28\", \"34\"]}}}"),
-    KLAGER_IKKE_PART("KLAGER_IKKE_PART", "Klager er ikke part",
-            "{\"klageAvvistAarsak\":{\"NFP\": {\"lovreferanser\": [\"28\", \"33\"]},\"KA\": {\"lovreferanser\": [\"28\", \"34\"]}}}"),
-    IKKE_KONKRET("IKKE_KONKRET", "Klagen er ikke konkret",
-            "{\"klageAvvistAarsak\":{\"NFP\": {\"lovreferanser\": [\"32\", \"33\"]},\"KA\": {\"lovreferanser\": [\"32\", \"34\"]}}}"),
-    IKKE_SIGNERT("IKKE_SIGNERT", "Klagen er ikke signert",
-            "{\"klageAvvistAarsak\":{\"NFP\": {\"lovreferanser\": [\"32\", \"33\"]},\"KA\": {\"lovreferanser\": [\"31\", \"34\"]}}}"),
-    UDEFINERT("-", "Ikke definert", null),
+    KLAGET_FOR_SENT("KLAGET_FOR_SENT", "Bruker har klaget for sent"),
+    KLAGE_UGYLDIG("KLAGE_UGYLDIG", "Klagen er ugyldig"),
+    IKKE_PAKLAGD_VEDTAK("IKKE_PAKLAGD_VEDTAK", "Ikke påklagd et vedtak"),
+    KLAGER_IKKE_PART("KLAGER_IKKE_PART", "Klager er ikke part"),
+    IKKE_KONKRET("IKKE_KONKRET", "Klagen er ikke konkret"),
+    IKKE_SIGNERT("IKKE_SIGNERT", "Klagen er ikke signert"),
+    UDEFINERT("-", "Ikke definert"),
     ;
 
     private static final Map<String, KlageAvvistÅrsak> KODER = new LinkedHashMap<>();
@@ -46,12 +40,9 @@ public enum KlageAvvistÅrsak implements Kodeverdi, ÅrsakskodeMedLovreferanse {
     @JsonValue
     private final String kode;
 
-    private final String lovHjemmel;
-
-    KlageAvvistÅrsak(String kode, String navn, String lovHjemmel) {
+    KlageAvvistÅrsak(String kode, String navn) {
         this.kode = kode;
         this.navn = navn;
-        this.lovHjemmel = lovHjemmel;
     }
 
     public static Map<String, KlageAvvistÅrsak> kodeMap() {
@@ -71,11 +62,6 @@ public enum KlageAvvistÅrsak implements Kodeverdi, ÅrsakskodeMedLovreferanse {
     @Override
     public String getKode() {
         return kode;
-    }
-
-    @Override
-    public String getLovHjemmelData() {
-        return lovHjemmel;
     }
 
     @Converter(autoApply = true)

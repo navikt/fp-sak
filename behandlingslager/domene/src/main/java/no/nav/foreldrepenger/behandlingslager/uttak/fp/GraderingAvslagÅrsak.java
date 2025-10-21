@@ -10,9 +10,10 @@ import jakarta.persistence.Converter;
 import com.fasterxml.jackson.annotation.JsonValue;
 
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
-import no.nav.foreldrepenger.behandlingslager.kodeverk.ÅrsakskodeMedLovreferanse;
 
-public enum GraderingAvslagÅrsak implements Kodeverdi, ÅrsakskodeMedLovreferanse {
+public enum GraderingAvslagÅrsak implements Kodeverdi {
+
+    //MERK: Lovhjemler til brev hentes fra navn, se pattern i UttakHjemmelUtleder
 
     UKJENT("-", "Ikke definert", null),
     GRADERING_FØR_UKE_7("4504", "§14-16 andre ledd: Avslag gradering - gradering før uke 7", "{\"fagsakYtelseType\": {\"FP\": {\"lovreferanse\": \"14-16\"}}}"),
@@ -53,7 +54,6 @@ public enum GraderingAvslagÅrsak implements Kodeverdi, ÅrsakskodeMedLovreferan
         return Collections.unmodifiableMap(KODER);
     }
 
-    @Override
     public String getLovHjemmelData() {
         return lovHjemmelData;
     }
