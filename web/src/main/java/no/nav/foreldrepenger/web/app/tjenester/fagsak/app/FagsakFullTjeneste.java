@@ -12,6 +12,7 @@ import jakarta.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.FagsakRelasjonTjeneste;
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBruker;
 import no.nav.foreldrepenger.behandlingslager.aktør.PersoninfoBasis;
@@ -147,11 +148,13 @@ public class FagsakFullTjeneste {
             .flatMap(fr -> fr.getRelatertFagsak(fagsak))
             .map(Fagsak::getAktørId)
             .or(() -> finnYtelsesBehandling(fagsak.getId())
-                .flatMap(b -> personopplysningTjeneste.hentOppgittAnnenPartAktørId(b.getId())))
+                .map(BehandlingReferanse::fra)
+                .flatMap(personopplysningTjeneste::hentOppgittAnnenPartAktørId))
             .flatMap(a -> personinfoAdapter.hentBrukerBasisForAktør(fagsak.getYtelseType(), a))
             .map(FagsakFullTjeneste::mapFraPersoninfoBasisTilPersonDto)
             .or(() -> finnYtelsesBehandling(fagsak.getId())
-                .flatMap(b -> personopplysningTjeneste.hentOppgittAnnenPart(b.getId()))
+                .map(BehandlingReferanse::fra)
+                .flatMap(b -> personopplysningTjeneste.hentOppgittAnnenPart(b))
                 .filter(ap -> ap.getAktørId() == null && ap.getUtenlandskFnrLand() != null && !Landkoder.UDEFINERT.equals(ap.getUtenlandskFnrLand()))
                 .map(ap -> new PersonDto(null, null, null, null, null, null, null, null, null)));
     }

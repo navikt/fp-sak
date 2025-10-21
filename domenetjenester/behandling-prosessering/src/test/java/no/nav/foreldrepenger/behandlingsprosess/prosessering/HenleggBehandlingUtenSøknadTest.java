@@ -35,7 +35,7 @@ class HenleggBehandlingUtenSøknadTest extends EntityManagerAwareTest {
         var behandlingskontrollTjenesteImpl = new BehandlingskontrollTjenesteImpl(serviceProvider);
         var aksjonspunktKontrollTjenesteImpl = new AksjonspunktkontrollTjenesteImpl(serviceProvider);
         henleggBehandlingTjeneste = new HenleggBehandlingTjeneste(repositoryProvider, aksjonspunktKontrollTjenesteImpl,
-            behandlingskontrollTjenesteImpl, mock(BehandlingEventPubliserer.class));
+            behandlingskontrollTjenesteImpl, BehandlingEventPubliserer.NULL_EVENT_PUB);
     }
 
     @Test

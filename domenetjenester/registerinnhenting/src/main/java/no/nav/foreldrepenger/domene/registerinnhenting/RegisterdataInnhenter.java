@@ -36,8 +36,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapPerioderBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapPerioderEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.OppgittAnnenPartEntitet;
-import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonopplysningRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.pleiepenger.PleiepengerGrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.pleiepenger.PleiepengerInnleggelseEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.pleiepenger.PleiepengerPerioderEntitet;
@@ -50,6 +48,7 @@ import no.nav.foreldrepenger.domene.abakus.mapping.KodeverkMapper;
 import no.nav.foreldrepenger.domene.medlem.MedlemTjeneste;
 import no.nav.foreldrepenger.domene.medlem.medl2.Medlemskapsperiode;
 import no.nav.foreldrepenger.domene.personopplysning.PersonopplysningInnhenter;
+import no.nav.foreldrepenger.domene.personopplysning.PersonopplysningTjeneste;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.PersonIdent;
@@ -79,7 +78,7 @@ public class RegisterdataInnhenter {
 
     private PersonopplysningInnhenter personopplysningInnhenter;
     private MedlemTjeneste medlemTjeneste;
-    private PersonopplysningRepository personopplysningRepository;
+    private PersonopplysningTjeneste personopplysningTjeneste;
     private BehandlingRepository behandlingRepository;
     private FamilieHendelseTjeneste familieHendelseTjeneste;
     private MedlemskapRepository medlemskapRepository;
@@ -93,7 +92,8 @@ public class RegisterdataInnhenter {
     }
 
     @Inject
-    public RegisterdataInnhenter(PersonopplysningInnhenter personopplysningInnhenter,
+    public RegisterdataInnhenter(PersonopplysningTjeneste personopplysningTjeneste,
+                                 PersonopplysningInnhenter personopplysningInnhenter,
                                  MedlemTjeneste medlemTjeneste,
                                  BehandlingRepository behandlingRepository,
                                  BehandlingGrunnlagRepositoryProvider grunnlagRepositoryProvider,
@@ -104,7 +104,7 @@ public class RegisterdataInnhenter {
                                  StønadsperioderInnhenter stønadsperioderInnhenter) {
         this.personopplysningInnhenter = personopplysningInnhenter;
         this.medlemTjeneste = medlemTjeneste;
-        this.personopplysningRepository = grunnlagRepositoryProvider.getPersonopplysningRepository();
+        this.personopplysningTjeneste = personopplysningTjeneste;
         this.behandlingRepository = behandlingRepository;
         this.familieHendelseTjeneste = familieHendelseTjeneste;
         this.medlemskapRepository = medlemskapRepository;
@@ -114,49 +114,48 @@ public class RegisterdataInnhenter {
         this.stønadsperioderInnhenter = stønadsperioderInnhenter;
     }
 
-    private Optional<AktørId> finnAnnenPart(Long behandlingId) {
-        return personopplysningRepository.hentOppgittAnnenPartHvisEksisterer(behandlingId)
-            .map(OppgittAnnenPartEntitet::getAktørId);
+    private Optional<AktørId> finnAnnenPart(BehandlingReferanse ref) {
+        return personopplysningTjeneste.hentOppgittAnnenPartAktørId(ref);
     }
 
     public void innhentPersonopplysninger(Behandling behandling) {
-        var fødselsIntervall = familieHendelseTjeneste.forventetFødselsIntervaller(BehandlingReferanse.fra(behandling));
-        var rolleFiltrertFødselFREG = personopplysningInnhenter.innhentAlleFødteForIntervaller(behandling.getFagsakYtelseType(), behandling.getRelasjonsRolleType(), behandling.getAktørId(), fødselsIntervall);
-        var filtrertFødselFREG = personopplysningInnhenter.innhentAlleFødteForIntervaller(behandling.getFagsakYtelseType(), behandling.getAktørId(), fødselsIntervall);
+        var ref = BehandlingReferanse.fra(behandling);
+        var fødselsIntervall = familieHendelseTjeneste.forventetFødselsIntervaller(ref);
+        var rolleFiltrertFødselFREG = personopplysningInnhenter.innhentAlleFødteForIntervaller(ref.fagsakYtelseType(), ref.relasjonRolle(), ref.aktørId(), fødselsIntervall);
+        var filtrertFødselFREG = personopplysningInnhenter.innhentAlleFødteForIntervaller(ref.fagsakYtelseType(), ref.aktørId(), fødselsIntervall);
         if (rolleFiltrertFødselFREG.size() != filtrertFødselFREG.size()) {
             var funnetRoller = filtrertFødselFREG.stream().map(FødtBarnInfo::forelderRolle).collect(Collectors.toSet());
             LOG.info("Brukerrolle sak {} Innhent FamilieHendelse  saksrolle {} registerRolle {} barn/saksrolle {} barn/alle {} ",
-                behandling.getSaksnummer().getVerdi(), behandling.getRelasjonsRolleType(), funnetRoller, rolleFiltrertFødselFREG, filtrertFødselFREG);
+                ref.saksnummer().getVerdi(), ref.relasjonRolle(), funnetRoller, rolleFiltrertFødselFREG, filtrertFødselFREG);
         }
-        innhentPersoninformasjon(behandling, filtrertFødselFREG);
-        innhentFamiliehendelse(behandling.getId(), rolleFiltrertFødselFREG.isEmpty() ? filtrertFødselFREG : rolleFiltrertFødselFREG);
-        innhentPleiepenger(behandling, filtrertFødselFREG);
+        innhentPersoninformasjon(ref, filtrertFødselFREG);
+        innhentFamiliehendelse(ref, rolleFiltrertFødselFREG.isEmpty() ? filtrertFødselFREG : rolleFiltrertFødselFREG);
+        innhentPleiepenger(ref, filtrertFødselFREG);
         // Logikk avhengig av familiehendelse som bør være innhentet
         stønadsperioderInnhenter.innhentNesteSak(behandling);
     }
 
-    private void innhentPersoninformasjon(Behandling behandling, List<FødtBarnInfo> filtrertFødselFREG) {
-        var søker = behandling.getNavBruker().getAktørId();
-        var annenPart = finnAnnenPart(behandling.getId());
-        var opplysningsperioden = opplysningsPeriodeTjeneste.beregnTilOgMedIdag(behandling.getId(), behandling.getFagsakYtelseType());
+    private void innhentPersoninformasjon(BehandlingReferanse ref, List<FødtBarnInfo> filtrertFødselFREG) {
+        var annenPart = finnAnnenPart(ref);
+        var opplysningsperioden = opplysningsPeriodeTjeneste.beregnTilOgMedIdag(ref.behandlingId(), ref.fagsakYtelseType());
 
-        var informasjonBuilder = personopplysningRepository.opprettBuilderForRegisterdata(behandling.getId());
-        informasjonBuilder.tilbakestill(behandling.getAktørId(), annenPart);
-        personopplysningInnhenter.innhentPersonopplysninger(behandling.getFagsakYtelseType(), informasjonBuilder, søker, annenPart, opplysningsperioden, filtrertFødselFREG);
-        personopplysningRepository.lagre(behandling.getId(), informasjonBuilder);
+        var informasjonBuilder = personopplysningTjeneste.opprettBuilderForRegisterdata(ref);
+        informasjonBuilder.tilbakestill(ref.aktørId(), annenPart);
+        personopplysningInnhenter.innhentPersonopplysninger(ref.fagsakYtelseType(), informasjonBuilder, ref.aktørId(), annenPart, opplysningsperioden, filtrertFødselFREG);
+        personopplysningTjeneste.lagreRegisterdata(ref, informasjonBuilder);
     }
 
-    private void innhentFamiliehendelse(Long behandlingId, List<FødtBarnInfo> filtrertFødselFREG) {
-        familieHendelseTjeneste.oppdaterFødselPåGrunnlag(behandlingId, filtrertFødselFREG);
+    private void innhentFamiliehendelse(BehandlingReferanse ref, List<FødtBarnInfo> filtrertFødselFREG) {
+        familieHendelseTjeneste.oppdaterFødselPåGrunnlag(ref.behandlingId(), filtrertFødselFREG);
     }
 
-    private void innhentPleiepenger(Behandling behandling, List<FødtBarnInfo> filtrertFødselFREG) {
+    private void innhentPleiepenger(BehandlingReferanse ref, List<FødtBarnInfo> filtrertFødselFREG) {
         var bekreftetFødt = filtrertFødselFREG.stream().map(FødtBarnInfo::ident).filter(Objects::nonNull).collect(Collectors.toSet());
 
-        if (bekreftetFødt.isEmpty() || !FagsakYtelseType.FORELDREPENGER.equals(behandling.getFagsakYtelseType())) return;
+        if (bekreftetFødt.isEmpty() || !FagsakYtelseType.FORELDREPENGER.equals(ref.fagsakYtelseType())) return;
         var tidligstFødt = filtrertFødselFREG.stream().map(FødtBarnInfo::fødselsdato).min(Comparator.naturalOrder()).orElseGet(LocalDate::now);
 
-        var request = AbakusTjeneste.lagRequestForHentVedtakFom(behandling.getAktørId(), tidligstFødt.minusWeeks(25),
+        var request = AbakusTjeneste.lagRequestForHentVedtakFom(ref.aktørId(), tidligstFødt.minusWeeks(25),
             Set.of(Ytelser.PLEIEPENGER_SYKT_BARN));
 
         var potensielleVedtak = abakusTjeneste.hentVedtakForAktørId(request).stream()
@@ -166,13 +165,13 @@ public class RegisterdataInnhenter {
             .filter(y -> y.getTilleggsopplysninger() != null && !y.getTilleggsopplysninger().isBlank())
             .toList();
 
-        LOG.info("PSB innhent behandling {} tidligst født {} antall potensielle vedtak {}", behandling.getId(), tidligstFødt, potensielleVedtak.size());
+        LOG.info("PSB innhent behandling {} tidligst født {} antall potensielle vedtak {}", ref.behandlingId(), tidligstFødt, potensielleVedtak.size());
 
-        var aktivtGrunnlag = pleiepengerRepository.hentGrunnlag(behandling.getId());
-        var eventuellePleiepenger = mapTilPleiepengerGrunnlagData(behandling, aktivtGrunnlag, potensielleVedtak, bekreftetFødt);
+        var aktivtGrunnlag = pleiepengerRepository.hentGrunnlag(ref.behandlingId());
+        var eventuellePleiepenger = mapTilPleiepengerGrunnlagData(ref, aktivtGrunnlag, potensielleVedtak, bekreftetFødt);
         eventuellePleiepenger.ifPresent(pp -> {
-            LOG.info("PSB innhent behandling {} lagrer grunnlag", behandling.getId());
-            pleiepengerRepository.lagrePerioder(behandling.getId(), pp);
+            LOG.info("PSB innhent behandling {} lagrer grunnlag", ref.behandlingId());
+            pleiepengerRepository.lagrePerioder(ref.behandlingId(), pp);
         });
     }
 
@@ -241,13 +240,13 @@ public class RegisterdataInnhenter {
         return BehandlingType.FØRSTEGANGSSØKNAD.equals(behandlingType) ? FØRSTEGANGSSØKNAD_FP_SVP : REVURDERING_FP_SVP;
     }
 
-    private Optional<PleiepengerPerioderEntitet.Builder> mapTilPleiepengerGrunnlagData(Behandling behandling, Optional<PleiepengerGrunnlagEntitet> aktivtGrunnlag,
+    private Optional<PleiepengerPerioderEntitet.Builder> mapTilPleiepengerGrunnlagData(BehandlingReferanse ref, Optional<PleiepengerGrunnlagEntitet> aktivtGrunnlag,
                                                                                        List<YtelseV1> vedtakene, Set<PersonIdent> aktuelleBarn) {
         var ppBuilder = new PleiepengerPerioderEntitet.Builder();
         for (var vedtak : vedtakene) {
             var oversatt = PleipengerOversetter.oversettTilleggsopplysninger(vedtak.getTilleggsopplysninger());
             if (oversatt != null) LOG.info("PSB innhent behandling {} vedtak aktuelt barn {} med perioder {}",
-                behandling.getId(), gjelderAktuelleBarn(oversatt, aktuelleBarn), oversatt.innleggelsesPerioder());
+                ref.behandlingId(), gjelderAktuelleBarn(oversatt, aktuelleBarn), oversatt.innleggelsesPerioder());
             if (oversatt != null && oversatt.innleggelsesPerioder() != null && gjelderAktuelleBarn(oversatt, aktuelleBarn)) {
                 oversatt.innleggelsesPerioder().stream()
                     .filter(ip -> ip.tom() != null)
@@ -259,7 +258,7 @@ public class RegisterdataInnhenter {
             }
         }
         if (ppBuilder.harPerioder() || aktivtGrunnlag.flatMap(PleiepengerGrunnlagEntitet::getPerioderMedInnleggelse).isPresent()) {
-            LOG.info("PSB innhent behandling {} har perioder {}", behandling.getId(), ppBuilder.harPerioder());
+            LOG.info("PSB innhent behandling {} har perioder {}", ref.behandlingId(), ppBuilder.harPerioder());
             return Optional.of(ppBuilder);
         }
         return Optional.empty();

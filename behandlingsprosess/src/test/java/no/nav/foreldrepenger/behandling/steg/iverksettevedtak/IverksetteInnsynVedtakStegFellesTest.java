@@ -25,7 +25,7 @@ class IverksetteInnsynVedtakStegFellesTest {
         var scenario = innsynsScenario();
         var dokumentBestillerTjeneste = mock(DokumentBestillerTjeneste.class);
         var repositoryProvider = scenario.mockBehandlingRepositoryProvider();
-        var steg = new IverksetteInnsynVedtakStegFelles(dokumentBestillerTjeneste, repositoryProvider, mock(BehandlingEventPubliserer.class));
+        var steg = new IverksetteInnsynVedtakStegFelles(dokumentBestillerTjeneste, repositoryProvider, BehandlingEventPubliserer.NULL_EVENT_PUB);
         var behandling = scenario.getBehandling();
         var kontekst = new BehandlingskontrollKontekst(behandling,
             repositoryProvider.getBehandlingRepository().taSkriveLås(behandling));
@@ -40,7 +40,7 @@ class IverksetteInnsynVedtakStegFellesTest {
         var scenario = innsynsScenario();
         var dokumentBestillerTjeneste = mock(DokumentBestillerTjeneste.class);
         var repositoryProvider = scenario.mockBehandlingRepositoryProvider();
-        var steg = new IverksetteInnsynVedtakStegFelles(dokumentBestillerTjeneste, repositoryProvider, mock(BehandlingEventPubliserer.class));
+        var steg = new IverksetteInnsynVedtakStegFelles(dokumentBestillerTjeneste, repositoryProvider, BehandlingEventPubliserer.NULL_EVENT_PUB);
         var behandling = scenario.getBehandling();
         var kontekst = new BehandlingskontrollKontekst(behandling,
             repositoryProvider.getBehandlingRepository().taSkriveLås(behandling));
@@ -58,7 +58,7 @@ class IverksetteInnsynVedtakStegFellesTest {
         var scenario = innsynsScenario(begrunnelse);
         var dokumentBestillerTjeneste = mock(DokumentBestillerTjeneste.class);
         var repositoryProvider = scenario.mockBehandlingRepositoryProvider();
-        var steg = new IverksetteInnsynVedtakStegFelles(dokumentBestillerTjeneste, repositoryProvider, mock(BehandlingEventPubliserer.class));
+        var steg = new IverksetteInnsynVedtakStegFelles(dokumentBestillerTjeneste, repositoryProvider, BehandlingEventPubliserer.NULL_EVENT_PUB);
         var behandling = scenario.getBehandling();
         var kontekst = new BehandlingskontrollKontekst(behandling,
             repositoryProvider.getBehandlingRepository().taSkriveLås(behandling));

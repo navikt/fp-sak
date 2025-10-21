@@ -46,10 +46,9 @@ class BehandlingVedtakTjenesteTest extends EntityManagerAwareTest {
 
     @BeforeEach
     public void setUp() {
-        var behandlingVedtakEventPubliserer = mock(BehandlingEventPubliserer.class);
         var entityManager = getEntityManager();
         repositoryProvider = new BehandlingRepositoryProvider(entityManager);
-        behandlingVedtakTjeneste = new BehandlingVedtakTjeneste(behandlingVedtakEventPubliserer, repositoryProvider);
+        behandlingVedtakTjeneste = new BehandlingVedtakTjeneste(BehandlingEventPubliserer.NULL_EVENT_PUB, repositoryProvider);
         behandlingRepository = repositoryProvider.getBehandlingRepository();
         fpUttakRepository = repositoryProvider.getFpUttakRepository();
         behandlingVedtakRepository = repositoryProvider.getBehandlingVedtakRepository();

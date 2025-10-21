@@ -145,8 +145,8 @@ public class InntektArbeidYtelseRestTjeneste {
             return new IAYYtelseDto();
         }
         // finn annen part
-        var annenPartAktørId = getAnnenPart(behandling.getId());
         var ref = BehandlingReferanse.fra(behandling);
+        var annenPartAktørId = getAnnenPart(ref);
         return iayTjeneste.finnGrunnlag(behandling.getId())
             .map(iayg -> ytelseMapper.mapFra(ref, iayg, annenPartAktørId))
             .orElseGet(IAYYtelseDto::new);
@@ -163,8 +163,8 @@ public class InntektArbeidYtelseRestTjeneste {
         }
     }
 
-    private Optional<AktørId> getAnnenPart(Long behandlingId) {
-        return personopplysningTjeneste.hentOppgittAnnenPartAktørId(behandlingId);
+    private Optional<AktørId> getAnnenPart(BehandlingReferanse ref) {
+        return personopplysningTjeneste.hentOppgittAnnenPartAktørId(ref);
     }
 
     @GET

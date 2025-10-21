@@ -56,7 +56,7 @@ class VurderFagsystemTjenesteImplForAvlsluttetFagsakOgAvslåttBehandlingTest ext
     public void setUp() {
         behandlingRepository = new BehandlingRepository(getEntityManager());
         var mottatteDokumentRepository = new MottatteDokumentRepository(getEntityManager());
-        var mottattDokumentPersisterer = new MottattDokumentPersisterer(mock(BehandlingEventPubliserer.class));
+        var mottattDokumentPersisterer = new MottattDokumentPersisterer(BehandlingEventPubliserer.NULL_EVENT_PUB);
 
         behandlingRepositoryProvider = new BehandlingRepositoryProvider(getEntityManager());
         var mottatteDokumentTjeneste = new MottatteDokumentTjeneste(FRIST_INNSENDING_PERIODE,

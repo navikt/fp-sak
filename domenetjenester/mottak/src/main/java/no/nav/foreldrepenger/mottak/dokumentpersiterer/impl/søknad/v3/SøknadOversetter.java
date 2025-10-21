@@ -9,6 +9,7 @@ import jakarta.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.BehandlingRevurderingTjeneste;
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBrukerKjønn;
 import no.nav.foreldrepenger.behandlingslager.aktør.PersoninfoKjønn;
@@ -19,8 +20,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.Familie
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapAggregat;
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapOppgittTilknytningEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.OppgittAnnenPartBuilder;
-import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonopplysningRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingGrunnlagRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.ForeldreType;
@@ -37,6 +36,7 @@ import no.nav.foreldrepenger.behandlingslager.geografisk.Språkkode;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsgiver.VirksomhetTjeneste;
 import no.nav.foreldrepenger.domene.person.PersoninfoAdapter;
+import no.nav.foreldrepenger.domene.personopplysning.PersonopplysningTjeneste;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.mottak.dokumentpersiterer.MottattDokumentOversetter;
@@ -58,7 +58,7 @@ public class SøknadOversetter implements MottattDokumentOversetter<SøknadWrapp
     private static final Logger LOG = LoggerFactory.getLogger(SøknadOversetter.class);
 
     private VirksomhetTjeneste virksomhetTjeneste;
-    private PersonopplysningRepository personopplysningRepository;
+    private PersonopplysningTjeneste personopplysningTjeneste;
     private FamilieHendelseRepository familieHendelseRepository;
     private SøknadRepository søknadRepository;
     private MedlemskapRepository medlemskapRepository;
@@ -72,7 +72,8 @@ public class SøknadOversetter implements MottattDokumentOversetter<SøknadWrapp
     private AnnenPartOversetter annenPartOversetter;
 
     @Inject
-    public SøknadOversetter(FagsakRepository fagsakRepository,
+    public SøknadOversetter(PersonopplysningTjeneste personopplysningTjeneste,
+                            FagsakRepository fagsakRepository,
                             BehandlingRevurderingTjeneste behandlingRevurderingTjeneste,
                             BehandlingGrunnlagRepositoryProvider grunnlagRepositoryProvider,
                             VirksomhetTjeneste virksomhetTjeneste,
@@ -80,11 +81,12 @@ public class SøknadOversetter implements MottattDokumentOversetter<SøknadWrapp
                             PersoninfoAdapter personinfoAdapter,
                             SøknadDataFraTidligereVedtakTjeneste søknadDataFraTidligereVedtakTjeneste,
                             AnnenPartOversetter annenPartOversetter) {
+        this.personopplysningTjeneste = personopplysningTjeneste;
         this.iayTjeneste = iayTjeneste;
         this.familieHendelseRepository = grunnlagRepositoryProvider.getFamilieHendelseRepository();
         this.søknadRepository = grunnlagRepositoryProvider.getSøknadRepository();
         this.medlemskapRepository = grunnlagRepositoryProvider.getMedlemskapRepository();
-        this.personopplysningRepository = grunnlagRepositoryProvider.getPersonopplysningRepository();
+        this.personopplysningTjeneste = personopplysningTjeneste;
         this.ytelsesFordelingRepository = grunnlagRepositoryProvider.getYtelsesFordelingRepository();
         this.virksomhetTjeneste = virksomhetTjeneste;
         this.personinfoAdapter = personinfoAdapter;
@@ -109,33 +111,28 @@ public class SøknadOversetter implements MottattDokumentOversetter<SøknadWrapp
                 + DokumentTypeId.FORELDREPENGER_ENDRING_SØKNAD.getKode() + " samtidig. Fikk "
                 + mottattDokument.getDokumentType());
         }
-
+        var ref = BehandlingReferanse.fra(behandling);
         if (erEndring(mottattDokument)) {
-            persisterEndringssøknad(wrapper, mottattDokument, behandling, gjelderFra);
+            persisterEndringssøknad(wrapper, mottattDokument, behandling, ref, gjelderFra);
         } else {
-            persisterSøknad(wrapper, mottattDokument, behandling);
+            persisterSøknad(wrapper, mottattDokument, behandling, ref);
         }
     }
 
-    private SøknadEntitet.Builder kopierSøknad(Behandling behandling) {
+    private SøknadEntitet.Builder kopierSøknad(BehandlingReferanse ref) {
         SøknadEntitet.Builder søknadBuilder;
-        var originalBehandlingIdOpt = behandling.getOriginalBehandlingId();
+        var originalBehandlingIdOpt = ref.getOriginalBehandlingId();
         if (originalBehandlingIdOpt.isPresent()) {
-            var behandlingId = behandling.getId();
-            var originalBehandlingId = originalBehandlingIdOpt.get();
-            var originalSøknad = søknadRepository.hentSøknad(originalBehandlingId);
+            var originalSøknad = søknadRepository.hentSøknad(ref.originalBehandlingId());
             søknadBuilder = new SøknadEntitet.Builder(originalSøknad, false);
 
-            personopplysningRepository.hentOppgittAnnenPartHvisEksisterer(originalBehandlingId).ifPresent(oap -> {
-                var oppgittAnnenPartBuilder = new OppgittAnnenPartBuilder(oap);
-                personopplysningRepository.lagre(behandlingId, oppgittAnnenPartBuilder.build());
-            });
+            personopplysningTjeneste.kopierAnnenPartFraOriginalBehandling(ref);
 
-            var oppgittTilknytning = medlemskapRepository.hentMedlemskap(behandlingId)
+            var oppgittTilknytning = medlemskapRepository.hentMedlemskap(ref.behandlingId())
                 .flatMap(MedlemskapAggregat::getOppgittTilknytning)
                 .orElseThrow();
             var oppgittTilknytningBuilder = new MedlemskapOppgittTilknytningEntitet.Builder(oppgittTilknytning);
-            medlemskapRepository.lagreOppgittTilkytning(behandlingId, oppgittTilknytningBuilder.build());
+            medlemskapRepository.lagreOppgittTilkytning(ref.behandlingId(), oppgittTilknytningBuilder.build());
         } else {
             søknadBuilder = new SøknadEntitet.Builder();
         }
@@ -146,15 +143,16 @@ public class SøknadOversetter implements MottattDokumentOversetter<SøknadWrapp
     private void persisterEndringssøknad(SøknadWrapper wrapper,
                                          MottattDokument mottattDokument,
                                          Behandling behandling,
+                                         BehandlingReferanse ref,
                                          Optional<LocalDate> gjelderFra) {
         var mottattDato = mottattDokument.getMottattDato();
         var elektroniskSøknad = mottattDokument.getElektroniskRegistrert();
 
         //Kopier og oppdater søknadsfelter.
-        var søknadBuilder = kopierSøknad(behandling);
+        var søknadBuilder = kopierSøknad(ref);
         byggFelleselementerForSøknad(søknadBuilder, wrapper, elektroniskSøknad, mottattDato, gjelderFra);
         var henlagteBehandlingerEtterInnvilget = behandlingRevurderingTjeneste.finnHenlagteBehandlingerEtterSisteInnvilgedeIkkeHenlagteBehandling(
-            behandling.getFagsakId());
+            ref.fagsakId());
         if (!henlagteBehandlingerEtterInnvilget.isEmpty()) {
             søknadBuilder.medSøknadsdato(
                 søknadRepository.hentSøknad(henlagteBehandlingerEtterInnvilget.get(0).getId()).getSøknadsdato());
@@ -172,25 +170,24 @@ public class SøknadOversetter implements MottattDokumentOversetter<SøknadWrapp
 
     private void persisterSøknad(SøknadWrapper wrapper,
                                  MottattDokument mottattDokument,
-                                 Behandling behandling) {
+                                 Behandling behandling,
+                                 BehandlingReferanse ref) {
         var mottattDato = mottattDokument.getMottattDato();
         var elektroniskSøknad = mottattDokument.getElektroniskRegistrert();
         var søknadBuilder = new SøknadEntitet.Builder();
         byggFelleselementerForSøknad(søknadBuilder, wrapper, elektroniskSøknad, mottattDato, Optional.empty());
-        var behandlingId = behandling.getId();
-        var aktørId = behandling.getAktørId();
         if (wrapper.getOmYtelse() != null) {
-            new MedlemskapOversetter(medlemskapRepository).byggMedlemskap(wrapper, behandlingId, mottattDato);
+            new MedlemskapOversetter(medlemskapRepository).byggMedlemskap(wrapper, ref.behandlingId(), mottattDato);
         }
-        lagreAnnenPart(wrapper, behandling);
+        lagreAnnenPart(wrapper, ref);
         byggYtelsesSpesifikkeFelter(wrapper, behandling);
         new OpptjeningOversetter(virksomhetTjeneste, iayTjeneste).byggOpptjeningsspesifikkeFelter(wrapper, behandling);
         new FamilieHendelseOversetter(familieHendelseRepository).oversettPersisterFamilieHendelse(wrapper, behandling, søknadBuilder);
         søknadBuilder.medErEndringssøknad(false);
-        var relasjonsRolleType = utledRolle(behandling.getFagsakYtelseType(), wrapper.getBruker(), behandling.getSaksnummer(), aktørId);
+        var relasjonsRolleType = utledRolle(ref.fagsakYtelseType(), wrapper.getBruker(), ref.saksnummer(), ref.aktørId());
         var søknad = søknadBuilder.medRelasjonsRolleType(relasjonsRolleType).build();
         søknadRepository.lagreOgFlush(behandling, søknad);
-        fagsakRepository.oppdaterRelasjonsRolle(behandling.getFagsakId(), søknad.getRelasjonsRolleType());
+        fagsakRepository.oppdaterRelasjonsRolle(ref.fagsakId(), søknad.getRelasjonsRolleType());
     }
 
     private RelasjonsRolleType utledRolle(FagsakYtelseType ytelseType, Bruker bruker, Saksnummer saksnummer, AktørId aktørId) {
@@ -275,9 +272,9 @@ public class SøknadOversetter implements MottattDokumentOversetter<SøknadWrapp
 
     }
 
-    private void lagreAnnenPart(SøknadWrapper skjema, Behandling behandling) {
-        var oppgittAnnenPart = annenPartOversetter.oversett(skjema, behandling.getAktørId());
-        oppgittAnnenPart.ifPresent(ap -> personopplysningRepository.lagre(behandling.getId(), ap));
+    private void lagreAnnenPart(SøknadWrapper skjema, BehandlingReferanse ref) {
+        var oppgittAnnenPart = annenPartOversetter.oversett(skjema, ref.aktørId());
+        oppgittAnnenPart.ifPresent(ap -> personopplysningTjeneste.lagreOppgittAnnenPart(ref, ap));
     }
 
     static Landkoder finnLandkode(String landKode) {

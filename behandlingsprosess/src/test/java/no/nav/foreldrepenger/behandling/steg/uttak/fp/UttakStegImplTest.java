@@ -26,9 +26,9 @@ import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
+import no.nav.foreldrepenger.behandlingslager.behandling.beregning.AktivitetStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.nestesak.NesteSakRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonopplysningRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingLås;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingLåsRepository;
@@ -67,8 +67,8 @@ import no.nav.foreldrepenger.domene.modell.Beregningsgrunnlag;
 import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagGrunnlagBuilder;
 import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagPeriode;
 import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagPrStatusOgAndel;
-import no.nav.foreldrepenger.behandlingslager.behandling.beregning.AktivitetStatus;
 import no.nav.foreldrepenger.domene.modell.kodeverk.BeregningsgrunnlagTilstand;
+import no.nav.foreldrepenger.domene.personopplysning.PersonopplysningTjeneste;
 import no.nav.foreldrepenger.domene.prosess.BeregningTjenesteInMemory;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.typer.AktørId;
@@ -106,7 +106,7 @@ class UttakStegImplTest {
     @Inject
     private BehandlingRepository behandlingRepository;
     @Inject
-    private PersonopplysningRepository personopplysningRepository;
+    private PersonopplysningTjeneste personopplysningTjeneste;
     @Inject
     private NesteSakRepository nesteSakRepository;
     @Inject
@@ -442,11 +442,12 @@ class UttakStegImplTest {
     }
 
     private void opprettPersonopplysninger(Behandling behandling) {
-        var builder = personopplysningRepository.opprettBuilderForRegisterdata(behandling.getId());
+        var ref = BehandlingReferanse.fra(behandling);
+        var builder = personopplysningTjeneste.opprettBuilderForRegisterdata(ref);
         var personopplysningBuilder = builder.getPersonopplysningBuilder(behandling.getAktørId());
         personopplysningBuilder.medFødselsdato(LocalDate.now().minusYears(20));
         builder.leggTil(personopplysningBuilder);
-        personopplysningRepository.lagre(behandling.getId(), builder);
+        personopplysningTjeneste.lagreRegisterdata(ref, builder);
     }
 
     @Test

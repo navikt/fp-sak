@@ -303,7 +303,7 @@ public class LosBehandlingDtoTjeneste {
         if (!behandling.erYtelseBehandling()) {
             return false;
         }
-        var annenpart = personopplysningTjeneste.hentOppgittAnnenPart(behandling.getId());
+        var annenpart = personopplysningTjeneste.hentOppgittAnnenPart(BehandlingReferanse.fra(behandling));
         var annenpartBosattRAV = annenpart
             .filter(a -> a.getAktørId() == null)
             .map(OppgittAnnenPartEntitet::getUtenlandskFnrLand)

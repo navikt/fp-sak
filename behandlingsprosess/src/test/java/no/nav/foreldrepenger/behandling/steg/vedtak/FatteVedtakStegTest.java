@@ -141,9 +141,7 @@ class FatteVedtakStegTest {
                 behandlingsresultatXmlTjeneste, skjæringstidspunktTjeneste);
         var vedtakTjeneste = new VedtakTjeneste(null, repositoryProvider, mock(TotrinnTjeneste.class));
 
-        var behandlingVedtakEventPubliserer = mock(BehandlingEventPubliserer.class);
-
-        behandlingVedtakTjeneste = new BehandlingVedtakTjeneste(behandlingVedtakEventPubliserer, repositoryProvider);
+        behandlingVedtakTjeneste = new BehandlingVedtakTjeneste(BehandlingEventPubliserer.NULL_EVENT_PUB, repositoryProvider);
         var klageanke = new KlageAnkeVedtakTjeneste(klageRepository, mock(AnkeRepository.class));
         var fatteVedtakTjeneste = new FatteVedtakTjeneste(lagretVedtakRepository, klageanke, fpSakVedtakXmlTjeneste, vedtakTjeneste, totrinnTjeneste, behandlingVedtakTjeneste);
         var simuler = new SimulerInntrekkSjekkeTjeneste(null, null, null, null);

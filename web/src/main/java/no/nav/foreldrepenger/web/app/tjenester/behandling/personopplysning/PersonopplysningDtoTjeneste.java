@@ -6,6 +6,7 @@ import java.util.Optional;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
+import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBrukerKjønn;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.OppgittAnnenPartEntitet;
@@ -49,9 +50,8 @@ public class PersonopplysningDtoTjeneste {
         return annenPart != null && annenPart.getUtenlandskFnrLand() != null && !Landkoder.UDEFINERT.equals(annenPart.getUtenlandskFnrLand());
     }
 
-    public Optional<PersonoversiktDto> lagPersonversiktDto(Long behandlingId) {
-        var behandling = behandlingRepository.hentBehandling(behandlingId);
-        return personopplysningTjeneste.hentPersonopplysningerHvisEksisterer(behandlingId, behandling.getAktørId())
+    public Optional<PersonoversiktDto> lagPersonversiktDto(BehandlingReferanse ref) {
+        return personopplysningTjeneste.hentPersonopplysningerHvisEksisterer(ref)
             .filter(a -> a.getSøker() != null)
             .map(this::mapPersonoversikt);
     }

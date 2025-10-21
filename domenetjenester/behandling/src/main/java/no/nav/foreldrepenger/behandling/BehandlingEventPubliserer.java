@@ -9,6 +9,8 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingEvent;
 @ApplicationScoped
 public class BehandlingEventPubliserer {
 
+    public static final BehandlingEventPubliserer NULL_EVENT_PUB = new BehandlingEventPubliserer();
+
     private Event<BehandlingEvent> behandlingEvent;
 
     BehandlingEventPubliserer() {

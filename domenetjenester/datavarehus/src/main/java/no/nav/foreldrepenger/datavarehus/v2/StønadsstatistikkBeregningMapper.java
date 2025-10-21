@@ -8,7 +8,8 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
+import no.nav.foreldrepenger.behandling.BehandlingReferanse;
+import no.nav.foreldrepenger.behandlingslager.behandling.beregning.AktivitetStatus;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlag;
@@ -18,7 +19,6 @@ import no.nav.foreldrepenger.domene.modell.Beregningsgrunnlag;
 import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagAktivitetStatus;
 import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagPeriode;
 import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagPrStatusOgAndel;
-import no.nav.foreldrepenger.behandlingslager.behandling.beregning.AktivitetStatus;
 import no.nav.foreldrepenger.domene.modell.kodeverk.FaktaOmBeregningTilfelle;
 import no.nav.foreldrepenger.domene.modell.kodeverk.Hjemmel;
 
@@ -30,7 +30,7 @@ class StønadsstatistikkBeregningMapper {
     private StønadsstatistikkBeregningMapper() {
     }
 
-    static StønadsstatistikkVedtak.Beregning mapBeregning(Behandling behandling,
+    static StønadsstatistikkVedtak.Beregning mapBeregning(BehandlingReferanse ref,
                                                           Beregningsgrunnlag beregningsgrunnlag, InntektArbeidYtelseGrunnlag iaygrunnlag) {
         if (beregningsgrunnlag == null) {
             return null;
@@ -43,10 +43,10 @@ class StønadsstatistikkBeregningMapper {
             .findFirst()
             .orElseThrow();
         var grunnbeløp = beregningsgrunnlag.getGrunnbeløp().getVerdi();
-        var avkortet = FagsakYtelseType.FORELDREPENGER.equals(behandling.getFagsakYtelseType()) ? periodePåStp.getAvkortetPrÅr() :
+        var avkortet = FagsakYtelseType.FORELDREPENGER.equals(ref.fagsakYtelseType()) ? periodePåStp.getAvkortetPrÅr() :
             utledAvkortetÅrsbeløp(periodePåStp, grunnbeløp);
-        var redusert = FagsakYtelseType.FORELDREPENGER.equals(behandling.getFagsakYtelseType()) ? periodePåStp.getRedusertPrÅr() : avkortet;
-        var dagsats = FagsakYtelseType.FORELDREPENGER.equals(behandling.getFagsakYtelseType()) ? periodePåStp.getDagsats() : utledDagsats(avkortet);
+        var redusert = FagsakYtelseType.FORELDREPENGER.equals(ref.fagsakYtelseType()) ? periodePåStp.getRedusertPrÅr() : avkortet;
+        var dagsats = FagsakYtelseType.FORELDREPENGER.equals(ref.fagsakYtelseType()) ? periodePåStp.getDagsats() : utledDagsats(avkortet);
 
         var årsbeløp = new StønadsstatistikkVedtak.BeregningÅrsbeløp(periodePåStp.getBruttoPrÅr(), avkortet, redusert, dagsats);
 
@@ -54,7 +54,7 @@ class StønadsstatistikkBeregningMapper {
             .collect(Collectors.groupingBy(Gruppering::new))
             .entrySet().stream()
             .filter(e -> e.getValue().stream().anyMatch(b -> b.getBruttoPrÅr() != null || b.getAvkortetPrÅr() != null || b.getRedusertPrÅr() != null || b.getDagsats() != null))
-            .map(e -> mapAndeler(e.getKey(), e.getValue(), behandling.getFagsakYtelseType()))
+            .map(e -> mapAndeler(e.getKey(), e.getValue(), ref.fagsakYtelseType()))
             .toList();
 
         var næringOrgNr = Optional.ofNullable(iaygrunnlag)
@@ -69,7 +69,7 @@ class StønadsstatistikkBeregningMapper {
             .anyMatch(a -> a.getOverstyrtPrÅr() != null && a.getOverstyrtPrÅr().compareTo(BigDecimal.ZERO) > 0);
         var fastsatt = avviksvudert ? StønadsstatistikkVedtak.BeregningFastsatt.SKJØNN : StønadsstatistikkVedtak.BeregningFastsatt.AUTOMATISK;
 
-        var hjemmel = mapBeregningshjemmel(behandling.getFagsakYtelseType(), beregningsgrunnlag);
+        var hjemmel = mapBeregningshjemmel(ref.fagsakYtelseType(), beregningsgrunnlag);
 
         return new StønadsstatistikkVedtak.Beregning(grunnbeløp, årsbeløp, andeler, næringOrgNr, hjemmel, fastsatt);
     }
