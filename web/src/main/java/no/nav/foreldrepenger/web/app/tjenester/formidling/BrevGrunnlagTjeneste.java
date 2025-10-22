@@ -354,10 +354,11 @@ class BrevGrunnlagTjeneste {
     private static BrevGrunnlagDto.Foreldrepenger.Uttaksperiode map(ForeldrepengerUttakPeriode periode) {
         var periodeRsesultatType = mapPeriodeResultatType(periode.getResultatType());
         var aktiviteter = periode.getAktiviteter().stream().map(BrevGrunnlagTjeneste::map).toList();
+        var lovhjemler = UttakHjemmelUtleder.finnLovhjemler(periode);
         return new BrevGrunnlagDto.Foreldrepenger.Uttaksperiode(periode.getFom(), periode.getTom(), aktiviteter, periodeRsesultatType,
             periode.getResultatÅrsak().getKode(), periode.getGraderingAvslagÅrsak().getKode(), periode.getResultatÅrsak().getLovHjemmelData(),
             periode.getGraderingAvslagÅrsak().getLovHjemmelData(), periode.getTidligstMottatttDato(),
-            utledOmUtbetalingErRedusertTilMorsStillingsprosent(periode));
+            utledOmUtbetalingErRedusertTilMorsStillingsprosent(periode), lovhjemler);
     }
 
     private static boolean utledOmUtbetalingErRedusertTilMorsStillingsprosent(ForeldrepengerUttakPeriode periode) {

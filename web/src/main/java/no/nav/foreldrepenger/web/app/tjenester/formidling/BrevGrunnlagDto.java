@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 import no.nav.foreldrepenger.kontrakter.fpsak.beregningsgrunnlag.v2.BeregningsgrunnlagDto;
@@ -116,10 +117,11 @@ record BrevGrunnlagDto(UUID uuid, String saksnummer, FagsakYtelseType fagsakYtel
     record Foreldrepenger(Dekningsgrad dekningsgrad, Rettigheter rettigheter, List<Stønadskonto> stønadskontoer, int tapteDagerFpff,
                           List<Uttaksperiode> perioderSøker, List<Uttaksperiode> perioderAnnenpart, boolean ønskerJustertUttakVedFødsel,
                           LocalDate nyStartDatoVedUtsattOppstart) {
+
         record Uttaksperiode(LocalDate fom, LocalDate tom, List<Aktivitet> aktiviteter, PeriodeResultatType periodeResultatType,
                              String periodeResultatÅrsak, String graderingAvslagÅrsak, String periodeResultatÅrsakLovhjemmel,
                              String graderingsAvslagÅrsakLovhjemmel, LocalDate tidligstMottattDato,
-                             boolean erUtbetalingRedusertTilMorsStillingsprosent) {
+                             boolean erUtbetalingRedusertTilMorsStillingsprosent, Set<String> lovhjemler) {
         }
 
         record Aktivitet(TrekkontoType trekkontoType, BigDecimal trekkdager, BigDecimal prosentArbeid, String arbeidsgiverReferanse,

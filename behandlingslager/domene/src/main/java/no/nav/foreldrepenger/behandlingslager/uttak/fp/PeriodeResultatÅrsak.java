@@ -26,9 +26,10 @@ import com.fasterxml.jackson.annotation.JsonValue;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeType;
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
-import no.nav.foreldrepenger.behandlingslager.kodeverk.ÅrsakskodeMedLovreferanse;
 
-public enum PeriodeResultatÅrsak implements Kodeverdi, ÅrsakskodeMedLovreferanse {
+public enum PeriodeResultatÅrsak implements Kodeverdi {
+
+    //MERK: Lovhjemler til brev hentes fra navn, se pattern i UttakHjemmelUtleder
 
     UKJENT("-", "NN", "Ikke definert", null, null),
 
@@ -501,8 +502,6 @@ public enum PeriodeResultatÅrsak implements Kodeverdi, ÅrsakskodeMedLovreferan
         return kode;
     }
 
-    /** Returnerer p.t. Raw json. */
-    @Override
     public String getLovHjemmelData() {
         return lovHjemmel;
     }
