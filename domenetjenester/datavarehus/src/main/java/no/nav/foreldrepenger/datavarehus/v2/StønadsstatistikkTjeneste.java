@@ -192,7 +192,7 @@ public class StønadsstatistikkTjeneste {
             .medVedtaksresultat(mapVedtaksresultat(vedtak))
             .medVilkårIkkeOppfylt(utledVilkårIkkeOppfylt(vedtak, behandling))
             .medUtlandsTilsnitt(utledUtlandsTilsnitt(utlandMarkering))
-            .medAnnenForelder(utledAnnenForelder(behandling, familiehendelse))
+            .medAnnenForelder(utledAnnenForelder(behandlingReferanse, familiehendelse))
             .medFamilieHendelse(mapFamilieHendelse(behandlingReferanse, familiehendelse))
             .medUtbetalingsreferanse(String.valueOf(behandlingReferanse.behandlingId()))
             .medBehandlingId(behandlingId);
@@ -200,15 +200,15 @@ public class StønadsstatistikkTjeneste {
         if (FagsakYtelseType.FORELDREPENGER.equals(fagsak.getYtelseType())) {
             var rettigheter = utledRettigheter(behandling, familiehendelse, vedtakstidspunkt);
             rettigheter.ifPresent(f -> {
-                var foreldrepengerUttaksperioder = mapForeldrepengerUttaksperioder(behandling, f.rettighetType());
+                var foreldrepengerUttaksperioder = mapForeldrepengerUttaksperioder(behandlingReferanse, f.rettighetType());
                 builder.medUttakssperioder(foreldrepengerUttaksperioder).medForeldrepengerRettigheter(f);
             });
         }
         if (FagsakYtelseType.ENGANGSTØNAD.equals(fagsak.getYtelseType())) {
             builder.medEngangsstønadInnvilget(utledTilkjentEngangsstønad(behandlingId));
         } else {
-            var utbetalingssperioder = mapUtbetalingssperioder(behandling);
-            builder.medUtbetalingssperioder(utbetalingssperioder).medBeregning(utledBeregning(behandling));
+            var utbetalingssperioder = mapUtbetalingssperioder(behandlingReferanse);
+            builder.medUtbetalingssperioder(utbetalingssperioder).medBeregning(utledBeregning(behandlingReferanse));
         }
         return builder.build();
     }
@@ -238,29 +238,29 @@ public class StønadsstatistikkTjeneste {
         };
     }
 
-    private Beregning utledBeregning(Behandling behandling) {
-        if (FagsakYtelseType.ENGANGSTØNAD.equals(behandling.getFagsakYtelseType())) {
+    private Beregning utledBeregning(BehandlingReferanse ref) {
+        if (FagsakYtelseType.ENGANGSTØNAD.equals(ref.fagsakYtelseType())) {
             return null;
         }
-        var beregningsgrunnlag = beregningTjeneste.hent(BehandlingReferanse.fra(behandling)).flatMap(BeregningsgrunnlagGrunnlag::getBeregningsgrunnlag);
+        var beregningsgrunnlag = beregningTjeneste.hent(ref).flatMap(BeregningsgrunnlagGrunnlag::getBeregningsgrunnlag);
         if (beregningsgrunnlag.isEmpty()) {
             return null;
         }
-        var iayGrunnlag = inntektArbeidYtelseTjeneste.finnGrunnlag(behandling.getId()).orElse(null);
-        return StønadsstatistikkBeregningMapper.mapBeregning(behandling, beregningsgrunnlag.get(), iayGrunnlag);
+        var iayGrunnlag = inntektArbeidYtelseTjeneste.finnGrunnlag(ref.behandlingId()).orElse(null);
+        return StønadsstatistikkBeregningMapper.mapBeregning(ref, beregningsgrunnlag.get(), iayGrunnlag);
     }
 
     private Long utledTilkjentEngangsstønad(Long behandlingId) {
         return engangsstønadBeregningRepository.hentEngangsstønadBeregning(behandlingId).map(EngangsstønadBeregning::getBeregnetTilkjentYtelse).orElse(null);
     }
 
-    private List<StønadsstatistikkUtbetalingPeriode> mapUtbetalingssperioder(Behandling behandling) {
-        var perioder = beregningsresultatRepository.hentUtbetBeregningsresultat(behandling.getId())
+    private List<StønadsstatistikkUtbetalingPeriode> mapUtbetalingssperioder(BehandlingReferanse ref) {
+        var perioder = beregningsresultatRepository.hentUtbetBeregningsresultat(ref.behandlingId())
             .map(BeregningsresultatEntitet::getBeregningsresultatPerioder)
             .orElse(List.of());
 
-        if (FagsakYtelseType.SVANGERSKAPSPENGER.equals(behandling.getFagsakYtelseType()) && trengerSvpLegacyUtregning(perioder)) {
-            var uttak = svangerskapspengerUttakResultatRepository.hentHvisEksisterer(behandling.getId())
+        if (FagsakYtelseType.SVANGERSKAPSPENGER.equals(ref.fagsakYtelseType()) && trengerSvpLegacyUtregning(perioder)) {
+            var uttak = svangerskapspengerUttakResultatRepository.hentHvisEksisterer(ref.behandlingId())
                 .orElseThrow();
             return StønadsstatistikkUtbetalingSVPLegacyMapper.mapTilkjent(perioder, uttak);
         }
@@ -271,10 +271,10 @@ public class StønadsstatistikkTjeneste {
         return perioder.stream().anyMatch(periode -> SVP_ALLTID_100_PROSENT.isAfter(periode.getOpprettetTidspunkt()));
     }
 
-    private List<StønadsstatistikkUttakPeriode> mapForeldrepengerUttaksperioder(Behandling behandling, RettighetType rettighetType) {
-        var logContext = String.format("saksnummer %s behandling %s", behandling.getSaksnummer().getVerdi(), behandling.getUuid().toString());
-        return foreldrepengerUttakTjeneste.hentHvisEksisterer(behandling.getId())
-            .map(u -> StønadsstatistikkUttakPeriodeMapper.mapUttak(behandling.getRelasjonsRolleType(), rettighetType, u.getGjeldendePerioder(), logContext))
+    private List<StønadsstatistikkUttakPeriode> mapForeldrepengerUttaksperioder(BehandlingReferanse ref, RettighetType rettighetType) {
+        var logContext = String.format("saksnummer %s behandling %s", ref.saksnummer().getVerdi(), ref.behandlingUuid().toString());
+        return foreldrepengerUttakTjeneste.hentHvisEksisterer(ref.behandlingId())
+            .map(u -> StønadsstatistikkUttakPeriodeMapper.mapUttak(ref.relasjonRolle(), rettighetType, u.getGjeldendePerioder(), logContext))
             .orElse(List.of());
     }
 
@@ -318,15 +318,15 @@ public class StønadsstatistikkTjeneste {
             .toList();
     }
 
-    private AnnenForelder utledAnnenForelder(Behandling behandling, FamilieHendelseEntitet familiehendelse) {
-        var fagsakRelasjon = fagsakRelasjonTjeneste.finnRelasjonForHvisEksisterer(behandling.getFagsak());
-        return fagsakRelasjon.flatMap(fr -> fr.getRelatertFagsak(behandling.getFagsak()))
-            .or(() -> personopplysningTjeneste.hentOppgittAnnenPartAktørId(behandling.getId())
+    private AnnenForelder utledAnnenForelder(BehandlingReferanse ref, FamilieHendelseEntitet familiehendelse) {
+        var fagsakRelasjon = fagsakRelasjonTjeneste.finnRelasjonForHvisEksisterer(ref.fagsakId());
+        return fagsakRelasjon.flatMap(fr -> fr.getRelatertFagsakFraId(ref.fagsakId()))
+            .or(() -> personopplysningTjeneste.hentOppgittAnnenPartAktørId(ref)
                 .flatMap(apaid -> finnEngangsstønadSak(apaid, familiehendelse)))
             .map(relatert -> new AnnenForelder(mapAktørId(relatert.getAktørId()), mapSaksnummer(relatert.getSaksnummer()),
                 mapYtelseType(relatert.getYtelseType()), mapBrukerRolle(relatert.getRelasjonsRolleType())))
             // Vi har ikke annenpart med sak. Lag AnnenForelder med oppgitt aktør id, uten saksinfo
-            .orElseGet(() -> personopplysningTjeneste.hentOppgittAnnenPartAktørId(behandling.getId())
+            .orElseGet(() -> personopplysningTjeneste.hentOppgittAnnenPartAktørId(ref)
                 .map(a -> new AnnenForelder(mapAktørId(a), null, null, null))
                 .orElse(null));
     }

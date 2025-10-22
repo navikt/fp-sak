@@ -1,6 +1,7 @@
 package no.nav.foreldrepenger.familiehendelse.dødsfall;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
 
 import java.time.LocalDate;
 
@@ -10,6 +11,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
+import no.nav.foreldrepenger.behandling.BehandlingEventPubliserer;
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBrukerKjønn;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
@@ -20,6 +22,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.Relasj
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
 import no.nav.foreldrepenger.dbstoette.JpaExtension;
+import no.nav.foreldrepenger.domene.personopplysning.PersonopplysningTjeneste;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 
 @ExtendWith(JpaExtension.class)
@@ -29,14 +32,14 @@ class BarnBorteEndringIdentifisererTest {
 
     private BarnBorteEndringIdentifiserer endringIdentifiserer;
 
-    private PersonopplysningRepository personopplysningRepository;
+    private PersonopplysningTjeneste personopplysningTjeneste;
     private BehandlingRepositoryProvider repositoryProvider;
 
     @BeforeEach
     void setup(EntityManager em) {
         repositoryProvider = new BehandlingRepositoryProvider(em);
         endringIdentifiserer = new BarnBorteEndringIdentifiserer(repositoryProvider);
-        personopplysningRepository = new PersonopplysningRepository(em);
+        personopplysningTjeneste = new PersonopplysningTjeneste(new PersonopplysningRepository(em), BehandlingEventPubliserer.NULL_EVENT_PUB);
     }
 
     @Test
@@ -102,13 +105,14 @@ class BarnBorteEndringIdentifisererTest {
     }
 
     private void opprettPersonopplysningGrunnlag(Behandling behandling, boolean registrerMedBarn) {
-        var builder = personopplysningRepository.opprettBuilderForRegisterdata(behandling.getId());
+        var ref = BehandlingReferanse.fra(behandling);
+        var builder = personopplysningTjeneste.opprettBuilderForRegisterdata(ref);
         builder.leggTil(builder.getPersonopplysningBuilder(AKTØRID_SØKER).medFødselsdato(LocalDate.now().minusYears(30)));
         if (registrerMedBarn) {
             builder.leggTil(builder.getPersonopplysningBuilder(AKTØRID_BARN).medFødselsdato(LocalDate.now().minusMonths(1)));
             builder.leggTil(builder.getRelasjonBuilder(AKTØRID_SØKER, AKTØRID_BARN, RelasjonsRolleType.BARN));
         }
-        personopplysningRepository.lagre(behandling.getId(), builder);
+        personopplysningTjeneste.lagreRegisterdata(ref, builder);
     }
 
 }

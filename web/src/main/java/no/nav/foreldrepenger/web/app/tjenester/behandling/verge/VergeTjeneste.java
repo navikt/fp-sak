@@ -7,6 +7,7 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
 import no.nav.foreldrepenger.behandling.BehandlingEventPubliserer;
+import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingskontroll.AksjonspunktkontrollTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
@@ -27,7 +28,6 @@ import no.nav.foreldrepenger.domene.person.verge.VergeDtoTjeneste;
 import no.nav.foreldrepenger.domene.person.verge.dto.VergeBehandlingsmenyEnum;
 import no.nav.foreldrepenger.domene.person.verge.dto.VergeDto;
 import no.nav.foreldrepenger.domene.personopplysning.PersonopplysningTjeneste;
-import no.nav.foreldrepenger.domene.typer.AktørId;
 
 @ApplicationScoped
 public class VergeTjeneste {
@@ -86,13 +86,13 @@ public class VergeTjeneste {
     }
 
     public VergeBehandlingsmenyEnum utledBehandlingOperasjon(Behandling behandling) {
-        var behandlingId = behandling.getId();
-        var vergeAggregat = vergeRepository.hentAggregat(behandlingId);
+        var ref = BehandlingReferanse.fra(behandling);
+        var vergeAggregat = vergeRepository.hentAggregat(ref.behandlingId());
         var harRegistrertVerge = vergeAggregat.isPresent() && vergeAggregat.get().getVerge().isPresent();
         var harÅpentVergeAP = behandling.harÅpentAksjonspunktMedType(AksjonspunktDefinisjon.AVKLAR_VERGE);
         var iForeslåVedtakllerSenereSteg = !behandlingProsesseringTjeneste.erBehandlingFørSteg(behandling, BehandlingStegType.FORESLÅ_VEDTAK);
         var iFatteVedtakEllerSenereSteg = !behandlingProsesseringTjeneste.erBehandlingFørSteg(behandling, BehandlingStegType.FATTE_VEDTAK);
-        var under18År = erSøkerUnder18ar(behandlingId, behandling.getAktørId());
+        var under18År = erSøkerUnder18ar(ref);
 
         if (harRegistrertVerge && under18År && iForeslåVedtakllerSenereSteg || SpesialBehandling.erSpesialBehandling(behandling)
             || iFatteVedtakEllerSenereSteg || harÅpentVergeAP) {
@@ -119,8 +119,8 @@ public class VergeTjeneste {
         historikkinnslagRepository.lagre(historikkinnslag);
     }
 
-    private boolean erSøkerUnder18ar(Long behandlingId, AktørId aktørId) {
-        return personopplysningTjeneste.hentPersonopplysningerHvisEksisterer(behandlingId, aktørId)
+    private boolean erSøkerUnder18ar(BehandlingReferanse ref) {
+        return personopplysningTjeneste.hentPersonopplysningerHvisEksisterer(ref)
             .map(PersonopplysningerAggregat::getSøker)
             .map(PersonopplysningEntitet::getFødselsdato)
             .filter(d -> d.isAfter(LocalDate.now().minusYears(18)))

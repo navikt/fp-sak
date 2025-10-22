@@ -168,16 +168,7 @@ public class PersonopplysningRepository {
             build.getOppgittAnnenPart().ifPresent(oppgittAnnenPart -> entityManager.persist(oppgittAnnenPart));
 
             entityManager.persist(build);
-            try {
-                entityManager.flush();
-            } catch (Exception e) {
-                build.getRegisterVersjon().ifPresent(r -> r.getPersonopplysninger().forEach(p -> LOG.info("POFeil personopplysning fødsel {} død {}", p.getFødselsdato(), p.getDødsdato())));
-                build.getRegisterVersjon().ifPresent(r -> r.getStatsborgerskap().forEach(p -> LOG.info("POFeil statsborger fom {} tom {}", p.getPeriode().getFomDato(), p.getPeriode().getTomDato())));
-                build.getRegisterVersjon().ifPresent(r -> r.getPersonstatus().forEach(p -> LOG.info("POFeil pstatus fom {} tom {}", p.getPeriode().getFomDato(), p.getPeriode().getTomDato())));
-                build.getRegisterVersjon().ifPresent(r -> r.getOppholdstillatelser().forEach(p -> LOG.info("POFeil opphold fom {} tom {}", p.getPeriode().getFomDato(), p.getPeriode().getTomDato())));
-                build.getRegisterVersjon().ifPresent(r -> r.getAdresser().forEach(p -> LOG.info("POFeil adresse fom {} tom {}", p.getPeriode().getFomDato(), p.getPeriode().getTomDato())));
-                throw e;
-            }
+            entityManager.flush();
         }
     }
 

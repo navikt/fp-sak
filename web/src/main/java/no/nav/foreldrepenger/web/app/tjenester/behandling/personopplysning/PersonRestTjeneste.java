@@ -18,6 +18,7 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.aksjonspunkt.BehandlingsprosessTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.BehandlingAbacSuppliers;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.UuidDto;
@@ -71,7 +72,8 @@ public class PersonRestTjeneste {
         @NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
         var behandlingId = getBehandlingsId(uuidDto.getBehandlingUuid());
         var behandling = behandlingsprosessTjeneste.hentBehandling(behandlingId);
-        var personoversiktDto = personopplysningDtoTjeneste.lagPersonversiktDto(behandlingId);
+        var ref = BehandlingReferanse.fra(behandling);
+        var personoversiktDto = personopplysningDtoTjeneste.lagPersonversiktDto(ref);
         personoversiktDto.ifPresent(p -> personopplysningFnrFinder.oppdaterMedPersonIdent(behandling.getFagsakYtelseType(), p));
 
         return personoversiktDto.orElse(null);

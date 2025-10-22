@@ -44,7 +44,7 @@ class HåndterMottattDokumentTaskTest extends EntityManagerAwareTest {
     private HåndterMottattDokumentTask håndterMottattDokumentTask;
     private MottatteDokumentTjeneste mottatteDokumentTjeneste;
     private final MottattDokumentPersisterer mottattDokumentPersisterer =
-        new MottattDokumentPersisterer(mock(BehandlingEventPubliserer.class));
+        new MottattDokumentPersisterer(BehandlingEventPubliserer.NULL_EVENT_PUB);
     private FagsakRepository fagsakRepository;
     private BehandlingRepository behandlingRepository;
 

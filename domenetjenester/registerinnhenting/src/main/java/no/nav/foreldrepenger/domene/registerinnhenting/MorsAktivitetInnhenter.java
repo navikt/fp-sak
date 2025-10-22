@@ -283,7 +283,7 @@ public class MorsAktivitetInnhenter {
     private AktørId hentAnnenPartAktørId(BehandlingReferanse behandlingReferanse) {
         return relatertBehandlingTjeneste.hentAnnenPartsGjeldendeVedtattBehandling(behandlingReferanse.saksnummer())
             .map(Behandling::getAktørId)
-            .orElseGet(() -> personopplysningTjeneste.hentOppgittAnnenPartAktørId(behandlingReferanse.behandlingId()).orElse(null));
+            .orElseGet(() -> personopplysningTjeneste.hentOppgittAnnenPartAktørId(behandlingReferanse).orElse(null));
     }
 
     private record AktivitetskravPeriodeGrunnlag(BigDecimal sumStillingsprosent, Permisjon permisjon) {

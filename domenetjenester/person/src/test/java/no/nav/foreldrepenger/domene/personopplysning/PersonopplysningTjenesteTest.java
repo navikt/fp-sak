@@ -1,11 +1,13 @@
 package no.nav.foreldrepenger.domene.personopplysning;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
 
 import java.time.LocalDate;
 
 import org.junit.jupiter.api.Test;
 
+import no.nav.foreldrepenger.behandling.BehandlingEventPubliserer;
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingslager.aktør.PersonstatusType;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.SivilstandType;
@@ -33,7 +35,8 @@ class PersonopplysningTjenesteTest {
             .build();
 
         scenario.medRegisterOpplysninger(personInformasjon);
-        var personopplysningTjeneste = new PersonopplysningTjeneste(scenario.mockBehandlingRepositoryProvider().getPersonopplysningRepository());
+        var personopplysningTjeneste = new PersonopplysningTjeneste(scenario.mockBehandlingRepositoryProvider().getPersonopplysningRepository(),
+            BehandlingEventPubliserer.NULL_EVENT_PUB);
         var behandling = scenario.lagMocked();
 
         var ref = BehandlingReferanse.fra(behandling);

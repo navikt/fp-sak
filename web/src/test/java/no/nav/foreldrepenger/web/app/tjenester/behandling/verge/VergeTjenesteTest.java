@@ -116,7 +116,7 @@ class VergeTjenesteTest extends EntityManagerAwareTest {
             vergeRepository.lagreOgFlush(behandling.getId(), opprettVergeBuilder());
 
             var pa = opprettPersonopplysningAggregatForPersonUnder18(behandling.getAktørId());
-            when(personopplysningTjeneste.hentPersonopplysningerHvisEksisterer(any(), any())).thenReturn(Optional.of(pa));
+            when(personopplysningTjeneste.hentPersonopplysningerHvisEksisterer(any())).thenReturn(Optional.of(pa));
             when(behandlingProsesseringTjeneste.erBehandlingFørSteg(behandling, BehandlingStegType.FORESLÅ_VEDTAK)).thenReturn(false);
             when(behandlingProsesseringTjeneste.erBehandlingFørSteg(behandling, BehandlingStegType.FATTE_VEDTAK)).thenReturn(true);
 
@@ -133,7 +133,7 @@ class VergeTjenesteTest extends EntityManagerAwareTest {
             behandlingRepository.lagre(behandling, behandlingRepository.taSkriveLås(behandling));
 
             var pa = opprettPersonopplysningAggregatForPersonUnder18(behandling.getAktørId());
-            when(personopplysningTjeneste.hentPersonopplysningerHvisEksisterer(any(), any())).thenReturn(Optional.of(pa));
+            when(personopplysningTjeneste.hentPersonopplysningerHvisEksisterer(any())).thenReturn(Optional.of(pa));
             when(behandlingProsesseringTjeneste.erBehandlingFørSteg(behandling, BehandlingStegType.FORESLÅ_VEDTAK)).thenReturn(true);
             when(behandlingProsesseringTjeneste.erBehandlingFørSteg(behandling, BehandlingStegType.FATTE_VEDTAK)).thenReturn(true);
 

@@ -327,7 +327,7 @@ public class FpDtoTjeneste {
                 .stream()
                 .max(Comparator.comparing(Behandling::getOpprettetDato))
                 .orElseThrow());
-        return personopplysningTjeneste.hentOppgittAnnenPartAktørId(førstegangsbehandling.getId());
+        return personopplysningTjeneste.hentOppgittAnnenPartAktørId(BehandlingReferanse.fra(førstegangsbehandling));
     }
 
     private Set<FpSak.Vedtak> finnFpVedtak(Stream<BehandlingVedtak> vedtak) {

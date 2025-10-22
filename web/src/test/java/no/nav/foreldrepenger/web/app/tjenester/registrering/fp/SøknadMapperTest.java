@@ -24,6 +24,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.same;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -37,12 +38,15 @@ import java.util.Optional;
 
 import jakarta.persistence.EntityManager;
 
+import no.nav.foreldrepenger.domene.typer.Saksnummer;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import no.nav.foreldrepenger.behandling.BehandlingEventPubliserer;
 import no.nav.foreldrepenger.behandling.BehandlingRevurderingTjeneste;
 import no.nav.foreldrepenger.behandling.FagsakRelasjonTjeneste;
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBrukerKjønn;
@@ -67,6 +71,7 @@ import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlag;
 import no.nav.foreldrepenger.domene.iay.modell.OppgittOpptjening;
 import no.nav.foreldrepenger.domene.iay.modell.OppgittOpptjeningBuilder;
 import no.nav.foreldrepenger.domene.person.PersoninfoAdapter;
+import no.nav.foreldrepenger.domene.personopplysning.PersonopplysningTjeneste;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.ytelsefordeling.YtelseFordelingTjeneste;
 import no.nav.foreldrepenger.mottak.dokumentpersiterer.SøknadDataFraTidligereVedtakTjeneste;
@@ -84,6 +89,7 @@ import no.nav.vedtak.felles.xml.soeknad.uttak.v3.Gradering;
 @ExtendWith(JpaExtension.class)
 class SøknadMapperTest {
 
+    private static final Saksnummer SAKSNUMMER = new Saksnummer("123456789");
     private static final AktørId STD_KVINNE_AKTØR_ID = AktørId.dummy();
     @Mock
     private VirksomhetTjeneste virksomhetTjeneste;
@@ -389,9 +395,11 @@ class SøknadMapperTest {
         when(personinfoAdapter.hentBrukerKjønnForAktør(any(), any(AktørId.class))).thenReturn(Optional.of(kvinne));
         when(personinfoAdapter.hentAktørForFnr(any())).thenReturn(Optional.of(STD_KVINNE_AKTØR_ID));
         var soeknad = ytelseSøknadMapper.mapSøknad(dto, navBruker);
-        var oversetter = new SøknadOversetter(repositoryProvider.getFagsakRepository(), behandlingRevurderingTjeneste, grunnlagRepositoryProvider,
-            virksomhetTjeneste, iayTjeneste, personinfoAdapter, oppgittPeriodeMottattDato, new AnnenPartOversetter(personinfoAdapter));
-        var fagsak = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, navBruker);
+        var personopplysningTjeneste = new PersonopplysningTjeneste(repositoryProvider.getPersonopplysningRepository(), BehandlingEventPubliserer.NULL_EVENT_PUB);
+        var oversetter = new SøknadOversetter(personopplysningTjeneste, repositoryProvider.getFagsakRepository(), behandlingRevurderingTjeneste,
+            grunnlagRepositoryProvider, virksomhetTjeneste, iayTjeneste, personinfoAdapter, oppgittPeriodeMottattDato,
+            new AnnenPartOversetter(personinfoAdapter));
+        var fagsak = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, navBruker, SAKSNUMMER);
         var behandling = Behandling.forFørstegangssøknad(fagsak).build();
 
         repositoryProvider.getFagsakRepository().opprettNy(fagsak);
@@ -441,9 +449,11 @@ class SøknadMapperTest {
         when(personinfoAdapter.hentAktørForFnr(any())).thenReturn(Optional.of(STD_KVINNE_AKTØR_ID));
 
         var soeknad = ytelseSøknadMapper.mapSøknad(manuellRegistreringForeldrepengerDto, navBruker);
-        var oversetter = new SøknadOversetter(repositoryProvider.getFagsakRepository(), behandlingRevurderingTjeneste,
-            grunnlagRepositoryProvider, virksomhetTjeneste, iayTjeneste, personinfoAdapter, oppgittPeriodeMottattDato, new AnnenPartOversetter(personinfoAdapter));
-        var fagsak = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, navBruker);
+        var personopplysningTjeneste = new PersonopplysningTjeneste(repositoryProvider.getPersonopplysningRepository(), BehandlingEventPubliserer.NULL_EVENT_PUB);
+        var oversetter = new SøknadOversetter(personopplysningTjeneste, repositoryProvider.getFagsakRepository(), behandlingRevurderingTjeneste,
+            grunnlagRepositoryProvider, virksomhetTjeneste, iayTjeneste, personinfoAdapter, oppgittPeriodeMottattDato,
+            new AnnenPartOversetter(personinfoAdapter));
+        var fagsak = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, navBruker, SAKSNUMMER);
         var behandling = Behandling.forFørstegangssøknad(fagsak).build();
         repositoryProvider.getFagsakRepository().opprettNy(fagsak);
         var behandlingRepository = repositoryProvider.getBehandlingRepository();
@@ -561,7 +571,7 @@ class SøknadMapperTest {
             .build());
 
         var navBruker = opprettBruker();
-        var fagsak = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, navBruker);
+        var fagsak = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, navBruker, SAKSNUMMER);
         var behandling = Behandling.nyBehandlingFor(fagsak, BehandlingType.REVURDERING).build();
         repositoryProvider.getFagsakRepository().opprettNy(fagsak);
         var behandlingRepository = repositoryProvider.getBehandlingRepository();
@@ -579,8 +589,10 @@ class SøknadMapperTest {
         var mottattDokument = new MottattDokument.Builder().medMottattDato(LocalDate.now())
             .medFagsakId(behandling.getFagsakId())
             .medElektroniskRegistrert(true);
-        var oversetter = new SøknadOversetter(repositoryProvider.getFagsakRepository(), behandlingRevurderingTjeneste, grunnlagRepositoryProvider,
-            virksomhetTjeneste, iayTjeneste, personinfoAdapter, oppgittPeriodeMottattDato, new AnnenPartOversetter(personinfoAdapter));
+        var personopplysningTjeneste = new PersonopplysningTjeneste(repositoryProvider.getPersonopplysningRepository(), BehandlingEventPubliserer.NULL_EVENT_PUB);
+        var oversetter = new SøknadOversetter(personopplysningTjeneste, repositoryProvider.getFagsakRepository(), behandlingRevurderingTjeneste,
+            grunnlagRepositoryProvider, virksomhetTjeneste, iayTjeneste, personinfoAdapter, oppgittPeriodeMottattDato,
+            new AnnenPartOversetter(personinfoAdapter));
 
         oversetter.trekkUtDataOgPersister((SøknadWrapper) SøknadWrapper.tilXmlWrapper(soeknad), mottattDokument.build(), behandling,
             Optional.empty());
@@ -603,7 +615,7 @@ class SøknadMapperTest {
             .build());
 
         var navBruker = opprettBruker();
-        var fagsak = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, navBruker);
+        var fagsak = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, navBruker, SAKSNUMMER);
         var behandling = Behandling.nyBehandlingFor(fagsak, BehandlingType.REVURDERING).build();
         repositoryProvider.getFagsakRepository().opprettNy(fagsak);
         var behandlingRepository = repositoryProvider.getBehandlingRepository();
@@ -621,8 +633,10 @@ class SøknadMapperTest {
         var mottattDokument = new MottattDokument.Builder().medMottattDato(LocalDate.now())
             .medFagsakId(behandling.getFagsakId())
             .medElektroniskRegistrert(true);
-        var oversetter = new SøknadOversetter(repositoryProvider.getFagsakRepository(), behandlingRevurderingTjeneste, grunnlagRepositoryProvider,
-            virksomhetTjeneste, iayTjeneste, personinfoAdapter, oppgittPeriodeMottattDato, new AnnenPartOversetter(personinfoAdapter));
+        var personopplysningTjeneste = new PersonopplysningTjeneste(repositoryProvider.getPersonopplysningRepository(), BehandlingEventPubliserer.NULL_EVENT_PUB);
+        var oversetter = new SøknadOversetter(personopplysningTjeneste, repositoryProvider.getFagsakRepository(), behandlingRevurderingTjeneste,
+            grunnlagRepositoryProvider, virksomhetTjeneste, iayTjeneste, personinfoAdapter, oppgittPeriodeMottattDato,
+            new AnnenPartOversetter(personinfoAdapter));
 
         oversetter.trekkUtDataOgPersister((SøknadWrapper) SøknadWrapper.tilXmlWrapper(soeknad), mottattDokument.build(), behandling,
             Optional.empty());
@@ -641,7 +655,7 @@ class SøknadMapperTest {
             .build());
 
         var navBruker = opprettBruker();
-        var fagsak = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, navBruker);
+        var fagsak = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, navBruker, SAKSNUMMER);
         var behandling = Behandling.forFørstegangssøknad(fagsak).build();
         repositoryProvider.getFagsakRepository().opprettNy(fagsak);
         var behandlingRepository = repositoryProvider.getBehandlingRepository();
@@ -659,8 +673,10 @@ class SøknadMapperTest {
         var mottattDokument = new MottattDokument.Builder().medMottattDato(LocalDate.now())
             .medFagsakId(behandling.getFagsakId())
             .medElektroniskRegistrert(true);
-        var oversetter = new SøknadOversetter(repositoryProvider.getFagsakRepository(), behandlingRevurderingTjeneste, grunnlagRepositoryProvider,
-            virksomhetTjeneste, iayTjeneste, personinfoAdapter, oppgittPeriodeMottattDato, new AnnenPartOversetter(personinfoAdapter));
+        var personopplysningTjeneste = new PersonopplysningTjeneste(repositoryProvider.getPersonopplysningRepository(), BehandlingEventPubliserer.NULL_EVENT_PUB);
+        var oversetter = new SøknadOversetter(personopplysningTjeneste, repositoryProvider.getFagsakRepository(), behandlingRevurderingTjeneste,
+            grunnlagRepositoryProvider, virksomhetTjeneste, iayTjeneste, personinfoAdapter, oppgittPeriodeMottattDato,
+            new AnnenPartOversetter(personinfoAdapter));
 
         oversetter.trekkUtDataOgPersister((SøknadWrapper) SøknadWrapper.tilXmlWrapper(soeknad), mottattDokument.build(), behandling,
             Optional.empty());

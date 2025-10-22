@@ -12,6 +12,7 @@ import java.util.UUID;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
+import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.revurdering.ytelse.UttakInputTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.OppgittAnnenPartEntitet;
@@ -99,6 +100,7 @@ public class YtelseFordelingDtoTjeneste {
 
     Optional<OmsorgOgRettDto> mapFra(UUID behandlingUuid) {
         var behandling = behandlingRepository.hentBehandling(behandlingUuid);
+        var ref = BehandlingReferanse.fra(behandling);
         if (!behandling.getFagsakYtelseType().equals(FagsakYtelseType.FORELDREPENGER)) {
             return Optional.empty();
         }
@@ -108,7 +110,7 @@ public class YtelseFordelingDtoTjeneste {
         if (yfaOpt.isEmpty()) {
             return Optional.empty();
         }
-        var poaOpt = personopplysningTjeneste.hentPersonopplysningerHvisEksisterer(behandlingId, aktørId);
+        var poaOpt = personopplysningTjeneste.hentPersonopplysningerHvisEksisterer(ref);
         if (poaOpt.isEmpty()) {
             return Optional.empty();
         }

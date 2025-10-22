@@ -58,7 +58,7 @@ import no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.KobleFagsakerDto;
 import no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.SaksnummerBrukerRolleDto;
 import no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.SaksnummerJournalpostDto;
 import no.nav.foreldrepenger.web.server.abac.AppAbacAttributtType;
-import no.nav.foreldrepenger.web.server.abac.InvaliderSakPersonCacheObserverKlient;
+import no.nav.foreldrepenger.web.server.abac.InvaliderSakPersonCacheKlient;
 import no.nav.pdl.HentIdenterQueryRequest;
 import no.nav.pdl.IdentGruppe;
 import no.nav.pdl.IdentInformasjonResponseProjection;
@@ -89,7 +89,7 @@ public class ForvaltningFagsakRestTjeneste {
     private NavBrukerTjeneste brukerTjeneste;
     private Persondata pdlKlient;
     private BehandlingRepository behandlingRepository;
-    private InvaliderSakPersonCacheObserverKlient invaliderSakPersonCacheObserverKlient;
+    private InvaliderSakPersonCacheKlient invaliderSakPersonCacheKlient;
 
     public ForvaltningFagsakRestTjeneste() {
         // For CDI
@@ -102,7 +102,7 @@ public class ForvaltningFagsakRestTjeneste {
                                          AktørTjeneste aktørTjeneste,
                                          NavBrukerTjeneste brukerTjeneste,
                                          FagsakRelasjonTjeneste fagsakRelasjonTjeneste,
-                                         Persondata pdlKlient, InvaliderSakPersonCacheObserverKlient invaliderSakPersonCacheObserverKlient) {
+                                         Persondata pdlKlient, InvaliderSakPersonCacheKlient invaliderSakPersonCacheKlient) {
         this.fagsakRepository = repositoryProvider.getFagsakRepository();
         this.fagsakRelasjonTjeneste = fagsakRelasjonTjeneste;
         this.personopplysningRepository = repositoryProvider.getPersonopplysningRepository();
@@ -112,7 +112,7 @@ public class ForvaltningFagsakRestTjeneste {
         this.brukerTjeneste = brukerTjeneste;
         this.pdlKlient = pdlKlient;
         this.behandlingRepository = repositoryProvider.getBehandlingRepository();
-        this.invaliderSakPersonCacheObserverKlient = invaliderSakPersonCacheObserverKlient;
+        this.invaliderSakPersonCacheKlient = invaliderSakPersonCacheKlient;
     }
 
     @POST
@@ -389,7 +389,7 @@ public class ForvaltningFagsakRestTjeneste {
                                                         @NotNull @QueryParam("saksnummer") @Valid SaksnummerDto saksnummerDto) {
         var saksnummer = new Saksnummer(saksnummerDto.getVerdi());
         fagsakRepository.hentSakGittSaksnummer(saksnummer).orElseThrow();
-        invaliderSakPersonCacheObserverKlient.invaliderSakCache(saksnummer);
+        invaliderSakPersonCacheKlient.invaliderSakCache(saksnummer);
         return Response.ok().build();
     }
 
