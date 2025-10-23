@@ -15,14 +15,13 @@ public enum GraderingAvslagÅrsak implements Kodeverdi {
 
     //MERK: Lovhjemler til brev hentes fra navn, se pattern i UttakHjemmelUtleder
 
-    UKJENT("-", "Ikke definert", null),
-    GRADERING_FØR_UKE_7("4504", "§14-16 andre ledd: Avslag gradering - gradering før uke 7", "{\"fagsakYtelseType\": {\"FP\": {\"lovreferanse\": \"14-16\"}}}"),
-    FOR_SEN_SØKNAD("4501", "§14-16: Ikke gradering pga. for sen søknad", "{\"fagsakYtelseType\": {\"FP\": {\"lovreferanse\": \"14-16\"}}}"),
-    MANGLENDE_GRADERINGSAVTALE("4502", "§14-16 femte ledd, jf §21-3: Avslag graderingsavtale mangler - ikke dokumentert",
-            "{\"fagsakYtelseType\": {\"FP\": {\"lovreferanse\": \"14-16,21-3\"}}}"),
-    MOR_OPPFYLLER_IKKE_AKTIVITETSKRAV("4503", "§14-16 fjerde ledd: Avslag gradering – ikke rett til gradert uttak pga. redusert oppfylt aktivitetskrav på mor",
-            "{\"fagsakYtelseType\": {\"FP\": {\"lovreferanse\": \"14-16\"}}}"),
-    AVSLAG_PGA_100_PROSENT_ARBEID("4523", "§14-16 første ledd: Avslag gradering - arbeid 100% eller mer", "{\"fagsakYtelseType\": {\"FP\": {\"lovreferanse\": \"14-16\"}}}"),
+    UKJENT("-", "Ikke definert"),
+    GRADERING_FØR_UKE_7("4504", "§14-16 andre ledd: Avslag gradering - gradering før uke 7"),
+    FOR_SEN_SØKNAD("4501", "§14-16: Ikke gradering pga. for sen søknad"),
+    MANGLENDE_GRADERINGSAVTALE("4502", "§14-16 femte ledd, jf §21-3: Avslag graderingsavtale mangler - ikke dokumentert"),
+    MOR_OPPFYLLER_IKKE_AKTIVITETSKRAV("4503",
+        "§14-16 fjerde ledd: Avslag gradering – ikke rett til gradert uttak pga. redusert oppfylt aktivitetskrav på mor"),
+    AVSLAG_PGA_100_PROSENT_ARBEID("4523", "§14-16 første ledd: Avslag gradering - arbeid 100% eller mer"),
     ;
 
     private static final Map<String, GraderingAvslagÅrsak> KODER = new LinkedHashMap<>();
@@ -42,20 +41,13 @@ public enum GraderingAvslagÅrsak implements Kodeverdi {
     @JsonValue
     private final String kode;
 
-    private final String lovHjemmelData;
-
-    GraderingAvslagÅrsak(String kode, String navn, String lovHjemmel) {
+    GraderingAvslagÅrsak(String kode, String navn) {
         this.kode = kode;
         this.navn = navn;
-        this.lovHjemmelData = lovHjemmel;
     }
 
     public static Map<String, GraderingAvslagÅrsak> kodeMap() {
         return Collections.unmodifiableMap(KODER);
-    }
-
-    public String getLovHjemmelData() {
-        return lovHjemmelData;
     }
 
     @Override

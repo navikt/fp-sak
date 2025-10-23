@@ -119,8 +119,7 @@ record BrevGrunnlagDto(UUID uuid, String saksnummer, FagsakYtelseType fagsakYtel
                           LocalDate nyStartDatoVedUtsattOppstart) {
 
         record Uttaksperiode(LocalDate fom, LocalDate tom, List<Aktivitet> aktiviteter, PeriodeResultatType periodeResultatType,
-                             String periodeResultatÅrsak, String graderingAvslagÅrsak, String periodeResultatÅrsakLovhjemmel,
-                             String graderingsAvslagÅrsakLovhjemmel, LocalDate tidligstMottattDato,
+                             String periodeResultatÅrsak, String graderingAvslagÅrsak, LocalDate tidligstMottattDato,
                              boolean erUtbetalingRedusertTilMorsStillingsprosent, Set<String> lovhjemler) {
         }
 
