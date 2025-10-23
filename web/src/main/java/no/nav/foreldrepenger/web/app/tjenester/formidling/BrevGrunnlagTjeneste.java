@@ -356,8 +356,7 @@ class BrevGrunnlagTjeneste {
         var aktiviteter = periode.getAktiviteter().stream().map(BrevGrunnlagTjeneste::map).toList();
         var lovhjemler = UttakHjemmelUtleder.finnLovhjemler(periode);
         return new BrevGrunnlagDto.Foreldrepenger.Uttaksperiode(periode.getFom(), periode.getTom(), aktiviteter, periodeRsesultatType,
-            periode.getResultatÅrsak().getKode(), periode.getGraderingAvslagÅrsak().getKode(), periode.getResultatÅrsak().getLovHjemmelData(),
-            periode.getGraderingAvslagÅrsak().getLovHjemmelData(), periode.getTidligstMottatttDato(),
+            periode.getResultatÅrsak().getKode(), periode.getGraderingAvslagÅrsak().getKode(), periode.getTidligstMottatttDato(),
             utledOmUtbetalingErRedusertTilMorsStillingsprosent(periode), lovhjemler);
     }
 
