@@ -121,7 +121,11 @@ public class Behandlingsoppretter {
         if (BehandlingType.FØRSTEGANGSSØKNAD.equals(sisteYtelseBehandling.getType())) {
             return opprettNyFørstegangsbehandlingMedImOgVedleggFraForrige(sisteYtelseBehandling.getFagsak(), revurderingsÅrsak, sisteYtelseBehandling,false);
         }
-        var revurdering = opprettRevurdering(sisteYtelseBehandling.getFagsak(), revurderingsÅrsak);
+        var manuell = sisteYtelseBehandling.erManueltOpprettet();
+        var revurdering = manuell ? opprettManuellRevurdering(sisteYtelseBehandling.getFagsak(), revurderingsÅrsak) : opprettRevurdering(sisteYtelseBehandling.getFagsak(), revurderingsÅrsak);
+        if (manuell) {
+            Optional.ofNullable(sisteYtelseBehandling.getAnsvarligSaksbehandler()).ifPresent(revurdering::setAnsvarligSaksbehandler);
+        }
 
         if (uregistrertPapirSøknadFP) {
             kopierPapirsøknadVedBehov(sisteYtelseBehandling, revurdering);
