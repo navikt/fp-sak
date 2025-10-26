@@ -86,7 +86,6 @@ public class SøknadOversetter implements MottattDokumentOversetter<SøknadWrapp
         this.familieHendelseRepository = grunnlagRepositoryProvider.getFamilieHendelseRepository();
         this.søknadRepository = grunnlagRepositoryProvider.getSøknadRepository();
         this.medlemskapRepository = grunnlagRepositoryProvider.getMedlemskapRepository();
-        this.personopplysningTjeneste = personopplysningTjeneste;
         this.ytelsesFordelingRepository = grunnlagRepositoryProvider.getYtelsesFordelingRepository();
         this.virksomhetTjeneste = virksomhetTjeneste;
         this.personinfoAdapter = personinfoAdapter;

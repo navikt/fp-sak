@@ -8,9 +8,11 @@ import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseGrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.OmsorgsovertakelseVilkårType;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.TerminbekreftelseEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.FarSøkerType;
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadEntitet;
+import no.nav.foreldrepenger.familiehendelse.aksjonspunkt.omsorgsovertakelse.OmsorgsovertakelseVilkårTypeUtleder;
 import no.nav.vedtak.felles.xml.soeknad.engangsstoenad.v3.Engangsstønad;
 import no.nav.vedtak.felles.xml.soeknad.felles.v3.Adopsjon;
 import no.nav.vedtak.felles.xml.soeknad.felles.v3.Foedsel;
@@ -51,8 +53,8 @@ public class FamilieHendelseOversetter  {
                     byggFødselsrelaterteFelter(foedsel, hendelseBuilder, gjeldendeTermin);
                 }
                 case Termin termin -> byggTerminrelaterteFelter(termin, hendelseBuilder);
-                case Adopsjon adopsjon -> byggAdopsjonsrelaterteFelter(adopsjon, hendelseBuilder);
-                case Omsorgsovertakelse omsorgsovertakelse -> byggOmsorgsovertakelsesrelaterteFelter(omsorgsovertakelse, hendelseBuilder, søknadBuilder);
+                case Adopsjon adopsjon -> byggAdopsjonsrelaterteFelter(behandling, adopsjon, hendelseBuilder);
+                case Omsorgsovertakelse omsorgsovertakelse -> byggOmsorgsovertakelsesrelaterteFelter(behandling, omsorgsovertakelse, hendelseBuilder, søknadBuilder);
                 default -> throw new IllegalArgumentException("Ukjent subklasse av SoekersRelasjonTilBarnet: " + soekersRelasjonTilBarnet.getClass().getSimpleName());
             }
         }
@@ -99,13 +101,19 @@ public class FamilieHendelseOversetter  {
             .medUtstedtDato(termin.getUtstedtdato()));
     }
 
-    private void byggOmsorgsovertakelsesrelaterteFelter(Omsorgsovertakelse omsorgsovertakelse,
+    private void byggOmsorgsovertakelsesrelaterteFelter(Behandling behandling,
+                                                        Omsorgsovertakelse omsorgsovertakelse,
                                                         FamilieHendelseBuilder hendelseBuilder,
                                                         SøknadEntitet.Builder søknadBuilder) {
         var fødselsdatoene = omsorgsovertakelse.getFoedselsdato().stream().sorted(Comparator.naturalOrder()).toList();
+        var farSøkerType = tolkFarSøkerType(omsorgsovertakelse.getOmsorgsovertakelseaarsak());
 
+        var utledetDelvilkår = OmsorgsovertakelseVilkårTypeUtleder.utledDelvilkårForeldreansvar(behandling.getFagsakYtelseType(), farSøkerType);
+        var delvilkår = Optional.ofNullable(utledetDelvilkår).orElse(OmsorgsovertakelseVilkårType.UDEFINERT);
         hendelseBuilder.tilbakestillBarn().medAntallBarn(omsorgsovertakelse.getAntallBarn());
-        var familieHendelseAdopsjon = hendelseBuilder.getAdopsjonBuilder().medOmsorgsovertakelseDato(omsorgsovertakelse.getOmsorgsovertakelsesdato());
+        var familieHendelseAdopsjon = hendelseBuilder.getAdopsjonBuilder()
+            .medOmsorgovertalseVilkårType(delvilkår)
+            .medOmsorgsovertakelseDato(omsorgsovertakelse.getOmsorgsovertakelsesdato());
         for (var localDate : fødselsdatoene) {
             hendelseBuilder.leggTilBarn(localDate);
         }
@@ -113,7 +121,7 @@ public class FamilieHendelseOversetter  {
         hendelseBuilder.medAdopsjon(familieHendelseAdopsjon);
 
         // Må også settes på søknad
-        søknadBuilder.medFarSøkerType(tolkFarSøkerType(omsorgsovertakelse.getOmsorgsovertakelseaarsak()));
+        søknadBuilder.medFarSøkerType(farSøkerType);
     }
 
     private FarSøkerType tolkFarSøkerType(Omsorgsovertakelseaarsaker omsorgsovertakelseaarsaker) {
@@ -121,11 +129,15 @@ public class FamilieHendelseOversetter  {
     }
 
 
-    private void byggAdopsjonsrelaterteFelter(Adopsjon adopsjon, FamilieHendelseBuilder hendelseBuilder) {
+    private void byggAdopsjonsrelaterteFelter(Behandling behandling, Adopsjon adopsjon, FamilieHendelseBuilder hendelseBuilder) {
         var fødselsdatoene = adopsjon.getFoedselsdato().stream().sorted(Comparator.naturalOrder()).toList();
+
+        var utledetDelvilkår = OmsorgsovertakelseVilkårTypeUtleder.utledDelvilkårAdopsjon(behandling.getFagsakYtelseType(), adopsjon.isAdopsjonAvEktefellesBarn());
+        var delvilkår = Optional.ofNullable(utledetDelvilkår).orElse(OmsorgsovertakelseVilkårType.UDEFINERT);
 
         hendelseBuilder.tilbakestillBarn().medAntallBarn(adopsjon.getAntallBarn());
         var familieHendelseAdopsjon = hendelseBuilder.getAdopsjonBuilder()
+            .medOmsorgovertalseVilkårType(delvilkår)
             .medAnkomstDato(adopsjon.getAnkomstdato())
             .medErEktefellesBarn(adopsjon.isAdopsjonAvEktefellesBarn())
             .medOmsorgsovertakelseDato(adopsjon.getOmsorgsovertakelsesdato());

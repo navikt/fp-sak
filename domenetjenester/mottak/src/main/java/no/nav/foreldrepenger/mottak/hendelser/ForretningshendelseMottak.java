@@ -168,7 +168,7 @@ public class ForretningshendelseMottak {
             var tidstillegg = !RelasjonsRolleType.erMor(fagsak.getRelasjonsRolleType()) ? 45 : 0;
             if (LocalTime.now().isBefore(OPPDRAG_VÅKNER)) {
                 // Porsjoner utover neste 29 min
-                var tidspunkt = OPPDRAG_VÅKNER.plusSeconds(LocalDateTime.now().getNano() % 1739).plusSeconds(tidstillegg);
+                var tidspunkt = OPPDRAG_VÅKNER.plusMinutes(20).plusSeconds(tidstillegg);
                 taskData.setNesteKjøringEtter(LocalDateTime.of(LocalDate.now(), tidspunkt));
             } else {
                 taskData.setNesteKjøringEtter(LocalDateTime.now().plusSeconds(tidstillegg));
