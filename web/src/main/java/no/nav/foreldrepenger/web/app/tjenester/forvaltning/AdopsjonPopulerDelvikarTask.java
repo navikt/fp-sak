@@ -25,12 +25,18 @@ import no.nav.foreldrepenger.behandlingslager.task.BehandlingProsessTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 
+import java.util.Set;
+
 @ApplicationScoped
 @ProsessTask(value = "migrering.populeradopsjon", prioritet = 4, maxFailedRuns = 1)
 @FagsakProsesstaskRekkefølge(gruppeSekvens = false)
 public class AdopsjonPopulerDelvikarTask extends BehandlingProsessTask {
 
     private static final Logger LOG = LoggerFactory.getLogger(AdopsjonPopulerDelvikarTask.class);
+
+    private static final Set<OmsorgsovertakelseVilkårType> ALLE_ES = Set.of(OmsorgsovertakelseVilkårType.ES_ADOPSJONSVILKÅRET,
+        OmsorgsovertakelseVilkårType.ES_FORELDREANSVARSVILKÅRET_2_LEDD, OmsorgsovertakelseVilkårType.ES_OMSORGSVILKÅRET,
+        OmsorgsovertakelseVilkårType.ES_FORELDREANSVARSVILKÅRET_4_LEDD);
 
     private EntityManager entityManager;
     private BehandlingRepository behandlingRepository;
@@ -111,9 +117,15 @@ public class AdopsjonPopulerDelvikarTask extends BehandlingProsessTask {
             if (brukDelvilkår.equals(adopsjon.getOmsorgovertakelseVilkår())) {
                 return;
             }
+            if (FagsakYtelseType.ENGANGSTØNAD.equals(behandling.getFagsakYtelseType()) && ALLE_ES.contains(adopsjon.getOmsorgovertakelseVilkår())) {
+                return; // Ikke endre ES
+            }
             LOG.warn("AdopsjonPopuler: Ulikt delvilkår for sak {} behandling {} eksisterende delvilkår {} utledet delvilkår {}",
                 behandling.getSaksnummer().getVerdi(), behandling.getId(), adopsjon.getOmsorgovertakelseVilkår(), brukDelvilkår);
-            throw new IllegalStateException("Adopsjon: avvikende delvilkår");
+            if (!(OmsorgsovertakelseVilkårType.FP_FORELDREANSVARSVILKÅRET_2_LEDD.equals(brukDelvilkår)
+                && OmsorgsovertakelseVilkårType.ES_FORELDREANSVARSVILKÅRET_2_LEDD.equals(adopsjon.getOmsorgovertakelseVilkår()))) {
+                throw new IllegalStateException("Adopsjon: avvikende delvilkår");
+            }
         }
         entityManager.createNativeQuery("""
                 UPDATE FH_ADOPSJON
