@@ -85,6 +85,9 @@ public class AdopsjonEntitet extends BaseEntitet {
         this.foreldreansvarDato = adopsjon.getForeldreansvarDato();
     }
 
+    public Long getId() {
+        return id;
+    }
 
     public LocalDate getOmsorgsovertakelseDato() {
         return omsorgsovertakelseDato;
