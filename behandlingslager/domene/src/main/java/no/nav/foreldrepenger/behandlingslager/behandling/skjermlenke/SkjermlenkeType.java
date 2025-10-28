@@ -131,24 +131,16 @@ public enum SkjermlenkeType implements Kodeverdi {
      * @deprecated Brukes kun i totrinnskontroll og foreslå vedtak, bør også fjernes derfra og heller lagres på Aksjonspunktet (ikke definisjonen)
      */
     @Deprecated
-    public static SkjermlenkeType finnSkjermlenkeType(AksjonspunktDefinisjon aksjonspunktDefinisjon, Behandling behandling,
-                                                      Behandlingsresultat behandlingsresultat) {
+    public static SkjermlenkeType finnSkjermlenkeType(AksjonspunktDefinisjon aksjonspunktDefinisjon, Behandlingsresultat behandlingsresultat) {
         if (AksjonspunktDefinisjon.AVKLAR_OM_SØKER_HAR_MOTTATT_STØTTE.equals(aksjonspunktDefinisjon)) {
             return getSkjermlenkeTypeForMottattStotte(behandlingsresultat);
         }
         if (AksjonspunktDefinisjon.AVKLAR_VILKÅR_FOR_OMSORGSOVERTAKELSE.equals(aksjonspunktDefinisjon) ){
-            return getSkjermlenkeTypeForOmsorgsovertakelse(behandling);
+            return SkjermlenkeType.FAKTA_OM_OMSORGSOVERTAKELSE;
         }
         return aksjonspunktDefinisjon.getSkjermlenkeType();
     }
 
-    private static SkjermlenkeType getSkjermlenkeTypeForOmsorgsovertakelse(Behandling behandling) {
-        var fagsakYtelseType = behandling.getFagsakYtelseType();
-        if (FagsakYtelseType.ENGANGSTØNAD.equals(fagsakYtelseType)){
-            return  SkjermlenkeType.FAKTA_OM_OMSORG_OG_FORELDREANSVAR;
-        }
-        return SkjermlenkeType.FAKTA_FOR_OMSORG;
-    }
 
     public static SkjermlenkeType getSkjermlenkeTypeForMottattStotte(Behandlingsresultat behandlingsresultat) {
         var vilkårType = Optional.ofNullable(behandlingsresultat)

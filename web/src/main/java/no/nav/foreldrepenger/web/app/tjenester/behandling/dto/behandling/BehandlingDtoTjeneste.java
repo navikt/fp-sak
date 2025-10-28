@@ -106,8 +106,6 @@ import no.nav.foreldrepenger.web.app.tjenester.familiehendelse.FamiliehendelseRe
 @ApplicationScoped
 public class BehandlingDtoTjeneste {
 
-    private static final boolean IS_PROD = Environment.current().isProd();
-
     private VergeRepository vergeRepository;
     private BeregningTjeneste beregningTjeneste;
     private UttakTjeneste uttakTjeneste;
@@ -371,9 +369,7 @@ public class BehandlingDtoTjeneste {
 
         familieHendelseRepository.hentAggregatHvisEksisterer(behandling.getId()).ifPresent(f -> {
             if (f.getGjeldendeVersjon().getGjelderAdopsjon()) {
-                if (!IS_PROD){
-                    dto.leggTil(get(FødselOmsorgsovertakelseRestTjeneste.FAKTA_OMSORGSOVERTAKELSE_PATH, "fakta-omsorgsovertakelse", uuidDto));
-                }
+                dto.leggTil(get(FødselOmsorgsovertakelseRestTjeneste.FAKTA_OMSORGSOVERTAKELSE_PATH, "fakta-omsorgsovertakelse", uuidDto));
             } else {
                 dto.leggTil(get(FødselOmsorgsovertakelseRestTjeneste.FAKTA_FODSEL_PATH, "fakta-fødsel", uuidDto));
             }

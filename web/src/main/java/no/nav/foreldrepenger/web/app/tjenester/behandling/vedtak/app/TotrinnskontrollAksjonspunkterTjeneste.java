@@ -129,7 +129,7 @@ public class TotrinnskontrollAksjonspunkterTjeneste {
                                          Totrinnsvurdering vurdering) {
         var totrinnsAksjonspunkt = totrinnsaksjonspunktDtoTjeneste.lagTotrinnskontrollAksjonspunktDto(vurdering,
             behandling);
-        var skjermlenkeType = SkjermlenkeType.finnSkjermlenkeType(vurdering.getAksjonspunktDefinisjon(), behandling,
+        var skjermlenkeType = SkjermlenkeType.finnSkjermlenkeType(vurdering.getAksjonspunktDefinisjon(),
             behandlingsresultat);
         if (SkjermlenkeType.totrinnsSkjermlenke(skjermlenkeType)) {
             var aksjonspktContextListe = skjermlenkeMap.computeIfAbsent(skjermlenkeType, k -> new ArrayList<>());
