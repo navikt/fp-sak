@@ -14,16 +14,11 @@ import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.Familie
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseGrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseType;
-import no.nav.foreldrepenger.familiehendelse.kontrollerfakta.adopsjon.AksjonspunktUtlederForForeldrepengerAdopsjon;
 import no.nav.foreldrepenger.familiehendelse.kontrollerfakta.fødsel.AksjonspunktUtlederForForeldrepengerFødsel;
-import no.nav.foreldrepenger.familiehendelse.kontrollerfakta.omsorg.AksjonspunktUtlederForForeldreansvar;
 import no.nav.foreldrepenger.familiehendelse.kontrollerfakta.sammebarn.AksjonspunktUtlederForTidligereMottattYtelse;
-import no.nav.foreldrepenger.konfig.Environment;
 
 @ApplicationScoped
 class KontrollerFaktaUtledereTjenesteImpl implements KontrollerFaktaUtledere {
-
-    private static final boolean IS_PROD = Environment.current().isProd();
 
     private FamilieHendelseRepository familieHendelseRepository;
 
@@ -56,16 +51,6 @@ class KontrollerFaktaUtledereTjenesteImpl implements KontrollerFaktaUtledere {
 
         if (FamilieHendelseType.FØDSEL.equals(familieHendelseType) || FamilieHendelseType.TERMIN.equals(familieHendelseType)) {
             utlederHolder.leggTil(AksjonspunktUtlederForForeldrepengerFødsel.class);
-        }
-
-        if (IS_PROD) {
-            if (FamilieHendelseType.ADOPSJON.equals(familieHendelseType)) {
-                utlederHolder.leggTil(AksjonspunktUtlederForForeldrepengerAdopsjon.class);
-            }
-
-            if (FamilieHendelseType.OMSORG.equals(familieHendelseType)) {
-                utlederHolder.leggTil(AksjonspunktUtlederForForeldreansvar.class);
-            }
         }
 
         return utlederHolder.getUtledere();

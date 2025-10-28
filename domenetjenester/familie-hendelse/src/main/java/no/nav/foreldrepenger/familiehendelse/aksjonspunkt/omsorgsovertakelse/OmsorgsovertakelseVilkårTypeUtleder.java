@@ -10,6 +10,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.Omsorgs
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.FarSøkerType;
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadRepository;
+import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 
 /**
  * Håndterer oppdatering av adopsjon/omsorgsvilkåret.
@@ -34,26 +35,34 @@ public class OmsorgsovertakelseVilkårTypeUtleder {
         if (familieHendelse == null || familieHendelse.getAdopsjon().isEmpty()) {
             return null;
         }
-        var farSøkerType = søknadRepository.hentSøknadHvisEksisterer(ref.behandlingId()).map(SøknadEntitet::getFarSøkerType).orElse(FarSøkerType.UDEFINERT);
         var adopsjon = familieHendelse.getAdopsjon().orElseThrow();
         if (adopsjon.getOmsorgovertakelseVilkår() != null && !OmsorgsovertakelseVilkårType.UDEFINERT.equals(adopsjon.getOmsorgovertakelseVilkår())) {
             return adopsjon.getOmsorgovertakelseVilkår();
         }
+        var farSøkerType = søknadRepository.hentSøknadHvisEksisterer(ref.behandlingId()).map(SøknadEntitet::getFarSøkerType).orElse(FarSøkerType.UDEFINERT);
         if (FamilieHendelseType.ADOPSJON.equals(familieHendelse.getType())) {
-            return switch (ref.fagsakYtelseType()) {
-                case ENGANGSTØNAD -> OmsorgsovertakelseVilkårType.ES_ADOPSJONSVILKÅRET;
-                case FORELDREPENGER -> adopsjon.isStebarnsadopsjon() ? OmsorgsovertakelseVilkårType.FP_STEBARNSADOPSJONSVILKÅRET : OmsorgsovertakelseVilkårType.FP_ADOPSJONSVILKÅRET;
-                default -> null;
-            };
+            return utledDelvilkårAdopsjon(ref.fagsakYtelseType(), adopsjon.isStebarnsadopsjon());
         } else if (FamilieHendelseType.OMSORG.equals(familieHendelse.getType()) || !FarSøkerType.UDEFINERT.equals(farSøkerType)) {
-            return switch (ref.fagsakYtelseType()) {
-                case ENGANGSTØNAD -> utledEngangsstønadVilkår(farSøkerType);
-                case FORELDREPENGER -> OmsorgsovertakelseVilkårType.FP_FORELDREANSVARSVILKÅRET_2_LEDD;
-                default -> null;
-            };
+            return utledDelvilkårForeldreansvar(ref.fagsakYtelseType(), farSøkerType);
         } else {
             return null;
         }
+    }
+
+    public static OmsorgsovertakelseVilkårType utledDelvilkårAdopsjon(FagsakYtelseType ytelseType, boolean erStebarnsadopsjon) {
+        return switch (ytelseType) {
+            case ENGANGSTØNAD -> OmsorgsovertakelseVilkårType.ES_ADOPSJONSVILKÅRET;
+            case FORELDREPENGER -> erStebarnsadopsjon ? OmsorgsovertakelseVilkårType.FP_STEBARNSADOPSJONSVILKÅRET : OmsorgsovertakelseVilkårType.FP_ADOPSJONSVILKÅRET;
+            default -> null;
+        };
+    }
+
+    public static OmsorgsovertakelseVilkårType utledDelvilkårForeldreansvar(FagsakYtelseType ytelseType, FarSøkerType farSøkerType) {
+        return switch (ytelseType) {
+            case ENGANGSTØNAD -> utledEngangsstønadVilkår(farSøkerType);
+            case FORELDREPENGER -> OmsorgsovertakelseVilkårType.FP_FORELDREANSVARSVILKÅRET_2_LEDD;
+            default -> null;
+        };
     }
 
     private static OmsorgsovertakelseVilkårType utledEngangsstønadVilkår(FarSøkerType farSøkerType) {
@@ -63,6 +72,7 @@ public class OmsorgsovertakelseVilkårTypeUtleder {
             case OVERTATT_OMSORG -> OmsorgsovertakelseVilkårType.ES_FORELDREANSVARSVILKÅRET_4_LEDD;
             case OVERTATT_OMSORG_F, ANDRE_FORELD_DØD_F -> OmsorgsovertakelseVilkårType.ES_OMSORGSVILKÅRET;
             case UDEFINERT -> null;
+            case null ->  null;
         };
     }
 
