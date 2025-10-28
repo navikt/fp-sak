@@ -113,6 +113,10 @@ public class AdopsjonPopulerDelvikarTask extends BehandlingProsessTask {
             }
             LOG.warn("AdopsjonPopuler: Ulikt delvilkår for sak {} behandling {} eksisterende delvilkår {} utledet delvilkår {}",
                 behandling.getSaksnummer().getVerdi(), behandling.getId(), adopsjon.getOmsorgovertakelseVilkår(), brukDelvilkår);
+            if (!(OmsorgsovertakelseVilkårType.FP_FORELDREANSVARSVILKÅRET_2_LEDD.equals(brukDelvilkår)
+                && OmsorgsovertakelseVilkårType.ES_FORELDREANSVARSVILKÅRET_2_LEDD.equals(adopsjon.getOmsorgovertakelseVilkår()))) {
+                throw new IllegalStateException("Adopsjon: avvikende delvilkår");
+            }
         }
         entityManager.createNativeQuery("""
                 UPDATE FH_ADOPSJON
