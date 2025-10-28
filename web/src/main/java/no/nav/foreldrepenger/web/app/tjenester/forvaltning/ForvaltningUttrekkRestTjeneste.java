@@ -314,4 +314,92 @@ public class ForvaltningUttrekkRestTjeneste {
         return Response.ok(restanse).build();
     }
 
+    @POST
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    @Operation(description = "Populere adopsjon med delvilkår, oppdatere vilkår", tags = "FORVALTNING-uttrekk")
+    @Path("/populerAdopsjonVilkår6")
+    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.DRIFT, sporingslogg = true)
+    public Response populerAdopsjonVilkår6() {
+        var query = entityManager.createNativeQuery("""
+            select br.behandling_id
+            from vilkar v join behandling_resultat br on v.vilkar_resultat_id = br.inngangsvilkar_resultat_id
+            where v.vilkar_type in ('FP_VK_16', 'FP_VK_4', 'FP_VK_5', 'FP_VK_8', 'FP_VK_33')
+            order by br.behandling_id
+            fetch first 200 rows only
+            """);
+        @SuppressWarnings("unchecked")
+        List<Number> resultatList = query.getResultList();
+        var åpneAksjonspunkt =  resultatList.stream().map(Number::longValue).toList();
+        var tasks = åpneAksjonspunkt.stream()
+            .map(this::lagPopulerAdopsjonTask)
+            .toList();
+        if (!tasks.isEmpty()) {
+            var gruppe = new ProsessTaskGruppe();
+            gruppe.addNesteParallell(tasks);
+            taskTjeneste.lagre(gruppe);
+        }
+        return Response.ok(tasks.size()).build();
+    }
+
+    private ProsessTaskData lagPopulerAdopsjonTask(Long behandlingId) {
+        var behandling = behandlingRepository.hentBehandling(behandlingId);
+        var task = ProsessTaskData.forProsessTask(AdopsjonPopulerDelvikarTask.class);
+        task.setBehandling(behandling.getSaksnummer().getVerdi(), behandling.getFagsakId(), behandling.getId());
+        return task;
+    }
+
+    @POST
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    @Operation(description = "Flytt behandling til steg", tags = "FORVALTNING-uttrekk")
+    @Path("/flyttAdopsjonTilKofak")
+    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.DRIFT, sporingslogg = true)
+    public Response flyttAdopsjonTilKofak() {
+        var query = entityManager.createNativeQuery("""
+            select ap.behandling_id
+            from aksjonspunkt ap
+            join behandling b on ap.behandling_id = b.id
+            where b.behandling_status <> 'AVSLU'
+              and ap.aksjonspunkt_def in (5004, 5005, 5006, 5008, 5054, 5011,5013,5014,6004, 6010)
+              and ap.aksjonspunkt_status <> 'AVBR'
+            """);
+        @SuppressWarnings("unchecked")
+        List<Number> resultatList = query.getResultList();
+        var åpneAksjonspunkt =  resultatList.stream().map(Number::longValue).toList();
+        var tasks = åpneAksjonspunkt.stream()
+            .map(this::lagFlyttAdopsjonBehandlingTilbakeTilKofakTask)
+            .flatMap(Optional::stream)
+            .toList();
+        if (!tasks.isEmpty()) {
+            var gruppe = new ProsessTaskGruppe();
+            gruppe.addNesteParallell(tasks);
+            taskTjeneste.lagre(gruppe);
+        }
+        return Response.ok().build();
+    }
+
+    private Optional<ProsessTaskData> lagFlyttAdopsjonBehandlingTilbakeTilKofakTask(Long behandlingId) {
+        var behandling = behandlingRepository.hentBehandling(behandlingId);
+        var task = ProsessTaskData.forProsessTask(AdopsjonTilbakeføringTask.class);
+        task.setBehandling(behandling.getSaksnummer().getVerdi(), behandling.getFagsakId(), behandling.getId());
+        return Optional.of(task);
+    }
+
+    @POST
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    @Operation(description = "Flytt behandling til steg", tags = "FORVALTNING-uttrekk")
+    @Path("/adopsjonHistorikkSkjermlenke")
+    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.DRIFT, sporingslogg = true)
+    public Response adopsjonHistorikkSkjermlenke() {
+        var antall =  entityManager.createNativeQuery("""
+            update historikkinnslag2
+            set skjermlenke = 'FAKTA_OM_OMSORGSOVERTAKELSE'
+            where skjermlenke in ( 'FAKTA_OM_ADOPSJON', 'FAKTA_OM_OMSORG_OG_FORELDREANSVAR', 'PUNKT_FOR_ADOPSJON', 'PUNKT_FOR_FORELDREANSVAR', 'PUNKT_FOR_OMSORG')
+            """)
+            .executeUpdate();
+        return Response.ok(antall).build();
+    }
+
 }
