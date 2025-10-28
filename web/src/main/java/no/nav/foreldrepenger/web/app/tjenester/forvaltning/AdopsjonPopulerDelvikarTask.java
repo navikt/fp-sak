@@ -57,29 +57,6 @@ public class AdopsjonPopulerDelvikarTask extends BehandlingProsessTask {
         behandlingRepository.taSkriveLås(behandlingId);
         var behandling = behandlingRepository.hentBehandling(behandlingId);
 
-        // Fjerne de med doble innslag
-        entityManager.createNativeQuery("""
-                delete from vilkar
-                where vilkar_resultat_id in (
-                   select vilkar_resultat_id vi from vilkar
-                   where vilkar_type in ('FP_VK_16', 'FP_VK_4', 'FP_VK_5','FP_VK_8','FP_VK_33')
-                   group by vilkar_resultat_id
-                   having count(*) > 1)
-                and vilkar_type = 'FP_VK_4'
-               """)
-            .executeUpdate();
-        entityManager.flush();
-
-        // Oppdatere mismatch ytelse
-        entityManager.createNativeQuery("""
-                UPDATE VILKAR
-                SET avslag_kode = '1004', vilkar_utfall_manuell = 'IKKE_OPPFYLT', vilkar_utfall_overstyrt = 'IKKE_OPPFYLT'
-                WHERE vilkar_resultat_id = 1113908
-                  and vilkar_type = 'FP_VK_16'
-               """)
-            .executeUpdate();
-        entityManager.flush();
-
         // - Populer AdopsjonEntitet med delvilkår
         var behandlingsresultat = behandlingsresultatRepository.hentHvisEksisterer(behandlingId).orElseThrow();
         familieHendelseRepository.hentAggregatHvisEksisterer(behandling.getId())
