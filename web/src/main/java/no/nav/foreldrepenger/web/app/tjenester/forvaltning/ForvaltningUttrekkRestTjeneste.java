@@ -318,6 +318,38 @@ public class ForvaltningUttrekkRestTjeneste {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     @Operation(description = "Populere adopsjon med delvilkår, oppdatere vilkår", tags = "FORVALTNING-uttrekk")
+    @Path("/forberedPopulerAdopsjonVilkår6")
+    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.DRIFT, sporingslogg = true)
+    public Response forberedPopulerAdopsjonVilkår6() {
+        // Fjerne de med doble innslag
+        entityManager.createNativeQuery("""
+                delete from vilkar
+                where vilkar_resultat_id in (
+                   select vilkar_resultat_id vi from vilkar
+                   where vilkar_type in ('FP_VK_16', 'FP_VK_4', 'FP_VK_5','FP_VK_8','FP_VK_33')
+                   group by vilkar_resultat_id
+                   having count(*) > 1)
+                and vilkar_type = 'FP_VK_4'
+               """)
+            .executeUpdate();
+        entityManager.flush();
+
+        // Oppdatere mismatch ytelse
+        entityManager.createNativeQuery("""
+                UPDATE VILKAR
+                SET avslag_kode = '1004', vilkar_utfall_manuell = 'IKKE_OPPFYLT', vilkar_utfall_overstyrt = 'IKKE_OPPFYLT'
+                WHERE vilkar_resultat_id = 1113908
+                  and vilkar_type = 'FP_VK_16'
+               """)
+            .executeUpdate();
+        entityManager.flush();
+        return Response.ok().build();
+    }
+
+    @POST
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    @Operation(description = "Populere adopsjon med delvilkår, oppdatere vilkår", tags = "FORVALTNING-uttrekk")
     @Path("/populerAdopsjonVilkår6")
     @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.DRIFT, sporingslogg = true)
     public Response populerAdopsjonVilkår6() {
