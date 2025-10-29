@@ -216,8 +216,8 @@ class TotrinnskontrollAksjonspunkterTjenesteTest {
         var apAvbrutt = false;
 
         Map<FagsakYtelseType, SkjermlenkeType> fagsakYtelseTypeSkjermlenkeTypeMap = new EnumMap<>(FagsakYtelseType.class);
-        fagsakYtelseTypeSkjermlenkeTypeMap.put(FagsakYtelseType.ENGANGSTØNAD, SkjermlenkeType.FAKTA_OM_OMSORG_OG_FORELDREANSVAR);
-        fagsakYtelseTypeSkjermlenkeTypeMap.put(FagsakYtelseType.FORELDREPENGER, SkjermlenkeType.FAKTA_FOR_OMSORG);
+        fagsakYtelseTypeSkjermlenkeTypeMap.put(FagsakYtelseType.ENGANGSTØNAD, SkjermlenkeType.FAKTA_OM_OMSORGSOVERTAKELSE);
+        fagsakYtelseTypeSkjermlenkeTypeMap.put(FagsakYtelseType.FORELDREPENGER, SkjermlenkeType.FAKTA_OM_OMSORGSOVERTAKELSE);
 
         fagsakYtelseTypeSkjermlenkeTypeMap.keySet().forEach(fagsakYtelseType -> {
 
