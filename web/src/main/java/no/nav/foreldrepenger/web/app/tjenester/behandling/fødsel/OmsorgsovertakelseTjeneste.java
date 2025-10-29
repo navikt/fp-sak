@@ -24,6 +24,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallTy
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.familiehendelse.FamilieHendelseTjeneste;
 import no.nav.foreldrepenger.familiehendelse.aksjonspunkt.omsorgsovertakelse.OmsorgsovertakelseVilkårTypeUtleder;
+import no.nav.foreldrepenger.familiehendelse.kontrollerfakta.sammebarn.YtelserSammeBarnTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.fødsel.dto.Kilde;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.fødsel.dto.OmsorgsovertakelseDto;
 
@@ -41,6 +42,7 @@ public class OmsorgsovertakelseTjeneste {
     private BehandlingRepository behandlingRepository;
     private OmsorgsovertakelseVilkårTypeUtleder delvilkårUtleder;
     private BehandlingsresultatRepository behandlingsresultatRepository;
+    private YtelserSammeBarnTjeneste ytelserSammeBarnTjeneste;
 
     OmsorgsovertakelseTjeneste() {
         // For CDI proxy
@@ -50,11 +52,13 @@ public class OmsorgsovertakelseTjeneste {
     public OmsorgsovertakelseTjeneste(FamilieHendelseTjeneste familieHendelseTjeneste,
                                       BehandlingRepository behandlingRepository,
                                       OmsorgsovertakelseVilkårTypeUtleder delvilkårUtleder,
-                                      BehandlingsresultatRepository behandlingsresultatRepository) {
+                                      BehandlingsresultatRepository behandlingsresultatRepository,
+                                      YtelserSammeBarnTjeneste ytelserSammeBarnTjeneste) {
         this.familieHendelseTjeneste = familieHendelseTjeneste;
         this.behandlingRepository = behandlingRepository;
         this.delvilkårUtleder = delvilkårUtleder;
         this.behandlingsresultatRepository = behandlingsresultatRepository;
+        this.ytelserSammeBarnTjeneste = ytelserSammeBarnTjeneste;
     }
 
     public OmsorgsovertakelseDto hentOmsorgsovertakelse(Long behandlingId) {
@@ -82,8 +86,11 @@ public class OmsorgsovertakelseTjeneste {
             .findFirst()
             .map(v -> new OmsorgsovertakelseDto.SaksbehandlerVurdering(v.getGjeldendeVilkårUtfall(), v.getAvslagsårsak()))
             .orElse(null);
+        var andresaker = ytelserSammeBarnTjeneste.andreSakerMedSammeFamilieHendelse(ref).stream()
+            .map(snr -> new OmsorgsovertakelseDto.Saksnummer(snr.getVerdi()))
+            .toList();
 
-        return new OmsorgsovertakelseDto(søknadData, registerData, gjeldendeKilde, gjeldendeData, tidligereValg, aktuelleAvslagsårsaker);
+        return new OmsorgsovertakelseDto(søknadData, registerData, gjeldendeKilde, gjeldendeData, andresaker, tidligereValg, aktuelleAvslagsårsaker);
     }
 
     private OmsorgsovertakelseDto.Omsorgsovertakelse lagOmsorgsovertakelse(FamilieHendelseEntitet familieHendelse, BehandlingReferanse ref) {
