@@ -14,6 +14,7 @@ public record OmsorgsovertakelseDto(@NotNull Omsorgsovertakelse søknad,
                                     @NotNull Register register,
                                     @NotNull Kilde kildeGjeldende,
                                     @NotNull Omsorgsovertakelse gjeldende,
+                                    @NotNull List<Saksnummer> andreSakerSammeFamiliehendelse,
                                     SaksbehandlerVurdering saksbehandlerVurdering,
                                     @NotNull Map<OmsorgsovertakelseVilkårType, List<Avslagsårsak>> aktuelleDelvilkårAvslagsårsaker) {
 
@@ -29,5 +30,8 @@ public record OmsorgsovertakelseDto(@NotNull Omsorgsovertakelse søknad,
     }
 
     public record Register(@NotNull List<BarnHendelseData> barn) {
+    }
+
+    public record Saksnummer(@NotNull String saksnummer) {
     }
 }

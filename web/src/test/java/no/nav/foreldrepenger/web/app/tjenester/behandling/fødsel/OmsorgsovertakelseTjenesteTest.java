@@ -21,6 +21,7 @@ import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.familiehendelse.FamilieHendelseTjeneste;
 import no.nav.foreldrepenger.familiehendelse.aksjonspunkt.omsorgsovertakelse.OmsorgsovertakelseVilkårTypeUtleder;
+import no.nav.foreldrepenger.familiehendelse.kontrollerfakta.sammebarn.YtelserSammeBarnTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.fødsel.dto.Kilde;
 
 public class OmsorgsovertakelseTjenesteTest extends EntityManagerAwareTest {
@@ -35,8 +36,9 @@ public class OmsorgsovertakelseTjenesteTest extends EntityManagerAwareTest {
         repositoryProvider = new BehandlingRepositoryProvider(getEntityManager());
         var fhTjeneste = new FamilieHendelseTjeneste(null, repositoryProvider.getFamilieHendelseRepository());
         var delvilkårUtleder = new OmsorgsovertakelseVilkårTypeUtleder(repositoryProvider.getSøknadRepository());
+        var ytelserSammeBarn = new YtelserSammeBarnTjeneste(repositoryProvider, fhTjeneste);
         tjeneste = new OmsorgsovertakelseTjeneste(fhTjeneste, repositoryProvider.getBehandlingRepository(),
-            delvilkårUtleder, repositoryProvider.getBehandlingsresultatRepository());
+            delvilkårUtleder, repositoryProvider.getBehandlingsresultatRepository(), ytelserSammeBarn);
     }
 
     @Test

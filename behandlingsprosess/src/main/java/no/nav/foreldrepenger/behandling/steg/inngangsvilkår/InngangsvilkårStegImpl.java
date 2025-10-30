@@ -1,6 +1,5 @@
 package no.nav.foreldrepenger.behandling.steg.inngangsvilkår;
 
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -8,7 +7,6 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
-import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktUtlederResultat;
 import no.nav.foreldrepenger.behandlingskontroll.BehandleStegResultat;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingStegModell;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
@@ -93,7 +91,6 @@ public abstract class InngangsvilkårStegImpl implements InngangsvilkårSteg {
         if (erNoenVilkårIkkeOppfylt(regelResultat) && !harÅpentOverstyringspunktForInneværendeSteg(behandling)) {
             return stegResultatVilkårIkkeOppfylt(regelResultat, behandling);
         }
-        valideringOmsorgsovertakelseSammeBarn(regelResultat.aksjonspunktDefinisjoner(), behandling);
         return stegResultat(regelResultat);
     }
 
@@ -129,15 +126,6 @@ public abstract class InngangsvilkårStegImpl implements InngangsvilkårSteg {
     protected BehandleStegResultat stegResultat(RegelResultat regelResultat) {
         return BehandleStegResultat.utførtMedAksjonspunkter(regelResultat.aksjonspunktDefinisjoner());
     }
-
-    private void valideringOmsorgsovertakelseSammeBarn(Collection<AksjonspunktDefinisjon> apDefs,  Behandling behandling) {
-        if (apDefs.contains(AksjonspunktDefinisjon.VURDER_OMSORGSOVERTAKELSEVILKÅRET)
-            && behandling.getAksjonspunktMedDefinisjonOptional(AksjonspunktDefinisjon.AVKLAR_OM_SØKER_HAR_MOTTATT_STØTTE).isPresent()) {
-            throw new IllegalStateException("Omsorgsovertakelse og samme barn ikke støttet ennå");
-        }
-    }
-
-
 
     protected BehandleStegResultat stegResultatVilkårIkkeOppfylt(RegelResultat regelResultat, Behandling behandling) {
         // Forbedring: InngangsvilkårStegImpl som annoterbar med FagsakYtelseType og
