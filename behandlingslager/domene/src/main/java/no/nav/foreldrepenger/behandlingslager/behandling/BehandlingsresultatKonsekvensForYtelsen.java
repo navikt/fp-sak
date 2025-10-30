@@ -34,7 +34,7 @@ public class BehandlingsresultatKonsekvensForYtelsen extends BaseEntitet {
 
     @Convert(converter = KonsekvensForYtelsen.KodeverdiConverter.class)
     @Column(name = "konsekvens_ytelse", nullable = false)
-    private KonsekvensForYtelsen konsekvensForYtelsen = KonsekvensForYtelsen.UDEFINERT;
+    private KonsekvensForYtelsen konsekvensForYtelsen;
 
     public Long getId() {
         return id;
@@ -79,6 +79,7 @@ public class BehandlingsresultatKonsekvensForYtelsen extends BaseEntitet {
         }
 
         public BehandlingsresultatKonsekvensForYtelsen build(Behandlingsresultat behandlingsresultat) {
+            Objects.requireNonNull(behandlingsresultatKonsekvensForYtelsen.konsekvensForYtelsen, "Konsekvens kan ikke være null");
             behandlingsresultatKonsekvensForYtelsen.behandlingsresultat = behandlingsresultat;
             return behandlingsresultatKonsekvensForYtelsen;
         }

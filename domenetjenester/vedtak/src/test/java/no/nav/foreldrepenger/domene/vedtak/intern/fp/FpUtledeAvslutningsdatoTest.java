@@ -423,7 +423,7 @@ class FpUtledeAvslutningsdatoTest {
     private Optional<Behandlingsresultat> lagBehandlingsresultat(Behandling behandling, BehandlingResultatType behandlingResultatType) {
         return Optional.of(Behandlingsresultat.builder()
             .medBehandlingResultatType(behandlingResultatType)
-            .leggTilKonsekvensForYtelsen(KonsekvensForYtelsen.UDEFINERT)
+            .leggTilKonsekvensForYtelsen(KonsekvensForYtelsen.ENDRING_I_UTTAK)
             .buildFor(behandling));
     }
 
