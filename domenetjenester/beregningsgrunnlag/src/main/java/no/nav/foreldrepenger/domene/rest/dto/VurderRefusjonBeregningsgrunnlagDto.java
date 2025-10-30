@@ -16,17 +16,27 @@ public class VurderRefusjonBeregningsgrunnlagDto extends BekreftetAksjonspunktDt
     @Size(max = 100)
     private List<VurderRefusjonAndelBeregningsgrunnlagDto> fastsatteAndeler;
 
+    @Valid
+    @Size
+    private List<RefusjonskravForSentDto> refusjonskravForSentListe;
+
     VurderRefusjonBeregningsgrunnlagDto() {
         // Jackson
     }
 
-    public VurderRefusjonBeregningsgrunnlagDto(List<VurderRefusjonAndelBeregningsgrunnlagDto> fastsatteAndeler, String begrunnelse) {
+    public VurderRefusjonBeregningsgrunnlagDto(List<VurderRefusjonAndelBeregningsgrunnlagDto> fastsatteAndeler,
+                                               List<RefusjonskravForSentDto> refusjonskravForSentListe,
+                                               String begrunnelse) {
         super(begrunnelse);
         this.fastsatteAndeler = fastsatteAndeler;
+        this.refusjonskravForSentListe = refusjonskravForSentListe;
     }
-
 
     public List<VurderRefusjonAndelBeregningsgrunnlagDto> getFastsatteAndeler() {
         return fastsatteAndeler;
+    }
+
+    public List<RefusjonskravForSentDto> getRefusjonskravForSentListe() {
+        return refusjonskravForSentListe;
     }
 }
