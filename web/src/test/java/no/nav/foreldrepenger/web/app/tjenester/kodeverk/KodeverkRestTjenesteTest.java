@@ -12,7 +12,6 @@ import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.Avslagsårsak;
-import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakStatus;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Landkoder;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.PeriodeResultatÅrsak;
@@ -51,13 +50,14 @@ class KodeverkRestTjenesteTest {
         assertThat(fagsakStatuser.stream().map(k -> k.get("kode")).toList()).contains(FagsakStatus.AVSLUTTET.getKode(),
                 FagsakStatus.OPPRETTET.getKode());
 
-        var map = (Map<String, List<?>>) gruppertKodeliste.get(Avslagsårsak.class.getSimpleName());
-        assertThat(map).containsKeys(VilkårType.ADOPSJONSVILKÅRET_ENGANGSSTØNAD.getKode(), VilkårType.MEDLEMSKAPSVILKÅRET.getKode());
-
-        var avslagsårsaker = (List<Map<String, String>>) map.get(VilkårType.OMSORGSOVERTAKELSEVILKÅR.getKode());
+        var avslagsårsaker = (List<Map<String, String>>) gruppertKodeliste.get(Avslagsårsak.class.getSimpleName());
         assertThat(avslagsårsaker.stream().map(k -> ((Map) k).get("kode")).toList())
-                .contains(Avslagsårsak.ENGANGSTØNAD_ER_ALLEREDE_UTBETAL_TIL_MOR.getKode(),
-                        Avslagsårsak.ENGANGSSTØNAD_ER_ALLEREDE_UTBETALT_TIL_FAR_MEDMOR.getKode());
+                .contains(Avslagsårsak.FØDSELSDATO_IKKE_OPPGITT_ELLER_REGISTRERT.getKode(), Avslagsårsak.BARN_OVER_15_ÅR.getKode());
+        var lavslagsårsaker = (List<Map<String, String>>) gruppertKodeliste.get("Lineær"+Avslagsårsak.class.getSimpleName());
+        assertThat(lavslagsårsaker.stream().map(k -> ((Map) k).get("kode")).toList())
+            .contains(Avslagsårsak.FØDSELSDATO_IKKE_OPPGITT_ELLER_REGISTRERT.getKode(), Avslagsårsak.BARN_OVER_15_ÅR.getKode());
+        assertThat(avslagsårsaker).hasSameSizeAs(lavslagsårsaker);
+        assertThat(avslagsårsaker).containsAll(lavslagsårsaker);
     }
 
     @Test
