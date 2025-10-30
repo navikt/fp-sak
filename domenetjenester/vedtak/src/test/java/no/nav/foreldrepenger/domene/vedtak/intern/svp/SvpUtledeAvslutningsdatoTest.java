@@ -125,7 +125,7 @@ class SvpUtledeAvslutningsdatoTest {
     private Behandlingsresultat lagBehandlingsresultat(Behandling behandling) {
         return Behandlingsresultat.builder()
             .medBehandlingResultatType(BehandlingResultatType.INNVILGET)
-            .leggTilKonsekvensForYtelsen(KonsekvensForYtelsen.UDEFINERT)
+            .leggTilKonsekvensForYtelsen(KonsekvensForYtelsen.ENDRING_I_UTTAK)
             .buildFor(behandling);
     }
 
