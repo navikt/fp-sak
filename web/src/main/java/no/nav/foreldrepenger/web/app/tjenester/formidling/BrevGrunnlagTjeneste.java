@@ -621,7 +621,6 @@ class BrevGrunnlagTjeneste {
             case ENDRING_I_UTTAK -> BrevGrunnlagDto.Behandlingsresultat.KonsekvensForYtelsen.ENDRING_I_UTTAK;
             case ENDRING_I_FORDELING_AV_YTELSEN -> BrevGrunnlagDto.Behandlingsresultat.KonsekvensForYtelsen.ENDRING_I_FORDELING_AV_YTELSEN;
             case INGEN_ENDRING -> BrevGrunnlagDto.Behandlingsresultat.KonsekvensForYtelsen.INGEN_ENDRING;
-            case UDEFINERT -> BrevGrunnlagDto.Behandlingsresultat.KonsekvensForYtelsen.UDEFINERT;
         };
     }
 

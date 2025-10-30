@@ -19,8 +19,6 @@ public enum KonsekvensForYtelsen implements Kodeverdi{
     ENDRING_I_UTTAK("ENDRING_I_UTTAK", "Endring i uttak"),
     ENDRING_I_FORDELING_AV_YTELSEN("ENDRING_I_FORDELING_AV_YTELSEN", "Endring i fordeling av ytelsen"),
     INGEN_ENDRING("INGEN_ENDRING", "Ingen endring"),
-    UDEFINERT("-", "Udefinert"),
-
     ;
 
     private static final Map<String, KonsekvensForYtelsen> KODER = new LinkedHashMap<>();

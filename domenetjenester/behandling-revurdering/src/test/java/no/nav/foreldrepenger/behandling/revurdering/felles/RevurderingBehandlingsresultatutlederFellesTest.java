@@ -48,7 +48,7 @@ class RevurderingBehandlingsresultatutlederFellesTest {
             lagBehandlingsresultat(revurdering, BehandlingResultatType.INGEN_ENDRING,
                 KonsekvensForYtelsen.INGEN_ENDRING, VilkårUtfallType.OPPFYLT),
             lagBehandlingsresultat(originalBehandling, BehandlingResultatType.INNVILGET,
-                KonsekvensForYtelsen.UDEFINERT, VilkårUtfallType.OPPFYLT));
+                KonsekvensForYtelsen.ENDRING_I_UTTAK, VilkårUtfallType.OPPFYLT));
 
         // Assert
         assertThat(erAvslagPåAvslag).isFalse();
@@ -64,7 +64,7 @@ class RevurderingBehandlingsresultatutlederFellesTest {
         var erAvslagPåAvslag = erAvslagPåAvslag(
             lagBehandlingsresultat(revurdering, BehandlingResultatType.INGEN_ENDRING,
                 KonsekvensForYtelsen.INGEN_ENDRING, VilkårUtfallType.IKKE_OPPFYLT),
-            lagBehandlingsresultat(originalBehandling, BehandlingResultatType.AVSLÅTT, KonsekvensForYtelsen.UDEFINERT, VilkårUtfallType.IKKE_OPPFYLT));
+            lagBehandlingsresultat(originalBehandling, BehandlingResultatType.AVSLÅTT, KonsekvensForYtelsen.ENDRING_I_UTTAK, VilkårUtfallType.IKKE_OPPFYLT));
 
         // Assert
         assertThat(erAvslagPåAvslag).isTrue();
