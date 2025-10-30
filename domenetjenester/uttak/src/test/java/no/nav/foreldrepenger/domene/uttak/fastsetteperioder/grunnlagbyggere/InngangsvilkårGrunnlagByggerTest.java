@@ -33,8 +33,7 @@ class InngangsvilkårGrunnlagByggerTest {
         vilkårBuilder.leggTilVilkårOppfylt(VilkårType.FØDSELSVILKÅRET_MOR);
         vilkårBuilder.leggTilVilkårOppfylt(VilkårType.OPPTJENINGSVILKÅRET);
         vilkårBuilder.leggTilVilkårOppfylt(VilkårType.MEDLEMSKAPSVILKÅRET);
-        vilkårBuilder.leggTilVilkårOppfylt(VilkårType.FORELDREANSVARSVILKÅRET_2_LEDD);
-        vilkårBuilder.leggTilVilkårOppfylt(VilkårType.ADOPSJONSVILKARET_FORELDREPENGER);
+        vilkårBuilder.leggTilVilkårOppfylt(VilkårType.OMSORGSOVERTAKELSEVILKÅR);
         lagreVilkår(behandling, vilkårBuilder);
 
         var grunnlag = bygger.byggGrunnlag(input(behandling)).build();
@@ -67,8 +66,6 @@ class InngangsvilkårGrunnlagByggerTest {
         vilkårBuilder.leggTilVilkårAvslått(VilkårType.FØDSELSVILKÅRET_MOR, VilkårUtfallMerknad.VM_1026);
         vilkårBuilder.leggTilVilkårAvslått(VilkårType.OPPTJENINGSVILKÅRET, VilkårUtfallMerknad.VM_1035);
         vilkårBuilder.leggTilVilkårAvslått(VilkårType.MEDLEMSKAPSVILKÅRET, VilkårUtfallMerknad.VM_1025);
-        vilkårBuilder.manueltVilkår(VilkårType.FORELDREANSVARSVILKÅRET_2_LEDD, VilkårUtfallType.IKKE_OPPFYLT, Avslagsårsak.SØKER_HAR_IKKE_FORELDREANSVAR);
-        vilkårBuilder.leggTilVilkårAvslått(VilkårType.ADOPSJONSVILKARET_FORELDREPENGER, VilkårUtfallMerknad.VM_1004);
         vilkårBuilder.manueltVilkår(VilkårType.OMSORGSOVERTAKELSEVILKÅR, VilkårUtfallType.IKKE_OPPFYLT, Avslagsårsak.BARN_OVER_15_ÅR);
         lagreVilkår(behandling, vilkårBuilder);
 

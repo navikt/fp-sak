@@ -72,11 +72,7 @@ public class VurdereYtelseSammeBarnSøkerOppdaterer implements AksjonspunktOppda
     }
 
     private Optional<Vilkår> finnRelevantVilkår(Behandlingsresultat behandlingsresultat) {
-        var relevanteVilkårTyper = Set.of(
-            VilkårType.FØDSELSVILKÅRET_MOR,
-            VilkårType.FØDSELSVILKÅRET_FAR_MEDMOR,
-            VilkårType.ADOPSJONSVILKÅRET_ENGANGSSTØNAD
-        );
+        var relevanteVilkårTyper = Set.of(VilkårType.FØDSELSVILKÅRET_MOR, VilkårType.FØDSELSVILKÅRET_FAR_MEDMOR);
         return behandlingsresultat.getVilkårResultat().getVilkårene().stream()
             .filter(v -> relevanteVilkårTyper.contains(v.getVilkårType()))
             .findFirst();

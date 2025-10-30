@@ -113,8 +113,7 @@ class RevurderingTjenesteImplTest {
                 .medVedtakstidspunkt(LocalDateTime.now())
                 .medVedtakResultatType(VedtakResultatType.INNVILGET);
 
-        scenario.leggTilAksjonspunkt(AksjonspunktDefinisjon.AVKLAR_ADOPSJONSDOKUMENTAJON,
-                BehandlingStegType.KONTROLLER_FAKTA);
+        scenario.leggTilAksjonspunkt(AksjonspunktDefinisjon.SJEKK_MANGLENDE_FØDSEL, BehandlingStegType.KONTROLLER_FAKTA);
         scenario.medBehandlingstidFrist(LocalDate.now().minusDays(5));
         var behandlingSomSkalRevurderes = scenario.lagre(repositoryProvider);
         repositoryProvider.getOpptjeningRepository()

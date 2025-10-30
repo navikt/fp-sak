@@ -25,10 +25,7 @@ class InngangsvilkårTjenesteTest {
         sjekkVilkårKonfigurasjon(VilkårType.FØDSELSVILKÅRET_MOR, FagsakYtelseType.FORELDREPENGER, false);
         sjekkVilkårKonfigurasjon(VilkårType.MEDLEMSKAPSVILKÅRET, FagsakYtelseType.FORELDREPENGER, false);
         sjekkVilkårKonfigurasjon(VilkårType.SØKNADSFRISTVILKÅRET, FagsakYtelseType.FORELDREPENGER, false);
-        sjekkVilkårKonfigurasjon(VilkårType.ADOPSJONSVILKÅRET_ENGANGSSTØNAD, FagsakYtelseType.FORELDREPENGER, false);
-        sjekkVilkårKonfigurasjon(VilkårType.OMSORGSVILKÅRET, FagsakYtelseType.FORELDREPENGER, false);
-        sjekkVilkårKonfigurasjon(VilkårType.FORELDREANSVARSVILKÅRET_2_LEDD, FagsakYtelseType.FORELDREPENGER, false);
-        sjekkVilkårKonfigurasjon(VilkårType.FORELDREANSVARSVILKÅRET_4_LEDD, FagsakYtelseType.FORELDREPENGER, false);
+        sjekkVilkårKonfigurasjon(VilkårType.OMSORGSOVERTAKELSEVILKÅR, FagsakYtelseType.FORELDREPENGER, false);
     }
 
     @Test

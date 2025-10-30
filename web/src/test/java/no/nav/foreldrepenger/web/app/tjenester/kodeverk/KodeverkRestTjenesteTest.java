@@ -52,7 +52,7 @@ class KodeverkRestTjenesteTest {
                 FagsakStatus.OPPRETTET.getKode());
 
         var map = (Map<String, List<?>>) gruppertKodeliste.get(Avslagsårsak.class.getSimpleName());
-        assertThat(map).containsKeys(VilkårType.ADOPSJONSVILKÅRET_ENGANGSSTØNAD.getKode(), VilkårType.MEDLEMSKAPSVILKÅRET.getKode());
+        assertThat(map).containsKeys(VilkårType.OMSORGSOVERTAKELSEVILKÅR.getKode(), VilkårType.MEDLEMSKAPSVILKÅRET.getKode());
 
         var avslagsårsaker = (List<Map<String, String>>) map.get(VilkårType.OMSORGSOVERTAKELSEVILKÅR.getKode());
         assertThat(avslagsårsaker.stream().map(k -> ((Map) k).get("kode")).toList())

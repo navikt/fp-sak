@@ -77,7 +77,7 @@ class VurdereYtelseSammeBarnSøkerOppdatererTest {
 
         scenario.medRegisterOpplysninger(forelder);
         scenario.leggTilAksjonspunkt(AksjonspunktDefinisjon.AVKLAR_OM_SØKER_HAR_MOTTATT_STØTTE, BehandlingStegType.KONTROLLER_FAKTA);
-        scenario.leggTilVilkår(VilkårType.ADOPSJONSVILKÅRET_ENGANGSSTØNAD, VilkårUtfallType.IKKE_VURDERT);
+        scenario.leggTilVilkår(VilkårType.FØDSELSVILKÅRET_MOR, VilkårUtfallType.IKKE_VURDERT);
         return scenario;
     }
 

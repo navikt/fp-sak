@@ -97,7 +97,7 @@ class VilkårResultatTest extends EntityManagerAwareTest {
         var behandling = lagBehandling();
         lagreBehandling(behandling);
         var vilkårResultatBuilder = VilkårResultat.builder()
-                .manueltVilkår(VilkårType.OMSORGSVILKÅRET, VilkårUtfallType.IKKE_OPPFYLT, Avslagsårsak.SØKER_ER_IKKE_BARNETS_FAR_O);
+                .manueltVilkår(VilkårType.OMSORGSOVERTAKELSEVILKÅR, VilkårUtfallType.IKKE_OPPFYLT, Avslagsårsak.SØKER_ER_IKKE_BARNETS_FAR_O);
         var behandlingsresultatBuilder = new Behandlingsresultat.Builder(vilkårResultatBuilder);
         var behandlingsresultat1 = behandlingsresultatBuilder.buildFor(behandling);
 
@@ -129,7 +129,7 @@ class VilkårResultatTest extends EntityManagerAwareTest {
 
         // Act
         var oppdatertVilkårResultat = VilkårResultat.builderFraEksisterende(opprinneligVilkårResultat)
-            .manueltVilkår(VilkårType.FORELDREANSVARSVILKÅRET_4_LEDD, VilkårUtfallType.IKKE_OPPFYLT, Avslagsårsak.SØKER_ER_IKKE_BARNETS_FAR_F)
+            .manueltVilkår(VilkårType.OMSORGSOVERTAKELSEVILKÅR, VilkårUtfallType.IKKE_OPPFYLT, Avslagsårsak.SØKER_ER_IKKE_BARNETS_FAR_F)
             .buildFor(behandling);
 
         // Assert
@@ -139,7 +139,7 @@ class VilkårResultatTest extends EntityManagerAwareTest {
         assertThat(vilkår1).isNotNull();
         assertThat(vilkår1.getGjeldendeVilkårUtfall()).isEqualTo(VilkårUtfallType.IKKE_VURDERT);
 
-        var vilkår2 = oppdatertVilkårResultat.getVilkårene().stream().filter(v -> VilkårType.FORELDREANSVARSVILKÅRET_4_LEDD.equals(v.getVilkårType())).findFirst().orElse(null);
+        var vilkår2 = oppdatertVilkårResultat.getVilkårene().stream().filter(v -> VilkårType.OMSORGSOVERTAKELSEVILKÅR.equals(v.getVilkårType())).findFirst().orElse(null);
         assertThat(vilkår2).isNotNull();
         assertThat(vilkår2.getGjeldendeVilkårUtfall()).isEqualTo(VilkårUtfallType.IKKE_OPPFYLT);
     }
@@ -149,18 +149,18 @@ class VilkårResultatTest extends EntityManagerAwareTest {
         // Arrange
         var behandling = lagBehandling();
         var opprinneligVilkårResultat = VilkårResultat.builder()
-            .manueltVilkår(VilkårType.FORELDREANSVARSVILKÅRET_2_LEDD, VilkårUtfallType.IKKE_OPPFYLT, Avslagsårsak.SØKER_HAR_IKKE_FORELDREANSVAR)
+            .manueltVilkår(VilkårType.OMSORGSOVERTAKELSEVILKÅR, VilkårUtfallType.IKKE_OPPFYLT, Avslagsårsak.SØKER_HAR_IKKE_FORELDREANSVAR)
             .buildFor(behandling);
 
         // Act
         var oppdatertVilkårResultat = VilkårResultat.builderFraEksisterende(opprinneligVilkårResultat)
-            .manueltVilkår(VilkårType.FORELDREANSVARSVILKÅRET_2_LEDD, VilkårUtfallType.OPPFYLT, Avslagsårsak.UDEFINERT)
+            .manueltVilkår(VilkårType.OMSORGSOVERTAKELSEVILKÅR, VilkårUtfallType.OPPFYLT, Avslagsårsak.UDEFINERT)
             .buildFor(behandling);
 
         // Assert
         assertThat(oppdatertVilkårResultat.getVilkårene()).hasSize(1);
         var vilkår = oppdatertVilkårResultat.getVilkårene().get(0);
-        assertThat(vilkår.getVilkårType()).isEqualTo(VilkårType.FORELDREANSVARSVILKÅRET_2_LEDD);
+        assertThat(vilkår.getVilkårType()).isEqualTo(VilkårType.OMSORGSOVERTAKELSEVILKÅR);
         assertThat(vilkår.getAvslagsårsak()).isNull();
         assertThat(vilkår.getGjeldendeVilkårUtfall()).isEqualTo(VilkårUtfallType.OPPFYLT);
     }
@@ -233,12 +233,12 @@ class VilkårResultatTest extends EntityManagerAwareTest {
         var behandling = lagBehandling();
         var opprinneligVilkårResultat = VilkårResultat.builder()
             .leggTilVilkårIkkeVurdert(VilkårType.SØKNADSFRISTVILKÅRET)
-            .manueltVilkår(VilkårType.FORELDREANSVARSVILKÅRET_4_LEDD, VilkårUtfallType.IKKE_OPPFYLT, Avslagsårsak.SØKER_ER_IKKE_BARNETS_FAR_F)
+            .manueltVilkår(VilkårType.OMSORGSOVERTAKELSEVILKÅR, VilkårUtfallType.IKKE_OPPFYLT, Avslagsårsak.SØKER_ER_IKKE_BARNETS_FAR_F)
             .buildFor(behandling);
 
         // Act
         var oppdatertVilkårResultat = VilkårResultat.builderFraEksisterende(opprinneligVilkårResultat)
-            .fjernVilkår(VilkårType.FORELDREANSVARSVILKÅRET_4_LEDD)
+            .fjernVilkår(VilkårType.OMSORGSOVERTAKELSEVILKÅR)
             .buildFor(behandling);
 
         // Assert

@@ -221,7 +221,7 @@ class BehandlingskontrollEventPublisererTest {
         // Arrange - noen utvalge, tilfeldige aksjonspunkter
         var a0_0 = AksjonspunktDefinisjon.SJEKK_TERMINBEKREFTELSE;
         var a0_1 = AksjonspunktDefinisjon.SJEKK_MANGLENDE_FØDSEL;
-        var a1_0 = AksjonspunktDefinisjon.AVKLAR_ADOPSJONSDOKUMENTAJON;
+        var a1_0 = AksjonspunktDefinisjon.VURDER_OMSORGSOVERTAKELSEVILKÅRET;
         var a1_1 = AksjonspunktDefinisjon.AVKLAR_VERGE;
         var a2_0 = AksjonspunktDefinisjon.VURDER_MEDLEMSKAPSVILKÅRET;
         var a2_1 = AksjonspunktDefinisjon.VURDER_FORUTGÅENDE_MEDLEMSKAPSVILKÅR;
