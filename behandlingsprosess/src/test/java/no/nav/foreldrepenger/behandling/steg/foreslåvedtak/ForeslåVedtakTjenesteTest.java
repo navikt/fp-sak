@@ -339,7 +339,7 @@ class ForeslåVedtakTjenesteTest {
     void oppretterAksjonspunktVedTotrinnskontrollForRevurdering() {
         // Arrange
         behandling = ScenarioMorSøkerEngangsstønad.forFødsel().medBehandlingType(BehandlingType.REVURDERING).lagre(repositoryProvider);
-        leggTilAksjonspunkt(AksjonspunktDefinisjon.OVERSTYRING_AV_ADOPSJONSVILKÅRET, true, false);
+        leggTilAksjonspunkt(AksjonspunktDefinisjon.OVERSTYRING_AV_FØDSELSVILKÅRET, true, false);
 
         // Act
         var stegResultat = tjeneste.foreslåVedtak(behandling);

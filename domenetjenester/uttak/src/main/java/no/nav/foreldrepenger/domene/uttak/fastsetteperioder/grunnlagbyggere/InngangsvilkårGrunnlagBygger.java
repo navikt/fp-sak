@@ -1,7 +1,6 @@
 package no.nav.foreldrepenger.domene.uttak.fastsetteperioder.grunnlagbyggere;
 
 import java.util.Objects;
-import java.util.Set;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -47,13 +46,11 @@ public class InngangsvilkårGrunnlagBygger {
 
     private static boolean foreldreansvarsvilkåretOppfylt(VilkårResultat vilkårResultat) {
         //Bare 2. ledd for foreldrepenger
-        return vilkårAvTypeErOppfylt(vilkårResultat, VilkårType.FORELDREANSVARSVILKÅRET_2_LEDD)  &&
-            vilkårAvTypeErOppfylt(vilkårResultat, VilkårType.OMSORGSOVERTAKELSEVILKÅR);
+        return vilkårAvTypeErOppfylt(vilkårResultat, VilkårType.OMSORGSOVERTAKELSEVILKÅR);
     }
 
     private static boolean adopsjonsvilkåretOppfylt(VilkårResultat vilkårResultat) {
-        return vilkårAvTypeErOppfylt(vilkårResultat, VilkårType.ADOPSJONSVILKARET_FORELDREPENGER) &&
-            vilkårAvTypeErOppfylt(vilkårResultat, VilkårType.OMSORGSOVERTAKELSEVILKÅR);
+        return vilkårAvTypeErOppfylt(vilkårResultat, VilkårType.OMSORGSOVERTAKELSEVILKÅR);
     }
 
     private static boolean fødselsvilkårOppfylt(VilkårResultat vilkårResultat, BehandlingReferanse ref) {

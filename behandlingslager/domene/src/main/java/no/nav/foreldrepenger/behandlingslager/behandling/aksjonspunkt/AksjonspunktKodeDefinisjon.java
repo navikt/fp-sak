@@ -25,12 +25,6 @@ public class AksjonspunktKodeDefinisjon {
 
     public static final String AVKLAR_DEKNINGSGRAD_KODE = "5002";
 
-    public static final String AVKLAR_ADOPSJONSDOKUMENTAJON_KODE = "5004";
-    public static final String AVKLAR_OM_ADOPSJON_GJELDER_EKTEFELLES_BARN_KODE = "5005";
-    public static final String AVKLAR_OM_SØKER_ER_MANN_SOM_ADOPTERER_ALENE_KODE = "5006";
-    public static final String AVKLAR_VILKÅR_FOR_OMSORGSOVERTAKELSE_KODE = "5008";
-    public static final String AVKLAR_VILKÅR_FOR_FORELDREANSVAR_KODE = "5054";
-
     public static final String VURDER_OMSORGSOVERTAKELSEVILKÅRET = "5018";
 
     public static final String AVKLAR_VERGE_KODE = "5030";
@@ -44,15 +38,9 @@ public class AksjonspunktKodeDefinisjon {
     public static final String FORESLÅ_VEDTAK_KODE = "5015";
     public static final String FORESLÅ_VEDTAK_MANUELT_KODE = "5028";
 
-
-    public static final String MANUELL_VURDERING_AV_FORELDREANSVARSVILKÅRET_2_LEDD_KODE = "5013";
-    public static final String MANUELL_VURDERING_AV_FORELDREANSVARSVILKÅRET_4_LEDD_KODE = "5014";
-    public static final String MANUELL_VURDERING_AV_OMSORGSVILKÅRET_KODE = "5011";
     public static final String MANUELL_VURDERING_AV_SØKNADSFRISTVILKÅRET_KODE = "5007";
 
 
-    public static final String OVERSTYRING_AV_ADOPSJONSVILKÅRET_KODE = "6004";
-    public static final String OVERSTYRING_AV_ADOPSJONSVILKÅRET_FP_KODE = "6010";
     public static final String OVERSTYRING_AV_FØDSELSVILKÅRET_KODE = "6003";
     public static final String OVERSTYRING_AV_FØDSELSVILKÅRET_FAR_MEDMOR_KODE = "6009";
     public static final String OVERSTYRING_AV_MEDLEMSKAPSVILKÅRET_KODE = "6005";
@@ -156,19 +144,19 @@ public class AksjonspunktKodeDefinisjon {
     // Ledige aksjonspunktkoder 5001-5103
     // 5100
 
-    // Utgåtte aksjonspunktkoder. Helst ikke gjenbruk 5nnn til andre formål enn det opprinnelige før det har gått noe tid
-    //  "5009"
-    //  "5019"
+    // Utgåtte aksjonspunktkoder. Finnes i DB. Helst ikke gjenbruk 5nnn til andre formål enn det opprinnelige før det har gått noe tid
+    //  "5004"  "5005"  "5006"  "5008"  "5009"
+    //  "5011"  "5013"  "5014"  "5019"
     //  "5020"  "5021"  "5022"  "5023"  "5024"  "5025"
     //  "5032"  "5036"
     //  "5042"  "5044"  "5045"  "5048"
-    //  "5050"  "5053"  "5056"
+    //  "5050"  "5053"  "5054"  "5056"
     //  "5067"
     //  "5070"  "5075"  "5078"  "5079"
     //  "5080"  "5081"  "5083"  "5088"
-    //  "5090"  "5093"  "5094"  "5097" "5098"  "5099"
+    //  "5090"  "5093"  "5094"  "5097"  "5098"  "5099"
 
-    //  "6007" "6012"  "6013"  "6068"  "6070"
+    //  "6004"  "6007"  "6010"  "6012"  "6013"  "6068"  "6070"
 
     //  "7004"  "7006"  "7009"
     //  "7015"  "7016"  "7017"  "7018"  "7019"

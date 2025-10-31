@@ -53,38 +53,12 @@ public enum AksjonspunktDefinisjon implements Kodeverdi {
     VURDER_OMSORGSOVERTAKELSEVILKÅRET(AksjonspunktKodeDefinisjon.VURDER_OMSORGSOVERTAKELSEVILKÅRET,
             AksjonspunktType.MANUELL, "Vurder vilkår for adopsjon eller foreldreansvar", BehandlingStegType.SØKERS_RELASJON_TIL_BARN, VurderingspunktType.UT,
             VilkårType.OMSORGSOVERTAKELSEVILKÅR, SkjermlenkeType.FAKTA_OM_OMSORGSOVERTAKELSE, TOTRINN, EnumSet.of(ES, FP)),
-    AVKLAR_ADOPSJONSDOKUMENTAJON(AksjonspunktKodeDefinisjon.AVKLAR_ADOPSJONSDOKUMENTAJON_KODE,
-            AksjonspunktType.MANUELL, "Avklar adopsjonsdokumentasjon", BehandlingStegType.SØKERS_RELASJON_TIL_BARN, VurderingspunktType.INN,
-            VilkårType.ADOPSJONSVILKÅRET_ENGANGSSTØNAD, SkjermlenkeType.FAKTA_OM_ADOPSJON, ENTRINN, EnumSet.of(ES, FP)),
-    AVKLAR_OM_ADOPSJON_GJELDER_EKTEFELLES_BARN(
-            AksjonspunktKodeDefinisjon.AVKLAR_OM_ADOPSJON_GJELDER_EKTEFELLES_BARN_KODE, AksjonspunktType.MANUELL, "Avklar om adopsjon gjelder ektefelles barn",
-            BehandlingStegType.SØKERS_RELASJON_TIL_BARN, VurderingspunktType.INN, VilkårType.ADOPSJONSVILKÅRET_ENGANGSSTØNAD,
-            SkjermlenkeType.FAKTA_OM_ADOPSJON, TOTRINN, EnumSet.of(ES, FP)),
-    AVKLAR_OM_SØKER_ER_MANN_SOM_ADOPTERER_ALENE(
-            AksjonspunktKodeDefinisjon.AVKLAR_OM_SØKER_ER_MANN_SOM_ADOPTERER_ALENE_KODE, AksjonspunktType.MANUELL, "Avklar om søker er mann adopterer alene",
-            BehandlingStegType.SØKERS_RELASJON_TIL_BARN, VurderingspunktType.INN, VilkårType.ADOPSJONSVILKÅRET_ENGANGSSTØNAD,
-            SkjermlenkeType.FAKTA_OM_ADOPSJON, ENTRINN, EnumSet.of(ES, FP)),
     MANUELL_VURDERING_AV_SØKNADSFRISTVILKÅRET(
             AksjonspunktKodeDefinisjon.MANUELL_VURDERING_AV_SØKNADSFRISTVILKÅRET_KODE, AksjonspunktType.MANUELL, "Manuell vurdering av søknadsfristvilkåret",
             BehandlingStegType.VURDER_SØKNADSFRISTVILKÅR, VurderingspunktType.UT, VilkårType.SØKNADSFRISTVILKÅRET, SkjermlenkeType.SOEKNADSFRIST, TOTRINN, EnumSet.of(ES)),
-    AVKLAR_VILKÅR_FOR_OMSORGSOVERTAKELSE(
-            AksjonspunktKodeDefinisjon.AVKLAR_VILKÅR_FOR_OMSORGSOVERTAKELSE_KODE, AksjonspunktType.MANUELL, "Avklar fakta for omsorgs/foreldreansvarsvilkåret",
-            BehandlingStegType.SØKERS_RELASJON_TIL_BARN, VurderingspunktType.INN, VilkårType.OMSORGSVILKÅRET, UTEN_SKJERMLENKE, ENTRINN, EnumSet.of(ES, FP)),
-    MANUELL_VURDERING_AV_OMSORGSVILKÅRET(
-            AksjonspunktKodeDefinisjon.MANUELL_VURDERING_AV_OMSORGSVILKÅRET_KODE, AksjonspunktType.MANUELL, "Manuell vurdering av omsorgsvilkåret",
-            BehandlingStegType.SØKERS_RELASJON_TIL_BARN, VurderingspunktType.UT, VilkårType.OMSORGSVILKÅRET, SkjermlenkeType.PUNKT_FOR_OMSORG, TOTRINN,
-            EnumSet.of(ES, FP)),
     REGISTRER_PAPIRSØKNAD_ENGANGSSTØNAD(
             AksjonspunktKodeDefinisjon.REGISTRER_PAPIRSØKNAD_ENGANGSSTØNAD_KODE, AksjonspunktType.MANUELL, "Registrer papirsøknad engangsstønad",
             BehandlingStegType.REGISTRER_SØKNAD, VurderingspunktType.UT, UTEN_VILKÅR, UTEN_SKJERMLENKE, ENTRINN, EnumSet.of(ES, FP, SVP)),
-    MANUELL_VURDERING_AV_FORELDREANSVARSVILKÅRET_2_LEDD(
-            AksjonspunktKodeDefinisjon.MANUELL_VURDERING_AV_FORELDREANSVARSVILKÅRET_2_LEDD_KODE, AksjonspunktType.MANUELL,
-            "Manuell vurdering av foreldreansvarsvilkåret 2.ledd", BehandlingStegType.SØKERS_RELASJON_TIL_BARN, VurderingspunktType.UT,
-            VilkårType.FORELDREANSVARSVILKÅRET_2_LEDD, SkjermlenkeType.PUNKT_FOR_FORELDREANSVAR, TOTRINN, EnumSet.of(ES, FP)),
-    MANUELL_VURDERING_AV_FORELDREANSVARSVILKÅRET_4_LEDD(
-            AksjonspunktKodeDefinisjon.MANUELL_VURDERING_AV_FORELDREANSVARSVILKÅRET_4_LEDD_KODE, AksjonspunktType.MANUELL,
-            "Manuell vurdering av foreldreansvarsvilkåret 4.ledd", BehandlingStegType.SØKERS_RELASJON_TIL_BARN, VurderingspunktType.UT,
-            VilkårType.FORELDREANSVARSVILKÅRET_4_LEDD, SkjermlenkeType.PUNKT_FOR_FORELDREANSVAR, TOTRINN, EnumSet.of(ES, FP)),
     FORESLÅ_VEDTAK(AksjonspunktKodeDefinisjon.FORESLÅ_VEDTAK_KODE,
             AksjonspunktType.MANUELL, "Foreslå vedtak totrinn", BehandlingStegType.FORESLÅ_VEDTAK, VurderingspunktType.UT, UTEN_VILKÅR,
             SkjermlenkeType.VEDTAK, ENTRINN, EnumSet.of(ES, FP, SVP)),
@@ -157,10 +131,6 @@ public enum AksjonspunktDefinisjon implements Kodeverdi {
     AVKLAR_AKTIVITETER(AksjonspunktKodeDefinisjon.AVKLAR_AKTIVITETER_KODE,
             AksjonspunktType.MANUELL, "Avklar aktivitet for beregning", BehandlingStegType.FASTSETT_SKJÆRINGSTIDSPUNKT_BEREGNING, VurderingspunktType.UT,
         UTEN_VILKÅR, SkjermlenkeType.FAKTA_OM_BEREGNING, TOTRINN, EnumSet.of(FP, SVP)),
-    AVKLAR_VILKÅR_FOR_FORELDREANSVAR(
-            AksjonspunktKodeDefinisjon.AVKLAR_VILKÅR_FOR_FORELDREANSVAR_KODE, AksjonspunktType.MANUELL, "Avklar fakta for foreldreansvarsvilkåret for FP",
-            BehandlingStegType.SØKERS_RELASJON_TIL_BARN, VurderingspunktType.INN, VilkårType.FORELDREANSVARSVILKÅRET_2_LEDD,
-            SkjermlenkeType.PUNKT_FOR_FORELDREANSVAR, ENTRINN, EnumSet.of(ES, FP)),
     KONTROLLER_REVURDERINGSBEHANDLING_VARSEL_VED_UGUNST(
             AksjonspunktKodeDefinisjon.KONTROLLER_REVURDERINGSBEHANDLING_VARSEL_VED_UGUNST_KODE, AksjonspunktType.MANUELL,
             "Vurder varsel ved vedtak til ugunst",
@@ -274,9 +244,6 @@ public enum AksjonspunktDefinisjon implements Kodeverdi {
     OVERSTYRING_AV_FØDSELSVILKÅRET(AksjonspunktKodeDefinisjon.OVERSTYRING_AV_FØDSELSVILKÅRET_KODE, AksjonspunktType.OVERSTYRING,
             "Overstyring av fødselsvilkåret", BehandlingStegType.SØKERS_RELASJON_TIL_BARN, VurderingspunktType.UT,
             VilkårType.FØDSELSVILKÅRET_MOR, SkjermlenkeType.PUNKT_FOR_FOEDSEL, TOTRINN, EnumSet.of(ES, FP)),
-    OVERSTYRING_AV_ADOPSJONSVILKÅRET(AksjonspunktKodeDefinisjon.OVERSTYRING_AV_ADOPSJONSVILKÅRET_KODE, AksjonspunktType.OVERSTYRING,
-            "Overstyring av adopsjonsvilkåret", BehandlingStegType.SØKERS_RELASJON_TIL_BARN, VurderingspunktType.UT,
-            VilkårType.ADOPSJONSVILKÅRET_ENGANGSSTØNAD, SkjermlenkeType.PUNKT_FOR_ADOPSJON, TOTRINN, EnumSet.of(ES, FP)),
     OVERSTYRING_AV_MEDLEMSKAPSVILKÅRET(AksjonspunktKodeDefinisjon.OVERSTYRING_AV_MEDLEMSKAPSVILKÅRET_KODE, AksjonspunktType.OVERSTYRING, "Overstyring av medlemskapsvilkåret",
             BehandlingStegType.VURDER_MEDLEMSKAPVILKÅR, VurderingspunktType.UT, VilkårType.MEDLEMSKAPSVILKÅRET, SkjermlenkeType.PUNKT_FOR_MEDLEMSKAP,
             TOTRINN, EnumSet.of(ES, FP, SVP)),
@@ -288,9 +255,6 @@ public enum AksjonspunktDefinisjon implements Kodeverdi {
     OVERSTYRING_AV_FØDSELSVILKÅRET_FAR_MEDMOR(AksjonspunktKodeDefinisjon.OVERSTYRING_AV_FØDSELSVILKÅRET_FAR_MEDMOR_KODE, AksjonspunktType.OVERSTYRING,
             "Overstyring av fødselsvilkåret for far/medmor", BehandlingStegType.SØKERS_RELASJON_TIL_BARN, VurderingspunktType.UT,
             VilkårType.FØDSELSVILKÅRET_FAR_MEDMOR, SkjermlenkeType.PUNKT_FOR_FOEDSEL, TOTRINN, EnumSet.of(ES, FP)),
-    OVERSTYRING_AV_ADOPSJONSVILKÅRET_FP(AksjonspunktKodeDefinisjon.OVERSTYRING_AV_ADOPSJONSVILKÅRET_FP_KODE, AksjonspunktType.OVERSTYRING,
-            "Overstyring av adopsjonsvilkåret for foreldrepenger", BehandlingStegType.SØKERS_RELASJON_TIL_BARN, VurderingspunktType.UT,
-            VilkårType.ADOPSJONSVILKARET_FORELDREPENGER, SkjermlenkeType.PUNKT_FOR_ADOPSJON, TOTRINN, EnumSet.of(ES, FP)),
     OVERSTYRING_AV_OPPTJENINGSVILKÅRET(AksjonspunktKodeDefinisjon.OVERSTYRING_AV_OPPTJENINGSVILKÅRET_KODE, AksjonspunktType.OVERSTYRING, "Overstyring av opptjeningsvilkåret",
             BehandlingStegType.VURDER_OPPTJENINGSVILKÅR, VurderingspunktType.UT, VilkårType.OPPTJENINGSVILKÅRET, SkjermlenkeType.PUNKT_FOR_OPPTJENING,
             TOTRINN, EnumSet.of(FP, SVP)),
@@ -371,7 +335,21 @@ public enum AksjonspunktDefinisjon implements Kodeverdi {
 
     // Utgåtte aksjonspunktkoder - kun her for bakoverkompatibilitet. Finnes historisk i databasen til fpsak i PROD !
     @Deprecated
+    UTGÅTT_5004("5004", AksjonspunktType.MANUELL, "Avklar adopsjonsdokumentasjon"),
+    @Deprecated
+    UTGÅTT_5005("5005", AksjonspunktType.MANUELL, "Avklar om adopsjon gjelder ektefelles barn"),
+    @Deprecated
+    UTGÅTT_5006("5006", AksjonspunktType.MANUELL, "Avklar om søker er mann adopterer alene"),
+    @Deprecated
+    UTGÅTT_5008("5008", AksjonspunktType.MANUELL, "Avklar fakta for omsorgs/foreldreansvarsvilkåret"),
+    @Deprecated
     UTGÅTT_5009("5009", AksjonspunktType.MANUELL, "Avklar tilleggsopplysninger"),
+    @Deprecated
+    UTGÅTT_5011("5011", AksjonspunktType.MANUELL, "Manuell vurdering av omsorgsvilkåret"),
+    @Deprecated
+    UTGÅTT_5013("5013", AksjonspunktType.MANUELL, "Manuell vurdering av foreldreansvarsvilkåret 2.ledd"),
+    @Deprecated
+    UTGÅTT_5014("5014", AksjonspunktType.MANUELL, "Manuell vurdering av foreldreansvarsvilkåret 4.ledd"),
     @Deprecated
     UTGÅTT_5019("5019", AksjonspunktType.MANUELL, "Avklar lovlig opphold."),
     @Deprecated
@@ -402,6 +380,8 @@ public enum AksjonspunktDefinisjon implements Kodeverdi {
     UTGÅTT_5050("5050", AksjonspunktType.MANUELL, "Vurder gradering på andel uten beregningsgrunnlag"),
     @Deprecated
     UTGÅTT_5053("5053", AksjonspunktType.MANUELL, "Avklar fortsatt medlemskap."),
+    @Deprecated
+    UTGÅTT_5054("5054", AksjonspunktType.MANUELL, "Avklar fakta for foreldreansvarsvilkåret for FP"),
     @Deprecated
     UTGÅTT_5056("5056", AksjonspunktType.MANUELL, "Kontroll av manuelt opprettet revurderingsbehandling"),
     @Deprecated
@@ -439,7 +419,11 @@ public enum AksjonspunktDefinisjon implements Kodeverdi {
     @Deprecated
     UTGÅTT_5099("5099", AksjonspunktType.MANUELL, "Kontroller aktivitetskrav"),
     @Deprecated
+    UTGÅTT_6004("6004", AksjonspunktType.OVERSTYRING, "Overstyring av adopsjonsvilkåret"),
+    @Deprecated
     UTGÅTT_6007("6007", AksjonspunktType.OVERSTYRING, "Overstyring av beregning"),
+    @Deprecated
+    UTGÅTT_6010("6010", AksjonspunktType.OVERSTYRING, "Overstyring av adopsjonsvilkåret for foreldrepenger"),
     @Deprecated
     UTGÅTT_6012("6012", AksjonspunktType.OVERSTYRING, "Overstyring av løpende medlemskapsvilkåret"),
     @Deprecated
@@ -507,8 +491,7 @@ public enum AksjonspunktDefinisjon implements Kodeverdi {
         }
     }
 
-    private static final Set<AksjonspunktDefinisjon> DYNAMISK_SKJERMLENKE = Set.of(AksjonspunktDefinisjon.AVKLAR_VILKÅR_FOR_OMSORGSOVERTAKELSE,
-        AksjonspunktDefinisjon.AVKLAR_OM_SØKER_HAR_MOTTATT_STØTTE);
+    private static final Set<AksjonspunktDefinisjon> DYNAMISK_SKJERMLENKE = Set.of(AksjonspunktDefinisjon.AVKLAR_OM_SØKER_HAR_MOTTATT_STØTTE);
 
     private static final Set<AksjonspunktDefinisjon> FORESLÅ_VEDTAK_AP = Set.of(AksjonspunktDefinisjon.FORESLÅ_VEDTAK,
         AksjonspunktDefinisjon.FORESLÅ_VEDTAK_MANUELT);

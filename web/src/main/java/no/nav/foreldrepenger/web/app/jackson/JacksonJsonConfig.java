@@ -6,11 +6,10 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
-
 import jakarta.ws.rs.ext.ContextResolver;
 import jakarta.ws.rs.ext.Provider;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.core.Version;
 import com.fasterxml.jackson.databind.DeserializationFeature;
@@ -23,7 +22,6 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import no.nav.foreldrepenger.domene.opptjening.dto.AvklarAktivitetsPerioderDto;
 import no.nav.foreldrepenger.domene.person.verge.dto.AvklarVergeDto;
 import no.nav.foreldrepenger.domene.rest.dto.VurderFaktaOmBeregningDto;
-import no.nav.foreldrepenger.familiehendelse.aksjonspunkt.omsorgsovertagelse.dto.AvklarFaktaForOmsorgOgForeldreansvarAksjonspunktDto;
 import no.nav.foreldrepenger.web.app.IndexClasses;
 import no.nav.foreldrepenger.web.app.tjenester.RestImplementationClasses;
 
@@ -63,7 +61,6 @@ public class JacksonJsonConfig implements ContextResolver<ObjectMapper> {
         // andre dtoer
         scanClasses.add(AvklarAktivitetsPerioderDto.class);
         scanClasses.add(VurderFaktaOmBeregningDto.class);
-        scanClasses.add(AvklarFaktaForOmsorgOgForeldreansvarAksjonspunktDto.class);
         scanClasses.add(AvklarVergeDto.class);
 
         // avled code location fra klassene

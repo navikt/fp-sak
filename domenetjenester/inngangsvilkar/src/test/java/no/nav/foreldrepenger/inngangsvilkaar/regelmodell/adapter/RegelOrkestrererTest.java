@@ -61,7 +61,7 @@ class RegelOrkestrererTest {
     @Test
     void skal_kalle_regeltjeneste_for_adopsjonsvilkåret_og_oppdatere_vilkårresultat() {
         // Arrange
-        var vilkårType = VilkårType.ADOPSJONSVILKÅRET_ENGANGSSTØNAD;
+        var vilkårType = VilkårType.OMSORGSOVERTAKELSEVILKÅR;
         var vilkårData = new VilkårData(vilkårType, OPPFYLT, emptyList());
         when(inngangsvilkårTjeneste.finnVilkår(vilkårType, FagsakYtelseType.FORELDREPENGER)).thenReturn(b -> vilkårData);
         var behandling = byggBehandlingMedVilkårresultat(vilkårType);
@@ -113,45 +113,9 @@ class RegelOrkestrererTest {
     }
 
     @Test
-    void skal_kalle_regeltjeneste_for_omsorgsvilkåret_og_oppdatere_vilkårresultat() {
-        // Arrange
-        var vilkårType = VilkårType.OMSORGSVILKÅRET;
-        var vilkårData = new VilkårData(vilkårType, OPPFYLT, emptyList());
-        when(inngangsvilkårTjeneste.finnVilkår(vilkårType, FagsakYtelseType.FORELDREPENGER)).thenReturn(b -> vilkårData);
-        var behandling = byggBehandlingMedVilkårresultat(vilkårType);
-        when(inngangsvilkårTjeneste.getBehandlingsresultat(behandling.getId())).thenReturn(behandling.getBehandlingsresultat());
-
-        // Act
-        var regelResultat = orkestrerer.vurderInngangsvilkår(Set.of(vilkårType), behandling, BehandlingReferanse.fra(behandling));
-
-        // Assert
-        assertThat(regelResultat.vilkårResultat().getVilkårene()).hasSize(1);
-        assertThat(regelResultat.vilkårResultat().getVilkårene().iterator().next().getVilkårType())
-                .isEqualTo(vilkårType);
-    }
-
-    @Test
     void skal_kalle_regeltjeneste_for_foreldreansvarsvilkår1_og_oppdatere_vilkårresultat() {
         // Arrange
-        var vilkårType = VilkårType.FORELDREANSVARSVILKÅRET_2_LEDD;
-        var vilkårData = new VilkårData(vilkårType, OPPFYLT, emptyList());
-        when(inngangsvilkårTjeneste.finnVilkår(vilkårType, FagsakYtelseType.FORELDREPENGER)).thenReturn(b -> vilkårData);
-        var behandling = byggBehandlingMedVilkårresultat(vilkårType);
-        when(inngangsvilkårTjeneste.getBehandlingsresultat(behandling.getId())).thenReturn(behandling.getBehandlingsresultat());
-
-        // Act
-        var regelResultat = orkestrerer.vurderInngangsvilkår(Set.of(vilkårType), behandling, BehandlingReferanse.fra(behandling));
-
-        // Assert
-        assertThat(regelResultat.vilkårResultat().getVilkårene()).hasSize(1);
-        assertThat(regelResultat.vilkårResultat().getVilkårene().iterator().next().getVilkårType())
-                .isEqualTo(vilkårType);
-    }
-
-    @Test
-    void skal_kalle_regeltjeneste_for_foreldreansvarsvilkår2_og_oppdatere_vilkårresultat() {
-        // Arrange
-        var vilkårType = VilkårType.FORELDREANSVARSVILKÅRET_4_LEDD;
+        var vilkårType = VilkårType.OMSORGSOVERTAKELSEVILKÅR;
         var vilkårData = new VilkårData(vilkårType, OPPFYLT, emptyList());
         when(inngangsvilkårTjeneste.finnVilkår(vilkårType, FagsakYtelseType.FORELDREPENGER)).thenReturn(b -> vilkårData);
         var behandling = byggBehandlingMedVilkårresultat(vilkårType);
@@ -213,7 +177,7 @@ class RegelOrkestrererTest {
         // Arrange
         var behandling = lagBehandling();
 
-        var adopsjonsvilkårType = VilkårType.ADOPSJONSVILKÅRET_ENGANGSSTØNAD;
+        var adopsjonsvilkårType = VilkårType.OMSORGSOVERTAKELSEVILKÅR;
         var fødselsvilkårType = VilkårType.FØDSELSVILKÅRET_MOR;
         var søknadsfristvilkårType = VilkårType.SØKNADSFRISTVILKÅRET;
         var vilkårStøttetAvSteg = Set.of(adopsjonsvilkårType, fødselsvilkårType);

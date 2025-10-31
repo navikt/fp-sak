@@ -64,7 +64,7 @@ class BehandlingModellTest {
         // Arrange - noen utvalge, tilfeldige aksjonspunkter
         var a0_0 = AksjonspunktDefinisjon.FORDEL_BEREGNINGSGRUNNLAG;
         var a0_1 = AksjonspunktDefinisjon.SJEKK_MANGLENDE_FØDSEL;
-        var a1_0 = AksjonspunktDefinisjon.AVKLAR_ADOPSJONSDOKUMENTAJON;
+        var a1_0 = AksjonspunktDefinisjon.VURDER_OMSORGSOVERTAKELSEVILKÅRET;
         var a1_1 = AksjonspunktDefinisjon.VURDER_FORUTGÅENDE_MEDLEMSKAPSVILKÅR;
         var a2_0 = AksjonspunktDefinisjon.FASTSETT_UTTAKPERIODER;
         var a2_1 = AksjonspunktDefinisjon.VURDER_PERMISJON_UTEN_SLUTTDATO;
@@ -113,7 +113,7 @@ class BehandlingModellTest {
         // Arrange - noen utvalge, tilfeldige aksjonspunkter
         var a0_0 = AksjonspunktDefinisjon.VURDER_PERIODER_MED_OPPTJENING;
         var a0_1 = AksjonspunktDefinisjon.SJEKK_MANGLENDE_FØDSEL;
-        var a1_0 = AksjonspunktDefinisjon.AVKLAR_ADOPSJONSDOKUMENTAJON;
+        var a1_0 = AksjonspunktDefinisjon.VURDER_OMSORGSOVERTAKELSEVILKÅRET;
         var a1_1 = AksjonspunktDefinisjon.VURDER_MEDLEMSKAPSVILKÅRET;
 
         var steg = new DummySteg();

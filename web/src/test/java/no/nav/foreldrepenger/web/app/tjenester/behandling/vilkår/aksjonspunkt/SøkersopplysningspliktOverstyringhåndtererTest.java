@@ -35,7 +35,7 @@ class SøkersopplysningspliktOverstyringhåndtererTest {
         var scenario = ScenarioFarSøkerEngangsstønad.forAdopsjon();
         scenario.medSøknad().medFarSøkerType(FarSøkerType.OVERTATT_OMSORG);
         scenario.medSøknadHendelse().medFødselsDato(LocalDate.now().minusWeeks(2), 1);
-        scenario.leggTilAksjonspunkt(AksjonspunktDefinisjon.MANUELL_VURDERING_AV_OMSORGSVILKÅRET,
+        scenario.leggTilAksjonspunkt(AksjonspunktDefinisjon.VURDER_OMSORGSOVERTAKELSEVILKÅRET,
                 BehandlingStegType.SØKERS_RELASJON_TIL_BARN);
         scenario.lagre(repositoryProvider);
 

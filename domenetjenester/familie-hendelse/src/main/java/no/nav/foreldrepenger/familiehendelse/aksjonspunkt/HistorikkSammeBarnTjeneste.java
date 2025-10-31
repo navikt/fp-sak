@@ -80,8 +80,7 @@ public class HistorikkSammeBarnTjeneste {
     private static String finnTekstForFelt(Vilkår vilkår) {
         return switch (vilkår.getVilkårType()) {
             case FØDSELSVILKÅRET_MOR, FØDSELSVILKÅRET_FAR_MEDMOR -> "Fødselsvilkåret";
-            case ADOPSJONSVILKÅRET_ENGANGSSTØNAD -> "Adopsjonsvilkåret";
-            case OMSORGSOVERTAKELSEVILKÅR -> "Adopsjonsvilkåret";
+            case OMSORGSOVERTAKELSEVILKÅR -> "Omsorgsovertakelsevilkåret";
             default -> throw new IllegalStateException("Vilkår ikke støttet for dette historikkinnslaget: " + vilkår.getVilkårType());
         };
     }
@@ -89,9 +88,6 @@ public class HistorikkSammeBarnTjeneste {
     public static SkjermlenkeType getSkjermlenkeType(VilkårType vilkårType, AksjonspunktDefinisjon aksjonspunktKode) {
         return switch (aksjonspunktKode) {
             case MANUELL_VURDERING_AV_SØKNADSFRISTVILKÅRET -> SkjermlenkeType.SOEKNADSFRIST;
-            case MANUELL_VURDERING_AV_OMSORGSVILKÅRET -> SkjermlenkeType.PUNKT_FOR_OMSORG;
-            case MANUELL_VURDERING_AV_FORELDREANSVARSVILKÅRET_2_LEDD -> SkjermlenkeType.PUNKT_FOR_FORELDREANSVAR;
-            case MANUELL_VURDERING_AV_FORELDREANSVARSVILKÅRET_4_LEDD -> SkjermlenkeType.PUNKT_FOR_FORELDREANSVAR;
             case VURDER_OMSORGSOVERTAKELSEVILKÅRET -> SkjermlenkeType.FAKTA_OM_OMSORGSOVERTAKELSE;
             case SØKERS_OPPLYSNINGSPLIKT_MANU -> SkjermlenkeType.OPPLYSNINGSPLIKT;
             case AVKLAR_OM_SØKER_HAR_MOTTATT_STØTTE -> SkjermlenkeType.getSkjermlenkeTypeForMottattStotte(vilkårType);  // avklar om søker har mottatt støte
