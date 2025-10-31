@@ -53,7 +53,7 @@ class SendDokumentForAutopunktEventObserverTest {
         var autopunktDefinisjonTidligSøknad = AksjonspunktDefinisjon.VENT_PGA_FOR_TIDLIG_SØKNAD;
         var autopunktDefinisjonEtterkontroll = AksjonspunktDefinisjon.AUTO_SATT_PÅ_VENT_REVURDERING;
 
-        var manuellpunktDefinisjon = AksjonspunktDefinisjon.MANUELL_VURDERING_AV_OMSORGSVILKÅRET;
+        var manuellpunktDefinisjon = AksjonspunktDefinisjon.VURDER_OMSORGSOVERTAKELSEVILKÅRET;
 
         lenient().when(manuellpunkt.getAksjonspunktDefinisjon()).thenReturn(manuellpunktDefinisjon);
 

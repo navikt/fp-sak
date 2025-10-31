@@ -30,45 +30,6 @@ FP_BR_21: https://confluence.adeo.no/pages/viewpage.action?pageId=234395762
 == RegelFastsettStatusVedSkjæringstidspunkt
 FP_BR_19: https://confluence.adeo.no/display/MODNAV/Funksjonell+beskrivelse+-+Fastsette+status
 
-== AdopsjonsvilkårEngangsstønad
-++++
- Denne implementerer regeltjenesten som validerer adopsjonsvilkåret for engangsstønad (FP_VK_4)
- <p>
- Data underlag definisjoner:<br>
- <p>
- VilkårUtfall IKKE_OPPFYLT:<br>
- - Adopsjon av ektefelle/samboers barn<br>
- - Barn ikke under 15 år ved omsorgsovertakelsen<br>
- <p>
- VilkårUtfall OPPFYLT:<br>
- - Barn under 15 år ved omsorgsovertakelsen og kvinne som adopterer<br>
- - Barn under 15 år ved omsorgsovertakelsen og mann som ikke adopterer alene<br>
-  <p>
- VilkårUtfall IKKE_VURDERT:<br>
- - Mann adopterer alene
-
-
-++++
-
-FP_VK_4: https://confluence.adeo.no/pages/viewpage.action?pageId=173827808
-
-== AdopsjonsvilkårForeldrepenger
-++++
- Denne implementerer regeltjenesten som validerer adopsjonsvilkåret for foreldrepenger (FP_VK_16)
- <p>
- Data underlag definisjoner:<br>
- <p>
- VilkårUtfall IKKE_OPPFYLT:<br>
- - Adopsjon av ektefelle/samboers barn<br>
- - Barn ikke under 15 år ved omsorgsovertakelsen<br>
- <p>
- VilkårUtfall OPPFYLT:<br>
- - Barn under 15 år ved omsorgsovertakelsen og ikke ektefelle/samboers barn<br>
-
-
-++++
-
-FP_VK_16: https://confluence.adeo.no/pages/viewpage.action?pageId=183700165
 
 == FødselsvilkårFar
 ++++

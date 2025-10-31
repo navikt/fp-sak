@@ -19,14 +19,9 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
 public class VurderSøkersRelasjonTilBarnStegImpl extends InngangsvilkårStegImpl {
 
     private static final List<VilkårType> STØTTEDE_VILKÅR = List.of(
-            VilkårType.ADOPSJONSVILKÅRET_ENGANGSSTØNAD,
-            VilkårType.ADOPSJONSVILKARET_FORELDREPENGER,
             VilkårType.FØDSELSVILKÅRET_MOR,
             VilkårType.FØDSELSVILKÅRET_FAR_MEDMOR,
-            VilkårType.OMSORGSOVERTAKELSEVILKÅR,
-            VilkårType.OMSORGSVILKÅRET,
-            VilkårType.FORELDREANSVARSVILKÅRET_2_LEDD,
-            VilkårType.FORELDREANSVARSVILKÅRET_4_LEDD);
+            VilkårType.OMSORGSOVERTAKELSEVILKÅR);
 
     VurderSøkersRelasjonTilBarnStegImpl() {
         // for CDI proxy

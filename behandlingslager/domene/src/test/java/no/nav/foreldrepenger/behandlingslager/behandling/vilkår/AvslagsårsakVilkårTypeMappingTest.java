@@ -8,17 +8,17 @@ class AvslagsårsakVilkårTypeMappingTest {
 
     @Test
     void test_finn_vilkårtype_fra_avslagårsak() {
-        assertThat(Avslagsårsak.SØKER_ER_IKKE_BARNETS_FAR_O.getVilkårTyper()).contains(VilkårType.OMSORGSVILKÅRET);
+        assertThat(Avslagsårsak.SØKER_ER_IKKE_BARNETS_FAR_O.getVilkårTyper()).contains(VilkårType.OMSORGSOVERTAKELSEVILKÅR);
     }
 
     @Test
     void skal_hente_alle_avslagsårsaker_gruppert_på_vilkårstype() {
         var map = VilkårType.finnAvslagårsakerGruppertPåVilkårType();
         assertThat(map.get(VilkårType.SØKERSOPPLYSNINGSPLIKT)).containsOnly(Avslagsårsak.MANGLENDE_DOKUMENTASJON);
-        assertThat(map.get(VilkårType.FORELDREANSVARSVILKÅRET_4_LEDD))
-                .containsOnly(Avslagsårsak.SØKER_ER_IKKE_BARNETS_FAR_F, Avslagsårsak.OMSORGSOVERTAKELSE_ETTER_56_UKER,
-                        Avslagsårsak.IKKE_FORELDREANSVAR_ALENE_ETTER_BARNELOVA,
-                        Avslagsårsak.ENGANGSSTØNAD_ER_ALLEREDE_UTBETALT_TIL_FAR_MEDMOR,
-                        Avslagsårsak.FORELDREPENGER_ER_ALLEREDE_UTBETALT_TIL_FAR_MEDMOR);
+        assertThat(map.get(VilkårType.FØDSELSVILKÅRET_FAR_MEDMOR))
+                .containsOnly(Avslagsårsak.INGEN_BARN_DOKUMENTERT_PÅ_FAR_MEDMOR,
+                    Avslagsårsak.MOR_FYLLER_IKKE_VILKÅRET_FOR_SYKDOM,
+                    Avslagsårsak.BRUKER_ER_IKKE_REGISTRERT_SOM_FAR_MEDMOR_TIL_BARNET,
+                    Avslagsårsak.FORELDREPENGER_ER_ALLEREDE_UTBETALT_TIL_FAR_MEDMOR);
     }
 }

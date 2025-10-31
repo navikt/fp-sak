@@ -167,15 +167,10 @@ final class EnumMapper {
             case FØDSELSVILKÅRET_MOR -> Behandlingsresultat.VilkårType.FØDSELSVILKÅRET_MOR;
             case FØDSELSVILKÅRET_FAR_MEDMOR -> Behandlingsresultat.VilkårType.FØDSELSVILKÅRET_FAR_MEDMOR;
             case OMSORGSOVERTAKELSEVILKÅR -> Behandlingsresultat.VilkårType.OMSORGSOVERTAKELSEVILKÅR;
-            case ADOPSJONSVILKARET_FORELDREPENGER -> Behandlingsresultat.VilkårType.ADOPSJONSVILKARET_FORELDREPENGER;
             case MEDLEMSKAPSVILKÅRET -> Behandlingsresultat.VilkårType.MEDLEMSKAPSVILKÅRET;
             case MEDLEMSKAPSVILKÅRET_FORUTGÅENDE -> Behandlingsresultat.VilkårType.MEDLEMSKAPSVILKÅRET_FORUTGÅENDE;
             case MEDLEMSKAPSVILKÅRET_LØPENDE -> Behandlingsresultat.VilkårType.MEDLEMSKAPSVILKÅRET_LØPENDE;
             case SØKNADSFRISTVILKÅRET -> Behandlingsresultat.VilkårType.SØKNADSFRISTVILKÅRET;
-            case ADOPSJONSVILKÅRET_ENGANGSSTØNAD -> Behandlingsresultat.VilkårType.ADOPSJONSVILKÅRET_ENGANGSSTØNAD;
-            case OMSORGSVILKÅRET -> Behandlingsresultat.VilkårType.OMSORGSVILKÅRET;
-            case FORELDREANSVARSVILKÅRET_2_LEDD -> Behandlingsresultat.VilkårType.FORELDREANSVARSVILKÅRET_2_LEDD;
-            case FORELDREANSVARSVILKÅRET_4_LEDD -> Behandlingsresultat.VilkårType.FORELDREANSVARSVILKÅRET_4_LEDD;
             case SØKERSOPPLYSNINGSPLIKT -> Behandlingsresultat.VilkårType.SØKERSOPPLYSNINGSPLIKT;
             case OPPTJENINGSPERIODEVILKÅR -> Behandlingsresultat.VilkårType.OPPTJENINGSPERIODEVILKÅR;
             case OPPTJENINGSVILKÅRET -> Behandlingsresultat.VilkårType.OPPTJENINGSVILKÅRET;

@@ -154,7 +154,7 @@ class RevurderingBehandlingsresultatutlederTest {
 
         // Oppfylt inngangsvilkår på skjæringstidspunkt
         var vilkårResultat = VilkårResultat.builder()
-            .leggTilVilkårOppfylt(VilkårType.FORELDREANSVARSVILKÅRET_2_LEDD)
+            .leggTilVilkårOppfylt(VilkårType.OMSORGSOVERTAKELSEVILKÅR)
             .leggTilVilkårAvslått(VilkårType.OPPTJENINGSVILKÅRET, VilkårUtfallMerknad.VM_1035)
             .leggTilVilkårOppfylt(VilkårType.SØKERSOPPLYSNINGSPLIKT)
             .leggTilVilkårAvslått(VilkårType.MEDLEMSKAPSVILKÅRET, VilkårUtfallMerknad.VM_1025)
@@ -201,7 +201,7 @@ class RevurderingBehandlingsresultatutlederTest {
 
         // Oppfylt inngangsvilkår på skjæringstidspunkt
         var vilkårResultat = VilkårResultat.builder()
-            .leggTilVilkårOppfylt(VilkårType.FORELDREANSVARSVILKÅRET_2_LEDD)
+            .leggTilVilkårOppfylt(VilkårType.OMSORGSOVERTAKELSEVILKÅR)
             .leggTilVilkårOppfylt(VilkårType.OPPTJENINGSVILKÅRET)
             .leggTilVilkårOppfylt(VilkårType.SØKERSOPPLYSNINGSPLIKT)
             .leggTilVilkårAvslått(VilkårType.MEDLEMSKAPSVILKÅRET, VilkårUtfallMerknad.VM_1020)
@@ -256,7 +256,7 @@ class RevurderingBehandlingsresultatutlederTest {
 
         // Oppfylt inngangsvilkår på skjæringstidspunkt
         var vilkårResultat = VilkårResultat.builder()
-            .leggTilVilkårOppfylt(VilkårType.FORELDREANSVARSVILKÅRET_2_LEDD)
+            .leggTilVilkårOppfylt(VilkårType.OMSORGSOVERTAKELSEVILKÅR)
             .leggTilVilkårOppfylt(VilkårType.OPPTJENINGSVILKÅRET)
             .leggTilVilkårOppfylt(VilkårType.SØKERSOPPLYSNINGSPLIKT)
             .leggTilVilkårOppfylt(VilkårType.MEDLEMSKAPSVILKÅRET)
@@ -311,7 +311,7 @@ class RevurderingBehandlingsresultatutlederTest {
             List.of(UttakPeriodeType.FORELDREPENGER));
 
         var vilkårResultat = VilkårResultat.builder()
-            .leggTilVilkårOppfylt(VilkårType.FORELDREANSVARSVILKÅRET_2_LEDD)
+            .leggTilVilkårOppfylt(VilkårType.OMSORGSOVERTAKELSEVILKÅR)
             .leggTilVilkårOppfylt(VilkårType.OPPTJENINGSVILKÅRET)
             .leggTilVilkårOppfylt(VilkårType.SØKERSOPPLYSNINGSPLIKT)
             .leggTilVilkårOppfylt(VilkårType.MEDLEMSKAPSVILKÅRET)
@@ -367,7 +367,7 @@ class RevurderingBehandlingsresultatutlederTest {
 
         // Oppfylt inngangsvilkår på skjæringstidspunkt
         var vilkårResultat = VilkårResultat.builder()
-            .leggTilVilkårOppfylt(VilkårType.FORELDREANSVARSVILKÅRET_2_LEDD)
+            .leggTilVilkårOppfylt(VilkårType.OMSORGSOVERTAKELSEVILKÅR)
             .leggTilVilkårOppfylt(VilkårType.OPPTJENINGSVILKÅRET)
             .leggTilVilkårOppfylt(VilkårType.SØKERSOPPLYSNINGSPLIKT)
             .leggTilVilkårOppfylt(VilkårType.MEDLEMSKAPSVILKÅRET)
@@ -423,7 +423,7 @@ class RevurderingBehandlingsresultatutlederTest {
             List.of(UttakPeriodeType.FELLESPERIODE));
 
         var vilkårResultat = VilkårResultat.builder()
-            .leggTilVilkårOppfylt(VilkårType.FORELDREANSVARSVILKÅRET_2_LEDD)
+            .leggTilVilkårOppfylt(VilkårType.OMSORGSOVERTAKELSEVILKÅR)
             .leggTilVilkårOppfylt(VilkårType.OPPTJENINGSVILKÅRET)
             .leggTilVilkårOppfylt(VilkårType.SØKERSOPPLYSNINGSPLIKT)
             .leggTilVilkårOppfylt(VilkårType.MEDLEMSKAPSVILKÅRET)
@@ -480,7 +480,7 @@ class RevurderingBehandlingsresultatutlederTest {
             List.of(UttakPeriodeType.FELLESPERIODE));
 
         var vilkårResultat = VilkårResultat.builder()
-            .leggTilVilkårOppfylt(VilkårType.FORELDREANSVARSVILKÅRET_2_LEDD)
+            .leggTilVilkårOppfylt(VilkårType.OMSORGSOVERTAKELSEVILKÅR)
             .leggTilVilkårOppfylt(VilkårType.OPPTJENINGSVILKÅRET)
             .leggTilVilkårOppfylt(VilkårType.SØKERSOPPLYSNINGSPLIKT)
             .leggTilVilkårOppfylt(VilkårType.MEDLEMSKAPSVILKÅRET)
@@ -536,7 +536,7 @@ class RevurderingBehandlingsresultatutlederTest {
             List.of(UttakPeriodeType.FORELDREPENGER));
 
         var vilkårResultat = VilkårResultat.builder()
-            .leggTilVilkårOppfylt(VilkårType.FORELDREANSVARSVILKÅRET_2_LEDD)
+            .leggTilVilkårOppfylt(VilkårType.OMSORGSOVERTAKELSEVILKÅR)
             .leggTilVilkårOppfylt(VilkårType.OPPTJENINGSVILKÅRET)
             .leggTilVilkårOppfylt(VilkårType.SØKERSOPPLYSNINGSPLIKT)
             .leggTilVilkårOppfylt(VilkårType.MEDLEMSKAPSVILKÅRET)
@@ -592,7 +592,7 @@ class RevurderingBehandlingsresultatutlederTest {
             List.of(UttakPeriodeType.FORELDREPENGER));
 
         var vilkårResultat = VilkårResultat.builder()
-            .leggTilVilkårOppfylt(VilkårType.FORELDREANSVARSVILKÅRET_2_LEDD)
+            .leggTilVilkårOppfylt(VilkårType.OMSORGSOVERTAKELSEVILKÅR)
             .leggTilVilkårOppfylt(VilkårType.OPPTJENINGSVILKÅRET)
             .leggTilVilkårOppfylt(VilkårType.SØKERSOPPLYSNINGSPLIKT)
             .leggTilVilkårOppfylt(VilkårType.MEDLEMSKAPSVILKÅRET)
@@ -649,7 +649,7 @@ class RevurderingBehandlingsresultatutlederTest {
             List.of(UttakPeriodeType.FORELDREPENGER));
 
         var vilkårResultat = VilkårResultat.builder()
-            .leggTilVilkårOppfylt(VilkårType.FORELDREANSVARSVILKÅRET_2_LEDD)
+            .leggTilVilkårOppfylt(VilkårType.OMSORGSOVERTAKELSEVILKÅR)
             .leggTilVilkårOppfylt(VilkårType.OPPTJENINGSVILKÅRET)
             .leggTilVilkårOppfylt(VilkårType.SØKERSOPPLYSNINGSPLIKT)
             .leggTilVilkårOppfylt(VilkårType.MEDLEMSKAPSVILKÅRET)
@@ -697,7 +697,7 @@ class RevurderingBehandlingsresultatutlederTest {
             List.of(UttakPeriodeType.FORELDREPENGER));
 
         var vilkårResultat = VilkårResultat.builder()
-            .leggTilVilkårOppfylt(VilkårType.FORELDREANSVARSVILKÅRET_2_LEDD)
+            .leggTilVilkårOppfylt(VilkårType.OMSORGSOVERTAKELSEVILKÅR)
             .leggTilVilkårOppfylt(VilkårType.OPPTJENINGSVILKÅRET)
             .leggTilVilkårOppfylt(VilkårType.SØKERSOPPLYSNINGSPLIKT)
             .leggTilVilkårOppfylt(VilkårType.MEDLEMSKAPSVILKÅRET)
@@ -752,7 +752,7 @@ class RevurderingBehandlingsresultatutlederTest {
             List.of(100), List.of(100), List.of(new Trekkdager(12)), List.of(UttakPeriodeType.FORELDREPENGER));
 
         var vilkårResultat = VilkårResultat.builder()
-            .leggTilVilkårOppfylt(VilkårType.FORELDREANSVARSVILKÅRET_2_LEDD)
+            .leggTilVilkårOppfylt(VilkårType.OMSORGSOVERTAKELSEVILKÅR)
             .leggTilVilkårOppfylt(VilkårType.OPPTJENINGSVILKÅRET)
             .leggTilVilkårOppfylt(VilkårType.SØKERSOPPLYSNINGSPLIKT)
             .leggTilVilkårOppfylt(VilkårType.MEDLEMSKAPSVILKÅRET)
@@ -800,7 +800,7 @@ class RevurderingBehandlingsresultatutlederTest {
         lagreEndringsdato(endringsdato, revurdering.getId());
 
         var vilkårResultat = VilkårResultat.builder()
-            .leggTilVilkårOppfylt(VilkårType.FORELDREANSVARSVILKÅRET_2_LEDD)
+            .leggTilVilkårOppfylt(VilkårType.OMSORGSOVERTAKELSEVILKÅR)
             .leggTilVilkårOppfylt(VilkårType.OPPTJENINGSVILKÅRET)
             .leggTilVilkårOppfylt(VilkårType.SØKERSOPPLYSNINGSPLIKT)
             .leggTilVilkårOppfylt(VilkårType.MEDLEMSKAPSVILKÅRET)
@@ -904,7 +904,7 @@ class RevurderingBehandlingsresultatutlederTest {
             List.of(100), List.of(100), List.of(new Trekkdager(12)), List.of(UttakPeriodeType.FORELDREPENGER));
 
         var vilkårResultat = VilkårResultat.builder()
-            .leggTilVilkårOppfylt(VilkårType.FORELDREANSVARSVILKÅRET_2_LEDD)
+            .leggTilVilkårOppfylt(VilkårType.OMSORGSOVERTAKELSEVILKÅR)
             .leggTilVilkårOppfylt(VilkårType.OPPTJENINGSVILKÅRET)
             .leggTilVilkårOppfylt(VilkårType.SØKERSOPPLYSNINGSPLIKT)
             .leggTilVilkårOppfylt(VilkårType.MEDLEMSKAPSVILKÅRET)
@@ -954,7 +954,7 @@ class RevurderingBehandlingsresultatutlederTest {
             List.of(100), List.of(100), List.of(new Trekkdager(12)), List.of(UttakPeriodeType.FORELDREPENGER));
 
         var vilkårResultat = VilkårResultat.builder()
-            .leggTilVilkårOppfylt(VilkårType.FORELDREANSVARSVILKÅRET_2_LEDD)
+            .leggTilVilkårOppfylt(VilkårType.OMSORGSOVERTAKELSEVILKÅR)
             .leggTilVilkårOppfylt(VilkårType.OPPTJENINGSVILKÅRET)
             .leggTilVilkårOppfylt(VilkårType.SØKERSOPPLYSNINGSPLIKT)
             .leggTilVilkårOppfylt(VilkårType.MEDLEMSKAPSVILKÅRET)

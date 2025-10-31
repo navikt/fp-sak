@@ -327,7 +327,7 @@ class BehandlingRepositoryTest extends EntityManagerAwareTest {
         behandlingRepository.lagre(behandling, lås);
 
         var vilkårResultat = VilkårResultat.builder()
-            .leggTilVilkårIkkeVurdert(VilkårType.OMSORGSVILKÅRET)
+            .leggTilVilkårIkkeVurdert(VilkårType.FØDSELSVILKÅRET_MOR)
             .buildFor(behandling);
 
         // Act
@@ -337,23 +337,23 @@ class BehandlingRepositoryTest extends EntityManagerAwareTest {
 
         // Assert
         assertThat(vilkårResultat.getVilkårene()).hasSize(1);
-        assertThat(vilkårResultat.getVilkårene().iterator().next().getVilkårType()).isEqualTo(VilkårType.OMSORGSVILKÅRET);
+        assertThat(vilkårResultat.getVilkårene().iterator().next().getVilkårType()).isEqualTo(VilkårType.FØDSELSVILKÅRET_MOR);
 
         // Arrange
         VilkårResultat.builderFraEksisterende(vilkårResultat)
-            .leggTilVilkårIkkeVurdert(VilkårType.FORELDREANSVARSVILKÅRET_4_LEDD)
-            .fjernVilkår(VilkårType.OMSORGSVILKÅRET)
+            .leggTilVilkårIkkeVurdert(VilkårType.OMSORGSOVERTAKELSEVILKÅR)
+            .fjernVilkår(VilkårType.FØDSELSVILKÅRET_MOR)
             .buildFor(behandling);
 
         // Act
         behandlingRepository.lagre(behandling, lås);
-        var vilkårId = behandlingRepository.lagre(vilkårResultat, lås);
+        behandlingRepository.lagre(vilkårResultat, lås);
 
         // Assert
         var opphentetBehandling = behandlingRepository.hentBehandling(behandling.getId());
         assertThat(getBehandlingsresultat(opphentetBehandling).getVilkårResultat().getVilkårene()).hasSize(1);
         assertThat(getBehandlingsresultat(opphentetBehandling).getVilkårResultat().getVilkårene().iterator().next().getVilkårType())
-            .isEqualTo(VilkårType.FORELDREANSVARSVILKÅRET_4_LEDD);
+            .isEqualTo(VilkårType.OMSORGSOVERTAKELSEVILKÅR);
         var vilkårResultat1 = new VilkårResultatRepository(getEntityManager()).hentHvisEksisterer(behandling.getId());
         assertThat(vilkårResultat1).isPresent();
         assertThat(vilkårResultat1.get().getVilkårene()).isEqualTo(getBehandlingsresultat(opphentetBehandling).getVilkårResultat().getVilkårene());

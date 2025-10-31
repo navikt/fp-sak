@@ -6,7 +6,6 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 import jakarta.enterprise.context.ApplicationScoped;
@@ -18,10 +17,6 @@ import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterer;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdateringTransisjon;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.DtoTilServiceAdapter;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.OppdateringResultat;
-import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
-import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingsresultatRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
-import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.AdopsjonEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.OmsorgsovertakelseVilkårType;
@@ -34,7 +29,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.SkjermlenkeType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.Avslagsårsak;
-import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallType;
 import no.nav.foreldrepenger.familiehendelse.FamilieHendelseTjeneste;
@@ -50,18 +44,8 @@ import no.nav.vedtak.exception.FunksjonellException;
 @DtoTilServiceAdapter(dto = VurderOmsorgsovertakelseVilkårAksjonspunktDto.class, adapter = AksjonspunktOppdaterer.class)
 public class VurderOmsorgsovertakelseVilkårAksjonspunktOppdaterer implements AksjonspunktOppdaterer<VurderOmsorgsovertakelseVilkårAksjonspunktDto> {
 
-    private static final Set<AksjonspunktDefinisjon> LEGACY_AKSJONSPUNKT = Set.of(AksjonspunktDefinisjon.AVKLAR_ADOPSJONSDOKUMENTAJON,
-        AksjonspunktDefinisjon.AVKLAR_OM_ADOPSJON_GJELDER_EKTEFELLES_BARN, AksjonspunktDefinisjon.AVKLAR_OM_SØKER_ER_MANN_SOM_ADOPTERER_ALENE,
-        AksjonspunktDefinisjon.AVKLAR_VILKÅR_FOR_OMSORGSOVERTAKELSE, AksjonspunktDefinisjon.AVKLAR_VILKÅR_FOR_FORELDREANSVAR,
-        AksjonspunktDefinisjon.MANUELL_VURDERING_AV_OMSORGSVILKÅRET,
-        AksjonspunktDefinisjon.MANUELL_VURDERING_AV_FORELDREANSVARSVILKÅRET_2_LEDD,
-        AksjonspunktDefinisjon.MANUELL_VURDERING_AV_FORELDREANSVARSVILKÅRET_4_LEDD);
-    private static final Set<VilkårType> LEGACY_VILKÅR = Set.of(VilkårType.ADOPSJONSVILKÅRET_ENGANGSSTØNAD, VilkårType.ADOPSJONSVILKARET_FORELDREPENGER,
-        VilkårType.OMSORGSVILKÅRET, VilkårType.FORELDREANSVARSVILKÅRET_2_LEDD, VilkårType.FORELDREANSVARSVILKÅRET_4_LEDD);
-
     private HistorikkinnslagRepository historikkinnslagRepository;
     private BehandlingRepository behandlingRepository;
-    private BehandlingsresultatRepository behandlingsresultatRepository;
     private FamilieHendelseTjeneste familieHendelseTjeneste;
     private OpplysningsPeriodeTjeneste opplysningsPeriodeTjeneste;
     private OmsorgsovertakelseVilkårTypeUtleder delvilkårUtleder;
@@ -77,7 +61,6 @@ public class VurderOmsorgsovertakelseVilkårAksjonspunktOppdaterer implements Ak
                                                                 OmsorgsovertakelseVilkårTypeUtleder delvilkårUtleder) {
         this.historikkinnslagRepository = repositoryProvider.getHistorikkinnslagRepository();
         this.behandlingRepository = repositoryProvider.getBehandlingRepository();
-        this.behandlingsresultatRepository = repositoryProvider.getBehandlingsresultatRepository();
         this.familieHendelseTjeneste = familieHendelseTjeneste;
         this.opplysningsPeriodeTjeneste = opplysningsPeriodeTjeneste;
         this.delvilkårUtleder = delvilkårUtleder;
@@ -114,14 +97,6 @@ public class VurderOmsorgsovertakelseVilkårAksjonspunktOppdaterer implements Ak
         var utfall = oppdaterAdopsjonOmsorg(ref, avslagskode, delvilkår, dto);
 
         var resultatBuilder = OppdateringResultat.utenTransisjon();
-        // Midlertidig sjekk + fjerning av legacy aksjonspunkter og vilkår
-        behandling.getÅpneAksjonspunkter(LEGACY_AKSJONSPUNKT)
-            .forEach(ap -> resultatBuilder.medEkstraAksjonspunktResultat(ap.getAksjonspunktDefinisjon(), AksjonspunktStatus.AVBRUTT));
-        behandlingsresultatRepository.hentHvisEksisterer(behandling.getId())
-            .map(Behandlingsresultat::getVilkårResultat)
-            .map(VilkårResultat::getVilkårene).orElseGet(List::of).stream()
-            .filter(v -> LEGACY_VILKÅR.contains(v.getVilkårType()))
-            .forEach(fjernet -> resultatBuilder.fjernVilkårType(fjernet.getVilkårType()));
 
         if (VilkårUtfallType.OPPFYLT.equals(utfall)) {
             var sistefikspunkt = opplysningsPeriodeTjeneste.utledFikspunktForRegisterInnhenting(behandling.getId(), param.getRef().fagsakYtelseType());

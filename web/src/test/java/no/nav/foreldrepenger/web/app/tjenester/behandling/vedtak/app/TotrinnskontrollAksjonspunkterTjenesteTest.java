@@ -169,11 +169,7 @@ class TotrinnskontrollAksjonspunkterTjenesteTest {
         var vilkårTypeSkjermlenkeTypeMap = Map.of(
             VilkårType.FØDSELSVILKÅRET_MOR, SkjermlenkeType.PUNKT_FOR_FOEDSEL,
             VilkårType.FØDSELSVILKÅRET_FAR_MEDMOR, SkjermlenkeType.PUNKT_FOR_FOEDSEL,
-            VilkårType.ADOPSJONSVILKÅRET_ENGANGSSTØNAD, SkjermlenkeType.PUNKT_FOR_ADOPSJON,
-            VilkårType.ADOPSJONSVILKARET_FORELDREPENGER, SkjermlenkeType.PUNKT_FOR_ADOPSJON,
-            VilkårType.OMSORGSVILKÅRET, SkjermlenkeType.PUNKT_FOR_OMSORG,
-            VilkårType.FORELDREANSVARSVILKÅRET_2_LEDD, SkjermlenkeType.PUNKT_FOR_FORELDREANSVAR,
-            VilkårType.FORELDREANSVARSVILKÅRET_4_LEDD, SkjermlenkeType.PUNKT_FOR_FORELDREANSVAR);
+            VilkårType.OMSORGSOVERTAKELSEVILKÅR, SkjermlenkeType.FAKTA_OM_OMSORGSOVERTAKELSE);
 
         for (var aksjonspunktDefinisjon : aksjonspunktDefinisjons) {
             vilkårTypeSkjermlenkeTypeMap.keySet().forEach(vilkårType -> {
@@ -211,7 +207,7 @@ class TotrinnskontrollAksjonspunkterTjenesteTest {
     void skal_hente_en_skjermlenketype_og_ett_totrinnskontrollaksjonspunkt_for_behandling_men_en_totrinnsvurdering_og_ett_aksjonspunkt_som_omhander_omsorgsovertakelse(){
 
         // Arrange
-        var aksjonspunktDefinisjon = AksjonspunktDefinisjon.AVKLAR_VILKÅR_FOR_OMSORGSOVERTAKELSE;
+        var aksjonspunktDefinisjon = AksjonspunktDefinisjon.VURDER_OMSORGSOVERTAKELSEVILKÅRET;
         var ttvGodkjent = true;
         var apAvbrutt = false;
 
@@ -418,11 +414,7 @@ class TotrinnskontrollAksjonspunkterTjenesteTest {
         Map<VilkårType, SkjermlenkeType> vilkårTypeSkjermlenkeTypeMap = new EnumMap<>(VilkårType.class);
         vilkårTypeSkjermlenkeTypeMap.put(VilkårType.FØDSELSVILKÅRET_MOR, SkjermlenkeType.PUNKT_FOR_FOEDSEL);
         vilkårTypeSkjermlenkeTypeMap.put(VilkårType.FØDSELSVILKÅRET_FAR_MEDMOR, SkjermlenkeType.PUNKT_FOR_FOEDSEL);
-        vilkårTypeSkjermlenkeTypeMap.put(VilkårType.ADOPSJONSVILKÅRET_ENGANGSSTØNAD, SkjermlenkeType.PUNKT_FOR_ADOPSJON);
-        vilkårTypeSkjermlenkeTypeMap.put(VilkårType.ADOPSJONSVILKARET_FORELDREPENGER, SkjermlenkeType.PUNKT_FOR_ADOPSJON);
-        vilkårTypeSkjermlenkeTypeMap.put(VilkårType.OMSORGSVILKÅRET, SkjermlenkeType.PUNKT_FOR_OMSORG);
-        vilkårTypeSkjermlenkeTypeMap.put(VilkårType.FORELDREANSVARSVILKÅRET_2_LEDD, SkjermlenkeType.PUNKT_FOR_FORELDREANSVAR);
-        vilkårTypeSkjermlenkeTypeMap.put(VilkårType.FORELDREANSVARSVILKÅRET_4_LEDD, SkjermlenkeType.PUNKT_FOR_FORELDREANSVAR);
+        vilkårTypeSkjermlenkeTypeMap.put(VilkårType.OMSORGSOVERTAKELSEVILKÅR, SkjermlenkeType.FAKTA_OM_OMSORGSOVERTAKELSE);
 
         vilkårTypeSkjermlenkeTypeMap.keySet().forEach(vilkårType -> {
 

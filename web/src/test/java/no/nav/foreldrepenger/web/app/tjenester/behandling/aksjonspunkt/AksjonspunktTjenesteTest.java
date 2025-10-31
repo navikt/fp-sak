@@ -10,6 +10,7 @@ import static org.mockito.Mockito.verify;
 
 import java.time.LocalDate;
 import java.util.Collections;
+import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
@@ -25,6 +26,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspunkt;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktTestSupport;
+import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.OmsorgsovertakelseVilkårType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingLås;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
@@ -37,7 +39,7 @@ import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioM
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
 import no.nav.foreldrepenger.dbstoette.CdiDbAwareTest;
 import no.nav.foreldrepenger.familiehendelse.aksjonspunkt.fødsel.dto.SjekkTerminbekreftelseAksjonspunktDto;
-import no.nav.foreldrepenger.familiehendelse.aksjonspunkt.omsorg.dto.OmsorgsvilkårAksjonspunktDto;
+import no.nav.foreldrepenger.familiehendelse.aksjonspunkt.omsorgsovertakelse.dto.VurderOmsorgsovertakelseVilkårAksjonspunktDto;
 import no.nav.vedtak.sikkerhet.kontekst.IdentType;
 import no.nav.vedtak.sikkerhet.kontekst.KontekstHolder;
 import no.nav.vedtak.sikkerhet.kontekst.RequestKontekst;
@@ -89,11 +91,10 @@ class AksjonspunktTjenesteTest {
 
     @Test
     void skal_håndtere_aksjonspunkt_for_omsorgsvilkåret() {
-        var scenario = lagScenarioMedAksjonspunkt(AksjonspunktDefinisjon.MANUELL_VURDERING_AV_OMSORGSVILKÅRET);
-        var behandling = scenario.lagre(repositoryProvider);
+        var behandling = opprettFørstegangsbehandlingAdopsjonMedAksjonspunkt(AksjonspunktDefinisjon.VURDER_OMSORGSOVERTAKELSEVILKÅRET);
         var lås = new BehandlingLås(behandling.getId());
-        var dto = new OmsorgsvilkårAksjonspunktDto(BEGRUNNELSE, false,
-                Avslagsårsak.SØKER_ER_IKKE_BARNETS_FAR_O.getKode());
+        var dto = new VurderOmsorgsovertakelseVilkårAksjonspunktDto(BEGRUNNELSE, LocalDate.now(), List.of(),
+            Avslagsårsak.EKTEFELLES_SAMBOERS_BARN, OmsorgsovertakelseVilkårType.ES_ADOPSJONSVILKÅRET, true);
 
         // Act
         aksjonspunktTjeneste.bekreftAksjonspunkter(singletonList(dto), behandling, lås);
@@ -102,7 +103,7 @@ class AksjonspunktTjenesteTest {
         assertThat(behandling.getBehandlingsresultat().getVilkårResultat()).isNotNull();
         assertThat(behandling.getBehandlingsresultat().getVilkårResultat().getVilkårene()).hasSize(1);
         assertThat(behandling.getBehandlingsresultat().getVilkårResultat().getVilkårene().iterator().next().getAvslagsårsak())
-                .isEqualTo(Avslagsårsak.SØKER_ER_IKKE_BARNETS_FAR_O);
+                .isEqualTo(Avslagsårsak.EKTEFELLES_SAMBOERS_BARN);
         assertThat(behandling.getBehandlingStegTilstand().get().getBehandlingSteg()).isEqualTo(BehandlingStegType.FORESLÅ_BEHANDLINGSRESULTAT);
     }
 
@@ -168,13 +169,13 @@ class AksjonspunktTjenesteTest {
     @Test
     void skal_hoppe_til_uttak_ved_avslag_vilkår() {
         // Arrange
-        var førstegangsbehandling = opprettFørstegangsbehandlingMedAksjonspunkt(AksjonspunktDefinisjon.MANUELL_VURDERING_AV_OMSORGSVILKÅRET);
+        var førstegangsbehandling = opprettFørstegangsbehandlingAdopsjonMedAksjonspunkt(AksjonspunktDefinisjon.VURDER_OMSORGSOVERTAKELSEVILKÅRET);
         AksjonspunktTestSupport.setTilUtført(førstegangsbehandling.getAksjonspunkter().iterator().next(), BEGRUNNELSE);
         var revurdering = opprettRevurderingsbehandlingMedAksjonspunkt(førstegangsbehandling,
-                AksjonspunktDefinisjon.MANUELL_VURDERING_AV_OMSORGSVILKÅRET);
+                AksjonspunktDefinisjon.VURDER_OMSORGSOVERTAKELSEVILKÅRET);
         var lås = new BehandlingLås(revurdering.getId());
-        var dto = new OmsorgsvilkårAksjonspunktDto(BEGRUNNELSE, false,
-                Avslagsårsak.SØKER_ER_IKKE_BARNETS_FAR_O.getKode());
+        var dto = new VurderOmsorgsovertakelseVilkårAksjonspunktDto(BEGRUNNELSE, LocalDate.now(), List.of(),
+                Avslagsårsak.EKTEFELLES_SAMBOERS_BARN, OmsorgsovertakelseVilkårType.ES_ADOPSJONSVILKÅRET, true);
 
         // Act
         aksjonspunktTjeneste.bekreftAksjonspunkter(singletonList(dto), revurdering, lås);
@@ -186,7 +187,7 @@ class AksjonspunktTjenesteTest {
         assertThat(oppdatertBehandling.getBehandlingsresultat().getVilkårResultat()).isNotNull();
         assertThat(oppdatertBehandling.getBehandlingsresultat().getVilkårResultat().getVilkårene()).hasSize(1);
         assertThat(oppdatertBehandling.getBehandlingsresultat().getVilkårResultat().getVilkårene().iterator().next().getAvslagsårsak())
-                .isEqualTo(Avslagsårsak.SØKER_ER_IKKE_BARNETS_FAR_O);
+                .isEqualTo(Avslagsårsak.EKTEFELLES_SAMBOERS_BARN);
     }
 
     private Behandling opprettFørstegangsbehandlingMedAksjonspunkt(AksjonspunktDefinisjon aksjonspunktDefinisjon) {
@@ -199,6 +200,22 @@ class AksjonspunktTjenesteTest {
                         .getTerminbekreftelseBuilder()
                         .medTermindato(TERMINDATO)
                         .medUtstedtDato(UTSTEDTDATO));
+
+        førstegangsscenario.leggTilAksjonspunkt(aksjonspunktDefinisjon, BehandlingStegType.SØKERS_RELASJON_TIL_BARN);
+        return førstegangsscenario.lagre(repositoryProvider);
+    }
+
+    private Behandling opprettFørstegangsbehandlingAdopsjonMedAksjonspunkt(AksjonspunktDefinisjon aksjonspunktDefinisjon) {
+        var førstegangsscenario = ScenarioMorSøkerForeldrepenger.forAdopsjon()
+            .medAvklarteUttakDatoer(avklarteDatoer());
+        førstegangsscenario.medSøknad().medMottattDato(LocalDate.now());
+        førstegangsscenario.medSøknadHendelse()
+            .medAntallBarn(1)
+            .medAdopsjon(førstegangsscenario.medSøknadHendelse()
+                .medFødselsDato(LocalDate.now().minusYears(1), 1)
+                .getAdopsjonBuilder()
+                .medErEktefellesBarn(true)
+                .medOmsorgsovertakelseDato(LocalDate.now()));
 
         førstegangsscenario.leggTilAksjonspunkt(aksjonspunktDefinisjon, BehandlingStegType.SØKERS_RELASJON_TIL_BARN);
         return førstegangsscenario.lagre(repositoryProvider);

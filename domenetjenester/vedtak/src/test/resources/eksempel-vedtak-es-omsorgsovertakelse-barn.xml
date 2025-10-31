@@ -108,7 +108,7 @@
                 <utfall>OPPFYLT</utfall>
             </vilkaar>
             <vilkaar vurdert="MANUELT">
-                <type kode="FP_VK_8" kodeverk="VILKAR_TYPE">Foreldreansvar</type>
+                <type kode="FP_VK_6" kodeverk="VILKAR_TYPE">Adopsjon og foreldreansvar</type>
                 <utfall>OPPFYLT</utfall>
             </vilkaar>
             <vilkaar vurdert="AUTOMATISK">
@@ -146,8 +146,8 @@
         </beregningsresultat>
         <manuelleVurderinger>
             <manuellVurdering>
-                <aksjonspunkt kode="5008" kodeverk="AksjonspunktDefinisjon_$$_jvsta97_2c">Avklar fakta for omsorgs/foreldreansvarsvilkåret</aksjonspunkt>
-                <gjelderVilkaar kode="FP_VK_5" kodeverk="VILKAR_TYPE">Omsorg</gjelderVilkaar>
+                <aksjonspunkt kode="5018" kodeverk="AksjonspunktDefinisjon_$$_jvsta97_2c">Vurder vilkår for adopsjon eller foreldreansvar</aksjonspunkt>
+                <gjelderVilkaar kode="FP_VK_6" kodeverk="VILKAR_TYPE">Adopsjon og foreldreansvar</gjelderVilkaar>
                 <saksbehandlersBegrunnelse>adsfads</saksbehandlersBegrunnelse>
             </manuellVurdering>
             <manuellVurdering>
@@ -158,11 +158,6 @@
             </manuellVurdering>
             <manuellVurdering>
                 <aksjonspunkt kode="5012" kodeverk="AksjonspunktDefinisjon_$$_jvsta97_2c">Registrer papirsøknad engangsstønad</aksjonspunkt>
-            </manuellVurdering>
-            <manuellVurdering>
-                <aksjonspunkt kode="5013" kodeverk="AksjonspunktDefinisjon_$$_jvsta97_2c">Manuell vurdering av foreldreansvarsvilkåret 2.ledd</aksjonspunkt>
-                <gjelderVilkaar kode="FP_VK_8" kodeverk="VILKAR_TYPE">Foreldreansvar</gjelderVilkaar>
-                <saksbehandlersBegrunnelse>sfasdf</saksbehandlersBegrunnelse>
             </manuellVurdering>
         </manuelleVurderinger>
     </behandlingsresultat>
