@@ -339,8 +339,6 @@ public class OppdatererDtoMapper {
 
     private static no.nav.folketrygdloven.kalkulus.response.v1.beregningsgrunnlag.gui.RefusjonskravForSentDto mapRefusjonskravForSent(
         RefusjonskravPrArbeidsgiverVurderingDto refusjonskravForSentFraKalkulus) {
-        System.out.println(refusjonskravForSentFraKalkulus.getArbeidsgiverId());
-        System.out.println(refusjonskravForSentFraKalkulus.isSkalUtvideGyldighet());
         var refusjonskravForSent = new no.nav.folketrygdloven.kalkulus.response.v1.beregningsgrunnlag.gui.RefusjonskravForSentDto();
         refusjonskravForSent.setArbeidsgiverIdent(refusjonskravForSentFraKalkulus.getArbeidsgiverId());
         refusjonskravForSent.setErRefusjonskravGyldig(refusjonskravForSentFraKalkulus.isSkalUtvideGyldighet());
