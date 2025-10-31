@@ -112,7 +112,7 @@ public class BrevRestTjeneste {
             .medSaksnummer(behandling.getSaksnummer())
             .medDokumentMal(bestillBrevDto.brevmalkode())
             .medRevurderingÅrsak(bestillBrevDto.arsakskode())
-            .medFritekst(bestillBrevDto.fritekst() != null ? bestillBrevDto.fritekst() : null)
+            .medFritekst(bestillBrevDto.fritekst())
             .build();
 
         if (DokumentMalType.ETTERLYS_INNTEKTSMELDING.equals(bestillBrevDto.brevmalkode())) {
