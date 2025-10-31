@@ -31,7 +31,6 @@ import no.nav.foreldrepenger.domene.rest.dto.FastsettMånedsinntektUtenInntektsm
 import no.nav.foreldrepenger.domene.rest.dto.InntektPrAndelDto;
 import no.nav.foreldrepenger.domene.rest.dto.MottarYtelseDto;
 import no.nav.foreldrepenger.domene.rest.dto.RedigerbarAndelDto;
-import no.nav.foreldrepenger.domene.rest.dto.RefusjonskravForSentDto;
 import no.nav.foreldrepenger.domene.rest.dto.RefusjonskravPrArbeidsgiverVurderingDto;
 import no.nav.foreldrepenger.domene.rest.dto.VurderATogFLiSammeOrganisasjonAndelDto;
 import no.nav.foreldrepenger.domene.rest.dto.VurderATogFLiSammeOrganisasjonDto;
@@ -334,15 +333,17 @@ public class OppdatererDtoMapper {
             andel.getDelvisRefusjonPrMndFørStart());
     }
 
-    private static List<no.nav.folketrygdloven.kalkulus.response.v1.beregningsgrunnlag.gui.RefusjonskravForSentDto> mapRefusjonskravForSentListe(List<RefusjonskravForSentDto> refusjonskravForSentListe) {
+    private static List<no.nav.folketrygdloven.kalkulus.response.v1.beregningsgrunnlag.gui.RefusjonskravForSentDto> mapRefusjonskravForSentListe(List<RefusjonskravPrArbeidsgiverVurderingDto> refusjonskravForSentListe) {
         return refusjonskravForSentListe.stream().map(OppdatererDtoMapper::mapRefusjonskravForSent).toList();
     }
 
     private static no.nav.folketrygdloven.kalkulus.response.v1.beregningsgrunnlag.gui.RefusjonskravForSentDto mapRefusjonskravForSent(
-        RefusjonskravForSentDto refusjonskravForSentFraKalkulus) {
+        RefusjonskravPrArbeidsgiverVurderingDto refusjonskravForSentFraKalkulus) {
+        System.out.println(refusjonskravForSentFraKalkulus.getArbeidsgiverId());
+        System.out.println(refusjonskravForSentFraKalkulus.isSkalUtvideGyldighet());
         var refusjonskravForSent = new no.nav.folketrygdloven.kalkulus.response.v1.beregningsgrunnlag.gui.RefusjonskravForSentDto();
-        refusjonskravForSent.setArbeidsgiverIdent(refusjonskravForSentFraKalkulus.getArbeidsgiverIdent());
-        refusjonskravForSent.setErRefusjonskravGyldig(refusjonskravForSentFraKalkulus.getErRefusjonskravGyldig());
+        refusjonskravForSent.setArbeidsgiverIdent(refusjonskravForSentFraKalkulus.getArbeidsgiverId());
+        refusjonskravForSent.setErRefusjonskravGyldig(refusjonskravForSentFraKalkulus.isSkalUtvideGyldighet());
         return refusjonskravForSent;
     }
 

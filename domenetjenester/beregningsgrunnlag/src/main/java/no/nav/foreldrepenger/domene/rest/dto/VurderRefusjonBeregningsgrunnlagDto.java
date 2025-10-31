@@ -17,15 +17,15 @@ public class VurderRefusjonBeregningsgrunnlagDto extends BekreftetAksjonspunktDt
     private List<VurderRefusjonAndelBeregningsgrunnlagDto> fastsatteAndeler;
 
     @Valid
-    @Size
-    private List<RefusjonskravForSentDto> refusjonskravForSentListe;
+    @Size(max = 100)
+    private List<RefusjonskravPrArbeidsgiverVurderingDto> refusjonskravForSentListe;
 
     VurderRefusjonBeregningsgrunnlagDto() {
         // Jackson
     }
 
     public VurderRefusjonBeregningsgrunnlagDto(List<VurderRefusjonAndelBeregningsgrunnlagDto> fastsatteAndeler,
-                                               List<RefusjonskravForSentDto> refusjonskravForSentListe,
+                                               List<RefusjonskravPrArbeidsgiverVurderingDto> refusjonskravForSentListe,
                                                String begrunnelse) {
         super(begrunnelse);
         this.fastsatteAndeler = fastsatteAndeler;
@@ -36,7 +36,7 @@ public class VurderRefusjonBeregningsgrunnlagDto extends BekreftetAksjonspunktDt
         return fastsatteAndeler;
     }
 
-    public List<RefusjonskravForSentDto> getRefusjonskravForSentListe() {
+    public List<RefusjonskravPrArbeidsgiverVurderingDto> getRefusjonskravForSentListe() {
         return refusjonskravForSentListe;
     }
 }
