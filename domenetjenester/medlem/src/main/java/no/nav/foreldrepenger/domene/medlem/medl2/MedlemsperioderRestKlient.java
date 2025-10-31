@@ -11,7 +11,7 @@ import java.util.List;
  * Dokumentasjon https://github.com/navikt/medlemskap-medl/wiki
  * Swagger: https://medlemskap-medl-api.intern.dev.nav.no/swagger-ui/index.html
  */
-@RestClientConfig(tokenConfig = TokenFlow.ADAPTIVE, endpointProperty = "medl2p.rs.url", endpointDefault = "https://medlemskap-medl-api-gcp.intern.nav.no/rest/v1/periode/soek",
+@RestClientConfig(tokenConfig = TokenFlow.ADAPTIVE, endpointProperty = "medl2p.rs.url", endpointDefault = "https://medlemskap-medl-api.intern.nav.no/rest/v1/periode/soek",
     scopesProperty = "medl2.scopes", scopesDefault = "api://prod-gcp.team-rocket.medlemskap-medl-api/.default")
 @ApplicationScoped
 public class MedlemsperioderRestKlient implements Medlemskap {
