@@ -3,7 +3,6 @@ package no.nav.foreldrepenger.web.app.tjenester.kodeverk;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -19,8 +18,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import io.swagger.v3.oas.annotations.Operation;
-import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.Avslagsårsak;
-import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
 import no.nav.foreldrepenger.web.app.jackson.JacksonJsonConfig;
 import no.nav.foreldrepenger.web.app.tjenester.kodeverk.app.HentKodeverkTjeneste;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
@@ -78,15 +75,9 @@ public class KodeverkRestTjeneste {
     }
 
     private synchronized Map<String, Object> hentGruppertKodelisteTilCache() {
-        Map<String, Object> kodelisterGruppertPåType = new HashMap<>();
 
         var grupperteKodelister = hentKodeverkTjeneste.hentGruppertKodeliste();
-        grupperteKodelister.entrySet().forEach(e -> kodelisterGruppertPåType.put(e.getKey(), e.getValue()));
-
-        var avslagårsakerGruppertPåVilkårType = VilkårType.finnAvslagårsakerGruppertPåVilkårType()
-                .entrySet().stream().collect(Collectors.toMap(e -> e.getKey().getKode(), Map.Entry::getValue));
-        kodelisterGruppertPåType.put(Avslagsårsak.class.getSimpleName(), avslagårsakerGruppertPåVilkårType);
-        return kodelisterGruppertPåType;
+        return new HashMap<>(grupperteKodelister);
     }
 
 }
