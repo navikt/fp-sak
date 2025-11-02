@@ -1,11 +1,13 @@
 package no.nav.foreldrepenger.behandlingslager.hendelser.sortering;
 
-import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -47,9 +49,9 @@ class HendelseSorteringRepositoryTest extends EntityManagerAwareTest {
     void skal_hente_1_aktørId_fra_fagsak() {
         var personer = genererFagsaker(1);
 
-        var aktørId = personer.get(0);
+        var aktørId = personer.stream().findFirst().orElseThrow();
 
-        var finnAktørIder = List.of(aktørId);
+        var finnAktørIder = Set.of(aktørId);
         var resultat = sorteringRepository.hentEksisterendeAktørIderMedSak(finnAktørIder);
 
         assertThat(resultat)
@@ -63,7 +65,7 @@ class HendelseSorteringRepositoryTest extends EntityManagerAwareTest {
         @SuppressWarnings("unused")
         var personer = genererFagsaker(4); // aktør ID: 100 - 103
 
-        var finnAktørIder = List.of(AktørId.dummy());
+        var finnAktørIder = Set.of(AktørId.dummy());
 
         // act
         var resultat = sorteringRepository.hentEksisterendeAktørIderMedSak(finnAktørIder);
@@ -76,7 +78,7 @@ class HendelseSorteringRepositoryTest extends EntityManagerAwareTest {
     void skal_returnere_4_aktør_ider_fra_fagsaker() {
         var personer = genererFagsaker(6);
 
-        var finnAktørIder = personer.stream().limit(4).toList();
+        var finnAktørIder = personer.stream().limit(4).collect(Collectors.toSet());
 
         var resultat = sorteringRepository.hentEksisterendeAktørIderMedSak(finnAktørIder);
         assertThat(resultat).hasSize(4);
@@ -84,16 +86,15 @@ class HendelseSorteringRepositoryTest extends EntityManagerAwareTest {
 
     @Test
     void skal_ikke_publisere_videre_hendelser_på_avsluttede_saker() {
-        var personinfoList = genererPersonInfo(3);
 
-        var navBrukerMedAvsluttetSak = NavBruker.opprettNyNB(personinfoList.get(0));
+        var navBrukerMedAvsluttetSak = NavBruker.opprettNyNB(genererPersonInfo());
         var fagsak1 = opprettFagsak(navBrukerMedAvsluttetSak, FagsakYtelseType.FORELDREPENGER);
         fagsak1.setAvsluttet();
 
-        var navBrukerMedÅpenSak = NavBruker.opprettNyNB(personinfoList.get(1));
+        var navBrukerMedÅpenSak = NavBruker.opprettNyNB(genererPersonInfo());
         var fagsak2 = opprettFagsak(navBrukerMedÅpenSak, FagsakYtelseType.FORELDREPENGER);
 
-        var navBrukerMedÅpenOgAvsluttetSak = NavBruker.opprettNyNB(personinfoList.get(2));
+        var navBrukerMedÅpenOgAvsluttetSak = NavBruker.opprettNyNB(genererPersonInfo());
         var fagsak3 = opprettFagsak(navBrukerMedÅpenOgAvsluttetSak, FagsakYtelseType.FORELDREPENGER);
         var fagsak4 = opprettFagsak(navBrukerMedÅpenOgAvsluttetSak, FagsakYtelseType.FORELDREPENGER);
         fagsak4.setAvsluttet();
@@ -107,7 +108,7 @@ class HendelseSorteringRepositoryTest extends EntityManagerAwareTest {
         fagsakRepository.opprettNy(fagsak3);
         fagsakRepository.opprettNy(fagsak4);
 
-        List<AktørId> aktørList = new ArrayList<>(personinfoList);
+        var aktørList = Set.of(navBrukerMedAvsluttetSak.getAktørId(), navBrukerMedÅpenSak.getAktørId(), navBrukerMedÅpenOgAvsluttetSak.getAktørId());
         var resultat = sorteringRepository.hentEksisterendeAktørIderMedSak(aktørList);
 
         assertThat(resultat)
@@ -119,14 +120,13 @@ class HendelseSorteringRepositoryTest extends EntityManagerAwareTest {
     @Test
     void skal_publisere_videre_hendelser_på_saker_om_engangsstønad() {
         // Arrange
-        var personinfoList = genererPersonInfo(1);
-        var navBruker = NavBruker.opprettNyNB(personinfoList.get(0));
+        var navBruker = NavBruker.opprettNyNB(genererPersonInfo());
         var fagsak = opprettFagsak(navBruker, FagsakYtelseType.ENGANGSTØNAD);
 
         navBrukerRepository.lagre(navBruker);
         fagsakRepository.opprettNy(fagsak);
 
-        var finnAktørIder = List.of(navBruker.getAktørId());
+        var finnAktørIder = Set.of(navBruker.getAktørId());
 
         // Act
         var resultat = sorteringRepository.hentEksisterendeAktørIderMedSak(finnAktørIder);
@@ -138,14 +138,13 @@ class HendelseSorteringRepositoryTest extends EntityManagerAwareTest {
     @Test
     void skal_publisere_videre_hendelser_på_saker_om_svangerskapspenger() {
         // Arrange
-        var personinfoList = genererPersonInfo(1);
-        var navBruker = NavBruker.opprettNyNB(personinfoList.get(0));
+        var navBruker = NavBruker.opprettNyNB(genererPersonInfo());
         var fagsak = opprettFagsak(navBruker, FagsakYtelseType.SVANGERSKAPSPENGER);
 
         navBrukerRepository.lagre(navBruker);
         fagsakRepository.opprettNy(fagsak);
 
-        var finnAktørIder = List.of(navBruker.getAktørId());
+        var finnAktørIder = Set.of(navBruker.getAktørId());
 
         // Act
         var resultat = sorteringRepository.hentEksisterendeAktørIderMedSak(finnAktørIder);
@@ -160,8 +159,7 @@ class HendelseSorteringRepositoryTest extends EntityManagerAwareTest {
         var barnAktørId = AktørId.dummy();
         var fødselsdato = LocalDate.now();
 
-        var personinfoList = genererPersonInfo(1);
-        var navBruker = NavBruker.opprettNyNB(personinfoList.get(0));
+        var navBruker = NavBruker.opprettNyNB(genererPersonInfo());
         var morAktørId = navBruker.getAktørId();
         var fagsak = opprettFagsak(navBruker, FagsakYtelseType.FORELDREPENGER);
         navBrukerRepository.lagre(navBruker);
@@ -194,8 +192,8 @@ class HendelseSorteringRepositoryTest extends EntityManagerAwareTest {
         personopplysningRepository.lagre(behandlingId, informasjonBuilder);
 
         // Act
-        var resultat1 = sorteringRepository.hentEksisterendeAktørIderMedSak(singletonList(morAktørId));
-        var resultat2 = sorteringRepository.hentEksisterendeAktørIderMedSak(singletonList(barnAktørId));
+        var resultat1 = sorteringRepository.hentEksisterendeAktørIderMedSak(Set.of(morAktørId));
+        var resultat2 = sorteringRepository.hentEksisterendeAktørIderMedSak(Set.of(barnAktørId));
 
         // Assert
         assertThat(resultat1)
@@ -216,8 +214,7 @@ class HendelseSorteringRepositoryTest extends EntityManagerAwareTest {
         var barnAktørId = AktørId.dummy();
         var fødselsdato = LocalDate.now();
 
-        var personinfoList = genererPersonInfo(1);
-        var navBruker = NavBruker.opprettNyNB(personinfoList.get(0));
+        var navBruker = NavBruker.opprettNyNB(genererPersonInfo());
         var morAktørId = navBruker.getAktørId();
 
         var fagsak = opprettFagsak(navBruker, FagsakYtelseType.FORELDREPENGER);
@@ -245,8 +242,8 @@ class HendelseSorteringRepositoryTest extends EntityManagerAwareTest {
         personopplysningRepository.lagre(behandlingId, informasjonBuilder);
 
         // Act
-        var resultat1 = sorteringRepository.hentEksisterendeAktørIderMedSak(singletonList(morAktørId));
-        var resultat2 = sorteringRepository.hentEksisterendeAktørIderMedSak(singletonList(barnAktørId));
+        var resultat1 = sorteringRepository.hentEksisterendeAktørIderMedSak(Set.of(morAktørId));
+        var resultat2 = sorteringRepository.hentEksisterendeAktørIderMedSak(Set.of(barnAktørId));
 
         // Assert
         assertThat(resultat1)
@@ -259,14 +256,15 @@ class HendelseSorteringRepositoryTest extends EntityManagerAwareTest {
         return Fagsak.opprettNy(fagsakYtelseType, bruker);
     }
 
-    private List<AktørId> genererFagsaker(int antall) {
-        var personinfoList = genererPersonInfo(antall);
+    private Set<AktørId> genererFagsaker(int antall) {
+        var personinfoList = new LinkedHashSet<AktørId>();
 
         List<Fagsak> fagsaker = new ArrayList<>();
         List<NavBruker> navBrukere = new ArrayList<>();
 
-        for (var pInfo : personinfoList) {
-            var bruker = NavBruker.opprettNyNB(pInfo);
+        for (var i = 0; i < antall ; i++) {
+            var bruker = NavBruker.opprettNyNB(genererPersonInfo());
+            personinfoList.add(bruker.getAktørId());
             navBrukere.add(bruker);
 
             fagsaker.add(opprettFagsak(bruker, FagsakYtelseType.FORELDREPENGER));
@@ -280,11 +278,7 @@ class HendelseSorteringRepositoryTest extends EntityManagerAwareTest {
         return personinfoList;
     }
 
-    private List<AktørId> genererPersonInfo(int antall) {
-        List<AktørId> personinfoList = new ArrayList<>();
-        for (var i = 0; i < antall; i++) {
-            personinfoList.add(AktørId.dummy());
-        }
-        return personinfoList;
+    private AktørId genererPersonInfo() {
+        return AktørId.dummy();
     }
 }
