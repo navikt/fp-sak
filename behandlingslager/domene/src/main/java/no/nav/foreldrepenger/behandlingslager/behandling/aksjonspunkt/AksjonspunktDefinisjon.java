@@ -65,10 +65,6 @@ public enum AksjonspunktDefinisjon implements Kodeverdi {
     FATTER_VEDTAK(AksjonspunktKodeDefinisjon.FATTER_VEDTAK_KODE,
             AksjonspunktType.MANUELL, "Fatter vedtak", BehandlingStegType.FATTE_VEDTAK, VurderingspunktType.INN, UTEN_VILKÅR, SkjermlenkeType.VEDTAK, ENTRINN,
             EnumSet.of(ES, FP, SVP)),
-    SØKERS_OPPLYSNINGSPLIKT_MANU(
-            AksjonspunktKodeDefinisjon.SØKERS_OPPLYSNINGSPLIKT_MANU_KODE, AksjonspunktType.MANUELL,
-            "Vurder søkers opplysningsplikt ved ufullstendig/ikke-komplett søknad", BehandlingStegType.KONTROLLERER_SØKERS_OPPLYSNINGSPLIKT,
-            VurderingspunktType.UT, VilkårType.SØKERSOPPLYSNINGSPLIKT, SkjermlenkeType.OPPLYSNINGSPLIKT, ENTRINN, EnumSet.of(ES, FP, SVP)),
     AVKLAR_DEKNINGSGRAD(AksjonspunktKodeDefinisjon.AVKLAR_DEKNINGSGRAD_KODE,
         AksjonspunktType.MANUELL, "Avklar dekningsgrad", BehandlingStegType.DEKNINGSGRAD, VurderingspunktType.UT,
         UTEN_VILKÅR, SkjermlenkeType.KONTROLL_AV_SAKSOPPLYSNINGER, TOTRINN, EnumSet.of(FP)),
@@ -350,6 +346,8 @@ public enum AksjonspunktDefinisjon implements Kodeverdi {
     UTGÅTT_5013("5013", AksjonspunktType.MANUELL, "Manuell vurdering av foreldreansvarsvilkåret 2.ledd"),
     @Deprecated
     UTGÅTT_5014("5014", AksjonspunktType.MANUELL, "Manuell vurdering av foreldreansvarsvilkåret 4.ledd"),
+    @Deprecated
+    UTGÅTT_5017("5017", AksjonspunktType.MANUELL, "Vurder søkers opplysningsplikt ved ufullstendig/ikke-komplett søknad"),
     @Deprecated
     UTGÅTT_5019("5019", AksjonspunktType.MANUELL, "Avklar lovlig opphold."),
     @Deprecated
