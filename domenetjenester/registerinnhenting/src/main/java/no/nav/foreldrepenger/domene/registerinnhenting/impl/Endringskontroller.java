@@ -46,8 +46,6 @@ public class Endringskontroller {
     private static final Logger LOG = LoggerFactory.getLogger(Endringskontroller.class);
     private static final Set<BehandlingStegType> STARTPUNKT_STEG_INNGANG_VILKÅR = Set.of(StartpunktType.INNGANGSVILKÅR_OPPLYSNINGSPLIKT.getBehandlingSteg(),
         StartpunktType.SØKERS_RELASJON_TIL_BARNET.getBehandlingSteg());
-    private static final AksjonspunktDefinisjon SPESIALHÅNDTERT_AKSJONSPUNKT = AksjonspunktDefinisjon.SØKERS_OPPLYSNINGSPLIKT_MANU;
-    private static final StartpunktType SPESIALHÅNDTERT_AKSJONSPUNKT_STARTPUNKT = StartpunktType.INNGANGSVILKÅR_OPPLYSNINGSPLIKT;
     private BehandlingskontrollTjeneste behandlingskontrollTjeneste;
     private AksjonspunktkontrollTjeneste aksjonspunktkontrollTjeneste;
     private BehandlingModellTjeneste behandlingModellTjeneste;
@@ -125,12 +123,9 @@ public class Endringskontroller {
     private void doSpolTilStartpunkt(BehandlingReferanse ref, Skjæringstidspunkt stp, BehandlingskontrollKontekst kontekst,
                                      Behandling behandling, StartpunktType startpunktType) {
         var startPunktSteg = startpunktType.getBehandlingSteg();
-        var skalSpesialHåndteres = behandling.getÅpentAksjonspunktMedDefinisjonOptional(SPESIALHÅNDTERT_AKSJONSPUNKT).isPresent() &&
-            SPESIALHÅNDTERT_AKSJONSPUNKT_STARTPUNKT.getRangering() < startpunktType.getRangering();
-        var tilSteg = skalSpesialHåndteres ? SPESIALHÅNDTERT_AKSJONSPUNKT.getBehandlingSteg() : startPunktSteg;
 
         oppdaterStartpunktVedBehov(behandling, startpunktType);
-        doSpolTilSteg(kontekst, behandling, tilSteg, ref, stp);
+        doSpolTilSteg(kontekst, behandling, startPunktSteg, ref, stp);
     }
 
     private void doSpolTilSteg(BehandlingskontrollKontekst kontekst, Behandling behandling, BehandlingStegType tilSteg, BehandlingReferanse ref, Skjæringstidspunkt stp) {
@@ -194,7 +189,7 @@ public class Endringskontroller {
             .utledAksjonspunkterFomSteg(ref, stp, fomSteg);
         var resultatDef = resultater.stream().map(AksjonspunktResultat::getAksjonspunktDefinisjon).collect(Collectors.toSet());
         var avbrytes = behandling.getÅpneAksjonspunkter().stream()
-            .filter(ap -> !ap.erManueltOpprettet() && !ap.erAutopunkt() && !SPESIALHÅNDTERT_AKSJONSPUNKT.equals(ap.getAksjonspunktDefinisjon()))
+            .filter(ap -> !ap.erManueltOpprettet() && !ap.erAutopunkt())
             .filter(ap -> !erReturBeslutter(ref, ap.getAksjonspunktDefinisjon()))
             .filter(ap -> !resultatDef.contains(ap.getAksjonspunktDefinisjon()))
             .filter(ap -> behandlingModellTjeneste.skalAksjonspunktLøsesIEllerEtterSteg(ref.fagsakYtelseType(), ref.behandlingType(), fomSteg, ap.getAksjonspunktDefinisjon()))
