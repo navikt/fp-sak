@@ -1,7 +1,7 @@
 package no.nav.foreldrepenger.web.app.tjenester.hendelser;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.anyList;
+import static org.mockito.ArgumentMatchers.anySet;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
@@ -123,7 +123,7 @@ class HendelserRestTjenesteTest {
 
     @Test
     void skal_returnere_tom_liste_når_aktørId_ikke_er_registrert_eller_mangler_sak() {
-        when(sorteringRepository.hentEksisterendeAktørIderMedSak(anyList())).thenReturn(Collections.emptyList());
+        when(sorteringRepository.hentEksisterendeAktørIderMedSak(anySet())).thenReturn(Collections.emptyList());
 
         var resultat = hendelserRestTjeneste.grovSorter(List.of(new AktørIdDto("0000000000000")));
 
@@ -138,7 +138,7 @@ class HendelserRestTjenesteTest {
                 AktørId.dummy(),
                 AktørId.dummy()));
 
-        when(sorteringRepository.hentEksisterendeAktørIderMedSak(anyList())).thenReturn(harSak);
+        when(sorteringRepository.hentEksisterendeAktørIderMedSak(anySet())).thenReturn(harSak);
 
         List<AktørIdDto> sorter = new ArrayList<>();
         sorter.add(new AktørIdDto("0000000000000"));

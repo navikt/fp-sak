@@ -89,7 +89,6 @@ public class HistorikkSammeBarnTjeneste {
         return switch (aksjonspunktKode) {
             case MANUELL_VURDERING_AV_SØKNADSFRISTVILKÅRET -> SkjermlenkeType.SOEKNADSFRIST;
             case VURDER_OMSORGSOVERTAKELSEVILKÅRET -> SkjermlenkeType.FAKTA_OM_OMSORGSOVERTAKELSE;
-            case SØKERS_OPPLYSNINGSPLIKT_MANU -> SkjermlenkeType.OPPLYSNINGSPLIKT;
             case AVKLAR_OM_SØKER_HAR_MOTTATT_STØTTE -> SkjermlenkeType.getSkjermlenkeTypeForMottattStotte(vilkårType);  // avklar om søker har mottatt støte
             default -> throw new UnsupportedOperationException("Støtter ikke aksjonspunktKode=" + aksjonspunktKode);
         };

@@ -4,6 +4,7 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -93,8 +94,18 @@ public class HendelserRestTjeneste {
     @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.DRIFT, sporingslogg = false)
     public List<String> grovSorter(@TilpassetAbacAttributt(supplierClass = HendelserRestTjeneste.AktørIdDtoAbacDataSupplier.class)
         @Parameter(description = "Liste med aktør IDer som skal sorteres") @Valid List<AktørIdDto> aktoerIdListe) {
-        var aktørIdList = aktoerIdListe.stream().map(AktørIdDto::getAktørId).map(AktørId::new).toList();
+        var aktørIdList = aktoerIdListe.stream().map(AktørIdDto::getAktørId).map(AktørId::new).collect(Collectors.toSet());
         return sorteringRepository.hentEksisterendeAktørIderMedSak(aktørIdList).stream().map(AktørId::getId).toList();
+    }
+
+    @POST
+    @Operation(description = "Grovsortering av aktørID-er. Returnerer aktørID-er i listen som har en sak.", tags = "hendelser")
+    @Path("/grovsorter-historisk")
+    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.DRIFT, sporingslogg = false)
+    public List<String> grovSorterHistorisk(@TilpassetAbacAttributt(supplierClass = HendelserRestTjeneste.AktørIdDtoAbacDataSupplier.class)
+                                   @Parameter(description = "Liste med aktør IDer som skal sorteres") @Valid List<AktørIdDto> aktoerIdListe) {
+        var aktørIdList = aktoerIdListe.stream().map(AktørIdDto::getAktørId).map(AktørId::new).collect(Collectors.toSet());
+        return sorteringRepository.hentEksisterendeAktørIderMedHistoriskSak(aktørIdList).stream().map(AktørId::getId).toList();
     }
 
     private EnkelRespons registrerHendelse(HendelseDto hendelse, String beskrivelse) {

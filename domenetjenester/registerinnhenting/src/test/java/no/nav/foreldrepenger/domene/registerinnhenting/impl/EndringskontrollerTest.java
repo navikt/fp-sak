@@ -344,18 +344,18 @@ class EndringskontrollerTest {
     }
 
     @Test
-    void skal_spole_til_INNGANG_når_behandlingen_står_i_UTGANG_med_op_og_startpunkt_er_senere_steg_som_behandlingen_står_i() {
+    void skal_ikke_spole_til_INNGANG_når_behandlingen_står_i_UTGANG_med_op_og_startpunkt_er_senere_steg_som_behandlingen_står_i() {
         // Arrange
         var scenario = ScenarioMorSøkerForeldrepenger.forFødsel()
             .medBehandlingType(BehandlingType.FØRSTEGANGSSØKNAD);
-        scenario.leggTilAksjonspunkt(AksjonspunktDefinisjon.SØKERS_OPPLYSNINGSPLIKT_MANU, BehandlingStegType.KONTROLLERER_SØKERS_OPPLYSNINGSPLIKT);
+        scenario.leggTilAksjonspunkt(AksjonspunktDefinisjon.SJEKK_TERMINBEKREFTELSE, BehandlingStegType.SØKERS_RELASJON_TIL_BARN);
         var behandling = scenario.lagMocked();
-        behandling.setStartpunkt(StartpunktType.INNGANGSVILKÅR_OPPLYSNINGSPLIKT);
+        behandling.setStartpunkt(StartpunktType.SØKERS_RELASJON_TIL_BARNET);
 
-        forceOppdaterBehandlingSteg(behandling, BehandlingStegType.KONTROLLERER_SØKERS_OPPLYSNINGSPLIKT, BehandlingStegStatus.UTGANG, BehandlingStegStatus.UTFØRT);
+        forceOppdaterBehandlingSteg(behandling, BehandlingStegType.SØKERS_RELASJON_TIL_BARN, BehandlingStegStatus.UTGANG, BehandlingStegStatus.UTFØRT);
 
-        var startpunktSrb = StartpunktType.SØKERS_RELASJON_TIL_BARNET;
-        when(startpunktTjenesteMock.utledStartpunktForDiffBehandlingsgrunnlag(any(), any(), any(EndringsresultatDiff.class))).thenReturn(startpunktSrb);
+        var startpunktMedl = StartpunktType.INNGANGSVILKÅR_MEDLEMSKAP;
+        when(startpunktTjenesteMock.utledStartpunktForDiffBehandlingsgrunnlag(any(), any(), any(EndringsresultatDiff.class))).thenReturn(startpunktMedl);
         var endringskontroller = endringskontroller();
         lenient().when(behandlingModellTjenesteMock.erStegAEtterStegB(any(), any(), eq(BehandlingStegType.KONTROLLERER_SØKERS_OPPLYSNINGSPLIKT), eq(BehandlingStegType.KONTROLLERER_SØKERS_OPPLYSNINGSPLIKT))).thenReturn(false);
 
@@ -363,7 +363,7 @@ class EndringskontrollerTest {
         endringskontroller.spolTilStartpunkt(behandling, lås, EndringsresultatDiff.medDiff(Inntektsmelding.class, 1L, 2L), StartpunktType.UDEFINERT);
 
         // Assert
-        verify(behandlingskontrollTjenesteMock).behandlingTilbakeføringTilTidligereBehandlingSteg(any(),eq(BehandlingStegType.KONTROLLERER_SØKERS_OPPLYSNINGSPLIKT));
+        verify(behandlingskontrollTjenesteMock, times(0)).behandlingTilbakeføringTilTidligereBehandlingSteg(any(), any());
     }
 
     @Test

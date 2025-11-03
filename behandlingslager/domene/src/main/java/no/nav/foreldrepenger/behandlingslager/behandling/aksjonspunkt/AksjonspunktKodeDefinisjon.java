@@ -54,7 +54,6 @@ public class AksjonspunktKodeDefinisjon {
 
     public static final String REGISTRER_PAPIRSØKNAD_ENGANGSSTØNAD_KODE = "5012";
 
-    public static final String SØKERS_OPPLYSNINGSPLIKT_MANU_KODE = "5017";
     public static final String SØKERS_OPPLYSNINGSPLIKT_OVST_KODE = "6002";
 
     public static final String VARSEL_REVURDERING_MANUELL_KODE = "5026";
@@ -146,7 +145,7 @@ public class AksjonspunktKodeDefinisjon {
 
     // Utgåtte aksjonspunktkoder. Finnes i DB. Helst ikke gjenbruk 5nnn til andre formål enn det opprinnelige før det har gått noe tid
     //  "5004"  "5005"  "5006"  "5008"  "5009"
-    //  "5011"  "5013"  "5014"  "5019"
+    //  "5011"  "5013"  "5014"  "5017"  "5019"
     //  "5020"  "5021"  "5022"  "5023"  "5024"  "5025"
     //  "5032"  "5036"
     //  "5042"  "5044"  "5045"  "5048"
