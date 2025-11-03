@@ -5,8 +5,8 @@
 
     <parent>
         <groupId>no.nav.foreldrepenger.felles</groupId>
-        <artifactId>fp-bom</artifactId>
-        <version>4.1.0</version>
+        <artifactId>fp-parent-app</artifactId>
+        <version>5.0.2</version>
     </parent>
 
     <groupId>no.nav.foreldrepenger</groupId>
@@ -50,15 +50,6 @@
         dependency (bruk composition over arv) da de overstyrer andre scope definisjoner. Sett det heller der det brukes. -->
     <dependencyManagement>
         <dependencies>
-            <!-- Felles biblioteker - Importerte avhengigheter -->
-            <dependency>
-                <groupId>no.nav.foreldrepenger.felles</groupId>
-                <artifactId>fp-bom</artifactId>
-                <version>4.1.0</version>
-                <scope>import</scope>
-                <type>pom</type>
-            </dependency>
-
             <dependency>
                 <groupId>no.nav.foreldrepenger.felles</groupId>
                 <artifactId>felles</artifactId>
@@ -131,11 +122,6 @@
             </dependency>
 
             <!-- MQ -->
-            <dependency>
-                <groupId>jakarta.jms</groupId>
-                <artifactId>jakarta.jms-api</artifactId>
-                <version>3.1.0</version>
-            </dependency>
             <dependency>
                 <groupId>no.nav.foreldrepenger.felles</groupId>
                 <artifactId>jms-integrasjon</artifactId>
