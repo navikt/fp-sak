@@ -27,7 +27,7 @@ import com.fasterxml.jackson.databind.json.JsonMapper;
 import io.swagger.v3.core.converter.ModelConverters;
 import io.swagger.v3.core.jackson.ModelResolver;
 import io.swagger.v3.core.util.ObjectMapperFactory;
-import io.swagger.v3.oas.integration.GenericOpenApiContextBuilder;
+import io.swagger.v3.jaxrs2.integration.JaxrsOpenApiContextBuilder;
 import io.swagger.v3.oas.integration.OpenApiConfigurationException;
 import io.swagger.v3.oas.integration.SwaggerConfiguration;
 import io.swagger.v3.oas.models.OpenAPI;
@@ -59,7 +59,7 @@ public class ApiConfig extends Application {
         var server = new Server().url(ENV.getProperty("context.path", "/fpsak"));
 
         try {
-            var oas = new OpenAPI();
+            var oas = new OpenAPI().openapi("3.1.1");
 
             oas.info(info).addServersItem(server);
             var oasConfig = new SwaggerConfiguration()
@@ -88,7 +88,7 @@ public class ApiConfig extends Application {
             ModelConverters.getInstance().addConverter(new DiscriminatorModelConverter(new RefToClassLookup()));
             ModelConverters.getInstance().addConverter(new EnumVarnamesConverter());
 
-            var context = new GenericOpenApiContextBuilder<>()
+            var context = new JaxrsOpenApiContextBuilder<>()
                 .openApiConfiguration(oasConfig)
                 .buildContext(false);
 
