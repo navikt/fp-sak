@@ -36,6 +36,7 @@ import no.nav.foreldrepenger.konfig.Environment;
 import no.nav.foreldrepenger.web.app.konfig.ApiConfig;
 import no.nav.foreldrepenger.web.app.konfig.EksternApiConfig;
 import no.nav.foreldrepenger.web.app.konfig.InternalApiConfig;
+import no.nav.foreldrepenger.web.app.konfig.ServiceApiConfig;
 
 public class JettyServer {
 
@@ -169,7 +170,7 @@ public class JettyServer {
         handler.addConstraintMapping(pathConstraint(Constraint.ALLOWED, InternalApiConfig.INTERNAL_URI + "/*"));
         // Slipp gjennom til autentisering i JaxRs / auth-filter
         handler.addConstraintMapping(pathConstraint(Constraint.ALLOWED, ApiConfig.API_URI + "/*"));
-        // Slipp gjennom til autentisering i JaxRs / auth-filter
+        handler.addConstraintMapping(pathConstraint(Constraint.ALLOWED, ServiceApiConfig.SERVICE_URI + "/*"));
         handler.addConstraintMapping(pathConstraint(Constraint.ALLOWED, EksternApiConfig.EKSTERN_API_URI + "/*"));
         // Alt annet av paths og metoder forbudt - 403
         handler.addConstraintMapping(pathConstraint(Constraint.FORBIDDEN, "/*"));
