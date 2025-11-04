@@ -124,22 +124,6 @@ public class RestImplementationClasses {
         return Set.copyOf(classes);
     }
 
-    public static Collection<Class<?>> getServiceClasses() {
-        Set<Class<?>> classes = new HashSet<>();
-
-        // Satellitt-applikasjoner
-        classes.add(FordelRestTjeneste.class);
-        classes.add(HendelserRestTjeneste.class); // Abonnent
-        classes.add(LosRestTjeneste.class);
-        classes.add(TilbakeRestTjeneste.class);
-        classes.add(FpOversiktRestTjeneste.class);
-
-        // Formidlingstjenester
-        classes.add(FormidlingRestTjeneste.class);
-
-        return Set.copyOf(classes);
-    }
-
     public static Set<Class<?>> getForvaltningClasses() {
         Set<Class<?>> classes = new HashSet<>();
 
