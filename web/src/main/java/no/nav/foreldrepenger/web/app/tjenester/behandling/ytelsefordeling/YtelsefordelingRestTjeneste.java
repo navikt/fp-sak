@@ -65,7 +65,7 @@ public class YtelsefordelingRestTjeneste {
 
     @GET
     @Path(OMSORG_OG_RETT_PART_PATH)
-    @Operation(description = "Hent informasjon om omsorg og rett", responses = {@ApiResponse(responseCode = "200", description = "Returnerer informasjon fra søknad og registerdata som omhandler brukers og annen parts rett og omsorg i behandlingen", content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = OmsorgOgRettDto.class)))})
+    @Operation(description = "Hent informasjon om omsorg og rett", tags = "ytelsefordeling", responses = {@ApiResponse(responseCode = "200", description = "Returnerer informasjon fra søknad og registerdata som omhandler brukers og annen parts rett og omsorg i behandlingen", content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = OmsorgOgRettDto.class)))})
     @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK, sporingslogg = false)
     public OmsorgOgRettDto hentRettOgOmsorg(@TilpassetAbacAttributt(supplierClass = BehandlingAbacSuppliers.UuidAbacDataSupplier.class) @NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
         return dtoMapper.mapFra(uuidDto.getBehandlingUuid()).orElse(null);

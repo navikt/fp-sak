@@ -21,6 +21,7 @@ import jakarta.ws.rs.core.MediaType;
 
 import com.fasterxml.jackson.annotation.JsonValue;
 
+import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.Operation;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonopplysningRepository;
 import no.nav.foreldrepenger.behandlingslager.pip.PipRepository;
@@ -37,6 +38,7 @@ import no.nav.vedtak.sikkerhet.abac.beskyttet.ActionType;
 import no.nav.vedtak.sikkerhet.abac.beskyttet.AvailabilityType;
 import no.nav.vedtak.sikkerhet.abac.beskyttet.ResourceType;
 
+@Hidden
 @Path(PipRestTjeneste.PIP_BASE_PATH)
 @ApplicationScoped
 @Transactional

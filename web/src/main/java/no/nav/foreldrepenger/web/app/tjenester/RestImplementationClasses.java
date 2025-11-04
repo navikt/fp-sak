@@ -81,8 +81,6 @@ public class RestImplementationClasses {
         classes.add(DokumentRestTjeneste.class);
         classes.add(KodeverkRestTjeneste.class);
         classes.add(HistorikkRestTjeneste.class);
-        classes.add(BatchRestTjeneste.class);
-        classes.add(VedtakJsonFeedRestTjeneste.class);
         classes.add(UttakRestTjeneste.class);
         classes.add(BeregningsresultatRestTjeneste.class);
         classes.add(FeriepengegrunnlagRestTjeneste.class);
@@ -97,11 +95,9 @@ public class RestImplementationClasses {
         classes.add(KlageRestTjeneste.class);
         classes.add(AnkeRestTjeneste.class);
         classes.add(InnsynRestTjeneste.class);
-        classes.add(PipRestTjeneste.class);
         classes.add(TilbakekrevingRestTjeneste.class); // Brukes av Frontend/Simulering. Bør hente varseltekst til visning?
         classes.add(AktoerRestTjeneste.class);
         classes.add(SvangerskapspengerRestTjeneste.class);
-        classes.add(IAYRegisterdataCallbackRestTjeneste.class);
         classes.add(VergeRestTjeneste.class);
         classes.add(BrevRestTjeneste.class);
         classes.add(RedirectToRegisterRestTjeneste.class);
@@ -111,15 +107,21 @@ public class RestImplementationClasses {
         // Søk infotrygd
         classes.add(InfotrygdOppslagRestTjeneste.class);
 
-        // Satellitt-applikasjoner
-        classes.add(FordelRestTjeneste.class);
-        classes.add(HendelserRestTjeneste.class); // Abonnent
-        classes.add(LosRestTjeneste.class);
-        classes.add(TilbakeRestTjeneste.class);
-        classes.add(FpOversiktRestTjeneste.class);
+        return Set.copyOf(classes);
+    }
 
-        // Formidlingstjenester
-        classes.add(FormidlingRestTjeneste.class);
+    public static Collection<Class<?>> getServiceClasses() {
+        Set<Class<?>> classes = new HashSet<>();
+
+        classes.add(VedtakJsonFeedRestTjeneste.class); // Infotrygd og Arena
+        classes.add(PipRestTjeneste.class); // FPtilgang og SAF
+        classes.add(IAYRegisterdataCallbackRestTjeneste.class); // FPabakus
+        classes.add(FordelRestTjeneste.class); // FPfordel
+        classes.add(HendelserRestTjeneste.class); // FPabonnent
+        classes.add(LosRestTjeneste.class); // FPlos
+        classes.add(TilbakeRestTjeneste.class); // FPtilbake
+        classes.add(FpOversiktRestTjeneste.class); // FPoversikt
+        classes.add(FormidlingRestTjeneste.class); // FPformidling
 
         return Set.copyOf(classes);
     }
@@ -129,6 +131,7 @@ public class RestImplementationClasses {
 
         // UtilTjenester for uttrekk fra registre
         classes.add(ProsessTaskRestTjeneste.class);
+        classes.add(BatchRestTjeneste.class);
         classes.add(DatavarehusAdminRestTjeneste.class);
         classes.add(ForvaltningBehandlingskontrollRestTjeneste.class);
         classes.add(ForvaltningBeregningRestTjeneste.class);

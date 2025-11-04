@@ -22,6 +22,7 @@ import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 
+import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
@@ -79,6 +80,7 @@ import no.nav.vedtak.sikkerhet.abac.beskyttet.ResourceType;
  * Mottar dokumenter fra f.eks. FPFORDEL og håndterer dispatch internt for
  * saksbehandlingsløsningen.
  */
+@Hidden
 @Path("/fordel")
 @ApplicationScoped
 @Transactional

@@ -14,6 +14,10 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import jakarta.ws.rs.ApplicationPath;
+import jakarta.ws.rs.core.Application;
+
+import org.glassfish.jersey.server.ServerProperties;
 
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -23,21 +27,6 @@ import com.fasterxml.jackson.databind.json.JsonMapper;
 import io.swagger.v3.core.converter.ModelConverters;
 import io.swagger.v3.core.jackson.ModelResolver;
 import io.swagger.v3.core.util.ObjectMapperFactory;
-
-import jakarta.ws.rs.ApplicationPath;
-import jakarta.ws.rs.core.Application;
-
-import no.nav.openapi.spec.utils.openapi.DiscriminatorModelConverter;
-import no.nav.openapi.spec.utils.openapi.EnumVarnamesConverter;
-import no.nav.openapi.spec.utils.openapi.JsonSubTypesModelConverter;
-
-import no.nav.openapi.spec.utils.openapi.NoJsonSubTypesAnnotationIntrospector;
-import no.nav.openapi.spec.utils.openapi.PrefixStrippingFQNTypeNameResolver;
-import no.nav.openapi.spec.utils.openapi.RefToClassLookup;
-import no.nav.openapi.spec.utils.openapi.RegisteredSubtypesModelConverter;
-
-import org.glassfish.jersey.server.ServerProperties;
-
 import io.swagger.v3.oas.integration.GenericOpenApiContextBuilder;
 import io.swagger.v3.oas.integration.OpenApiConfigurationException;
 import io.swagger.v3.oas.integration.SwaggerConfiguration;
@@ -46,6 +35,13 @@ import io.swagger.v3.oas.models.info.Info;
 import io.swagger.v3.oas.models.servers.Server;
 import no.nav.foreldrepenger.konfig.Environment;
 import no.nav.foreldrepenger.web.app.tjenester.RestImplementationClasses;
+import no.nav.openapi.spec.utils.openapi.DiscriminatorModelConverter;
+import no.nav.openapi.spec.utils.openapi.EnumVarnamesConverter;
+import no.nav.openapi.spec.utils.openapi.JsonSubTypesModelConverter;
+import no.nav.openapi.spec.utils.openapi.NoJsonSubTypesAnnotationIntrospector;
+import no.nav.openapi.spec.utils.openapi.PrefixStrippingFQNTypeNameResolver;
+import no.nav.openapi.spec.utils.openapi.RefToClassLookup;
+import no.nav.openapi.spec.utils.openapi.RegisteredSubtypesModelConverter;
 import no.nav.vedtak.exception.TekniskException;
 
 @ApplicationPath(ApiConfig.API_URI)
@@ -143,8 +139,10 @@ public class ApiConfig extends Application {
     @Override
     public Set<Class<?>> getClasses() {
         Set<Class<?>> classes = new HashSet<>();
-        // eksponert grensesnitt
+        // eksponert grensesnitt mot frontend
         classes.addAll(RestImplementationClasses.getImplementationClasses());
+        // eksponert grensesnitt mot andre applikasjoner interne + noen få eksterne
+        classes.addAll(RestImplementationClasses.getServiceClasses());
         // forvaltning/swagger
         classes.addAll(RestImplementationClasses.getForvaltningClasses());
 
