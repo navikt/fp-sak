@@ -54,14 +54,14 @@ public class SøknadsperiodeFristTjenesteImpl implements SøknadsperiodeFristTje
     }
 
     @Override
-    public Optional<Søknadsfristdatoer> finnSøknadsfrist(Long behandlingId) {
+    public Søknadsfristdatoer finnSøknadsfrist(Long behandlingId) {
         var familieHendelseEntitet = familieHendelseRepository.hentAggregatHvisEksisterer(behandlingId)
             .map(FamilieHendelseGrunnlagEntitet::getGjeldendeVersjon);
         var tilretteleggingFom = svangerskapspengerRepository.hentGrunnlag(behandlingId)
             .flatMap(SøknadsperiodeFristTjenesteImpl::utledNettoSøknadsperiodeFomFraGrunnlag);
 
         if (fødselFørTilrettelegging(familieHendelseEntitet, tilretteleggingFom)) {
-            return Optional.of(finnSøknadsfrist(behandlingId, null));
+            return finnSøknadsfrist(behandlingId, null);
         }
 
         var tomFraTermin = familieHendelseEntitet
@@ -69,7 +69,7 @@ public class SøknadsperiodeFristTjenesteImpl implements SøknadsperiodeFristTje
 
         var periode = tilretteleggingFom.map(fom -> new LocalDateInterval(fom, tomFraTermin.orElse(fom))).orElse(null);
 
-        return Optional.of(finnSøknadsfrist(behandlingId, periode));
+        return finnSøknadsfrist(behandlingId, periode);
     }
 
     private boolean fødselFørTilrettelegging(Optional<FamilieHendelseEntitet> familieHendelseEntitet, Optional<LocalDate> tilretteleggingFom) {

@@ -6,7 +6,6 @@ import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.Period;
 import java.util.EnumSet;
-import java.util.Optional;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -44,14 +43,14 @@ public class SøknadsperiodeFristTjenesteImpl implements SøknadsperiodeFristTje
     }
 
     @Override
-    public Optional<Søknadsfristdatoer> finnSøknadsfrist(Long behandlingId) {
+    public Søknadsfristdatoer finnSøknadsfrist(Long behandlingId) {
         var intervall = familieGrunnlagRepository.hentAggregatHvisEksisterer(behandlingId)
             .map(FamilieHendelseGrunnlagEntitet::getGjeldendeVersjon)
             .map(FamilieHendelseEntitet::getSkjæringstidspunkt)
             .map(fhdato -> new LocalDateInterval(fhdato, fhdato))
             .orElse(null);
 
-        return Optional.of(finnSøknadsfrist(behandlingId, intervall));
+        return finnSøknadsfrist(behandlingId, intervall);
     }
 
     private Søknadsfristdatoer finnSøknadsfrist(Long behandlingId, LocalDateInterval søknadsperiode) {

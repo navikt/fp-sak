@@ -5,7 +5,6 @@ import static java.time.temporal.ChronoUnit.DAYS;
 import java.time.LocalDate;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Optional;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -43,7 +42,7 @@ public class SøknadsperiodeFristTjenesteImpl implements SøknadsperiodeFristTje
     }
 
     @Override
-    public Optional<Søknadsfristdatoer> finnSøknadsfrist(Long behandlingId) {
+    public Søknadsfristdatoer finnSøknadsfrist(Long behandlingId) {
         var søknadMottattDato = søknadRepository.hentSøknadHvisEksisterer(behandlingId)
             .map(SøknadEntitet::getMottattDato).orElse(null);
         var perioder = ytelsesFordelingRepository.hentAggregatHvisEksisterer(behandlingId)
@@ -55,7 +54,7 @@ public class SøknadsperiodeFristTjenesteImpl implements SøknadsperiodeFristTje
         var max = perioder.stream().map(OppgittPeriodeEntitet::getTom).max(Comparator.naturalOrder());
         var periode = min.map(m -> new LocalDateInterval(m, max.orElseThrow())).orElse(null);
 
-        return Optional.of(finnSøknadsfrist(behandlingId, periode));
+        return finnSøknadsfrist(behandlingId, periode);
     }
 
     private Søknadsfristdatoer finnSøknadsfrist(Long behandlingId, LocalDateInterval søknadsperiode) {

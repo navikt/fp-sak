@@ -13,6 +13,7 @@ import jakarta.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.OppdateringResultat;
 import no.nav.foreldrepenger.behandling.revurdering.ytelse.UttakInputTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
@@ -94,7 +95,7 @@ class FaktaUttakFellesTjeneste {
             .toList();
 
         var behandling = behandlingRepository.hentBehandling(behandlingId);
-        validerFørsteUttaksdag(overstyrtePerioder, behandling);
+        validerFørsteUttaksdag(overstyrtePerioder, BehandlingReferanse.fra(behandling));
         var overstyrtePerioderMedMottattDato = oppdaterMedMottattdato(behandling, overstyrtePerioder);
         ytelseFordelingTjeneste.overstyrSøknadsperioder(behandlingId, overstyrtePerioderMedMottattDato);
         oppdaterEndringsdato(overstyrtePerioderMedMottattDato, behandlingId);
@@ -146,11 +147,11 @@ class FaktaUttakFellesTjeneste {
         }
     }
 
-    private void validerFørsteUttaksdag(List<OppgittPeriodeEntitet> overstyrtePerioder, Behandling behandling) {
+    private void validerFørsteUttaksdag(List<OppgittPeriodeEntitet> overstyrtePerioder, BehandlingReferanse ref) {
         //Burde overstyre første uttaksdag i Fakta om saken
         var førsteOverstyrt = overstyrtePerioder.stream().filter(p -> !p.isUtsettelse()).map(OppgittPeriodeEntitet::getFom).min(Comparator.naturalOrder());
         if (førsteOverstyrt.isPresent()) {
-            var førsteUttaksdato = ytelseFordelingDtoTjeneste.finnFørsteUttaksdato(behandling);
+            var førsteUttaksdato = ytelseFordelingDtoTjeneste.finnFørsteUttaksdato(ref);
             if (førsteOverstyrt.get().isBefore(førsteUttaksdato)) {
                 throw new IllegalArgumentException(
                     "første dag i overstyrte perioder kan ikke ligge før gyldig første uttaksdato " + førsteOverstyrt + " - " + førsteUttaksdato);

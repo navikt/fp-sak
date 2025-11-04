@@ -1,7 +1,5 @@
 package no.nav.foreldrepenger.skjæringstidspunkt;
 
-import java.util.Optional;
-
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
@@ -34,7 +32,7 @@ public class SøknadsperiodeFristTjenesteImpl implements SøknadsperiodeFristTje
     }
 
     @Override
-    public Optional<Søknadsfristdatoer> finnSøknadsfrist(Long behandlingId) {
+    public Søknadsfristdatoer finnSøknadsfrist(Long behandlingId) {
         var behandling = behandlingRepository.hentBehandling(behandlingId);
         if (behandling.erYtelseBehandling()) {
             if (FagsakYtelseType.ENGANGSTØNAD.equals(behandling.getFagsakYtelseType())) {
@@ -50,7 +48,7 @@ public class SøknadsperiodeFristTjenesteImpl implements SøknadsperiodeFristTje
         }
         // returner tom container for andre behandlingtyper
         // (så ser vi om det evt. er noen call paths som kaller på noen form for skjæringstidspunkt)
-        return Optional.of(Søknadsfristdatoer.builder().build());
+        return Søknadsfristdatoer.builder().build();
     }
 
 }

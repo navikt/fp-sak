@@ -7,9 +7,11 @@ import static no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aks
 
 import java.time.LocalDate;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import jakarta.enterprise.context.ApplicationScoped;
@@ -20,6 +22,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapAggregat;
+import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapOppgittLandOppholdEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapOppgittTilknytningEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.VurdertMedlemskap;
@@ -31,6 +34,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.Avslagsårsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultatRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallType;
+import no.nav.foreldrepenger.behandlingslager.geografisk.Landkoder;
 import no.nav.foreldrepenger.behandlingsprosess.prosessering.BehandlingProsesseringTjeneste;
 import no.nav.foreldrepenger.domene.medlem.MedlemTjeneste;
 import no.nav.foreldrepenger.domene.personopplysning.PersonopplysningTjeneste;
@@ -111,7 +115,7 @@ public class MedlemDtoTjeneste {
             .map(MedlemskapOppgittTilknytningEntitet::getOpphold)
             .orElse(Set.of())
             .stream()
-            .map(MedlemskapDto.Utenlandsopphold::map)
+            .map(MedlemskapDto.Utlandsopphold::map)
             .collect(Collectors.toSet());
 
         var adresser = personopplysningerAggregat.getAdresserFor(aktørId, forPeriode)
@@ -133,8 +137,26 @@ public class MedlemDtoTjeneste {
         var annenpart = annenpart(personopplysningerAggregat, forPeriode, stp).orElse(null);
         var avvik = utledAvvik(behandling);
 
-        return Optional.of(new MedlemskapDto(manuellBehandling.orElse(null), legacyManuellBehandling, regioner, personstatuser, utenlandsopphold, adresser,
-            oppholdstillatelser, medlemskapsperioder, avvik, annenpart));
+        var oppgittUtenlandsopphold = medlemskap.flatMap(MedlemskapAggregat::getOppgittTilknytning).map(m -> {
+            var utlandsoppholdFør = mapUtenlandsperiode(m.getOpphold(), MedlemskapOppgittLandOppholdEntitet::isTidligereOpphold);
+            var utlandsoppholdEtter = mapUtenlandsperiode(m.getOpphold(),
+                medlemskapOppgittLandOppholdEntitet -> !medlemskapOppgittLandOppholdEntitet.isTidligereOpphold());
+            return new MedlemskapDto.OppgittUtlandsopphold(m.isOppholdINorgeSistePeriode(), m.isOppholdINorgeNestePeriode(), utlandsoppholdFør,
+                utlandsoppholdEtter);
+        }).orElse(null);
+
+        return Optional.of(
+            new MedlemskapDto(manuellBehandling.orElse(null), legacyManuellBehandling, regioner, personstatuser, oppgittUtenlandsopphold,
+                utenlandsopphold, adresser, oppholdstillatelser, medlemskapsperioder, avvik, annenpart));
+    }
+
+    private List<MedlemskapDto.Utlandsopphold> mapUtenlandsperiode(Set<MedlemskapOppgittLandOppholdEntitet> opphold,
+                                                                   Predicate<MedlemskapOppgittLandOppholdEntitet> filter) {
+        return opphold.stream()
+            .filter(filter)
+            .filter(o -> !o.getLand().equals(Landkoder.NOR))
+            .map(MedlemskapDto.Utlandsopphold::map)
+            .toList();
     }
 
     private Optional<LocalDate> failsoftSkjæringstidspunkt(Long behandlingId) {
@@ -193,8 +215,8 @@ public class MedlemDtoTjeneste {
             .filter(v -> v.erManueltVurdert() || v.erOverstyrt())
             .findFirst()
             .map((v -> {
-                var opphørsdato = v.getGjeldendeVilkårUtfall()
-                    .equals(VilkårUtfallType.OPPFYLT) ? medlemTjeneste.hentOpphørsdatoHvisEksisterer(behandling.getId()).orElse(null) : null;
+                var opphørsdato = v.getGjeldendeVilkårUtfall().equals(VilkårUtfallType.OPPFYLT) ? medlemTjeneste.hentOpphørsdatoHvisEksisterer(
+                    behandling.getId()).orElse(null) : null;
                 var avslagskode = medlemTjeneste.hentAvslagsårsak(behandling.getId()).filter(å -> !å.equals(Avslagsårsak.UDEFINERT)).orElse(null);
                 var medlemFom = medlemTjeneste.hentMedlemFomDato(behandling.getId()).orElse(null);
                 return new MedlemskapDto.ManuellBehandlingResultat(avslagskode, medlemFom, opphørsdato);
@@ -202,8 +224,7 @@ public class MedlemDtoTjeneste {
     }
 
     private static boolean aksjonspunktErOpprettetEllerLøst(Behandling behandling) {
-        return VURDER_MEDLEMSKAPSVILKÅRET_AKSJONSPUNKT
-            .stream()
+        return VURDER_MEDLEMSKAPSVILKÅRET_AKSJONSPUNKT.stream()
             .anyMatch(a -> behandling.harUtførtAksjonspunktMedType(a) || behandling.harÅpentAksjonspunktMedType(a));
     }
 
