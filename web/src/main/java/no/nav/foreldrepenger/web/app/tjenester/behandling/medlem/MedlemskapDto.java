@@ -3,11 +3,12 @@ package no.nav.foreldrepenger.web.app.tjenester.behandling.medlem;
 import static com.fasterxml.jackson.annotation.JsonInclude.Include;
 
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Set;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
-
 import jakarta.validation.constraints.NotNull;
+
+import com.fasterxml.jackson.annotation.JsonInclude;
 
 import no.nav.foreldrepenger.behandlingslager.aktør.OppholdstillatelseType;
 import no.nav.foreldrepenger.behandlingslager.aktør.PersonstatusType;
@@ -27,12 +28,12 @@ public record MedlemskapDto(ManuellBehandlingResultat manuellBehandlingResultat,
                             LegacyManuellBehandling legacyManuellBehandling,
                             @NotNull Set<Region> regioner,
                             @NotNull Set<Personstatus> personstatuser,
-                            @NotNull Set<Utenlandsopphold> utenlandsopphold,
+                            @NotNull MedlemskapDto.OppgittUtlandsopphold oppgittUtlandsopphold,
+                            @NotNull Set<Utlandsopphold> utenlandsopphold, //TODO TFP-6443 slett
                             @NotNull Set<PersonadresseDto> adresser,
                             @NotNull Set<Oppholdstillatelse> oppholdstillatelser,
                             @NotNull Set<MedlemskapPeriode> medlemskapsperioder,
-                            @NotNull Set<MedlemskapAvvik> avvik,
-                            Annenpart annenpart) {
+                            @NotNull Set<MedlemskapAvvik> avvik, Annenpart annenpart) {
 
     private static final LocalDate OPPHOLD_CUTOFF = LocalDate.of(2018, 7, 1);
 
@@ -49,13 +50,8 @@ public record MedlemskapDto(ManuellBehandlingResultat manuellBehandlingResultat,
     record LegacyManuellBehandling(@NotNull Set<MedlemPeriode> perioder) {
 
         @JsonInclude(Include.NON_NULL)
-        record MedlemPeriode(@NotNull LocalDate vurderingsdato,
-                             Boolean oppholdsrettVurdering,
-                             Boolean erEosBorger,
-                             Boolean lovligOppholdVurdering,
-                             Boolean bosattVurdering,
-                             MedlemskapManuellVurderingType medlemskapManuellVurderingType,
-                             String begrunnelse) {
+        record MedlemPeriode(@NotNull LocalDate vurderingsdato, Boolean oppholdsrettVurdering, Boolean erEosBorger, Boolean lovligOppholdVurdering,
+                             Boolean bosattVurdering, MedlemskapManuellVurderingType medlemskapManuellVurderingType, String begrunnelse) {
         }
     }
 
@@ -68,9 +64,9 @@ public record MedlemskapDto(ManuellBehandlingResultat manuellBehandlingResultat,
         }
     }
 
-    record Utenlandsopphold(@NotNull LocalDate fom, LocalDate tom, @NotNull Landkoder landkode) {
-        public static Utenlandsopphold map(MedlemskapOppgittLandOppholdEntitet moloe) {
-            return new Utenlandsopphold(moloe.getPeriodeFom(), moloe.getPeriodeTom(), moloe.getLand());
+    record Utlandsopphold(@NotNull LocalDate fom, LocalDate tom, @NotNull Landkoder landkode, @NotNull String landNavn) {
+        public static Utlandsopphold map(MedlemskapOppgittLandOppholdEntitet moloe) {
+            return new Utlandsopphold(moloe.getPeriodeFom(), moloe.getPeriodeTom(), moloe.getLand(), Landkoder.navnLesbart(moloe.getLand()));
         }
     }
 
@@ -90,6 +86,11 @@ public record MedlemskapDto(ManuellBehandlingResultat manuellBehandlingResultat,
     }
 
     record Annenpart(@NotNull Set<PersonadresseDto> adresser, @NotNull Set<Region> regioner, @NotNull Set<Personstatus> personstatuser) {
+    }
+
+    record OppgittUtlandsopphold(@NotNull boolean oppholdSistePeriode, @NotNull boolean oppholdNestePeriode,
+                                 @NotNull List<Utlandsopphold> utlandsoppholdFør, @NotNull List<Utlandsopphold> utlandsoppholdEtter) {
+
     }
 }
 

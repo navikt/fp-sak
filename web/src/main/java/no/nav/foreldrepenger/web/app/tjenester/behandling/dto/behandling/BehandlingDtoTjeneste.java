@@ -56,7 +56,6 @@ import no.nav.foreldrepenger.domene.uttak.UttakTjeneste;
 import no.nav.foreldrepenger.domene.uttak.beregnkontoer.UtregnetStønadskontoTjeneste;
 import no.nav.foreldrepenger.domene.vedtak.TotrinnTjeneste;
 import no.nav.foreldrepenger.domene.vedtak.intern.VedtaksbrevStatusUtleder;
-import no.nav.foreldrepenger.konfig.Environment;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 import no.nav.foreldrepenger.web.app.rest.ResourceLink;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.BehandlingRestTjeneste;
@@ -354,7 +353,8 @@ public class BehandlingDtoTjeneste {
         var harSakenSøknad = søknadRepository.hentSøknadHvisEksisterer(behandling.getId()).isPresent();
         dto.setHarRegisterdata(harInnhentetRegisterData);
         dto.setHarSøknad(harSakenSøknad);
-        dto.leggTil(get(SøknadRestTjeneste.SOKNAD_PATH, "soknad", uuidDto));
+        dto.leggTil(get(SøknadRestTjeneste.SOKNAD_PATH, "soknad", uuidDto)); //TODO TFP-6443 slett
+        dto.leggTil(get(SøknadRestTjeneste.SØKNAD_PATH, "søknad", uuidDto));
 
         if (dto.isErAktivPapirsoknad()) {
             return dto;

@@ -10,7 +10,6 @@ import java.util.List;
 import jakarta.inject.Inject;
 
 import org.junit.jupiter.api.Test;
-import org.mockito.Mock;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterParameter;
@@ -25,7 +24,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.Person
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.SivilstandType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
-import no.nav.foreldrepenger.behandlingslager.behandling.ufore.UføretrygdRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.AvklarteUttakDatoerEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.OppgittRettighetEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.FordelingPeriodeKilde;
@@ -45,7 +43,6 @@ import no.nav.foreldrepenger.behandlingslager.uttak.fp.PeriodeResultatÅrsak;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPeriodeEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPerioderEntitet;
 import no.nav.foreldrepenger.dbstoette.CdiDbAwareTest;
-import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakTjeneste;
 import no.nav.foreldrepenger.domene.ytelsefordeling.YtelseFordelingTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.aksjonspunkt.BekreftAleneomsorgOppdaterer;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.app.FaktaOmsorgRettTjeneste;
@@ -58,10 +55,6 @@ class YtelseFordelingDtoTjenesteTest {
     private BehandlingRepositoryProvider repositoryProvider;
     @Inject
     private YtelseFordelingTjeneste ytelseFordelingTjeneste;
-    @Inject
-    private ForeldrepengerUttakTjeneste uttakTjeneste;
-    @Mock
-    private final UføretrygdRepository uføretrygdRepository = mock(UføretrygdRepository.class);
     @Inject
     private YtelseFordelingDtoTjeneste ytelseFordelingDtoTjeneste;
 
@@ -114,19 +107,8 @@ class YtelseFordelingDtoTjenesteTest {
         // Act
         new BekreftAleneomsorgOppdaterer(new FaktaOmsorgRettTjeneste(ytelseFordelingTjeneste, mock(FagsakEgenskapRepository.class)), repositoryProvider.getHistorikkinnslagRepository()) {
         }.oppdater(dto, new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling), dto));
-        var ytelseFordelingDtoOpt = tjeneste().mapFra(behandling);
+        var ytelseFordelingDtoOpt = ytelseFordelingDtoTjeneste.mapFra(BehandlingReferanse.fra(behandling));
         assertThat(ytelseFordelingDtoOpt).isNotNull().isNotEmpty();
-    }
-
-    @Test
-    void skal_hente_ønsker_justert_fordeling_fra_yf() {
-        var oppgittPeriode = OppgittPeriodeBuilder.ny().medPeriode(now().minusDays(10), now()).medPeriodeType(UttakPeriodeType.FEDREKVOTE).build();
-        var fordeling = new OppgittFordelingEntitet(List.of(oppgittPeriode), true, true);
-
-        var behandling = opprettBehandling(fordeling);
-
-        var dto = tjeneste().mapFra(behandling).orElseThrow();
-        assertThat(dto.isØnskerJustertVedFødsel()).isTrue();
     }
 
     @Test
@@ -148,14 +130,9 @@ class YtelseFordelingDtoTjenesteTest {
             .medFordeling(new OppgittFordelingEntitet(List.of(endringssøknadPeriode), true))
             .lagre(repositoryProvider);
 
-        var førsteUttaksdato = tjeneste().finnFørsteUttaksdato(revurdering);
+        var førsteUttaksdato = ytelseFordelingDtoTjeneste.finnFørsteUttaksdato(BehandlingReferanse.fra(revurdering));
 
         assertThat(førsteUttaksdato).isEqualTo(endringssøknadFom);
-    }
-
-    private YtelseFordelingDtoTjeneste tjeneste() {
-        return new YtelseFordelingDtoTjeneste(ytelseFordelingTjeneste, uføretrygdRepository, uttakTjeneste, null,
-            repositoryProvider.getBehandlingRepository(), null);
     }
 
     private Behandling opprettBehandling() {

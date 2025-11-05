@@ -41,7 +41,7 @@ public class InngangsvilkårEngangsstønadSøknadsfrist implements Inngangsvilk�
     }
 
     private VilkårData vurderSøknadsfristOppfyltAutomatisk(BehandlingReferanse ref) {
-        var fristdata = fristTjeneste.finnSøknadsfrist(ref.behandlingId()).orElseThrow();
+        var fristdata = fristTjeneste.finnSøknadsfrist(ref.behandlingId());
 
         var søknadMottattDato = fristdata.getSøknadMottattDato();
         var fristdato = fristdata.getUtledetSøknadsfrist();
