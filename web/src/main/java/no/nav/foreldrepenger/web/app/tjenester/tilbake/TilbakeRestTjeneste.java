@@ -19,7 +19,6 @@ import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 
-import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
@@ -35,7 +34,6 @@ import no.nav.vedtak.sikkerhet.abac.beskyttet.ResourceType;
 
 
 // Tilbyr data til fptilbake, tilbakekrevingsløsningen .
-@Hidden
 @Path(TilbakeRestTjeneste.BASE_PATH)
 @ApplicationScoped
 @Transactional

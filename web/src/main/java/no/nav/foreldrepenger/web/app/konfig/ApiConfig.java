@@ -27,6 +27,7 @@ import com.fasterxml.jackson.databind.json.JsonMapper;
 import io.swagger.v3.core.converter.ModelConverters;
 import io.swagger.v3.core.jackson.ModelResolver;
 import io.swagger.v3.core.util.ObjectMapperFactory;
+import io.swagger.v3.jaxrs2.integration.JaxrsAnnotationScanner;
 import io.swagger.v3.jaxrs2.integration.JaxrsOpenApiContextBuilder;
 import io.swagger.v3.oas.integration.OpenApiConfigurationException;
 import io.swagger.v3.oas.integration.SwaggerConfiguration;
@@ -65,7 +66,7 @@ public class ApiConfig extends Application {
             var oasConfig = new SwaggerConfiguration()
                 .openAPI(oas)
                 .prettyPrint(true)
-                .resourcePackages(Collections.singleton("no.nav.foreldrepenger"))
+                .scannerClass(JaxrsAnnotationScanner.class.getName())
                 .resourceClasses(Stream.of(RestImplementationClasses.getImplementationClasses(), RestImplementationClasses.getForvaltningClasses())
                     .flatMap(Collection::stream).map(Class::getName).collect(Collectors.toSet()));
 

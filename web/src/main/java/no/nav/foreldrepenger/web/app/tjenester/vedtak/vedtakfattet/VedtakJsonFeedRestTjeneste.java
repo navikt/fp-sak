@@ -12,10 +12,11 @@ import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.MediaType;
 
+import no.nav.vedtak.sikkerhet.abac.beskyttet.AvailabilityType;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -30,10 +31,8 @@ import no.nav.foreldrepenger.web.app.tjenester.vedtak.vedtakfattet.dto.SekvensId
 import no.nav.vedtak.log.util.LoggerUtils;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
 import no.nav.vedtak.sikkerhet.abac.beskyttet.ActionType;
-import no.nav.vedtak.sikkerhet.abac.beskyttet.AvailabilityType;
 import no.nav.vedtak.sikkerhet.abac.beskyttet.ResourceType;
 
-@Hidden
 @Path(VedtakJsonFeedRestTjeneste.BASE_PATH)
 @ApplicationScoped
 @Transactional
