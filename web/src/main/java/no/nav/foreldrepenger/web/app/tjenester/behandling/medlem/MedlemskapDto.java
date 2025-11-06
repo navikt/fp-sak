@@ -29,7 +29,6 @@ public record MedlemskapDto(ManuellBehandlingResultat manuellBehandlingResultat,
                             @NotNull Set<Region> regioner,
                             @NotNull Set<Personstatus> personstatuser,
                             @NotNull MedlemskapDto.OppgittUtlandsopphold oppgittUtlandsopphold,
-                            @NotNull Set<Utlandsopphold> utenlandsopphold, //TODO TFP-6443 slett
                             @NotNull Set<PersonadresseDto> adresser,
                             @NotNull Set<Oppholdstillatelse> oppholdstillatelser,
                             @NotNull Set<MedlemskapPeriode> medlemskapsperioder,

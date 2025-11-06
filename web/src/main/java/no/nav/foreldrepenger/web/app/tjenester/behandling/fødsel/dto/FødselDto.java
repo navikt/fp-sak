@@ -1,11 +1,11 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.fødsel.dto;
 
-import jakarta.validation.constraints.NotNull;
-
 import java.time.LocalDate;
 import java.util.List;
 
-public record FødselDto(@NotNull Søknad søknad, @NotNull Register register,@NotNull Gjeldende gjeldende) {
+import jakarta.validation.constraints.NotNull;
+
+public record FødselDto(@NotNull Søknad søknad, @NotNull Register register, @NotNull Gjeldende gjeldende) {
 
     public record BarnHendelseData(@NotNull LocalDate fødselsdato, LocalDate dødsdato, Integer barnNummer) {
     }
