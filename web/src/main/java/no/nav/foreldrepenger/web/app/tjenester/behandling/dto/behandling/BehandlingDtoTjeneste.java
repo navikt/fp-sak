@@ -353,7 +353,6 @@ public class BehandlingDtoTjeneste {
         var harSakenSøknad = søknadRepository.hentSøknadHvisEksisterer(behandling.getId()).isPresent();
         dto.setHarRegisterdata(harInnhentetRegisterData);
         dto.setHarSøknad(harSakenSøknad);
-        dto.leggTil(get(SøknadRestTjeneste.SOKNAD_PATH, "soknad", uuidDto)); //TODO TFP-6443 slett
         dto.leggTil(get(SøknadRestTjeneste.SØKNAD_PATH, "søknad", uuidDto));
 
         if (dto.isErAktivPapirsoknad()) {

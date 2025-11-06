@@ -23,7 +23,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapAggregat;
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapOppgittLandOppholdEntitet;
-import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapOppgittTilknytningEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.VurdertMedlemskap;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.OppgittAnnenPartEntitet;
@@ -111,12 +110,6 @@ public class MedlemDtoTjeneste {
             .collect(Collectors.toSet());
 
         var medlemskap = medlemskapRepository.hentMedlemskap(ref.behandlingId());
-        var utenlandsopphold = medlemskap.flatMap(MedlemskapAggregat::getOppgittTilknytning)
-            .map(MedlemskapOppgittTilknytningEntitet::getOpphold)
-            .orElse(Set.of())
-            .stream()
-            .map(MedlemskapDto.Utlandsopphold::map)
-            .collect(Collectors.toSet());
 
         var adresser = personopplysningerAggregat.getAdresserFor(aktørId, forPeriode)
             .stream()
@@ -147,7 +140,7 @@ public class MedlemDtoTjeneste {
 
         return Optional.of(
             new MedlemskapDto(manuellBehandling.orElse(null), legacyManuellBehandling, regioner, personstatuser, oppgittUtenlandsopphold,
-                utenlandsopphold, adresser, oppholdstillatelser, medlemskapsperioder, avvik, annenpart));
+                adresser, oppholdstillatelser, medlemskapsperioder, avvik, annenpart));
     }
 
     private List<MedlemskapDto.Utlandsopphold> mapUtenlandsperiode(Set<MedlemskapOppgittLandOppholdEntitet> opphold,

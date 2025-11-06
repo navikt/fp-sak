@@ -32,43 +32,26 @@ import no.nav.vedtak.sikkerhet.abac.beskyttet.ResourceType;
 public class SøknadRestTjeneste {
 
     static final String BASE_PATH = "/behandling";
-    private static final String SOKNAD_PART_PATH = "/soknad";
-    public static final String SOKNAD_PATH = BASE_PATH + SOKNAD_PART_PATH;
     private static final String SØKNAD_PART_PATH = "/søknad";
     public static final String SØKNAD_PATH = BASE_PATH + SØKNAD_PART_PATH;
 
     private BehandlingRepository behandlingRepository;
-    private SøknadDtoTjenesteOld dtoMapper;
     private SøknadDtoTjeneste dtoTjeneste;
 
-    public SøknadRestTjeneste() {
-        // for CDI proxy
-    }
-
     @Inject
-    public SøknadRestTjeneste(BehandlingRepositoryProvider behandlingRepositoryProvider, SøknadDtoTjenesteOld dtoMapper, SøknadDtoTjeneste dtoTjeneste) {
-        this.dtoMapper = dtoMapper;
+    public SøknadRestTjeneste(BehandlingRepositoryProvider behandlingRepositoryProvider, SøknadDtoTjeneste dtoTjeneste) {
         this.behandlingRepository = behandlingRepositoryProvider.getBehandlingRepository();
         this.dtoTjeneste = dtoTjeneste;
     }
 
-    //TODO TFP-6443 slett
-    @GET
-    @Path(SOKNAD_PART_PATH)
-    @Operation(description = "Hent informasjon om søknad", tags = "søknad", responses = {
-            @ApiResponse(responseCode = "200", description = "Returnerer Søknad, null hvis ikke eksisterer (GUI støtter ikke NOT_FOUND p.t.)", content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = SoknadDto.class)))
-    })
-    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK, sporingslogg = false)
-    public SoknadDto getSoknad(@TilpassetAbacAttributt(supplierClass = BehandlingAbacSuppliers.UuidAbacDataSupplier.class)
-        @NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
-        var behandling = behandlingRepository.hentBehandling(uuidDto.getBehandlingUuid());
-        return dtoMapper.mapFra(behandling).orElse(null);
+    SøknadRestTjeneste() {
+        // for CDI proxy
     }
 
     @GET
     @Path(SØKNAD_PART_PATH)
     @Operation(description = "Hent informasjon om søknad", tags = "søknad", responses = {
-        @ApiResponse(responseCode = "200", description = "Returnerer søknad", content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = SoknadDto.class)))
+        @ApiResponse(responseCode = "200", description = "Returnerer søknad", content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = SøknadDto.class)))
     })
     @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK, sporingslogg = false)
     public SøknadDto getSøknad(@TilpassetAbacAttributt(supplierClass = BehandlingAbacSuppliers.UuidAbacDataSupplier.class)

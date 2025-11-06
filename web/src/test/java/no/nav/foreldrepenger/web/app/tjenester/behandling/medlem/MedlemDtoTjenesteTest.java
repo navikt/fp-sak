@@ -90,20 +90,19 @@ class MedlemDtoTjenesteTest {
         var oppholdstillatelseFom = fødselsdato.minusYears(2);
         var oppholdstillatelseTom = fødselsdato.minusWeeks(2);
         var oppgittUtenlandsopphold = new MedlemskapOppgittLandOppholdEntitet.Builder().medPeriode(fødselsdato.minusYears(1),
-            fødselsdato.minusMonths(2)).medLand(Landkoder.DEU).build();
+            fødselsdato.minusMonths(2)).erTidligereOpphold(true).medLand(Landkoder.DEU).build();
 
-       var søker = personInformasjonBuilder.medPersonas()
-           .voksenPerson(scenario.getDefaultBrukerAktørId(), SivilstandType.GIFT, NavBrukerKjønn.KVINNE)
-           .bostedsadresse(adresse)
-           .statsborgerskap(Landkoder.USA, statsborgerFom, statsborgerTom)
-           .statsborgerskap(Landkoder.SWE, statsborgerFom, statsborgerTom)
-           .personstatus(PersonstatusType.BOSA, personstatusFom, personstatusTom)
-           .opphold(OppholdstillatelseType.MIDLERTIDIG, oppholdstillatelseFom, oppholdstillatelseTom)
-           .build();
+        var søker = personInformasjonBuilder.medPersonas()
+            .voksenPerson(scenario.getDefaultBrukerAktørId(), SivilstandType.GIFT, NavBrukerKjønn.KVINNE)
+            .bostedsadresse(adresse)
+            .statsborgerskap(Landkoder.USA, statsborgerFom, statsborgerTom)
+            .statsborgerskap(Landkoder.SWE, statsborgerFom, statsborgerTom)
+            .personstatus(PersonstatusType.BOSA, personstatusFom, personstatusTom)
+            .opphold(OppholdstillatelseType.MIDLERTIDIG, oppholdstillatelseFom, oppholdstillatelseTom)
+            .build();
 
 
-        var annenpart = personInformasjonBuilder.medPersonas()
-            .voksenPerson(aktørIdAnnenPart, SivilstandType.GIFT, NavBrukerKjønn.MANN)
+        var annenpart = personInformasjonBuilder.medPersonas().voksenPerson(aktørIdAnnenPart, SivilstandType.GIFT, NavBrukerKjønn.MANN)
             .bostedsadresse(adresse)
             .statsborgerskap(Landkoder.GEO, statsborgerFom, statsborgerTom)
             .statsborgerskap(Landkoder.CAN, statsborgerFom, statsborgerTom)
@@ -149,8 +148,9 @@ class MedlemDtoTjenesteTest {
         assertThat(oppholdstillatelse1.tom()).isEqualTo(oppholdstillatelseTom);
         assertThat(oppholdstillatelse1.type()).isEqualTo(OppholdstillatelseType.MIDLERTIDIG);
 
-        assertThat(dto.utenlandsopphold()).hasSize(1);
-        var utenlandsopphold1 = dto.utenlandsopphold().stream().findFirst().orElseThrow();
+        var utlandsoppholdFør = dto.oppgittUtlandsopphold().utlandsoppholdFør();
+        assertThat(utlandsoppholdFør).hasSize(1);
+        var utenlandsopphold1 = utlandsoppholdFør.stream().findFirst().orElseThrow();
         assertThat(utenlandsopphold1.fom()).isEqualTo(oppgittUtenlandsopphold.getPeriodeFom());
         assertThat(utenlandsopphold1.tom()).isEqualTo(oppgittUtenlandsopphold.getPeriodeTom());
         assertThat(utenlandsopphold1.landkode()).isEqualTo(Landkoder.DEU);
