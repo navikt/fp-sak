@@ -115,7 +115,6 @@ public class HentKodeverkTjeneste {
         map.put(MedlemskapDekningType.class.getSimpleName(), MedlemskapDekningType.kodeMap().values());
         map.put(MedlemskapType.class.getSimpleName(), MedlemskapType.kodeMap().values());
         map.put(OppholdstillatelseType.class.getSimpleName(), OppholdstillatelseType.kodeMap().values());
-        map.put("Lineær"+Avslagsårsak.class.getSimpleName(), Avslagsårsak.kodeMap().values());
         map.put(Avslagsårsak.class.getSimpleName(), Avslagsårsak.kodeMap().values());
         map.put(StønadskontoType.class.getSimpleName(), StønadskontoType.kodeMap().values());
         map.put(KonsekvensForYtelsen.class.getSimpleName(), KonsekvensForYtelsen.kodeMap().values());

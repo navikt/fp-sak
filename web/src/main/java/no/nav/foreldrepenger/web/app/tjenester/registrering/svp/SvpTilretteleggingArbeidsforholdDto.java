@@ -5,10 +5,17 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME)
+@JsonSubTypes({
+    @JsonSubTypes.Type(value = SvpTilretteleggingFrilanserDto.class, name = "FR"),
+    @JsonSubTypes.Type(value = SvpTilretteleggingVirksomhetDto.class, name = "VI"),
+    @JsonSubTypes.Type(value = SvpTilretteleggingPrivatArbeidsgiverDto.class, name = "PA"),
+    @JsonSubTypes.Type(value = SvpTilretteleggingSelvstendigNæringsdrivendeDto.class, name = "SN")
+})
 public abstract class SvpTilretteleggingArbeidsforholdDto {
 
     private LocalDate behovsdato;
