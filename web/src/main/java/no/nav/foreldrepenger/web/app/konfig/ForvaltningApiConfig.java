@@ -15,6 +15,7 @@ import org.glassfish.jersey.server.ServerProperties;
 
 import io.swagger.v3.jaxrs2.integration.JaxrsAnnotationScanner;
 import io.swagger.v3.jaxrs2.integration.JaxrsOpenApiContextBuilder;
+import io.swagger.v3.jaxrs2.integration.resources.OpenApiResource;
 import io.swagger.v3.oas.integration.OpenApiConfigurationException;
 import io.swagger.v3.oas.integration.SwaggerConfiguration;
 import io.swagger.v3.oas.models.OpenAPI;
@@ -29,7 +30,7 @@ public class ForvaltningApiConfig extends Application {
 
     private static final Environment ENV = Environment.current();
 
-    public static final String FORVALTNING_URI = "/forvaltning";
+    public static final String FORVALTNING_URI = "/forvaltning/api";
 
     public ForvaltningApiConfig() {
         var info = new Info()
@@ -49,10 +50,9 @@ public class ForvaltningApiConfig extends Application {
                 .scannerClass(JaxrsAnnotationScanner.class.getName())
                 .resourceClasses(RestImplementationClasses.getForvaltningClasses().stream().map(Class::getName).collect(Collectors.toSet()));
 
-            var context = new JaxrsOpenApiContextBuilder<>()
+            new JaxrsOpenApiContextBuilder<>()
                 .openApiConfiguration(oasConfig)
                 .buildContext(true);
-            context.read();
 
         } catch (OpenApiConfigurationException e) {
             throw new TekniskException("OPEN-API", e.getMessage(), e);
@@ -66,6 +66,8 @@ public class ForvaltningApiConfig extends Application {
         classes.add(ForvaltningAuthorizationFilter.class);
         // forvaltning/swagger
         classes.addAll(RestImplementationClasses.getForvaltningClasses());
+        // swagger
+        classes.add(OpenApiResource.class);
 
         // Applikasjonsoppsett
         classes.addAll(FellesConfigClasses.getFellesConfigClasses());

@@ -29,6 +29,7 @@ import io.swagger.v3.core.jackson.ModelResolver;
 import io.swagger.v3.core.util.ObjectMapperFactory;
 import io.swagger.v3.jaxrs2.integration.JaxrsAnnotationScanner;
 import io.swagger.v3.jaxrs2.integration.JaxrsOpenApiContextBuilder;
+import io.swagger.v3.jaxrs2.integration.resources.OpenApiResource;
 import io.swagger.v3.oas.integration.OpenApiConfigurationException;
 import io.swagger.v3.oas.integration.SwaggerConfiguration;
 import io.swagger.v3.oas.models.OpenAPI;
@@ -147,7 +148,8 @@ public class ApiConfig extends Application {
         classes.addAll(RestImplementationClasses.getServiceClasses());
         // forvaltning/swagger
         classes.addAll(RestImplementationClasses.getForvaltningClasses());
-
+        // swagger
+        classes.add(OpenApiResource.class);
         // Applikasjonsoppsett
         classes.addAll(FellesConfigClasses.getFellesConfigClasses());
 
