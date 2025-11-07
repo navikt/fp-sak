@@ -64,6 +64,7 @@ public class ApiConfig extends Application {
 
             oas.info(info).addServersItem(server);
             var oasConfig = new SwaggerConfiguration()
+                .id("openapi.context.id.servlet." + ApiConfig.class.getName())
                 .openAPI(oas)
                 .prettyPrint(true)
                 .scannerClass(JaxrsAnnotationScanner.class.getName())
