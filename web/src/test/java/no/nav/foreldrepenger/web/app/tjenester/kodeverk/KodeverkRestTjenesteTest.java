@@ -53,11 +53,6 @@ class KodeverkRestTjenesteTest {
         var avslagsårsaker = (List<Map<String, String>>) gruppertKodeliste.get(Avslagsårsak.class.getSimpleName());
         assertThat(avslagsårsaker.stream().map(k -> ((Map) k).get("kode")).toList())
                 .contains(Avslagsårsak.FØDSELSDATO_IKKE_OPPGITT_ELLER_REGISTRERT.getKode(), Avslagsårsak.BARN_OVER_15_ÅR.getKode());
-        var lavslagsårsaker = (List<Map<String, String>>) gruppertKodeliste.get("Lineær"+Avslagsårsak.class.getSimpleName());
-        assertThat(lavslagsårsaker.stream().map(k -> ((Map) k).get("kode")).toList())
-            .contains(Avslagsårsak.FØDSELSDATO_IKKE_OPPGITT_ELLER_REGISTRERT.getKode(), Avslagsårsak.BARN_OVER_15_ÅR.getKode());
-        assertThat(avslagsårsaker).hasSameSizeAs(lavslagsårsaker);
-        assertThat(avslagsårsaker).containsAll(lavslagsårsaker);
     }
 
     @Test
