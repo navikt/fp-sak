@@ -4,7 +4,6 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
-import io.swagger.v3.jaxrs2.integration.resources.OpenApiResource;
 import no.nav.foreldrepenger.web.app.exceptions.ConstraintViolationMapper;
 import no.nav.foreldrepenger.web.app.exceptions.GeneralRestExceptionMapper;
 import no.nav.foreldrepenger.web.app.exceptions.JsonMappingExceptionMapper;
@@ -19,8 +18,6 @@ public class FellesConfigClasses {
         Set<Class<?>> classes = new HashSet<>();
         // Autentisering
         classes.add(AuthenticationFilter.class);
-        // swagger
-        classes.add(OpenApiResource.class);
 
         // (De)Serialisering
         classes.add(JacksonJsonConfig.class);
