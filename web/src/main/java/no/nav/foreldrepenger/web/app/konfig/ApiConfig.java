@@ -12,7 +12,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import jakarta.ws.rs.ApplicationPath;
 import jakarta.ws.rs.core.Application;
@@ -27,14 +26,12 @@ import com.fasterxml.jackson.databind.json.JsonMapper;
 import io.swagger.v3.core.converter.ModelConverters;
 import io.swagger.v3.core.jackson.ModelResolver;
 import io.swagger.v3.core.util.ObjectMapperFactory;
-import io.swagger.v3.jaxrs2.integration.JaxrsAnnotationScanner;
-import io.swagger.v3.jaxrs2.integration.JaxrsOpenApiContextBuilder;
 import io.swagger.v3.jaxrs2.integration.resources.OpenApiResource;
-import io.swagger.v3.oas.integration.OpenApiConfigurationException;
-import io.swagger.v3.oas.integration.SwaggerConfiguration;
-import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Info;
-import io.swagger.v3.oas.models.servers.Server;
+import no.nav.foreldrepenger.domene.opptjening.dto.AvklarAktivitetsPerioderDto;
+import no.nav.foreldrepenger.domene.person.verge.dto.AvklarVergeDto;
+import no.nav.foreldrepenger.domene.rest.dto.VurderFaktaOmBeregningDto;
+import no.nav.foreldrepenger.familiehendelse.aksjonspunkt.omsorgsovertakelse.dto.VurderOmsorgsovertakelseVilkårAksjonspunktDto;
 import no.nav.foreldrepenger.konfig.Environment;
 import no.nav.foreldrepenger.web.app.tjenester.RestImplementationClasses;
 import no.nav.openapi.spec.utils.openapi.DiscriminatorModelConverter;
@@ -44,64 +41,54 @@ import no.nav.openapi.spec.utils.openapi.NoJsonSubTypesAnnotationIntrospector;
 import no.nav.openapi.spec.utils.openapi.PrefixStrippingFQNTypeNameResolver;
 import no.nav.openapi.spec.utils.openapi.RefToClassLookup;
 import no.nav.openapi.spec.utils.openapi.RegisteredSubtypesModelConverter;
-import no.nav.vedtak.exception.TekniskException;
 
 @ApplicationPath(ApiConfig.API_URI)
 public class ApiConfig extends Application {
 
     private static final Environment ENV = Environment.current();
+    private static final boolean ER_PROD = ENV.isProd();
 
     public static final String API_URI = "/api";
 
     public ApiConfig() {
+        if (!ER_PROD) {
+            registerOpenApi();
+        }
+    }
+
+    private void registerOpenApi() {
         var info = new Info()
             .title("FPSAK - Foreldrepenger, engangsstønad og svangerskapspenger")
             .version(Optional.ofNullable(ENV.imageName()).orElse("1.0"))
-            .description("REST grensesnitt for FPSAK.");
-        var server = new Server().url(ENV.getProperty("context.path", "/fpsak"));
+            .description("REST grensesnitt for FP-frontend.");
+        var contextPath = ENV.getProperty("context.path", "/fpsak");
 
-        try {
-            var oas = new OpenAPI().openapi("3.1.1");
+        settOppForTypegenereringFrontend();
 
-            oas.info(info).addServersItem(server);
-            var oasConfig = new SwaggerConfiguration()
-                .id("openapi.context.id.servlet." + ApiConfig.class.getName())
-                .openAPI(oas)
-                .prettyPrint(true)
-                .scannerClass(JaxrsAnnotationScanner.class.getName())
-                .resourceClasses(Stream.of(RestImplementationClasses.getImplementationClasses(), RestImplementationClasses.getForvaltningClasses())
-                    .flatMap(Collection::stream).map(Class::getName).collect(Collectors.toSet()));
+        OpenApiUtils.openApiConfigFor(info, contextPath, this)
+            .registerClasses(RestImplementationClasses.getImplementationClasses())
+            .buildOpenApiContext();
+    }
 
-            // Påfølgende ModelConverts oppsett er tilpasset fra K9 sin openapi-spec-utils: https://github.com/navikt/openapi-spec-utils
+    private static void settOppForTypegenereringFrontend() {
+        // Påfølgende ModelConverts oppsett er tilpasset fra K9 sin openapi-spec-utils: https://github.com/navikt/openapi-spec-utils
 
-            // Denne gjør at enums trekkes ut som egne typer istedenfor inline
-            ModelResolver.enumsAsRef = true;
-            ModelConverters.reset();
+        // Denne gjør at enums trekkes ut som egne typer istedenfor inline
+        ModelResolver.enumsAsRef = true;
+        ModelConverters.reset();
 
-            // Her ber vi den om å inkludere pakkenavn i typenavnet. Da risikerer vi ikke kollisjon ved like typenavn. fqn = fully-qualified-name.
-            // Ved kollisjon vil den som er sist prosessert overskrive alle tidligere.
-            var typeNameResolver =new PrefixStrippingFQNTypeNameResolver("no.nav.foreldrepenger.web.app.", "no.nav.");
-            typeNameResolver.setUseFqn(true);
+        // Her ber vi den om å inkludere pakkenavn i typenavnet. Da risikerer vi ikke kollisjon ved like typenavn. fqn = fully-qualified-name.
+        // Ved kollisjon vil den som er sist prosessert overskrive alle tidligere.
+        var typeNameResolver =new PrefixStrippingFQNTypeNameResolver("no.nav.foreldrepenger.web.app.", "no.nav.");
+        typeNameResolver.setUseFqn(true);
 
-            ModelConverters.getInstance().addConverter(new ModelResolver(lagObjectMapperUtenJsonSubTypeAnnotasjoner(),  typeNameResolver));
+        ModelConverters.getInstance().addConverter(new ModelResolver(lagObjectMapperUtenJsonSubTypeAnnotasjoner(),  typeNameResolver));
 
-            Set<Class<?>> registeredSubtypes = allJsonTypeNameClasses();
-            ModelConverters.getInstance().addConverter(new RegisteredSubtypesModelConverter(registeredSubtypes));
-            ModelConverters.getInstance().addConverter(new JsonSubTypesModelConverter());
-            ModelConverters.getInstance().addConverter(new DiscriminatorModelConverter(new RefToClassLookup()));
-            ModelConverters.getInstance().addConverter(new EnumVarnamesConverter());
-
-            var context = new JaxrsOpenApiContextBuilder<>()
-                .openApiConfiguration(oasConfig)
-                .buildContext(false);
-
-            context.init();
-            context.read();
-
-
-        } catch (OpenApiConfigurationException e) {
-            throw new TekniskException("OPEN-API", e.getMessage(), e);
-        }
+        Set<Class<?>> registeredSubtypes = allJsonTypeNameClasses();
+        ModelConverters.getInstance().addConverter(new RegisteredSubtypesModelConverter(registeredSubtypes));
+        ModelConverters.getInstance().addConverter(new JsonSubTypesModelConverter());
+        ModelConverters.getInstance().addConverter(new DiscriminatorModelConverter(new RefToClassLookup()));
+        ModelConverters.getInstance().addConverter(new EnumVarnamesConverter());
     }
 
     private static ObjectMapper lagObjectMapperUtenJsonSubTypeAnnotasjoner() {
@@ -123,6 +110,10 @@ public class ApiConfig extends Application {
         final Collection<Class<?>> restClasses = RestImplementationClasses.getImplementationClasses();
 
         final Set<Class<?>> scanClasses = new LinkedHashSet<>(restClasses);
+        scanClasses.add(AvklarAktivitetsPerioderDto.class);
+        scanClasses.add(VurderFaktaOmBeregningDto.class);
+        scanClasses.add(VurderOmsorgsovertakelseVilkårAksjonspunktDto.class);
+        scanClasses.add(AvklarVergeDto.class);
 
         return scanClasses
             .stream()
@@ -146,10 +137,10 @@ public class ApiConfig extends Application {
         classes.addAll(RestImplementationClasses.getImplementationClasses());
         // eksponert grensesnitt mot andre applikasjoner interne + noen få eksterne
         classes.addAll(RestImplementationClasses.getServiceClasses());
-        // forvaltning/swagger
-        classes.addAll(RestImplementationClasses.getForvaltningClasses());
-        // swagger
-        classes.add(OpenApiResource.class);
+        if (!ER_PROD) {
+            // swagger
+            classes.add(OpenApiResource.class);
+        }
         // Applikasjonsoppsett
         classes.addAll(FellesConfigClasses.getFellesConfigClasses());
 
