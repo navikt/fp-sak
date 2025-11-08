@@ -28,11 +28,14 @@ public class RestApiTester {
         return liste;
     }
 
-    static Collection<Class<?>> finnAlleRestTjenester() {
-        return new ArrayList<>(finnAlleRestTjenester(new ApiConfig()));
+    private static Collection<Class<?>> finnAlleRestTjenester() {
+        var resultat = new ArrayList<>(finnAlleRestTjenester(new ApiConfig()));
+        resultat.addAll(finnAlleRestTjenester(new EksternApiConfig()));
+        resultat.addAll(finnAlleRestTjenester(new ForvaltningApiConfig()));
+        return resultat;
     }
 
-    static Collection<Class<?>> finnAlleRestTjenester(Application config) {
+    private static Collection<Class<?>> finnAlleRestTjenester(Application config) {
         return config.getClasses().stream().filter(c -> c.getAnnotation(Path.class) != null).filter(c -> !UNNTATT.contains(c)).toList();
     }
 }
