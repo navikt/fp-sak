@@ -70,7 +70,7 @@ public class ForvaltningLagretVedtakRestTjeneste {
     @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.DRIFT, sporingslogg = true)
     public Response regenererVedtaksXml(@BeanParam @Valid ForvaltningBehandlingIdDto uuidDto) {
 
-        LOG.info("Skal generere vedtakXML for behandlingid {} ", uuidDto);
+        LOG.info("Skal generere vedtakXML for behandlingid {} ", uuidDto.getBehandlingUuid());
 
         var behandling = behandlingsprosessTjeneste.hentBehandling(uuidDto.getBehandlingUuid());
 
@@ -81,7 +81,7 @@ public class ForvaltningLagretVedtakRestTjeneste {
             prosessTaskData.setBehandling(behandling.getSaksnummer().getVerdi(), behandling.getFagsakId(), behandling.getId());
             taskTjeneste.lagre(prosessTaskData);
         } else {
-            LOG.warn("Oppgitt behandling {} er ukjent", uuidDto);
+            LOG.warn("Oppgitt behandling {} er ukjent", uuidDto.getBehandlingUuid());
             return Response.status(Response.Status.BAD_REQUEST).build();
         }
 
@@ -103,7 +103,7 @@ public class ForvaltningLagretVedtakRestTjeneste {
 
         LOG.info("{} vedtak er funnet for perioden [{}] - [{}]", behandlinger.size(), genererVedtaksXmlDto.fom(), genererVedtaksXmlDto.tom());
 
-        if (genererVedtaksXmlDto.maksAntall() != null && behandlinger.size() > genererVedtaksXmlDto.maksAntall().intValue())
+        if (behandlinger.size() > genererVedtaksXmlDto.maksAntall().intValue())
             behandlinger = behandlinger.subList(0, genererVedtaksXmlDto.maksAntall().intValue());
 
         LOG.info("Skal sjekke vedtakXMLen for {} behandlinger og regenerere de som ikke er gyldige ", behandlinger.size());
@@ -134,7 +134,7 @@ public class ForvaltningLagretVedtakRestTjeneste {
 
         LOG.info("{} vedtak er funnet for perioden [{}] - [{}]", behandlinger.size(), genererVedtaksXmlDto.fom(), genererVedtaksXmlDto.tom());
 
-        if (genererVedtaksXmlDto.maksAntall() != null && behandlinger.size() > genererVedtaksXmlDto.maksAntall().intValue())
+        if (behandlinger.size() > genererVedtaksXmlDto.maksAntall().intValue())
             behandlinger = behandlinger.subList(0, genererVedtaksXmlDto.maksAntall().intValue());
 
         LOG.info("Skal validere vedtakXMLen for {} behandlinger  ", behandlinger.size());
