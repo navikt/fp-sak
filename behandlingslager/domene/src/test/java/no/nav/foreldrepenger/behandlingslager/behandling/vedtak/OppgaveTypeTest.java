@@ -25,16 +25,4 @@ class OppgaveTypeTest {
     void skal_hente_ut_riktig_navn_for_vur() {
         assertThat(OppgaveType.VUR_DOKUMENT.getNavn()).isEqualTo("Vurder dokument");
     }
-
-    @Test
-    void skal_hente_ut_riktig_kodeverk() {
-        assertThat(OppgaveType.VUR_KONSEKVENS.getKodeverk()).isEqualTo("OPPGAVE_TYPE");
-        assertThat(OppgaveType.VUR_DOKUMENT.getKodeverk()).isEqualTo("OPPGAVE_TYPE");
-    }
-
-    @Test
-    void skal_hente_ut_riktig_kodeMap() {
-        assertThat(OppgaveType.kodeMap()).containsEntry("VUR_KONSEKVENS", OppgaveType.VUR_KONSEKVENS);
-        assertThat(OppgaveType.kodeMap()).containsEntry("VUR_DOKUMENT", OppgaveType.VUR_DOKUMENT);
-    }
 }

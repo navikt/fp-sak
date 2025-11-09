@@ -4,9 +4,6 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import jakarta.persistence.AttributeConverter;
-import jakarta.persistence.Converter;
-
 import com.fasterxml.jackson.annotation.JsonValue;
 
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
@@ -78,16 +75,4 @@ public enum PeriodeÅrsak implements Kodeverdi {
         return kode;
     }
 
-    @Converter(autoApply = true)
-    public static class KodeverdiConverter implements AttributeConverter<PeriodeÅrsak, String> {
-        @Override
-        public String convertToDatabaseColumn(PeriodeÅrsak attribute) {
-            return attribute == null ? null : attribute.getKode();
-        }
-
-        @Override
-        public PeriodeÅrsak convertToEntityAttribute(String dbData) {
-            return dbData == null ? null : fraKode(dbData);
-        }
-    }
 }

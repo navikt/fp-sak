@@ -40,9 +40,8 @@ class KodeKlassifikTest {
 
     @Test
     void equals() {
-        assertThat(KodeKlassifik.FERIEPENGER_BRUKER).isEqualTo(KodeKlassifik.FERIEPENGER_BRUKER);
-        assertThat(KodeKlassifik.fraKode("FPSVSNDFI")).isEqualTo(KodeKlassifik.fraKode("FPSVSNDFI"));
-        assertThat(KodeKlassifik.SVP_FERIEPENGER_AG).isNotEqualTo(KodeKlassifik.FERIEPENGER_BRUKER);
-        assertThat(KodeKlassifik.fraKode("FPATORD")).isNotEqualTo(KodeKlassifik.fraKode("FPSVSNDFI"));
+        assertThat(KodeKlassifik.FERIEPENGER_BRUKER.getKode()).isEqualTo("FPATFER");
+        assertThat(KodeKlassifik.fraKode("FPSVSNDFI")).isEqualTo(KodeKlassifik.SVP_FISKER);
+        assertThat(KodeKlassifik.fraKode("FPATORD")).isNotEqualTo(KodeKlassifik.FPF_FISKER);
     }
 }

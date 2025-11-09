@@ -24,7 +24,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
-import static org.mockito.ArgumentMatchers.same;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -37,8 +36,6 @@ import java.util.List;
 import java.util.Optional;
 
 import jakarta.persistence.EntityManager;
-
-import no.nav.foreldrepenger.domene.typer.Saksnummer;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -73,6 +70,7 @@ import no.nav.foreldrepenger.domene.iay.modell.OppgittOpptjeningBuilder;
 import no.nav.foreldrepenger.domene.person.PersoninfoAdapter;
 import no.nav.foreldrepenger.domene.personopplysning.PersonopplysningTjeneste;
 import no.nav.foreldrepenger.domene.typer.AktørId;
+import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.domene.ytelsefordeling.YtelseFordelingTjeneste;
 import no.nav.foreldrepenger.mottak.dokumentpersiterer.SøknadDataFraTidligereVedtakTjeneste;
 import no.nav.foreldrepenger.mottak.dokumentpersiterer.impl.søknad.v3.AnnenPartOversetter;
@@ -292,7 +290,7 @@ class SøknadMapperTest {
         var oppholdsperiode = YtelseSøknadMapper.mapOppholdsperioder(List.of(oppholdDto));
         assertThat(oppholdsperiode).hasSize(1);
         assertThat(oppholdsperiode.get(0).getAarsak().getKode()).isEqualTo(oppholdDto.getÅrsak().getKode());
-        assertThat(oppholdsperiode.get(0).getAarsak().getKodeverk()).isEqualTo(oppholdDto.getÅrsak().getKodeverk());
+        assertThat(oppholdsperiode.get(0).getAarsak().getKodeverk()).isEqualTo(OppholdÅrsak.KODEVERK);
         assertThat(oppholdsperiode.get(0).getFom()).isEqualTo(oppholdDto.getPeriodeFom());
         assertThat(oppholdsperiode.get(0).getTom()).isEqualTo(oppholdDto.getPeriodeTom());
     }

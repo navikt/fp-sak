@@ -60,7 +60,7 @@ public class VedtakXmlTjeneste {
         var kodeverksOpplysning = VedtakXmlUtil.lagTomKodeverksOpplysning();
         kodeverksOpplysning.setKode("FOR_SVA");
         kodeverksOpplysning.setValue(Tema.FOR.getNavn());
-        kodeverksOpplysning.setKodeverk(Tema.FOR.getKodeverk());
+        kodeverksOpplysning.setKodeverk(Tema.KODEVERK);
         vedtak.setTema(kodeverksOpplysning);
     }
 

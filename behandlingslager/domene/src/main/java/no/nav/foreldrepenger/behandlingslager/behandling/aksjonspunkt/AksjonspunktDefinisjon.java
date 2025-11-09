@@ -477,7 +477,7 @@ public enum AksjonspunktDefinisjon implements Kodeverdi {
     @Deprecated
     UTGÅTT_7041("7041", AksjonspunktType.AUTOPUNKT, "Vent på vedtak om lovendring vedrørende beregning av næring i kombinasjon med arbeid eller frilans"),
     ;
-    static final String KODEVERK = "AKSJONSPUNKT_DEF";
+    public static final String KODEVERK = "AKSJONSPUNKT_DEF";
 
     private static final Map<String, AksjonspunktDefinisjon> KODER = new LinkedHashMap<>();
 

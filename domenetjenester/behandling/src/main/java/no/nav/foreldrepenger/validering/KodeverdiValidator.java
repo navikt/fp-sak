@@ -33,11 +33,6 @@ public class KodeverdiValidator implements ConstraintValidator<ValidKodeverk, Ko
             ok = false;
         }
 
-        if (!gyldigKodeverk(kodeverdi.getKodeverk())) {
-            context.buildConstraintViolationWithTemplate(NAVN_FEILET_VALIDERING);
-            ok = false;
-        }
-
         return ok;
     }
 
@@ -47,10 +42,6 @@ public class KodeverdiValidator implements ConstraintValidator<ValidKodeverk, Ko
 
     private boolean gyldigKode(String kode) {
         return erIkkeNullEllerTom(kode) && gyldigLengde(kode, 1, 100) && kodeverkPattern.matcher(kode).matches();
-    }
-
-    private boolean gyldigKodeverk(String kodeverk) {
-        return erIkkeNullEllerTom(kodeverk) && gyldigLengde(kodeverk, 0, 256) && kodeverkPattern.matcher(kodeverk).matches();
     }
 
     private boolean gyldigLengde(String str, int min, int max) {

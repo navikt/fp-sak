@@ -28,6 +28,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageVurderingRes
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtakRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.Vilkår;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultatRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallMerknad;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallType;
 import no.nav.vedtak.felles.xml.felles.v2.KodeverksOpplysning;
 import no.nav.vedtak.felles.xml.vedtak.v2.AnkeAvvistAarsak;
@@ -318,7 +319,7 @@ public class BehandlingsresultatXmlTjeneste {
             var vilkårUtfallMerknad = vilkårFraBehandling.getVilkårUtfallMerknad();
             kodeverksOpplysning.setKode(vilkårUtfallMerknad.getKode());
             kodeverksOpplysning.setValue(vilkårUtfallMerknad.getNavn());
-            kodeverksOpplysning.setKodeverk(vilkårUtfallMerknad.getKodeverk());
+            kodeverksOpplysning.setKodeverk(VilkårUtfallMerknad.KODEVERK);
             vilkår.setUtfallMerknad(kodeverksOpplysning);
         }
         vilkår.setVurdert(vilkårFraBehandling.erManueltVurdert() ? Vurderingsvariant.MANUELT : Vurderingsvariant.AUTOMATISK);

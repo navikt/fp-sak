@@ -1,4 +1,4 @@
-package no.nav.foreldrepenger.web.app.tjenester.batch;
+package no.nav.foreldrepenger.web.app.tjenester.forvaltning;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -20,16 +20,16 @@ import no.nav.vedtak.sikkerhet.abac.beskyttet.ResourceType;
 @Path("/batch")
 @ApplicationScoped
 @Transactional
-public class BatchRestTjeneste {
+public class ForvaltningBatchRestTjeneste {
 
     private BatchSupportTjeneste batchSupportTjeneste;
 
-    public BatchRestTjeneste() {
+    public ForvaltningBatchRestTjeneste() {
         // For CDI
     }
 
     @Inject
-    public BatchRestTjeneste(BatchSupportTjeneste batchSupportTjeneste) {
+    public ForvaltningBatchRestTjeneste(BatchSupportTjeneste batchSupportTjeneste) {
         this.batchSupportTjeneste = batchSupportTjeneste;
     }
 

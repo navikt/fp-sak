@@ -119,7 +119,7 @@ class TilkjentYtelseMapperTest {
 
         Assertions.assertThat(resultat).hasSize(1);
 
-        var kodeklasse = KodeKlassifik.fraKode("FPATAL");
+        var kodeklasse = KodeKlassifik.FPF_DAGPENGER;
         var forventetNøkkel = KjedeNøkkel.lag(kodeklasse, Betalingsmottaker.BRUKER);
         Assertions.assertThat(resultat).containsKey(forventetNøkkel);
 
@@ -145,7 +145,7 @@ class TilkjentYtelseMapperTest {
 
         Assertions.assertThat(resultat).hasSize(1);
 
-        var kodeklasse = KodeKlassifik.fraKode("FPATFRI");
+        var kodeklasse = KodeKlassifik.FPF_FRILANSER;
         var forventetNøkkel = KjedeNøkkel.lag(kodeklasse, Betalingsmottaker.BRUKER);
         Assertions.assertThat(resultat).containsKey(forventetNøkkel);
 
