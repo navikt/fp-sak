@@ -18,6 +18,8 @@ import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBruker;
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.ForeldreType;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeType;
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.OppholdÅrsak;
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.OverføringÅrsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.domene.arbeidsgiver.VirksomhetTjeneste;
 import no.nav.foreldrepenger.domene.person.PersoninfoAdapter;
@@ -156,7 +158,7 @@ public class YtelseSøknadMapper implements SøknadMapper {
         oppholdPeriode.setTom(oppholdDto.getPeriodeTom());
         var oppholdsaarsaker = new Oppholdsaarsaker();
         oppholdsaarsaker.setKode(oppholdDto.getÅrsak().getKode());
-        oppholdsaarsaker.setKodeverk(oppholdDto.getÅrsak().getKodeverk());
+        oppholdsaarsaker.setKodeverk(OppholdÅrsak.KODEVERK);
         oppholdPeriode.setAarsak(oppholdsaarsaker);
         return oppholdPeriode;
     }
@@ -296,7 +298,7 @@ public class YtelseSøknadMapper implements SøknadMapper {
 
         var årsak = new Overfoeringsaarsaker();
         årsak.setKode(overføringsperiode.getOverforingArsak().getKode());
-        årsak.setKodeverk(overføringsperiode.getOverforingArsak().getKodeverk());
+        årsak.setKodeverk(OverføringÅrsak.KODEVERK);
         overfoeringsperiode.setAarsak(årsak);
 
         return overfoeringsperiode;

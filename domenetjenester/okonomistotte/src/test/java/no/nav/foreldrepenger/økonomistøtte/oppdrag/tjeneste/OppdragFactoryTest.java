@@ -65,8 +65,8 @@ class OppdragFactoryTest {
 
     @Test
     void skal_få_oppdrag_for_førstegangsvedtak_til_bruker_som_er_arbeidstaker_og_får_feriepenger() {
-        var nøkkelYtelse = KjedeNøkkel.lag(KodeKlassifik.fraKode("FPATORD"), Betalingsmottaker.BRUKER);
-        var nøkkelFeriepenger = KjedeNøkkel.lag(KodeKlassifik.fraKode("FPATFER"), Betalingsmottaker.BRUKER, 2020);
+        var nøkkelYtelse = KjedeNøkkel.lag(KodeKlassifik.FPF_ARBEIDSTAKER, Betalingsmottaker.BRUKER);
+        var nøkkelFeriepenger = KjedeNøkkel.lag(KodeKlassifik.FERIEPENGER_BRUKER, Betalingsmottaker.BRUKER, 2020);
         var målbilde = GruppertYtelse.builder()
             .leggTilKjede(nøkkelYtelse, Ytelse.builder().leggTilPeriode(new YtelsePeriode(periode, Satsen.dagsats(1000), Utbetalingsgrad.prosent(100))).build())
             .leggTilKjede(nøkkelFeriepenger, Ytelse.builder().leggTilPeriode(new YtelsePeriode(nesteMai, Satsen.engang(200))).build())
@@ -90,10 +90,10 @@ class OppdragFactoryTest {
 
     @Test
     void skal_lage_ett_oppdrag_til_hver_mottaker() {
-        var nøkkelYtelseTilBruker = KjedeNøkkel.lag(KodeKlassifik.fraKode("FPATORD"), Betalingsmottaker.BRUKER);
-        var nøkkelYtelseTilArbeidsgiver1 = KjedeNøkkel.lag(KodeKlassifik.fraKode("FPREFAG-IOP"), Betalingsmottaker.forArbeidsgiver("000000001"));
-        var nøkkelYtelseTilArbeidsgiver2 = KjedeNøkkel.lag(KodeKlassifik.fraKode("FPREFAG-IOP"), Betalingsmottaker.forArbeidsgiver("000000002"));
-        var nøkkelYtelseTilArbeidsgiver3 = KjedeNøkkel.lag(KodeKlassifik.fraKode("FPREFAG-IOP"), Betalingsmottaker.forArbeidsgiver("000000003"));
+        var nøkkelYtelseTilBruker = KjedeNøkkel.lag(KodeKlassifik.FPF_ARBEIDSTAKER, Betalingsmottaker.BRUKER);
+        var nøkkelYtelseTilArbeidsgiver1 = KjedeNøkkel.lag(KodeKlassifik.FPF_REFUSJON_AG, Betalingsmottaker.forArbeidsgiver("000000001"));
+        var nøkkelYtelseTilArbeidsgiver2 = KjedeNøkkel.lag(KodeKlassifik.FPF_REFUSJON_AG, Betalingsmottaker.forArbeidsgiver("000000002"));
+        var nøkkelYtelseTilArbeidsgiver3 = KjedeNøkkel.lag(KodeKlassifik.FPF_REFUSJON_AG, Betalingsmottaker.forArbeidsgiver("000000003"));
         var målbilde = GruppertYtelse.builder()
             .leggTilKjede(nøkkelYtelseTilBruker, Ytelse.builder().leggTilPeriode(new YtelsePeriode(periode, Satsen.dagsats(1000), Utbetalingsgrad.prosent(100))).build())
             .leggTilKjede(nøkkelYtelseTilArbeidsgiver1, Ytelse.builder().leggTilPeriode(new YtelsePeriode(periode, Satsen.dagsats(101))).build())
@@ -124,8 +124,8 @@ class OppdragFactoryTest {
     @Test
     void skal_bare_lage_oppdrag_for_mottaker_med_endring() {
         var arbeidsgiver = Betalingsmottaker.forArbeidsgiver("000000001");
-        var nøkkelYtelseTilBruker = KjedeNøkkel.lag(KodeKlassifik.fraKode("FPATORD"), Betalingsmottaker.BRUKER);
-        var nøkkelYtelseTilArbeidsgiver = KjedeNøkkel.lag(KodeKlassifik.fraKode("FPREFAG-IOP"), arbeidsgiver);
+        var nøkkelYtelseTilBruker = KjedeNøkkel.lag(KodeKlassifik.FPF_ARBEIDSTAKER, Betalingsmottaker.BRUKER);
+        var nøkkelYtelseTilArbeidsgiver = KjedeNøkkel.lag(KodeKlassifik.FPF_REFUSJON_AG, arbeidsgiver);
         var brukersYtelsePeriode = new YtelsePeriode(this.periode, Satsen.dagsats(1000), Utbetalingsgrad.prosent(100));
         var arbeidsgiversYtelsePeriode = new YtelsePeriode(this.periode, Satsen.dagsats(101));
         var målbilde = GruppertYtelse.builder()
@@ -152,8 +152,8 @@ class OppdragFactoryTest {
     void skal_bare_lage_oppdrag_for_alle_mottakere_når_det_er_satt_flagg_for_dette() {
 
         var arbeidsgiver = Betalingsmottaker.forArbeidsgiver("000000001");
-        var nøkkelYtelseTilBruker = KjedeNøkkel.lag(KodeKlassifik.fraKode("FPATORD"), Betalingsmottaker.BRUKER);
-        var nøkkelYtelseTilArbeidsgiver = KjedeNøkkel.lag(KodeKlassifik.fraKode("FPREFAG-IOP"), arbeidsgiver);
+        var nøkkelYtelseTilBruker = KjedeNøkkel.lag(KodeKlassifik.FPF_ARBEIDSTAKER, Betalingsmottaker.BRUKER);
+        var nøkkelYtelseTilArbeidsgiver = KjedeNøkkel.lag(KodeKlassifik.FPF_REFUSJON_AG, arbeidsgiver);
         var brukersYtelsePeriode = new YtelsePeriode(this.periode, Satsen.dagsats(1000), Utbetalingsgrad.prosent(100));
         var arbeidsgiversYtelsePeriode = new YtelsePeriode(this.periode, Satsen.dagsats(101));
         var målbilde = GruppertYtelse.builder()
@@ -194,7 +194,7 @@ class OppdragFactoryTest {
         var fellesEndringsdato = LocalDate.of(2020, 5, 15);
 
         var arbeidsgiver = Betalingsmottaker.forArbeidsgiver("000000001");
-        var nøkkelYtelseTilArbeidsgiver = KjedeNøkkel.lag(KodeKlassifik.fraKode("FPREFAG-IOP"), arbeidsgiver);
+        var nøkkelYtelseTilArbeidsgiver = KjedeNøkkel.lag(KodeKlassifik.FPF_REFUSJON_AG, arbeidsgiver);
         var nøkkelFeriepengerTilArbeidsgiver = KjedeNøkkel.lag(KodeKlassifik.FPF_FERIEPENGER_AG, arbeidsgiver, 2020);
         var arbeidsgiversYtelsePeriode1 = new YtelsePeriode(Periode.of(fellesEndringsdato, ytelseTom), Satsen.dagsats(102));
         var arbeidsgiversYtelsePeriode2 = new YtelsePeriode(Periode.of(ytelseFom, fellesEndringsdato.minusDays(1)), Satsen.dagsats(101));

@@ -1,9 +1,10 @@
 package no.nav.foreldrepenger.datavarehus.task;
 
 import java.time.LocalDate;
-import java.util.Collection;
+import java.util.Arrays;
 import java.util.Objects;
 import java.util.Properties;
+import java.util.stream.Stream;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -22,7 +23,7 @@ public class OppdaterAksjonspunktDefinisjonBatchTjeneste implements BatchTjenest
 
     static final String BATCHNAME = "BVL010";
     private static final String EXECUTION_ID_SEPARATOR = "-";
-    private static final String KODEVERK_AKSJONSPUNKT_DEF = AksjonspunktDefinisjon.AUTO_MANUELT_SATT_PÅ_VENT.getKodeverk();
+    private static final String KODEVERK_AKSJONSPUNKT_DEF = AksjonspunktDefinisjon.KODEVERK;
 
     private final LagretKodeverdiRepository lagretKodeverdiRepository;
 
@@ -33,7 +34,7 @@ public class OppdaterAksjonspunktDefinisjonBatchTjeneste implements BatchTjenest
 
     @Override
     public String launch(Properties properties) {
-        oppdaterKodeverk(KODEVERK_AKSJONSPUNKT_DEF, AksjonspunktDefinisjon.kodeMap().values());
+        oppdaterKodeverk(KODEVERK_AKSJONSPUNKT_DEF, Arrays.stream(AksjonspunktDefinisjon.values()));
         return BATCHNAME + EXECUTION_ID_SEPARATOR + LocalDate.now();
     }
 
@@ -42,9 +43,9 @@ public class OppdaterAksjonspunktDefinisjonBatchTjeneste implements BatchTjenest
         return BATCHNAME;
     }
 
-    private void oppdaterKodeverk(String kodeverk, Collection<? extends Kodeverdi> verdier) {
+    private void oppdaterKodeverk(String kodeverk, Stream<? extends Kodeverdi> verdier) {
         var eksisterende = lagretKodeverdiRepository.hentLagretKodeverk(kodeverk);
-        verdier.stream().filter(ad -> ad.getKode() != null).forEach(ad -> {
+        verdier.filter(ad -> ad.getKode() != null).forEach(ad -> {
             if (eksisterende.get(ad.getKode()) == null) {
                 var kodeverdi = LagretKodeverdiNavn.builder()
                     .kodeverk(kodeverk)

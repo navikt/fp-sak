@@ -70,7 +70,7 @@ class LagOppdragTjenesteTest {
         assertThat(oppdrag.getFagsystemId().getSaksnummer()).isEqualTo(saksnummer.getVerdi());
         assertThat(oppdrag.getKodeFagområde()).isEqualTo(KodeFagområde.FP);
 
-        var nøkkelYtelse = KjedeNøkkel.lag(KodeKlassifik.fraKode("FPSND-OP"), Betalingsmottaker.BRUKER);
+        var nøkkelYtelse = KjedeNøkkel.lag(KodeKlassifik.FPF_SELVSTENDIG, Betalingsmottaker.BRUKER);
         assertThat(oppdrag.getKjeder()).containsOnlyKeys(nøkkelYtelse);
 
         var kjede = oppdrag.getKjeder().get(nøkkelYtelse);
@@ -102,8 +102,8 @@ class LagOppdragTjenesteTest {
         assertThat(resultat).hasSize(1);
         var oppdrag = resultat.get(0);
 
-        var nøkkelYtelse = KjedeNøkkel.lag(KodeKlassifik.fraKode("FPATORD"), Betalingsmottaker.BRUKER);
-        var nøkkelFeriepenger = KjedeNøkkel.lag(KodeKlassifik.fraKode("FPATFER"), Betalingsmottaker.BRUKER, 2020);
+        var nøkkelYtelse = KjedeNøkkel.lag(KodeKlassifik.FPF_ARBEIDSTAKER, Betalingsmottaker.BRUKER);
+        var nøkkelFeriepenger = KjedeNøkkel.lag(KodeKlassifik.FERIEPENGER_BRUKER, Betalingsmottaker.BRUKER, 2020);
         assertThat(oppdrag.getKjeder()).containsOnlyKeys(nøkkelYtelse, nøkkelFeriepenger);
 
         var ytelsekjede = oppdrag.getKjeder().get(nøkkelYtelse);

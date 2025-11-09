@@ -1,5 +1,6 @@
 package no.nav.foreldrepenger.behandling.steg.inngangsvilkår;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -34,7 +35,7 @@ public class SamletInngangsvilkårStegImpl extends InngangsvilkårStegImpl {
             InngangsvilkårFellesTjeneste inngangsvilkårFellesTjeneste,
             InngangsvilkårTjeneste inngangsvilkårTjeneste) {
         super(repositoryProvider, inngangsvilkårFellesTjeneste, BehandlingStegType.VURDER_SAMLET);
-        alleInngangsVilkår = VilkårType.kodeMap().values().stream()
+        alleInngangsVilkår = Arrays.stream(VilkårType.values())
                 .filter(inngangsvilkårTjeneste::erInngangsvilkår)
                 .collect(Collectors.toSet());
     }

@@ -122,7 +122,7 @@ public class VedtakXmlUtil {
         var kodeverksOpplysning = fellesObjectFactory.createKodeverksOpplysning();
         kodeverksOpplysning.setValue(aksjonspunktDefinisjon.getNavn());
         kodeverksOpplysning.setKode(aksjonspunktDefinisjon.getKode());
-        kodeverksOpplysning.setKodeverk("AKSJONSPUNKT_DEF");
+        kodeverksOpplysning.setKodeverk(AksjonspunktDefinisjon.KODEVERK);
         return kodeverksOpplysning;
     }
 

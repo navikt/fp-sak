@@ -5,9 +5,6 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Objects;
 
-import jakarta.persistence.AttributeConverter;
-import jakarta.persistence.Converter;
-
 import com.fasterxml.jackson.annotation.JsonValue;
 
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
@@ -69,30 +66,6 @@ public enum AksjonspunktType implements Kodeverdi {
 
     public boolean erOverstyringpunkt() {
         return Objects.equals(this, OVERSTYRING) || Objects.equals(this, SAKSBEHANDLEROVERSTYRING);
-    }
-
-    @Converter(autoApply = true)
-    public static class KodeverdiConverter implements AttributeConverter<AksjonspunktType, String> {
-        @Override
-        public String convertToDatabaseColumn(AksjonspunktType attribute) {
-            return attribute == null ? null : attribute.getKode();
-        }
-
-        @Override
-        public AksjonspunktType convertToEntityAttribute(String dbData) {
-            return dbData == null ? null : fraKode(dbData);
-        }
-
-        private static AksjonspunktType fraKode(String kode) {
-            if (kode == null) {
-                return null;
-            }
-            var ad = KODER.get(kode);
-            if (ad == null) {
-                throw new IllegalArgumentException("Ukjent AksjonspunktType: " + kode);
-            }
-            return ad;
-        }
     }
 
 }
