@@ -14,7 +14,7 @@ import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
 
 public enum PeriodeIkkeOppfyltÅrsak implements Kodeverdi {
 
-    INGEN("-", "Ikke definert"),
+    INGEN(STANDARDKODE_UDEFINERT, "Ikke definert"),
 
     // Se også Arbeidsforhold ikke oppfylt - der brukes 8301-8303 + 8312
     _8304("8304", "Bruker er død"),

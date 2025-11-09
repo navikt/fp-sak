@@ -45,7 +45,7 @@ public enum StønadskontoType implements Kodeverdi {
     // Annet, bla dager med fullt (200%) samtidig uttak (se også flerbarnsdager)
     FAR_RUNDT_FØDSEL("FAR_RUNDT_FØDSEL", "Fars uttak ifm fødsel", KontoKategori.ANNET),
 
-    UDEFINERT("-", "Ikke valgt stønadskonto", KontoKategori.ANNET),
+    UDEFINERT(STANDARDKODE_UDEFINERT, "Ikke valgt stønadskonto", KontoKategori.ANNET),
     ;
 
     public enum KontoKategori { STØNADSDAGER, UTVIDELSE, AKTIVITETSKRAV, MINSTERETT, ANNET }

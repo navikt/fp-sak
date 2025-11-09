@@ -31,7 +31,7 @@ public enum PeriodeResultatÅrsak implements Kodeverdi {
 
     //MERK: Lovhjemler til brev hentes fra navn, se pattern i UttakHjemmelUtleder
 
-    UKJENT("-", "NN", "Ikke definert", null),
+    UKJENT(STANDARDKODE_UDEFINERT, "NN", "Ikke definert", null),
 
     // Regel oppfylt, resultat = innvilget
     FELLESPERIODE_ELLER_FORELDREPENGER("2002", "14-09", "§14-9: Innvilget fellesperiode/foreldrepenger", of(UTTAK),
@@ -262,7 +262,6 @@ public enum PeriodeResultatÅrsak implements Kodeverdi {
     ;
 
     private static final Map<String, PeriodeResultatÅrsak> KODER = new LinkedHashMap<>();
-    private static final String UDEFINERT_KODE = "-";
 
     public static final String KODEVERK = "PERIODE_RESULTAT_AARSAK";
 
@@ -302,7 +301,7 @@ public enum PeriodeResultatÅrsak implements Kodeverdi {
         this.kode = kode;
         this.sortering = sortering;
         this.navn = navn;
-        this.utfallType = UDEFINERT_KODE.equals(kode) ? null : Long.parseLong(kode) < 4000L ? UtfallType.INNVILGET : UtfallType.AVSLÅTT;
+        this.utfallType = Kodeverdi.STANDARDKODE_UDEFINERT.equals(kode) ? null : Long.parseLong(kode) < 4000L ? UtfallType.INNVILGET : UtfallType.AVSLÅTT;
         this.uttakTyper = uttakTyper == null ? of(UTTAK) : uttakTyper;
         this.valgbarForKonto =
             valgbarForKonto == null ? of(FELLESPERIODE, MØDREKVOTE, FEDREKVOTE, FORELDREPENGER, FORELDREPENGER_FØR_FØDSEL) : valgbarForKonto;

@@ -16,7 +16,7 @@ import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
 
 public enum BekreftetPermisjonStatus implements Kodeverdi {
 
-    UDEFINERT("-", "UDEFINERT"),
+    UDEFINERT(STANDARDKODE_UDEFINERT, "UDEFINERT"),
     BRUK_PERMISJON("BRUK_PERMISJON", "Bruk permisjonen til arbeidsforholdet"),
     IKKE_BRUK_PERMISJON("IKKE_BRUK_PERMISJON", "Ikke bruk permisjonen til arbeidsforholdet"),
     UGYLDIGE_PERIODER("UGYLDIGE_PERIODER", "Arbeidsforholdet inneholder permisjoner med ugyldige perioder"),

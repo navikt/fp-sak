@@ -17,7 +17,7 @@ public enum Region implements Kodeverdi {
     NORDEN("NORDEN", "Nordisk", 1),
     EOS("EOS", "EU/EØS", 2),
     TREDJELANDS_BORGER("ANNET", "3.landsborger", 3),
-    UDEFINERT("-", "3.landsborger", 9),
+    UDEFINERT(STANDARDKODE_UDEFINERT, "3.landsborger", 9),
     ;
 
     public static final Comparator<Region> COMPARATOR = Comparator.comparing(Region::getRank);

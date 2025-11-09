@@ -24,7 +24,7 @@ public enum RelatertYtelseType implements Kodeverdi {
     OPPLÆRINGSPENGER("OLP", "Opplæringspenger"),
     ARBEIDSAVKLARINGSPENGER("AAP", "Arbeidsavklaringspenger"),
     DAGPENGER("DAG", "Dagpenger"),
-    UDEFINERT("-", "Ikke definert"),
+    UDEFINERT(STANDARDKODE_UDEFINERT, "Ikke definert"),
     ;
 
     public static final Set<RelatertYtelseType> PLEIEPENGER = Set.of(PLEIEPENGER_SYKT_BARN, PLEIEPENGER_NÆRSTÅENDE, OPPLÆRINGSPENGER);

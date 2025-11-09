@@ -25,7 +25,7 @@ public enum Arbeidskategori implements Kodeverdi {
     KOMBINASJON_ARBEIDSTAKER_OG_DAGPENGER("KOMBINASJON_ARBEIDSTAKER_OG_DAGPENGER", "Kombinasjon arbeidstaker og dagpenger"),
     DAGMAMMA("DAGMAMMA", "Selvstendig næringsdrivende - Dagmamma"),
     UGYLDIG("UGYLDIG", "Ugyldig"),
-    UDEFINERT("-", "Ingen inntektskategori (default)"),
+    UDEFINERT(STANDARDKODE_UDEFINERT, "Ingen inntektskategori (default)"),
     ;
 
     private static final Map<String, Arbeidskategori> KODER = new LinkedHashMap<>();

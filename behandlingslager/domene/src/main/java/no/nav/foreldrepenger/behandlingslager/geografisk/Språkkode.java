@@ -23,7 +23,7 @@ public enum Språkkode implements Kodeverdi, MedOffisiellKode {
     NN("NN", "Nynorsk", "NN"),
     EN("EN", "Engelsk", "EN"),
 
-    UDEFINERT("-", "Ikke definert", null),
+    UDEFINERT(STANDARDKODE_UDEFINERT, "Ikke definert", null),
     ;
 
     public static final String KODEVERK = "SPRAAK_KODE";

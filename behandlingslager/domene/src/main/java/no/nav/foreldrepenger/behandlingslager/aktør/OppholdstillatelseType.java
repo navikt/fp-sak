@@ -17,7 +17,7 @@ public enum OppholdstillatelseType implements Kodeverdi {
 
     MIDLERTIDIG("MIDLERTIDIG", "Midlertidig oppholdstillatelse"),
     PERMANENT("PERMANENT", "Permanent oppholdstillatelse"),
-    UDEFINERT("-", "Ikke definert"),
+    UDEFINERT(STANDARDKODE_UDEFINERT, "Ikke definert"),
     ;
 
     private static final Map<String, OppholdstillatelseType> KODER = Arrays.stream(values())

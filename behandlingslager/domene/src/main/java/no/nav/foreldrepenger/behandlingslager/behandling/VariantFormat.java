@@ -18,7 +18,7 @@ public enum VariantFormat implements Kodeverdi, MedOffisiellKode {
     FULLVERSJON("FULL", "Versjon med infotekster", "FULLVERSJON"),
     BREVBESTILLING("BREVB", "Brevbestilling data", "BREVBESTILLING"),
     ARKIV("ARKIV", "Arkivformat", "ARKIV"),
-    UDEFINERT("-", "Ikke definert", null),
+    UDEFINERT(STANDARDKODE_UDEFINERT, "Ikke definert", null),
 
     ;
     private static final String KODEVERK = "VARIANT_FORMAT";

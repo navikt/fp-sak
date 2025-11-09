@@ -14,7 +14,7 @@ import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
 public enum ArbeidsforholdIkkeOppfyltÅrsak implements Kodeverdi {
 
     // Se også Periode ikke oppfylt - der brukes 8304-83011 + 8313+8314
-    INGEN("-", "Ikke definert"),
+    INGEN(STANDARDKODE_UDEFINERT, "Ikke definert"),
     HELE_UTTAKET_ER_ETTER_3_UKER_FØR_TERMINDATO("8301", "Hele uttaket er etter 3 uker før termindato"),
     UTTAK_KUN_PÅ_HELG("8302", "Uttak kun på helg"),
     ARBEIDSGIVER_KAN_TILRETTELEGGE("8303", "Arbeidsgiver kan tilrettelegge"),

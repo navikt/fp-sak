@@ -19,7 +19,7 @@ public enum VedtakResultatType implements Kodeverdi {
     VEDTAK_I_KLAGEBEHANDLING("VEDTAK_I_KLAGEBEHANDLING", "vedtak i klagebehandling"),
     VEDTAK_I_ANKEBEHANDLING("VEDTAK_I_ANKEBEHANDLING", "vedtak i ankebehandling"),
     VEDTAK_I_INNSYNBEHANDLING("VEDTAK_I_INNSYNBEHANDLING", "vedtak i innsynbehandling"),
-    UDEFINERT("-", "Ikke definert"),
+    UDEFINERT(STANDARDKODE_UDEFINERT, "Ikke definert"),
 
     ;
 

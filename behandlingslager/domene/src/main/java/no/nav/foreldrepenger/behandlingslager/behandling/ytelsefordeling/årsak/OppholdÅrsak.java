@@ -12,7 +12,7 @@ import com.fasterxml.jackson.annotation.JsonValue;
 
 public enum OppholdÅrsak implements Årsak {
 
-    UDEFINERT("-", "Ikke satt eller valgt kode"),
+    UDEFINERT(STANDARDKODE_UDEFINERT, "Ikke satt eller valgt kode"),
     MØDREKVOTE_ANNEN_FORELDER("UTTAK_MØDREKVOTE_ANNEN_FORELDER", "Annen forelder har uttak av Mødrekvote"),
     FEDREKVOTE_ANNEN_FORELDER("UTTAK_FEDREKVOTE_ANNEN_FORELDER", "Annen forelder har uttak av Fedrekvote"),
     KVOTE_FELLESPERIODE_ANNEN_FORELDER("UTTAK_FELLESP_ANNEN_FORELDER", "Annen forelder har uttak av Fellesperiode"),

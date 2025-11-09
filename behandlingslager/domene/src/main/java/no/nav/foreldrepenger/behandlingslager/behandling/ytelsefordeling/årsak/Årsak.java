@@ -18,7 +18,7 @@ public interface Årsak extends Kodeverdi {
 
         @Override
         public String getKode() {
-            return "-";
+            return Kodeverdi.STANDARDKODE_UDEFINERT;
         }
 
     };

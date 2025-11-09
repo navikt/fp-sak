@@ -13,7 +13,7 @@ public enum BeregningAktivitetHandlingType implements Kodeverdi {
 
     BENYTT("BENYTT", "Benytt beregningaktivitet"),
     IKKE_BENYTT("IKKE_BENYTT", "Ikke benytt beregningaktivitet"),
-    UDEFINERT("-", "Ikke definert"),
+    UDEFINERT(STANDARDKODE_UDEFINERT, "Ikke definert"),
     ;
     public static final String KODEVERK = "BEREGNING_AKTIVITET_HANDLING_TYPE";
 

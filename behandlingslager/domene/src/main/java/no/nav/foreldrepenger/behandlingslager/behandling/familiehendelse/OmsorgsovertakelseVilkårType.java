@@ -41,7 +41,7 @@ public enum OmsorgsovertakelseVilkårType implements Kodeverdi {
         Avslagsårsak.STEBARNSADOPSJON_IKKE_FLERE_DAGER_IGJEN),
 
     /* Legger inn udefinert kode. Må gjerne erstattes av noe annet dersom starttilstand er kjent. */
-    UDEFINERT("-", "Ikke definert"),
+    UDEFINERT(STANDARDKODE_UDEFINERT, "Ikke definert"),
 
     ;
 

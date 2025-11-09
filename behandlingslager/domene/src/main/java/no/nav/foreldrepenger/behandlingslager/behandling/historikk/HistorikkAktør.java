@@ -18,7 +18,7 @@ public enum HistorikkAktør implements Kodeverdi {
     SØKER("SOKER", "Søker"),
     ARBEIDSGIVER("ARBEIDSGIVER", "Arbeidsgiver"),
     VEDTAKSLØSNINGEN("VL", "Vedtaksløsningen"),
-    UDEFINERT("-", "Ikke definert"),
+    UDEFINERT(STANDARDKODE_UDEFINERT, "Ikke definert"),
     ;
 
     private static final Map<String, HistorikkAktør> KODER = new LinkedHashMap<>();

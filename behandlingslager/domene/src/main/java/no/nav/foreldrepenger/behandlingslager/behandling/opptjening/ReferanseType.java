@@ -15,7 +15,7 @@ public enum ReferanseType implements Kodeverdi {
 
     ORG_NR("ORG_NR", "Orgnr"),
     AKTØR_ID("AKTØR_ID", "Aktør Id"),
-    UDEFINERT("-", "Udefinert"),
+    UDEFINERT(STANDARDKODE_UDEFINERT, "Udefinert"),
     ;
 
     private static final Map<String, ReferanseType> KODER = new LinkedHashMap<>();

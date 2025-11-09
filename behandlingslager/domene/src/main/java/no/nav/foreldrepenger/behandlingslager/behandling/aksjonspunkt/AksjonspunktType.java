@@ -15,7 +15,7 @@ public enum AksjonspunktType implements Kodeverdi {
     MANUELL("MANU", "Manuell"),
     OVERSTYRING("OVST", "Overstyring"),
     SAKSBEHANDLEROVERSTYRING("SAOV", "Saksbehandleroverstyring"),
-    UDEFINERT("-", "Ikke definert"),
+    UDEFINERT(STANDARDKODE_UDEFINERT, "Ikke definert"),
     ;
 
     private static final Map<String, AksjonspunktType> KODER = new LinkedHashMap<>();

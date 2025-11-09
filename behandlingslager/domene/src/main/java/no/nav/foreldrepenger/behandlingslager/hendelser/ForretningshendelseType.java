@@ -16,7 +16,7 @@ public enum ForretningshendelseType implements Kodeverdi {
     DØDFØDSEL("DØDFØDSEL", "Dødfødsel"),
     UTFLYTTING("UTFLYTTING", "Utflytting"),
 
-    UDEFINERT("-", "Ikke definert"),
+    UDEFINERT(STANDARDKODE_UDEFINERT, "Ikke definert"),
     ;
 
     private static final Map<String, ForretningshendelseType> KODER = new LinkedHashMap<>();

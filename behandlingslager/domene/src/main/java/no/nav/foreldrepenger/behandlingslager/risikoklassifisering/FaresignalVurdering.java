@@ -16,7 +16,7 @@ public enum FaresignalVurdering implements Kodeverdi {
     AVSLAG_FARESIGNAL("AVSLAG_FARESIGNAL", "Saken er avslått på grunn av faresignalene"),
     AVSLAG_ANNET("AVSLAG_ANNET", "Saken er avslått av andre årsaker"),
     INGEN_INNVIRKNING("INGEN_INNVIRKNING", "Faresignalene vurderes ikke som reelle"),
-    UDEFINERT("-", "Udefinert"),
+    UDEFINERT(STANDARDKODE_UDEFINERT, "Udefinert"),
     ;
 
     private static final Map<String, FaresignalVurdering> KODER = new LinkedHashMap<>();

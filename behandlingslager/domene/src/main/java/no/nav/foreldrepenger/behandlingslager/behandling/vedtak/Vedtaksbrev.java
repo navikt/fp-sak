@@ -16,7 +16,7 @@ public enum Vedtaksbrev implements Kodeverdi {
     AUTOMATISK("AUTOMATISK", "Automatisk generert vedtaksbrev"),
     FRITEKST("FRITEKST", "Fritekstbrev"),
     INGEN("INGEN", "Ingen vedtaksbrev"),
-    UDEFINERT("-", "Udefinert"),
+    UDEFINERT(STANDARDKODE_UDEFINERT, "Udefinert"),
     ;
 
     private static final Map<String, Vedtaksbrev> KODER = new LinkedHashMap<>();

@@ -15,7 +15,7 @@ public enum RettenTil implements Kodeverdi {
 
     HAR_RETT_TIL_FP("HAR_RETT_TIL_FP", "Bruker har rett til foreldrepenger"),
     HAR_IKKE_RETT_TIL_FP("HAR_IKKE_RETT_TIL_FP", "Bruker har ikke rett til foreldrepenger"),
-    UDEFINERT("-", "Udefinert"),
+    UDEFINERT(STANDARDKODE_UDEFINERT, "Udefinert"),
     ;
 
     public static final String KODEVERK = "RETTEN_TIL";

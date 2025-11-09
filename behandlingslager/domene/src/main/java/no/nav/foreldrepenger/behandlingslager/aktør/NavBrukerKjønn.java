@@ -15,7 +15,7 @@ public enum NavBrukerKjønn implements Kodeverdi {
 
     KVINNE("K", "Kvinne"),
     MANN("M", "Mann"),
-    UDEFINERT("-", "Ikke definert"),
+    UDEFINERT(STANDARDKODE_UDEFINERT, "Ikke definert"),
     ;
 
     public static final String KODEVERK = "BRUKER_KJOENN";

@@ -16,7 +16,7 @@ public enum KlageAvvistÅrsak implements Kodeverdi {
     KLAGER_IKKE_PART("KLAGER_IKKE_PART", "Klager er ikke part"),
     IKKE_KONKRET("IKKE_KONKRET", "Klagen er ikke konkret"),
     IKKE_SIGNERT("IKKE_SIGNERT", "Klagen er ikke signert"),
-    UDEFINERT("-", "Ikke definert"),
+    UDEFINERT(STANDARDKODE_UDEFINERT, "Ikke definert"),
     ;
 
     private static final Map<String, KlageAvvistÅrsak> KODER = new LinkedHashMap<>();

@@ -16,7 +16,7 @@ import no.nav.foreldrepenger.behandlingslager.kodeverk.MedOffisiellKode;
 
 public enum DokumentKategori implements Kodeverdi, MedOffisiellKode {
 
-    UDEFINERT("-", "Ikke definert", null),
+    UDEFINERT(STANDARDKODE_UDEFINERT, "Ikke definert", null),
     KLAGE_ELLER_ANKE("KLGA", "Klage eller anke", "KA"),
     IKKE_TOLKBART_SKJEMA("ITSKJ", "Ikke tolkbart skjema", "IS"),
     SØKNAD("SOKN", "Søknad", "SOK"),

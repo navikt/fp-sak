@@ -14,7 +14,7 @@ import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
 
 public enum ManuellBehandlingÅrsak implements Kodeverdi {
 
-    UKJENT("-", "Ikke definert"),
+    UKJENT(STANDARDKODE_UDEFINERT, "Ikke definert"),
     STØNADSKONTO_TOM("5001", "Stønadskonto tom for stønadsdager. Vurder bruk av annen stønadskonto eller avslå perioden."),
     UGYLDIG_STØNADSKONTO("5002", "Ikke gyldig grunn for uttak av denne stønadskontoen. Vurder bruk av annen stønadskonto eller avslå perioden."),
     BEGRUNNELSE_IKKE_GYLDIG("5003", "Ikke gyldig grunn for overføring av kvote. Vurder bruk av annen stønadskonto eller avslå perioden."),

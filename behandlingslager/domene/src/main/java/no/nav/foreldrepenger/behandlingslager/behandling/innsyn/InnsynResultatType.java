@@ -16,7 +16,7 @@ public enum InnsynResultatType implements Kodeverdi {
     INNVILGET("INNV", "Innvilget innsyn"),
     DELVIS_INNVILGET("DELV", "Delvis innvilget innsyn"),
     AVVIST("AVVIST", "Avslått innsyn"),
-    UDEFINERT("-", "Ikke definert"),
+    UDEFINERT(STANDARDKODE_UDEFINERT, "Ikke definert"),
     ;
 
     private static final Map<String, InnsynResultatType> KODER = new LinkedHashMap<>();

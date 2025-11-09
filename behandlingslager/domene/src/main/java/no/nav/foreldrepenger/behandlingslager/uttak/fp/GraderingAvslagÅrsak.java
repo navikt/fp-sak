@@ -15,7 +15,7 @@ public enum GraderingAvslagÅrsak implements Kodeverdi {
 
     //MERK: Lovhjemler til brev hentes fra navn, se pattern i UttakHjemmelUtleder
 
-    UKJENT("-", "Ikke definert"),
+    UKJENT(STANDARDKODE_UDEFINERT, "Ikke definert"),
     GRADERING_FØR_UKE_7("4504", "§14-16 andre ledd: Avslag gradering - gradering før uke 7"),
     FOR_SEN_SØKNAD("4501", "§14-16: Ikke gradering pga. for sen søknad"),
     MANGLENDE_GRADERINGSAVTALE("4502", "§14-16 femte ledd, jf §21-3: Avslag graderingsavtale mangler - ikke dokumentert"),
