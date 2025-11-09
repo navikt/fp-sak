@@ -12,18 +12,16 @@ import java.util.stream.Collectors;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
-import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
-
-import no.nav.foreldrepenger.behandlingslager.behandling.beregning.AktivitetStatus;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktStatus;
+import no.nav.foreldrepenger.behandlingslager.behandling.beregning.AktivitetStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.hendelser.StartpunktType;
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Fagsystem;
@@ -37,7 +35,6 @@ import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlag;
 import no.nav.foreldrepenger.domene.iay.modell.InntektsmeldingAggregat;
 import no.nav.foreldrepenger.domene.iay.modell.Inntektspost;
 import no.nav.foreldrepenger.domene.iay.modell.Ytelse;
-import no.nav.foreldrepenger.domene.iay.modell.YtelseAnvist;
 import no.nav.foreldrepenger.domene.iay.modell.YtelseFilter;
 import no.nav.foreldrepenger.domene.iay.modell.kodeverk.InntektsKilde;
 import no.nav.foreldrepenger.domene.modell.BeregningAktivitetAggregat;
@@ -228,16 +225,34 @@ public class AapPraksisendringTjeneste {
         var iayGrunnlag = iayTjeneste.finnGrunnlag(referanse.behandlingId());
         var ytelser = iayGrunnlag.flatMap(gr -> gr.getAktørYtelseFraRegister(referanse.aktørId())).map(AktørYtelse::getAlleYtelser).orElse(List.of());
         var filter = new YtelseFilter(ytelser, skjæringstidspunkt, true);
-        var aapVedtak = filter.filter(
-                yt -> yt.getKilde().equals(Fagsystem.ARENA) && yt.getRelatertYtelseType().equals(RelatertYtelseType.ARBEIDSAVKLARINGSPENGER))
+        var aapVedtak = filter.filter(yt -> yt.getRelatertYtelseType().equals(RelatertYtelseType.ARBEIDSAVKLARINGSPENGER))
             .getFiltrertYtelser();
-        var utbetalingsprosentSisteMK = aapVedtak.stream()
-            .map(Ytelse::getYtelseAnvist)
+        var flateUtbetalinger = aapVedtak.stream()
+            .map(this::flatUt)
             .flatMap(Collection::stream)
-            .filter(mk -> !mk.getAnvistTOM().isAfter(skjæringstidspunkt))
-            .max(Comparator.comparing(YtelseAnvist::getAnvistTOM))
-            .flatMap(YtelseAnvist::getUtbetalingsgradProsent);
-        return utbetalingsprosentSisteMK.filter(up -> up.compareTo(new Stillingsprosent(200)) == 0).isPresent();
+            .toList();
+        var utbetalingsprosentSisteMK = flateUtbetalinger.stream()
+            .filter(mk -> !mk.tom().isAfter(skjæringstidspunkt))
+            .max(Comparator.comparing(FlatAnvistPeriode::tom))
+            .filter(p -> p.utbetalingsgradProsent().isPresent());
+        return utbetalingsprosentSisteMK
+            .filter(AapPraksisendringTjeneste::harFullAapUtbetaling)
+            .isPresent();
+    }
+
+    private static boolean harFullAapUtbetaling(FlatAnvistPeriode anvistPeriode) {
+        var utbetalingsProsent = anvistPeriode.utbetalingsgradProsent().orElseThrow(); // Skal være present
+        return (Fagsystem.ARENA.equals(anvistPeriode.fagsystem()) && utbetalingsProsent.compareTo(new Stillingsprosent(200)) == 0)
+            || (Fagsystem.KELVIN.equals(anvistPeriode.fagsystem()) && utbetalingsProsent.compareTo(Stillingsprosent.HUNDRED) == 0);
+
+    }
+
+    private record FlatAnvistPeriode(LocalDate fom, LocalDate tom, Optional<Stillingsprosent> utbetalingsgradProsent, Fagsystem fagsystem) {}
+
+    private List<FlatAnvistPeriode> flatUt(Ytelse ytelse) {
+        return ytelse.getYtelseAnvist().stream()
+            .map(ya -> new FlatAnvistPeriode(ya.getAnvistFOM(), ya.getAnvistTOM(), ya.getUtbetalingsgradProsent(), ytelse.getKilde()))
+            .toList();
     }
 
     private boolean harAapOgAnnenStatus(Beregningsgrunnlag bg) {
