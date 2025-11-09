@@ -5,6 +5,7 @@ import java.util.Optional;
 
 import jakarta.persistence.AttributeOverride;
 import jakarta.persistence.Column;
+import jakarta.persistence.Convert;
 import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -56,8 +57,9 @@ public class OverlappVedtak extends BaseEntitet {
     @Column(name = "HENDELSE", nullable = false)
     private String hendelse;
 
+    @Convert(converter = Fagsystem.KodeverdiConverter.class)
     @Column(name = "FAGSYSTEM", nullable = false)
-    private String fagsystem;
+    private Fagsystem fagsystem;
 
     @Column(name = "YTELSE", nullable = false)
     private String ytelse;
@@ -95,7 +97,7 @@ public class OverlappVedtak extends BaseEntitet {
     }
 
     public Fagsystem getFagsystem() {
-        return Fagsystem.fraKode(fagsystem);
+        return fagsystem;
     }
 
     public OverlappYtelseType getYtelse() {
@@ -174,7 +176,7 @@ public class OverlappVedtak extends BaseEntitet {
         }
 
         public Builder medFagsystem(Fagsystem fagsystem) {
-            this.kladd.fagsystem = fagsystem.getKode();
+            this.kladd.fagsystem = fagsystem;
             return this;
         }
 

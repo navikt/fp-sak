@@ -10,8 +10,8 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.RevurderingVarslingÅrsak;
+import no.nav.foreldrepenger.behandlingslager.behandling.dokument.DokumentMalType;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakProsesstaskRekkefølge;
-import no.nav.foreldrepenger.dokumentbestiller.DokumentMalType;
 import no.nav.foreldrepenger.kontrakter.formidling.kodeverk.Saksnummer;
 import no.nav.foreldrepenger.kontrakter.formidling.v3.DokumentBestillingDto;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTask;

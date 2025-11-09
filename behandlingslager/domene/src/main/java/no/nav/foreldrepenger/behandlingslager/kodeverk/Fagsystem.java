@@ -4,6 +4,9 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import jakarta.persistence.AttributeConverter;
+import jakarta.persistence.Converter;
+
 import com.fasterxml.jackson.annotation.JsonValue;
 
 public enum Fagsystem implements Kodeverdi, MedOffisiellKode {
@@ -85,5 +88,19 @@ public enum Fagsystem implements Kodeverdi, MedOffisiellKode {
                 throw new IllegalArgumentException("Duplikat : " + v.kode);
             }
         }
+    }
+
+    @Converter(autoApply = true)
+    public static class KodeverdiConverter implements AttributeConverter<Fagsystem, String> {
+        @Override
+        public String convertToDatabaseColumn(Fagsystem attribute) {
+            return attribute == null ? null : attribute.getKode();
+        }
+
+        @Override
+        public Fagsystem convertToEntityAttribute(String dbData) {
+            return dbData == null ? null : fraKode(dbData);
+        }
+
     }
 }

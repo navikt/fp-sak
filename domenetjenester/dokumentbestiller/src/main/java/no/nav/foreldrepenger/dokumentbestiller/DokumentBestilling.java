@@ -4,6 +4,7 @@ import java.util.Objects;
 import java.util.UUID;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.RevurderingVarslingÅrsak;
+import no.nav.foreldrepenger.behandlingslager.behandling.dokument.DokumentMalType;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 
 public record DokumentBestilling(UUID behandlingUuid,

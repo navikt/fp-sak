@@ -7,7 +7,7 @@ import java.util.UUID;
 import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.RevurderingVarslingÅrsak;
-import no.nav.foreldrepenger.dokumentbestiller.DokumentMalType;
+import no.nav.foreldrepenger.behandlingslager.behandling.dokument.DokumentMalType;
 import no.nav.vedtak.mapper.json.DefaultJsonMapper;
 
 class BestillBrevDtoTest {

@@ -1,6 +1,8 @@
 package no.nav.foreldrepenger.behandlingslager.behandling.dokument;
 
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import java.util.UUID;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -12,8 +14,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
 import no.nav.foreldrepenger.domene.typer.JournalpostId;
-
-import static org.assertj.core.api.Assertions.assertThat;
 
 class BehandlingDokumentRepositoryTest extends EntityManagerAwareTest {
 
@@ -70,9 +70,9 @@ class BehandlingDokumentRepositoryTest extends EntityManagerAwareTest {
 
         dokumenter.leggTilBestiltDokument(new BehandlingDokumentBestiltEntitet.Builder()
             .medBestillingUuid(bestillingUuid)
-            .medDokumentMalType("TEST")
+            .medDokumentMalType(DokumentMalType.FRITEKSTBREV)
             .medBehandlingDokument(dokumenter)
-            .medOpprinneligDokumentMal("HMMM")
+            .medOpprinneligDokumentMal(DokumentMalType.FORELDREPENGER_INNVILGELSE)
             .build());
 
         behandlingDokumentRepository.lagreOgFlush(dokumenter);
