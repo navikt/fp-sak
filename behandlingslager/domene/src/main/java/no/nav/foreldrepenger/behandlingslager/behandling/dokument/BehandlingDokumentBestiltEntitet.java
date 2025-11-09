@@ -5,6 +5,7 @@ import java.util.UUID;
 
 import jakarta.persistence.AttributeOverride;
 import jakarta.persistence.Column;
+import jakarta.persistence.Convert;
 import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -29,8 +30,9 @@ public class BehandlingDokumentBestiltEntitet extends BaseEntitet {
     @JoinColumn(name = "BEHANDLING_DOKUMENT_ID", nullable = false, updatable = false)
     private BehandlingDokumentEntitet behandlingDokument;
 
+    @Convert(converter = DokumentMalType.KodeverdiConverter.class)
     @Column(name = "DOKUMENT_MAL_TYPE", nullable = false)
-    private String dokumentMalType;
+    private DokumentMalType dokumentMalType;
 
     @Column(name = "BESTILLING_UUID")
     private UUID bestillingUuid;
@@ -40,8 +42,9 @@ public class BehandlingDokumentBestiltEntitet extends BaseEntitet {
     @AttributeOverride(name = "journalpostId", column = @Column(name = "JOURNALPOST_ID"))
     private JournalpostId journalpostId;
 
+    @Convert(converter = DokumentMalType.KodeverdiConverter.class)
     @Column(name = "OPPRINNELIG_DOKUMENT_MAL")
-    private String opprineligDokumentMal;
+    private DokumentMalType opprineligDokumentMal;
 
     public BehandlingDokumentBestiltEntitet() {
         // for hibernate
@@ -55,7 +58,7 @@ public class BehandlingDokumentBestiltEntitet extends BaseEntitet {
         return behandlingDokument;
     }
 
-    public String getDokumentMalType() {
+    public DokumentMalType getDokumentMalType() {
         return dokumentMalType;
     }
 
@@ -67,7 +70,7 @@ public class BehandlingDokumentBestiltEntitet extends BaseEntitet {
         return journalpostId;
     }
 
-    public String getOpprineligDokumentMal() {
+    public DokumentMalType getOpprineligDokumentMal() {
         return opprineligDokumentMal;
     }
 
@@ -121,7 +124,7 @@ public class BehandlingDokumentBestiltEntitet extends BaseEntitet {
             return this;
         }
 
-        public BehandlingDokumentBestiltEntitet.Builder medDokumentMalType(String dokumentMalType) {
+        public BehandlingDokumentBestiltEntitet.Builder medDokumentMalType(DokumentMalType dokumentMalType) {
             behandlingDokumentBestiltMal.dokumentMalType = dokumentMalType;
             return this;
         }
@@ -136,7 +139,7 @@ public class BehandlingDokumentBestiltEntitet extends BaseEntitet {
             return this;
         }
 
-        public BehandlingDokumentBestiltEntitet.Builder medOpprinneligDokumentMal(String opprineligDokumentMal) {
+        public BehandlingDokumentBestiltEntitet.Builder medOpprinneligDokumentMal(DokumentMalType opprineligDokumentMal) {
             behandlingDokumentBestiltMal.opprineligDokumentMal = opprineligDokumentMal;
             return this;
         }

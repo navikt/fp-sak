@@ -17,6 +17,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.MottattDokument;
 import no.nav.foreldrepenger.behandlingslager.behandling.dokument.BehandlingDokumentBestiltEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.dokument.BehandlingDokumentEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.dokument.BehandlingDokumentRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.dokument.DokumentMalType;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagDokumentLink;
@@ -25,7 +26,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageHjemmel;
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageResultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.MottatteDokumentRepository;
 import no.nav.foreldrepenger.dokumentarkiv.DokumentArkivTjeneste;
-import no.nav.foreldrepenger.dokumentbestiller.DokumentMalType;
 import no.nav.foreldrepenger.domene.typer.JournalpostId;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 
@@ -146,21 +146,21 @@ public class KabalDokumenter {
     }
 
     private Predicate<BehandlingDokumentBestiltEntitet> erKlageOversendtBrevSent() {
-        return d -> d.getDokumentMalType() != null && DokumentMalType.erOversendelsesBrev(DokumentMalType.fraKode(d.getDokumentMalType()));
+        return d -> d.getDokumentMalType() != null && DokumentMalType.erOversendelsesBrev(d.getDokumentMalType());
     }
 
     private Predicate<BehandlingDokumentBestiltEntitet> erVedtakDokument() {
         return d -> d.getDokumentMalType() != null &&
-            (DokumentMalType.erVedtaksBrev(DokumentMalType.fraKode(d.getDokumentMalType())) || erOverstyrtVedtaksbrev(d));
+            (DokumentMalType.erVedtaksBrev(d.getDokumentMalType()) || erOverstyrtVedtaksbrev(d));
     }
 
     private static boolean erOverstyrtVedtaksbrev(BehandlingDokumentBestiltEntitet d) {
-        return DokumentMalType.erVedtakFritektsBrev(DokumentMalType.fraKode(d.getDokumentMalType())) && d.getOpprineligDokumentMal() != null
-            && DokumentMalType.erVedtaksBrev(DokumentMalType.fraKode(d.getOpprineligDokumentMal()));
+        return DokumentMalType.erVedtakFritektsBrev(d.getDokumentMalType()) && d.getOpprineligDokumentMal() != null
+            && DokumentMalType.erVedtaksBrev(d.getOpprineligDokumentMal());
     }
 
     private Predicate<BehandlingDokumentBestiltEntitet> erKlageAvvist() {
-        return d -> d.getDokumentMalType() != null && DokumentMalType.KLAGE_AVVIST.equals(DokumentMalType.fraKode(d.getDokumentMalType()));
+        return d -> d.getDokumentMalType() != null && DokumentMalType.KLAGE_AVVIST.equals(d.getDokumentMalType());
     }
 
     public void lagHistorikkinnslagForBrevSendt(Behandling behandling, JournalpostId journalpostId) {
