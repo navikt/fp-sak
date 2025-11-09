@@ -16,6 +16,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.dokument.BehandlingDokumentEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.dokument.BehandlingDokumentRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.dokument.DokumentMalType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.AbstractTestScenario;
@@ -124,7 +125,7 @@ class DokumentBehandlingTjenesteTest {
         var behandlingDokument = behandlingDokumentRepository.hentHvisEksisterer(behandling.getId());
         assertThat(behandlingDokument).isPresent();
         assertThat(behandlingDokument.get().getBestilteDokumenter()).hasSize(1);
-        assertThat(behandlingDokument.get().getBestilteDokumenter().getFirst().getDokumentMalType()).isEqualTo(DokumentMalType.INNHENTE_OPPLYSNINGER.getKode());
+        assertThat(behandlingDokument.get().getBestilteDokumenter().getFirst().getDokumentMalType()).isEqualTo(DokumentMalType.INNHENTE_OPPLYSNINGER);
         assertThat(behandlingDokument.get().getBestilteDokumenter().getFirst().getBestillingUuid()).isNotNull();
     }
 

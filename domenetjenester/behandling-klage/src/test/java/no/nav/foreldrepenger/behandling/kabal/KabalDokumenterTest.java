@@ -19,12 +19,12 @@ import no.nav.foreldrepenger.behandlingslager.behandling.MottattDokument;
 import no.nav.foreldrepenger.behandlingslager.behandling.dokument.BehandlingDokumentBestiltEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.dokument.BehandlingDokumentEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.dokument.BehandlingDokumentRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.dokument.DokumentMalType;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageHjemmel;
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageResultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.MottatteDokumentRepository;
 import no.nav.foreldrepenger.dokumentarkiv.DokumentArkivTjeneste;
-import no.nav.foreldrepenger.dokumentbestiller.DokumentMalType;
 import no.nav.foreldrepenger.domene.typer.JournalpostId;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 
@@ -107,8 +107,8 @@ class KabalDokumenterTest {
         var journalpost2 = new JournalpostId("67890");
         var behandlingDokument = BehandlingDokumentEntitet.Builder.ny().medBehandling(behandlingId).build();
         var dokumentBestilt = new BehandlingDokumentBestiltEntitet.Builder()
-            .medDokumentMalType(DokumentMalType.VEDTAKSBREV_FRITEKST_HTML.getKode())
-            .medOpprinneligDokumentMal(DokumentMalType.FORELDREPENGER_INNVILGELSE.getKode())
+            .medDokumentMalType(DokumentMalType.VEDTAKSBREV_FRITEKST_HTML)
+            .medOpprinneligDokumentMal(DokumentMalType.FORELDREPENGER_INNVILGELSE)
             .medBehandlingDokument(behandlingDokument)
             .medBestillingUuid(UUID.randomUUID())
             .medJournalpostId(journalpost1)
@@ -182,7 +182,7 @@ class KabalDokumenterTest {
     private static BehandlingDokumentEntitet opprettBehandlingDokumentEntitet(long behandlingId, JournalpostId journalpost, DokumentMalType dokumentMalType) {
         var behandlingDokument = BehandlingDokumentEntitet.Builder.ny().medBehandling(behandlingId).build();
         var bestiltDokument = new BehandlingDokumentBestiltEntitet.Builder()
-            .medDokumentMalType(dokumentMalType.getKode())
+            .medDokumentMalType(dokumentMalType)
             .medBehandlingDokument(behandlingDokument)
             .medBestillingUuid(UUID.randomUUID())
             .medJournalpostId(journalpost)

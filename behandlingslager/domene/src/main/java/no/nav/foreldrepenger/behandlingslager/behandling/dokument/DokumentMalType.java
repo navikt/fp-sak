@@ -1,9 +1,12 @@
-package no.nav.foreldrepenger.dokumentbestiller;
+package no.nav.foreldrepenger.behandlingslager.behandling.dokument;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+
+import jakarta.persistence.AttributeConverter;
+import jakarta.persistence.Converter;
 
 import com.fasterxml.jackson.annotation.JsonValue;
 
@@ -104,14 +107,6 @@ public enum DokumentMalType implements Kodeverdi {
         return utledDokumentTittel(this);
     }
 
-    public static DokumentMalType fraKode(String kode) {
-        var ad = Optional.ofNullable(KODER.get(kode));
-        if (ad.isEmpty()) {
-            throw new IllegalArgumentException("Ukjent DokumentMalType: " + kode);
-        }
-        return ad.get();
-    }
-
     public static boolean erVedtakFritektsBrev(DokumentMalType brev) {
         return VEDTAK_FRITEKTBREV_TYPER.contains(brev);
     }
@@ -167,5 +162,27 @@ public enum DokumentMalType implements Kodeverdi {
             case FORELDREPENGER_FEIL_PRAKSIS_UTSETTELSE_INFOBREV -> "Melding om ny vurdering av tidligere avslag";
             case FORELDREPENGER_FEIL_PRAKSIS_UTSETTELSE_FORLENGET_SAKSBEHANDLINGSTID -> "Forlenget saksbehandlingstid - Fedrekvotesaken";
         };
+    }
+
+    @Converter(autoApply = true)
+    public static class KodeverdiConverter implements AttributeConverter<DokumentMalType, String> {
+        @Override
+        public String convertToDatabaseColumn(DokumentMalType attribute) {
+            return attribute == null ? null : attribute.getKode();
+        }
+
+        @Override
+        public DokumentMalType convertToEntityAttribute(String dbData) {
+            return dbData == null ? null : fraKode(dbData);
+        }
+
+        private static DokumentMalType fraKode(String kode) {
+            var ad = Optional.ofNullable(kode).map(KODER::get);
+            if (ad.isEmpty()) {
+                throw new IllegalArgumentException("Ukjent DokumentMalType: " + kode);
+            }
+            return ad.get();
+        }
+
     }
 }

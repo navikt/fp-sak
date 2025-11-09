@@ -22,6 +22,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Venteårsa
 import no.nav.foreldrepenger.behandlingslager.behandling.dokument.BehandlingDokumentBestiltEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.dokument.BehandlingDokumentEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.dokument.BehandlingDokumentRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.dokument.DokumentMalType;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseGrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseRepository;
@@ -66,9 +67,9 @@ public class DokumentBehandlingTjeneste {
 
         behandlingDokument.leggTilBestiltDokument(new BehandlingDokumentBestiltEntitet.Builder()
             .medBehandlingDokument(behandlingDokument)
-            .medDokumentMalType(bestilling.dokumentMal().getKode())
+            .medDokumentMalType(bestilling.dokumentMal())
             .medBestillingUuid(bestilling.bestillingUuid())
-            .medOpprinneligDokumentMal(Optional.ofNullable(bestilling.journalførSom()).map(DokumentMalType::getKode).orElse(null))
+            .medOpprinneligDokumentMal(bestilling.journalførSom())
             .build());
 
         behandlingDokumentRepository.lagreOgFlush(behandlingDokument);
@@ -79,8 +80,8 @@ public class DokumentBehandlingTjeneste {
             .map(BehandlingDokumentEntitet::getBestilteDokumenter)
             .orElse(List.of())
             .stream()
-            .anyMatch(dok -> dok.getDokumentMalType().equals(dokumentMalTypeKode.getKode()) || dokumentMalTypeKode.getKode()
-                .equals(dok.getOpprineligDokumentMal()));
+            .anyMatch(dok -> dok.getDokumentMalType().equals(dokumentMalTypeKode)
+                || dokumentMalTypeKode.equals(dok.getOpprineligDokumentMal()));
     }
 
     public Optional<LocalDateTime> dokumentSistBestiltTidspunkt(Long behandlingId, DokumentMalType dokumentMalTypeKode) {
@@ -88,8 +89,8 @@ public class DokumentBehandlingTjeneste {
             .map(BehandlingDokumentEntitet::getBestilteDokumenter)
             .orElse(List.of())
             .stream()
-            .filter(dok -> dok.getDokumentMalType().equals(dokumentMalTypeKode.getKode()) || dokumentMalTypeKode.getKode()
-                .equals(dok.getOpprineligDokumentMal()))
+            .filter(dok -> dok.getDokumentMalType().equals(dokumentMalTypeKode)
+                || dokumentMalTypeKode.equals(dok.getOpprineligDokumentMal()))
             .map(BaseCreateableEntitet::getOpprettetTidspunkt)
             .max(Comparator.naturalOrder());
     }
@@ -158,12 +159,11 @@ public class DokumentBehandlingTjeneste {
         historikkinnslagRepository.lagre(historikkinnslag);
     }
 
-    private DokumentMalType utledMalBrukt(String dokumentMalType, String opprineligDokumentMal) {
-        var dokumentMal = DokumentMalType.fraKode(dokumentMalType);
-        if ((DokumentMalType.FRITEKSTBREV.equals(dokumentMal) || DokumentMalType.VEDTAKSBREV_FRITEKST_HTML.equals(dokumentMal)) && opprineligDokumentMal != null) {
-            return DokumentMalType.fraKode(opprineligDokumentMal);
+    private DokumentMalType utledMalBrukt(DokumentMalType dokumentMalType, DokumentMalType opprineligDokumentMal) {
+        if ((DokumentMalType.FRITEKSTBREV.equals(dokumentMalType) || DokumentMalType.VEDTAKSBREV_FRITEKST_HTML.equals(dokumentMalType)) && opprineligDokumentMal != null) {
+            return opprineligDokumentMal;
         }
-        return dokumentMal;
+        return dokumentMalType;
     }
 
     LocalDate utledFristMedlemskap(Behandling behandling) {
