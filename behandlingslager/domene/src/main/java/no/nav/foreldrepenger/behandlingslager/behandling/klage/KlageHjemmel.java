@@ -42,7 +42,7 @@ public enum KlageHjemmel implements Kodeverdi {
     EØS_YTELSE("883-5", "EØS 883/2004 artikkel 5", "EOES_883_2004_5", Set.of(FP)),
     EØS_OPPTJEN("883-6", "EØS 883/2004 artikkel 6", "EOES_883_2004_6", Set.of(FP, SVP)),
 
-    UDEFINERT("-", "Ikke definert", "", Set.of()),
+    UDEFINERT(STANDARDKODE_UDEFINERT, "Ikke definert", "", Set.of()),
     ;
 
     private static final Map<String, KlageHjemmel> KODER = new LinkedHashMap<>();

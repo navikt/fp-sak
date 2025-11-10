@@ -17,7 +17,7 @@ public enum UtsettelseÅrsak implements Årsak {
     HV_OVELSE("HV_OVELSE", "Heimevernet"),
     NAV_TILTAK("NAV_TILTAK", "Tiltak i regi av Nav"),
     FRI("FRI", "Fri utsettelse fom høst 2021"),
-    UDEFINERT("-", "Ikke satt eller valgt kode"),
+    UDEFINERT(STANDARDKODE_UDEFINERT, "Ikke satt eller valgt kode"),
     ;
     private static final Map<String, UtsettelseÅrsak> KODER = new LinkedHashMap<>();
 

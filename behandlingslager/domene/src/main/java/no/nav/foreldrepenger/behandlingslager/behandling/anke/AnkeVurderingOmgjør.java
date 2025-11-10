@@ -17,7 +17,7 @@ public enum AnkeVurderingOmgjør implements Kodeverdi {
     ANKE_TIL_GUNST("ANKE_TIL_GUNST", "Gunst omgjør i anke"),
     ANKE_DELVIS_OMGJOERING_TIL_GUNST("ANKE_DELVIS_OMGJOERING_TIL_GUNST", "Delvis omgjøring, til gunst i anke"),
     ANKE_TIL_UGUNST("ANKE_TIL_UGUNST", "Ugunst omgjør i anke"),
-    UDEFINERT("-", "Udefinert"),
+    UDEFINERT(STANDARDKODE_UDEFINERT, "Udefinert"),
     ;
     private static final Map<String, AnkeVurderingOmgjør> KODER = new LinkedHashMap<>();
 

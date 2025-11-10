@@ -13,7 +13,7 @@ import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
 
 public enum TilbakekrevingVidereBehandling implements Kodeverdi {
 
-    UDEFINIERT("-", "Udefinert."),
+    UDEFINIERT(STANDARDKODE_UDEFINERT, "Udefinert."),
     OPPRETT_TILBAKEKREVING("TILBAKEKR_OPPRETT", "Feilutbetaling med tilbakekreving"),
     IGNORER_TILBAKEKREVING("TILBAKEKR_IGNORER", "Feilutbetaling, avvent samordning"),
     INNTREKK("TILBAKEKR_INNTREKK", "Feilutbetalingen er trukket inn i annen utbetaling"),

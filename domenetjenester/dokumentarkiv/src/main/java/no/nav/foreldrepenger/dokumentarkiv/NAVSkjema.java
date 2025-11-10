@@ -1,5 +1,7 @@
 package no.nav.foreldrepenger.dokumentarkiv;
 
+import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
+
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -32,7 +34,7 @@ public enum NAVSkjema {
     // ANNET
     FORSIDE_SVP_GAMMEL("SSVPG", "AT-474B", "Tilrettelegging/omplassering pga graviditet / Søknad om svangerskapspenger til arbeidstaker"),
 
-    UDEFINERT("-", null, "Ukjent type dokument");
+    UDEFINERT(Kodeverdi.STANDARDKODE_UDEFINERT, null, "Ukjent type dokument");
 
     private static final Map<String, NAVSkjema> KODER = new LinkedHashMap<>();
     private static final Map<String, NAVSkjema> OFFISIELLE_KODER = new LinkedHashMap<>();

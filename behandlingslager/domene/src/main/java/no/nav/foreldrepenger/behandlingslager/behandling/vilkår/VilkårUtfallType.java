@@ -16,7 +16,7 @@ public enum VilkårUtfallType implements Kodeverdi {
     IKKE_OPPFYLT("IKKE_OPPFYLT", "Ikke oppfylt"),
     IKKE_VURDERT("IKKE_VURDERT", "Ikke vurdert"),
 
-    UDEFINERT("-", "Ikke definert"),
+    UDEFINERT(STANDARDKODE_UDEFINERT, "Ikke definert"),
 
     ;
 

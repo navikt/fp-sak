@@ -36,7 +36,7 @@ public enum StartpunktType implements Kodeverdi {
     UTTAKSVILKÅR("UTTAKSVILKÅR", "Uttaksvilkår", 10, BehandlingStegType.INNGANG_UTTAK, Set.of(FagsakYtelseType.ENGANGSTØNAD)), // OBS: Endrer du startsteg må du flytte køhåndtering ....
     TILKJENT_YTELSE("TILKJENT_YTELSE", "Tilkjent ytelse", 11, BehandlingStegType.BEREGN_YTELSE, Set.of()), // OBS: Ikke testet for Engangsstønad
 
-    UDEFINERT("-", "Ikke definert", 99, BehandlingStegType.KONTROLLERER_SØKERS_OPPLYSNINGSPLIKT, Set.of()),
+    UDEFINERT(STANDARDKODE_UDEFINERT, "Ikke definert", 99, BehandlingStegType.KONTROLLERER_SØKERS_OPPLYSNINGSPLIKT, Set.of()),
     ;
 
     public static final String KODEVERK = "STARTPUNKT_TYPE";

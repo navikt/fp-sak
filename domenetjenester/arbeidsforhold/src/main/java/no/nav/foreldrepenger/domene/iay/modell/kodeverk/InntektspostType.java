@@ -10,7 +10,7 @@ import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
 
 public enum InntektspostType implements Kodeverdi {
 
-    UDEFINERT("-", "Ikke definert"),
+    UDEFINERT(STANDARDKODE_UDEFINERT, "Ikke definert"),
     LØNN("LØNN", "Lønn"),
     YTELSE("YTELSE", "Ytelse"),
     VANLIG("VANLIG", "Vanlig"),

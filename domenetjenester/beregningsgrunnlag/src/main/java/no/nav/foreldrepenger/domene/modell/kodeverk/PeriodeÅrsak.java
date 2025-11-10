@@ -20,7 +20,7 @@ public enum PeriodeÅrsak implements Kodeverdi {
     ENDRING_I_AKTIVITETER_SØKT_FOR("ENDRING_I_AKTIVITETER_SØKT_FOR", "Endring i aktiviteter søkt for"),
     REFUSJON_AVSLÅTT("REFUSJON_AVSLÅTT", "Refusjon avslått"),
 
-    UDEFINERT("-", "Ikke definert"),
+    UDEFINERT(STANDARDKODE_UDEFINERT, "Ikke definert"),
     ;
 
     private static final Map<String, PeriodeÅrsak> KODER = new LinkedHashMap<>();

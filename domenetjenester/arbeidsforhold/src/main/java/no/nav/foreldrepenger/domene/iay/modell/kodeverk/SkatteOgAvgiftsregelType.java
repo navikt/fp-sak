@@ -26,7 +26,7 @@ public enum SkatteOgAvgiftsregelType implements Kodeverdi {
     KILDESKATT_PÅ_PENSJONER("KILDESKATT_PÅ_PENSJONER", "Kildeskatt på pensjoner"),
     JAN_MAYEN_OG_BILANDENE("JAN_MAYEN_OG_BILANDENE", "Inntekt på Jan Mayen og i norske biland i Antarktis"),
 
-    UDEFINERT("-", "Udefinert"),
+    UDEFINERT(STANDARDKODE_UDEFINERT, "Udefinert"),
     ;
 
     private static final Map<String, SkatteOgAvgiftsregelType> KODER = new LinkedHashMap<>();

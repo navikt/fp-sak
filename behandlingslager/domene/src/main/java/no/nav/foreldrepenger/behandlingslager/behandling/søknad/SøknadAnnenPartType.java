@@ -18,7 +18,7 @@ public enum SøknadAnnenPartType implements Kodeverdi {
     MEDMOR("MEDMOR", "Medmor"),
     FAR("FAR", "Far"),
     MEDFAR("MEDFAR", "Medfar"),
-    UDEFINERT("-", "Ikke definert"),
+    UDEFINERT(STANDARDKODE_UDEFINERT, "Ikke definert"),
     ;
 
     private static final Map<String, SøknadAnnenPartType> KODER = new LinkedHashMap<>();

@@ -28,7 +28,7 @@ public enum Fagsystem implements Kodeverdi, MedOffisiellKode {
     /**
      * Alle kodeverk må ha en verdi, det kan ikke være null i databasen. Denne koden gjør samme nytten.
      */
-    UDEFINERT("-", "Ikke definert", null),
+    UDEFINERT(STANDARDKODE_UDEFINERT, "Ikke definert", null),
     ;
 
     public static final String KODEVERK = "FAGSYSTEM";

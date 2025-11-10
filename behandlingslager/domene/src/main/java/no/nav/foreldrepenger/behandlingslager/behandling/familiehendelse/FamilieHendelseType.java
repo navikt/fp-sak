@@ -17,7 +17,7 @@ public enum FamilieHendelseType implements Kodeverdi {
     OMSORG("OMSRGO", "Omsorgoverdragelse"),
     FØDSEL("FODSL", "Fødsel"),
     TERMIN("TERM", "Termin"),
-    UDEFINERT("-", "Ikke satt eller valgt kode"),
+    UDEFINERT(STANDARDKODE_UDEFINERT, "Ikke satt eller valgt kode"),
 
     ;
 

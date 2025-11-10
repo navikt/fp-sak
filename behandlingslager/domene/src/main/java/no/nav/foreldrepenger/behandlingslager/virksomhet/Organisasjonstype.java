@@ -10,7 +10,7 @@ public enum Organisasjonstype implements Kodeverdi {
     VIRKSOMHET("VIRKSOMHET", "Virksomhet"),
     ORGLEDD("ORGANISASJONSLEDD", "Organisasjonsledd"),
     KUNSTIG("KUNSTIG", "Kunstig arbeidsforhold lagt til av saksbehandler"),
-    UDEFINERT("-", "Udefinert"),
+    UDEFINERT(STANDARDKODE_UDEFINERT, "Udefinert"),
     ;
 
     public static final String KODEVERK = "ORGANISASJONSTYPE";

@@ -17,7 +17,7 @@ public enum OpptjeningAktivitetKlassifisering implements Kodeverdi {
     BEKREFTET_AVVIST("BEKREFTET_AVVIST", "Bekreftet avvist"),
     ANTATT_GODKJENT("ANTATT_GODKJENT", "Antatt godkjent"),
     MELLOMLIGGENDE_PERIODE("MELLOMLIGGENDE_PERIODE", "Mellomliggende periode"),
-    UDEFINERT("-", "UDEFINERT"),
+    UDEFINERT(STANDARDKODE_UDEFINERT, "UDEFINERT"),
     ;
 
     private static final Map<String, OpptjeningAktivitetKlassifisering> KODER = new LinkedHashMap<>();

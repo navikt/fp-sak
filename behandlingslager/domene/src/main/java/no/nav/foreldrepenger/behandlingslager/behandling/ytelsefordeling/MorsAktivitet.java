@@ -15,7 +15,7 @@ import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
 
 public enum MorsAktivitet implements Kodeverdi {
 
-    UDEFINERT("-", "Ikke satt eller valgt kode"),
+    UDEFINERT(STANDARDKODE_UDEFINERT, "Ikke satt eller valgt kode"),
     ARBEID("ARBEID", "Er i arbeid"),
     UTDANNING("UTDANNING", "Tar utdanning på heltid"),
     KVALPROG("KVALPROG", "Deltar i kvalifiseringsprogrammet"),

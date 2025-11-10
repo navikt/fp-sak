@@ -17,7 +17,7 @@ public enum AnkeOmgjørÅrsak implements Kodeverdi {
     ULIK_REGELVERKSTOLKNING("ULIK_REGELVERKSTOLKNING", "Ulik regelverkstolkning"),
     ULIK_VURDERING("ULIK_VURDERING", "Ulik skjønnsvurdering"),
     PROSESSUELL_FEIL("PROSESSUELL_FEIL", "Saksbehandlingsfeil"),
-    UDEFINERT("-", "Udefinert"),
+    UDEFINERT(STANDARDKODE_UDEFINERT, "Udefinert"),
     ;
 
     private static final Map<String, AnkeOmgjørÅrsak> KODER = new LinkedHashMap<>();

@@ -53,7 +53,7 @@ public enum SkjermlenkeType implements Kodeverdi {
     PUNKT_FOR_SVP_INNGANG("PUNKT_FOR_SVP_INNGANG", "Fakta om fødsel og tilrettelegging"),
     SOEKNADSFRIST("SOEKNADSFRIST", "Søknadsfrist"),
     TILKJENT_YTELSE("TILKJENT_YTELSE", "Tilkjent ytelse"),
-    UDEFINERT("-", "Ikke definert"),
+    UDEFINERT(STANDARDKODE_UDEFINERT, "Ikke definert"),
     UTLAND("UTLAND", "Endret utland"),
     UTTAK("UTTAK", "Uttak"),
     VEDTAK("VEDTAK", "Vedtak"),

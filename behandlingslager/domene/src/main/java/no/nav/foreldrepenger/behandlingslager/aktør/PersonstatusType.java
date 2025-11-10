@@ -21,7 +21,7 @@ public enum PersonstatusType implements Kodeverdi {
     UREG("UREG", "Ikke bosatt (f.reg)"),
     UTPE("UTPE", "Opphørt"),
     UTVA("UTVA", "Utflyttet"),
-    UDEFINERT("-", "Ikke definert"),
+    UDEFINERT(STANDARDKODE_UDEFINERT, "Ikke definert"),
     ;
 
     private static final Map<String, PersonstatusType> FRA_FREG = Map.ofEntries(

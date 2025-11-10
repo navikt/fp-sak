@@ -13,7 +13,7 @@ import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
 
 public enum Venteårsak implements Kodeverdi {
 
-    UDEFINERT("-", "Ikke definert"),
+    UDEFINERT(STANDARDKODE_UDEFINERT, "Ikke definert"),
 
     /*
      * Disse er i bruk i koden i fpsak, frontend, eller kalkulus.

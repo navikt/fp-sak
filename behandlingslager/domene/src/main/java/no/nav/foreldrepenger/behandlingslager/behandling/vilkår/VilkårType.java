@@ -111,7 +111,7 @@ public enum VilkårType implements Kodeverdi {
     /**
      * Brukes i stedet for null der det er optional.
      */
-    UDEFINERT("-", "Ikke definert", Map.of()),
+    UDEFINERT(STANDARDKODE_UDEFINERT, "Ikke definert", Map.of()),
 
     ;
 

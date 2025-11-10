@@ -33,7 +33,7 @@ public enum BehandlingStegStatus implements Kodeverdi {
     UTFØRT("UTFØRT", "Utført"),
     FREMOVERFØRT("FREMOVERFØRT", "Fremoverført"),
     TILBAKEFØRT("TILBAKEFØRT", "Tilbakeført"),
-    UDEFINERT("-", "Ikke definert"),
+    UDEFINERT(STANDARDKODE_UDEFINERT, "Ikke definert"),
 
     ;
     private static final Set<BehandlingStegStatus> KAN_UTFØRE_STEG = new HashSet<>(Arrays.asList(STARTET, VENTER));

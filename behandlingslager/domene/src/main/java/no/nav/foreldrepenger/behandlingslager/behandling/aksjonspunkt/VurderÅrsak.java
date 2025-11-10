@@ -17,7 +17,7 @@ public enum VurderÅrsak implements Kodeverdi {
     UTREDNING("UTREDNING", "Utredning"),
     SAKSFLYT("SAKSFLYT", "Saksflyt"),
     BEGRUNNELSE("BEGRUNNELSE", "Begrunnelse"),
-    UDEFINERT("-", "Ikke definert"),
+    UDEFINERT(STANDARDKODE_UDEFINERT, "Ikke definert"),
 
     @Deprecated
     ANNET("ANNET", "Annet"), // UTGÅTT, beholdes pga historikk

@@ -20,7 +20,7 @@ public enum UttakPeriodeType implements Kodeverdi {
     FEDREKVOTE("FEDREKVOTE", "Fedrekvoten"),
     FORELDREPENGER("FORELDREPENGER", "Foreldrepenger"),
     FORELDREPENGER_FØR_FØDSEL("FORELDREPENGER_FØR_FØDSEL", "Foreldrepenger før fødsel"),
-    UDEFINERT("-", "Ikke satt eller valgt kode"),
+    UDEFINERT(STANDARDKODE_UDEFINERT, "Ikke satt eller valgt kode"),
     ;
     private static final Map<String, UttakPeriodeType> KODER = new LinkedHashMap<>();
 
