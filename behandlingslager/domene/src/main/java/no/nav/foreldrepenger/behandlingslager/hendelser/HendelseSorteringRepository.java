@@ -16,6 +16,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.Relasj
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakStatus;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.domene.typer.AktørId;
+import no.nav.foreldrepenger.domene.typer.Saksnummer;
 
 @ApplicationScoped
 public class HendelseSorteringRepository {
@@ -54,6 +55,20 @@ public class HendelseSorteringRepository {
                 inner join Fagsak f on b = f.navBruker
                 where b.aktørId in (:aktørIds)
                 """, AktørId.class)
+            .setParameter("aktørIds", aktørIdSet)
+            .getResultList();
+    }
+
+    public Collection<Saksnummer> hentSakerForAktørIder(Set<AktørId> aktørIdSet) {
+        if (aktørIdSet.isEmpty()) {
+            return List.of();
+        }
+
+        return entityManager.createQuery("""
+                select f.saksnummer from Bruker b
+                inner join Fagsak f on b = f.navBruker
+                where b.aktørId in (:aktørIds)
+                """, Saksnummer.class)
             .setParameter("aktørIds", aktørIdSet)
             .getResultList();
     }
