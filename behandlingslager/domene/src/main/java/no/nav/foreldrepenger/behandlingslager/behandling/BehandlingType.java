@@ -29,7 +29,7 @@ public enum BehandlingType implements Kodeverdi, MedOffisiellKode {
     TILBAKEKREVING_ORDINÆR("BT-007", "Tilbakekreving", "ae0054", 6),
     TILBAKEKREVING_REVURDERING("BT-009", "Revurdering tilbakekreving", "ae0043", 6),
 
-    UDEFINERT("-", "Ikke definert", null, 0),
+    UDEFINERT(STANDARDKODE_UDEFINERT, "Ikke definert", null, 0),
     ;
 
     private static final Set<BehandlingType> YTELSE_BEHANDLING_TYPER = Set.of(FØRSTEGANGSSØKNAD, REVURDERING);

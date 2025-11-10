@@ -16,7 +16,7 @@ public enum IverksettingStatus implements Kodeverdi {
     IKKE_IVERKSATT("IKKE_IVERKSATT", "Ikke iverksatt"),
     IVERKSATT("IVERKSATT", "Iverksatt"),
 
-    UDEFINERT("-", "Ikke definert"),
+    UDEFINERT(STANDARDKODE_UDEFINERT, "Ikke definert"),
 
     ;
 

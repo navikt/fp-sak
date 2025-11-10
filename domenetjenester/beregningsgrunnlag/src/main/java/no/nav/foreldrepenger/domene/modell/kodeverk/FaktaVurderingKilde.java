@@ -12,7 +12,7 @@ public enum FaktaVurderingKilde implements Kodeverdi {
 
     SAKSBEHANDLER("SAKSBEHANDLER", "Saksbehandler"),
     KALKULATOR("KALKULATOR", "Kalkulator"),
-    UDEFINERT("-", "Uspesifisert"),
+    UDEFINERT(STANDARDKODE_UDEFINERT, "Uspesifisert"),
     ;
 
     private static final Map<String, FaktaVurderingKilde> KODER = new LinkedHashMap<>();

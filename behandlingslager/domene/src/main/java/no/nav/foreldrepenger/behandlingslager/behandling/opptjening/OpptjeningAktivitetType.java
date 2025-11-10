@@ -83,7 +83,7 @@ public enum OpptjeningAktivitetType implements Kodeverdi {
 
     UTDANNINGSPERMISJON("UTDANNINGSPERMISJON", "Utdanningspermisjon",
             Set.of(), Set.of()),
-    UDEFINERT("-", "UDEFINERT",
+    UDEFINERT(STANDARDKODE_UDEFINERT, "UDEFINERT",
             Set.of(),
             Set.of()),
             ;

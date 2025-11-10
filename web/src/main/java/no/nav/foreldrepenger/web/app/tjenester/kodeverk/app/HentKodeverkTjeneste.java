@@ -142,7 +142,7 @@ public class HentKodeverkTjeneste {
         Map<String, Collection<? extends Kodeverdi>> mapFiltered = new LinkedHashMap<>();
 
         map.forEach((key, value) -> mapFiltered.put(key,
-            value.stream().filter(f -> !"-".equals(f.getKode())).collect(Collectors.toSet())));
+            value.stream().filter(f -> !Kodeverdi.STANDARDKODE_UDEFINERT.equals(f.getKode())).collect(Collectors.toSet())));
 
         KODEVERDIER_SOM_BRUKES_PÅ_KLIENT = Collections.unmodifiableMap(mapFiltered);
 

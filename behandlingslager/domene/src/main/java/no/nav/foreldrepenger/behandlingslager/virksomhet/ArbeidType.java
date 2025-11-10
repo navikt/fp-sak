@@ -45,7 +45,7 @@ public enum ArbeidType implements Kodeverdi, MedOffisiellKode {
     UTENLANDSK_ARBEIDSFORHOLD("UTENLANDSK_ARBEIDSFORHOLD", "Arbeid i utlandet", null, true),
     VENTELØNN_VARTPENGER("VENTELØNN_VARTPENGER", "Ventelønn eller vartpenger", null, true),
     VANLIG("VANLIG", "Vanlig", "VANLIG", false),
-    UDEFINERT("-", "Ikke definert", null, false),
+    UDEFINERT(STANDARDKODE_UDEFINERT, "Ikke definert", null, false),
     ;
 
     @Converter(autoApply = true)

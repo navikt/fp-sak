@@ -26,7 +26,7 @@ public enum MedlemskapKildeType implements Kodeverdi {
     TP("TP", "TP"),
     LAANEKASSEN("LAANEKASSEN", "Laanekassen"),
     ANNEN("ANNEN", "Annen"),
-    UDEFINERT("-", "Ikke definert"),
+    UDEFINERT(STANDARDKODE_UDEFINERT, "Ikke definert"),
     ;
 
     private static final Map<String, MedlemskapKildeType> KODER = new LinkedHashMap<>();

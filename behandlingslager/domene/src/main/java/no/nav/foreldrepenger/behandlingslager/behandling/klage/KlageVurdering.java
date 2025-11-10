@@ -18,7 +18,7 @@ public enum KlageVurdering implements Kodeverdi {
     MEDHOLD_I_KLAGE("MEDHOLD_I_KLAGE", "Medhold"),
     AVVIS_KLAGE("AVVIS_KLAGE", "Klagen avvises"),
     HJEMSENDE_UTEN_Å_OPPHEVE("HJEMSENDE_UTEN_Å_OPPHEVE", "Hjemsende uten å oppheve"),
-    UDEFINERT("-", "Udefinert"),
+    UDEFINERT(STANDARDKODE_UDEFINERT, "Udefinert"),
     ;
 
     private static final Map<String, KlageVurdering> KODER = new LinkedHashMap<>();

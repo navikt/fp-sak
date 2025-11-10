@@ -39,7 +39,7 @@ public enum AktivitetStatus implements Kodeverdi {
     TTLSTØTENDE_YTELSE("TY", "Tilstøtende ytelse", Inntektskategori.UDEFINERT),
     VENTELØNN_VARTPENGER("VENTELØNN_VARTPENGER", "Ventelønn/Vartpenger", Inntektskategori.UDEFINERT),
 
-    UDEFINERT("-", "Ikke definert", Inntektskategori.UDEFINERT);
+    UDEFINERT(STANDARDKODE_UDEFINERT, "Ikke definert", Inntektskategori.UDEFINERT);
 
     public static final String KODEVERK = "AKTIVITET_STATUS";
 

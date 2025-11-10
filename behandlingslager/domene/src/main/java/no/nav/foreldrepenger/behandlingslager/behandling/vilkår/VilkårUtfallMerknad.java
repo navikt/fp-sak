@@ -45,7 +45,7 @@ public enum VilkårUtfallMerknad implements Kodeverdi {
     @Deprecated
     VM_7006("7006", "Venter på opptjeningsopplysninger"), // UTGÅTT, finnes i DB
 
-    UDEFINERT("-", "Ikke definert"),
+    UDEFINERT(STANDARDKODE_UDEFINERT, "Ikke definert"),
 
     ;
 

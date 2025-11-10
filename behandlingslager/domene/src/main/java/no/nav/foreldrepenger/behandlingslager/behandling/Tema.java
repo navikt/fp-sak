@@ -12,7 +12,7 @@ public enum Tema implements Kodeverdi, MedOffisiellKode {
 
     FOR("FOR", "Foreldre- og Svangerskapspenger", "FOR"),
 
-    UDEFINERT("-", "Ikke definert", null)
+    UDEFINERT(STANDARDKODE_UDEFINERT, "Ikke definert", null)
     ;
 
     public static final String KODEVERK = "TEMA";

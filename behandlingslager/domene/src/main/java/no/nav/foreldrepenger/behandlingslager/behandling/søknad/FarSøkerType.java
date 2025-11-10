@@ -17,7 +17,7 @@ public enum FarSøkerType implements Kodeverdi {
     OVERTATT_OMSORG("OVERTATT_OMSORG", "Overtatt omsorg < 56 uker"),
     OVERTATT_OMSORG_F("OVERTATT_OMSORG_F", "Overtatt omsorg fødsel"),
     ANDRE_FORELD_DØD_F("ANDRE_FORELD_DØD_F", "Overtatt omsorg ifm. død ved fødsel"),
-    UDEFINERT("-", "Ikke definert"),
+    UDEFINERT(STANDARDKODE_UDEFINERT, "Ikke definert"),
     ;
 
     public static final String KODEVERK = "FAR_SOEKER_TYPE";

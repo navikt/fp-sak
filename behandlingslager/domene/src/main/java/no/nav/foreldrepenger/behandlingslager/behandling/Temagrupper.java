@@ -8,7 +8,7 @@ import no.nav.foreldrepenger.behandlingslager.kodeverk.MedOffisiellKode;
 public enum Temagrupper implements Kodeverdi, MedOffisiellKode {
 
     FAMILIEYTELSER("FMLI", "Familie", "FMLI"),
-    UDEFINERT("-", "Udefinert", null),
+    UDEFINERT(STANDARDKODE_UDEFINERT, "Udefinert", null),
     ;
 
     public static final String KODEVERK = "TEMAGRUPPER";

@@ -16,7 +16,7 @@ public enum MedlemskapType implements Kodeverdi {
     ENDELIG("ENDELIG", "Endelig"),
     FORELOPIG("FORELOPIG", "Foreløpig"),
     UNDER_AVKLARING("AVKLARES", "Under avklaring"),
-    UDEFINERT("-", "Ikke definert"),
+    UDEFINERT(STANDARDKODE_UDEFINERT, "Ikke definert"),
     ;
 
     private static final Map<String, MedlemskapType> KODER = new LinkedHashMap<>();

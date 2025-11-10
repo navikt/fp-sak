@@ -19,7 +19,7 @@ public enum AnkeVurdering implements Kodeverdi {
     ANKE_OPPHEVE_OG_HJEMSENDE("ANKE_OPPHEVE_OG_HJEMSENDE", "Ytelsesvedtaket oppheves og hjemsendes"),
     ANKE_OMGJOER("ANKE_OMGJOER", "Anken omgjøres"),
     ANKE_AVVIS("ANKE_AVVIS", "Anken avvises"),
-    UDEFINERT("-", "Udefinert"),
+    UDEFINERT(STANDARDKODE_UDEFINERT, "Udefinert"),
     ;
 
     private static final Map<String, AnkeVurdering> KODER = new LinkedHashMap<>();

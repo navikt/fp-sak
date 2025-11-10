@@ -149,7 +149,7 @@ public enum DokumentTypeId implements Kodeverdi, MedOffisiellKode {
     ANNET_SKJEMA_IKKE_NAV("ANNET_SKJEMA_IKKE_NAV", "I000049", "Annet skjema (ikke NAV-skjema)"),
     ANNET("ANNET", "I000060", "Annet"),
 
-    UDEFINERT("-", "", "Ikke definert"),
+    UDEFINERT(STANDARDKODE_UDEFINERT, "", "Ikke definert"),
     ;
 
     public static final String KODEVERK = "DOKUMENT_TYPE_ID";

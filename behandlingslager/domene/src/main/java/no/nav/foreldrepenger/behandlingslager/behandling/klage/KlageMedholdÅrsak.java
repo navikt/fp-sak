@@ -17,7 +17,7 @@ public enum KlageMedholdÅrsak implements Kodeverdi {
     ULIK_REGELVERKSTOLKNING("ULIK_REGELVERKSTOLKNING", "Feil lovanvendelse"),
     ULIK_VURDERING("ULIK_VURDERING", "Ulik skjønnsvurdering"),
     PROSESSUELL_FEIL("PROSESSUELL_FEIL", "Saksbehandlingsfeil"),
-    UDEFINERT("-", "Ikke definert"),
+    UDEFINERT(STANDARDKODE_UDEFINERT, "Ikke definert"),
     ;
 
     private static final Map<String, KlageMedholdÅrsak> KODER = new LinkedHashMap<>();

@@ -19,7 +19,7 @@ public enum BeregningsgrunnlagRegelType implements Kodeverdi {
     PERIODISERING_NATURALYTELSE("PERIODISERING_NATURALYTELSE", "Periodiser beregningsgrunnlag pga naturalytelse"),
     PERIODISERING_REFUSJON("PERIODISERING_REFUSJON", "Periodiser beregningsgrunnlag pga refusjon"),
     PERIODISERING_GRADERING("PERIODISERING_GRADERING", "Periodiser beregningsgrunnlag pga gradering og endring i utbetalingsgrad"),
-    UDEFINERT("-", "Ikke definert"),
+    UDEFINERT(STANDARDKODE_UDEFINERT, "Ikke definert"),
     ;
     public static final String KODEVERK = "BG_REGEL_TYPE";
 

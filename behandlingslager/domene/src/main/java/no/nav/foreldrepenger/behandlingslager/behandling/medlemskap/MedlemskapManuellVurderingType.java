@@ -13,7 +13,7 @@ import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
 
 public enum MedlemskapManuellVurderingType implements Kodeverdi {
 
-    UDEFINERT("-", "Ikke definert", false),
+    UDEFINERT(STANDARDKODE_UDEFINERT, "Ikke definert", false),
     MEDLEM("MEDLEM", "Periode med medlemskap", true),
     UNNTAK("UNNTAK", "Periode med unntak fra medlemskap", true),
     IKKE_RELEVANT("IKKE_RELEVANT", "Ikke relevant periode", true),

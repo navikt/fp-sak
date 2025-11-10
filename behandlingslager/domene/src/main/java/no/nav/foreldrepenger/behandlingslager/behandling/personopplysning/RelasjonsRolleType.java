@@ -25,7 +25,7 @@ public enum RelasjonsRolleType implements Kodeverdi {
     // Mulig verdi i PO_RELASJON
     ANNEN_PART_FRA_SØKNAD("ANPA", "Annen part fra søknad"),
 
-    UDEFINERT("-", "Ikke definert"),
+    UDEFINERT(STANDARDKODE_UDEFINERT, "Ikke definert"),
     ;
 
     private static final Map<String, RelasjonsRolleType> KODER = new LinkedHashMap<>();

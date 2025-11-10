@@ -30,7 +30,7 @@ public enum MedlemskapDekningType implements Kodeverdi {
     OPPHOR("OPPHOR", "Opphør"),
     UNNTATT("UNNTATT", "Unntatt"),
 
-    UDEFINERT("-", "Ikke definert"),
+    UDEFINERT(STANDARDKODE_UDEFINERT, "Ikke definert"),
     ;
 
 

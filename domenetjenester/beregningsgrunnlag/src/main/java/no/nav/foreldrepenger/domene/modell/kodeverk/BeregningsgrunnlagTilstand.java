@@ -27,7 +27,7 @@ public enum BeregningsgrunnlagTilstand implements Kodeverdi {
     OPPDATERT_MED_REFUSJON_OG_GRADERING("OPPDATERT_MED_REFUSJON_OG_GRADERING", "Tilstand for splittet periode med refusjon og gradering", true),
     FASTSATT_INN("FASTSATT_INN", "Fastsatt - Inn", false),
     FASTSATT("FASTSATT", "Fastsatt", true),
-    UDEFINERT("-", "Ikke definert", false),
+    UDEFINERT(STANDARDKODE_UDEFINERT, "Ikke definert", false),
     ;
     public static final String KODEVERK = "BEREGNINGSGRUNNLAG_TILSTAND";
 

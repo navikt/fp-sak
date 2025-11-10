@@ -21,7 +21,7 @@ public enum BehandlingTema implements Kodeverdi, MedOffisiellKode {
     FORELDREPENGER_ADOPSJON("FORP_ADOP", "Foreldrepenger ved adopsjon", "ab0072"),
     FORELDREPENGER_FØDSEL("FORP_FODS", "Foreldrepenger ved fødsel", "ab0047"),
     SVANGERSKAPSPENGER("SVP", "Svangerskapspenger", "ab0126"),
-    UDEFINERT("-", "Ikke definert", null),
+    UDEFINERT(STANDARDKODE_UDEFINERT, "Ikke definert", null),
 
     ;
 

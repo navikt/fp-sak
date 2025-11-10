@@ -18,7 +18,7 @@ public enum InntektPeriodeType implements Kodeverdi {
     ÅRLIG("AARLG", "Årlig", Period.ofYears(1)),
     FASTSATT25PAVVIK("INNFS", "Fastsatt etter 25 prosent avvik", Period.ofYears(1)),
     PREMIEGRUNNLAG("PREMGR", "Premiegrunnlag", Period.ofYears(1)),
-    UDEFINERT("-", "Ikke definert", null),
+    UDEFINERT(STANDARDKODE_UDEFINERT, "Ikke definert", null),
     ;
 
     private static final Map<String, InntektPeriodeType> KODER = new LinkedHashMap<>();

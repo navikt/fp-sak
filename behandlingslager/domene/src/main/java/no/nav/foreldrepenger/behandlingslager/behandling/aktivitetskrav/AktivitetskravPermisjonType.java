@@ -13,7 +13,7 @@ import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
 
 public enum AktivitetskravPermisjonType implements Kodeverdi {
 
-    UDEFINERT("-", "Ikke definert"),
+    UDEFINERT(STANDARDKODE_UDEFINERT, "Ikke definert"),
     UTDANNING("UTDANNING", "Utdanning"),
     FORELDREPENGER("FORELDREPENGER", "Foreldrepenger"),
     PERMITTERING("PERMITTERING", "Permittering"),

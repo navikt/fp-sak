@@ -23,7 +23,7 @@ public enum VirksomhetType implements Kodeverdi {
     FRILANSER("FRILANSER", "Frilanser", Inntektskategori.FRILANSER),
     JORDBRUK_SKOGBRUK("JORDBRUK_SKOGBRUK", "Jordbruk", Inntektskategori.JORDBRUKER),
     ANNEN("ANNEN", "Annen næringsvirksomhet", Inntektskategori.UDEFINERT),
-    UDEFINERT("-", "Ikke definert", Inntektskategori.UDEFINERT),
+    UDEFINERT(STANDARDKODE_UDEFINERT, "Ikke definert", Inntektskategori.UDEFINERT),
     ;
 
     private static final Map<String, VirksomhetType> KODER = new LinkedHashMap<>();

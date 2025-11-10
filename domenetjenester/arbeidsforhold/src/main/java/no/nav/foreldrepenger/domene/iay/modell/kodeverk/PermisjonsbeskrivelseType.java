@@ -11,7 +11,7 @@ import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
 
 public enum PermisjonsbeskrivelseType implements Kodeverdi {
 
-    UDEFINERT("-", "Ikke definert"),
+    UDEFINERT(STANDARDKODE_UDEFINERT, "Ikke definert"),
     PERMISJON("PERMISJON", "Permisjon"),
     UTDANNINGSPERMISJON("UTDANNINGSPERMISJON", "Utdanningspermisjon"), // Utgår 31/12-2022
     UTDANNINGSPERMISJON_IKKE_LOVFESTET("UTDANNINGSPERMISJON_IKKE_LOVFESTET", "Utdanningspermisjon (Ikke lovfestet)"),

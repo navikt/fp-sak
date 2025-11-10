@@ -15,7 +15,7 @@ public enum OverføringÅrsak implements Årsak {
     SYKDOM_ANNEN_FORELDER("SYKDOM_ANNEN_FORELDER", "Den andre foreldren er pga sykdom avhengig av hjelp for å ta seg av barnet/barna"),
     IKKE_RETT_ANNEN_FORELDER("IKKE_RETT_ANNEN_FORELDER", "Den andre foreldren har ikke rett på foreldrepenger"),
     ALENEOMSORG("ALENEOMSORG", "Aleneomsorg for barnet/barna"),
-    UDEFINERT("-", "Ikke satt eller valgt kode"),
+    UDEFINERT(STANDARDKODE_UDEFINERT, "Ikke satt eller valgt kode"),
     ;
     private static final Map<String, OverføringÅrsak> KODER = new LinkedHashMap<>();
 

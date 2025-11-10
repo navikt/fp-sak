@@ -12,7 +12,7 @@ public enum AnkeAvvistÅrsak implements Kodeverdi {
     ANKE_IKKE_PART("ANKE_IKKE_PART", "Anke er ikke part"),
     ANKE_IKKE_KONKRET("ANKE_IKKE_KONKRET", "Anke er ikke konkret"),
     ANKE_IKKE_SIGNERT("ANKE_IKKE_SIGNERT", "Anke er ikke signert"),
-    UDEFINERT("-", "Udefinert"),
+    UDEFINERT(STANDARDKODE_UDEFINERT, "Udefinert"),
     ;
 
     public static final String KODEVERK = "ANKE_AVVIST_AARSAK";

@@ -13,7 +13,7 @@ public enum Kontrollresultat implements Kodeverdi {
     HØY("HOY", "Kontrollresultatet er HØY"),
     IKKE_HØY("IKKE_HOY", "Kontrollresultatet er IKKE_HØY"),
     IKKE_KLASSIFISERT("IKKE_KLASSIFISERT", "Behandlingen er ikke blitt klassifisert"),
-    UDEFINERT("-", "Udefinert"),
+    UDEFINERT(STANDARDKODE_UDEFINERT, "Udefinert"),
     ;
 
     private static final Map<String, Kontrollresultat> KODER = new LinkedHashMap<>();

@@ -28,7 +28,7 @@ public enum FaktaOmBeregningTilfelle implements Kodeverdi {
     FASTSETT_BG_KUN_YTELSE("FASTSETT_BG_KUN_YTELSE", "Fastsett beregningsgrunnlag for kun ytelse uten arbeidsforhold"),
     TILSTØTENDE_YTELSE("TILSTØTENDE_YTELSE", "Avklar beregningsgrunnlag og inntektskategori for tilstøtende ytelse"),
     FASTSETT_ENDRET_BEREGNINGSGRUNNLAG("FASTSETT_ENDRET_BEREGNINGSGRUNNLAG", "Fastsette endring i beregningsgrunnlag"),
-    UDEFINERT("-", "Ikke definert"),
+    UDEFINERT(STANDARDKODE_UDEFINERT, "Ikke definert"),
     ;
     public static final String KODEVERK = "FAKTA_OM_BEREGNING_TILFELLE";
 

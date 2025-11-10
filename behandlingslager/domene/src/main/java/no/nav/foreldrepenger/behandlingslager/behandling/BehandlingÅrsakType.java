@@ -96,7 +96,7 @@ public enum BehandlingÅrsakType implements Kodeverdi {
     RE_TILSTØTENDE_YTELSE_OPPHØRT("RE-TILST-YT-OPPH", "Annen ytelse opphørt"),
 
     // La stå
-    UDEFINERT("-", "Ikke definert"),
+    UDEFINERT(STANDARDKODE_UDEFINERT, "Ikke definert"),
 
     ;
 

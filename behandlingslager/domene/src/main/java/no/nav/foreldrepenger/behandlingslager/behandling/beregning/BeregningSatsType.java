@@ -15,7 +15,7 @@ public enum BeregningSatsType implements Kodeverdi {
     ENGANG("ENGANG", "Engangsstønad"),
     GRUNNBELØP("GRUNNBELØP", "Grunnbeløp"),
     GSNITT("GSNITT", "Grunnbeløp årsgjennomsnitt"),
-    UDEFINERT("-", "Ikke definert"),
+    UDEFINERT(STANDARDKODE_UDEFINERT, "Ikke definert"),
     ;
     public static final String KODEVERK = "SATS_TYPE";
 
