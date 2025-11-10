@@ -505,7 +505,7 @@ public class FordelRestTjeneste {
     }
 
     private DokumentKategori utledDokumentKategori(String dokumentKategori, DokumentTypeId dokumentTypeId) {
-        if (DokumentTypeId.getSøknadTyper().contains(dokumentTypeId)) {
+        if (DokumentTypeId.getSøknadTyper().contains(dokumentTypeId) || DokumentTypeId.getEndringSøknadTyper().contains(dokumentTypeId)) {
             return DokumentKategori.SØKNAD;
         }
         if (DokumentTypeId.KLAGE_DOKUMENT.equals(dokumentTypeId)) {
