@@ -45,7 +45,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingsresultatRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.DokumentKategori;
 import no.nav.foreldrepenger.behandlingslager.behandling.KonsekvensForYtelsen;
 import no.nav.foreldrepenger.behandlingslager.behandling.MottattDokument;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatRepository;
@@ -544,7 +543,7 @@ class BrevGrunnlagTjeneste {
     private List<MottattDokument> finnSøknadsdokumenter(Fagsak fagsak) {
         return mottatteDokumentRepository.hentMottatteDokumentMedFagsakId(fagsak.getId())
             .stream()
-            .filter(md -> md.getDokumentKategori().equals(DokumentKategori.SØKNAD))
+            .filter(MottattDokument::erSøknadsDokument)
             .toList();
     }
 
