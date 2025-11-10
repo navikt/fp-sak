@@ -127,8 +127,8 @@ public class FagsakFullTjeneste {
         var notater = fagsakRepository.hentFagsakNotater(fagsak.getId()).stream().map(FagsakNotatDto::fraNotat).toList();
         var ferskesteKontrollresultatBehandling = behandlingRepository.finnSisteIkkeHenlagteBehandlingavAvBehandlingTypeFor(fagsak.getId(),
                 BehandlingType.FØRSTEGANGSSØKNAD)
-            .flatMap(førsteBeh -> behandlingDtoer.stream().filter(beh -> beh.getUuid().equals(førsteBeh.getUuid())).findFirst())
-            .map(FagsakBehandlingDto::getKontrollResultat);
+            .flatMap(førsteBeh -> behandlingDtoer.stream().filter(beh -> beh.uuid().equals(førsteBeh.getUuid())).findFirst())
+            .map(FagsakBehandlingDto::kontrollResultat);
         var harVergeIÅpenBehandling = alleBehandlinger.stream()
             .filter(behandling -> !behandling.erAvsluttet())
             .anyMatch(behandling -> vergeRepository.hentAggregat(behandling.getId()).flatMap(VergeAggregat::getVerge).isPresent());

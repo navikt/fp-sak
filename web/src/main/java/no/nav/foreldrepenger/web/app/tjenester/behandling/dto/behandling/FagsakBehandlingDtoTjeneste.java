@@ -2,9 +2,14 @@ package no.nav.foreldrepenger.web.app.tjenester.behandling.dto.behandling;
 
 import static no.nav.foreldrepenger.web.app.rest.ResourceLinks.get;
 import static no.nav.foreldrepenger.web.app.rest.ResourceLinks.post;
+import static no.nav.foreldrepenger.web.app.tjenester.behandling.dto.behandling.BehandlingDtoUtil.erAktivPapirsøknad;
+import static no.nav.foreldrepenger.web.app.tjenester.behandling.dto.behandling.BehandlingDtoUtil.getBehandlingsResultatType;
+import static no.nav.foreldrepenger.web.app.tjenester.behandling.dto.behandling.BehandlingDtoUtil.getFristDatoBehandlingPåVent;
+import static no.nav.foreldrepenger.web.app.tjenester.behandling.dto.behandling.BehandlingDtoUtil.lagBehandlingÅrsakDto;
 
-import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 
@@ -15,6 +20,7 @@ import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.DekningsgradTjeneste;
 import no.nav.foreldrepenger.behandling.revurdering.RevurderingTjeneste;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
+import no.nav.foreldrepenger.behandlingslager.BaseEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
@@ -33,8 +39,8 @@ import no.nav.foreldrepenger.behandlingslager.geografisk.Språkkode;
 import no.nav.foreldrepenger.dokumentbestiller.brevmal.BrevmalTjeneste;
 import no.nav.foreldrepenger.domene.uttak.Uttak;
 import no.nav.foreldrepenger.domene.uttak.UttakTjeneste;
-import no.nav.foreldrepenger.domene.vedtak.TotrinnTjeneste;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
+import no.nav.foreldrepenger.web.app.rest.ResourceLink;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.aksjonspunkt.AksjonspunktDtoMapper;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.aksjonspunkt.AksjonspunktRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.UuidDto;
@@ -42,7 +48,9 @@ import no.nav.foreldrepenger.web.app.tjenester.behandling.klage.KlageRestTjenest
 import no.nav.foreldrepenger.web.app.tjenester.behandling.kontroll.app.KontrollDtoTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.personopplysning.PersonRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.vedtak.app.TotrinnskontrollAksjonspunkterTjeneste;
-import no.nav.foreldrepenger.web.app.tjenester.behandling.verge.VergeTjeneste;
+import no.nav.foreldrepenger.web.app.tjenester.behandling.vedtak.dto.TotrinnskontrollSkjermlenkeContextDto;
+import no.nav.foreldrepenger.web.app.tjenester.behandling.vilkår.VilkårDto;
+import no.nav.foreldrepenger.web.app.tjenester.behandling.vilkår.VilkårDtoMapper;
 import no.nav.foreldrepenger.web.app.tjenester.brev.BrevRestTjeneste;
 
 /**
@@ -69,9 +77,7 @@ public class FagsakBehandlingDtoTjeneste {
                                        SkjæringstidspunktTjeneste skjæringstidspunktTjeneste,
                                        BehandlingDokumentRepository behandlingDokumentRepository,
                                        BrevmalTjeneste brevmalTjeneste,
-                                       TotrinnTjeneste totrinnTjeneste,
                                        TotrinnskontrollAksjonspunkterTjeneste totrinnskontrollTjeneste,
-                                       VergeTjeneste vergeTjeneste,
                                        KontrollDtoTjeneste kontrollDtoTjeneste,
                                        DekningsgradTjeneste dekningsgradTjeneste,
                                        UttakTjeneste uttakTjeneste,
@@ -99,65 +105,89 @@ public class FagsakBehandlingDtoTjeneste {
         if (behandlinger.isEmpty()) {
             return Collections.emptyList();
         }
-        var gjeldendeVedtak = behandlingVedtakRepository.hentGjeldendeVedtak(behandlinger.get(0).getFagsak());
+        var gjeldendeVedtak = behandlingVedtakRepository.hentGjeldendeVedtak(behandlinger.getFirst().getFagsak());
         var behandlingMedGjeldendeVedtak = gjeldendeVedtak.map(BehandlingVedtak::getBehandlingsresultat).map(Behandlingsresultat::getBehandlingId).map(behandlingRepository::hentBehandling);
         return behandlinger.stream().map(behandling -> {
             var erBehandlingMedGjeldendeVedtak = erBehandlingMedGjeldendeVedtak(behandling, behandlingMedGjeldendeVedtak);
             var behandlingsresultat = getBehandlingsresultat(behandling.getId());
-            var vedtaksdato = behandlingVedtakRepository.hentForBehandlingHvisEksisterer(behandling.getId())
-                .map(BehandlingVedtak::getVedtaksdato).orElse(null);
-            return lagBehandlingDto(behandling, behandlingsresultat, erBehandlingMedGjeldendeVedtak, vedtaksdato);
+            return lagBehandlingDto(behandling, behandlingsresultat, erBehandlingMedGjeldendeVedtak);
         }).toList();
     }
 
     private FagsakBehandlingDto lagBehandlingDto(Behandling behandling,
                                                  Behandlingsresultat behandlingsresultat,
-                                                 boolean erBehandlingMedGjeldendeVedtak,
-                                                 LocalDate vedtaksdato) {
-        var dto = new FagsakBehandlingDto();
-        var uuidDto = new UuidDto(behandling.getUuid());
+                                                 boolean erBehandlingMedGjeldendeVedtak) {
+        var uuid = behandling.getUuid();
+        var uuidDto = new UuidDto(uuid);
+        var versjon = behandling.getVersjon();
+        var type = behandling.getType();
+        var status = behandling.getStatus();
+        var behandlendeEnhetId = behandling.getBehandlendeOrganisasjonsEnhet().enhetId();
+        var behandlendeEnhetNavn = behandling.getBehandlendeOrganisasjonsEnhet().enhetNavn();
+        var erAktivPapirsoknad = erAktivPapirsøknad(behandling);
+        var behandlingPåVent = behandling.isBehandlingPåVent();
+        var behandlingHenlagt = getBehandlingsResultatType(behandlingsresultat).erHenlagt();
+        var fristDatoBehandlingPåVent = getFristDatoBehandlingPåVent(behandling).orElse(null);
+        var behandlingÅrsaker = lagBehandlingÅrsakDto(behandling);
+        List<VilkårDto> vilkår = !erAktivPapirsoknad ? VilkårDtoMapper.lagVilkarDto(behandling, behandlingsresultat) : List.of();
+        var ansvarligSaksbehandler = behandling.getAnsvarligSaksbehandler();
+        var brDto = lagBehandlingsresultatDto(behandling, behandlingsresultat).orElse(null);
+        var førsteÅrsak = førsteÅrsak(behandling).orElse(null);
+        var toTrinnsBehandling = behandling.isToTrinnsBehandling();
+        var behandlingTillatteOperasjoner = behandlingOperasjonerDtoTjeneste.lovligeOperasjoner(behandling);
+        var kontrollresultatDto = kontrollDtoTjeneste.lagKontrollresultatForBehandling(BehandlingReferanse.fra(behandling)).orElse(null);
+        var ugunstAksjonspunkt = BehandlingType.REVURDERING.equals(type) && behandling.harÅpentAksjonspunktMedType(
+            AksjonspunktDefinisjon.KONTROLLER_REVURDERINGSBEHANDLING_VARSEL_VED_UGUNST);
+        var aksjonspunktDto = BehandlingType.FØRSTEGANGSSØKNAD.equals(type) ? AksjonspunktDtoMapper.lagAksjonspunktDtoFor(behandling, behandlingsresultat,
+            AksjonspunktDefinisjon.VURDER_FARESIGNALER).orElse(null) : null;
+        var brevmaler = brevmalTjeneste.hentBrevmalerFor(behandling);
+        var totrinnskontrollÅrsaker = finnTotrinnDto(behandling, behandlingsresultat, type, status);
+        var links = lagLinks(behandling, uuidDto);
+        var opprettet = behandling.getOpprettetTidspunkt();
+        var språkkode = getSpråkkode(behandling);
 
-        BehandlingDtoUtil.setStandardfelterMedGjeldendeVedtak(behandling, behandlingsresultat, dto, erBehandlingMedGjeldendeVedtak, vedtaksdato);
-        dto.setSpråkkode(getSpråkkode(behandling));
-        dto.setBehandlingsresultat(lagBehandlingsresultatDto(behandling, behandlingsresultat).orElse(null));
+        return new FagsakBehandlingDto(uuid, behandlingTillatteOperasjoner, brevmaler, totrinnskontrollÅrsaker, aksjonspunktDto, kontrollresultatDto,
+            ugunstAksjonspunkt, ansvarligSaksbehandler, behandling.getAvsluttetDato(), førsteÅrsak, erBehandlingMedGjeldendeVedtak, opprettet,
+            toTrinnsBehandling, versjon, type, status, behandlendeEnhetId, erAktivPapirsoknad, erAktivPapirsoknad, behandlendeEnhetNavn,
+            behandlingHenlagt, språkkode, behandlingPåVent, brDto, behandlingÅrsaker, vilkår, fristDatoBehandlingPåVent, links);
+    }
 
-        // Felles for alle behandlingstyper
-        dto.setBehandlingTillatteOperasjoner(behandlingOperasjonerDtoTjeneste.lovligeOperasjoner(behandling));
-
+    private static List<ResourceLink> lagLinks(Behandling behandling, UuidDto uuidDto) {
+        var links = new ArrayList<ResourceLink>();
         if (behandling.erYtelseBehandling()) {
-            dto.leggTil(get(PersonRestTjeneste.PERSONOVERSIKT_PATH, "behandling-personoversikt", uuidDto));
+            links.add(get(PersonRestTjeneste.PERSONOVERSIKT_PATH, "behandling-personoversikt", uuidDto));
         }
-
-        if (BehandlingType.FØRSTEGANGSSØKNAD.equals(behandling.getType())) {
-            kontrollDtoTjeneste.lagKontrollresultatForBehandling(BehandlingReferanse.fra(behandling)).ifPresent(dto::setKontrollResultat);
-            AksjonspunktDtoMapper.lagAksjonspunktDtoFor(behandling, behandlingsresultat, AksjonspunktDefinisjon.VURDER_FARESIGNALER).ifPresent(dto::setRisikoAksjonspunkt);
-        }
-
-        if (BehandlingType.REVURDERING.equals(behandling.getType())) {
-            dto.setUgunstAksjonspunkt(behandling.harÅpentAksjonspunktMedType(AksjonspunktDefinisjon.KONTROLLER_REVURDERINGSBEHANDLING_VARSEL_VED_UGUNST));
-        }
-
         if (BehandlingType.KLAGE.equals(behandling.getType())) {
-            dto.leggTil(get(KlageRestTjeneste.KLAGE_V2_PATH, "klage-vurdering", uuidDto));
+            links.add(get(KlageRestTjeneste.KLAGE_V2_PATH, "klage-vurdering", uuidDto));
         }
+        if (!BehandlingType.INNSYN.equals(behandling.getType()) && BehandlingStatus.FATTER_VEDTAK.equals(behandling.getStatus())) {
+            links.add(post(AksjonspunktRestTjeneste.AKSJONSPUNKT_BESLUTT_PATH, "bekreft-totrinnsaksjonspunkt", uuidDto));
+        }
+        links.add(post(BrevRestTjeneste.BREV_BESTILL_PATH, "brev-bestill"));
+        links.add(post(BrevRestTjeneste.BREV_VIS_PATH, "brev-vis"));
+        return links;
+    }
 
-        dto.setTotrinnskontrollReadonly(true);
-        if (!BehandlingType.INNSYN.equals(behandling.getType())) {
+    private List<TotrinnskontrollSkjermlenkeContextDto> finnTotrinnDto(Behandling behandling,
+                                                                       Behandlingsresultat behandlingsresultat,
+                                                                       BehandlingType type,
+                                                                       BehandlingStatus status) {
+        if (!BehandlingType.INNSYN.equals(type)) {
             // Totrinnsbehandling
-            if (BehandlingStatus.FATTER_VEDTAK.equals(behandling.getStatus())) {
-                dto.setTotrinnskontrollÅrsaker(totrinnskontrollTjeneste.hentTotrinnsSkjermlenkeContext(behandling, behandlingsresultat));
-                dto.setTotrinnskontrollReadonly(false);
-                dto.leggTil(post(AksjonspunktRestTjeneste.AKSJONSPUNKT_BESLUTT_PATH, "bekreft-totrinnsaksjonspunkt", uuidDto));
-            } else if (BehandlingStatus.UTREDES.equals(behandling.getStatus())) {
-                dto.setTotrinnskontrollÅrsaker(totrinnskontrollTjeneste.hentTotrinnsvurderingSkjermlenkeContext(behandling, behandlingsresultat));
+            if (BehandlingStatus.FATTER_VEDTAK.equals(status)) {
+                return totrinnskontrollTjeneste.hentTotrinnsSkjermlenkeContext(behandling, behandlingsresultat);
+            } else if (BehandlingStatus.UTREDES.equals(status)) {
+                return totrinnskontrollTjeneste.hentTotrinnsvurderingSkjermlenkeContext(behandling, behandlingsresultat);
             }
         }
+        return List.of();
+    }
 
-        // Brev
-        dto.setBrevmaler(brevmalTjeneste.hentBrevmalerFor(behandling));
-        dto.leggTil(post(BrevRestTjeneste.BREV_BESTILL_PATH, "brev-bestill"));
-        dto.leggTil(post(BrevRestTjeneste.BREV_VIS_PATH, "brev-vis"));
-        return dto;
+    private static Optional<BehandlingÅrsakDto> førsteÅrsak(Behandling behandling) {
+        return behandling.getBehandlingÅrsaker().stream()
+            .sorted(Comparator.comparing(BaseEntitet::getOpprettetTidspunkt))
+            .map(BehandlingDtoUtil::map)
+            .findFirst();
     }
 
     private Språkkode getSpråkkode(Behandling behandling) {

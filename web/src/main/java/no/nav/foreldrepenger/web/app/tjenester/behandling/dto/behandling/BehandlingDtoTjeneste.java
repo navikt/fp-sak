@@ -3,7 +3,6 @@ package no.nav.foreldrepenger.web.app.tjenester.behandling.dto.behandling;
 import static no.nav.foreldrepenger.web.app.rest.ResourceLinks.get;
 import static no.nav.foreldrepenger.web.app.rest.ResourceLinks.post;
 
-import java.time.LocalDate;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -35,8 +34,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.tilbakekreving.TilbakekrevingRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtak;
-import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtakRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.verge.VergeRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.AvklarteUttakDatoerEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelseFordelingAggregat;
@@ -116,7 +113,6 @@ public class BehandlingDtoTjeneste {
     private BehandlingsresultatRepository behandlingsresultatRepository;
     private BeregningsresultatRepository beregningsresultatRepository;
     private EngangsstønadBeregningRepository engangsstønadBeregningRepository;
-    private BehandlingVedtakRepository behandlingVedtakRepository;
     private BehandlingDokumentRepository behandlingDokumentRepository;
     private TotrinnTjeneste totrinnTjeneste;
     private YtelsesFordelingRepository ytelsesFordelingRepository;
@@ -156,7 +152,6 @@ public class BehandlingDtoTjeneste {
         this.behandlingRepository = repositoryProvider.getBehandlingRepository();
         this.behandlingsresultatRepository = repositoryProvider.getBehandlingsresultatRepository();
         this.beregningsresultatRepository = repositoryProvider.getBeregningsresultatRepository();
-        this.behandlingVedtakRepository = repositoryProvider.getBehandlingVedtakRepository();
         this.behandlingDokumentRepository = behandlingDokumentRepository;
         this.totrinnTjeneste = totrinnTjeneste;
         this.ytelsesFordelingRepository = repositoryProvider.getYtelsesFordelingRepository();
@@ -182,16 +177,14 @@ public class BehandlingDtoTjeneste {
             .flatMap(behandlingRepository::hentSisteYtelsesBehandlingForFagsakId);
     }
 
-    private BehandlingDto lagBehandlingDto(Behandling behandling,
-                                           Optional<BehandlingsresultatDto> behandlingsresultatDto,
-                                           boolean erBehandlingMedGjeldendeVedtak,
-                                           LocalDate vedtaksdato) {
-        var dto = new BehandlingDto();
+    private UtvidetBehandlingDto lagBehandlingDto(Behandling behandling,
+                                           Optional<BehandlingsresultatDto> behandlingsresultatDto) {
+        var dto = new UtvidetBehandlingDto();
         var uuidDto = new UuidDto(behandling.getUuid());
-        BehandlingDtoUtil.setStandardfelterMedGjeldendeVedtak(behandling, getBehandlingsresultat(behandling.getId()), dto,
-            erBehandlingMedGjeldendeVedtak, vedtaksdato);
+        BehandlingDtoUtil.setStandardfelter(behandling, getBehandlingsresultat(behandling.getId()), dto);
         dto.setSpråkkode(getSpråkkode(behandling));
         dto.setBehandlingsresultat(behandlingsresultatDto.orElse(null));
+        getVenteÅrsak(behandling).ifPresent(dto::setVenteÅrsakKode);
 
         if (behandling.erYtelseBehandling()) {
             dto.leggTil(get(PersonRestTjeneste.PERSONOVERSIKT_PATH, "behandling-personoversikt", uuidDto));
@@ -208,6 +201,14 @@ public class BehandlingDtoTjeneste {
         return dto;
     }
 
+    private static Optional<String> getVenteÅrsak(Behandling behandling) {
+        var venteårsak = behandling.getVenteårsak();
+        if (venteårsak != null) {
+            return Optional.of(venteårsak.getKode());
+        }
+        return Optional.empty();
+    }
+
     private Språkkode getSpråkkode(Behandling behandling) {
         if (!behandling.erYtelseBehandling()) {
             return behandlingRepository.finnSisteIkkeHenlagteYtelseBehandlingFor(behandling.getFagsakId())
@@ -220,49 +221,32 @@ public class BehandlingDtoTjeneste {
             .orElseGet(() -> behandling.getFagsak().getNavBruker().getSpråkkode());
     }
 
-    public List<BehandlingDto> lagBehandlingDtoer(List<Behandling> behandlinger) {
+    public List<UtvidetBehandlingDto> lagBehandlingDtoer(List<Behandling> behandlinger) {
         if (behandlinger.isEmpty()) {
             return Collections.emptyList();
         }
-        var gjeldendeVedtak = behandlingVedtakRepository.hentGjeldendeVedtak(behandlinger.get(0).getFagsak());
-        var behandlingMedGjeldendeVedtak = gjeldendeVedtak.map(BehandlingVedtak::getBehandlingsresultat)
-            .map(Behandlingsresultat::getBehandlingId)
-            .map(behandlingRepository::hentBehandling);
         return behandlinger.stream().map(behandling -> {
-            var erBehandlingMedGjeldendeVedtak = erBehandlingMedGjeldendeVedtak(behandling, behandlingMedGjeldendeVedtak);
             var behandlingsresultatDto = lagBehandlingsresultatDto(behandling);
-            var vedtaksdato = behandlingVedtakRepository.hentForBehandlingHvisEksisterer(behandling.getId())
-                .map(BehandlingVedtak::getVedtaksdato)
-                .orElse(null);
-            return lagBehandlingDto(behandling, behandlingsresultatDto, erBehandlingMedGjeldendeVedtak, vedtaksdato);
+            return lagBehandlingDto(behandling, behandlingsresultatDto);
         }).toList();
     }
 
-    private boolean erBehandlingMedGjeldendeVedtak(Behandling behandling, Optional<Behandling> behandlingMedGjeldendeVedtak) {
-        return behandlingMedGjeldendeVedtak.filter(b -> b.getId().equals(behandling.getId())).isPresent();
-    }
-
     public UtvidetBehandlingDto lagUtvidetBehandlingDto(Behandling behandling, AsyncPollingStatus asyncStatus) {
-        var sisteAvsluttedeIkkeHenlagteBehandling = behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(behandling.getFagsakId());
-        var dto = mapFra(behandling, erBehandlingMedGjeldendeVedtak(behandling, sisteAvsluttedeIkkeHenlagteBehandling));
+        var dto = mapFra(behandling);
         if (asyncStatus != null && !asyncStatus.isPending()) {
             dto.setAsyncStatus(asyncStatus);
         }
         return dto;
     }
 
-    private void settStandardfelterUtvidet(Behandling behandling, UtvidetBehandlingDto dto, boolean erBehandlingMedGjeldendeVedtak) {
-        var vedtaksDato = behandlingVedtakRepository.hentForBehandlingHvisEksisterer(behandling.getId())
-            .map(BehandlingVedtak::getVedtaksdato)
-            .orElse(null);
-        BehandlingDtoUtil.settStandardfelterUtvidet(behandling, getBehandlingsresultat(behandling.getId()), dto, erBehandlingMedGjeldendeVedtak,
-            vedtaksDato);
+    private void settStandardfelterUtvidet(Behandling behandling, UtvidetBehandlingDto dto) {
+        BehandlingDtoUtil.settStandardfelterUtvidet(behandling, getBehandlingsresultat(behandling.getId()), dto);
         dto.setSpråkkode(getSpråkkode(behandling));
         var behandlingsresultatDto = lagBehandlingsresultatDto(behandling);
         dto.setBehandlingsresultat(behandlingsresultatDto.orElse(null));
     }
 
-    private void leggTilLenkerForBehandlingsoperasjoner(Behandling behandling, BehandlingDto dto) {
+    private void leggTilLenkerForBehandlingsoperasjoner(Behandling behandling, UtvidetBehandlingDto dto) {
         // Felles for alle behandlingstyper
         dto.leggTil(post(BehandlingRestTjeneste.BYTT_ENHET_PATH, "bytt-behandlende-enhet", new ByttBehandlendeEnhetDto()));
         dto.leggTil(post(BehandlingRestTjeneste.HENLEGG_PATH, "henlegg-behandling", new HenleggBehandlingDto()));
@@ -296,9 +280,9 @@ public class BehandlingDtoTjeneste {
         }
     }
 
-    private UtvidetBehandlingDto mapFra(Behandling behandling, boolean erBehandlingMedGjeldendeVedtak) {
+    private UtvidetBehandlingDto mapFra(Behandling behandling) {
         var dto = new UtvidetBehandlingDto();
-        settStandardfelterUtvidet(behandling, dto, erBehandlingMedGjeldendeVedtak);
+        settStandardfelterUtvidet(behandling, dto);
 
         leggTilLenkerForBehandlingsoperasjoner(behandling, dto);
 
@@ -349,9 +333,7 @@ public class BehandlingDtoTjeneste {
     private UtvidetBehandlingDto utvideBehandlingDto(Behandling behandling, UtvidetBehandlingDto dto) {
         var uuidDto = new UuidDto(behandling.getUuid());
         // mapping ved hjelp av tjenester
-        var harInnhentetRegisterData = behandlingRepository.hentSistOppdatertTidspunkt(behandling.getId()).isPresent();
         var harSakenSøknad = søknadRepository.hentSøknadHvisEksisterer(behandling.getId()).isPresent();
-        dto.setHarRegisterdata(harInnhentetRegisterData);
         dto.setHarSøknad(harSakenSøknad);
         dto.leggTil(get(SøknadRestTjeneste.SØKNAD_PATH, "søknad", uuidDto));
 
@@ -396,12 +378,10 @@ public class BehandlingDtoTjeneste {
             var beregning = engangsstønadBeregningRepository.hentEngangsstønadBeregning(behandling.getId()).isPresent();
             if (beregning || harSimuleringAksjonspunkt) {
                 dto.leggTil(get(BeregningsresultatRestTjeneste.ENGANGSTONAD_PATH, "beregningsresultat-engangsstonad", uuidDto));
-                dto.setSjekkSimuleringResultat(true);
                 dto.leggTil(get(TilbakekrevingRestTjeneste.SIMULERING_PATH, "simulering-resultat", uuidDto));
             }
         } else {
             if (harSimuleringAksjonspunkt || beregningsresultatRepository.hentUtbetBeregningsresultat(behandling.getId()).isPresent()) {
-                dto.setSjekkSimuleringResultat(true);
                 dto.leggTil(get(TilbakekrevingRestTjeneste.SIMULERING_PATH, "simulering-resultat", uuidDto));
             }
             dto.leggTil(get(YtelsefordelingRestTjeneste.YTELSESFORDELING_PATH, "ytelsefordeling", uuidDto));
@@ -419,6 +399,7 @@ public class BehandlingDtoTjeneste {
                 }
             }
 
+            var harInnhentetRegisterData = behandlingRepository.hentSistOppdatertTidspunkt(behandling.getId()).isPresent();
             if (harInnhentetRegisterData) {
                 dto.leggTil(get(ArbeidOgInntektsmeldingRestTjeneste.ARBEID_OG_INNTEKTSMELDING_PATH, "arbeidsforhold-inntektsmelding", uuidDto));
                 dto.leggTil(post(ArbeidOgInntektsmeldingRestTjeneste.REGISTRER_ARBEIDSFORHOLD_PATH, "arbeidsforhold-inntektsmelding-registrer",
