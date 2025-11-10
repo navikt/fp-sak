@@ -60,9 +60,6 @@ public class UtvidetBehandlingDto {
     @JsonProperty("behandlendeEnhetNavn")
     @NotNull
     private String behandlendeEnhetNavn;
-    @JsonProperty("erAktivPapirsoknad")
-    @NotNull
-    private boolean erAktivPapirsoknad;
     @JsonProperty("aktivPapirsøknad")
     @NotNull
     private boolean aktivPapirsøknad;
@@ -199,10 +196,6 @@ public class UtvidetBehandlingDto {
         return vilkår;
     }
 
-    public boolean isErAktivPapirsoknad() {
-        return erAktivPapirsoknad;
-    }
-
     public List<ResourceLink> getLinks() {
         return Collections.unmodifiableList(links);
     }
@@ -256,9 +249,12 @@ public class UtvidetBehandlingDto {
         this.behandlendeEnhetNavn = behandlendeEnhetNavn;
     }
 
-    void setErAktivPapirsøknad(boolean erAktivPapirsoknad) {
-        this.erAktivPapirsoknad = erAktivPapirsoknad;
-        this.aktivPapirsøknad = erAktivPapirsoknad;
+    public void setAktivPapirsøknad(boolean aktivPapirsøknad) {
+        this.aktivPapirsøknad = aktivPapirsøknad;
+    }
+
+    public boolean isAktivPapirsøknad() {
+        return aktivPapirsøknad;
     }
 
     void leggTil(ResourceLink link) {

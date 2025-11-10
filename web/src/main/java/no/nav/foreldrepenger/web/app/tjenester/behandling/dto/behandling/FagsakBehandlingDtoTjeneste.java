@@ -124,12 +124,12 @@ public class FagsakBehandlingDtoTjeneste {
         var status = behandling.getStatus();
         var behandlendeEnhetId = behandling.getBehandlendeOrganisasjonsEnhet().enhetId();
         var behandlendeEnhetNavn = behandling.getBehandlendeOrganisasjonsEnhet().enhetNavn();
-        var erAktivPapirsoknad = erAktivPapirsøknad(behandling);
+        var erAktivPapirsøknad = erAktivPapirsøknad(behandling);
         var behandlingPåVent = behandling.isBehandlingPåVent();
         var behandlingHenlagt = getBehandlingsResultatType(behandlingsresultat).erHenlagt();
         var fristDatoBehandlingPåVent = getFristDatoBehandlingPåVent(behandling).orElse(null);
         var behandlingÅrsaker = lagBehandlingÅrsakDto(behandling);
-        List<VilkårDto> vilkår = !erAktivPapirsoknad ? VilkårDtoMapper.lagVilkarDto(behandling, behandlingsresultat) : List.of();
+        List<VilkårDto> vilkår = !erAktivPapirsøknad ? VilkårDtoMapper.lagVilkarDto(behandling, behandlingsresultat) : List.of();
         var ansvarligSaksbehandler = behandling.getAnsvarligSaksbehandler();
         var brDto = lagBehandlingsresultatDto(behandling, behandlingsresultat).orElse(null);
         var førsteÅrsak = førsteÅrsak(behandling).orElse(null);
@@ -148,7 +148,7 @@ public class FagsakBehandlingDtoTjeneste {
 
         return new FagsakBehandlingDto(uuid, behandlingTillatteOperasjoner, brevmaler, totrinnskontrollÅrsaker, aksjonspunktDto, kontrollresultatDto,
             ugunstAksjonspunkt, ansvarligSaksbehandler, behandling.getAvsluttetDato(), førsteÅrsak, erBehandlingMedGjeldendeVedtak, opprettet,
-            toTrinnsBehandling, versjon, type, status, behandlendeEnhetId, erAktivPapirsoknad, erAktivPapirsoknad, behandlendeEnhetNavn,
+            toTrinnsBehandling, versjon, type, status, behandlendeEnhetId, erAktivPapirsøknad, behandlendeEnhetNavn,
             behandlingHenlagt, språkkode, behandlingPåVent, brDto, behandlingÅrsaker, vilkår, fristDatoBehandlingPåVent, links);
     }
 

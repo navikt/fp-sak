@@ -51,7 +51,7 @@ final class BehandlingDtoUtil {
         dto.setStatus(behandling.getStatus());
         dto.setBehandlendeEnhetId(behandling.getBehandlendeOrganisasjonsEnhet().enhetId());
         dto.setBehandlendeEnhetNavn(behandling.getBehandlendeOrganisasjonsEnhet().enhetNavn());
-        dto.setErAktivPapirsøknad(erAktivPapirsøknad(behandling));
+        dto.setAktivPapirsøknad(erAktivPapirsøknad(behandling));
         dto.setBehandlingPåVent(behandling.isBehandlingPåVent());
         dto.setBehandlingHenlagt(getBehandlingsResultatType(behandlingsresultat).erHenlagt());
         getFristDatoBehandlingPåVent(behandling).ifPresent(dto::setFristBehandlingPåVent);
