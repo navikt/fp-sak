@@ -26,6 +26,7 @@ import no.nav.foreldrepenger.behandlingslager.hendelser.HendelseSorteringReposit
 import no.nav.foreldrepenger.behandlingslager.hendelser.HendelsemottakRepository;
 import no.nav.foreldrepenger.domene.json.StandardJsonConfig;
 import no.nav.foreldrepenger.domene.typer.AktørId;
+import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.kontrakter.abonnent.v2.AktørIdDto;
 import no.nav.foreldrepenger.kontrakter.abonnent.v2.HendelseDto;
 import no.nav.foreldrepenger.kontrakter.abonnent.v2.HendelseWrapperDto;
@@ -105,7 +106,13 @@ public class HendelserRestTjeneste {
     public List<String> grovSorterHistorisk(@TilpassetAbacAttributt(supplierClass = HendelserRestTjeneste.AktørIdDtoAbacDataSupplier.class)
                                    @Parameter(description = "Liste med aktør IDer som skal sorteres") @Valid List<AktørIdDto> aktoerIdListe) {
         var aktørIdList = aktoerIdListe.stream().map(AktørIdDto::getAktørId).map(AktørId::new).collect(Collectors.toSet());
-        return sorteringRepository.hentEksisterendeAktørIderMedHistoriskSak(aktørIdList).stream().map(AktørId::getId).toList();
+        var funnet = sorteringRepository.hentEksisterendeAktørIderMedHistoriskSak(aktørIdList);
+        if (!funnet.isEmpty()) {
+            var saker = sorteringRepository.hentSakerForAktørIder(new HashSet<>(funnet));
+            var saksnummerliste = saker.stream().map(Saksnummer::getVerdi).collect(Collectors.joining(", "));
+            LOG.warn("Falsk-Identitet hendelse aktuell for saker {}", saksnummerliste);
+        }
+        return funnet.stream().map(AktørId::getId).toList();
     }
 
     private EnkelRespons registrerHendelse(HendelseDto hendelse, String beskrivelse) {
