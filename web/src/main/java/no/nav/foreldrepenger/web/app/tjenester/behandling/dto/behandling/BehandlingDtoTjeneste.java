@@ -337,7 +337,7 @@ public class BehandlingDtoTjeneste {
         dto.setHarSøknad(harSakenSøknad);
         dto.leggTil(get(SøknadRestTjeneste.SØKNAD_PATH, "søknad", uuidDto));
 
-        if (dto.isErAktivPapirsoknad()) {
+        if (dto.isAktivPapirsøknad()) {
             return dto;
         }
 
