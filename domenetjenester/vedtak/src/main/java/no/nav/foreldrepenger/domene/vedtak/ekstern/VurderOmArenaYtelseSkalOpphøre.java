@@ -118,7 +118,7 @@ public class VurderOmArenaYtelseSkalOpphøre {
                 .map(it -> new YtelseFilter(it.getAktørYtelseFraRegister(aktørId)).før(skjæringstidspunkt)).orElse(YtelseFilter.EMPTY);
 
         return ytelseFilter
-            .filter(y -> Fagsystem.ARENA.equals(y.getKilde()))
+            .filter(y -> Fagsystem.ARENA.equals(y.getKilde()) || Fagsystem.KELVIN.equals(y.getKilde()))
             .getFiltrertYtelser();
     }
 

@@ -16,6 +16,7 @@ public enum Fagsystem implements Kodeverdi, MedOffisiellKode {
     JOARK("JOARK", "Joark", "AS36"),
     INFOTRYGD("INFOTRYGD", "Infotrygd", "IT01"),
     ARENA("ARENA", "Arena", "AO01"),
+    KELVIN("KELVIN", "Kelvin", "KELVIN"),
     INNTEKT("INNTEKT", "INNTEKT", "FS28"),
     MEDL("MEDL", "MEDL", "FS18"),
     GOSYS("GOSYS", "Gosys", "FS22"),

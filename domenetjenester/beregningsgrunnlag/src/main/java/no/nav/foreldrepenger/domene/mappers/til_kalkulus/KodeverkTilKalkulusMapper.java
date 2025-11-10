@@ -240,6 +240,7 @@ public class KodeverkTilKalkulusMapper {
             case FPSAK -> YtelseKilde.FPSAK;
             case INFOTRYGD -> YtelseKilde.INFOTRYGD;
             case ARENA -> YtelseKilde.ARENA;
+            case KELVIN ->  YtelseKilde.KELVIN;
             case K9SAK -> YtelseKilde.K9SAK;
             case VLSP -> YtelseKilde.VLSP;
             case UDEFINERT -> YtelseKilde.UDEFINERT;
