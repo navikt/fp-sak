@@ -1,6 +1,6 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.vilkår.aksjonspunkt;
 
-import static no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagLinjeBuilder.fraTilEquals;
+import static no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagLinjeBuilder.tilNullable;
 
 import java.util.Optional;
 
@@ -60,8 +60,8 @@ public abstract class InngangsvilkårOverstyringshåndterer<T extends Overstyrin
             .medBehandlingId(ref.behandlingId())
             .medFagsakId(ref.fagsakId())
             .addLinje(dto.getAksjonspunktDefinisjon().getNavn())
-            .addLinje(fraTilEquals(vilkårType.getNavn(), null, utfall))
-            .addLinje(fraTilEquals("Avslagsårsak", null, avslagsårsak))
+            .addLinje(tilNullable(vilkårType.getNavn(), utfall))
+            .addLinje(tilNullable("Avslagsårsak", avslagsårsak))
             .addLinje(dto.getBegrunnelse())
             .build();
         historikkinnslagRepository.lagre(historikkinnslag);

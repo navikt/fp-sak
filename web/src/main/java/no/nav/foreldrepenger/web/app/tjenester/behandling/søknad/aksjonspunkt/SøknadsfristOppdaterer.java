@@ -1,6 +1,7 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.søknad.aksjonspunkt;
 
 import static no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagLinjeBuilder.fraTilEquals;
+import static no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagLinjeBuilder.tilNullable;
 import static no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType.SØKNADSFRISTVILKÅRET;
 
 import java.util.Optional;
@@ -59,8 +60,8 @@ public class SøknadsfristOppdaterer implements AksjonspunktOppdaterer<Soknadsfr
             .medBehandlingId(param.getBehandlingId())
             .medTittel(SkjermlenkeType.SOEKNADSFRIST)
             .medAktør(HistorikkAktør.SAKSBEHANDLER)
-            .addLinje(fraTilEquals(SØKNADSFRISTVILKÅRET.getNavn(), null, utfall))
-            .addLinje(fraTilEquals("Avslagsårsak", null, avslagsårsak))
+            .addLinje(tilNullable(SØKNADSFRISTVILKÅRET.getNavn(), utfall))
+            .addLinje(tilNullable("Avslagsårsak", avslagsårsak))
             .addLinje(dto.getBegrunnelse())
             .build();
         historikkinnslagRepository.lagre(historikkinnslag);
