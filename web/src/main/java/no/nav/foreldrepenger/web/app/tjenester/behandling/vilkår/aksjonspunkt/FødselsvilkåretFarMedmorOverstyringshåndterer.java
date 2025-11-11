@@ -21,13 +21,14 @@ public class FødselsvilkåretFarMedmorOverstyringshåndterer extends Inngangsvi
     }
 
     @Inject
-    public FødselsvilkåretFarMedmorOverstyringshåndterer(InngangsvilkårTjeneste inngangsvilkårTjeneste, HistorikkinnslagRepository historikkinnslagRepository) {
+    public FødselsvilkåretFarMedmorOverstyringshåndterer(InngangsvilkårTjeneste inngangsvilkårTjeneste,
+                                                         HistorikkinnslagRepository historikkinnslagRepository) {
         super(VilkårType.FØDSELSVILKÅRET_FAR_MEDMOR, inngangsvilkårTjeneste, historikkinnslagRepository);
     }
 
 
     @Override
     public void lagHistorikkInnslag(OverstyringFødselvilkåretFarMedmorDto dto, BehandlingReferanse ref) {
-        lagHistorikkInnslagForOverstyrtVilkår(ref, dto.getBegrunnelse(), dto.getErVilkarOk(), SkjermlenkeType.PUNKT_FOR_FOEDSEL);
+        lagHistorikkInnslagForOverstyrtVilkår(ref, dto, SkjermlenkeType.PUNKT_FOR_FOEDSEL);
     }
 }

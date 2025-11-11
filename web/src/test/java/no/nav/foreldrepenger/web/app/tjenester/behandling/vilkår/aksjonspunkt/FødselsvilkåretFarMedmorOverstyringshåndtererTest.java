@@ -55,7 +55,7 @@ class FødselsvilkåretFarMedmorOverstyringshåndtererTest {
         var lås = new BehandlingLås(behandling.getId());
         // Dto
         var overstyringDto = new OverstyringFødselvilkåretFarMedmorDto(
-                false, "test overstyring av inngangsvilkår far/medmor", Avslagsårsak.INGEN_BARN_DOKUMENTERT_PÅ_FAR_MEDMOR.getKode());
+                false, "test overstyring av inngangsvilkår far/medmor.", Avslagsårsak.INGEN_BARN_DOKUMENTERT_PÅ_FAR_MEDMOR.getKode());
         assertThat(behandling.getAksjonspunkter()).hasSize(1);
 
         // Act
@@ -63,10 +63,10 @@ class FødselsvilkåretFarMedmorOverstyringshåndtererTest {
 
         // Assert
         var historikkinnslagene = repositoryProvider.getHistorikkinnslagRepository().hent(behandling.getSaksnummer());
-        var linjer = historikkinnslagene.getFirst().getLinjer();
-        assertThat(linjer).hasSize(2);
-        assertThat(linjer.getFirst().getTekst()).contains("Overstyrt vurdering", "ikke oppfylt");
-        assertThat(linjer.get(1).getTekst()).contains(overstyringDto.getBegrunnelse());
+
+        assertThat(historikkinnslagene.getFirst().getTekstLinjer()).containsExactly("Overstyring av fødselsvilkåret for far/medmor.",
+            "__Fødselsvilkår for far/medmor__ er satt til __Ikke oppfylt__.",
+            "__Avslagsårsak__ er satt til __Ingen barn dokumentert på far/medmor__.", overstyringDto.getBegrunnelse());
 
         var aksjonspunktSet = behandling.getAksjonspunkter();
 

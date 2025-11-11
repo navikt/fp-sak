@@ -28,6 +28,6 @@ public class FødselsvilkåretOverstyringshåndterer extends InngangsvilkårOver
 
     @Override
     public void lagHistorikkInnslag(OverstyringFødselsvilkåretDto dto, BehandlingReferanse ref) {
-        lagHistorikkInnslagForOverstyrtVilkår(ref, dto.getBegrunnelse(), dto.getErVilkarOk(), SkjermlenkeType.PUNKT_FOR_FOEDSEL);
+        lagHistorikkInnslagForOverstyrtVilkår(ref, dto, SkjermlenkeType.PUNKT_FOR_FOEDSEL);
     }
 }

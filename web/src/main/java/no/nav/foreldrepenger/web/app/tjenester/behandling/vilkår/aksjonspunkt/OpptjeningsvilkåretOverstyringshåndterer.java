@@ -38,19 +38,22 @@ public class OpptjeningsvilkåretOverstyringshåndterer extends InngangsvilkårO
 
     @Override
     public void lagHistorikkInnslag(OverstyringOpptjeningsvilkåretDto dto, BehandlingReferanse ref) {
-        lagHistorikkInnslagForOverstyrtVilkår(ref, dto.getBegrunnelse(), dto.getErVilkarOk(), SkjermlenkeType.PUNKT_FOR_OPPTJENING);
+        lagHistorikkInnslagForOverstyrtVilkår(ref, dto, SkjermlenkeType.PUNKT_FOR_OPPTJENING);
     }
 
     @Override
     public void precondition(OverstyringOpptjeningsvilkåretDto dto, BehandlingReferanse ref) {
         if (dto.getErVilkarOk()) {
-            var ant = opptjeningRepository.finnOpptjening(ref.behandlingId()).map(Opptjening::getOpptjeningAktivitet).orElse(List.of()).stream()
+            var ant = opptjeningRepository.finnOpptjening(ref.behandlingId())
+                .map(Opptjening::getOpptjeningAktivitet)
+                .orElse(List.of())
+                .stream()
                 .filter(oa -> !oa.getAktivitetType().equals(OpptjeningAktivitetType.UTENLANDSK_ARBEIDSFORHOLD))
                 .count();
             if (ant > 0) {
                 return;
             }
-            throw new FunksjonellException( "FP-093923",
+            throw new FunksjonellException("FP-093923",
                 "Kan ikke overstyre vilkår. Det må være minst en aktivitet for at opptjeningsvilkåret skal kunne overstyres.",
                 "Sett på vent til det er mulig og manuelt legge inn aktiviteter ved overstyring.");
         }

@@ -16,7 +16,7 @@ public class VurdereYtelseSammeBarnSøkerAksjonspunktDto extends BekreftetAksjon
 
 
     @NotNull
-    private Boolean erVilkarOk;
+    private boolean erVilkarOk;
 
     @Size(min = 1, max = 100)
     @Pattern(regexp = InputValideringRegex.KODEVERK)
@@ -32,7 +32,7 @@ public class VurdereYtelseSammeBarnSøkerAksjonspunktDto extends BekreftetAksjon
     }
 
     @Override
-    public Boolean getErVilkarOk() {
+    public boolean getErVilkarOk() {
         return erVilkarOk;
     }
 
