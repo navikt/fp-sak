@@ -1,6 +1,5 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.søknad.aksjonspunkt;
 
-import static no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagLinjeBuilder.fraTilEquals;
 import static no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagLinjeBuilder.tilNullable;
 import static no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType.SØKNADSFRISTVILKÅRET;
 
