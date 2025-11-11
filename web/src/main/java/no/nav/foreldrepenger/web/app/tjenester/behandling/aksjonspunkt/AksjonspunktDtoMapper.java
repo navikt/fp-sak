@@ -47,9 +47,6 @@ public class AksjonspunktDtoMapper {
         dto.setBegrunnelse(aksjonspunkt.getBegrunnelse());
         dto.setVilkarType(finnVilkårType(aksjonspunkt, behandlingsresultat));
         dto.setToTrinnsBehandling(aksjonspunkt.isToTrinnsBehandling());
-        dto.setFristTid(aksjonspunkt.getFristTid());
-        dto.setEndretAv(aksjonspunkt.getEndretAv());
-        dto.setEndretTidspunkt(aksjonspunkt.getEndretTidspunkt());
 
         var vurdering = ttVurderinger.stream().filter(v -> v.getAksjonspunktDefinisjon() == aksjonspunkt.getAksjonspunktDefinisjon()).findFirst();
         vurdering.ifPresent(ttVurdering -> {

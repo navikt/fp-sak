@@ -101,8 +101,6 @@ class FamiliehendelseRestTjenesteTest {
         var adopsjonDto = result.adopsjon();
         assertThat(adopsjonDto.antallBarn()).isEqualTo(2);
         assertThat(adopsjonDto.omsorgsovertakelseDato()).isEqualTo(omsorgsovertakelseDato);
-        assertThat(adopsjonDto.foreldreansvarDato()).isEqualTo(foreldreansvarDato);
-        assertThat(adopsjonDto.ankomstNorge()).isEqualTo(ankomstNorgeDato);
         assertThat(adopsjonDto.omsorgsovertakelseVilkårType()).isEqualTo(OmsorgsovertakelseVilkårType.ES_OMSORGSVILKÅRET);
         assertThat(adopsjonDto.ektefellesBarn()).isTrue();
         assertThat(adopsjonDto.mannAdoptererAlene()).isFalse();
@@ -136,8 +134,6 @@ class FamiliehendelseRestTjenesteTest {
         var adopsjonDto = result.adopsjon();
         assertThat(adopsjonDto.antallBarn()).isEqualTo(1);
         assertThat(adopsjonDto.omsorgsovertakelseDato()).isEqualTo(omsorgsovertakelseDato);
-        assertThat(adopsjonDto.foreldreansvarDato()).isNull();
-        assertThat(adopsjonDto.ankomstNorge()).isNull();
         assertThat(adopsjonDto.omsorgsovertakelseVilkårType()).isNotNull();
         assertThat(adopsjonDto.ektefellesBarn()).isFalse();
         assertThat(adopsjonDto.mannAdoptererAlene()).isFalse();

@@ -5,17 +5,14 @@ import jakarta.validation.constraints.NotNull;
 import no.nav.foreldrepenger.behandlingslager.behandling.tilbakekreving.TilbakekrevingVidereBehandling;
 
 public class TilbakekrevingValgDto {
-    private Boolean erTilbakekrevingVilkårOppfylt;
+    private final Boolean erTilbakekrevingVilkårOppfylt;
 
-    private Boolean grunnerTilReduksjon; //null når !erTilbakekrevingVilkårOppfylt
+    @NotNull private final TilbakekrevingVidereBehandling videreBehandling;  //null når erTilbakekrevingVilkårOppfylt
 
-    @NotNull private TilbakekrevingVidereBehandling videreBehandling;  //null når erTilbakekrevingVilkårOppfylt
+    private final String varseltekst;
 
-    private String varseltekst;
-
-    public TilbakekrevingValgDto(Boolean erTilbakekrevingVilkårOppfylt, Boolean grunnerTilReduksjon, TilbakekrevingVidereBehandling videreBehandling, String varseltekst) {
+    public TilbakekrevingValgDto(Boolean erTilbakekrevingVilkårOppfylt, TilbakekrevingVidereBehandling videreBehandling, String varseltekst) {
         this.erTilbakekrevingVilkårOppfylt = erTilbakekrevingVilkårOppfylt;
-        this.grunnerTilReduksjon = grunnerTilReduksjon;
         this.videreBehandling = videreBehandling;
         this.varseltekst = varseltekst;
     }
@@ -28,9 +25,6 @@ public class TilbakekrevingValgDto {
         return erTilbakekrevingVilkårOppfylt;
     }
 
-    public Boolean getGrunnerTilReduksjon() {
-        return grunnerTilReduksjon;
-    }
 
     public TilbakekrevingVidereBehandling getVidereBehandling() {
         return videreBehandling;

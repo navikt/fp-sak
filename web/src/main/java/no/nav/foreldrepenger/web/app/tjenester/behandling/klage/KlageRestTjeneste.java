@@ -251,7 +251,6 @@ public class KlageRestTjeneste {
             klageVurderingResultat.getKlageMedholdÅrsak(),
             klageVurderingResultat.getKlageVurderingOmgjør(),
             klageVurderingResultat.getKlageHjemmel(),
-            klageVurderingResultat.isGodkjentAvMedunderskriver(),
             klageVurderingResultat.getFritekstTilBrev());
     }
 
@@ -262,7 +261,6 @@ public class KlageRestTjeneste {
             KlageMedholdÅrsak.UDEFINERT,
             KlageVurderingOmgjør.UDEFINERT,
             KlageHjemmel.UDEFINERT,
-            false,
             null);
     }
 
@@ -272,12 +270,8 @@ public class KlageRestTjeneste {
         var paKlagdEksternBehandlingUuid = klageFormkrav.hentKlageResultat().getPåKlagdEksternBehandlingUuid();
         Optional<TilbakeBehandlingDto> tilbakekrevingVedtakDto = påklagdBehandling.isPresent() ? Optional.empty() :
             paKlagdEksternBehandlingUuid.flatMap(b -> hentPåklagdBehandlingIdForEksternApplikasjon(b, fptilbakeRestKlient));
-        var behandlingId = påklagdBehandling.map(Behandling::getId).orElseGet(() -> tilbakekrevingVedtakDto.map(TilbakeBehandlingDto::id).orElse(null));
         var behandlingUuid = påklagdBehandling.map(Behandling::getUuid).orElseGet(() -> tilbakekrevingVedtakDto.map(TilbakeBehandlingDto::uuid).orElse(null));
-        var behandlingType = påklagdBehandling.map(Behandling::getType).orElseGet(() -> tilbakekrevingVedtakDto.map(TilbakeBehandlingDto::type).orElse(null));
-        return new KlageFormkravResultatDto(behandlingId,
-            behandlingUuid,
-            behandlingType,
+        return new KlageFormkravResultatDto(behandlingUuid,
             klageFormkrav.hentBegrunnelse(),
             klageFormkrav.erKlagerPart(),
             klageFormkrav.erKonkret(),

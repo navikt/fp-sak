@@ -23,9 +23,6 @@ public class AksjonspunktDto {
     @NotNull private AksjonspunktType aksjonspunktType;
     @NotNull private Boolean kanLoses;
     @NotNull private Boolean erAktivt;
-    private LocalDateTime fristTid;
-    private LocalDateTime endretTidspunkt;
-    private String endretAv;
 
     public void setDefinisjon(AksjonspunktDefinisjon definisjon) {
         this.definisjon = definisjon;
@@ -115,28 +112,5 @@ public class AksjonspunktDto {
         return erAktivt;
     }
 
-    public LocalDateTime getFristTid() {
-        return fristTid;
-    }
-
-    public void setFristTid(LocalDateTime fristTid) {
-        this.fristTid = fristTid;
-    }
-
-    public LocalDateTime getEndretTidspunkt() {
-        return endretTidspunkt;
-    }
-
-    public void setEndretTidspunkt(LocalDateTime endretTidspunkt) {
-        this.endretTidspunkt = endretTidspunkt;
-    }
-
-    public String getEndretAv() {
-        return endretAv;
-    }
-
-    public void setEndretAv(String endretAv) {
-        this.endretAv = endretAv;
-    }
 
 }
