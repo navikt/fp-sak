@@ -64,35 +64,19 @@ public class UttakPerioderDtoTjeneste {
     private UttakResultatPerioderDto mapFra(Behandling behandling, boolean utenMinsterett) {
         var ytelseFordeling = ytelsesFordelingRepository.hentAggregatHvisEksisterer(behandling.getId());
 
-        final List<UttakResultatPeriodeDto> annenpartUttaksperioder;
-        final Optional<ForeldrepengerUttak> annenpartUttak;
-        var annenpartBehandling = annenpartBehandling(behandling);
-        if (annenpartBehandling.isPresent()) {
-            annenpartUttak = uttakTjeneste.hentHvisEksisterer(annenpartBehandling.get().getId());
-            if (annenpartUttak.isPresent()) {
-                annenpartUttaksperioder = annenpartUttak.map(u -> {
-                    var annenpartBehandlingId = annenpartBehandling.orElseThrow().getId();
-                    return finnUttakResultatPerioder(u, annenpartBehandlingId);
-                }).orElse(List.of());
-            } else {
-                annenpartUttaksperioder = List.of();
-            }
-        } else {
-            annenpartUttaksperioder = List.of();
-            annenpartUttak = Optional.empty();
-        }
+        var annenpartUttaksperioder = finnAnnenPartsUttaksperioder(behandling);
 
         var perioderSøker = finnUttakResultatPerioderSøker(behandling.getId());
         var filter = new UttakResultatPerioderDto.FilterDto(UtsettelseCore2021.kreverSammenhengendeUttakTilOgMed(), utenMinsterett,
             RelasjonsRolleType.erMor(behandling.getRelasjonsRolleType()));
-        var annenForelderHarRett = ytelseFordeling.filter(yf -> yf.harAnnenForelderRett(annenpartUttak.filter(ForeldrepengerUttak::harUtbetaling).isPresent())).isPresent();
-        var aleneomsorg = ytelseFordeling.map(a -> a.robustHarAleneomsorg(behandling.getRelasjonsRolleType())).orElse(false);
-        var annenForelderRettEØS = ytelseFordeling.map(YtelseFordelingAggregat::avklartAnnenForelderHarRettEØS).orElse(false);
-        var oppgittAnnenForelderRettEØS = ytelseFordeling.map(YtelseFordelingAggregat::oppgittAnnenForelderRettEØS).orElse(false);
         var endringsdato = ytelseFordeling.flatMap(YtelseFordelingAggregat::getAvklarteDatoer).map(
             AvklarteUttakDatoerEntitet::getGjeldendeEndringsdato).orElse(null);
-        return new UttakResultatPerioderDto(perioderSøker, annenpartUttaksperioder, annenForelderHarRett, aleneomsorg, annenForelderRettEØS,
-            oppgittAnnenForelderRettEØS, filter, endringsdato);
+        return new UttakResultatPerioderDto(perioderSøker, annenpartUttaksperioder, filter, endringsdato);
+    }
+
+    private List<UttakResultatPeriodeDto> finnAnnenPartsUttaksperioder(Behandling behandling) {
+        return annenpartBehandling(behandling).flatMap(
+            ab -> uttakTjeneste.hentHvisEksisterer(ab.getId()).map(uttak -> finnUttakResultatPerioder(uttak, ab.getId()))).orElse(List.of());
     }
 
     private Optional<Behandling> annenpartBehandling(Behandling søkersBehandling) {

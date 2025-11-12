@@ -328,78 +328,6 @@ class UttakPerioderDtoTjenesteTest extends EntityManagerAwareTest {
     }
 
     @Test
-    void skal_setteAleneomsorgOgAnnenForelderHarRettFalse_nårYtelsefordelingMangler() {
-        var scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
-        scenario.medFordeling(null);
-        var behandling = scenario.lagre(repositoryProvider);
-
-        var tjeneste = tjeneste();
-
-        var result = tjeneste.mapFra(behandling);
-        assertThat(result.annenForelderHarRett()).isFalse();
-        assertThat(result.aleneomsorg()).isFalse();
-        assertThat(result.annenForelderRettEØS()).isFalse();
-        assertThat(result.oppgittAnnenForelderRettEØS()).isFalse();
-        assertThat(result.årsakFilter().søkerErMor()).isTrue();
-    }
-
-    @Test
-    void setter_eøs_rett_oppgitt_men_ikke_avklart() {
-        var scenario = ScenarioFarSøkerForeldrepenger.forFødsel()
-            .medOppgittRettighet(bareSøkerRettAnnenPartEøs());
-        var behandling = scenario.lagre(repositoryProvider);
-
-        var tjeneste = tjeneste();
-
-        var dto = tjeneste.mapFra(behandling);
-        assertThat(dto.annenForelderHarRett()).isFalse();
-        assertThat(dto.annenForelderRettEØS()).isFalse();
-        assertThat(dto.oppgittAnnenForelderRettEØS()).isTrue();
-    }
-
-    private static OppgittRettighetEntitet bareSøkerRettAnnenPartEøs() {
-        return new OppgittRettighetEntitet(false, false, false, true, true);
-    }
-
-    @Test
-    void setter_eøs_rett_avklart_ikke_eøs_rett() {
-        var scenario = ScenarioFarSøkerForeldrepenger.forFødsel()
-            .medOppgittRettighet(bareSøkerRettAnnenPartEøs());
-        var behandling = scenario.lagre(repositoryProvider);
-
-        avklarEøsRett(behandling, false);
-        var tjeneste = tjeneste();
-
-        var dto = tjeneste.mapFra(behandling);
-        assertThat(dto.annenForelderHarRett()).isFalse();
-        assertThat(dto.annenForelderRettEØS()).isFalse();
-        assertThat(dto.oppgittAnnenForelderRettEØS()).isTrue();
-    }
-
-    @Test
-    void setter_eøs_rett_avklart_eøs_rett() {
-        var scenario = ScenarioFarSøkerForeldrepenger.forFødsel()
-            .medOppgittRettighet(bareSøkerRettAnnenPartEøs());
-        var behandling = scenario.lagre(repositoryProvider);
-
-        avklarEøsRett(behandling, true);
-        var tjeneste = tjeneste();
-
-        var dto = tjeneste.mapFra(behandling);
-        assertThat(dto.annenForelderHarRett()).isTrue();
-        assertThat(dto.annenForelderRettEØS()).isTrue();
-        assertThat(dto.oppgittAnnenForelderRettEØS()).isTrue();
-    }
-
-    private void avklarEøsRett(Behandling behandling, boolean harRettEøs) {
-        var ytelsesFordelingRepository = repositoryProvider.getYtelsesFordelingRepository();
-        var yfa = ytelsesFordelingRepository.hentAggregat(behandling.getId());
-        ytelsesFordelingRepository.lagre(behandling.getId(),
-            YtelseFordelingAggregat.oppdatere(yfa)
-                .medAvklartRettighet(OppgittRettighetEntitet.kopiAnnenForelderRettEØS(yfa.getAvklartRettighet().orElse(null), harRettEøs)).build());
-    }
-
-    @Test
     void skal_setteFilterFar() {
         var scenario = ScenarioFarSøkerForeldrepenger.forFødsel();
         scenario.medFordeling(null);
@@ -408,28 +336,7 @@ class UttakPerioderDtoTjenesteTest extends EntityManagerAwareTest {
         var tjeneste = tjeneste();
 
         var result = tjeneste.mapFra(behandling);
-        assertThat(result.annenForelderHarRett()).isFalse();
-        assertThat(result.annenForelderRettEØS()).isFalse();
-        assertThat(result.aleneomsorg()).isFalse();
         assertThat(result.årsakFilter().søkerErMor()).isFalse();
-    }
-
-    @Test
-    void skal_setteAleneomsorgOgAnnenForelderHarRettTrue_nårYtelsefordelingForeliggerOgDetStemmer() {
-        var perioder = new UttakResultatPerioderEntitet();
-
-
-        var behandling = morBehandlingMedUttak(perioder);
-
-        var ytelsesFordelingRepository = repositoryProvider.getYtelsesFordelingRepository();
-        var yfBuilder = ytelsesFordelingRepository.opprettBuilder(behandling.getId())
-            .medOppgittRettighet(new OppgittRettighetEntitet(true, true, false, false, false));
-        ytelsesFordelingRepository.lagre(behandling.getId(), yfBuilder.build());
-
-        var result = tjeneste().mapFra(behandling);
-        assertThat(result.annenForelderHarRett()).isTrue();
-        assertThat(result.aleneomsorg()).isTrue();
-        assertThat(result.årsakFilter().søkerErMor()).isTrue();
     }
 
     private UttakResultatPeriodeEntitet.Builder periodeBuilder(LocalDate fom, LocalDate tom) {
