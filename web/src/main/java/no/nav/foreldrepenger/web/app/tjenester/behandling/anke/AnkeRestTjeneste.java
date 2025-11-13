@@ -109,7 +109,6 @@ public class AnkeRestTjeneste {
         dto.setTrygderettVurdering(ankeVurderingResultat.getTrygderettVurdering());
         dto.setTrygderettVurderingOmgjoer(ankeVurderingResultat.getTrygderettVurderingOmgjør());
         dto.setTrygderettOmgjoerArsak(ankeVurderingResultat.getTrygderettOmgjørÅrsak());
-        dto.setSendtTilTrygderettenDato(ankeVurderingResultat.getSendtTrygderettDato());
         dto.setPåAnketKlageBehandlingUuid(påAnketKlageBehandlingUuid);
         return dto;
     }

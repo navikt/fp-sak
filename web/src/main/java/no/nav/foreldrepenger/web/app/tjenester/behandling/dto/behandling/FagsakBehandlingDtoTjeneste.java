@@ -17,7 +17,6 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
-import no.nav.foreldrepenger.behandling.DekningsgradTjeneste;
 import no.nav.foreldrepenger.behandling.revurdering.RevurderingTjeneste;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.BaseEntitet;
@@ -68,7 +67,6 @@ public class FagsakBehandlingDtoTjeneste {
     private BrevmalTjeneste brevmalTjeneste;
     private TotrinnskontrollAksjonspunkterTjeneste totrinnskontrollTjeneste;
     private KontrollDtoTjeneste kontrollDtoTjeneste;
-    private DekningsgradTjeneste dekningsgradTjeneste;
     private UttakTjeneste uttakTjeneste;
     private FagsakBehandlingOperasjonerDtoTjeneste behandlingOperasjonerDtoTjeneste;
 
@@ -79,7 +77,6 @@ public class FagsakBehandlingDtoTjeneste {
                                        BrevmalTjeneste brevmalTjeneste,
                                        TotrinnskontrollAksjonspunkterTjeneste totrinnskontrollTjeneste,
                                        KontrollDtoTjeneste kontrollDtoTjeneste,
-                                       DekningsgradTjeneste dekningsgradTjeneste,
                                        UttakTjeneste uttakTjeneste,
                                        FagsakBehandlingOperasjonerDtoTjeneste behandlingOperasjonerDtoTjeneste) {
 
@@ -92,7 +89,6 @@ public class FagsakBehandlingDtoTjeneste {
         this.brevmalTjeneste = brevmalTjeneste;
         this.totrinnskontrollTjeneste = totrinnskontrollTjeneste;
         this.kontrollDtoTjeneste = kontrollDtoTjeneste;
-        this.dekningsgradTjeneste = dekningsgradTjeneste;
         this.uttakTjeneste = uttakTjeneste;
         this.behandlingOperasjonerDtoTjeneste = behandlingOperasjonerDtoTjeneste;
     }
@@ -213,9 +209,7 @@ public class FagsakBehandlingDtoTjeneste {
         dto.setType(behandlingsresultat.getBehandlingResultatType());
         dto.setAvslagsarsak(behandlingsresultat.getAvslagsårsak());
         dto.setKonsekvenserForYtelsen(behandlingsresultat.getKonsekvenserForYtelsen());
-        dto.setRettenTil(behandlingsresultat.getRettenTil());
         dto.setSkjæringstidspunkt(finnSkjæringstidspunktForBehandling(behandling, behandlingsresultat).orElse(null));
-        dto.setEndretDekningsgrad(dekningsgradTjeneste.behandlingHarEndretDekningsgrad(BehandlingReferanse.fra(behandling)));
         if (!FagsakYtelseType.ENGANGSTØNAD.equals(behandling.getFagsakYtelseType())) {
             var opphørsdato = uttakTjeneste.hentHvisEksisterer(behandling.getId()).flatMap(Uttak::opphørsdato).orElse(null);
             dto.setOpphørsdato(opphørsdato);

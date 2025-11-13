@@ -29,14 +29,12 @@ import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.UuidDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.app.FaktaUttakArbeidsforholdTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.app.SaldoerDtoTjeneste;
-import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.app.SvangerskapspengerUttakResultatDtoTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.app.UttakPerioderDtoTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dokumentasjon.DokumentasjonVurderingBehovDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dokumentasjon.DokumentasjonVurderingBehovDtoTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto.ArbeidsforholdDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto.BehandlingMedUttaksperioderDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto.SaldoerDto;
-import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto.SvangerskapspengerUttakResultatDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto.UttakResultatPerioderDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.eøs.EøsUttakPeriodeDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.eøs.EøsUttakTjeneste;
@@ -58,8 +56,6 @@ public class UttakRestTjeneste {
     static final String BASE_PATH = "/behandling/uttak";
     private static final String FAKTA_ARBEIDSFORHOLD_PART_PATH = "/fakta-arbeidsforhold";
     public static final String FAKTA_ARBEIDSFORHOLD_PATH = BASE_PATH + FAKTA_ARBEIDSFORHOLD_PART_PATH;
-    private static final String RESULTAT_SVANGERSKAPSPENGER_PART_PATH = "/resultat-svangerskapspenger";
-    public static final String RESULTAT_SVANGERSKAPSPENGER_PATH = BASE_PATH + RESULTAT_SVANGERSKAPSPENGER_PART_PATH;
     private static final String RESULTAT_PERIODER_PART_PATH = "/resultat-perioder";
     public static final String RESULTAT_PERIODER_PATH = BASE_PATH + RESULTAT_PERIODER_PART_PATH;
     private static final String FAKTA_UTTAK_PART_PATH = "/kontroller-fakta-perioder-v2";
@@ -76,7 +72,6 @@ public class UttakRestTjeneste {
     private BehandlingRepository behandlingRepository;
     private SaldoerDtoTjeneste saldoerDtoTjeneste;
     private UttakPerioderDtoTjeneste uttakResultatPerioderDtoTjeneste;
-    private SvangerskapspengerUttakResultatDtoTjeneste svpUttakResultatDtoTjeneste;
     private UttakInputTjeneste uttakInputTjeneste;
     private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
     private DokumentasjonVurderingBehovDtoTjeneste dokumentasjonVurderingBehovDtoTjeneste;
@@ -87,7 +82,6 @@ public class UttakRestTjeneste {
     public UttakRestTjeneste(BehandlingRepository behandlingRepository,
                              SaldoerDtoTjeneste saldoerDtoTjeneste,
                              UttakPerioderDtoTjeneste uttakResultatPerioderDtoTjeneste,
-                             SvangerskapspengerUttakResultatDtoTjeneste svpUttakResultatDtoTjeneste,
                              UttakInputTjeneste uttakInputTjeneste,
                              SkjæringstidspunktTjeneste skjæringstidspunktTjeneste,
                              DokumentasjonVurderingBehovDtoTjeneste dokumentasjonVurderingBehovDtoTjeneste,
@@ -97,14 +91,13 @@ public class UttakRestTjeneste {
         this.behandlingRepository = behandlingRepository;
         this.uttakResultatPerioderDtoTjeneste = uttakResultatPerioderDtoTjeneste;
         this.saldoerDtoTjeneste = saldoerDtoTjeneste;
-        this.svpUttakResultatDtoTjeneste = svpUttakResultatDtoTjeneste;
         this.skjæringstidspunktTjeneste = skjæringstidspunktTjeneste;
         this.dokumentasjonVurderingBehovDtoTjeneste = dokumentasjonVurderingBehovDtoTjeneste;
         this.faktaUttakPeriodeDtoTjeneste = faktaUttakPeriodeDtoTjeneste;
         this.eøsUttakTjeneste = eøsUttakTjeneste;
     }
 
-    public UttakRestTjeneste() {
+    UttakRestTjeneste() {
         // for CDI proxy
     }
 
@@ -162,17 +155,6 @@ public class UttakRestTjeneste {
         var input = uttakInputTjeneste.lagInput(behandling);
         return FaktaUttakArbeidsforholdTjeneste.hentArbeidsforhold(input);
     }
-
-    @GET
-    @Path(RESULTAT_SVANGERSKAPSPENGER_PART_PATH)
-    @Operation(description = "Henter svangerskapspenger uttaksresultat", summary = "Returnerer svangerskapspenger uttaksresultat", tags = "uttak")
-    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK, sporingslogg = false)
-    public SvangerskapspengerUttakResultatDto hentSvangerskapspengerUttakResultat(@TilpassetAbacAttributt(supplierClass = UuidAbacDataSupplier.class)
-            @NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
-        var behandling = hentBehandling(uuidDto);
-        return svpUttakResultatDtoTjeneste.mapFra(behandling).orElse(null);
-    }
-
 
     @GET
     @Path(VURDER_DOKUMENTASJON_PART_PATH)

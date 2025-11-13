@@ -46,8 +46,7 @@ public class FamiliehendelseRestTjeneste {
     public static final String FAMILIEHENDELSE_V3_PATH = BASE_PATH + FAMILIEHENDELSE_V3_PART_PATH;
 
     @Inject
-    public FamiliehendelseRestTjeneste(BehandlingRepository behandlingRepository,
-                                       FamilieHendelseRepository familieHendelseRepository) {
+    public FamiliehendelseRestTjeneste(BehandlingRepository behandlingRepository, FamilieHendelseRepository familieHendelseRepository) {
         this.behandlingRepository = behandlingRepository;
         this.familieHendelseRepository = familieHendelseRepository;
     }
@@ -73,9 +72,8 @@ public class FamiliehendelseRestTjeneste {
                 .collect(java.util.stream.Collectors.toMap(barn -> grunnlag.getGjeldendeBarna().indexOf(barn), UidentifisertBarn::getFødselsdato));
 
             var adopsjonDto = new AdopsjonFamilieHendelseDto(grunnlag.getGjeldendeAntallBarn(), fødselsdatoer, adopsjon.getOmsorgsovertakelseDato(),
-                adopsjon.getForeldreansvarDato(), adopsjon.getOmsorgovertakelseVilkår(),
-                adopsjon.getErEktefellesBarn() != null ? adopsjon.getErEktefellesBarn() : false,
-                adopsjon.getAdoptererAlene() != null ? adopsjon.getAdoptererAlene() : false, adopsjon.getAnkomstNorgeDato());
+                adopsjon.getOmsorgovertakelseVilkår(), adopsjon.getErEktefellesBarn() != null ? adopsjon.getErEktefellesBarn() : false,
+                adopsjon.getAdoptererAlene() != null ? adopsjon.getAdoptererAlene() : false);
 
             return new FamilieHendelseDto(null, adopsjonDto);
         }).orElseGet(() -> {
@@ -93,8 +91,8 @@ public class FamiliehendelseRestTjeneste {
     record FødselTerminFamilieHendelseDto(LocalDate termindato, LocalDate fødselsdato) {
     }
 
-    record AdopsjonFamilieHendelseDto(@NotNull int antallBarn, @NotNull Map<Integer, LocalDate> fødselsdatoer, @NotNull LocalDate omsorgsovertakelseDato,
-                                             @NotNull LocalDate foreldreansvarDato, @NotNull OmsorgsovertakelseVilkårType omsorgsovertakelseVilkårType,
-                                             @NotNull boolean ektefellesBarn, @NotNull boolean mannAdoptererAlene, LocalDate ankomstNorge) {
+    record AdopsjonFamilieHendelseDto(@NotNull int antallBarn, @NotNull Map<Integer, LocalDate> fødselsdatoer,
+                                      @NotNull LocalDate omsorgsovertakelseDato, @NotNull OmsorgsovertakelseVilkårType omsorgsovertakelseVilkårType,
+                                      @NotNull boolean ektefellesBarn, @NotNull boolean mannAdoptererAlene) {
     }
 }

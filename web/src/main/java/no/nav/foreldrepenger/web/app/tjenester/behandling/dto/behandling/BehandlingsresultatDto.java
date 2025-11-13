@@ -3,14 +3,13 @@ package no.nav.foreldrepenger.web.app.tjenester.behandling.dto.behandling;
 import java.time.LocalDate;
 import java.util.List;
 
+import jakarta.validation.constraints.NotNull;
+
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import jakarta.validation.constraints.NotNull;
-
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.KonsekvensForYtelsen;
-import no.nav.foreldrepenger.behandlingslager.behandling.RettenTil;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.Vedtaksbrev;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.Avslagsårsak;
 import no.nav.foreldrepenger.domene.vedtak.intern.VedtaksbrevStatus;
@@ -26,8 +25,6 @@ public class BehandlingsresultatDto {
     private Avslagsårsak avslagsarsak;
     @JsonProperty("avslagsarsakFritekst")
     private String avslagsarsakFritekst;
-    @JsonProperty("rettenTil")
-    private RettenTil rettenTil;
     @JsonProperty("konsekvenserForYtelsen")
     private List<KonsekvensForYtelsen> konsekvenserForYtelsen;
     @JsonProperty("vedtaksbrev")
@@ -44,8 +41,6 @@ public class BehandlingsresultatDto {
     private Boolean erRevurderingMedUendretUtfall;
     @JsonProperty("skjæringstidspunkt")
     private SkjæringstidspunktDto skjæringstidspunkt;
-    @JsonProperty("endretDekningsgrad")
-    private boolean endretDekningsgrad;
     @JsonProperty("opphørsdato")
     private LocalDate opphørsdato;
 
@@ -69,9 +64,6 @@ public class BehandlingsresultatDto {
         this.avslagsarsakFritekst = avslagsarsakFritekst;
     }
 
-    public void setRettenTil(RettenTil rettenTil) {
-        this.rettenTil = rettenTil;
-    }
 
     public void setKonsekvenserForYtelsen(List<KonsekvensForYtelsen> konsekvenserForYtelsen) {
         this.konsekvenserForYtelsen = konsekvenserForYtelsen;
@@ -97,9 +89,6 @@ public class BehandlingsresultatDto {
         return avslagsarsakFritekst;
     }
 
-    public RettenTil getRettenTil() {
-        return rettenTil;
-    }
 
     public List<KonsekvensForYtelsen> getKonsekvenserForYtelsen() {
         return konsekvenserForYtelsen;
@@ -157,13 +146,6 @@ public class BehandlingsresultatDto {
         this.skjæringstidspunkt = skjæringstidspunkt;
     }
 
-    public void setEndretDekningsgrad(Boolean endretDekningsgrad) {
-        this.endretDekningsgrad = endretDekningsgrad;
-    }
-
-    public Boolean isEndretDekningsgrad() {
-        return endretDekningsgrad;
-    }
 
     public LocalDate getOpphørsdato() {
         return opphørsdato;

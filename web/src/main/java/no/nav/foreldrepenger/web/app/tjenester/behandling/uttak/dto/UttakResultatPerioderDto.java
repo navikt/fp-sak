@@ -7,10 +7,6 @@ import java.util.List;
 
 public record UttakResultatPerioderDto(@NotNull List<UttakResultatPeriodeDto> perioderSøker,
                                        @NotNull List<UttakResultatPeriodeDto> perioderAnnenpart,
-                                       boolean annenForelderHarRett,
-                                       boolean aleneomsorg,
-                                       boolean annenForelderRettEØS,
-                                       boolean oppgittAnnenForelderRettEØS,
                                        @NotNull FilterDto årsakFilter,
                                        @NotNull LocalDate endringsdato) {
 

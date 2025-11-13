@@ -11,7 +11,6 @@ import jakarta.inject.Inject;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import no.nav.foreldrepenger.behandling.DekningsgradTjeneste;
 import no.nav.foreldrepenger.behandling.FagsakRelasjonTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.EngangsstønadBeregningRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.dokument.BehandlingDokumentRepository;
@@ -67,9 +66,6 @@ class BehandlingDtoTjenesteTest {
     private FagsakRelasjonTjeneste fagsakRelasjonTjeneste;
 
     @Inject
-    private DekningsgradTjeneste dekningsgradTjeneste;
-
-    @Inject
     private UttakTjeneste uttakTjeneste;
 
     @Inject
@@ -88,7 +84,7 @@ class BehandlingDtoTjenesteTest {
         tjeneste = new BehandlingDtoTjeneste(repositoryProvider, beregningTjeneste, uttakTjeneste, tilbakekrevingRepository,
             skjæringstidspunktTjeneste, mock(EngangsstønadBeregningRepository.class), behandlingDokumentRepository, mock(TotrinnTjeneste.class),
             dokumentasjonVurderingBehovDtoTjeneste, faktaUttakPeriodeDtoTjeneste, fagsakRelasjonTjeneste,
-            new UtregnetStønadskontoTjeneste(fagsakRelasjonTjeneste, foreldrepengerUttakTjeneste), dekningsgradTjeneste, vergeRepository,
+            new UtregnetStønadskontoTjeneste(fagsakRelasjonTjeneste, foreldrepengerUttakTjeneste), vergeRepository,
             vedtaksbrevStatusUtleder, eøsUttakRepository);
     }
 
