@@ -77,7 +77,8 @@ public class OppdatererDtoMapper {
 
     public static no.nav.folketrygdloven.kalkulus.håndtering.v1.refusjon.VurderRefusjonBeregningsgrunnlagDto mapVurderRefusjonBeregningsgrunnlag(
         VurderRefusjonBeregningsgrunnlagDto dto) {
-        return new no.nav.folketrygdloven.kalkulus.håndtering.v1.refusjon.VurderRefusjonBeregningsgrunnlagDto(mapTilRefusjonAndeler(dto.getFastsatteAndeler()));
+        return new no.nav.folketrygdloven.kalkulus.håndtering.v1.refusjon.VurderRefusjonBeregningsgrunnlagDto(
+            mapTilRefusjonAndeler(dto.getFastsatteAndeler()), mapRefusjonskravForSentListe(dto.getRefusjonskravForSentListe()));
     }
 
     public static no.nav.folketrygdloven.kalkulus.håndtering.v1.foreslå.VurderVarigEndringEllerNyoppstartetDto mapVurderVarigEndringEllerNyoppstartetDto(
@@ -332,6 +333,17 @@ public class OppdatererDtoMapper {
             andel.getDelvisRefusjonPrMndFørStart());
     }
 
+    private static List<no.nav.folketrygdloven.kalkulus.response.v1.beregningsgrunnlag.gui.RefusjonskravForSentDto> mapRefusjonskravForSentListe(List<RefusjonskravPrArbeidsgiverVurderingDto> refusjonskravForSentListe) {
+        return refusjonskravForSentListe.stream().map(OppdatererDtoMapper::mapRefusjonskravForSent).toList();
+    }
+
+    private static no.nav.folketrygdloven.kalkulus.response.v1.beregningsgrunnlag.gui.RefusjonskravForSentDto mapRefusjonskravForSent(
+        RefusjonskravPrArbeidsgiverVurderingDto refusjonskravForSentFraKalkulus) {
+        var refusjonskravForSent = new no.nav.folketrygdloven.kalkulus.response.v1.beregningsgrunnlag.gui.RefusjonskravForSentDto();
+        refusjonskravForSent.setArbeidsgiverIdent(refusjonskravForSentFraKalkulus.getArbeidsgiverId());
+        refusjonskravForSent.setErRefusjonskravGyldig(refusjonskravForSentFraKalkulus.isSkalUtvideGyldighet());
+        return refusjonskravForSent;
+    }
 
     private static List<no.nav.folketrygdloven.kalkulus.håndtering.v1.fordeling.FordelBeregningsgrunnlagPeriodeDto> mapTilEndredePerioderList(List<FordelBeregningsgrunnlagPeriodeDto> endretBeregningsgrunnlagPerioder) {
         return endretBeregningsgrunnlagPerioder.stream().map(OppdatererDtoMapper::mapTilFordelBeregningsgrunnlagPeriodeDto).toList();
