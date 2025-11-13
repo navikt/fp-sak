@@ -1,6 +1,7 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.app;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
@@ -16,6 +17,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtak
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.AvklarteUttakDatoerEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelseFordelingAggregat;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelsesFordelingRepository;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.PeriodeResultatÅrsak;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlag;
@@ -30,6 +32,12 @@ import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto.UttakResulta
 
 @ApplicationScoped
 public class UttakPerioderDtoTjeneste {
+
+    private static final List<UttakResultatPerioderDto.PeriodeResultatÅrsakDto> MULIGE_ÅRSAKER = Arrays.stream(PeriodeResultatÅrsak.values())
+        .filter(p -> !PeriodeResultatÅrsak.UKJENT.equals(p))
+        .map(UttakResultatPerioderDto.PeriodeResultatÅrsakDto::new)
+        .toList();
+
     private ForeldrepengerUttakTjeneste uttakTjeneste;
     private RelatertBehandlingTjeneste relatertBehandlingTjeneste;
     private YtelsesFordelingRepository ytelsesFordelingRepository;
@@ -71,7 +79,7 @@ public class UttakPerioderDtoTjeneste {
             RelasjonsRolleType.erMor(behandling.getRelasjonsRolleType()));
         var endringsdato = ytelseFordeling.flatMap(YtelseFordelingAggregat::getAvklarteDatoer).map(
             AvklarteUttakDatoerEntitet::getGjeldendeEndringsdato).orElse(null);
-        return new UttakResultatPerioderDto(perioderSøker, annenpartUttaksperioder, filter, endringsdato);
+        return new UttakResultatPerioderDto(perioderSøker, annenpartUttaksperioder, filter, endringsdato, MULIGE_ÅRSAKER);
     }
 
     private List<UttakResultatPeriodeDto> finnAnnenPartsUttaksperioder(Behandling behandling) {
