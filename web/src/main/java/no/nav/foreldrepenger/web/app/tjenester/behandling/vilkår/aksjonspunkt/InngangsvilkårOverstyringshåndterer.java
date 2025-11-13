@@ -1,6 +1,8 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.vilkår.aksjonspunkt;
 
-import static no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagLinjeBuilder.fraTilEquals;
+import static no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagLinjeBuilder.tilNullable;
+
+import java.util.Optional;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdateringTransisjon;
@@ -50,18 +52,17 @@ public abstract class InngangsvilkårOverstyringshåndterer<T extends Overstyrin
         return OppdateringResultat.utenOverhopp();
     }
 
-    protected void lagHistorikkInnslagForOverstyrtVilkår(BehandlingReferanse ref,
-                                                         String begrunnelse,
-                                                         boolean vilkårOppfylt,
-                                                         SkjermlenkeType skjermlenkeType) {
-        var tilVerdi = vilkårOppfylt ? "Vilkåret er oppfylt" : "Vilkåret er ikke oppfylt";
-        var fraVerdi = vilkårOppfylt ? "Vilkåret er ikke oppfylt" : "Vilkåret er oppfylt";
+    protected void lagHistorikkInnslagForOverstyrtVilkår(BehandlingReferanse ref, T dto, SkjermlenkeType skjermlenkeType) {
+        var utfall = dto.getErVilkarOk() ? VilkårUtfallType.OPPFYLT.getNavn() : VilkårUtfallType.IKKE_OPPFYLT.getNavn();
+        var avslagsårsak = Optional.ofNullable(dto.getAvslagskode()).flatMap(Avslagsårsak::fraDefinertKode).map(Avslagsårsak::getNavn).orElse(null);
         var historikkinnslag = new Historikkinnslag.Builder().medTittel(skjermlenkeType)
             .medAktør(HistorikkAktør.SAKSBEHANDLER)
             .medBehandlingId(ref.behandlingId())
             .medFagsakId(ref.fagsakId())
-            .addLinje(fraTilEquals("Overstyrt vurdering: Utfallet", fraVerdi, tilVerdi))
-            .addLinje(begrunnelse)
+            .addLinje(dto.getAksjonspunktDefinisjon().getNavn())
+            .addLinje(tilNullable(vilkårType.getNavn(), utfall))
+            .addLinje(tilNullable("Avslagsårsak", avslagsårsak))
+            .addLinje(dto.getBegrunnelse())
             .build();
         historikkinnslagRepository.lagre(historikkinnslag);
     }

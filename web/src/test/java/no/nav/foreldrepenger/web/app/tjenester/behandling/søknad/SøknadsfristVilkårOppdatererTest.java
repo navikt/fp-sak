@@ -31,8 +31,7 @@ class SøknadsfristVilkårOppdatererTest {
         // Behandling
         var scenario = ScenarioFarSøkerEngangsstønad.forAdopsjon();
         scenario.medSøknad().medFarSøkerType(FarSøkerType.ADOPTERER_ALENE);
-        scenario.leggTilAksjonspunkt(AksjonspunktDefinisjon.MANUELL_VURDERING_AV_SØKNADSFRISTVILKÅRET,
-                BehandlingStegType.VURDER_SØKNADSFRISTVILKÅR);
+        scenario.leggTilAksjonspunkt(AksjonspunktDefinisjon.MANUELL_VURDERING_AV_SØKNADSFRISTVILKÅRET, BehandlingStegType.VURDER_SØKNADSFRISTVILKÅR);
         scenario.lagre(repositoryProvider);
 
         var behandling = scenario.getBehandling();
@@ -40,7 +39,7 @@ class SøknadsfristVilkårOppdatererTest {
         var oppdaterer = new SøknadsfristOppdaterer(historikkinnslagRepository);
 
         // Dto
-        var dto = new SoknadsfristAksjonspunktDto("begrunnelse", oppdatertSoknadsfristOk);
+        var dto = new SoknadsfristAksjonspunktDto(oppdatertSoknadsfristOk, "begrunnelse.", null);
 
         // Act
         var aksjonspunkt = behandling.getAksjonspunktFor(dto.getAksjonspunktDefinisjon());
@@ -48,9 +47,7 @@ class SøknadsfristVilkårOppdatererTest {
         var historikkinnslag = historikkinnslagRepository.hent(behandling.getSaksnummer()).getFirst();
 
         // Assert
-        assertThat(historikkinnslag.getLinjer().getFirst().getTekst()).contains("Søknadsfristvilkåret", "oppfylt");
-        assertThat(historikkinnslag.getLinjer().getFirst().getTekst()).doesNotContain("ikke oppfylt");
-        assertThat(historikkinnslag.getLinjer().get(1).getTekst()).contains(dto.getBegrunnelse());
+        assertThat(historikkinnslag.getTekstLinjer()).contains("__Søknadsfristvilkåret__ er satt til __Oppfylt__.", dto.getBegrunnelse());
     }
 
 }

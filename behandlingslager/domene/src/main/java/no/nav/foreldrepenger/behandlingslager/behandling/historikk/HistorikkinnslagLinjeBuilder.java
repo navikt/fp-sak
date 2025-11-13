@@ -120,6 +120,13 @@ public class HistorikkinnslagLinjeBuilder {
         return fraTil(hva, null, til);
     }
 
+    public static HistorikkinnslagLinjeBuilder tilNullable(String hva, String til) {
+        if (til == null) {
+            return null;
+        }
+        return new HistorikkinnslagLinjeBuilder().fraTil(hva, null, til);
+    }
+
     public static HistorikkinnslagLinjeBuilder fraTilEquals(String hva, String fra, String til) {
         if (Objects.equals(fra, til)) {
             return null;

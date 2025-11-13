@@ -46,16 +46,14 @@ class OpptjeningsvilkåretOverstyringshåndtererTest {
         var scenario = ScenarioMorSøkerForeldrepenger.forFødsel()
             .medDefaultFordeling(LocalDate.now())
             .medFødselAdopsjonsdato(List.of(LocalDate.now()));
-        scenario.leggTilAksjonspunkt(AksjonspunktDefinisjon.VURDER_PERIODER_MED_OPPTJENING,
-                BehandlingStegType.VURDER_OPPTJENINGSVILKÅR);
+        scenario.leggTilAksjonspunkt(AksjonspunktDefinisjon.VURDER_PERIODER_MED_OPPTJENING, BehandlingStegType.VURDER_OPPTJENINGSVILKÅR);
         scenario.leggTilVilkår(VilkårType.OPPTJENINGSVILKÅRET, VilkårUtfallType.OPPFYLT);
         scenario.lagre(repositoryProvider);
 
         var behandling = scenario.getBehandling();
         var lås = new BehandlingLås(behandling.getId());
         // Dto
-        var overstyringspunktDto = new OverstyringOpptjeningsvilkåretDto(false,
-                "test av overstyring opptjeningsvilkåret", "1035");
+        var overstyringspunktDto = new OverstyringOpptjeningsvilkåretDto(false, "test av overstyring opptjeningsvilkåret", "1035");
         assertThat(behandling.getAksjonspunkter()).hasSize(1);
 
         // Act
@@ -64,11 +62,10 @@ class OpptjeningsvilkåretOverstyringshåndtererTest {
         // Assert
         var aksjonspunktSet = behandling.getAksjonspunkter();
         assertThat(aksjonspunktSet).hasSize(2);
-        assertThat(aksjonspunktSet).extracting("aksjonspunktDefinisjon")
-                .contains(AksjonspunktDefinisjon.VURDER_PERIODER_MED_OPPTJENING);
+        assertThat(aksjonspunktSet).extracting("aksjonspunktDefinisjon").contains(AksjonspunktDefinisjon.VURDER_PERIODER_MED_OPPTJENING);
         assertThat(aksjonspunktSet.stream()
-                .filter(ap -> ap.getAksjonspunktDefinisjon().equals(AksjonspunktDefinisjon.OVERSTYRING_AV_OPPTJENINGSVILKÅRET)))
-                        .anySatisfy(ap -> assertThat(ap.getStatus()).isEqualTo(AksjonspunktStatus.UTFØRT));
+            .filter(ap -> ap.getAksjonspunktDefinisjon().equals(AksjonspunktDefinisjon.OVERSTYRING_AV_OPPTJENINGSVILKÅRET))).anySatisfy(
+            ap -> assertThat(ap.getStatus()).isEqualTo(AksjonspunktStatus.UTFØRT));
     }
 
     @Test
@@ -83,26 +80,23 @@ class OpptjeningsvilkåretOverstyringshåndtererTest {
         var scenario = ScenarioFarSøkerForeldrepenger.forFødsel()
             .medFordeling(new OppgittFordelingEntitet(List.of(oppgittPeriode), true))
             .medFødselAdopsjonsdato(List.of(LocalDate.now()));
-        scenario.leggTilAksjonspunkt(AksjonspunktDefinisjon.VURDER_PERIODER_MED_OPPTJENING,
-                BehandlingStegType.VURDER_OPPTJENINGSVILKÅR);
+        scenario.leggTilAksjonspunkt(AksjonspunktDefinisjon.VURDER_PERIODER_MED_OPPTJENING, BehandlingStegType.VURDER_OPPTJENINGSVILKÅR);
         scenario.leggTilVilkår(VilkårType.OPPTJENINGSVILKÅRET, VilkårUtfallType.OPPFYLT);
         scenario.lagre(repositoryProvider);
 
         var behandling = scenario.getBehandling();
         var lås = new BehandlingLås(behandling.getId());
         // Dto
-        var overstyringspunktDto = new OverstyringOpptjeningsvilkåretDto(false,
-                "test av overstyring opptjeningsvilkåret", "1035");
+        var overstyringspunktDto = new OverstyringOpptjeningsvilkåretDto(false, "test av overstyring opptjeningsvilkåret.", "1035");
 
         // Act
         aksjonspunktTjeneste.overstyrAksjonspunkter(Set.of(overstyringspunktDto), behandling, lås);
 
         // Assert
         var historikkinnslagene = repositoryProvider.getHistorikkinnslagRepository().hent(behandling.getSaksnummer());
-        var linjer = historikkinnslagene.getFirst().getLinjer();
-        assertThat(linjer).hasSize(2);
-        assertThat(linjer.getFirst().getTekst()).contains("Overstyrt vurdering", "ikke oppfylt");
-        assertThat(linjer.get(1).getTekst()).contains(overstyringspunktDto.getBegrunnelse());
+        assertThat(historikkinnslagene.getFirst().getTekstLinjer()).containsExactly("Overstyring av opptjeningsvilkåret.",
+            "__Opptjeningsvilkåret__ er satt til __Ikke oppfylt__.", "__Avslagsårsak__ er satt til __Ikke tilstrekkelig opptjening__.",
+            overstyringspunktDto.getBegrunnelse());
     }
 
     @Test
@@ -111,21 +105,18 @@ class OpptjeningsvilkåretOverstyringshåndtererTest {
         // Behandling
         var scenario = ScenarioFarSøkerForeldrepenger.forFødsel();
         scenario.medSøknadHendelse().medFødselsDato(LocalDate.now().minusWeeks(2), 1);
-        scenario.leggTilAksjonspunkt(AksjonspunktDefinisjon.VURDER_PERIODER_MED_OPPTJENING,
-                BehandlingStegType.VURDER_OPPTJENINGSVILKÅR);
+        scenario.leggTilAksjonspunkt(AksjonspunktDefinisjon.VURDER_PERIODER_MED_OPPTJENING, BehandlingStegType.VURDER_OPPTJENINGSVILKÅR);
         scenario.leggTilVilkår(VilkårType.OPPTJENINGSVILKÅRET, VilkårUtfallType.OPPFYLT);
         scenario.lagre(repositoryProvider);
 
         var behandling = scenario.getBehandling();
         var lås = new BehandlingLås(behandling.getId());
         // Dto
-        var overstyringspunktDto = new OverstyringOpptjeningsvilkåretDto(true,
-                "test av overstyring opptjeningsvilkåret", "1035");
+        var overstyringspunktDto = new OverstyringOpptjeningsvilkåretDto(true, "test av overstyring opptjeningsvilkåret", "1035");
         Collection<OverstyringAksjonspunktDto> dto = Set.of(overstyringspunktDto);
 
         //Act
-        assertThatThrownBy(() -> aksjonspunktTjeneste.overstyrAksjonspunkter(dto, behandling, lås))
-            .isInstanceOf(FunksjonellException.class)
+        assertThatThrownBy(() -> aksjonspunktTjeneste.overstyrAksjonspunkter(dto, behandling, lås)).isInstanceOf(FunksjonellException.class)
             .hasMessage("FP-093923: Kan ikke overstyre vilkår. Det må være minst en aktivitet for at opptjeningsvilkåret skal kunne overstyres.");
     }
 }

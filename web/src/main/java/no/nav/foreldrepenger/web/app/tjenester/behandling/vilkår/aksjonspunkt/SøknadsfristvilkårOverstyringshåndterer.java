@@ -28,7 +28,7 @@ public class SøknadsfristvilkårOverstyringshåndterer extends InngangsvilkårO
 
     @Override
     public void lagHistorikkInnslag(OverstyringSøknadsfristvilkåretDto dto, BehandlingReferanse ref) {
-        lagHistorikkInnslagForOverstyrtVilkår(ref, dto.getBegrunnelse(), dto.getErVilkarOk(), SkjermlenkeType.SOEKNADSFRIST);
+        lagHistorikkInnslagForOverstyrtVilkår(ref, dto, SkjermlenkeType.SOEKNADSFRIST);
     }
 
 }
