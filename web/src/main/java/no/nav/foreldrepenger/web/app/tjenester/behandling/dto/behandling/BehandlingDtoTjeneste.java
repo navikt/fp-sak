@@ -12,7 +12,6 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
-import no.nav.foreldrepenger.behandling.DekningsgradTjeneste;
 import no.nav.foreldrepenger.behandling.FagsakRelasjonTjeneste;
 import no.nav.foreldrepenger.behandling.revurdering.RevurderingTjeneste;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
@@ -119,7 +118,6 @@ public class BehandlingDtoTjeneste {
     private DokumentasjonVurderingBehovDtoTjeneste dokumentasjonVurderingBehovDtoTjeneste;
     private FaktaUttakPeriodeDtoTjeneste faktaUttakPeriodeDtoTjeneste;
     private UtregnetStønadskontoTjeneste utregnetStønadskontoTjeneste;
-    private DekningsgradTjeneste dekningsgradTjeneste;
     private VedtaksbrevStatusUtleder vedtaksbrevStatusUtleder;
     private FamilieHendelseRepository familieHendelseRepository;
     private EøsUttakRepository eøsUttakRepository;
@@ -138,7 +136,6 @@ public class BehandlingDtoTjeneste {
                                  FaktaUttakPeriodeDtoTjeneste faktaUttakPeriodeDtoTjeneste,
                                  FagsakRelasjonTjeneste fagsakRelasjonTjeneste,
                                  UtregnetStønadskontoTjeneste utregnetStønadskontoTjeneste,
-                                 DekningsgradTjeneste dekningsgradTjeneste,
                                  VergeRepository vergeRepository,
                                  VedtaksbrevStatusUtleder vedtaksbrevStatusUtleder,
                                  EøsUttakRepository eøsUttakRepository) {
@@ -158,7 +155,6 @@ public class BehandlingDtoTjeneste {
         this.dokumentasjonVurderingBehovDtoTjeneste = dokumentasjonVurderingBehovDtoTjeneste;
         this.faktaUttakPeriodeDtoTjeneste = faktaUttakPeriodeDtoTjeneste;
         this.utregnetStønadskontoTjeneste = utregnetStønadskontoTjeneste;
-        this.dekningsgradTjeneste = dekningsgradTjeneste;
         this.vergeRepository = vergeRepository;
         this.vedtaksbrevStatusUtleder = vedtaksbrevStatusUtleder;
         this.familieHendelseRepository = repositoryProvider.getFamilieHendelseRepository();
@@ -421,13 +417,7 @@ public class BehandlingDtoTjeneste {
             if (tilkjentYtelse) {
                 dto.leggTil(get(BeregningsresultatRestTjeneste.DAGYTELSE_PATH, "beregningsresultat-dagytelse", uuidDto));
             }
-
-            if (FagsakYtelseType.SVANGERSKAPSPENGER.equals(behandling.getFagsakYtelseType())) {
-                var uttak = uttakTjeneste.hentHvisEksisterer(behandling.getId());
-                if (uttak.isPresent()) {
-                    dto.leggTil(get(UttakRestTjeneste.RESULTAT_SVANGERSKAPSPENGER_PATH, "uttaksresultat-svangerskapspenger", uuidDto));
-                }
-            } else {
+            if (FagsakYtelseType.FORELDREPENGER.equals(behandling.getFagsakYtelseType())) {
                 var yfAggregat = ytelsesFordelingRepository.hentAggregatHvisEksisterer(behandling.getId());
                 var harSattEndringsdato = yfAggregat.flatMap(YtelseFordelingAggregat::getAvklarteDatoer)
                     .map(AvklarteUttakDatoerEntitet::getGjeldendeEndringsdato)
@@ -496,9 +486,7 @@ public class BehandlingDtoTjeneste {
         dto.setType(behandlingsresultat.getBehandlingResultatType());
         dto.setAvslagsarsak(behandlingsresultat.getAvslagsårsak());
         dto.setKonsekvenserForYtelsen(behandlingsresultat.getKonsekvenserForYtelsen());
-        dto.setRettenTil(behandlingsresultat.getRettenTil());
         dto.setSkjæringstidspunkt(finnSkjæringstidspunktForBehandling(behandling, behandlingsresultat).orElse(null));
-        dto.setEndretDekningsgrad(dekningsgradTjeneste.behandlingHarEndretDekningsgrad(BehandlingReferanse.fra(behandling)));
         if (!FagsakYtelseType.ENGANGSTØNAD.equals(behandling.getFagsakYtelseType())) {
             var opphørsdato = uttakTjeneste.hentHvisEksisterer(behandling.getId()).flatMap(Uttak::opphørsdato).orElse(null);
             dto.setOpphørsdato(opphørsdato);

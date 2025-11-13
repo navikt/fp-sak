@@ -1,12 +1,11 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.anke;
 
-import java.time.LocalDate;
 import java.util.UUID;
+
+import jakarta.validation.constraints.NotNull;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonProperty;
-
-import jakarta.validation.constraints.NotNull;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.anke.AnkeOmgjørÅrsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.anke.AnkeVurdering;
@@ -47,8 +46,6 @@ public class AnkeVurderingResultatDto {
     private AnkeOmgjørÅrsak trygderettOmgjoerArsak;
     @JsonProperty("trygderettVurderingOmgjoer")
     private AnkeVurderingOmgjør trygderettVurderingOmgjoer;
-    @JsonProperty("sendtTilTrygderettenDato")
-    private LocalDate sendtTilTrygderettenDato;
 
     public AnkeVurdering getAnkeVurdering() {
         return ankeVurdering;
@@ -176,13 +173,5 @@ public class AnkeVurderingResultatDto {
 
     public void setTrygderettVurderingOmgjoer(AnkeVurderingOmgjør trygderettVurderingOmgjoer) {
         this.trygderettVurderingOmgjoer = trygderettVurderingOmgjoer;
-    }
-
-    public LocalDate getSendtTilTrygderettenDato() {
-        return sendtTilTrygderettenDato;
-    }
-
-    public void setSendtTilTrygderettenDato(LocalDate sendtTilTrygderettenDato) {
-        this.sendtTilTrygderettenDato = sendtTilTrygderettenDato;
     }
 }

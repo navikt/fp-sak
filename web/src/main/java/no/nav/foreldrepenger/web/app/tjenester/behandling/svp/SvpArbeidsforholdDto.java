@@ -2,7 +2,6 @@ package no.nav.foreldrepenger.web.app.tjenester.behandling.svp;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -21,10 +20,6 @@ public class SvpArbeidsforholdDto {
     @NotNull private List<SvpTilretteleggingDatoDto> tilretteleggingDatoer = new ArrayList<>();
     private UttakArbeidType uttakArbeidType;
     private String arbeidsgiverReferanse;
-    private String opplysningerOmRisiko;
-    private String opplysningerOmTilrettelegging;
-    private Boolean kopiertFraTidligereBehandling;
-    private LocalDateTime mottattTidspunkt;
     private String internArbeidsforholdReferanse;
     private String eksternArbeidsforholdReferanse;
     @NotNull private boolean skalBrukes = true;
@@ -61,22 +56,6 @@ public class SvpArbeidsforholdDto {
         this.tilretteleggingId = tilretteleggingId;
     }
 
-    public String getOpplysningerOmRisiko() {
-        return opplysningerOmRisiko;
-    }
-
-    public void setOpplysningerOmRisiko(String opplysningerOmRisiko) {
-        this.opplysningerOmRisiko = opplysningerOmRisiko;
-    }
-
-    public String getOpplysningerOmTilrettelegging() {
-        return opplysningerOmTilrettelegging;
-    }
-
-    public void setOpplysningerOmTilrettelegging(String opplysningerOmTilrettelegging) {
-        this.opplysningerOmTilrettelegging = opplysningerOmTilrettelegging;
-    }
-
     public String getBegrunnelse() {
         return begrunnelse;
     }
@@ -85,21 +64,6 @@ public class SvpArbeidsforholdDto {
         this.begrunnelse = begrunnelse;
     }
 
-    public Boolean getKopiertFraTidligereBehandling() {
-        return kopiertFraTidligereBehandling;
-    }
-
-    public void setKopiertFraTidligereBehandling(Boolean kopiertFraTidligereBehandling) {
-        this.kopiertFraTidligereBehandling = kopiertFraTidligereBehandling;
-    }
-
-    public LocalDateTime getMottattTidspunkt() {
-        return mottattTidspunkt;
-    }
-
-    public void setMottattTidspunkt(LocalDateTime mottattTidspunkt) {
-        this.mottattTidspunkt = mottattTidspunkt;
-    }
 
     public void setInternArbeidsforholdReferanse(String internArbeidsforholdRef) {
         this.internArbeidsforholdReferanse = internArbeidsforholdRef;

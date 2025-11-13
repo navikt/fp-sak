@@ -212,7 +212,6 @@ public class UtvidetBehandlingDto {
         return språkkode;
     }
 
-    @JsonProperty("behandlingÅrsaker")
     public List<BehandlingÅrsakDto> getBehandlingÅrsaker() {
         return behandlingÅrsaker;
     }

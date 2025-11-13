@@ -13,6 +13,5 @@ public record KlageVurderingResultatDto(@NotNull String klageVurdertAv,
                                         KlageMedholdÅrsak klageMedholdArsak,
                                         KlageVurderingOmgjør klageVurderingOmgjoer,
                                         KlageHjemmel klageHjemmel,
-                                        boolean godkjentAvMedunderskriver,
                                         String fritekstTilBrev) {
 }

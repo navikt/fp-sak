@@ -9,15 +9,12 @@ import java.time.LocalDate;
 
 import jakarta.persistence.EntityManager;
 
-import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import no.nav.foreldrepenger.behandling.DekningsgradTjeneste;
 import no.nav.foreldrepenger.behandling.FagsakRelasjonTjeneste;
 import no.nav.foreldrepenger.behandling.FagsakTjeneste;
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBrukerKjønn;
@@ -48,6 +45,7 @@ import no.nav.foreldrepenger.web.app.tjenester.behandling.aksjonspunkt.Behandlin
 import no.nav.foreldrepenger.web.app.tjenester.behandling.aksjonspunkt.BehandlingsutredningTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.behandling.BehandlingDtoTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.SaksnummerDto;
+import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 
 @ExtendWith(MockitoExtension.class)
 @ExtendWith(JpaExtension.class)
@@ -89,7 +87,7 @@ class BehandlingRestTjenesteESTest {
         var uttakTjeneste = new UttakTjeneste(repositoryProvider.getBehandlingRepository(), null, null);
         var behandlingDtoTjeneste = new BehandlingDtoTjeneste(repositoryProvider, beregningTjeneste, uttakTjeneste, tilbakekrevingRepository,
             skjæringstidspunktTjeneste, esBeregningRepository, behandlingDokumentRepository, mock(TotrinnTjeneste.class), null, null, fagsakRelasjonTjeneste,
-            new UtregnetStønadskontoTjeneste(fagsakRelasjonTjeneste, mock(ForeldrepengerUttakTjeneste.class)), mock(DekningsgradTjeneste.class), vergeRepository,
+            new UtregnetStønadskontoTjeneste(fagsakRelasjonTjeneste, mock(ForeldrepengerUttakTjeneste.class)), vergeRepository,
             vedtaksbrevStatusUtleder, mock(EøsUttakRepository.class));
 
         henleggBehandlingTjeneste = mock(HenleggBehandlingTjeneste.class);

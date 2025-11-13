@@ -103,7 +103,6 @@ public class TilbakekrevingRestTjeneste {
     }
 
     private static TilbakekrevingValgDto map(TilbakekrevingValg valg) {
-        return new TilbakekrevingValgDto(valg.getErTilbakekrevingVilkårOppfylt(), valg.getGrunnerTilReduksjon(), valg.getVidereBehandling(),
-                valg.getVarseltekst());
+        return new TilbakekrevingValgDto(valg.getErTilbakekrevingVilkårOppfylt(), valg.getVidereBehandling(), valg.getVarseltekst());
     }
 }
