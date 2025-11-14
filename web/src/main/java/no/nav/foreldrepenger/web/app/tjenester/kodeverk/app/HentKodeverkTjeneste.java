@@ -99,7 +99,7 @@ public class HentKodeverkTjeneste {
         map.put(Region.class.getSimpleName(), Region.kodeMap().values());
         map.put(Landkoder.class.getSimpleName(), Landkoder.kodeMap().values());
         map.put(ArbeidType.class.getSimpleName(), filtrerArbeidType(ArbeidType.kodeMap().values()));
-        map.put(PeriodeResultatÅrsak.class.getSimpleName(), filtrerPeriodeResultat(PeriodeResultatÅrsak.kodeMap().values()));
+        map.put(PeriodeResultatÅrsak.class.getSimpleName(), PeriodeResultatÅrsak.kodeMap().values());
         map.put(OpptjeningAktivitetType.class.getSimpleName(), OpptjeningAktivitetType.kodeMap().values());
         map.put(RevurderingVarslingÅrsak.class.getSimpleName(), RevurderingVarslingÅrsak.kodeMap().values());
         map.put(AktivitetStatus.class.getSimpleName(), AktivitetStatus.kodeMap().values());
@@ -146,15 +146,6 @@ public class HentKodeverkTjeneste {
 
         KODEVERDIER_SOM_BRUKES_PÅ_KLIENT = Collections.unmodifiableMap(mapFiltered);
 
-    }
-
-    private static Collection<? extends Kodeverdi> filtrerPeriodeResultat(Collection<PeriodeResultatÅrsak> values) {
-        if (ENV.isProd()) {
-            return values.stream()
-                .filter(other -> !PeriodeResultatÅrsak.ANNEN_FORELDER_UTTAK_EØS.equals(other))
-                .collect(Collectors.toSet());
-        }
-        return values;
     }
 
     public HentKodeverkTjeneste() {
