@@ -37,7 +37,7 @@ public class ForvaltningBatchRestTjeneste {
     @Path("/autorun")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.TEXT_PLAIN)
-    @Operation(description = "Start task for å kjøre batchjobs", tags = "batch", responses = {
+    @Operation(description = "Start task for å kjøre batchjobs", tags = "FORVALTNING-batch", responses = {
             @ApiResponse(responseCode = "200", description = "Starter batch-scheduler"),
             @ApiResponse(responseCode = "500", description = "Feilet pga ukjent feil")
     })
