@@ -60,7 +60,7 @@ public class MapKalkulusYtelsegrunnlagFP implements MapKalkulusYtelsegrunnlag {
 
     public AktivitetGraderingDto finnAktivitetGraderingerKalkulus(BehandlingReferanse ref) {
         var periodeMedGradering = beregningGraderingTjeneste.finnPerioderMedGradering(ref);
-        return new AktivitetGraderingDto(mapTilDto(periodeMedGradering));
+        return periodeMedGradering.isEmpty() ? null : new AktivitetGraderingDto(mapTilDto(periodeMedGradering));
     }
 
     private List<AndelGraderingDto> mapTilDto(List<PeriodeMedGradering> perioderMedGradering) {
