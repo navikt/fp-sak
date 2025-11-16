@@ -1,5 +1,6 @@
 package no.nav.foreldrepenger.web.app.tjenester.forvaltning;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 import jakarta.enterprise.context.ApplicationScoped;
@@ -15,6 +16,9 @@ import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 
 import io.swagger.v3.oas.annotations.Operation;
+import no.nav.foreldrepenger.behandlingslager.behandling.DokumentKategori;
+import no.nav.foreldrepenger.behandlingslager.behandling.DokumentTypeId;
+import no.nav.foreldrepenger.behandlingslager.behandling.MottattDokument;
 import no.nav.foreldrepenger.behandlingslager.behandling.SpesialBehandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseGrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseRepository;
@@ -24,9 +28,13 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.domene.person.PersoninfoAdapter;
+import no.nav.foreldrepenger.domene.typer.JournalpostId;
 import no.nav.foreldrepenger.domene.typer.PersonIdent;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.familiehendelse.FamilieHendelseTjeneste;
+import no.nav.foreldrepenger.mottak.dokumentmottak.SaksbehandlingDokumentmottakTjeneste;
+import no.nav.foreldrepenger.web.app.tjenester.fordeling.OpprettSakTjeneste;
+import no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.MottaPapirsøknadDto;
 import no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.SaksnummerAnnenpartIdentDto;
 import no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.SaksnummerFødselsdatoDto;
 import no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.SaksnummerTermindatoDto;
@@ -46,11 +54,15 @@ public class ForvaltningSøknadRestTjeneste {
     private EntityManager entityManager;
     private PersoninfoAdapter personinfoAdapter;
     private FamilieHendelseTjeneste familieHendelseTjeneste;
+    private OpprettSakTjeneste opprettSakTjeneste;
+    private SaksbehandlingDokumentmottakTjeneste dokumentmottakTjeneste;
 
     @Inject
     public ForvaltningSøknadRestTjeneste(BehandlingRepositoryProvider repositoryProvider,
                                          FamilieHendelseTjeneste familieHendelseTjeneste,
-                                         PersoninfoAdapter personinfoAdapter) {
+                                         PersoninfoAdapter personinfoAdapter,
+                                         OpprettSakTjeneste opprettSakTjeneste,
+                                         SaksbehandlingDokumentmottakTjeneste dokumentmottakTjeneste) {
         this.fagsakRepository = repositoryProvider.getFagsakRepository();
         this.behandlingRepository = repositoryProvider.getBehandlingRepository();
         this.familieHendelseRepository = repositoryProvider.getFamilieHendelseRepository();
@@ -58,10 +70,47 @@ public class ForvaltningSøknadRestTjeneste {
         this.entityManager = repositoryProvider.getEntityManager();
         this.personinfoAdapter = personinfoAdapter;
         this.familieHendelseTjeneste = familieHendelseTjeneste;
+        this.opprettSakTjeneste = opprettSakTjeneste;
+        this.dokumentmottakTjeneste = dokumentmottakTjeneste;
     }
 
     public ForvaltningSøknadRestTjeneste() {
         // CDI
+    }
+
+    @POST
+    @Path("/papirsøknad")
+    @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+    @Operation(description = "Send inn en journalpost som papirsøknad", tags = "FORVALTNING-søknad")
+    @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.FAGSAK, sporingslogg = true)
+    public Response papirsøknad(@BeanParam @Valid MottaPapirsøknadDto dto) {
+        var fagsak = fagsakRepository.hentSakGittSaksnummer(new Saksnummer(dto.getSaksnummer())).orElseThrow();
+        var dokumentTypeId = DokumentTypeId.finnForKodeverkEiersKode(dto.getDokumentTypeId());
+        if (!dokumentTypeId.erSøknadType() && !dokumentTypeId.erEndringsSøknadType()) {
+            throw new ForvaltningException("DokumentTypeId er ikke en søknad: " + dto.getDokumentTypeId());
+        }
+        var ok = switch (fagsak.getYtelseType()) {
+            case FORELDREPENGER -> dokumentTypeId.erForeldrepengeSøknad();
+            case SVANGERSKAPSPENGER -> DokumentTypeId.SØKNAD_SVANGERSKAPSPENGER.equals(dokumentTypeId);
+            case ENGANGSTØNAD -> DokumentTypeId.SØKNAD_ENGANGSSTØNAD_FØDSEL.equals(dokumentTypeId) || DokumentTypeId.SØKNAD_ENGANGSSTØNAD_ADOPSJON.equals(dokumentTypeId);
+            case null, default -> false;
+        };
+        if (!ok) {
+            throw new ForvaltningException("DokumentTypeId "+ dto.getDokumentTypeId() + "matcher ikke sakstype: " + fagsak.getYtelseType());
+        }
+        var journalpostId = new JournalpostId(dto.getJournalpostId());
+        opprettSakTjeneste.knyttSakOgJournalpost(fagsak.getSaksnummer(), journalpostId);
+        var mottattDokument = new MottattDokument.Builder().medJournalPostId(journalpostId)
+            .medDokumentType(dokumentTypeId)
+            .medDokumentKategori(DokumentKategori.SØKNAD)
+            .medMottattDato(dto.getForsendelseMottatt())
+            .medMottattTidspunkt(LocalDateTime.now())
+            .medElektroniskRegistrert(false)
+            .medFagsakId(fagsak.getId())
+            .build();
+
+        dokumentmottakTjeneste.dokumentAnkommet(mottattDokument, null, fagsak.getSaksnummer());
+        return Response.ok().build();
     }
 
     @POST

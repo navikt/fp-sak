@@ -67,7 +67,7 @@ public class OpprettSakTjeneste {
         return fagsakTjeneste.finnFagsakGittSaksnummer(saksnummer, false);
     }
 
-    void knyttSakOgJournalpost(Saksnummer saksnummer, JournalpostId journalpostId) {
+    public void knyttSakOgJournalpost(Saksnummer saksnummer, JournalpostId journalpostId) {
         //Sjekk om det allerede finnes knytning.
         var journalpost = fagsakTjeneste.hentJournalpost(journalpostId);
         if (journalpost.isPresent()) {
