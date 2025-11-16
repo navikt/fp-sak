@@ -2,6 +2,8 @@ package no.nav.foreldrepenger.domene.iay.modell.kodeverk;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonValue;
 
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
 import no.nav.foreldrepenger.behandlingslager.ytelse.RelatertYtelseType;
@@ -53,14 +55,14 @@ public enum InntektYtelseType implements Kodeverdi {
 
     public static final String KODEVERK = "INNTEKT_YTELSE_TYPE";
 
+    @JsonIgnore
     private final String navn;
+    @JsonIgnore
     private final RelatertYtelseType ytelseType;
 
-    private final Kategori kategori;
-
+    @SuppressWarnings("unused") // Kategori: Beholder for likhet med Abakus
     InntektYtelseType(String navn, Kategori kategori, RelatertYtelseType ytelseType) {
         this.navn = navn;
-        this.kategori = kategori;
         this.ytelseType = ytelseType;
     }
 
@@ -79,6 +81,7 @@ public enum InntektYtelseType implements Kodeverdi {
     }
 
     @Override
+    @JsonValue
     public String getKode() {
         return name();
     }

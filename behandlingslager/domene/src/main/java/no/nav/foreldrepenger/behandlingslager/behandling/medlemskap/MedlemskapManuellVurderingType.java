@@ -3,39 +3,41 @@ package no.nav.foreldrepenger.behandlingslager.behandling.medlemskap;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Set;
 
 import jakarta.persistence.AttributeConverter;
 import jakarta.persistence.Converter;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonValue;
 
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
 
 public enum MedlemskapManuellVurderingType implements Kodeverdi {
 
-    UDEFINERT(STANDARDKODE_UDEFINERT, "Ikke definert", false),
-    MEDLEM("MEDLEM", "Periode med medlemskap", true),
-    UNNTAK("UNNTAK", "Periode med unntak fra medlemskap", true),
-    IKKE_RELEVANT("IKKE_RELEVANT", "Ikke relevant periode", true),
-    SAKSBEHANDLER_SETTER_OPPHØR_AV_MEDL_PGA_ENDRINGER_I_TPS("OPPHOR_PGA_ENDRING_I_TPS", "Opphør av medlemskap på grunn av endringer i tps", false),
+    UDEFINERT(STANDARDKODE_UDEFINERT, "Ikke definert"),
+    MEDLEM("MEDLEM", "Periode med medlemskap"),
+    UNNTAK("UNNTAK", "Periode med unntak fra medlemskap"),
+    IKKE_RELEVANT("IKKE_RELEVANT", "Ikke relevant periode"),
+    SAKSBEHANDLER_SETTER_OPPHØR_AV_MEDL_PGA_ENDRINGER_I_TPS("OPPHOR_PGA_ENDRING_I_TPS", "Opphør av medlemskap på grunn av endringer i tps"),
 
     ;
+
+    private static final Set<MedlemskapManuellVurderingType> GUI = Set.of(MEDLEM, UNNTAK, IKKE_RELEVANT);
 
     private static final Map<String, MedlemskapManuellVurderingType> KODER = new LinkedHashMap<>();
 
     public static final String KODEVERK = "MEDLEMSKAP_MANUELL_VURD";
 
+    @JsonIgnore
     private final String navn;
-
-    private final boolean visForGui;
 
     @JsonValue
     private final String kode;
 
-    MedlemskapManuellVurderingType(String kode, String navn, boolean visGui) {
+    MedlemskapManuellVurderingType(String kode, String navn) {
         this.kode = kode;
         this.navn = navn;
-        this.visForGui = visGui;
     }
 
     public static MedlemskapManuellVurderingType fraKode(String kode) {
@@ -59,7 +61,7 @@ public enum MedlemskapManuellVurderingType implements Kodeverdi {
     }
 
     public boolean visesPåKlient() {
-        return visForGui;
+        return GUI.contains(this);
     }
 
     @Override

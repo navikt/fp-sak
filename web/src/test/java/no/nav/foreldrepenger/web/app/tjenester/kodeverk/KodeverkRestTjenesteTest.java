@@ -2,95 +2,43 @@ package no.nav.foreldrepenger.web.app.tjenester.kodeverk;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import java.io.IOException;
+import java.util.Collection;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.Avslagsårsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakStatus;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Landkoder;
-import no.nav.foreldrepenger.behandlingslager.uttak.fp.PeriodeResultatÅrsak;
-import no.nav.foreldrepenger.web.app.jackson.JacksonJsonConfig;
-import no.nav.foreldrepenger.web.app.tjenester.kodeverk.app.HentKodeverkTjeneste;
+import no.nav.foreldrepenger.web.app.tjenester.kodeverk.app.HentKodeverdierTjeneste;
+import no.nav.foreldrepenger.web.app.tjenester.kodeverk.dto.KodeverdiMedNavnDto;
 
 class KodeverkRestTjenesteTest {
 
-    private HentKodeverkTjeneste hentKodeverkTjeneste;
-
-    @BeforeEach
-    void before() {
-        hentKodeverkTjeneste = new HentKodeverkTjeneste();
-    }
-
     @Test
-    void skal_hente_kodeverk_og_gruppere_på_kodeverknavn() throws IOException {
+    void skal_hente_kodeverk_og_gruppere_på_kodeverknavn_v2() {
 
-        var tjeneste = new KodeverkRestTjeneste(hentKodeverkTjeneste);
-        var response = tjeneste.hentGruppertKodeliste();
+        var tjeneste = new KodeverkRestTjeneste();
+        var response = tjeneste.hentGruppertKodelisteMedNavn();
 
-        var rawJson = (String) response.getEntity();
-        assertThat(rawJson).isNotNull();
-
-        Map<String, Object> gruppertKodeliste = new JacksonJsonConfig().getObjectMapper().readValue(rawJson, Map.class);
+        Map<String, Collection<KodeverdiMedNavnDto>> gruppertKodeliste = (Map<String, Collection<KodeverdiMedNavnDto>>)response.getEntity();
 
         assertThat(gruppertKodeliste)
-                .containsKeys(FagsakStatus.class.getSimpleName(), Avslagsårsak.class.getSimpleName(), Landkoder.class.getSimpleName());
+            .containsKeys(FagsakStatus.class.getSimpleName(), Avslagsårsak.class.getSimpleName(), Landkoder.class.getSimpleName());
 
         assertThat(gruppertKodeliste.keySet())
-                .containsAll(new HashSet<>(HentKodeverkTjeneste.KODEVERDIER_SOM_BRUKES_PÅ_KLIENT.keySet()));
+            .containsAll(new HashSet<>(HentKodeverdierTjeneste.KODEVERDIER_SOM_BRUKES_PÅ_KLIENT.keySet()));
 
-        assertThat(gruppertKodeliste.keySet()).hasSize(HentKodeverkTjeneste.KODEVERDIER_SOM_BRUKES_PÅ_KLIENT.size());
+        assertThat(gruppertKodeliste.keySet()).hasSize(HentKodeverdierTjeneste.KODEVERDIER_SOM_BRUKES_PÅ_KLIENT.size());
 
-        var fagsakStatuser = (List<Map<String, String>>) gruppertKodeliste.get(FagsakStatus.class.getSimpleName());
-        assertThat(fagsakStatuser.stream().map(k -> k.get("kode")).toList()).contains(FagsakStatus.AVSLUTTET.getKode(),
-                FagsakStatus.OPPRETTET.getKode());
+        var fagsakStatuser = gruppertKodeliste.get(FagsakStatus.class.getSimpleName());
+        assertThat(fagsakStatuser.stream().map(k -> k.kode()).toList()).contains(FagsakStatus.AVSLUTTET.getKode(),
+            FagsakStatus.OPPRETTET.getKode());
 
-        var avslagsårsaker = (List<Map<String, String>>) gruppertKodeliste.get(Avslagsårsak.class.getSimpleName());
-        assertThat(avslagsårsaker.stream().map(k -> ((Map) k).get("kode")).toList())
-                .contains(Avslagsårsak.FØDSELSDATO_IKKE_OPPGITT_ELLER_REGISTRERT.getKode(), Avslagsårsak.BARN_OVER_15_ÅR.getKode());
+        var avslagsårsaker = gruppertKodeliste.get(Avslagsårsak.class.getSimpleName());
+        assertThat(avslagsårsaker.stream().map(k -> k.kode()).toList())
+            .contains(Avslagsårsak.FØDSELSDATO_IKKE_OPPGITT_ELLER_REGISTRERT.getKode(), Avslagsårsak.BARN_OVER_15_ÅR.getKode());
     }
-
-    @Test
-    void serialize_kodeverdi_enums() throws Exception {
-        var jsonConfig = new JacksonJsonConfig();
-
-        var om = jsonConfig.getObjectMapper();
-
-        var json = om.writer().withDefaultPrettyPrinter().writeValueAsString(AksjonspunktDefinisjon.AUTO_MANUELT_SATT_PÅ_VENT);
-
-        assertThat(json).isEqualTo("\"7001\"");
-    }
-
-    @Test
-    void serialize_kodeverdi_uttak() throws Exception {
-
-        var jsonConfig = new JacksonJsonConfig();
-
-        var om = jsonConfig.getObjectMapper();
-
-        var json = om.writer().withDefaultPrettyPrinter().writeValueAsString(new X(PeriodeResultatÅrsak.STØNADSPERIODE_NYTT_BARN));
-
-        assertThat(json).contains("\"periodeResultatÅrsak\" : \"4104\"");
-    }
-
-    @Test
-    void serialize_kodeverdi_uttak_full() throws Exception {
-
-        var jsonConfig = new JacksonJsonConfig(true);
-
-        var om = jsonConfig.getObjectMapper();
-
-        var json = om.writer().withDefaultPrettyPrinter().writeValueAsString(new X(PeriodeResultatÅrsak.STØNADSPERIODE_NYTT_BARN));
-
-        assertThat(json).contains("\"kode\" : \"4104\"")
-            .contains("\"utfallType\" : \"AVSLÅTT\"");
-    }
-
-    private record X(PeriodeResultatÅrsak periodeResultatÅrsak) {}
 
 }
