@@ -11,8 +11,6 @@ import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.ext.ExceptionMapper;
 import jakarta.ws.rs.ext.Provider;
 
-import org.hibernate.validator.internal.engine.path.PathImpl;
-
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktKode;
 import no.nav.foreldrepenger.validering.FeltFeilDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.aksjonspunkt.BekreftedeAksjonspunkterDto;
@@ -70,7 +68,7 @@ public class ConstraintViolationMapper implements ExceptionMapper<ConstraintViol
     }
 
     private static String getFeltNavn(Path propertyPath) {
-        return propertyPath instanceof PathImpl ? ((PathImpl) propertyPath).getLeafNode().toString() : null;
+        return propertyPath instanceof org.hibernate.validator.path.Path  pi ? pi.getLeafNode().toString() : null;
     }
 
 }
