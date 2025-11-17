@@ -61,7 +61,7 @@ class ManglendeInntektsmeldingTjenesteTest {
         var skjæringstidspunkt = LocalDate.now().plusWeeks(3);
         var mottattDato = LocalDate.now();
 
-        var frist = manglendeInntektsmeldingTjeneste.finnVentefristTilManglendeInntektsmelding(behandlingMedMottattdatoForSøknad(mottattDato), tilSkjæringstidspunkt(skjæringstidspunkt));
+        var frist = manglendeInntektsmeldingTjeneste.finnInitiellVentefristTilManglendeInntektsmelding(behandlingMedMottattdatoForSøknad(mottattDato), tilSkjæringstidspunkt(skjæringstidspunkt));
 
         assertThat(frist).isEqualTo(mottattDato.plus(VENTEFRIST_IM_ETTER_SØKNAD_MOTTATT_DATO));
     }
@@ -71,7 +71,7 @@ class ManglendeInntektsmeldingTjenesteTest {
         var skjæringstidspunkt = LocalDate.now().plusWeeks(8);
         var mottattDato = LocalDate.now();
 
-        var frist = manglendeInntektsmeldingTjeneste.finnVentefristTilManglendeInntektsmelding(behandlingMedMottattdatoForSøknad(mottattDato), tilSkjæringstidspunkt(skjæringstidspunkt));
+        var frist = manglendeInntektsmeldingTjeneste.finnInitiellVentefristTilManglendeInntektsmelding(behandlingMedMottattdatoForSøknad(mottattDato), tilSkjæringstidspunkt(skjæringstidspunkt));
 
         assertThat(frist).isEqualTo(skjæringstidspunkt.minus(TIDLIGST_VENTEFRIST_IM_FØR_UTTAKSDATO));
     }
@@ -83,7 +83,7 @@ class ManglendeInntektsmeldingTjenesteTest {
         when(dokumentBehandlingTjenesteMock.dokumentSistBestiltTidspunkt(any(), any())).thenReturn(Optional.of(mottattDato.atStartOfDay()));
         when(inntektsmeldingTjeneste.hentInntektsmeldinger(any(), any())).thenReturn(List.of());
 
-        var frist = manglendeInntektsmeldingTjeneste.finnVentefristForEtterlysning(behandlingMedMottattdatoForSøknad(mottattDato), tilSkjæringstidspunkt(skjæringstidspunkt), 1);
+        var frist = manglendeInntektsmeldingTjeneste.finnNyVentefristVedEtterlysning(behandlingMedMottattdatoForSøknad(mottattDato), tilSkjæringstidspunkt(skjæringstidspunkt));
 
         assertThat(frist).isEqualTo(mottattDato.plus(VENTEFRIST_IM_ETTER_SØKNAD_MOTTATT_DATO).plus(VENTEFRIST_IM_ETTER_ETTERLYSNING));
     }
@@ -95,7 +95,7 @@ class ManglendeInntektsmeldingTjenesteTest {
         when(dokumentBehandlingTjenesteMock.dokumentSistBestiltTidspunkt(any(), any())).thenReturn(Optional.of(mottattDato.atStartOfDay()));
         when(inntektsmeldingTjeneste.hentInntektsmeldinger(any(), any())).thenReturn(List.of());
 
-        var frist = manglendeInntektsmeldingTjeneste.finnVentefristForEtterlysning(behandlingMedMottattdatoForSøknad(mottattDato), tilSkjæringstidspunkt(skjæringstidspunkt), 1);
+        var frist = manglendeInntektsmeldingTjeneste.finnNyVentefristVedEtterlysning(behandlingMedMottattdatoForSøknad(mottattDato), tilSkjæringstidspunkt(skjæringstidspunkt));
 
         assertThat(frist).isEqualTo(LocalDate.now().plus(VENTEFRIST_IM_ETTER_ETTERLYSNING));
     }
@@ -107,7 +107,7 @@ class ManglendeInntektsmeldingTjenesteTest {
         when(dokumentBehandlingTjenesteMock.dokumentSistBestiltTidspunkt(any(), any())).thenReturn(Optional.of(mottattDato.atStartOfDay()));
         when(inntektsmeldingTjeneste.hentInntektsmeldinger(any(), any())).thenReturn(List.of());
 
-        var frist = manglendeInntektsmeldingTjeneste.finnVentefristForEtterlysning(behandlingMedMottattdatoForSøknad(mottattDato), tilSkjæringstidspunkt(skjæringstidspunkt), 1);
+        var frist = manglendeInntektsmeldingTjeneste.finnNyVentefristVedEtterlysning(behandlingMedMottattdatoForSøknad(mottattDato), tilSkjæringstidspunkt(skjæringstidspunkt));
 
         assertThat(frist).isEqualTo(mottattDato.plus(VENTEFRIST_IM_ETTER_SØKNAD_MOTTATT_DATO).plus(VENTEFRIST_IM_ETTER_ETTERLYSNING));
     }
@@ -119,7 +119,7 @@ class ManglendeInntektsmeldingTjenesteTest {
         when(dokumentBehandlingTjenesteMock.dokumentSistBestiltTidspunkt(any(), any())).thenReturn(Optional.of(mottattDato.atStartOfDay()));
         when(inntektsmeldingTjeneste.hentInntektsmeldinger(any(), any())).thenReturn(List.of());
 
-        var frist = manglendeInntektsmeldingTjeneste.finnVentefristForEtterlysning(behandlingMedMottattdatoForSøknad(mottattDato), tilSkjæringstidspunkt(skjæringstidspunkt), 1);
+        var frist = manglendeInntektsmeldingTjeneste.finnNyVentefristVedEtterlysning(behandlingMedMottattdatoForSøknad(mottattDato), tilSkjæringstidspunkt(skjæringstidspunkt));
 
         assertThat(frist).isEqualTo(skjæringstidspunkt.plus(MAX_VENT_ETTER_STP).plus(VENTEFRIST_IM_ETTER_ETTERLYSNING));
     }
@@ -132,7 +132,7 @@ class ManglendeInntektsmeldingTjenesteTest {
         when(dokumentBehandlingTjenesteMock.dokumentSistBestiltTidspunkt(any(), any())).thenReturn(Optional.of(datoSendtUtEtterlysIM.atStartOfDay()));
         when(inntektsmeldingTjeneste.hentInntektsmeldinger(any(), any())).thenReturn(List.of());
 
-        var frist = manglendeInntektsmeldingTjeneste.finnVentefristForEtterlysning(behandlingMedMottattdatoForSøknad(mottattDato), tilSkjæringstidspunkt(skjæringstidspunkt), 1);
+        var frist = manglendeInntektsmeldingTjeneste.finnNyVentefristVedEtterlysning(behandlingMedMottattdatoForSøknad(mottattDato), tilSkjæringstidspunkt(skjæringstidspunkt));
 
         assertThat(frist).isEqualTo(datoSendtUtEtterlysIM.plusWeeks(1));
     }
@@ -150,7 +150,7 @@ class ManglendeInntektsmeldingTjenesteTest {
                 lagInntektsmelding(skjæringstidspunkt, tidligstInnsendingstidspunktIM.plusWeeks(1))
                 ));
 
-        var frist = manglendeInntektsmeldingTjeneste.finnVentefristForEtterlysning(behandlingMedMottattdatoForSøknad(mottattDato), tilSkjæringstidspunkt(skjæringstidspunkt), 1);
+        var frist = manglendeInntektsmeldingTjeneste.finnNyVentefristVedEtterlysning(behandlingMedMottattdatoForSøknad(mottattDato), tilSkjæringstidspunkt(skjæringstidspunkt));
 
         if (tidligstInnsendingstidspunktIM.getDayOfWeek().getValue() > DayOfWeek.TUESDAY.getValue()) {
             assertThat(frist).isEqualTo(tidligstInnsendingstidspunktIM.plusDays(5));
@@ -173,7 +173,7 @@ class ManglendeInntektsmeldingTjenesteTest {
                 lagInntektsmelding(skjæringstidspunkt, tidligstInnsendingstidspunktIM.plusWeeks(1))
             ));
 
-        var frist = manglendeInntektsmeldingTjeneste.finnVentefristForEtterlysning(behandlingMedMottattdatoForSøknad(mottattDato), tilSkjæringstidspunkt(skjæringstidspunkt), 1);
+        var frist = manglendeInntektsmeldingTjeneste.finnNyVentefristVedEtterlysning(behandlingMedMottattdatoForSøknad(mottattDato), tilSkjæringstidspunkt(skjæringstidspunkt));
         assertThat(frist).isEqualTo(datoSendtUtEtterlysIM.plusWeeks(1));
     }
 

@@ -99,7 +99,7 @@ public class KompletthetsjekkerImpl implements Kompletthetsjekker {
             var manglendeInntektsmeldingerFraGrunnlag = manglendeInntektsmeldingTjeneste.utledManglendeInntektsmeldingerFraGrunnlag(ref, stp);
             if (!manglendeInntektsmeldingerFraGrunnlag.isEmpty()) {
                 loggManglendeInntektsmeldinger(ref, manglendeInntektsmeldingerFraGrunnlag);
-                var frist = manglendeInntektsmeldingTjeneste.finnVentefristTilManglendeInntektsmelding(ref, stp);
+                var frist = manglendeInntektsmeldingTjeneste.finnInitiellVentefristTilManglendeInntektsmelding(ref, stp);
                 return ikkeOppfylt(frist, Venteårsak.VENT_OPDT_INNTEKTSMELDING);
             }
         }
@@ -140,7 +140,7 @@ public class KompletthetsjekkerImpl implements Kompletthetsjekker {
         }
 
         loggManglendeInntektsmeldinger(ref, manglendeInntektsmeldinger);
-        var ventefristForEtterlysning = manglendeInntektsmeldingTjeneste.finnVentefristForEtterlysning(ref, stp, manglendeInntektsmeldinger.size());
+        var ventefristForEtterlysning = manglendeInntektsmeldingTjeneste.finnNyVentefristVedEtterlysning(ref, stp);
         return ikkeOppfylt(ventefristForEtterlysning, Venteårsak.VENT_OPDT_INNTEKTSMELDING);
     }
 
