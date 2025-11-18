@@ -10,9 +10,9 @@ public interface KlageVurderingLagreDto {
 
     KlageVurdering getKlageVurdering();
 
-    KlageMedholdÅrsak getKlageMedholdArsak();
+    KlageMedholdÅrsak getKlageMedholdÅrsak();
 
-    KlageVurderingOmgjør getKlageVurderingOmgjoer();
+    KlageVurderingOmgjør getKlageVurderingOmgjør();
 
     KlageHjemmel getKlageHjemmel();
 

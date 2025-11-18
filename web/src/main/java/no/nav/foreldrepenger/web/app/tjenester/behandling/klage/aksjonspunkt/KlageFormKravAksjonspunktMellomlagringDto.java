@@ -3,6 +3,8 @@ package no.nav.foreldrepenger.web.app.tjenester.behandling.klage.aksjonspunkt;
 import java.time.LocalDate;
 import java.util.UUID;
 
+import com.fasterxml.jackson.annotation.JsonAlias;
+
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
@@ -27,8 +29,8 @@ public class KlageFormKravAksjonspunktMellomlagringDto implements KlageFormKravL
     @Valid
     private KlageTilbakekrevingDto klageTilbakekreving;
     private LocalDate mottattDato;
-    @JsonProperty("paKlagdBehandlingUuid")
-    private UUID paKlagdBehandlingUuid;
+    @JsonAlias("paKlagdBehandlingUuid")
+    private UUID påKlagdBehandlingUuid;
     @Size(max = 2000)
     @Pattern(regexp = InputValideringRegex.FRITEKST)
     private String begrunnelse;
@@ -47,7 +49,7 @@ public class KlageFormKravAksjonspunktMellomlagringDto implements KlageFormKravL
                                                      boolean erFristOverholdt,
                                                      boolean erKonkret,
                                                      boolean erSignert,
-                                                     UUID paKlagdBehandlingUuid,
+                                                     UUID påKlagdBehandlingUuid,
                                                      boolean erTilbakekreving,
                                                      KlageTilbakekrevingDto klageTilbakekreving,
                                                      String begrunnelse,
@@ -59,7 +61,7 @@ public class KlageFormKravAksjonspunktMellomlagringDto implements KlageFormKravL
         this.erFristOverholdt = erFristOverholdt;
         this.erKonkret = erKonkret;
         this.erSignert = erSignert;
-        this.paKlagdBehandlingUuid = paKlagdBehandlingUuid;
+        this.påKlagdBehandlingUuid = påKlagdBehandlingUuid;
         this.erTilbakekreving = erTilbakekreving;
         this.klageTilbakekreving = klageTilbakekreving;
         this.begrunnelse = begrunnelse;
@@ -92,13 +94,9 @@ public class KlageFormKravAksjonspunktMellomlagringDto implements KlageFormKravL
         return erSignert;
     }
 
-    public UUID paKlagdBehandlingUuid() {
-        return paKlagdBehandlingUuid;
-    }
-
     @Override
     public UUID påKlagdBehandlingUuid() {
-        return paKlagdBehandlingUuid;
+        return påKlagdBehandlingUuid;
     }
     @Override
     public boolean erTilbakekreving() {

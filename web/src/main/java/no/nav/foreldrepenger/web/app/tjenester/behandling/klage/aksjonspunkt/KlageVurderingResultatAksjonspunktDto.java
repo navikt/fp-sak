@@ -16,7 +16,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageVurderingOmg
 import no.nav.foreldrepenger.validering.ValidKodeverk;
 import no.nav.vedtak.util.InputValideringRegex;
 
-@JsonAutoDetect(getterVisibility= JsonAutoDetect.Visibility.NONE, setterVisibility= JsonAutoDetect.Visibility.NONE, fieldVisibility= JsonAutoDetect.Visibility.ANY)
+@JsonAutoDetect(getterVisibility = JsonAutoDetect.Visibility.NONE, setterVisibility = JsonAutoDetect.Visibility.NONE, fieldVisibility = JsonAutoDetect.Visibility.ANY)
 @JsonTypeName(AksjonspunktKodeDefinisjon.MANUELL_VURDERING_AV_KLAGE_NFP_KODE)
 public final class KlageVurderingResultatAksjonspunktDto extends BekreftetAksjonspunktDto implements KlageVurderingLagreDto {
 
@@ -33,7 +33,13 @@ public final class KlageVurderingResultatAksjonspunktDto extends BekreftetAksjon
     private KlageMedholdÅrsak klageMedholdArsak;
 
     @ValidKodeverk
+    private KlageMedholdÅrsak klageMedholdÅrsak;
+
+    @ValidKodeverk
     private KlageVurderingOmgjør klageVurderingOmgjoer;
+
+    @ValidKodeverk
+    private KlageVurderingOmgjør klageVurderingOmgjør;
 
     @ValidKodeverk
     private KlageHjemmel klageHjemmel;
@@ -42,17 +48,19 @@ public final class KlageVurderingResultatAksjonspunktDto extends BekreftetAksjon
         // For Jackson
     }
 
-    public KlageVurderingResultatAksjonspunktDto(
-            String begrunnelse,
-            KlageVurdering klageVurdering,
-            KlageMedholdÅrsak klageMedholdArsak,
-            String fritekstTilBrev, KlageVurderingOmgjør klageVurderingOmgjoer,
-            KlageHjemmel klageHjemmel) {
+    public KlageVurderingResultatAksjonspunktDto(String begrunnelse,
+                                                 KlageVurdering klageVurdering,
+                                                 KlageMedholdÅrsak klageMedholdÅrsak,
+                                                 String fritekstTilBrev,
+                                                 KlageVurderingOmgjør klageVurderingOmgjør,
+                                                 KlageHjemmel klageHjemmel) {
         super(begrunnelse);
         this.klageVurdering = klageVurdering;
         this.fritekstTilBrev = fritekstTilBrev;
-        this.klageMedholdArsak = klageMedholdArsak;
-        this.klageVurderingOmgjoer = klageVurderingOmgjoer;
+        this.klageMedholdArsak = klageMedholdÅrsak;
+        this.klageMedholdÅrsak = klageMedholdÅrsak;
+        this.klageVurderingOmgjoer = klageVurderingOmgjør;
+        this.klageVurderingOmgjør = klageVurderingOmgjør;
         this.klageHjemmel = klageHjemmel;
     }
 
@@ -66,13 +74,13 @@ public final class KlageVurderingResultatAksjonspunktDto extends BekreftetAksjon
     }
 
     @Override
-    public KlageMedholdÅrsak getKlageMedholdArsak() {
-        return klageMedholdArsak;
+    public KlageMedholdÅrsak getKlageMedholdÅrsak() {
+        return klageMedholdÅrsak == null ? klageMedholdArsak : klageMedholdÅrsak;
     }
 
     @Override
-    public KlageVurderingOmgjør getKlageVurderingOmgjoer() {
-        return klageVurderingOmgjoer;
+    public KlageVurderingOmgjør getKlageVurderingOmgjør() {
+        return klageVurderingOmgjør == null ? klageVurderingOmgjoer : klageVurderingOmgjør;
     }
 
     @Override
