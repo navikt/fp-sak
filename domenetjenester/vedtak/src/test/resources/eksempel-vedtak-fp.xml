@@ -341,7 +341,7 @@
                             <ns3:tom>2018-10-31</ns3:tom>
                         </ns15:periode>
                         <ns15:periodeResultatType kode="AVSLÅTT">Avslått</ns15:periodeResultatType>
-                        <ns15:perioderesultataarsak kode="4095">§14-10 første ledd. Mor tar ikke alle 3 ukene før termin</ns15:perioderesultataarsak>
+                        <ns15:perioderesultataarsak kode="4095">§ 14-10 første ledd. Mor tar ikke alle 3 ukene før termin</ns15:perioderesultataarsak>
                         <ns15:manuellbehandlingaarsak kode="-">Ikke definert</ns15:manuellbehandlingaarsak>
                         <ns15:begrunnelse/>
                         <ns15:uttaksresultatPeriodeAktiviteter>
@@ -365,7 +365,7 @@
                             <ns3:tom>2018-12-12</ns3:tom>
                         </ns15:periode>
                         <ns15:periodeResultatType kode="INNVILGET">Innvilget</ns15:periodeResultatType>
-                        <ns15:perioderesultataarsak kode="2001">§14-6: Uttak er oppfylt</ns15:perioderesultataarsak>
+                        <ns15:perioderesultataarsak kode="2001">§ 14-6: Uttak er oppfylt</ns15:perioderesultataarsak>
                         <ns15:manuellbehandlingaarsak kode="-">Ikke definert</ns15:manuellbehandlingaarsak>
                         <ns15:begrunnelse/>
                         <ns15:uttaksresultatPeriodeAktiviteter>
