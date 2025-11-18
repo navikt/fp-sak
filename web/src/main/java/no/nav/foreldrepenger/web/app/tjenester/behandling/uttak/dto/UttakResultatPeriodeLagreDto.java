@@ -27,10 +27,9 @@ public class UttakResultatPeriodeLagreDto {
     @NotNull
     private LocalDate tom;
 
-    @Valid
     @NotNull
     @Size(max = 100) //Ingen aktivitet for oppholdsperiode
-    private List<UttakResultatPeriodeAktivitetLagreDto> aktiviteter;
+    private List<@Valid UttakResultatPeriodeAktivitetLagreDto> aktiviteter;
 
     @Pattern(regexp = InputValideringRegex.FRITEKST)
     @Size(max = 4000)

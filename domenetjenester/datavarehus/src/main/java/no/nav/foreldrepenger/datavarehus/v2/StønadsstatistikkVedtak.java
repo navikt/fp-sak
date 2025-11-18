@@ -262,7 +262,7 @@ public class StønadsstatistikkVedtak {
     record ForeldrepengerRettigheter(@NotNull Integer dekningsgrad,
                                      @NotNull RettighetType rettighetType,
                                      @NotNull Set<@Valid Stønadskonto> stønadskonti,
-                                     @Valid Set<Stønadsutvidelse> stønadsutvidelser) {
+                                     Set<@Valid Stønadsutvidelse> stønadsutvidelser) {
 
         record Stønadskonto(@NotNull StønadskontoType type,
                             @NotNull @Valid Trekkdager maksdager,

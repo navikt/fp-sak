@@ -1,12 +1,12 @@
 package no.nav.foreldrepenger.web.app.konfig;
 
 import static java.util.Arrays.asList;
-import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedParameterizedType;
+import java.lang.reflect.AnnotatedType;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.ParameterizedType;
@@ -15,6 +15,7 @@ import java.math.BigDecimal;
 import java.net.URISyntaxException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -28,6 +29,7 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.UUID;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import jakarta.persistence.Entity;
@@ -81,22 +83,8 @@ class RestApiOppdragInputValideringDtoTest extends RestApiTester {
         PathParam.class);
 
     @SuppressWarnings("rawtypes")
-    private static final Map<Class, List<List<Class<? extends Annotation>>>> UNNTATT_FRA_VALIDERING = new HashMap<>() {
-        {
-
-            put(PersonIdent.class, singletonList(emptyList()));
-
-            put(boolean.class, singletonList(emptyList()));
-            put(Boolean.class, singletonList(emptyList()));
-
-            // LocalDate og LocalDateTime har egne deserializers
-            put(LocalDate.class, singletonList(emptyList()));
-            put(LocalDateTime.class, singletonList(emptyList()));
-
-            // Enforces av UUID selv
-            put(UUID.class, singletonList(emptyList()));
-        }
-    };
+    private static final Set<Class> UNNTATT_FRA_VALIDERING = Set.of(PersonIdent.class, boolean.class, Boolean.class, UUID.class,
+        LocalDate.class, LocalDateTime.class);
 
     @SuppressWarnings("rawtypes")
     private static final Map<Class, List<List<Class<? extends Annotation>>>> VALIDERINGSALTERNATIVER = new HashMap<>() {
@@ -110,7 +98,7 @@ class RestApiOppdragInputValideringDtoTest extends RestApiTester {
             put(BigDecimal.class, asList(asList(Min.class, Max.class, Digits.class),
                 asList(DecimalMin.class, DecimalMax.class, Digits.class)));
 
-            putAll(UNNTATT_FRA_VALIDERING);
+            UNNTATT_FRA_VALIDERING.forEach(k -> put(k, List.of(List.of())));
         }
     };
 
@@ -119,19 +107,8 @@ class RestApiOppdragInputValideringDtoTest extends RestApiTester {
         if (field.getType().isEnum()) {
             return Collections.singletonList(Collections.singletonList(Valid.class));
         }
-        if (Collection.class.isAssignableFrom(type) || Map.class.isAssignableFrom(type)) {
-            if (brukerGenerics(field)) {
-                var args = ((ParameterizedType) field.getGenericType()).getActualTypeArguments();
-                if (Arrays.stream(args).allMatch(UNNTATT_FRA_VALIDERING::containsKey)) {
-                    return Collections.singletonList(List.of(Size.class));
-                }
-                if (args.length == 1 && erKodeverk(args)) {
-                    return Collections.singletonList(List.of(Valid.class, Size.class));
-                }
-
-            }
-            return singletonList(List.of(Valid.class, Size.class));
-
+        if (Properties.class.isAssignableFrom(type) ) {
+            return List.of(List.of(Size.class));
         }
         return VALIDERINGSALTERNATIVER.get(type);
     }
@@ -203,18 +180,20 @@ class RestApiOppdragInputValideringDtoTest extends RestApiTester {
             }
             if (erKodeverk(field.getType())) {
                 validerHarValidkodeverkAnnotering(field);
+            } else if (isCollectionOrMapNotProperties(field)) { // Containers håndteres av brukergenerics
+                validerCollectionOrMap(field);
             } else if (getVurderingsalternativer(field) != null) {
                 validerRiktigAnnotert(field); // har konfigurert opp spesifikk validering
             } else if (field.getType().getName().startsWith("java")) {
-                       throw new AssertionError(
+                throw new AssertionError(
                     "Feltet " + field + " har ikke påkrevde annoteringer. Trenger evt. utvidelse av denne testen for å akseptere denne typen.");
             } else {
                 validerHarValidAnnotering(field);
                 validerRekursivt(besøkteKlasser, field.getType(), forrigeKlasse);
             }
-            if (brukerGenerics(field)) {
+            if (field.getGenericType() instanceof ParameterizedType parameterizedType) {
                 validerRekursivt(besøkteKlasser, field.getType(), forrigeKlasse);
-                for (var klazz : genericTypes(field)) {
+                for (var klazz : genericTypes(parameterizedType)) {
                     validerRekursivt(besøkteKlasser, klazz, forrigeKlasse);
                 }
             }
@@ -248,18 +227,41 @@ class RestApiOppdragInputValideringDtoTest extends RestApiTester {
         }
     }
 
-    private static Set<Class<?>> genericTypes(Field field) {
-        Set<Class<?>> klasser = new HashSet<>();
-        var type = (ParameterizedType) field.getGenericType();
-        for (var t : type.getActualTypeArguments()) {
-            klasser.add((Class<?>) t);
-        }
-        return klasser;
+    private static Set<Class<?>> genericTypes(ParameterizedType parameterizedType) {
+        return Arrays.stream(parameterizedType.getActualTypeArguments()).map(a -> (Class<?>) a).collect(Collectors.toSet());
     }
 
-    private static boolean brukerGenerics(Field field) {
-        return field.getGenericType() instanceof ParameterizedType;
+    private static void validerCollectionOrMap(Field field) {
+        // Ikke Valid før Collection/Map - men inne i generics-delen
+        if (field.getAnnotatedType().getAnnotation(Valid.class) != null) {
+            throw new AssertionError("Flytt annotering @Valid inn i List/Set/Collection/Map for feltet " + field + ".");
+        }
+        // Har Validering inne i generics-delen
+        if (field.getAnnotatedType() instanceof AnnotatedParameterizedType annotatedParameterizedType) {
+            var annotert = annotatedParameterizedType.getAnnotatedActualTypeArguments();
+            for (var ann : annotert) {
+                var kreverAnnoteringer = utledKrav(ann.getType());
+                validerRiktigAnnotert(ann, kreverAnnoteringer);
+            }
+            return;
+        }
+        throw new IllegalArgumentException("Feltet " + field + " har ikke påkrevde annoteringer.");
     }
+
+    private static List<List<Class<? extends Annotation>>> utledKrav(Type type) {
+        var kreverAnnoteringer = new ArrayList<List<Class<? extends Annotation>>>();
+        if (erKodeverk(type)) {
+            kreverAnnoteringer.add(List.of(ValidKodeverk.class));
+        } else if (isCollectionOrMap(type)) {
+            kreverAnnoteringer.add(List.of(Size.class));
+        } else if (VALIDERINGSALTERNATIVER.keySet().contains(type)) {
+            kreverAnnoteringer.addAll(VALIDERINGSALTERNATIVER.get(type));
+        } else {
+            kreverAnnoteringer.add(List.of(Valid.class));
+        }
+        return kreverAnnoteringer;
+    }
+
 
     private static Set<Field> getRelevantFields(Class<?> klasse) {
         Set<Field> fields = new LinkedHashSet<>();
@@ -277,34 +279,29 @@ class RestApiOppdragInputValideringDtoTest extends RestApiTester {
     private static void validerRiktigAnnotert(Field field) {
         var alternativer = getVurderingsalternativer(field);
         for (var alternativ : alternativer) {
-            var harAlleAnnoteringerForAlternativet = true;
-            for (var annotering : alternativ) {
-                if (field.getAnnotation(annotering) == null) {
-                    harAlleAnnoteringerForAlternativet = false;
-                }
-            }
-            if (harAlleAnnoteringerForAlternativet) {
-                validerRiktigAnnotertForCollectionsAndMaps(field);
+            if (alternativ.isEmpty() || alternativ.stream().allMatch(field::isAnnotationPresent)) {
                 return;
             }
         }
         throw new IllegalArgumentException("Feltet " + field + " har ikke påkrevde annoteringer: " + alternativer);
     }
 
-    private static void validerRiktigAnnotertForCollectionsAndMaps(Field field) {
-        if (!Properties.class.isAssignableFrom(field.getType()) && (Collection.class.isAssignableFrom(
-            field.getType()) || Map.class.isAssignableFrom(field.getType()))) {
-            var annType = (AnnotatedParameterizedType) field.getAnnotatedType();
-            var annotatedTypes = annType.getAnnotatedActualTypeArguments();
-            for (var at : List.of(annotatedTypes)) {
-                if (erKodeverk(at.getType())) {
-                    if (!at.isAnnotationPresent(ValidKodeverk.class)) {
-                        throw new IllegalArgumentException(
-                            "Feltet " + field + " har ikke påkrevd annotering for kodeverk: @" + ValidKodeverk.class.getSimpleName());
-                    }
-                }
+    private static void validerRiktigAnnotert(AnnotatedType ann, List<List<Class<? extends Annotation>>> alternativer) {
+        for (var alternativ : alternativer) {
+            if (alternativ.isEmpty() || alternativ.stream().allMatch(ann::isAnnotationPresent)) {
+                return;
             }
         }
+        throw new IllegalArgumentException("Type " + ann + " har ikke påkrevde annoteringer: " + alternativer);
     }
+
+    private static boolean isCollectionOrMapNotProperties(Field field) {
+        return Collection.class.isAssignableFrom(field.getType()) || Map.class.isAssignableFrom(field.getType()) && !Properties.class.isAssignableFrom(field.getType());
+    }
+
+    private static boolean isCollectionOrMap(Type type) {
+        return Collection.class.isAssignableFrom(type.getClass()) || Map.class.isAssignableFrom(type.getClass());
+    }
+
 
 }

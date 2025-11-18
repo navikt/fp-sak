@@ -94,7 +94,7 @@ public class HendelserRestTjeneste {
     @Path("/grovsorter")
     @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.DRIFT, sporingslogg = false)
     public List<String> grovSorter(@TilpassetAbacAttributt(supplierClass = HendelserRestTjeneste.AktørIdDtoAbacDataSupplier.class)
-        @Parameter(description = "Liste med aktør IDer som skal sorteres") @Valid List<AktørIdDto> aktoerIdListe) {
+        @Parameter(description = "Liste med aktør IDer som skal sorteres") List<@Valid AktørIdDto> aktoerIdListe) {
         var aktørIdList = aktoerIdListe.stream().map(AktørIdDto::getAktørId).map(AktørId::new).collect(Collectors.toSet());
         return sorteringRepository.hentEksisterendeAktørIderMedSak(aktørIdList).stream().map(AktørId::getId).toList();
     }
@@ -104,7 +104,7 @@ public class HendelserRestTjeneste {
     @Path("/grovsorter-historisk")
     @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.DRIFT, sporingslogg = false)
     public List<String> grovSorterHistorisk(@TilpassetAbacAttributt(supplierClass = HendelserRestTjeneste.AktørIdDtoAbacDataSupplier.class)
-                                   @Parameter(description = "Liste med aktør IDer som skal sorteres") @Valid List<AktørIdDto> aktoerIdListe) {
+                                   @Parameter(description = "Liste med aktør IDer som skal sorteres") List<@Valid AktørIdDto> aktoerIdListe) {
         var aktørIdList = aktoerIdListe.stream().map(AktørIdDto::getAktørId).map(AktørId::new).collect(Collectors.toSet());
         var funnet = sorteringRepository.hentEksisterendeAktørIderMedHistoriskSak(aktørIdList);
         if (!funnet.isEmpty()) {

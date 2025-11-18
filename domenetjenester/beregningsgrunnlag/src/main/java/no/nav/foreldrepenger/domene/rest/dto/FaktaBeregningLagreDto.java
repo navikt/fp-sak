@@ -26,7 +26,6 @@ public class FaktaBeregningLagreDto {
     private VurderATogFLiSammeOrganisasjonDto vurderATogFLiSammeOrganisasjon;
     @Valid
     private BesteberegningFødendeKvinneDto besteberegningAndeler;
-    @Valid
     private List<@ValidKodeverk FaktaOmBeregningTilfelle> faktaOmBeregningTilfeller;
     @Valid
     private FastsettBgKunYtelseDto kunYtelseFordeling;
