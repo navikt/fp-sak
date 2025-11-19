@@ -91,13 +91,13 @@ public class AnkeRestTjeneste {
 
     private static AnkeVurderingResultatDto lagDto(AnkeVurderingResultatEntitet ankeVurderingResultat, UUID påAnketKlageBehandlingUuid) {
         return new AnkeVurderingResultatDto(ankeVurderingResultat.getAnkeVurdering(), ankeVurderingResultat.getBegrunnelse(),
-            ankeVurderingResultat.getFritekstTilBrev(), ankeVurderingResultat.getAnkeOmgjørÅrsak(), ankeVurderingResultat.getAnkeOmgjørÅrsak(),
-            ankeVurderingResultat.getAnkeVurderingOmgjør(), ankeVurderingResultat.getAnkeVurderingOmgjør(), ankeVurderingResultat.erAnkerIkkePart(),
+            ankeVurderingResultat.getFritekstTilBrev(), ankeVurderingResultat.getAnkeOmgjørÅrsak(),
+            ankeVurderingResultat.getAnkeVurderingOmgjør(), ankeVurderingResultat.erAnkerIkkePart(),
             ankeVurderingResultat.erFristIkkeOverholdt(), ankeVurderingResultat.erIkkeKonkret(), ankeVurderingResultat.erIkkeSignert(),
             ankeVurderingResultat.erSubsidiartRealitetsbehandles(), ankeVurderingResultat.getErMerknaderMottatt(),
             ankeVurderingResultat.getMerknaderFraBruker(), påAnketKlageBehandlingUuid, ankeVurderingResultat.getTrygderettVurdering(),
-            ankeVurderingResultat.getTrygderettOmgjørÅrsak(), ankeVurderingResultat.getTrygderettOmgjørÅrsak(),
-            ankeVurderingResultat.getTrygderettVurderingOmgjør(), ankeVurderingResultat.getTrygderettVurderingOmgjør());
+            ankeVurderingResultat.getTrygderettOmgjørÅrsak(),
+            ankeVurderingResultat.getTrygderettVurderingOmgjør());
     }
 
 }

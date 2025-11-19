@@ -10,9 +10,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageVurderingOmg
 public record KlageVurderingResultatDto(@NotNull String klageVurdertAv,
                                         KlageVurdering klageVurdering,
                                         String begrunnelse,
-                                        KlageMedholdÅrsak klageMedholdArsak,
                                         KlageMedholdÅrsak klageMedholdÅrsak,
-                                        KlageVurderingOmgjør klageVurderingOmgjoer,
                                         KlageVurderingOmgjør klageVurderingOmgjør,
                                         KlageHjemmel klageHjemmel,
                                         String fritekstTilBrev) {

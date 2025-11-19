@@ -249,8 +249,6 @@ public class KlageRestTjeneste {
             klageVurderingResultat.getKlageVurdering(),
             klageVurderingResultat.getBegrunnelse(),
             klageVurderingResultat.getKlageMedholdÅrsak(),
-            klageVurderingResultat.getKlageMedholdÅrsak(),
-            klageVurderingResultat.getKlageVurderingOmgjør(),
             klageVurderingResultat.getKlageVurderingOmgjør(),
             klageVurderingResultat.getKlageHjemmel(),
             klageVurderingResultat.getFritekstTilBrev());
@@ -261,8 +259,6 @@ public class KlageRestTjeneste {
             KlageVurdering.UDEFINERT,
             null,
             KlageMedholdÅrsak.UDEFINERT,
-            KlageMedholdÅrsak.UDEFINERT,
-            KlageVurderingOmgjør.UDEFINERT,
             KlageVurderingOmgjør.UDEFINERT,
             KlageHjemmel.UDEFINERT,
             null);
@@ -276,13 +272,11 @@ public class KlageRestTjeneste {
             paKlagdEksternBehandlingUuid.flatMap(b -> hentPåklagdBehandlingIdForEksternApplikasjon(b, fptilbakeRestKlient));
         var behandlingUuid = påklagdBehandling.map(Behandling::getUuid).orElseGet(() -> tilbakekrevingVedtakDto.map(TilbakeBehandlingDto::uuid).orElse(null));
         return new KlageFormkravResultatDto(behandlingUuid,
-            behandlingUuid,
             klageFormkrav.hentBegrunnelse(),
             klageFormkrav.erKlagerPart(),
             klageFormkrav.erKonkret(),
             klageFormkrav.erFristOverholdt(),
             klageFormkrav.erSignert(),
-            klageFormkrav.hentAvvistÅrsaker(),
             klageFormkrav.hentAvvistÅrsaker());
     }
 
