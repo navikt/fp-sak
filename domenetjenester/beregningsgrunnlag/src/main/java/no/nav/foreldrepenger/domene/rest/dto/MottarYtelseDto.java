@@ -9,9 +9,8 @@ import jakarta.validation.constraints.Size;
 public class MottarYtelseDto {
 
     private Boolean frilansMottarYtelse;
-    @Valid
     @Size(max = 100)
-    private List<ArbeidstakerandelUtenIMMottarYtelseDto> arbeidstakerUtenIMMottarYtelse;
+    private List<@Valid ArbeidstakerandelUtenIMMottarYtelseDto> arbeidstakerUtenIMMottarYtelse;
 
     MottarYtelseDto() {
         // For Jackson

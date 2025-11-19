@@ -42,13 +42,11 @@ public abstract class ManuellRegistreringDto extends BekreftetAksjonspunktDto {
     private boolean harTidligereOppholdUtenlands;
     private boolean harFremtidigeOppholdUtenlands;
 
-    @Valid
     @Size(max = 1000)
-    private List<UtenlandsoppholdDto> tidligereOppholdUtenlands;
+    private List<@Valid UtenlandsoppholdDto> tidligereOppholdUtenlands;
 
-    @Valid
     @Size(max = 1000)
-    private List<UtenlandsoppholdDto> fremtidigeOppholdUtenlands;
+    private List<@Valid UtenlandsoppholdDto> fremtidigeOppholdUtenlands;
 
     private boolean erBarnetFodt;
     private LocalDate termindato;

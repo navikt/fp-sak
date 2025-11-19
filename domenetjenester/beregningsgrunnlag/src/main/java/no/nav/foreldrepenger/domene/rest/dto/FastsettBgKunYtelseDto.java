@@ -8,9 +8,8 @@ import jakarta.validation.constraints.Size;
 
 public class FastsettBgKunYtelseDto {
 
-    @Valid
     @Size(min = 1, max = 100)
-    private List<FastsattBrukersAndel> andeler;
+    private List<@Valid FastsattBrukersAndel> andeler;
 
     private Boolean skalBrukeBesteberegning;
 

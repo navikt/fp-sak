@@ -9,10 +9,9 @@ import jakarta.validation.constraints.Size;
 
 public class VurderTidsbegrensetArbeidsforholdDto {
 
-    @Valid
     @NotNull
     @Size(max = 100)
-    private List<VurderteArbeidsforholdDto> fastsatteArbeidsforhold;
+    private List<@Valid VurderteArbeidsforholdDto> fastsatteArbeidsforhold;
 
     VurderTidsbegrensetArbeidsforholdDto() {
         // For Jackson

@@ -13,10 +13,9 @@ import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspun
 
 public abstract class FastsetteUttakDto extends BekreftetAksjonspunktDto {
 
-    @Valid
     @NotNull
     @Size(min = 1, max = 1500)
-    private List<UttakResultatPeriodeLagreDto> perioder;
+    private List<@Valid UttakResultatPeriodeLagreDto> perioder;
 
     FastsetteUttakDto() {
         // jackson

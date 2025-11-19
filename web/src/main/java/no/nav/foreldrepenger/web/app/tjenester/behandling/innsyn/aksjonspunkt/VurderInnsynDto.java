@@ -32,10 +32,9 @@ public class VurderInnsynDto extends BekreftetAksjonspunktDto {
     private LocalDate mottattDato;
 
     @JsonProperty("innsynDokumenter")
-    @Valid
     @NotNull
     @Size(max = 1000)
-    private List<VurderInnsynDokumentDto> innsynDokumenter;
+    private List<@Valid VurderInnsynDokumentDto> innsynDokumenter;
 
     @JsonProperty("sattPaVent")
     private boolean sattPaVent;

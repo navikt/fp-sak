@@ -13,10 +13,9 @@ import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspun
 
 public abstract class FaktaUttakDto extends BekreftetAksjonspunktDto {
 
-    @Valid
     @NotNull
     @Size(min = 1, max = 200)
-    private List<FaktaUttakPeriodeDto> perioder;
+    private List<@Valid FaktaUttakPeriodeDto> perioder;
 
     FaktaUttakDto() {
         // jackson

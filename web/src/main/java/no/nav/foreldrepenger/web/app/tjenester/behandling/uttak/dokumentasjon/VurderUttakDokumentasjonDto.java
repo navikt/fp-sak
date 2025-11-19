@@ -14,7 +14,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspun
 @JsonTypeName(AksjonspunktKodeDefinisjon.VURDER_UTTAK_DOKUMENTASJON_KODE)
 class VurderUttakDokumentasjonDto extends BekreftetAksjonspunktDto {
 
-    @Valid
     @NotNull
     @Size(min = 1, max = 200)
     private List<@Valid @NotNull DokumentasjonVurderingBehovDto> vurderingBehov;

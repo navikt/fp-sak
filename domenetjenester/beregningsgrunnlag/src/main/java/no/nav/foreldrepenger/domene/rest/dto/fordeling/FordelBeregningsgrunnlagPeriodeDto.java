@@ -9,9 +9,8 @@ import jakarta.validation.constraints.Size;
 
 public class FordelBeregningsgrunnlagPeriodeDto {
 
-    @Valid
     @Size(max = 100)
-    private List<FordelBeregningsgrunnlagAndelDto> andeler;
+    private List<@Valid FordelBeregningsgrunnlagAndelDto> andeler;
     @NotNull
     private LocalDate fom;
     private LocalDate tom;
