@@ -48,10 +48,9 @@ public class EndreInntektsmeldingDto implements AbacDto {
     @Max(value = Long.MAX_VALUE)
     private Long refusjonPrMndFraStart;
 
-    @Valid
     @QueryParam("refusjonsendringer")
     @Size(max = 20)
-    private List<RefusjonsendringDto> refusjonsendringer;
+    private List<@Valid RefusjonsendringDto> refusjonsendringer;
 
     public EndreInntektsmeldingDto() {
         // Jackson

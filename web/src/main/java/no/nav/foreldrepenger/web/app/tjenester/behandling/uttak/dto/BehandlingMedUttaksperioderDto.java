@@ -13,10 +13,9 @@ public class BehandlingMedUttaksperioderDto {
     @NotNull
     private UUID behandlingUuid;
 
-    @Valid
     @NotNull
     @Size(min = 1, max = 1500)
-    private List<UttakResultatPeriodeLagreDto> perioder;
+    private List<@Valid UttakResultatPeriodeLagreDto> perioder;
 
     public UUID getBehandlingUuid() {
         return behandlingUuid;

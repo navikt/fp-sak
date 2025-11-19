@@ -6,5 +6,5 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
-public record FeriepengegrunnlagDto(@NotNull @Valid @Size(max = 100) List<FeriepengegrunnlagAndelDto> andeler) {
+public record FeriepengegrunnlagDto(@NotNull @Size(max = 100) List<@Valid FeriepengegrunnlagAndelDto> andeler) {
 }
