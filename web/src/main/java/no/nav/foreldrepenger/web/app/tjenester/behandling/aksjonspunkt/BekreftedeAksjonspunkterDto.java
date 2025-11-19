@@ -23,8 +23,7 @@ public class BekreftedeAksjonspunkterDto {
     private Long behandlingVersjon;
 
     @Size(min = 1, max = 10)
-    @Valid
-    private Collection<BekreftetAksjonspunktDto> bekreftedeAksjonspunktDtoer;
+    private Collection<@Valid BekreftetAksjonspunktDto> bekreftedeAksjonspunktDtoer;
 
     public static BekreftedeAksjonspunkterDto lagDto(UUID behandlingUuid,
                                                      Long behandlingVersjon,

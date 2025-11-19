@@ -22,9 +22,8 @@ public class OverstyrteAksjonspunkterDto {
     @Max(Long.MAX_VALUE)
     private Long behandlingVersjon;
 
-    @Valid
     @Size(min = 1, max = 10)
-    private Collection<OverstyringAksjonspunktDto> overstyrteAksjonspunktDtoer;
+    private Collection<@Valid OverstyringAksjonspunktDto> overstyrteAksjonspunktDtoer;
 
     public UUID getBehandlingUuid() {
         return behandlingUuid;

@@ -51,11 +51,10 @@ public class OppdragPatchDto implements AbacDto {
     @JsonProperty("fagsystemId")
     private Long fagsystemId;
 
-    @Valid
     @NotNull
     @Size(min = 1, max = 20)
     @JsonProperty("oppdragslinjer")
-    private List<OppdragslinjePatchDto> oppdragslinjer;
+    private List<@Valid OppdragslinjePatchDto> oppdragslinjer;
 
     @JsonProperty("bruk-ompostering116")
     private boolean brukOmpostering116 = false;

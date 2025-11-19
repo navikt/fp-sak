@@ -1,10 +1,10 @@
 package no.nav.foreldrepenger.domene.aksjonspunkt;
 
+import java.util.List;
+
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
-
-import java.util.List;
 
 public class RefusjonoverstyringEndring {
 
@@ -13,7 +13,7 @@ public class RefusjonoverstyringEndring {
     public RefusjonoverstyringEndring() {
     }
 
-    public RefusjonoverstyringEndring(@Valid @Size(min = 1) @NotNull List<RefusjonoverstyringPeriodeEndring> refusjonperiodeEndringer) {
+    public RefusjonoverstyringEndring(@Size(min = 1) @NotNull List<@Valid RefusjonoverstyringPeriodeEndring> refusjonperiodeEndringer) {
         this.refusjonperiodeEndringer = refusjonperiodeEndringer;
     }
 
