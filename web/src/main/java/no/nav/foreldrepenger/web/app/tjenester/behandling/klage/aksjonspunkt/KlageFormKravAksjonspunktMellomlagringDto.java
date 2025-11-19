@@ -3,7 +3,6 @@ package no.nav.foreldrepenger.web.app.tjenester.behandling.klage.aksjonspunkt;
 import java.time.LocalDate;
 import java.util.UUID;
 
-import com.fasterxml.jackson.annotation.JsonAlias;
 
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
@@ -11,7 +10,6 @@ import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
-import com.fasterxml.jackson.annotation.JsonProperty;
 
 import no.nav.vedtak.util.InputValideringRegex;
 @JsonAutoDetect(getterVisibility= JsonAutoDetect.Visibility.NONE, setterVisibility= JsonAutoDetect.Visibility.NONE, fieldVisibility= JsonAutoDetect.Visibility.ANY)
@@ -29,7 +27,6 @@ public class KlageFormKravAksjonspunktMellomlagringDto implements KlageFormKravL
     @Valid
     private KlageTilbakekrevingDto klageTilbakekreving;
     private LocalDate mottattDato;
-    @JsonAlias("paKlagdBehandlingUuid")
     private UUID påKlagdBehandlingUuid;
     @Size(max = 2000)
     @Pattern(regexp = InputValideringRegex.FRITEKST)

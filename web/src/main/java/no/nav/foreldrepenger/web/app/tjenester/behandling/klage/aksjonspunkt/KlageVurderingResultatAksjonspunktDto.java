@@ -30,13 +30,8 @@ public final class KlageVurderingResultatAksjonspunktDto extends BekreftetAksjon
     private String fritekstTilBrev;
 
     @ValidKodeverk
-    private KlageMedholdÅrsak klageMedholdArsak;
-
-    @ValidKodeverk
     private KlageMedholdÅrsak klageMedholdÅrsak;
 
-    @ValidKodeverk
-    private KlageVurderingOmgjør klageVurderingOmgjoer;
 
     @ValidKodeverk
     private KlageVurderingOmgjør klageVurderingOmgjør;
@@ -57,9 +52,7 @@ public final class KlageVurderingResultatAksjonspunktDto extends BekreftetAksjon
         super(begrunnelse);
         this.klageVurdering = klageVurdering;
         this.fritekstTilBrev = fritekstTilBrev;
-        this.klageMedholdArsak = klageMedholdÅrsak;
         this.klageMedholdÅrsak = klageMedholdÅrsak;
-        this.klageVurderingOmgjoer = klageVurderingOmgjør;
         this.klageVurderingOmgjør = klageVurderingOmgjør;
         this.klageHjemmel = klageHjemmel;
     }
@@ -75,12 +68,12 @@ public final class KlageVurderingResultatAksjonspunktDto extends BekreftetAksjon
 
     @Override
     public KlageMedholdÅrsak getKlageMedholdÅrsak() {
-        return klageMedholdÅrsak == null ? klageMedholdArsak : klageMedholdÅrsak;
+        return klageMedholdÅrsak;
     }
 
     @Override
     public KlageVurderingOmgjør getKlageVurderingOmgjør() {
-        return klageVurderingOmgjør == null ? klageVurderingOmgjoer : klageVurderingOmgjør;
+        return klageVurderingOmgjør;
     }
 
     @Override

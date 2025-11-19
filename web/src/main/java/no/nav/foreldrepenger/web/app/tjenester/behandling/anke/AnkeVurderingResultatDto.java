@@ -11,9 +11,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.anke.AnkeVurderingOmgj�
 public record AnkeVurderingResultatDto(AnkeVurdering ankeVurdering,
                                        @NotNull String begrunnelse,
                                        String fritekstTilBrev,
-                                       AnkeOmgjørÅrsak ankeOmgjoerArsak,
                                        AnkeOmgjørÅrsak ankeOmgjørÅrsak,
-                                       AnkeVurderingOmgjør ankeVurderingOmgjoer,
                                        AnkeVurderingOmgjør ankeVurderingOmgjør,
                                        @NotNull boolean erAnkerIkkePart,
                                        @NotNull boolean erFristIkkeOverholdt,
@@ -24,9 +22,7 @@ public record AnkeVurderingResultatDto(AnkeVurdering ankeVurdering,
                                        String merknadKommentar,
                                        UUID påAnketKlageBehandlingUuid,
                                        AnkeVurdering trygderettVurdering,
-                                       AnkeOmgjørÅrsak trygderettOmgjoerArsak,
                                        AnkeOmgjørÅrsak trygderettOmgjørÅrsak,
-                                       AnkeVurderingOmgjør trygderettVurderingOmgjoer,
                                        AnkeVurderingOmgjør trygderettVurderingOmgjør
                                        ) {
 }
