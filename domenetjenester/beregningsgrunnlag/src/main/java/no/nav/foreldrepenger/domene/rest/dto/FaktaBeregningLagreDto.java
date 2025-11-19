@@ -37,9 +37,8 @@ public class FaktaBeregningLagreDto {
     private MottarYtelseDto mottarYtelse;
     @Valid
     private VurderMilitærDto vurderMilitaer;
-    @Valid
     @Size(max = 100)
-    private List<RefusjonskravPrArbeidsgiverVurderingDto> refusjonskravGyldighet;
+    private List<@Valid RefusjonskravPrArbeidsgiverVurderingDto> refusjonskravGyldighet;
 
     FaktaBeregningLagreDto() {
         // For Jackson

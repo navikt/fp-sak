@@ -12,25 +12,20 @@ import no.nav.foreldrepenger.web.app.tjenester.registrering.dto.UtsettelseDto;
 
 public class TidsromPermisjonDto {
 
-    @Valid
     @Size(max = 100)
-    private List<OverføringsperiodeDto> overforingsperioder;
+    private List<@Valid OverføringsperiodeDto> overforingsperioder;
 
-    @Valid
     @Size(max = 100)
-    private List<PermisjonPeriodeDto> permisjonsPerioder;
+    private List<@Valid PermisjonPeriodeDto> permisjonsPerioder;
 
-    @Valid
     @Size(max = 100)
-    private List<GraderingDto> graderingPeriode;
+    private List<@Valid GraderingDto> graderingPeriode;
 
-    @Valid
     @Size(max = 100)
-    private List<UtsettelseDto> utsettelsePeriode;
+    private List<@Valid UtsettelseDto> utsettelsePeriode;
 
-    @Valid
     @Size(max = 100)
-    private List<OppholdDto> oppholdPerioder;
+    private List<@Valid OppholdDto> oppholdPerioder;
 
     public List<OverføringsperiodeDto> getOverforingsperioder() {
         return overforingsperioder == null ? List.of() : overforingsperioder;

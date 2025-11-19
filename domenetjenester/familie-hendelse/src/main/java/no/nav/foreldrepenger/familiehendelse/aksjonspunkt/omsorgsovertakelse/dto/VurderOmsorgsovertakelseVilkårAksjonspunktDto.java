@@ -28,10 +28,9 @@ public class VurderOmsorgsovertakelseVilkårAksjonspunktDto extends BekreftetAks
     @NotNull
     private LocalDate omsorgsovertakelseDato;
 
-    @Valid
     @NotNull
     @Size(max = 9)
-    private List<OmsorgsovertakelseBarnDto> barn;
+    private List<@Valid OmsorgsovertakelseBarnDto> barn;
 
     @NotNull
     private Boolean ektefellesBarn;

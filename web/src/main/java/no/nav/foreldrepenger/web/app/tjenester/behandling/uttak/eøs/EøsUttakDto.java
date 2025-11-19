@@ -14,7 +14,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspun
 @JsonTypeName(AksjonspunktKodeDefinisjon.AVKLAR_UTTAK_I_EØS_FOR_ANNENPART_KODE)
 public class EøsUttakDto extends BekreftetAksjonspunktDto {
 
-    @Valid
     @NotNull
     @Size(max = 200)
     private List<@Valid @NotNull EøsUttakPeriodeDto> perioder;

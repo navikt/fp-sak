@@ -17,9 +17,8 @@ import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspun
 public class FastsettBGTidsbegrensetArbeidsforholdDto extends BekreftetAksjonspunktDto {
 
 
-    @Valid
     @Size(max = 100)
-    private List<FastsattePerioderTidsbegrensetDto> fastsatteTidsbegrensedePerioder;
+    private List<@Valid FastsattePerioderTidsbegrensetDto> fastsatteTidsbegrensedePerioder;
 
     @Min(0)
     @Max(Long.MAX_VALUE)

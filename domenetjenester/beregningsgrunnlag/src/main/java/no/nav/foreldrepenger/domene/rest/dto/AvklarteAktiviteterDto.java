@@ -14,9 +14,8 @@ import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspun
 public class AvklarteAktiviteterDto extends BekreftetAksjonspunktDto {
 
 
-    @Valid
     @Size(max = 1000)
-    private List<BeregningsaktivitetLagreDto> beregningsaktivitetLagreDtoList;
+    private List<@Valid BeregningsaktivitetLagreDto> beregningsaktivitetLagreDtoList;
 
     AvklarteAktiviteterDto() {
         // For Jackson

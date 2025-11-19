@@ -13,11 +13,10 @@ import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspun
 
 @JsonTypeName(AksjonspunktKodeDefinisjon.VURDER_PERMISJON_UTEN_SLUTTDATO_KODE)
 public class BekreftArbeidMedPermisjonUtenSluttdatoDto extends BekreftetAksjonspunktDto {
-    @Valid
-    @Size(max = 1000)
+
     @NotNull
     @Size(min = 1, max = 10)
-    private List<AvklarPermisjonUtenSluttdatoDto> arbeidsforhold;
+    private List<@Valid AvklarPermisjonUtenSluttdatoDto> arbeidsforhold;
 
     @SuppressWarnings("unused")
     private BekreftArbeidMedPermisjonUtenSluttdatoDto() {

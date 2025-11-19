@@ -15,9 +15,8 @@ import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspun
 public class OverstyrBeregningsaktiviteterDto extends OverstyringAksjonspunktDto {
 
 
-    @Valid
     @Size(max = 1000)
-    private List<BeregningsaktivitetLagreDto> beregningsaktivitetLagreDtoList;
+    private List<@Valid BeregningsaktivitetLagreDto> beregningsaktivitetLagreDtoList;
 
     @SuppressWarnings("unused")
     private OverstyrBeregningsaktiviteterDto() {

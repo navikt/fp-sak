@@ -9,9 +9,8 @@ public class EgenVirksomhetDto {
 
     Boolean harArbeidetIEgenVirksomhet;
 
-    @Valid
     @Size(max = 10)
-    private List<VirksomhetDto> virksomheter;
+    private List<@Valid VirksomhetDto> virksomheter;
 
     public Boolean getHarArbeidetIEgenVirksomhet() {
         return harArbeidetIEgenVirksomhet;

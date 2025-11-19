@@ -14,9 +14,8 @@ import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspun
 public class FordelBeregningsgrunnlagDto extends BekreftetAksjonspunktDto {
 
 
-    @Valid
     @Size(max = 100)
-    private List<FordelBeregningsgrunnlagPeriodeDto> endretBeregningsgrunnlagPerioder;
+    private List<@Valid FordelBeregningsgrunnlagPeriodeDto> endretBeregningsgrunnlagPerioder;
 
     FordelBeregningsgrunnlagDto() {
         // Jackson

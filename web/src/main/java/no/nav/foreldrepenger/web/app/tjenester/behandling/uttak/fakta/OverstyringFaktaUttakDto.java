@@ -15,10 +15,9 @@ import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspun
 @JsonTypeName(AksjonspunktKodeDefinisjon.OVERSTYRING_FAKTA_UTTAK_KODE)
 public class OverstyringFaktaUttakDto extends OverstyringAksjonspunktDto {
 
-    @Valid
     @NotNull
     @Size(min = 1, max = 200)
-    private List<FaktaUttakPeriodeDto> perioder;
+    private List<@Valid FaktaUttakPeriodeDto> perioder;
 
     OverstyringFaktaUttakDto() {
         // jackson

@@ -15,7 +15,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspun
 @JsonTypeName(AksjonspunktKodeDefinisjon.OVERSTYRING_UTTAK_I_EØS_FOR_ANNENPART_KODE)
 public class OverstyringEøsUttakDto extends OverstyringAksjonspunktDto {
 
-    @Valid
     @NotNull
     @Size(max = 200)
     private List<@Valid @NotNull EøsUttakPeriodeDto> perioder;
