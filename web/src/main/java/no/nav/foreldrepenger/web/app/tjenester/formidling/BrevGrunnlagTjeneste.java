@@ -754,7 +754,12 @@ class BrevGrunnlagTjeneste {
     private BrevGrunnlagDto.Språkkode finnSpråkkode(Behandling behandling) {
         var språkkode = søknadRepository.hentSøknadHvisEksisterer(behandling.getId())
             .map(SøknadEntitet::getSpråkkode)
-            .orElseGet(() -> behandling.getFagsak().getNavBruker().getSpråkkode());
+            .orElseGet(() ->
+                søknadRepository.hentAbsoluttAlleSøknaderForFagsak(behandling.getFagsakId()).stream()
+                    .max(Comparator.comparing(SøknadEntitet::getOpprettetTidspunkt))
+                    .map(SøknadEntitet::getSpråkkode)
+                    .orElseGet(() -> behandling.getFagsak().getNavBruker().getSpråkkode())
+            );
         return mapSpråkkode(språkkode);
     }
 }
