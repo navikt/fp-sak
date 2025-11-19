@@ -756,7 +756,7 @@ class BrevGrunnlagTjeneste {
             .map(SøknadEntitet::getSpråkkode)
             .orElseGet(() ->
                 søknadRepository.hentAbsoluttAlleSøknaderForFagsak(behandling.getFagsakId()).stream()
-                    .max(Comparator.comparing(SøknadEntitet::getMottattDato))
+                    .max(Comparator.comparing(SøknadEntitet::getOpprettetTidspunkt))
                     .map(SøknadEntitet::getSpråkkode)
                     .orElseGet(() -> behandling.getFagsak().getNavBruker().getSpråkkode())
             );
