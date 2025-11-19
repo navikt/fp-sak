@@ -89,28 +89,15 @@ public class AnkeRestTjeneste {
         return new AnkebehandlingDto(resultat.orElse(null), ankeUnderBehandlingKabal, ankeUnderBehandlingKabalTR, ankeBehandletAvKabal.orElse(false));
     }
 
-    private static AnkeVurderingResultatDto lagDto(AnkeVurderingResultatEntitet ankeVurderingResultat,
-                                                   UUID påAnketKlageBehandlingUuid) {
-
-        var dto = new AnkeVurderingResultatDto();
-
-        dto.setAnkeVurdering(ankeVurderingResultat.getAnkeVurdering());
-        dto.setAnkeVurderingOmgjoer(ankeVurderingResultat.getAnkeVurderingOmgjør());
-        dto.setBegrunnelse(ankeVurderingResultat.getBegrunnelse());
-        dto.setFritekstTilBrev(ankeVurderingResultat.getFritekstTilBrev());
-        dto.setAnkeOmgjoerArsak(ankeVurderingResultat.getAnkeOmgjørÅrsak());
-        dto.setErAnkerIkkePart(ankeVurderingResultat.erAnkerIkkePart());
-        dto.setErFristIkkeOverholdt(ankeVurderingResultat.erFristIkkeOverholdt());
-        dto.setErIkkeKonkret(ankeVurderingResultat.erIkkeKonkret());
-        dto.setErIkkeSignert(ankeVurderingResultat.erIkkeSignert());
-        dto.setErSubsidiartRealitetsbehandles(ankeVurderingResultat.erSubsidiartRealitetsbehandles());
-        dto.setErMerknaderMottatt(ankeVurderingResultat.getErMerknaderMottatt());
-        dto.setMerknadKommentar(ankeVurderingResultat.getMerknaderFraBruker());
-        dto.setTrygderettVurdering(ankeVurderingResultat.getTrygderettVurdering());
-        dto.setTrygderettVurderingOmgjoer(ankeVurderingResultat.getTrygderettVurderingOmgjør());
-        dto.setTrygderettOmgjoerArsak(ankeVurderingResultat.getTrygderettOmgjørÅrsak());
-        dto.setPåAnketKlageBehandlingUuid(påAnketKlageBehandlingUuid);
-        return dto;
+    private static AnkeVurderingResultatDto lagDto(AnkeVurderingResultatEntitet ankeVurderingResultat, UUID påAnketKlageBehandlingUuid) {
+        return new AnkeVurderingResultatDto(ankeVurderingResultat.getAnkeVurdering(), ankeVurderingResultat.getBegrunnelse(),
+            ankeVurderingResultat.getFritekstTilBrev(), ankeVurderingResultat.getAnkeOmgjørÅrsak(), ankeVurderingResultat.getAnkeOmgjørÅrsak(),
+            ankeVurderingResultat.getAnkeVurderingOmgjør(), ankeVurderingResultat.getAnkeVurderingOmgjør(), ankeVurderingResultat.erAnkerIkkePart(),
+            ankeVurderingResultat.erFristIkkeOverholdt(), ankeVurderingResultat.erIkkeKonkret(), ankeVurderingResultat.erIkkeSignert(),
+            ankeVurderingResultat.erSubsidiartRealitetsbehandles(), ankeVurderingResultat.getErMerknaderMottatt(),
+            ankeVurderingResultat.getMerknaderFraBruker(), påAnketKlageBehandlingUuid, ankeVurderingResultat.getTrygderettVurdering(),
+            ankeVurderingResultat.getTrygderettOmgjørÅrsak(), ankeVurderingResultat.getTrygderettOmgjørÅrsak(),
+            ankeVurderingResultat.getTrygderettVurderingOmgjør(), ankeVurderingResultat.getTrygderettVurderingOmgjør());
     }
 
 }

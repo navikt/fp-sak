@@ -71,8 +71,8 @@ public class KlagevurderingOppdaterer implements AksjonspunktOppdaterer<KlageVur
         var vurdertAv = erNfpAksjonspunkt(aksjonspunktDefinisjon) ? KlageVurdertAv.NFP : KlageVurdertAv.NK;
         var builder = klageVurderingTjeneste.hentKlageVurderingResultatBuilder(behandling, vurdertAv)
             .medKlageVurdering(dto.getKlageVurdering())
-            .medKlageVurderingOmgjør(dto.getKlageVurderingOmgjoer())
-            .medKlageMedholdÅrsak(dto.getKlageMedholdArsak())
+            .medKlageVurderingOmgjør(dto.getKlageVurderingOmgjør())
+            .medKlageMedholdÅrsak(dto.getKlageMedholdÅrsak())
             .medKlageHjemmel(dto.getKlageHjemmel())
             .medBegrunnelse(dto.getBegrunnelse())
             .medFritekstTilBrev(dto.getFritekstTilBrev());

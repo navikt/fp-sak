@@ -42,7 +42,13 @@ public class KlageVurderingResultatAksjonspunktMellomlagringDto implements Klage
     private KlageMedholdÅrsak klageMedholdArsak;
 
     @ValidKodeverk
+    private KlageMedholdÅrsak klageMedholdÅrsak;
+
+    @ValidKodeverk
     private KlageVurderingOmgjør klageVurderingOmgjoer;
+
+    @ValidKodeverk
+    private KlageVurderingOmgjør klageVurderingOmgjør;
 
     @ValidKodeverk
     private KlageHjemmel klageHjemmel;
@@ -55,17 +61,19 @@ public class KlageVurderingResultatAksjonspunktMellomlagringDto implements Klage
                                                               UUID behandlingUuid,
                                                               String begrunnelse,
                                                               KlageVurdering klageVurdering,
-                                                              KlageMedholdÅrsak klageMedholdArsak,
+                                                              KlageMedholdÅrsak klageMedholdÅrsak,
                                                               String fritekstTilBrev,
-                                                              KlageVurderingOmgjør klageVurderingOmgjoer,
+                                                              KlageVurderingOmgjør klageVurderingOmgjør,
                                                               KlageHjemmel klageHjemmel) {
         this.kode = kode;
         this.behandlingUuid = behandlingUuid;
         this.begrunnelse = begrunnelse;
         this.klageVurdering = klageVurdering;
         this.fritekstTilBrev = fritekstTilBrev;
-        this.klageMedholdArsak = klageMedholdArsak;
-        this.klageVurderingOmgjoer = klageVurderingOmgjoer;
+        this.klageMedholdArsak = klageMedholdÅrsak;
+        this.klageMedholdÅrsak = klageMedholdÅrsak;
+        this.klageVurderingOmgjoer = klageVurderingOmgjør;
+        this.klageVurderingOmgjør = klageVurderingOmgjør;
         this.klageHjemmel = klageHjemmel;
     }
 
@@ -83,13 +91,13 @@ public class KlageVurderingResultatAksjonspunktMellomlagringDto implements Klage
     }
 
     @Override
-    public KlageMedholdÅrsak getKlageMedholdArsak() {
-        return klageMedholdArsak;
+    public KlageMedholdÅrsak getKlageMedholdÅrsak() {
+        return klageMedholdÅrsak == null ? klageMedholdArsak : klageMedholdÅrsak;
     }
 
     @Override
-    public KlageVurderingOmgjør getKlageVurderingOmgjoer() {
-        return klageVurderingOmgjoer;
+    public KlageVurderingOmgjør getKlageVurderingOmgjør() {
+        return klageVurderingOmgjør == null ? klageVurderingOmgjoer : klageVurderingOmgjør;
     }
 
     @Override
