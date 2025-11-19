@@ -35,6 +35,9 @@ class RestApiOppdragInputValideringAnnoteringTest extends RestApiTester {
                         .isFalse();
                 if (isCollectionOrMap(method.getParameterTypes()[i])) {
                     for (var param : method.getParameters()) {
+                        if (param.getAnnotatedType().isAnnotationPresent(Valid.class)) {
+                            throw new AssertionError("Flytt annotering @Valid inn i List/Set/Collection/Map for feltet " + param + ".");
+                        }
                         if (param.getAnnotatedType() instanceof AnnotatedParameterizedType annotatedParameterizedType) {
                             var annotert = annotatedParameterizedType.getAnnotatedActualTypeArguments();
                             for (var ann : annotert) {
