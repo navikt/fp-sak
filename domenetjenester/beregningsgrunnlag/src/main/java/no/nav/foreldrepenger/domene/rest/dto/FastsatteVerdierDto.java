@@ -6,6 +6,7 @@ import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.Inntektskategori;
+import no.nav.foreldrepenger.validering.ValidKodeverk;
 
 
 public class FastsatteVerdierDto {
@@ -32,6 +33,7 @@ public class FastsatteVerdierDto {
     @Max(Integer.MAX_VALUE)
     private Integer fastsattÅrsbeløpInklNaturalytelse;
 
+    @ValidKodeverk
     private Inntektskategori inntektskategori;
 
     private Boolean skalHaBesteberegning;

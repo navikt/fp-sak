@@ -18,6 +18,7 @@ import jakarta.ws.rs.core.Response;
 
 import io.swagger.v3.oas.annotations.Operation;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
+import no.nav.foreldrepenger.validering.ValidKodeverk;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskGruppe;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
@@ -75,7 +76,7 @@ public class FpoversiktMigreringRestTjeneste {
         return prosessTaskData;
     }
 
-    private record TaskInput(LocalDate fom, LocalDate tom, FagsakYtelseType ytelseType, @Min(0) @Max(60) int delayBetween) implements AbacDto {
+    private record TaskInput(LocalDate fom, LocalDate tom, @ValidKodeverk FagsakYtelseType ytelseType, @Min(0) @Max(60) int delayBetween) implements AbacDto {
 
         @Override
         public AbacDataAttributter abacAttributter() {

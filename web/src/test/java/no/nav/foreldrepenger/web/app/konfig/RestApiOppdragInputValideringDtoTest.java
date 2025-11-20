@@ -177,12 +177,11 @@ class RestApiOppdragInputValideringDtoTest extends RestApiTester {
             if (field.getAnnotation(JsonIgnore.class) != null) {
                 continue; // feltet blir hverken serialisert elle deserialisert, unntas fra sjekk
             }
-            if (field.getType().isEnum()) {
-                validerEnum(field);
-                continue; // enum er OK
-            }
             if (erKodeverk(field.getType())) {
                 validerHarValidkodeverkAnnotering(field);
+            } else if (field.getType().isEnum()) {
+                validerEnum(field);
+                continue; // enum er OK
             } else if (isCollectionOrMapNotProperties(field)) { // Containers håndteres av brukergenerics
                 validerCollectionOrMap(field);
             } else if (getVurderingsalternativer(field) != null) {
