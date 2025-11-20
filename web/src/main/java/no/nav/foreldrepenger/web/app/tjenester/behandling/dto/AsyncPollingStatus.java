@@ -22,7 +22,6 @@ public class AsyncPollingStatus {
     @NotNull private String message;
     private Long pollIntervalMillis;
     private URI location;
-    private URI cancelUri;
     private boolean readOnly;
 
     AsyncPollingStatus() {
@@ -37,18 +36,17 @@ public class AsyncPollingStatus {
     }
 
     public AsyncPollingStatus(Status status, String message, long pollIntervalMillis) {
-        this(status, null, message, null, pollIntervalMillis);
+        this(status, null, message, pollIntervalMillis);
     }
 
     public AsyncPollingStatus(Status status, LocalDateTime eta, String message) {
-        this(status, eta, message, null, null);
+        this(status, eta, message, null);
     }
 
-    public AsyncPollingStatus(Status status, LocalDateTime eta, String message, URI cancelUri, Long pollIntervalMillis) {
+    public AsyncPollingStatus(Status status, LocalDateTime eta, String message, Long pollIntervalMillis) {
         this.status = status;
         this.eta = eta;
         this.message = message;
-        this.cancelUri = cancelUri;
         this.pollIntervalMillis = pollIntervalMillis;
         this.readOnly = status == Status.PENDING || status == Status.DELAYED || status == Status.HALTED;
     }
@@ -63,10 +61,6 @@ public class AsyncPollingStatus {
 
     public String getMessage() {
         return message;
-    }
-
-    public URI getCancelUri() {
-        return cancelUri;
     }
 
     public Long getPollIntervalMillis() {
