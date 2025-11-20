@@ -61,7 +61,7 @@ class ManglendeInntektsmeldingTjenesteTest {
         var skjæringstidspunkt = LocalDate.now().plusWeeks(3);
         var mottattDato = LocalDate.now();
 
-        var frist = manglendeInntektsmeldingTjeneste.finnInitiellVentefristTilManglendeInntektsmelding(behandlingMedMottattdatoForSøknad(mottattDato), tilSkjæringstidspunkt(skjæringstidspunkt));
+        var frist = manglendeInntektsmeldingTjeneste.finnInitiellVentefristVedManglendeInntektsmelding(behandlingMedMottattdatoForSøknad(mottattDato), tilSkjæringstidspunkt(skjæringstidspunkt));
 
         assertThat(frist).isEqualTo(mottattDato.plus(VENTEFRIST_IM_ETTER_SØKNAD_MOTTATT_DATO));
     }
@@ -71,7 +71,7 @@ class ManglendeInntektsmeldingTjenesteTest {
         var skjæringstidspunkt = LocalDate.now().plusWeeks(8);
         var mottattDato = LocalDate.now();
 
-        var frist = manglendeInntektsmeldingTjeneste.finnInitiellVentefristTilManglendeInntektsmelding(behandlingMedMottattdatoForSøknad(mottattDato), tilSkjæringstidspunkt(skjæringstidspunkt));
+        var frist = manglendeInntektsmeldingTjeneste.finnInitiellVentefristVedManglendeInntektsmelding(behandlingMedMottattdatoForSøknad(mottattDato), tilSkjæringstidspunkt(skjæringstidspunkt));
 
         assertThat(frist).isEqualTo(skjæringstidspunkt.minus(TIDLIGST_VENTEFRIST_IM_FØR_UTTAKSDATO));
     }

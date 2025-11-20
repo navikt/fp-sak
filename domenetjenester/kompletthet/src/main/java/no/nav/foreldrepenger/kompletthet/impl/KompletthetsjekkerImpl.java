@@ -99,7 +99,7 @@ public class KompletthetsjekkerImpl implements Kompletthetsjekker {
             var manglendeInntektsmeldingerFraGrunnlag = manglendeInntektsmeldingTjeneste.utledManglendeInntektsmeldingerFraGrunnlag(ref, stp);
             if (!manglendeInntektsmeldingerFraGrunnlag.isEmpty()) {
                 loggManglendeInntektsmeldinger(ref, manglendeInntektsmeldingerFraGrunnlag);
-                var frist = manglendeInntektsmeldingTjeneste.finnInitiellVentefristTilManglendeInntektsmelding(ref, stp);
+                var frist = manglendeInntektsmeldingTjeneste.finnInitiellVentefristVedManglendeInntektsmelding(ref, stp);
                 return ikkeOppfylt(frist, Venteårsak.VENT_OPDT_INNTEKTSMELDING);
             }
         }
@@ -127,7 +127,19 @@ public class KompletthetsjekkerImpl implements Kompletthetsjekker {
                 .toList();
     }
 
-    // Kalles fra KOARB (flere ganger) som setter autopunkt 7030 + fra KompletthetsKontroller (dokument på åpen behandling, hendelser)
+    /*
+     * Kalles initielt fra
+     *  - INREG_AVSL steget ved utsending av etterlysningsbrev på inntektsmelding. Oppretter da autopunkt AUTO_VENT_ETTERLYST_INNTEKTSMELDING (7030) med frist
+     *
+     * Deretter kan en eller flere av følgende skje:
+     *  1) På vent og behandlingen mottar nye dokumenter (søknad, vedlegg, eller inntektsmelding).
+     *      a) Behandlingen blir komplett og vi tar den av vent.
+     *      b) Hvis vi mottar inntektsmelding justerer vi ventefristen i henhold til denne.
+     *  2) INGRES_AVSL steget kjøres på nytt (og vi mangler fremdeles inntektsmeldinger).
+     *      a) Samme som steg 1)a).
+     *      b) Samme som steg 1)b) (må støtte hvis det er sendt inn inntektsmelding etter ordinær etterlys IM ble sendt ut).
+     *  3) Fristen løper ut og behandlingen tas av vent og forsetter (mangler da inntektsmelding)
+     */
     @Override
     public KompletthetResultat vurderEtterlysningInntektsmelding(BehandlingReferanse ref, Skjæringstidspunkt stp) {
         if (ref.erRevurdering() || FagsakYtelseType.ENGANGSTØNAD.equals(ref.fagsakYtelseType())) {

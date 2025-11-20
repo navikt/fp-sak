@@ -28,24 +28,13 @@ import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.Virkedager;
 /**
  * Tjeneste for å håndtere manglende inntektsmeldinger (IM) og beregne ventefrister i kompletthetsvurdering.
  *
- * <h3>Terminologi:</h3>
- * <ul>
- *   <li><b>STP (Skjæringstidspunkt)</b>: Startdato for permisjonen/uttaket</li>
- *   <li><b>Mottattdato søknad</b>: Datoen søknaden ble mottatt av NAV</li>
- *   <li><b>Kompletthetsvurdering</b>: Periode fra STP-4w til STP+4w hvor vi venter på inntektsmeldinger</li>
- *   <li><b>IM</b>: Inntektsmelding</li>
- *   <li><b>Etterlysningsbrev</b>: Brev sendt til arbeidsgiver for å etterspørre manglende IM</li>
- * </ul>
+ * Terminologi:
+ *  - STP (Skjæringstidspunkt): Startdato for permisjonen/uttaket
+ *  - Mottattdato søknad: Datoen søknaden ble mottatt av NAV
+ *  - Kompletthetsvurdering: Periode fra STP-4w til STP+4w hvor vi venter på inntektsmeldinger
+ *  - Etterlysningsbrev: Brev sendt til arbeidsgiver for å etterspørre manglende IM
  *
- * <h3>Ventefrist-strategi:</h3>
- * <pre>
- * Tidslinje:
- *
- *     STP-4w          Mottattdato søknad       STP           STP+4w
- *       |                    |                  |               |
- *       |----Kompletthet-----|-----Venting------|---------------|
- *              inngang                           |
- *                                                |
+ * Ventefrist-strategi:
  *  Fase 1: Initiell venting (10 dager)
  *    - Hvis søknad mottatt før STP-4w: Vent fra STP-4w + 10 dager
  *    - Hvis søknad mottatt etter STP-4w: Vent fra mottattdato søknad + 10 dager
@@ -67,9 +56,9 @@ public class ManglendeInntektsmeldingTjeneste {
     protected static final Period VENTEFRIST_IM_ETTER_SØKNAD_MOTTATT_DATO = Period.ofDays(10);
     protected static final Period TIDLIGST_VENTEFRIST_IM_FØR_UTTAKSDATO = Period.ofWeeks(4).minus(VENTEFRIST_IM_ETTER_SØKNAD_MOTTATT_DATO);
 
-    protected static final Period VENTEFRIST_IM_ETTER_ETTERLYSNING = Period.ofWeeks(2);
-    protected static final Period INITIELL_VENTING_KOMPLETTHET = Period.ofDays(10);
     protected static final Period START_KOMPLETTHET = Period.ofWeeks(4);
+    protected static final Period INITIELL_VENTING_KOMPLETTHET = Period.ofDays(10);
+    protected static final Period VENTEFRIST_IM_ETTER_ETTERLYSNING = Period.ofWeeks(2);
 
 
     private DokumentBehandlingTjeneste dokumentBehandlingTjeneste;
@@ -108,35 +97,36 @@ public class ManglendeInntektsmeldingTjeneste {
         return manglendeInntektsmeldinger.stream().noneMatch(mv -> OrgNummer.erGyldigOrgnr(mv.arbeidsgiver()));
     }
 
-    /*
-     * Beregner initiell ventefrist når det manglende IM ved inngang til VURDER_KOMPLETT_BEH steget
+    /**
+     * Beregner initiell ventefrist hvis det er manglende IM ved inngang til VURDER_KOMPLETT_BEH steget
+     * @see KompletthetsjekkerImpl#vurderForsendelseKomplett(BehandlingReferanse, Skjæringstidspunkt)
+     *
      * Logikk:
      *  - Hvis søknad mottatt før STP-4u: Vent fra STP-4u + 10 dager
      *  - Hvis søknad mottatt etter STP-4u: Vent fra mottattdato søknad + 10 dager
-     *  - Intervall: [STP - 4u, mottattdato søknad] + 10 dager venting
      */
-    LocalDate finnInitiellVentefristTilManglendeInntektsmelding(BehandlingReferanse ref, Skjæringstidspunkt skjæringstidspunkt) {
+    LocalDate finnInitiellVentefristVedManglendeInntektsmelding(BehandlingReferanse ref, Skjæringstidspunkt skjæringstidspunkt) {
         var permisjonsstart = skjæringstidspunkt.getUtledetSkjæringstidspunkt();
-        var førsteMuligDatoForVurderKompletthet = permisjonsstart.minus(START_KOMPLETTHET);
         return søknadRepository.hentSøknadHvisEksisterer(ref.behandlingId())
+            .filter(s -> s.getMottattDato().isAfter(permisjonsstart.minus(START_KOMPLETTHET)))
             .map(SøknadEntitet::getMottattDato)
-            .filter(søknadstidspunkt -> søknadstidspunkt.isAfter(førsteMuligDatoForVurderKompletthet))
-            .orElse(førsteMuligDatoForVurderKompletthet)
+            .orElse(permisjonsstart.minus(START_KOMPLETTHET))
             .plus(INITIELL_VENTING_KOMPLETTHET); // Vent 10 dager etter søknad mottatt dato eller inngang kompletthet (STP-4u)
     }
 
-    /*
-     * Beregner ny ventefrist ved etterlysning av manglende IM.
+    /**
+     * Beregner ny ventefrist ved endringer. For mer info
+     * @see KompletthetsjekkerImpl#vurderEtterlysningInntektsmelding(BehandlingReferanse, Skjæringstidspunkt)
      *
      * Logikk:
-     * - Første gang (ingen etterlysningsbrev sendt): Bruk dagens dato som etterlysningsdato
-     * - Påfølgende ganger: Bruk dato da etterlysningsbrev faktisk ble sendt
-     * - Delegerer til finnVentefristVedEtterlysning for selve beregningen
+     * - Justerer frist hvis det er mottatt inntektsmelding etter etterlysning
+     * - Ellers justeres frist i henhold til stp / søknad mottatt tidspunkt + 2 uker
      */
     LocalDate finnNyVentefristVedEtterlysning(BehandlingReferanse ref, Skjæringstidspunkt stp) {
         var tidspunktEtterlysIMBleBestiltOpt = dokumentBehandlingTjeneste.dokumentSistBestiltTidspunkt(ref.behandlingId(), DokumentMalType.ETTERLYS_INNTEKTSMELDING);
         if (tidspunktEtterlysIMBleBestiltOpt.isEmpty()) {
-            // Første gang vi havner her har vi ikke sendt etterlysningsbrev, og kan bli trigget av mottatt inntektsmelding
+            // Første gang vi havner her har vi ikke sendt etterlysningsbrev, men kan ha mottatt inntektmelding i dag.
+            // Etterlysnignsbrev vil bli sendt ut etter dette, bruker derfor dagens dato.
             return finnVentefristVedEtterlysning(ref, stp, LocalDate.now());
         }
 
@@ -151,37 +141,36 @@ public class ManglendeInntektsmeldingTjeneste {
         var inntektsmeldingerMottattEtterEtterlysningsbrev = inntektsmeldingTjeneste.hentInntektsmeldinger(ref, stp.getUtledetSkjæringstidspunkt()).stream()
             .filter(im -> etterlysningsdato.atStartOfDay().isBefore(im.getInnsendingstidspunkt()))
             .toList();
-
-        var ventefristEtterEtterlysningsbrevErSendt = inntektsmeldingerMottattEtterEtterlysningsbrev.isEmpty()
+        return inntektsmeldingerMottattEtterEtterlysningsbrev.isEmpty()
             ? finnVentefristForEtterlysningNårDetIkkeErMottattIMEtterBrev(ref, stp)
             : finnVentefristBasertPåAlleredeMottatteInntektmeldinger(inntektsmeldingerMottattEtterEtterlysningsbrev);
-
-        // Sikre minimum 1 uke venting fra etterlysningsdato
-        return max(ventefristEtterEtterlysningsbrevErSendt, etterlysningsdato.plusWeeks(1));
     }
 
-    // Mulig intervall: [STP, Dagens dato] + 2 uker
+    /*
+     * Beregner ventefrist for etterlysning når ingen IM er mottatt etter etterlysningsbrev er sendt.
+     *
+     * Logikk:
+     *  - Hvis søknad mottatt etter STP: Vent fra mottattdato søknad + 2 uker
+     *  - Hvis søknad mottatt før/på STP: Vent fra STP + 2 uker
+     *
+     * Intervall: [STP+2u, mottattdato søknad+2u]
+     */
     private LocalDate finnVentefristForEtterlysningNårDetIkkeErMottattIMEtterBrev(BehandlingReferanse ref, Skjæringstidspunkt stp) {
         var behandlingId = ref.behandlingId();
         var permisjonsstart = stp.getUtledetSkjæringstidspunkt();
         return søknadRepository.hentSøknadHvisEksisterer(behandlingId)
-            .map(SøknadEntitet::getMottattDato)
-            .filter(søknadstidspunkt -> søknadstidspunkt.isAfter(permisjonsstart))
-            .orElse(permisjonsstart) // Søkt før STP – vent 2 uker etter permisjonsstart
+            .filter(s -> s.getMottattDato().isAfter(permisjonsstart))
+            .map(SøknadEntitet::getMottattDato) // Søkt etter STP
+            .orElse(permisjonsstart) // Søkt før STP
             .plus(VENTEFRIST_IM_ETTER_ETTERLYSNING); // Legger på 2 uker etter søknadstidspunkt eller stp
     }
 
-    // Mulig intervall: [etterlysIMBrev + 3d, Dagens dato + 3d]
     private static LocalDate finnVentefristBasertPåAlleredeMottatteInntektmeldinger(List<Inntektsmelding> inntektsmeldingerMottattEtterEtterlysningsbrev) {
         return inntektsmeldingerMottattEtterEtterlysningsbrev.stream()
             .map(Inntektsmelding::getInnsendingstidspunkt)
-            .min(Comparator.naturalOrder())
+            .min(Comparator.naturalOrder()) // Tidligste mottatte IM etter etterlysningsbrev
             .map(LocalDateTime::toLocalDate)
             .map(d -> Virkedager.plusVirkedager(d, 3))
             .orElseThrow();
-    }
-
-    private static LocalDate max(LocalDate date1, LocalDate date2) {
-        return date1.isAfter(date2) ? date1 : date2;
     }
 }
