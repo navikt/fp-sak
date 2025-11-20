@@ -12,9 +12,11 @@ import no.nav.vedtak.util.InputValideringRegex;
 
 import org.hibernate.validator.constraints.Length;
 
+import com.fasterxml.jackson.annotation.JsonAlias;
+
 public class FrilansDto {
 
-    private Boolean harSokerPeriodeMedFrilans;
+    private Boolean harSøkerPeriodeMedFrilans;
 
     @Size(max = 50)
     private Collection<@Valid Frilansperiode> perioder;
@@ -24,12 +26,13 @@ public class FrilansDto {
     private Boolean harHattOppdragForFamilie;
     private Collection<@Valid Oppdragperiode> oppdragPerioder;
 
-    public Boolean getHarSokerPeriodeMedFrilans() {
-        return harSokerPeriodeMedFrilans;
+    @JsonAlias("harSokerPeriodeMedFrilans")
+    public Boolean getHarSøkerPeriodeMedFrilans() {
+        return harSøkerPeriodeMedFrilans;
     }
 
-    public void setHarSokerPeriodeMedFrilans(Boolean harSokerPeriodeMedFrilans) {
-        this.harSokerPeriodeMedFrilans = harSokerPeriodeMedFrilans;
+    public void setHarSøkerPeriodeMedFrilans(Boolean harSøkerPeriodeMedFrilans) {
+        this.harSøkerPeriodeMedFrilans = harSøkerPeriodeMedFrilans;
     }
 
     public Collection<Frilansperiode> getPerioder() {

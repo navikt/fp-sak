@@ -241,8 +241,8 @@ public class AksjonspunktRestTjeneste {
                 if (apDto instanceof AvklarVergeDto avklarVergeDto && avklarVergeDto.getFnr() != null) {
                     abac.leggTil(AppAbacAttributtType.FNR, avklarVergeDto.getFnr());
                 }
-                if (apDto instanceof ManuellRegistreringDto manuellRegistreringDto && manuellRegistreringDto.getAnnenForelder() != null && manuellRegistreringDto.getAnnenForelder().getFoedselsnummer() != null) {
-                    abac.leggTil(AppAbacAttributtType.FNR, manuellRegistreringDto.getAnnenForelder().getFoedselsnummer());
+                if (apDto instanceof ManuellRegistreringDto manuellRegistreringDto && manuellRegistreringDto.getAnnenForelder() != null && manuellRegistreringDto.getAnnenForelder().getFødselsnummer() != null) {
+                    abac.leggTil(AppAbacAttributtType.FNR, manuellRegistreringDto.getAnnenForelder().getFødselsnummer());
                 }
             });
             return abac;

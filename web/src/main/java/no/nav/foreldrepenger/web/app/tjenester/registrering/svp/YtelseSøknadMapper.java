@@ -62,8 +62,8 @@ public class YtelseSøknadMapper implements SøknadMapper {
     private static Svangerskapspenger mapTilSvangerskapspenger(ManuellRegistreringSvangerskapspengerDto registreringDto) {
         var svangerskapspenger = new Svangerskapspenger();
         svangerskapspenger.setTermindato(registreringDto.getTermindato());
-        if (registreringDto.getFoedselsDato() != null) {
-            svangerskapspenger.setFødselsdato(registreringDto.getFoedselsDato());
+        if (registreringDto.getFødselsdato() != null) {
+            svangerskapspenger.setFødselsdato(registreringDto.getFødselsdato());
         }
         var tilretteleggingListe = new TilretteleggingListe();
         svangerskapspenger.setTilretteleggingListe(tilretteleggingListe);

@@ -336,7 +336,7 @@ class ManuellRegistreringForeldrepengerValidatorTest {
     @Test
     void skal_validere_at_frilansperioder_må_være_satt() {
         var frilansDto = new FrilansDto();
-        frilansDto.setHarSokerPeriodeMedFrilans(true);
+        frilansDto.setHarSøkerPeriodeMedFrilans(true);
         frilansDto.setPerioder(new ArrayList<>());
         var feltFeil = ManuellRegistreringSøknadValidator.validerFrilans(frilansDto);
         assertThat(feltFeil).hasSize(1);

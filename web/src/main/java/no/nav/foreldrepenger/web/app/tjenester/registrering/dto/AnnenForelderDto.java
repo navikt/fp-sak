@@ -6,29 +6,32 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 
+import com.fasterxml.jackson.annotation.JsonAlias;
+
 import no.nav.vedtak.util.InputValideringRegex;
 
 public class AnnenForelderDto {
     @Size(max = 11, min = 11)
     @Digits(integer = 11, fraction = 0)
-    private String foedselsnummer;
+    private String fødselsnummer;
     private Boolean kanIkkeOppgiAnnenForelder;
     @Valid
     private KanIkkeOppgiBegrunnelse kanIkkeOppgiBegrunnelse;
 
-    private boolean sokerHarAleneomsorg;
+    private boolean søkerHarAleneomssorg;
 
-    private boolean denAndreForelderenHarRettPaForeldrepenger;
+    private boolean denAndreForelderenHarRettPåForeldrepenger;
 
     private Boolean morMottarUføretrygd;
     private Boolean annenForelderRettEØS;
 
-    public String getFoedselsnummer() {
-        return foedselsnummer;
+    @JsonAlias("foedselsnummer")
+    public String getFødselsnummer() {
+        return fødselsnummer;
     }
 
-    public void setFoedselsnummer(String foedselsnummer) {
-        this.foedselsnummer = foedselsnummer;
+    public void setFødselsnummer(String fødselsnummer) {
+        this.fødselsnummer = fødselsnummer;
     }
 
     public Boolean getKanIkkeOppgiAnnenForelder() {
@@ -47,20 +50,22 @@ public class AnnenForelderDto {
         this.kanIkkeOppgiBegrunnelse = kanIkkeOppgiBegrunnelse;
     }
 
-    public boolean getSokerHarAleneomsorg() {
-        return sokerHarAleneomsorg;
+    @JsonAlias("sokerHarAleneomsorg")
+    public boolean getSøkerHarAleneomssorg() {
+        return søkerHarAleneomssorg;
     }
 
-    public void setSokerHarAleneomsorg(Boolean sokerHarAleneomsorg) {
-        this.sokerHarAleneomsorg = sokerHarAleneomsorg;
+    public void setSøkerHarAleneomssorg(Boolean søkerHarAleneomssorg) {
+        this.søkerHarAleneomssorg = søkerHarAleneomssorg;
     }
 
-    public boolean getDenAndreForelderenHarRettPaForeldrepenger() {
-        return denAndreForelderenHarRettPaForeldrepenger;
+    @JsonAlias("denAndreForelderenHarRettPaForeldrepenger")
+    public boolean getDenAndreForelderenHarRettPåForeldrepenger() {
+        return denAndreForelderenHarRettPåForeldrepenger;
     }
 
-    public void setDenAndreForelderenHarRettPaForeldrepenger(Boolean denAndreForelderenHarRettPaForeldrepenger) {
-        this.denAndreForelderenHarRettPaForeldrepenger = denAndreForelderenHarRettPaForeldrepenger;
+    public void setDenAndreForelderenHarRettPåForeldrepenger(Boolean denAndreForelderenHarRettPåForeldrepenger) {
+        this.denAndreForelderenHarRettPåForeldrepenger = denAndreForelderenHarRettPåForeldrepenger;
     }
 
     public Boolean getMorMottarUføretrygd() {
@@ -83,39 +88,30 @@ public class AnnenForelderDto {
         @NotNull
         @Size(min = 1, max = 100)
         @Pattern(regexp = InputValideringRegex.KODEVERK)
-        private String arsak;
-        @Size(max = 4000)
-        @Pattern(regexp = InputValideringRegex.FRITEKST)
-        private String begrunnelse;
+        private String årsak;
         @Size(max = 20)
         @Pattern(regexp = InputValideringRegex.FRITEKST)
-        private String utenlandskFoedselsnummer;
+        private String utenlandskFødselsnummer;
         @Size(max = 100)
         @Pattern(regexp = InputValideringRegex.NAVN)
         private String land;
 
-        public String getArsak() {
-            return arsak;
+        @JsonAlias("arsak")
+        public String getÅrsak() {
+            return årsak;
         }
 
-        public void setArsak(String arsak) {
-            this.arsak = arsak;
+        public void setÅrsak(String årsak) {
+            this.årsak = årsak;
         }
 
-        public String getBegrunnelse() {
-            return begrunnelse;
+        @JsonAlias("utenlandskFoedselsnummer")
+        public String getUtenlandskFødselsnummer() {
+            return utenlandskFødselsnummer;
         }
 
-        public void setBegrunnelse(String begrunnelse) {
-            this.begrunnelse = begrunnelse;
-        }
-
-        public String getUtenlandskFoedselsnummer() {
-            return utenlandskFoedselsnummer;
-        }
-
-        public void setUtenlandskFoedselsnummer(String utenlandskFoedselsnummer) {
-            this.utenlandskFoedselsnummer = utenlandskFoedselsnummer;
+        public void setUtenlandskFødselsnummer(String utenlandskFødselsnummer) {
+            this.utenlandskFødselsnummer = utenlandskFødselsnummer;
         }
 
         public String getLand() {

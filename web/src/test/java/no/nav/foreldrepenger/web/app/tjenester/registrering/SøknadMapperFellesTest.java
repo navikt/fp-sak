@@ -86,7 +86,7 @@ class SøknadMapperFellesTest {
         var manuellRegistreringEngangsstonadDto = opprettAdosjonDto(FamilieHendelseType.FØDSEL, LocalDate.now(),
                 LocalDate.now().minusMonths(3), 1, LocalDate.now());
         manuellRegistreringEngangsstonadDto.setTema(FamilieHendelseType.FØDSEL);
-        manuellRegistreringEngangsstonadDto.setSoker(ForeldreType.FAR);
+        manuellRegistreringEngangsstonadDto.setSøker(ForeldreType.FAR);
         manuellRegistreringEngangsstonadDto.setRettigheter(RettigheterDto.OVERTA_FORELDREANSVARET_ALENE);
         var søkersRelasjonTilBarnet = SøknadMapperFelles.mapRelasjonTilBarnet(manuellRegistreringEngangsstonadDto);
         assertThat(søkersRelasjonTilBarnet).isInstanceOf(Omsorgsovertakelse.class);
