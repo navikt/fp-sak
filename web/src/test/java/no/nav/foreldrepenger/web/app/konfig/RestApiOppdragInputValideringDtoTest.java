@@ -95,8 +95,7 @@ class RestApiOppdragInputValideringDtoTest extends RestApiTester {
             put(long.class, asList(asList(Min.class, Max.class), List.of(Digits.class)));
             put(Integer.class, singletonList(asList(Min.class, Max.class)));
             put(int.class, singletonList(asList(Min.class, Max.class)));
-            put(BigDecimal.class, asList(asList(Min.class, Max.class, Digits.class),
-                asList(DecimalMin.class, DecimalMax.class, Digits.class)));
+            put(BigDecimal.class, asList(asList(Min.class, Max.class), asList(DecimalMin.class, DecimalMax.class), List.of(Digits.class)));
 
             UNNTATT_FRA_VALIDERING.forEach(k -> put(k, List.of(List.of())));
         }
@@ -129,6 +128,7 @@ class RestApiOppdragInputValideringDtoTest extends RestApiTester {
                 }
             }
         }
+        parametre.addAll(RestApiTester.finnAlleJsonTypeNameClasses());
         Set<Class<?>> filtreteParametre = new TreeSet<>(Comparator.comparing(Class::getName));
         for (var klasse : parametre) {
             if (klasse.getName().startsWith("java") || klasse.isInterface()) {
@@ -168,6 +168,9 @@ class RestApiOppdragInputValideringDtoTest extends RestApiTester {
         var klasseLocation = codeSource.getLocation();
         for (var subklasse : IndexClasses.getIndexFor(klasseLocation.toURI())
             .getSubClassesWithAnnotation(klasse, JsonTypeName.class)) {
+            validerRekursivt(besøkteKlasser, subklasse, forrigeKlasse);
+        }
+        for (var subklasse : finnAlleJsonSubTypeClasses(klasse)) {
             validerRekursivt(besøkteKlasser, subklasse, forrigeKlasse);
         }
         for (var field : getRelevantFields(klasse)) {

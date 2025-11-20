@@ -10,6 +10,8 @@ import java.util.List;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.core.Application;
 
+import com.fasterxml.jackson.annotation.JsonSubTypes;
+
 import io.swagger.v3.jaxrs2.integration.resources.OpenApiResource;
 
 public class RestApiTester {
@@ -26,6 +28,21 @@ public class RestApiTester {
             }
         }
         return liste;
+    }
+
+    static Collection<Class<?>> finnAlleJsonTypeNameClasses() {
+        return ApiConfig.allJsonTypeNameClasses();
+    }
+
+    static Collection<Class<?>> finnAlleJsonSubTypeClasses(Class<?> klasse) {
+        var resultat = new ArrayList<Class<?>>();
+        if (klasse.isAnnotationPresent(JsonSubTypes.class)) {
+            var jsonSubTypes = klasse.getAnnotation(JsonSubTypes.class);
+            for (var subtype : jsonSubTypes.value()) {
+                resultat.add(subtype.value());
+            }
+        }
+        return resultat;
     }
 
     private static Collection<Class<?>> finnAlleRestTjenester() {
