@@ -32,7 +32,7 @@ import no.nav.vedtak.sikkerhet.abac.beskyttet.ResourceType;
 public class SøknadRestTjeneste {
 
     static final String BASE_PATH = "/behandling";
-    private static final String SØKNAD_PART_PATH = "/søknad";
+    private static final String SØKNAD_PART_PATH = "/soknad";
     public static final String SØKNAD_PATH = BASE_PATH + SØKNAD_PART_PATH;
 
     private BehandlingRepository behandlingRepository;
