@@ -1,5 +1,7 @@
 package no.nav.foreldrepenger.web.app.tjenester.fpoversikt;
 
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 import jakarta.enterprise.context.ApplicationScoped;
@@ -12,6 +14,8 @@ import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.MediaType;
+
+import no.nav.foreldrepenger.domene.typer.Beløp;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -81,5 +85,16 @@ public class FpOversiktRestTjeneste {
     public List<FpSakInntektsmeldingDto> hentInntektsmeldinger(@TilpassetAbacAttributt(supplierClass = SaksnummerAbacSupplier.Supplier.class) @NotNull @Parameter(description = "Saksnummer for fagsak") @QueryParam("saksnummer") @Valid SaksnummerDto saksnummerDto) {
         var saksnummer = saksnummerDto.getVerdi();
         return dtoTjeneste.hentInntektsmeldingerForSak(saksnummer);
+    }
+
+    @GET
+    @Path("beregninger")
+    @Produces(MediaType.APPLICATION_JSON)
+    @Operation(description = "Henter beregninger på sak", tags = "fpoversikt")
+    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK, sporingslogg = false)
+    public List<FpSakBeregningDto> hentBeregninger(@TilpassetAbacAttributt(supplierClass = SaksnummerAbacSupplier.Supplier.class) @NotNull @Parameter(description = "Saksnummer for fagsak") @QueryParam("saksnummer") @Valid SaksnummerDto saksnummerDto) {
+        var saksnummer = saksnummerDto.getVerdi();
+        var beregning = new FpSakBeregningDto(new Beløp(23));
+        return Collections.singletonList(beregning);
     }
 }
