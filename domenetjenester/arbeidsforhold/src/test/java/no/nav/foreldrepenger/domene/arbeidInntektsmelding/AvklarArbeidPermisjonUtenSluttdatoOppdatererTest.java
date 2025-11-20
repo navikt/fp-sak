@@ -7,6 +7,7 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 import jakarta.inject.Inject;
 import jakarta.persistence.EntityManager;
@@ -103,8 +104,8 @@ class AvklarArbeidPermisjonUtenSluttdatoOppdatererTest {
             AksjonspunktDefinisjon.VURDER_PERMISJON_UTEN_SLUTTDATO);
 
         var bekreftetArbeidMedPermisjonUtenSluttdato = new BekreftArbeidMedPermisjonUtenSluttdatoDto("Har tatt stilling til dette",
-            List.of(new AvklarPermisjonUtenSluttdatoDto(NAV_ORGNR, INTERN_ARBEIDSFORHOLD_ID, BekreftetPermisjonStatus.BRUK_PERMISJON),
-                new AvklarPermisjonUtenSluttdatoDto(KUNSTIG_ORG, INTERN_ARBEIDSFORHOLD_ID_2, BekreftetPermisjonStatus.IKKE_BRUK_PERMISJON)));
+            List.of(new AvklarPermisjonUtenSluttdatoDto(NAV_ORGNR, UUID.fromString(INTERN_ARBEIDSFORHOLD_ID), BekreftetPermisjonStatus.BRUK_PERMISJON),
+                new AvklarPermisjonUtenSluttdatoDto(KUNSTIG_ORG, UUID.fromString(INTERN_ARBEIDSFORHOLD_ID_2), BekreftetPermisjonStatus.IKKE_BRUK_PERMISJON)));
 
         //Act
         var resultat = avklarArbeidPermisjonUtenSluttdatoOppdaterer.oppdater(bekreftetArbeidMedPermisjonUtenSluttdato, new AksjonspunktOppdaterParameter(
@@ -146,7 +147,7 @@ class AvklarArbeidPermisjonUtenSluttdatoOppdatererTest {
             AksjonspunktDefinisjon.VURDER_PERMISJON_UTEN_SLUTTDATO);
 
         var bekreftetArbeidMedPermisjonUtenSluttdato = new BekreftArbeidMedPermisjonUtenSluttdatoDto("Har tatt stilling til dette",
-            List.of(new AvklarPermisjonUtenSluttdatoDto(NAV_ORGNR, INTERN_ARBEIDSFORHOLD_ID, BekreftetPermisjonStatus.BRUK_PERMISJON)));
+            List.of(new AvklarPermisjonUtenSluttdatoDto(NAV_ORGNR, UUID.fromString(INTERN_ARBEIDSFORHOLD_ID), BekreftetPermisjonStatus.BRUK_PERMISJON)));
 
         var skjæringstidspunkt = Skjæringstidspunkt.builder()
             .medUtledetSkjæringstidspunkt(LocalDate.of(2019, 1, 1))

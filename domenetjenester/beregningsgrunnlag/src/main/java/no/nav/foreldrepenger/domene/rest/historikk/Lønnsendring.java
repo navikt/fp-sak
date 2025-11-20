@@ -2,6 +2,10 @@ package no.nav.foreldrepenger.domene.rest.historikk;
 
 import java.util.Optional;
 
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
+
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.AktivitetStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.Inntektskategori;
@@ -10,19 +14,35 @@ import no.nav.foreldrepenger.validering.ValidKodeverk;
 
 
 public class Lønnsendring {
+    @Min(0)
+    @Max(Integer.MAX_VALUE)
     private Integer gammelArbeidsinntekt;
+    @Min(0)
+    @Max(Integer.MAX_VALUE)
     private Integer nyArbeidsinntekt;
+    @Min(0)
+    @Max(Integer.MAX_VALUE)
     private Integer nyArbeidsinntektPrÅr;
     @ValidKodeverk
     private Inntektskategori gammelInntektskategori;
     @ValidKodeverk
     private Inntektskategori nyInntektskategori;
+    @Min(0)
+    @Max(Integer.MAX_VALUE)
     private Integer gammelRefusjonPrÅr;
+    @Min(0)
+    @Max(Integer.MAX_VALUE)
     private Integer nyRefusjonPrÅr;
+    @Min(0)
+    @Max(Integer.MAX_VALUE)
     private Integer nyTotalRefusjonPrÅr;
     private boolean nyAndel;
+    @Min(0)
+    @Max(Integer.MAX_VALUE)
     private Integer gammelArbeidsinntektPrÅr;
-    private Arbeidsgiver arbeidsgiver;
+    @Valid
+    private ArbeidsgiverDto arbeidsgiver;
+    @Valid
     private InternArbeidsforholdRef arbeidsforholdRef;
     @ValidKodeverk
     private AktivitetStatus aktivitetStatus;
@@ -75,7 +95,8 @@ public class Lønnsendring {
     }
 
     public Optional<Arbeidsgiver> getArbeidsgiver() {
-        return Optional.ofNullable(arbeidsgiver);
+        return Optional.ofNullable(arbeidsgiver)
+            .map(ag -> ag.getErVirksomhet() ? Arbeidsgiver.virksomhet(ag.arbeidsgiverOrgnr()) : Arbeidsgiver.person(ag.arbeidsgiverAktørId()));
     }
 
     public Optional<InternArbeidsforholdRef> getArbeidsforholdRef() {
@@ -158,7 +179,7 @@ public class Lønnsendring {
             return this;
         }
 
-        public Builder medArbeidsgiver(Arbeidsgiver arbeidsgiver) {
+        public Builder medArbeidsgiver(ArbeidsgiverDto arbeidsgiver) {
             lønnsendringMal.arbeidsgiver = arbeidsgiver;
             return this;
         }

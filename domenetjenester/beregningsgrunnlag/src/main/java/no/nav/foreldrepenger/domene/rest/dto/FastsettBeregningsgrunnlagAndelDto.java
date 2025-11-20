@@ -1,6 +1,8 @@
 package no.nav.foreldrepenger.domene.rest.dto;
 
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.OpptjeningAktivitetType;
@@ -14,7 +16,11 @@ public class FastsettBeregningsgrunnlagAndelDto extends RedigerbarAndelDto {
     private FastsatteVerdierDto fastsatteVerdier;
     @ValidKodeverk
     private Inntektskategori forrigeInntektskategori;
+    @Min(0)
+    @Max(Integer.MAX_VALUE)
     private Integer forrigeRefusjonPrÅr;
+    @Min(0)
+    @Max(Integer.MAX_VALUE)
     private Integer forrigeArbeidsinntektPrÅr;
 
     FastsettBeregningsgrunnlagAndelDto() {

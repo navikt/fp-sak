@@ -327,7 +327,7 @@ public class OppdatererDtoMapper {
         return new no.nav.folketrygdloven.kalkulus.håndtering.v1.refusjon.VurderRefusjonAndelBeregningsgrunnlagDto(
             andel.getArbeidsgiverOrgnr(),
             andel.getArbeidsgiverAktoerId(),
-            andel.getInternArbeidsforholdRef(),
+            andel.getInternArbeidsforholdRef().toString(),
             andel.getFastsattRefusjonFom(),
             andel.getDelvisRefusjonPrMndFørStart());
     }

@@ -23,6 +23,7 @@ public class BeregningsaktivitetLagreDto {
     @Pattern(regexp = InputValideringRegex.ARBEIDSGIVER)
     private String oppdragsgiverOrg;
 
+    @Pattern(regexp = "^[\\p{Graph}\\p{Space}\\p{Sc}\\p{L}\\p{M}\\p{N}]+$", message = "'${validatedValue}' matcher ikke tillatt pattern '{regexp}'")
     private String arbeidsgiverIdentifikator;
 
     @Size(max = 100)

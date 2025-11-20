@@ -8,15 +8,14 @@ import java.util.List;
 import java.util.Optional;
 
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterParameter;
+import no.nav.foreldrepenger.behandlingslager.behandling.beregning.Inntektskategori;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkBeløp;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagLinjeBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.SkjermlenkeType;
-import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.OrgNummer;
 import no.nav.foreldrepenger.domene.aksjonspunkt.BeregningsgrunnlagPeriodeEndring;
-import no.nav.foreldrepenger.behandlingslager.behandling.beregning.Inntektskategori;
 import no.nav.foreldrepenger.domene.rest.dto.fordeling.FordelBeregningsgrunnlagAndelDto;
 import no.nav.foreldrepenger.domene.rest.dto.fordeling.FordelBeregningsgrunnlagPeriodeDto;
 import no.nav.foreldrepenger.domene.typer.AktørId;
@@ -141,12 +140,12 @@ public final class FordelBeregningsgrunnlagHistorikkUtil {
         endring.medArbeidsforholdRef(endretAndel.getArbeidsforholdId()).medArbeidsgiver(finnArbeidsgiver(endretAndel));
     }
 
-    private static Arbeidsgiver finnArbeidsgiver(FordelBeregningsgrunnlagAndelDto endretAndel) {
-        Arbeidsgiver arbeidsgiver;
+    private static ArbeidsgiverDto finnArbeidsgiver(FordelBeregningsgrunnlagAndelDto endretAndel) {
+        ArbeidsgiverDto arbeidsgiver;
         if (OrgNummer.erGyldigOrgnr(endretAndel.getArbeidsgiverId())) {
-            arbeidsgiver = Arbeidsgiver.virksomhet(endretAndel.getArbeidsgiverId());
+            arbeidsgiver = ArbeidsgiverDto.virksomhet(endretAndel.getArbeidsgiverId());
         } else {
-            arbeidsgiver = Arbeidsgiver.person(new AktørId(endretAndel.getArbeidsgiverId()));
+            arbeidsgiver = ArbeidsgiverDto.person(new AktørId(endretAndel.getArbeidsgiverId()));
         }
         return arbeidsgiver;
     }

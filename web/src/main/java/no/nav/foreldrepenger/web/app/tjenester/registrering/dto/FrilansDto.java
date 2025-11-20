@@ -5,7 +5,10 @@ import java.util.Collection;
 
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
+
+import no.nav.vedtak.util.InputValideringRegex;
 
 import org.hibernate.validator.constraints.Length;
 
@@ -19,7 +22,7 @@ public class FrilansDto {
     private Boolean erNyoppstartetFrilanser;
     private Boolean harInntektFraFosterhjem;
     private Boolean harHattOppdragForFamilie;
-    private Collection<Oppdragperiode> oppdragPerioder;
+    private Collection<@Valid Oppdragperiode> oppdragPerioder;
 
     public Boolean getHarSokerPeriodeMedFrilans() {
         return harSokerPeriodeMedFrilans;
@@ -95,6 +98,7 @@ public class FrilansDto {
 
     public static class Oppdragperiode {
         @Length(max = 50)
+        @Pattern(regexp = InputValideringRegex.FRITEKST)
         private String oppdragsgiver;
 
         private LocalDate fomDato;

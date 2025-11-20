@@ -16,6 +16,8 @@ public class FastsatteVerdierDto {
     @Max(Integer.MAX_VALUE)
     private Integer refusjon;
 
+    @Min(0)
+    @Max(Integer.MAX_VALUE)
     private Integer refusjonPrÅr;
 
     @Min(0)

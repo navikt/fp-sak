@@ -7,6 +7,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.util.List;
+import java.util.UUID;
 
 import jakarta.inject.Inject;
 
@@ -47,8 +48,8 @@ class ArbeidPermHistorikkInnslagTjenesteTest {
         var arbeidPermHistorikkInnslagTjenesteTest = new ArbeidPermHistorikkInnslagTjeneste(historikkRepository, arbeidsgiverTjeneste);
 
         var avklarteArbForhold = List.of(
-            new AvklarPermisjonUtenSluttdatoDto(KUNSTIG_ORG, INTERN_ARBEIDSFORHOLD_ID, BekreftetPermisjonStatus.BRUK_PERMISJON),
-            new AvklarPermisjonUtenSluttdatoDto(NAV_ORGNR, INTERN_ARBEIDSFORHOLD_ID_2, BekreftetPermisjonStatus.IKKE_BRUK_PERMISJON)
+            new AvklarPermisjonUtenSluttdatoDto(KUNSTIG_ORG, UUID.fromString(INTERN_ARBEIDSFORHOLD_ID), BekreftetPermisjonStatus.BRUK_PERMISJON),
+            new AvklarPermisjonUtenSluttdatoDto(NAV_ORGNR, UUID.fromString(INTERN_ARBEIDSFORHOLD_ID_2), BekreftetPermisjonStatus.IKKE_BRUK_PERMISJON)
         );
         var ref = getBehandlingReferanse();
         arbeidPermHistorikkInnslagTjenesteTest.opprettHistorikkinnslag(ref, avklarteArbForhold, "begrunnelse");
