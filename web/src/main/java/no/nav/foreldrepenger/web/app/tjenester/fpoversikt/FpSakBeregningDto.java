@@ -1,6 +1,6 @@
 package no.nav.foreldrepenger.web.app.tjenester.fpoversikt;
 
-import no.nav.foreldrepenger.domene.typer.Beløp;
+import java.math.BigDecimal;
 
-record FpSakBeregningDto(Beløp dagsats) {
+record FpSakBeregningDto(BigDecimal dagsats) {
 }

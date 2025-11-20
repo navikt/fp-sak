@@ -1,5 +1,6 @@
 package no.nav.foreldrepenger.web.app.tjenester.fpoversikt;
 
+import java.math.BigDecimal;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -94,7 +95,7 @@ public class FpOversiktRestTjeneste {
     @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK, sporingslogg = false)
     public List<FpSakBeregningDto> hentBeregninger(@TilpassetAbacAttributt(supplierClass = SaksnummerAbacSupplier.Supplier.class) @NotNull @Parameter(description = "Saksnummer for fagsak") @QueryParam("saksnummer") @Valid SaksnummerDto saksnummerDto) {
         var saksnummer = saksnummerDto.getVerdi();
-        var beregning = new FpSakBeregningDto(new Beløp(23));
+        var beregning = new FpSakBeregningDto(new BigDecimal(23));
         return Collections.singletonList(beregning);
     }
 }
