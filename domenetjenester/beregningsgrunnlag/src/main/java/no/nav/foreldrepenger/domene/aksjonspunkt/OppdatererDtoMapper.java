@@ -3,6 +3,7 @@ package no.nav.foreldrepenger.domene.aksjonspunkt;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 import no.nav.folketrygdloven.kalkulus.håndtering.v1.fakta.FaktaOmBeregningTilfelleDto;
@@ -327,7 +328,7 @@ public class OppdatererDtoMapper {
         return new no.nav.folketrygdloven.kalkulus.håndtering.v1.refusjon.VurderRefusjonAndelBeregningsgrunnlagDto(
             andel.getArbeidsgiverOrgnr(),
             andel.getArbeidsgiverAktoerId(),
-            andel.getInternArbeidsforholdRef().toString(),
+            Optional.ofNullable(andel.getInternArbeidsforholdRef()).map(UUID::toString).orElse(null),
             andel.getFastsattRefusjonFom(),
             andel.getDelvisRefusjonPrMndFørStart());
     }
