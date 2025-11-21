@@ -32,19 +32,23 @@ import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.Virkedager;
  *  - STP (Skjæringstidspunkt): Startdato for permisjonen/uttaket
  *  - Mottattdato søknad: Datoen søknaden ble mottatt av NAV
  *  - Kompletthetsvurdering: Periode fra STP-4w til STP+4w hvor vi venter på inntektsmeldinger
- *  - Etterlysningsbrev: Brev sendt til arbeidsgiver for å etterspørre manglende IM
+ *  - Etterlysningsbrev: Brev sendt til bruker for å etterspørre manglende IM
  *
  * Ventefrist-strategi:
  *  Fase 1: Initiell venting (10 dager)
- *    - Hvis søknad mottatt før STP-4w: Vent fra STP-4w + 10 dager
- *    - Hvis søknad mottatt etter STP-4w: Vent fra mottattdato søknad + 10 dager
+ *    a) Hvis søknad mottatt på eller før STP-4u => Bruk STP-4u
+ *    b) Hvis søknad mottatt etter STP-4u => Bruk mottattdato søknad
+ *    c) Til slutt legg på 10 dager ekstra
  *
  *  Fase 2: Etterlysning (2 uker ekstra)
- *    - Hvis søknad mottatt før/på STP: Vent fra STP + 2 uker
- *    - Hvis søknad mottatt etter STP: Vent fra mottattdato søknad + 2 uker
- *    - Hvis IM mottas etter etterlysning: Vent fra tidligste IM + 3 virkedager
- *    - Minimum: Etterlysningsbrev sendt + 1 uke
- * </pre>
+ *    a) Hvis IM mottas etter etterlysning: Bruk mottattdato for den tidligste mottatte IM
+ *    b) Hvis søknad mottatt på eller før STP: Bruk STP
+ *    c) Hvis søknad mottatt etter STP: Bruk mottattdato søknad
+ *
+ *    For a) legger vi på 3 virkedager ekstra
+ *    For b) og c) legger vi på 2 uker ekstra
+ *
+ *  Ventefristen ligger mellom [STP-4u+10d,
  */
 @ApplicationScoped
 public class ManglendeInntektsmeldingTjeneste {
@@ -52,10 +56,6 @@ public class ManglendeInntektsmeldingTjeneste {
      * Disse konstantene ligger hardkodet (og ikke i KonfigVerdi), da endring i en eller flere av disse vil
      * sannsynnlig kreve kodeendring
      */
-    protected static final Period MAX_VENT_ETTER_STP = Period.ofWeeks(4);
-    protected static final Period VENTEFRIST_IM_ETTER_SØKNAD_MOTTATT_DATO = Period.ofDays(10);
-    protected static final Period TIDLIGST_VENTEFRIST_IM_FØR_UTTAKSDATO = Period.ofWeeks(4).minus(VENTEFRIST_IM_ETTER_SØKNAD_MOTTATT_DATO);
-
     protected static final Period START_KOMPLETTHET = Period.ofWeeks(4);
     protected static final Period INITIELL_VENTING_KOMPLETTHET = Period.ofDays(10);
     protected static final Period VENTEFRIST_IM_ETTER_ETTERLYSNING = Period.ofWeeks(2);
@@ -102,8 +102,8 @@ public class ManglendeInntektsmeldingTjeneste {
      * @see KompletthetsjekkerImpl#vurderForsendelseKomplett(BehandlingReferanse, Skjæringstidspunkt)
      *
      * Logikk:
-     *  - Hvis søknad mottatt før STP-4u: Vent fra STP-4u + 10 dager
-     *  - Hvis søknad mottatt etter STP-4u: Vent fra mottattdato søknad + 10 dager
+     *  - Hvis søknad mottatt på eller før STP-4w: Vent til STP-4w + 10 dager
+     *  - Hvis søknad mottatt etter STP-4w: Vent til mottattdato søknad + 10 dager
      */
     LocalDate finnInitiellVentefristVedManglendeInntektsmelding(BehandlingReferanse ref, Skjæringstidspunkt skjæringstidspunkt) {
         var permisjonsstart = skjæringstidspunkt.getUtledetSkjæringstidspunkt();
@@ -111,7 +111,7 @@ public class ManglendeInntektsmeldingTjeneste {
             .filter(s -> s.getMottattDato().isAfter(permisjonsstart.minus(START_KOMPLETTHET)))
             .map(SøknadEntitet::getMottattDato)
             .orElse(permisjonsstart.minus(START_KOMPLETTHET))
-            .plus(INITIELL_VENTING_KOMPLETTHET); // Vent 10 dager etter søknad mottatt dato eller inngang kompletthet (STP-4u)
+            .plus(INITIELL_VENTING_KOMPLETTHET); // Vent 10 dager etter søknad mottatt dato eller inngang kompletthet (STP-4w)
     }
 
     /**
@@ -119,8 +119,11 @@ public class ManglendeInntektsmeldingTjeneste {
      * @see KompletthetsjekkerImpl#vurderEtterlysningInntektsmelding(BehandlingReferanse, Skjæringstidspunkt)
      *
      * Logikk:
-     * - Justerer frist hvis det er mottatt inntektsmelding etter etterlysning
-     * - Ellers justeres frist i henhold til stp / søknad mottatt tidspunkt + 2 uker
+     *  1) Justerer frist hvis det er mottatt inntektsmelding etter etterlysning
+     *      a) Vent til datoen den første IM ble mottatt (tidligste) + 3 virkedager
+     *  2) Ellers justeres frist i henhold til stp / søknad mottatt tidspunkt + 2 uker
+     *      a) Hvis søknad mottatt etter STP: Vent til mottattdato søknad + 2 uker
+     *      b) Hvis søknad mottatt før/på STP: Vent til STP + 2 uker
      */
     LocalDate finnNyVentefristVedEtterlysning(BehandlingReferanse ref, Skjæringstidspunkt stp) {
         var tidspunktEtterlysIMBleBestiltOpt = dokumentBehandlingTjeneste.dokumentSistBestiltTidspunkt(ref.behandlingId(), DokumentMalType.ETTERLYS_INNTEKTSMELDING);
@@ -146,22 +149,13 @@ public class ManglendeInntektsmeldingTjeneste {
             : finnVentefristBasertPåAlleredeMottatteInntektmeldinger(inntektsmeldingerMottattEtterEtterlysningsbrev);
     }
 
-    /*
-     * Beregner ventefrist for etterlysning når ingen IM er mottatt etter etterlysningsbrev er sendt.
-     *
-     * Logikk:
-     *  - Hvis søknad mottatt etter STP: Vent fra mottattdato søknad + 2 uker
-     *  - Hvis søknad mottatt før/på STP: Vent fra STP + 2 uker
-     *
-     * Intervall: [STP+2u, mottattdato søknad+2u]
-     */
     private LocalDate finnVentefristForEtterlysningNårDetIkkeErMottattIMEtterBrev(BehandlingReferanse ref, Skjæringstidspunkt stp) {
         var behandlingId = ref.behandlingId();
         var permisjonsstart = stp.getUtledetSkjæringstidspunkt();
         return søknadRepository.hentSøknadHvisEksisterer(behandlingId)
             .filter(s -> s.getMottattDato().isAfter(permisjonsstart))
             .map(SøknadEntitet::getMottattDato) // Søkt etter STP
-            .orElse(permisjonsstart) // Søkt før STP
+            .orElse(permisjonsstart) // Søkt på eller før STP
             .plus(VENTEFRIST_IM_ETTER_ETTERLYSNING); // Legger på 2 uker etter søknadstidspunkt eller stp
     }
 

@@ -1,9 +1,8 @@
 package no.nav.foreldrepenger.kompletthet.impl;
 
-import static no.nav.foreldrepenger.kompletthet.impl.ManglendeInntektsmeldingTjeneste.MAX_VENT_ETTER_STP;
-import static no.nav.foreldrepenger.kompletthet.impl.ManglendeInntektsmeldingTjeneste.TIDLIGST_VENTEFRIST_IM_FØR_UTTAKSDATO;
+import static no.nav.foreldrepenger.kompletthet.impl.ManglendeInntektsmeldingTjeneste.INITIELL_VENTING_KOMPLETTHET;
+import static no.nav.foreldrepenger.kompletthet.impl.ManglendeInntektsmeldingTjeneste.START_KOMPLETTHET;
 import static no.nav.foreldrepenger.kompletthet.impl.ManglendeInntektsmeldingTjeneste.VENTEFRIST_IM_ETTER_ETTERLYSNING;
-import static no.nav.foreldrepenger.kompletthet.impl.ManglendeInntektsmeldingTjeneste.VENTEFRIST_IM_ETTER_SØKNAD_MOTTATT_DATO;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
@@ -63,7 +62,7 @@ class ManglendeInntektsmeldingTjenesteTest {
 
         var frist = manglendeInntektsmeldingTjeneste.finnInitiellVentefristVedManglendeInntektsmelding(behandlingMedMottattdatoForSøknad(mottattDato), tilSkjæringstidspunkt(skjæringstidspunkt));
 
-        assertThat(frist).isEqualTo(mottattDato.plus(VENTEFRIST_IM_ETTER_SØKNAD_MOTTATT_DATO));
+        assertThat(frist).isEqualTo(mottattDato.plus(INITIELL_VENTING_KOMPLETTHET));
     }
 
     @Test
@@ -73,7 +72,7 @@ class ManglendeInntektsmeldingTjenesteTest {
 
         var frist = manglendeInntektsmeldingTjeneste.finnInitiellVentefristVedManglendeInntektsmelding(behandlingMedMottattdatoForSøknad(mottattDato), tilSkjæringstidspunkt(skjæringstidspunkt));
 
-        assertThat(frist).isEqualTo(skjæringstidspunkt.minus(TIDLIGST_VENTEFRIST_IM_FØR_UTTAKSDATO));
+        assertThat(frist).isEqualTo(skjæringstidspunkt.minus(START_KOMPLETTHET).plus(INITIELL_VENTING_KOMPLETTHET));
     }
 
     @Test
@@ -85,7 +84,7 @@ class ManglendeInntektsmeldingTjenesteTest {
 
         var frist = manglendeInntektsmeldingTjeneste.finnNyVentefristVedEtterlysning(behandlingMedMottattdatoForSøknad(mottattDato), tilSkjæringstidspunkt(skjæringstidspunkt));
 
-        assertThat(frist).isEqualTo(mottattDato.plus(VENTEFRIST_IM_ETTER_SØKNAD_MOTTATT_DATO).plus(VENTEFRIST_IM_ETTER_ETTERLYSNING));
+        assertThat(frist).isEqualTo(skjæringstidspunkt.plus(VENTEFRIST_IM_ETTER_ETTERLYSNING));
     }
 
     @Test
@@ -97,7 +96,7 @@ class ManglendeInntektsmeldingTjenesteTest {
 
         var frist = manglendeInntektsmeldingTjeneste.finnNyVentefristVedEtterlysning(behandlingMedMottattdatoForSøknad(mottattDato), tilSkjæringstidspunkt(skjæringstidspunkt));
 
-        assertThat(frist).isEqualTo(LocalDate.now().plus(VENTEFRIST_IM_ETTER_ETTERLYSNING));
+        assertThat(frist).isEqualTo(skjæringstidspunkt.plus(VENTEFRIST_IM_ETTER_ETTERLYSNING));
     }
 
     @Test
@@ -109,7 +108,7 @@ class ManglendeInntektsmeldingTjenesteTest {
 
         var frist = manglendeInntektsmeldingTjeneste.finnNyVentefristVedEtterlysning(behandlingMedMottattdatoForSøknad(mottattDato), tilSkjæringstidspunkt(skjæringstidspunkt));
 
-        assertThat(frist).isEqualTo(mottattDato.plus(VENTEFRIST_IM_ETTER_SØKNAD_MOTTATT_DATO).plus(VENTEFRIST_IM_ETTER_ETTERLYSNING));
+        assertThat(frist).isEqualTo(mottattDato.plus(VENTEFRIST_IM_ETTER_ETTERLYSNING));
     }
 
     @Test
@@ -121,7 +120,7 @@ class ManglendeInntektsmeldingTjenesteTest {
 
         var frist = manglendeInntektsmeldingTjeneste.finnNyVentefristVedEtterlysning(behandlingMedMottattdatoForSøknad(mottattDato), tilSkjæringstidspunkt(skjæringstidspunkt));
 
-        assertThat(frist).isEqualTo(skjæringstidspunkt.plus(MAX_VENT_ETTER_STP).plus(VENTEFRIST_IM_ETTER_ETTERLYSNING));
+        assertThat(frist).isEqualTo(mottattDato.plus(VENTEFRIST_IM_ETTER_ETTERLYSNING));
     }
 
     @Test
