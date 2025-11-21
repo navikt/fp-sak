@@ -13,6 +13,7 @@ import jakarta.validation.constraints.Size;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.arbeidsforhold.ArbeidsforholdKomplettVurderingType;
+import no.nav.foreldrepenger.validering.ValidKodeverk;
 import no.nav.vedtak.util.InputValideringRegex;
 
 public class ManueltArbeidsforholdDto {
@@ -50,7 +51,7 @@ public class ManueltArbeidsforholdDto {
     @NotNull
     private Integer stillingsprosent;
     @JsonProperty("vurdering")
-    @Valid
+    @ValidKodeverk
     @NotNull
     private ArbeidsforholdKomplettVurderingType vurdering;
     @JsonProperty("behandlingVersjon")

@@ -66,7 +66,7 @@ public class SøknadMapperFelles {
     public static Soeknad mapSøknad(ManuellRegistreringDto registreringDto, NavBruker navBruker) {
         var søknad = new Soeknad();
         søknad.setMottattDato(registreringDto.getMottattDato());
-        søknad.setSoeker(mapBruker(registreringDto.getSoker(), navBruker)); //Stønadstype Søker fnr og søkertype(mor/far/annen/medmor)
+        søknad.setSoeker(mapBruker(registreringDto.getSøker(), navBruker)); //Stønadstype Søker fnr og søkertype(mor/far/annen/medmor)
         søknad.setTilleggsopplysninger(registreringDto.getTilleggsopplysninger());
         søknad.setSprakvalg(mapSpråk(registreringDto.getSpråkkode()));
         søknad.setBegrunnelseForSenSoeknad(registreringDto.getBegrunnelse());
@@ -80,7 +80,7 @@ public class SøknadMapperFelles {
         }
         if (TRUE.equals(annenForelderDto.getKanIkkeOppgiAnnenForelder())) {
             var oppgittBegrunnelse = annenForelderDto.getKanIkkeOppgiBegrunnelse();
-            var utenlandskFoedselsnummer = oppgittBegrunnelse.getUtenlandskFoedselsnummer();
+            var utenlandskFoedselsnummer = oppgittBegrunnelse.getUtenlandskFødselsnummer();
             if (utenlandskFoedselsnummer != null && !utenlandskFoedselsnummer.isBlank()) {
                 var annenForelderUtenNorskIdent = new AnnenForelderUtenNorskIdent();
                 annenForelderUtenNorskIdent.setUtenlandskPersonidentifikator(utenlandskFoedselsnummer);
@@ -93,7 +93,7 @@ public class SøknadMapperFelles {
         }
 
         var annenForelderMedNorskIdent = new AnnenForelderMedNorskIdent();
-        var aktørId = personinfoAdapter.hentAktørForFnr(PersonIdent.fra(annenForelderDto.getFoedselsnummer()))
+        var aktørId = personinfoAdapter.hentAktørForFnr(PersonIdent.fra(annenForelderDto.getFødselsnummer()))
             .orElseThrow(() -> new TekniskException("FP-453257", "Fant ikke aktør-ID for fødselsnummer"));
         annenForelderMedNorskIdent.setAktoerId(aktørId.getId());
 
@@ -135,10 +135,10 @@ public class SøknadMapperFelles {
         if (erSøknadVedAdopsjon(tema)) {
             return mapAdopsjon(registreringDto);
         }
-        if (erSøknadVedFødsel(registreringDto.getErBarnetFodt(), registreringDto.getTema())) {
+        if (erSøknadVedFødsel(registreringDto.getErBarnetFødt(), registreringDto.getTema())) {
             return mapFødsel(registreringDto);
         }
-        if (erSøknadVedTermin(registreringDto.getErBarnetFodt(), registreringDto.getTema())) {
+        if (erSøknadVedTermin(registreringDto.getErBarnetFødt(), registreringDto.getTema())) {
             return mapTermin(registreringDto);
         }
         throw new IllegalArgumentException(String.format("Ugyldig temakode: %s ", tema));
@@ -147,11 +147,11 @@ public class SøknadMapperFelles {
     static Foedsel mapFødsel(ManuellRegistreringDto registreringDto) {
         var fødsel = new Foedsel();
         if (harFødselsdato(registreringDto)) {
-            var foedselsDato = registreringDto.getFoedselsDato();
-            if (foedselsDato == null) {
+            var foedselsdato = registreringDto.getFødselsdato();
+            if (foedselsdato == null) {
                 throw new IllegalArgumentException("Støtter bare 1 fødselsdato på fødsel");
             }
-            fødsel.setFoedselsdato(registreringDto.getFoedselsDato());
+            fødsel.setFoedselsdato(registreringDto.getFødselsdato());
             fødsel.setTermindato(registreringDto.getTermindato());
         }
         fødsel.setAntallBarn(registreringDto.getAntallBarn());
@@ -188,7 +188,7 @@ public class SøknadMapperFelles {
         var adopsjon = new Adopsjon();
         adopsjon.setOmsorgsovertakelsesdato(registreringDto.getOmsorg().getOmsorgsovertakelsesdato());
         adopsjon.setAnkomstdato(registreringDto.getOmsorg().getAnkomstdato());
-        var foedselsdatoer = registreringDto.getOmsorg().getFoedselsDato();
+        var foedselsdatoer = registreringDto.getOmsorg().getFødselsdato();
         for (var dato : foedselsdatoer) {
             adopsjon.getFoedselsdato().add(dato);
         }
@@ -204,7 +204,7 @@ public class SøknadMapperFelles {
         omsorgsovertakelse.setOmsorgsovertakelseaarsak(mapOmsorgsovertakelseaarsaker(registreringDto));
         omsorgsovertakelse.setOmsorgsovertakelsesdato(registreringDto.getOmsorg().getOmsorgsovertakelsesdato());
 
-        var foedselsdatoer = registreringDto.getOmsorg().getFoedselsDato();
+        var foedselsdatoer = registreringDto.getOmsorg().getFødselsdato();
         for (var dato : foedselsdatoer) {
             omsorgsovertakelse.getFoedselsdato().add(dato);
         }
@@ -218,7 +218,7 @@ public class SøknadMapperFelles {
         var farSøkerType = switch (registreringDto.getRettigheter()) {
             case ANNEN_FORELDER_DOED -> FarSøkerType.ANDRE_FORELDER_DØD;
             case MANN_ADOPTERER_ALENE -> FarSøkerType.ADOPTERER_ALENE;
-            default -> erSøknadVedFødsel(registreringDto.getErBarnetFodt(),
+            default -> erSøknadVedFødsel(registreringDto.getErBarnetFødt(),
                 registreringDto.getTema()) ? FarSøkerType.OVERTATT_OMSORG_F : FarSøkerType.OVERTATT_OMSORG;
         };
         omsorgsovertakelseaarsaker.setKode(farSøkerType.getKode());
@@ -230,7 +230,7 @@ public class SøknadMapperFelles {
     }
 
     private static boolean harFødselsdato(ManuellRegistreringDto registreringDto) {
-        return registreringDto.getFoedselsDato() != null;
+        return registreringDto.getFødselsdato() != null;
     }
 
     private static boolean erSøknadVedFødsel(Boolean erBarnetFødt, FamilieHendelseType tema) {

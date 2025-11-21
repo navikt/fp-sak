@@ -13,9 +13,9 @@ import jakarta.ws.rs.DefaultValue;
 import jakarta.ws.rs.QueryParam;
 
 import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.media.Schema;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningSats;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningSatsType;
+import no.nav.foreldrepenger.validering.ValidKodeverk;
 import no.nav.vedtak.sikkerhet.abac.AbacDataAttributter;
 import no.nav.vedtak.sikkerhet.abac.AbacDto;
 
@@ -23,6 +23,7 @@ public class BeregningSatsDto implements AbacDto {
 
     @NotNull
     @QueryParam("satsType")
+    @ValidKodeverk
     private BeregningSatsType satsType;
 
     @NotNull

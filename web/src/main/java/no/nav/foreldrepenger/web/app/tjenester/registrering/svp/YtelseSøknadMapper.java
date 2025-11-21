@@ -62,8 +62,8 @@ public class YtelseSøknadMapper implements SøknadMapper {
     private static Svangerskapspenger mapTilSvangerskapspenger(ManuellRegistreringSvangerskapspengerDto registreringDto) {
         var svangerskapspenger = new Svangerskapspenger();
         svangerskapspenger.setTermindato(registreringDto.getTermindato());
-        if (registreringDto.getFoedselsDato() != null) {
-            svangerskapspenger.setFødselsdato(registreringDto.getFoedselsDato());
+        if (registreringDto.getFødselsdato() != null) {
+            svangerskapspenger.setFødselsdato(registreringDto.getFødselsdato());
         }
         var tilretteleggingListe = new TilretteleggingListe();
         svangerskapspenger.setTilretteleggingListe(tilretteleggingListe);
@@ -102,16 +102,15 @@ public class YtelseSøknadMapper implements SøknadMapper {
     }
 
     private static void mapTilArbeidsforhold(SvpTilretteleggingArbeidsforholdDto arbeidsforholdDto, Tilrettelegging tilrettelegging) {
-        if (arbeidsforholdDto instanceof SvpTilretteleggingVirksomhetDto) {
-            tilrettelegging.setArbeidsforhold(mapTilArbeidsforhold((SvpTilretteleggingVirksomhetDto) arbeidsforholdDto));
-        } else if (arbeidsforholdDto instanceof SvpTilretteleggingPrivatArbeidsgiverDto) {
-            tilrettelegging.setArbeidsforhold(mapTilArbeidsforhold((SvpTilretteleggingPrivatArbeidsgiverDto) arbeidsforholdDto));
-        } else if (arbeidsforholdDto instanceof SvpTilretteleggingSelvstendigNæringsdrivendeDto) {
-            tilrettelegging.setArbeidsforhold(mapTilSelvstendigNæringsdrivende());
-        } else if (arbeidsforholdDto instanceof SvpTilretteleggingFrilanserDto) {
-            tilrettelegging.setArbeidsforhold(mapTilFrilanser());
-        } else {
-            throw new IllegalArgumentException("Utvikler-feil: det skal ikke finnes flere konkrete subklasser.");
+        switch (arbeidsforholdDto) {
+            case SvpTilretteleggingVirksomhetDto svpTilretteleggingVirksomhetDto ->
+                tilrettelegging.setArbeidsforhold(mapTilArbeidsforhold(svpTilretteleggingVirksomhetDto));
+            case SvpTilretteleggingPrivatArbeidsgiverDto svpTilretteleggingPrivatArbeidsgiverDto ->
+                tilrettelegging.setArbeidsforhold(mapTilArbeidsforhold(svpTilretteleggingPrivatArbeidsgiverDto));
+            case SvpTilretteleggingSelvstendigNæringsdrivendeDto _ ->
+                tilrettelegging.setArbeidsforhold(mapTilSelvstendigNæringsdrivende());
+            case SvpTilretteleggingFrilanserDto _ -> tilrettelegging.setArbeidsforhold(mapTilFrilanser());
+            case null, default -> throw new IllegalArgumentException("Utvikler-feil: det skal ikke finnes flere konkrete subklasser.");
         }
     }
 

@@ -5,13 +5,18 @@ import java.util.Collection;
 
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
+
+import no.nav.vedtak.util.InputValideringRegex;
 
 import org.hibernate.validator.constraints.Length;
 
+import com.fasterxml.jackson.annotation.JsonAlias;
+
 public class FrilansDto {
 
-    private Boolean harSokerPeriodeMedFrilans;
+    private Boolean harSøkerPeriodeMedFrilans;
 
     @Size(max = 50)
     private Collection<@Valid Frilansperiode> perioder;
@@ -19,14 +24,15 @@ public class FrilansDto {
     private Boolean erNyoppstartetFrilanser;
     private Boolean harInntektFraFosterhjem;
     private Boolean harHattOppdragForFamilie;
-    private Collection<Oppdragperiode> oppdragPerioder;
+    private Collection<@Valid Oppdragperiode> oppdragPerioder;
 
-    public Boolean getHarSokerPeriodeMedFrilans() {
-        return harSokerPeriodeMedFrilans;
+    @JsonAlias("harSokerPeriodeMedFrilans")
+    public Boolean getHarSøkerPeriodeMedFrilans() {
+        return harSøkerPeriodeMedFrilans;
     }
 
-    public void setHarSokerPeriodeMedFrilans(Boolean harSokerPeriodeMedFrilans) {
-        this.harSokerPeriodeMedFrilans = harSokerPeriodeMedFrilans;
+    public void setHarSøkerPeriodeMedFrilans(Boolean harSøkerPeriodeMedFrilans) {
+        this.harSøkerPeriodeMedFrilans = harSøkerPeriodeMedFrilans;
     }
 
     public Collection<Frilansperiode> getPerioder() {
@@ -95,6 +101,7 @@ public class FrilansDto {
 
     public static class Oppdragperiode {
         @Length(max = 50)
+        @Pattern(regexp = InputValideringRegex.FRITEKST)
         private String oppdragsgiver;
 
         private LocalDate fomDato;

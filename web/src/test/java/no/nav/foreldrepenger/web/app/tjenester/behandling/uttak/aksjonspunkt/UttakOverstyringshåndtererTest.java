@@ -6,6 +6,7 @@ import static org.mockito.Mockito.mock;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.UUID;
 
 import jakarta.inject.Inject;
 
@@ -45,7 +46,7 @@ import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.overstyring.Utta
 class UttakOverstyringshåndtererTest {
 
     private static final String ORGNR = OrgNummer.KUNSTIG_ORG;
-    private static final String ARBEIDSFORHOLD_ID = InternArbeidsforholdRef.nyRef().getReferanse();
+    private static final UUID ARBEIDSFORHOLD_ID = InternArbeidsforholdRef.nyRef().getUUIDReferanse();
 
     @Inject
     private BehandlingRepositoryProvider repositoryProvider;

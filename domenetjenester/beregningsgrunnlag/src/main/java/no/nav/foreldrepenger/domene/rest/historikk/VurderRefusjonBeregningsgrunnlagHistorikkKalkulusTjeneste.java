@@ -100,7 +100,7 @@ public class VurderRefusjonBeregningsgrunnlagHistorikkKalkulusTjeneste {
     }
 
     private boolean matcherReferanse(InternArbeidsforholdRef arbeidsforholdRef, VurderRefusjonAndelBeregningsgrunnlagDto fastsattAndel) {
-        return Objects.equals(arbeidsforholdRef.getReferanse(), fastsattAndel.getInternArbeidsforholdRef());
+        return Objects.equals(arbeidsforholdRef.getUUIDReferanse(), fastsattAndel.getInternArbeidsforholdRef());
     }
 
     private boolean matcherAG(Arbeidsgiver arbeidsgiver, VurderRefusjonAndelBeregningsgrunnlagDto fastsattAndel) {

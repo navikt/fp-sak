@@ -23,7 +23,7 @@ public class OverstyrBeregningsgrunnlagDto extends OverstyringAksjonspunktDto {
     @NotNull
     private List<@Valid FastsettBeregningsgrunnlagAndelDto> overstyrteAndeler;
 
-    private Set<Lønnsendring> endringer;
+    private Set<@Valid Lønnsendring> endringer;
 
     @SuppressWarnings("unused")
     private OverstyrBeregningsgrunnlagDto() {

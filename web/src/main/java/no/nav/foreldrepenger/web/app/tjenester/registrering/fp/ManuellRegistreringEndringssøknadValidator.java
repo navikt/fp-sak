@@ -67,7 +67,7 @@ public class ManuellRegistreringEndringssøknadValidator {
     private static Optional<FeltFeilDto> validerOverføringAvKvoter(ManuellRegistreringEndringsøknadDto registreringDto) {
         var tidsromPermisjon = registreringDto.getTidsromPermisjon();
 
-        for (var overføringsperiodeDto : tidsromPermisjon.getOverforingsperioder()) {
+        for (var overføringsperiodeDto : tidsromPermisjon.getOverføringsperioder()) {
             if (isNull(overføringsperiodeDto.getOverforingArsak())) {
                 return Optional.of(new FeltFeilDto("årsakForOverføring", PAAKREVD_FELT));
             }
