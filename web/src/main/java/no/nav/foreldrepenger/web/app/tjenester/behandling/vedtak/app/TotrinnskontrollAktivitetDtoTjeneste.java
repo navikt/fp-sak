@@ -73,7 +73,6 @@ public class TotrinnskontrollAktivitetDtoTjeneste {
         if (arbeidsgiver.erAktørId()) {
             var arbeidsgiverOpplysninger = arbeidsgiverTjeneste.hent(arbeidsgiver);
             if (arbeidsgiverOpplysninger != null) {
-                dto.setPrivatpersonFødselsdato(arbeidsgiverOpplysninger.getFødselsdato());
                 dto.setArbeidsgiverNavn(arbeidsgiverOpplysninger.getNavn());
             }
         } else if (arbeidsgiver.getOrgnr() != null) {

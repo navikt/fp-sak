@@ -50,16 +50,12 @@ public class AksjonspunktDtoMapper {
 
         var vurdering = ttVurderinger.stream().filter(v -> v.getAksjonspunktDefinisjon() == aksjonspunkt.getAksjonspunktDefinisjon()).findFirst();
         vurdering.ifPresent(ttVurdering -> {
-            dto.setBesluttersBegrunnelse(ttVurdering.getBegrunnelse());
             dto.setToTrinnsBehandlingGodkjent(ttVurdering.isGodkjent());
-            dto.setVurderPaNyttArsaker(ttVurdering.getVurderPåNyttÅrsaker().stream()
-                .map(VurderÅrsakTotrinnsvurdering::getÅrsaksType).collect(Collectors.toSet()));
             }
         );
 
         dto.setAksjonspunktType(aksjonspunktDefinisjon.getAksjonspunktType());
         dto.setKanLoses(kanLøses(aksjonspunktDefinisjon, behandling, aksjonspunkt.getStatus()));
-        dto.setErAktivt(Boolean.TRUE);
         return dto;
     }
 
