@@ -122,7 +122,7 @@ public class SøknadMapperUtil {
             var kanIkkeOppgiBegrunnelse = new AnnenForelderDto.KanIkkeOppgiBegrunnelse();
             annenForelderDto.setKanIkkeOppgiBegrunnelse(kanIkkeOppgiBegrunnelse);
             annenForelderDto.setDenAndreForelderenHarRettPåForeldrepenger(harRettPåForeldrepenger);
-            annenForelderDto.setSøkerHarAleneomssorg(harAleneomsorg);
+            annenForelderDto.setSøkerHarAleneomsorg(harAleneomsorg);
         }
         return annenForelderDto;
     }

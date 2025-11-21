@@ -18,7 +18,7 @@ public class AnnenForelderDto {
     @Valid
     private KanIkkeOppgiBegrunnelse kanIkkeOppgiBegrunnelse;
 
-    private boolean søkerHarAleneomssorg;
+    private boolean søkerHarAleneomsorg;
 
     private boolean denAndreForelderenHarRettPåForeldrepenger;
 
@@ -51,12 +51,12 @@ public class AnnenForelderDto {
     }
 
     @JsonAlias("sokerHarAleneomsorg")
-    public boolean getSøkerHarAleneomssorg() {
-        return søkerHarAleneomssorg;
+    public boolean getSøkerHarAleneomsorg() {
+        return søkerHarAleneomsorg;
     }
 
-    public void setSøkerHarAleneomssorg(Boolean søkerHarAleneomssorg) {
-        this.søkerHarAleneomssorg = søkerHarAleneomssorg;
+    public void setSøkerHarAleneomsorg(Boolean søkerHarAleneomsorg) {
+        this.søkerHarAleneomsorg = søkerHarAleneomsorg;
     }
 
     @JsonAlias("denAndreForelderenHarRettPaForeldrepenger")
