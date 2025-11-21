@@ -388,7 +388,7 @@ class SøknadMapperTest {
         dto.setAnnenForelderInformert(true);
 
         var annenForelderDto = new AnnenForelderDto();
-        annenForelderDto.setDenAndreForelderenHarRettPaForeldrepenger(true);
+        annenForelderDto.setDenAndreForelderenHarRettPåForeldrepenger(true);
         dto.setAnnenForelder(annenForelderDto);
         when(personinfoAdapter.hentBrukerKjønnForAktør(any(), any(AktørId.class))).thenReturn(Optional.of(kvinne));
         when(personinfoAdapter.hentAktørForFnr(any())).thenReturn(Optional.of(STD_KVINNE_AKTØR_ID));
@@ -441,8 +441,8 @@ class SøknadMapperTest {
         manuellRegistreringForeldrepengerDto.setAnnenForelderInformert(true);
 
         var annenForelderDto = new AnnenForelderDto();
-        annenForelderDto.setDenAndreForelderenHarRettPaForeldrepenger(false);
-        annenForelderDto.setSokerHarAleneomsorg(true);
+        annenForelderDto.setDenAndreForelderenHarRettPåForeldrepenger(false);
+        annenForelderDto.setSøkerHarAleneomssorg(true);
         manuellRegistreringForeldrepengerDto.setAnnenForelder(annenForelderDto);
         when(personinfoAdapter.hentAktørForFnr(any())).thenReturn(Optional.of(STD_KVINNE_AKTØR_ID));
 

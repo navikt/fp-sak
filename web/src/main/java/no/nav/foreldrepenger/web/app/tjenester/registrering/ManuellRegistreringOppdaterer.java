@@ -72,7 +72,7 @@ public class ManuellRegistreringOppdaterer implements AksjonspunktOppdaterer<Man
         var behandlingReferanse = param.getRef();
         var resultatBuilder = OppdateringResultat.utenTransisjon();
 
-        if (dto.getUfullstendigSoeknad()) {
+        if (dto.getUfullstendigSøknad()) {
             if (behandlingReferanse.erRevurdering()) {
                 // Vi ønsker ikke mangelfulle søknader i revurderinger ettersom det ikke gitt at de skal til Opphør/Avslag
                 // Vurder å gå videre som en vanlig revurdering - dvs returner resultatBuilder.build() - men kan føre til automatisk vedtak uten brev.
@@ -109,7 +109,7 @@ public class ManuellRegistreringOppdaterer implements AksjonspunktOppdaterer<Man
     }
 
     private DokumentTypeId finnDokumentType(ManuellRegistreringDto dto, BehandlingType behandlingType) {
-        var søknadsType = dto.getSoknadstype().getKode();
+        var søknadsType = dto.getSøknadstype().getKode();
 
         if (FagsakYtelseType.ENGANGSTØNAD.getKode().equals(søknadsType)) {
             if (erFødsel(dto)) {

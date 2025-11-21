@@ -160,7 +160,7 @@ class ManuellRegistreringFellesValidatorTest {
         var forventetFeltnavn = "terminEllerFoedsel";
         ManuellRegistreringDto registreringDto = new ManuellRegistreringEngangsstonadDto();
         registreringDto.setTema(FamilieHendelseType.FØDSEL);
-        registreringDto.setErBarnetFodt(Boolean.TRUE);
+        registreringDto.setErBarnetFødt(Boolean.TRUE);
 
         var feltFeil = ManuellRegistreringFellesValidator.validerTerminEllerFødselsdato(registreringDto);
 
@@ -168,7 +168,7 @@ class ManuellRegistreringFellesValidatorTest {
         assertThat(feltFeil.get().getMelding()).isEqualTo(ManuellRegistreringValidatorTekster.TERMINDATO_ELLER_FØDSELSDATO);
         assertThat(feltFeil.get().getNavn()).isEqualTo(forventetFeltnavn);
 
-        registreringDto.setFoedselsDato(LocalDate.now());
+        registreringDto.setFødselsdato(LocalDate.now());
         registreringDto.setTermindato(LocalDate.now());
 
         feltFeil = ManuellRegistreringFellesValidator.validerTerminEllerFødselsdato(registreringDto);
@@ -183,7 +183,7 @@ class ManuellRegistreringFellesValidatorTest {
         assertThat(feltFeil).isNotPresent();
 
         registreringDto.setTermindato(LocalDate.now());
-        registreringDto.setFoedselsDato(null);
+        registreringDto.setFødselsdato(null);
 
         feltFeil = ManuellRegistreringFellesValidator.validerTerminEllerFødselsdato(registreringDto);
 
@@ -194,7 +194,7 @@ class ManuellRegistreringFellesValidatorTest {
     void validererTermindato() {
         ManuellRegistreringDto registreringDto = new ManuellRegistreringEngangsstonadDto();
         registreringDto.setTema(FamilieHendelseType.FØDSEL);
-        registreringDto.setErBarnetFodt(Boolean.FALSE);
+        registreringDto.setErBarnetFødt(Boolean.FALSE);
 
         var feltFeil = ManuellRegistreringFellesValidator.validerTermindato(registreringDto);
         assertThat(feltFeil).isPresent();
@@ -205,7 +205,7 @@ class ManuellRegistreringFellesValidatorTest {
         var forventetFeltnavn = "terminbekreftelseDato";
         ManuellRegistreringDto registreringDto = new ManuellRegistreringEngangsstonadDto();
         registreringDto.setTema(FamilieHendelseType.FØDSEL);
-        registreringDto.setErBarnetFodt(Boolean.FALSE);
+        registreringDto.setErBarnetFødt(Boolean.FALSE);
         registreringDto.setTerminbekreftelseDato(now());
 
         var feltFeil = ManuellRegistreringFellesValidator.validerTerminBekreftelsesdato(registreringDto);
@@ -238,7 +238,7 @@ class ManuellRegistreringFellesValidatorTest {
                 .isEqualTo(ManuellRegistreringValidatorTekster.TERMINBEKREFTELSESDATO_FØR_TERMINDATO);
         assertThat(feltFeil.get().getNavn()).isEqualTo(forventetFeltnavn);
 
-        registreringDto.setFoedselsDato(LocalDate.now());
+        registreringDto.setFødselsdato(LocalDate.now());
         registreringDto.setTerminbekreftelseDato(LocalDate.now().minusWeeks(1));
         feltFeil = ManuellRegistreringFellesValidator.validerTerminBekreftelsesdato(registreringDto);
         assertThat(feltFeil).as("Skal ikke fylle inn terminbekreftelsesdato når fødselsdato er fylt ut").isPresent();
@@ -253,7 +253,7 @@ class ManuellRegistreringFellesValidatorTest {
         var forventetFeltnavn = "antallBarnFraTerminbekreftelse";
         ManuellRegistreringDto registreringDto = new ManuellRegistreringEngangsstonadDto();
         registreringDto.setTema(FamilieHendelseType.FØDSEL);
-        registreringDto.setErBarnetFodt(Boolean.FALSE);
+        registreringDto.setErBarnetFødt(Boolean.FALSE);
 
         var feltFeil = ManuellRegistreringFellesValidator.validerTerminBekreftelseAntallBarn(registreringDto);
         assertThat(feltFeil).as("Antall barn fra terminbekreftelse er ikke påkrevd dersom termindato ikke er satt").isNotPresent();
@@ -264,7 +264,7 @@ class ManuellRegistreringFellesValidatorTest {
         assertThat(feltFeil.get().getMelding()).as("Antall barn må være fylt ut").isEqualTo(PAAKREVD_FELT);
         assertThat(feltFeil.get().getNavn()).isEqualTo(forventetFeltnavn);
 
-        registreringDto.setFoedselsDato(LocalDate.now());
+        registreringDto.setFødselsdato(LocalDate.now());
         registreringDto.setAntallBarnFraTerminbekreftelse(1);
         feltFeil = ManuellRegistreringFellesValidator.validerTerminBekreftelseAntallBarn(registreringDto);
         assertThat(feltFeil).as("Skal ikke fylle inn terminbekreftelseAntallBarn når fødselsdato er fylt ut").isPresent();
@@ -274,11 +274,11 @@ class ManuellRegistreringFellesValidatorTest {
     }
 
     @Test
-    void validererAntallBarnFoedsel() {
+    void validerAntallBarnFoedsel() {
         var forventetFeltnavn = "antallBarn";
         ManuellRegistreringDto registreringDto = new ManuellRegistreringEngangsstonadDto();
         registreringDto.setTema(FamilieHendelseType.FØDSEL);
-        registreringDto.setFoedselsDato(LocalDate.now());
+        registreringDto.setFødselsdato(LocalDate.now());
 
         var feltFeil = ManuellRegistreringFellesValidator.validerAntallBarn(registreringDto);
 
@@ -311,15 +311,15 @@ class ManuellRegistreringFellesValidatorTest {
     void validerFødselsdatoFødsel() {
         ManuellRegistreringDto registreringDto = new ManuellRegistreringEngangsstonadDto();
         registreringDto.setTema(FamilieHendelseType.FØDSEL);
-        registreringDto.setErBarnetFodt(Boolean.TRUE);
+        registreringDto.setErBarnetFødt(Boolean.TRUE);
         registreringDto.setAntallBarn(1);
-        registreringDto.setFoedselsDato(LocalDate.now().minusMonths(1));
+        registreringDto.setFødselsdato(LocalDate.now().minusMonths(1));
 
         var feltFeil = ManuellRegistreringFellesValidator.validerFødselsdato(registreringDto);
 
         assertThat(feltFeil).isNotPresent();
 
-        registreringDto.setFoedselsDato(null);
+        registreringDto.setFødselsdato(null);
         registreringDto.setAntallBarn(null);
 
         feltFeil = ManuellRegistreringFellesValidator.validerFødselsdato(registreringDto);
@@ -332,13 +332,13 @@ class ManuellRegistreringFellesValidatorTest {
         var forventetFeltnavn = "foedselsDato";
         ManuellRegistreringDto registreringDto = new ManuellRegistreringEngangsstonadDto();
         registreringDto.setTema(FamilieHendelseType.ADOPSJON);
-        registreringDto.setErBarnetFodt(Boolean.TRUE);
+        registreringDto.setErBarnetFødt(Boolean.TRUE);
 
         var omsorgDto = new OmsorgDto();
         omsorgDto.setAntallBarn(2);
         omsorgDto.setOmsorgsovertakelsesdato(LocalDate.now().minusWeeks(2));
         List<LocalDate> fødselsdatoer = new ArrayList<>();
-        omsorgDto.setFoedselsDato(fødselsdatoer);
+        omsorgDto.setFødselsdato(fødselsdatoer);
         registreringDto.setOmsorg(omsorgDto);
 
         var feltFeil = ManuellRegistreringFellesValidator.validerFødselsdato(registreringDto);
@@ -389,7 +389,7 @@ class ManuellRegistreringFellesValidatorTest {
         annenForelderDto.setKanIkkeOppgiBegrunnelse(new AnnenForelderDto.KanIkkeOppgiBegrunnelse());
         var kanIkkeOppgiBegrunnelse = annenForelderDto.getKanIkkeOppgiBegrunnelse();
 
-        kanIkkeOppgiBegrunnelse.setUtenlandskFoedselsnummer("123456789012345678801");
+        kanIkkeOppgiBegrunnelse.setUtenlandskFødselsnummer("123456789012345678801");
         var feltFeil = ManuellRegistreringFellesValidator.validerAnnenForelderUtenlandskFoedselsnummer(registreringDto);
         assertThat(feltFeil.get().getMelding()).as("Fornavn til annen forelder er stoerre enn 20")
                 .isEqualTo(ManuellRegistreringValidatorTekster.MINDRE_ELLER_LIK_LENGDE + "20");
@@ -408,12 +408,12 @@ class ManuellRegistreringFellesValidatorTest {
         assertThat(feltFeil.get().getMelding()).as("Fødselsnummer til annen forelder er påkrevd").isEqualTo(PAAKREVD_FELT);
         assertThat(feltFeil.get().getNavn()).isEqualTo(forventetFeltnavn);
 
-        annenForelderDto.setFoedselsnummer(new FiktiveFnr().nesteMannFnr());
+        annenForelderDto.setFødselsnummer(new FiktiveFnr().nesteMannFnr());
         feltFeil = ManuellRegistreringFellesValidator.validerAnnenForelderFødselsnummer(registreringDto);
         assertThat(feltFeil).as("Fødselsnummer til annen forelder er påkrevd og fylt ut").isNotPresent();
 
         annenForelderDto.setKanIkkeOppgiAnnenForelder(true);
-        annenForelderDto.setFoedselsnummer(null);
+        annenForelderDto.setFødselsnummer(null);
         feltFeil = ManuellRegistreringFellesValidator.validerAnnenForelderFødselsnummer(registreringDto);
         assertThat(feltFeil).as("Fødselsnummer er ikke påkrevd hvis man ikke kan oppgi annen forelder").isNotPresent();
     }

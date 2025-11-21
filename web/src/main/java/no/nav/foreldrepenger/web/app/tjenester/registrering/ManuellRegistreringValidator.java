@@ -49,8 +49,8 @@ class ManuellRegistreringValidator {
         TidsromPermisjonDto uttaksperioder = null;
         if (registreringDto instanceof ManuellRegistreringEndringsøknadDto endringsøknadDto && !RelasjonsRolleType.MORA.equals(relasjonsRolleType)) {
             uttaksperioder = endringsøknadDto.getTidsromPermisjon();
-        } else if (registreringDto instanceof ManuellRegistreringForeldrepengerDto foreldrepengerDto && !ForeldreType.MOR.equals(registreringDto.getSoker())
-            && Optional.ofNullable(registreringDto.getAnnenForelder()).filter(AnnenForelderDto::getSokerHarAleneomsorg).isEmpty()) {
+        } else if (registreringDto instanceof ManuellRegistreringForeldrepengerDto foreldrepengerDto && !ForeldreType.MOR.equals(registreringDto.getSøker())
+            && Optional.ofNullable(registreringDto.getAnnenForelder()).filter(AnnenForelderDto::getSøkerHarAleneomssorg).isEmpty()) {
             uttaksperioder = foreldrepengerDto.getTidsromPermisjon();
         }
 

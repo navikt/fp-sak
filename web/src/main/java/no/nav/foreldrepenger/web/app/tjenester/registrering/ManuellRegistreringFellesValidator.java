@@ -105,7 +105,7 @@ public class ManuellRegistreringFellesValidator {
         var feltnavn = "terminEllerFoedsel";
         if (erFødsel(manuellRegistreringDto)) {
             var harTerminDato = nonNull(manuellRegistreringDto.getTermindato());
-            var harFødselsDato = manuellRegistreringDto.getFoedselsDato() != null;
+            var harFødselsDato = manuellRegistreringDto.getFødselsdato() != null;
             if (!harTerminDato && !harFødselsDato) {
                 return Optional.of(new FeltFeilDto(feltnavn, TERMINDATO_ELLER_FØDSELSDATO));
             }
@@ -115,7 +115,7 @@ public class ManuellRegistreringFellesValidator {
 
     static Optional<FeltFeilDto> validerTermindato(ManuellRegistreringDto manuellRegistreringDto) {
         var feltnavn = "terminDato";
-        if (erFødsel(manuellRegistreringDto) && !manuellRegistreringDto.getErBarnetFodt()) {
+        if (erFødsel(manuellRegistreringDto) && !manuellRegistreringDto.getErBarnetFødt()) {
             //Termindato når barnet ikke er født.
             var terminDato = manuellRegistreringDto.getTermindato();
             if (!nonNull(terminDato)) {
@@ -127,10 +127,10 @@ public class ManuellRegistreringFellesValidator {
 
     static Optional<FeltFeilDto> validerTerminBekreftelsesdato(ManuellRegistreringDto manuellRegistreringDto) {
         var feltnavn = "terminbekreftelseDato";
-        if (erFødsel(manuellRegistreringDto) && !manuellRegistreringDto.getErBarnetFodt()) {
+        if (erFødsel(manuellRegistreringDto) && !manuellRegistreringDto.getErBarnetFødt()) {
             var terminbekreftelseDato = manuellRegistreringDto.getTerminbekreftelseDato();
             var termindato = manuellRegistreringDto.getTermindato();
-            var harFødselsdato = manuellRegistreringDto.getFoedselsDato() != null;
+            var harFødselsdato = manuellRegistreringDto.getFødselsdato() != null;
             var harTermindato = nonNull(termindato);
             if (nonNull(terminbekreftelseDato)) {
                 var feltFeilDto = validerTerminBekreftelsesdato(terminbekreftelseDato, termindato, harFødselsdato, harTermindato, feltnavn);
@@ -157,8 +157,8 @@ public class ManuellRegistreringFellesValidator {
 
     static Optional<FeltFeilDto> validerTerminBekreftelseAntallBarn(ManuellRegistreringDto registreringDto) {
         var feltnavn = "antallBarnFraTerminbekreftelse";
-        if (erFødsel(registreringDto) && !registreringDto.getErBarnetFodt()) {
-            var harFødselsdato = registreringDto.getFoedselsDato() != null;
+        if (erFødsel(registreringDto) && !registreringDto.getErBarnetFødt()) {
+            var harFødselsdato = registreringDto.getFødselsdato() != null;
             if (harFødselsdato && nonNull(registreringDto.getAntallBarnFraTerminbekreftelse())) {
                 return Optional.of(new FeltFeilDto(feltnavn, TERMINDATO_OG_FØDSELSDATO));
             }
@@ -174,7 +174,7 @@ public class ManuellRegistreringFellesValidator {
         if (erAdopsjonEllerOmsorg(registreringDto) && isNull(registreringDto.getOmsorg().getAntallBarn())) {
             return Optional.of(new FeltFeilDto(feltnavn, PAAKREVD_FELT));
         }
-        var harFødselsdato = registreringDto.getFoedselsDato() != null;
+        var harFødselsdato = registreringDto.getFødselsdato() != null;
         if (harFødselsdato && erFødsel(registreringDto) && isNull(registreringDto.getAntallBarn())) {
             return Optional.of(new FeltFeilDto(feltnavn, PAAKREVD_FELT));
         }
@@ -206,7 +206,7 @@ public class ManuellRegistreringFellesValidator {
             if (fødselsdatoer.stream().anyMatch(pred)) {
                 return Optional.of(new FeltFeilDto(feltnavn, FØR_ELLER_LIK_DAGENS_DATO));
             }
-        } else if (erFødsel(registreringDto) && TRUE.equals(registreringDto.getErBarnetFodt())) {
+        } else if (erFødsel(registreringDto) && registreringDto.getErBarnetFødt()) {
             if (fødselsdatoer.isEmpty()) {
                 return Optional.of(new FeltFeilDto(feltnavn, PAAKREVD_FELT));
             }
@@ -220,9 +220,9 @@ public class ManuellRegistreringFellesValidator {
     private static List<LocalDate> hentFødselsdatoer(ManuellRegistreringDto registreringDto) {
         List<LocalDate> fødselsdatoer;
         if (erAdopsjonEllerOmsorg(registreringDto)) {
-            fødselsdatoer = Optional.ofNullable(registreringDto.getOmsorg().getFoedselsDato()).orElse(List.of());
+            fødselsdatoer = Optional.ofNullable(registreringDto.getOmsorg().getFødselsdato()).orElse(List.of());
         } else {
-            fødselsdatoer = Optional.ofNullable(registreringDto.getFoedselsDato()).map(List::of).orElse(List.of());
+            fødselsdatoer = Optional.ofNullable(registreringDto.getFødselsdato()).map(List::of).orElse(List.of());
         }
         return fødselsdatoer.stream()
             .filter(Objects::nonNull)
@@ -235,7 +235,7 @@ public class ManuellRegistreringFellesValidator {
 
         if (!isNull(annenForelder) && TRUE.equals(annenForelder.getKanIkkeOppgiAnnenForelder())) {
             var kanIkkeOppgiBegrunnelse = annenForelder.getKanIkkeOppgiBegrunnelse();
-            if (isNull(kanIkkeOppgiBegrunnelse) || kanIkkeOppgiBegrunnelse.getArsak().isBlank()) {
+            if (isNull(kanIkkeOppgiBegrunnelse) || kanIkkeOppgiBegrunnelse.getÅrsak().isBlank()) {
                 return Optional.of(new FeltFeilDto(feltnavn, PAAKREVD_FELT));
             }
         }
@@ -252,7 +252,7 @@ public class ManuellRegistreringFellesValidator {
                 //Har vi ikke valgt årsak kan vi heller ikke validere utenlandsk fødselsnummer.
                 return Optional.empty();
             }
-            var utenlandskFoedselsnummer = kanIkkeOppgiBegrunnelse.getUtenlandskFoedselsnummer();
+            var utenlandskFoedselsnummer = kanIkkeOppgiBegrunnelse.getUtenlandskFødselsnummer();
             if (utenlandskFoedselsnummer != null && !utenlandskFoedselsnummer.isBlank() && erStoerreEnnTillatt(tillattLengde,
                 utenlandskFoedselsnummer)) {
                 return Optional.of(new FeltFeilDto(feltnavn, MINDRE_ELLER_LIK_LENGDE + tillattLengde));
@@ -265,10 +265,10 @@ public class ManuellRegistreringFellesValidator {
         var feltnavn = "foedselsnummer";
         var annenForelder = registreringDto.getAnnenForelder();
         if (!isNull(annenForelder) && !TRUE.equals(annenForelder.getKanIkkeOppgiAnnenForelder())) {
-            if (annenForelder.getFoedselsnummer() == null || annenForelder.getFoedselsnummer().isBlank()) {
+            if (annenForelder.getFødselsnummer() == null || annenForelder.getFødselsnummer().isBlank()) {
                 return Optional.of(new FeltFeilDto(feltnavn, PAAKREVD_FELT));
             }
-            if (!PersonIdent.erGyldigFnr(annenForelder.getFoedselsnummer())) {
+            if (!PersonIdent.erGyldigFnr(annenForelder.getFødselsnummer())) {
                 return Optional.of(new FeltFeilDto(feltnavn, UGYLDIG_FØDSELSNUMMER));
             }
         }

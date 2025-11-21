@@ -7,13 +7,15 @@ import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.Size;
 
+import com.fasterxml.jackson.annotation.JsonAlias;
+
 public class OmsorgDto {
     @Min(1)
     @Max(9)
     Integer antallBarn;
 
     @Size(min = 1, max = 9)
-    private List<LocalDate> foedselsDato;
+    private List<LocalDate> fødselsdato;
 
     private LocalDate omsorgsovertakelsesdato;
 
@@ -29,12 +31,13 @@ public class OmsorgDto {
         this.antallBarn = antallBarn;
     }
 
-    public List<LocalDate> getFoedselsDato() {
-        return foedselsDato;
+    @JsonAlias("foedselsDato")
+    public List<LocalDate> getFødselsdato() {
+        return fødselsdato;
     }
 
-    public void setFoedselsDato(List<LocalDate> foedselsDato) {
-        this.foedselsDato = foedselsDato;
+    public void setFødselsdato(List<LocalDate> fødselsdato) {
+        this.fødselsdato = fødselsdato;
     }
 
     public LocalDate getOmsorgsovertakelsesdato() {
