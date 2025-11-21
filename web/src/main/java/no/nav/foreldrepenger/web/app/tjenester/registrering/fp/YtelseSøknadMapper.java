@@ -225,7 +225,7 @@ public class YtelseSøknadMapper implements SøknadMapper {
         if (!isNull(tidsromPermisjon)) {
             var rettighet = new Rettigheter();
             if (!isNull(annenForelder)) {
-                rettighet.setHarAleneomsorgForBarnet(annenForelder.getSøkerHarAleneomssorg());
+                rettighet.setHarAleneomsorgForBarnet(annenForelder.getSøkerHarAleneomsorg());
                 rettighet.setHarAnnenForelderRett(annenForelder.getDenAndreForelderenHarRettPåForeldrepenger());
                 Optional.ofNullable(annenForelder.getMorMottarUføretrygd()).ifPresent(rettighet::setHarMorUforetrygd);
                 Optional.ofNullable(annenForelder.getAnnenForelderRettEØS())

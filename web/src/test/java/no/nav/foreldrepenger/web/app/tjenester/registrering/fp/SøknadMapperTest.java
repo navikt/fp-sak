@@ -442,7 +442,7 @@ class SøknadMapperTest {
 
         var annenForelderDto = new AnnenForelderDto();
         annenForelderDto.setDenAndreForelderenHarRettPåForeldrepenger(false);
-        annenForelderDto.setSøkerHarAleneomssorg(true);
+        annenForelderDto.setSøkerHarAleneomsorg(true);
         manuellRegistreringForeldrepengerDto.setAnnenForelder(annenForelderDto);
         when(personinfoAdapter.hentAktørForFnr(any())).thenReturn(Optional.of(STD_KVINNE_AKTØR_ID));
 
