@@ -24,7 +24,6 @@ public class AksjonspunktGodkjenningDto {
     @Pattern(regexp = InputValideringRegex.KODEVERK)
     private String aksjonspunktKode;
 
-    @Valid
     @NotNull
     @Size(max = 10)
     private Set<@ValidKodeverk VurderÅrsak> arsaker;

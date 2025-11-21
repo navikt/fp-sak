@@ -18,10 +18,9 @@ public class OverstyringUttakDto extends OverstyringAksjonspunktDto {
 
 
     @JsonProperty("perioder")
-    @Valid
     @NotNull
     @Size(min = 1, max = 1500)
-    private List<UttakResultatPeriodeLagreDto> perioder;
+    private List<@Valid UttakResultatPeriodeLagreDto> perioder;
 
     OverstyringUttakDto() {
         // jackson

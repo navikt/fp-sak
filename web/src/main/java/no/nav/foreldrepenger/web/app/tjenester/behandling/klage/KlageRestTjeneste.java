@@ -151,8 +151,8 @@ public class KlageRestTjeneste {
 
     private static void mapMellomlagreKlage(KlageVurderingResultatAksjonspunktMellomlagringDto dto, KlageVurderingResultat.Builder builder) {
         builder.medKlageVurdering(dto.getKlageVurdering())
-                .medKlageVurderingOmgjør(dto.getKlageVurderingOmgjoer())
-                .medKlageMedholdÅrsak(dto.getKlageMedholdArsak())
+                .medKlageVurderingOmgjør(dto.getKlageVurderingOmgjør())
+                .medKlageMedholdÅrsak(dto.getKlageMedholdÅrsak())
                 .medKlageHjemmel(dto.getKlageHjemmel())
                 .medBegrunnelse(dto.getBegrunnelse());
     }
@@ -202,7 +202,7 @@ public class KlageRestTjeneste {
                 apDto.klageTilbakekreving().tilbakekrevingUuid());
             BehandlingÅrsak.builder(BehandlingÅrsakType.KLAGE_TILBAKEBETALING).buildFor(behandling);
         } else {
-            var påKlagdBehandlingUuid = apDto.paKlagdBehandlingUuid();
+            var påKlagdBehandlingUuid = apDto.påKlagdBehandlingUuid();
             if (påKlagdBehandlingUuid != null || apDto.hentpåKlagdEksternBehandlingUuId() == null
                 && klageResultat.getPåKlagdBehandlingId().isPresent()) {
                 klageVurderingTjeneste.oppdaterKlageMedPåklagetBehandling(behandling, påKlagdBehandlingUuid);
@@ -219,7 +219,7 @@ public class KlageRestTjeneste {
                 .medBegrunnelse(apDto.begrunnelse())
                 .medMottattDato(apDto.mottattDato())
                 .medKlageResultat(klageResultat)
-                .medGjelderVedtak(apDto.paKlagdBehandlingUuid() != null);
+                .medGjelderVedtak(apDto.påKlagdBehandlingUuid() != null);
     }
 
     private KlagebehandlingDto mapFra(Behandling behandling) {

@@ -16,9 +16,8 @@ import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspun
 public class SjekkManglendeFødselAksjonspunktDto extends BekreftetAksjonspunktDto {
 
     // barn = null betyr at barn ikke er født
-    @Valid
     @Size(max = 9)
-    private List<DokumentertBarnDto> barn;
+    private List<@Valid DokumentertBarnDto> barn;
 
     private LocalDate termindato;
 

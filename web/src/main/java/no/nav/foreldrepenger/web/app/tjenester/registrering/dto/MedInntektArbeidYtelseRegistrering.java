@@ -10,13 +10,11 @@ import no.nav.foreldrepenger.web.app.tjenester.registrering.ManuellRegistreringD
 
 public abstract class MedInntektArbeidYtelseRegistrering extends ManuellRegistreringDto {
 
-    @Valid
     @Size(max = 50)
-    private List<ArbeidsforholdDto> arbeidsforhold;
+    private List<@Valid ArbeidsforholdDto> arbeidsforhold;
 
-    @Valid
     @Size(max = 100)
-    private List<AndreYtelserDto> andreYtelser;
+    private List<@Valid AndreYtelserDto> andreYtelser;
 
     @Valid
     private EgenVirksomhetDto egenVirksomhet;

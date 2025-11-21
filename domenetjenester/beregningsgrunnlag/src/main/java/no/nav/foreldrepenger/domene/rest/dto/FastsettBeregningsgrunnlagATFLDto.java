@@ -17,9 +17,8 @@ import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspun
 public class FastsettBeregningsgrunnlagATFLDto extends BekreftetAksjonspunktDto {
 
 
-    @Valid
     @Size(max = 100)
-    private List<InntektPrAndelDto> inntektPrAndelList;
+    private List<@Valid InntektPrAndelDto> inntektPrAndelList;
 
     @Min(0)
     @Max(100 * 1000 * 1000)

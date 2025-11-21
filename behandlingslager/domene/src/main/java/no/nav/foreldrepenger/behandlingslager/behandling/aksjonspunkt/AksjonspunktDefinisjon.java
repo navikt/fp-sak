@@ -343,9 +343,9 @@ public enum AksjonspunktDefinisjon implements Kodeverdi {
     @Deprecated
     UTGÅTT_5011("5011", AksjonspunktType.MANUELL, "Manuell vurdering av omsorgsvilkåret"),
     @Deprecated
-    UTGÅTT_5013("5013", AksjonspunktType.MANUELL, "Manuell vurdering av foreldreansvarsvilkåret 2.ledd"),
+    UTGÅTT_5013("5013", AksjonspunktType.MANUELL, "Manuell vurdering av foreldreansvarsvilkåret andre ledd"),
     @Deprecated
-    UTGÅTT_5014("5014", AksjonspunktType.MANUELL, "Manuell vurdering av foreldreansvarsvilkåret 4.ledd"),
+    UTGÅTT_5014("5014", AksjonspunktType.MANUELL, "Manuell vurdering av foreldreansvarsvilkåret fjerde ledd"),
     @Deprecated
     UTGÅTT_5017("5017", AksjonspunktType.MANUELL, "Vurder søkers opplysningsplikt ved ufullstendig/ikke-komplett søknad"),
     @Deprecated

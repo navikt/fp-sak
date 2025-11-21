@@ -13,9 +13,8 @@ public class FrilansDto {
 
     private Boolean harSokerPeriodeMedFrilans;
 
-    @Valid
     @Size(max = 50)
-    private Collection<Frilansperiode> perioder;
+    private Collection<@Valid Frilansperiode> perioder;
 
     private Boolean erNyoppstartetFrilanser;
     private Boolean harInntektFraFosterhjem;

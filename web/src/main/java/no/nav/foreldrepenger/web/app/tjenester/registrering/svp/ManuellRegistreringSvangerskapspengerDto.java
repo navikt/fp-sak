@@ -12,8 +12,7 @@ import no.nav.foreldrepenger.web.app.tjenester.registrering.dto.MedInntektArbeid
 @JsonTypeName(AksjonspunktKodeDefinisjon.REGISTRER_PAPIRSØKNAD_SVANGERSKAPSPENGER_KODE)
 public class ManuellRegistreringSvangerskapspengerDto extends MedInntektArbeidYtelseRegistrering {
 
-    @Valid
-    private List<SvpTilretteleggingArbeidsforholdDto> tilretteleggingArbeidsforhold;
+    private List<@Valid SvpTilretteleggingArbeidsforholdDto> tilretteleggingArbeidsforhold;
 
 
     public List<SvpTilretteleggingArbeidsforholdDto> getTilretteleggingArbeidsforhold() {

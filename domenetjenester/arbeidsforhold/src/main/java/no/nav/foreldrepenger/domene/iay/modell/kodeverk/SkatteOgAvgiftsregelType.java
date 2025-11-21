@@ -7,14 +7,12 @@ import java.util.Map;
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
 import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonFormat.Shape;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonValue;
 
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
 
-@JsonFormat(shape = Shape.OBJECT)
 @JsonAutoDetect(getterVisibility = Visibility.NONE, setterVisibility = Visibility.NONE, fieldVisibility = Visibility.ANY)
 public enum SkatteOgAvgiftsregelType implements Kodeverdi {
 
@@ -43,7 +41,7 @@ public enum SkatteOgAvgiftsregelType implements Kodeverdi {
 
     @JsonIgnore
     private final String navn;
-
+    @JsonValue
     private final String kode;
 
     SkatteOgAvgiftsregelType(String kode, String navn) {
@@ -72,13 +70,11 @@ public enum SkatteOgAvgiftsregelType implements Kodeverdi {
         return navn;
     }
 
-    @JsonProperty
     @Override
     public String getKodeverk() {
         return KODEVERK;
     }
 
-    @JsonProperty
     @Override
     public String getKode() {
         return kode;

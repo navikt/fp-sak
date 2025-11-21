@@ -19,9 +19,8 @@ public class BekreftSvangerskapspengerDto extends BekreftetAksjonspunktDto {
     private LocalDate termindato;
 
     private LocalDate fødselsdato;
-    @Valid
     @Size(min = 1, max = 1000)
-    private List<SvpArbeidsforholdDto> bekreftetSvpArbeidsforholdList;
+    private List<@Valid SvpArbeidsforholdDto> bekreftetSvpArbeidsforholdList;
 
     public BekreftSvangerskapspengerDto() {
         //For Jackson

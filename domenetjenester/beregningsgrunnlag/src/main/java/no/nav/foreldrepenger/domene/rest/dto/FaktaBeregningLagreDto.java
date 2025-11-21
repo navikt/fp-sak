@@ -26,7 +26,6 @@ public class FaktaBeregningLagreDto {
     private VurderATogFLiSammeOrganisasjonDto vurderATogFLiSammeOrganisasjon;
     @Valid
     private BesteberegningFødendeKvinneDto besteberegningAndeler;
-    @Valid
     private List<@ValidKodeverk FaktaOmBeregningTilfelle> faktaOmBeregningTilfeller;
     @Valid
     private FastsettBgKunYtelseDto kunYtelseFordeling;
@@ -38,9 +37,8 @@ public class FaktaBeregningLagreDto {
     private MottarYtelseDto mottarYtelse;
     @Valid
     private VurderMilitærDto vurderMilitaer;
-    @Valid
     @Size(max = 100)
-    private List<RefusjonskravPrArbeidsgiverVurderingDto> refusjonskravGyldighet;
+    private List<@Valid RefusjonskravPrArbeidsgiverVurderingDto> refusjonskravGyldighet;
 
     FaktaBeregningLagreDto() {
         // For Jackson

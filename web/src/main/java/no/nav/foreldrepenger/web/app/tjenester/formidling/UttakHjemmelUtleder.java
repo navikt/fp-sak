@@ -14,7 +14,7 @@ import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakPeriode;
 
 final class UttakHjemmelUtleder {
 
-    private static final Pattern PARAGRAF_I_KODENAVN_PATTERN = Pattern.compile("§[-0-9]+");
+    private static final Pattern PARAGRAF_I_KODENAVN_PATTERN = Pattern.compile("§[\\s-0-9]+");
     private static final Map<PeriodeResultatÅrsak, Set<String>> PERIODE_RESULTAT_ÅRSAK_TIL_HJEMMEL = Arrays.stream(PeriodeResultatÅrsak.values())
         .collect(Collectors.toMap(årsak -> årsak, UttakHjemmelUtleder::finnLovhjemler));
     private static final Map<GraderingAvslagÅrsak, Set<String>> GRADERING_ÅRSAK_TIL_HJEMMEL = Arrays.stream(GraderingAvslagÅrsak.values())
@@ -35,7 +35,7 @@ final class UttakHjemmelUtleder {
         var m = PARAGRAF_I_KODENAVN_PATTERN.matcher(årsak.getNavn());
         var matched = new HashSet<String>();
         while (m.find()) {
-            matched.add(m.group().substring(1));
+            matched.add(m.group().substring(1).trim());
         }
         return matched;
     }

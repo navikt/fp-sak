@@ -8,10 +8,9 @@ import jakarta.validation.constraints.Size;
 
 public class FastsettMånedsinntektUtenInntektsmeldingDto {
 
-    @Valid
     @NotNull
     @Size(max = 100)
-    private List<FastsettMånedsinntektUtenInntektsmeldingAndelDto> andelListe;
+    private List<@Valid FastsettMånedsinntektUtenInntektsmeldingAndelDto> andelListe;
 
     public List<FastsettMånedsinntektUtenInntektsmeldingAndelDto> getAndelListe() {
         return andelListe;

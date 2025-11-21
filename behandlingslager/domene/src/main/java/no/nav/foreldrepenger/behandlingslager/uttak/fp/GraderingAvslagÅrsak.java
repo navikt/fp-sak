@@ -16,12 +16,12 @@ public enum GraderingAvslagÅrsak implements Kodeverdi {
     //MERK: Lovhjemler til brev hentes fra navn, se pattern i UttakHjemmelUtleder
 
     UKJENT(STANDARDKODE_UDEFINERT, "Ikke definert"),
-    GRADERING_FØR_UKE_7("4504", "§14-16 andre ledd: Avslag gradering - gradering før uke 7"),
-    FOR_SEN_SØKNAD("4501", "§14-16: Ikke gradering pga. for sen søknad"),
-    MANGLENDE_GRADERINGSAVTALE("4502", "§14-16 femte ledd, jf §21-3: Avslag graderingsavtale mangler - ikke dokumentert"),
+    GRADERING_FØR_UKE_7("4504", "§ 14-16 andre ledd: Avslag gradering - gradering før uke 7"),
+    FOR_SEN_SØKNAD("4501", "§ 14-16: Ikke gradering pga. for sen søknad"),
+    MANGLENDE_GRADERINGSAVTALE("4502", "§ 14-16 femte ledd, jf. § 21-3: Avslag graderingsavtale mangler - ikke dokumentert"),
     MOR_OPPFYLLER_IKKE_AKTIVITETSKRAV("4503",
-        "§14-16 fjerde ledd: Avslag gradering – ikke rett til gradert uttak pga. redusert oppfylt aktivitetskrav på mor"),
-    AVSLAG_PGA_100_PROSENT_ARBEID("4523", "§14-16 første ledd: Avslag gradering - arbeid 100% eller mer"),
+        "§ 14-16 fjerde ledd: Avslag gradering – ikke rett til gradert uttak pga. redusert oppfylt aktivitetskrav på mor"),
+    AVSLAG_PGA_100_PROSENT_ARBEID("4523", "§ 14-16 første ledd: Avslag gradering - arbeid 100% eller mer"),
     ;
 
     private static final Map<String, GraderingAvslagÅrsak> KODER = new LinkedHashMap<>();

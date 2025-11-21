@@ -12,9 +12,8 @@ import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspun
 
 @JsonTypeName(AksjonspunktKodeDefinisjon.VURDER_REFUSJON_BERGRUNN)
 public class VurderRefusjonBeregningsgrunnlagDto extends BekreftetAksjonspunktDto {
-    @Valid
     @Size(max = 100)
-    private List<VurderRefusjonAndelBeregningsgrunnlagDto> fastsatteAndeler;
+    private List<@Valid VurderRefusjonAndelBeregningsgrunnlagDto> fastsatteAndeler;
 
     VurderRefusjonBeregningsgrunnlagDto() {
         // Jackson

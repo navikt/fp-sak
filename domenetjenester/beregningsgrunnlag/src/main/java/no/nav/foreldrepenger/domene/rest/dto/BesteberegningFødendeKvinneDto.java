@@ -7,9 +7,8 @@ import jakarta.validation.constraints.Size;
 
 public class BesteberegningFødendeKvinneDto {
 
-    @Valid
     @Size(max = 100)
-    private List<BesteberegningFødendeKvinneAndelDto> besteberegningAndelListe;
+    private List<@Valid BesteberegningFødendeKvinneAndelDto> besteberegningAndelListe;
 
     @Valid
     private DagpengeAndelLagtTilBesteberegningDto nyDagpengeAndel;

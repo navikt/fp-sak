@@ -9,9 +9,8 @@ import jakarta.validation.constraints.Size;
 
 public class FastsettBeregningsgrunnlagPeriodeDto {
 
-    @Valid
     @Size(max = 100)
-    private List<FastsettBeregningsgrunnlagAndelDto> andeler;
+    private List<@Valid FastsettBeregningsgrunnlagAndelDto> andeler;
     @NotNull
     private LocalDate fom;
     private LocalDate tom;

@@ -8,10 +8,9 @@ import jakarta.validation.constraints.Size;
 
 public class VurderATogFLiSammeOrganisasjonDto {
 
-    @Valid
     @NotNull
     @Size(max = 100)
-    private List<VurderATogFLiSammeOrganisasjonAndelDto> vurderATogFLiSammeOrganisasjonAndelListe;
+    private List<@Valid VurderATogFLiSammeOrganisasjonAndelDto> vurderATogFLiSammeOrganisasjonAndelListe;
 
     VurderATogFLiSammeOrganisasjonDto() {
         // For Jackson

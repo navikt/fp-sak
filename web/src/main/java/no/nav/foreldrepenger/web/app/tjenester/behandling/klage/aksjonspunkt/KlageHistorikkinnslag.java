@@ -83,7 +83,7 @@ public class KlageHistorikkinnslag {
                                                  KlageVurderingLagreDto dto,
                                                  String begrunnelse) {
         var klageVurdering = dto.getKlageVurdering();
-        var klageVurderingOmgjør = dto.getKlageVurderingOmgjoer() != null ? dto.getKlageVurderingOmgjoer() : null;
+        var klageVurderingOmgjør = dto.getKlageVurderingOmgjør() != null ? dto.getKlageVurderingOmgjør() : null;
         var erNfpAksjonspunkt = AksjonspunktDefinisjon.MANUELL_VURDERING_AV_KLAGE_NFP.equals(aksjonspunktDefinisjon);
 
         var resultat = KlageVurderingTjeneste.historikkResultatForKlageVurdering(klageVurdering,
@@ -92,7 +92,7 @@ public class KlageHistorikkinnslag {
         if (erNfpAksjonspunkt && resultat != null) {
             linjer.add(linjeBuilder().til("Resultat", resultat));
         }
-        var årsak = dto.getKlageMedholdArsak();
+        var årsak = dto.getKlageMedholdÅrsak();
         if (årsak != null) {
             linjer.add(linjeBuilder().til("Årsak til omgjøring", årsak.getNavn()));
         }

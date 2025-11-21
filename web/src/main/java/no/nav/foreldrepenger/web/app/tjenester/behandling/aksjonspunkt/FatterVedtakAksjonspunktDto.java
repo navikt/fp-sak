@@ -13,14 +13,13 @@ import no.nav.foreldrepenger.web.app.tjenester.behandling.vedtak.aksjonspunkt.Ak
 @JsonTypeName(AksjonspunktKodeDefinisjon.FATTER_VEDTAK_KODE)
 public class FatterVedtakAksjonspunktDto extends BekreftetAksjonspunktDto {
 
-    @Valid
-    private Collection<AksjonspunktGodkjenningDto> aksjonspunktGodkjenningDtos;
+    private Collection<@Valid AksjonspunktGodkjenningDto> aksjonspunktGodkjenningDtos;
 
     FatterVedtakAksjonspunktDto() {
         // For Jackson
     }
 
-    public FatterVedtakAksjonspunktDto(String begrunnelse, Collection<AksjonspunktGodkjenningDto> aksjonspunktGodkjenningDtos) {
+    public FatterVedtakAksjonspunktDto(String begrunnelse, Collection<@Valid AksjonspunktGodkjenningDto> aksjonspunktGodkjenningDtos) {
         super(begrunnelse);
         this.aksjonspunktGodkjenningDtos = aksjonspunktGodkjenningDtos;
     }

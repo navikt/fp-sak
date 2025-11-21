@@ -20,9 +20,8 @@ public class OverstyrBeregningsgrunnlagDto extends OverstyringAksjonspunktDto {
     @Valid
     private FaktaBeregningLagreDto fakta;
 
-    @Valid
     @NotNull
-    private List<FastsettBeregningsgrunnlagAndelDto> overstyrteAndeler;
+    private List<@Valid FastsettBeregningsgrunnlagAndelDto> overstyrteAndeler;
 
     private Set<Lønnsendring> endringer;
 

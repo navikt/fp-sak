@@ -24,6 +24,7 @@ import java.util.Set;
 import jakarta.persistence.AttributeConverter;
 import jakarta.persistence.Converter;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonValue;
 
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
@@ -31,21 +32,21 @@ import no.nav.foreldrepenger.behandlingslager.kodeverk.MedOffisiellKode;
 
 public enum ArbeidType implements Kodeverdi, MedOffisiellKode {
 
-    ETTERLØNN_SLUTTPAKKE("ETTERLØNN_SLUTTPAKKE", "Etterlønn eller sluttpakke", null, true),
-    FORENKLET_OPPGJØRSORDNING("FORENKLET_OPPGJØRSORDNING", "Forenklet oppgjørsordning ", "forenkletOppgjoersordning", false),
-    FRILANSER("FRILANSER", "Frilanser, samlet aktivitet", null, true),
-    FRILANSER_OPPDRAGSTAKER_MED_MER("FRILANSER_OPPDRAGSTAKER", "Frilansere/oppdragstakere, med mer", "frilanserOppdragstakerHonorarPersonerMm", false),
-    LØNN_UNDER_UTDANNING("LØNN_UNDER_UTDANNING", "Lønn under utdanning", null, true),
-    MARITIMT_ARBEIDSFORHOLD("MARITIMT_ARBEIDSFORHOLD", "Maritimt arbeidsforhold", "maritimtArbeidsforhold", false),
-    MILITÆR_ELLER_SIVILTJENESTE("MILITÆR_ELLER_SIVILTJENESTE", "Militær eller siviltjeneste", null, true),
-    ORDINÆRT_ARBEIDSFORHOLD("ORDINÆRT_ARBEIDSFORHOLD", "Ordinært arbeidsforhold", "ordinaertArbeidsforhold", false),
+    ETTERLØNN_SLUTTPAKKE("ETTERLØNN_SLUTTPAKKE", "Etterlønn eller sluttpakke"),
+    FORENKLET_OPPGJØRSORDNING("FORENKLET_OPPGJØRSORDNING", "Forenklet oppgjørsordning ", "forenkletOppgjoersordning"),
+    FRILANSER("FRILANSER", "Frilanser, samlet aktivitet"),
+    FRILANSER_OPPDRAGSTAKER_MED_MER("FRILANSER_OPPDRAGSTAKER", "Frilansere/oppdragstakere, med mer", "frilanserOppdragstakerHonorarPersonerMm"),
+    LØNN_UNDER_UTDANNING("LØNN_UNDER_UTDANNING", "Lønn under utdanning"),
+    MARITIMT_ARBEIDSFORHOLD("MARITIMT_ARBEIDSFORHOLD", "Maritimt arbeidsforhold", "maritimtArbeidsforhold"),
+    MILITÆR_ELLER_SIVILTJENESTE("MILITÆR_ELLER_SIVILTJENESTE", "Militær eller siviltjeneste"),
+    ORDINÆRT_ARBEIDSFORHOLD("ORDINÆRT_ARBEIDSFORHOLD", "Ordinært arbeidsforhold", "ordinaertArbeidsforhold"),
     PENSJON_OG_ANDRE_TYPER_YTELSER_UTEN_ANSETTELSESFORHOLD("PENSJON_OG_ANDRE_TYPER_YTELSER_UTEN_ANSETTELSESFORHOLD", "Pensjoner og andre typer ytelser",
-            "pensjonOgAndreTyperYtelserUtenAnsettelsesforhold", false),
-    SELVSTENDIG_NÆRINGSDRIVENDE("NÆRING", "Selvstendig næringsdrivende", null, false),
-    UTENLANDSK_ARBEIDSFORHOLD("UTENLANDSK_ARBEIDSFORHOLD", "Arbeid i utlandet", null, true),
-    VENTELØNN_VARTPENGER("VENTELØNN_VARTPENGER", "Ventelønn eller vartpenger", null, true),
-    VANLIG("VANLIG", "Vanlig", "VANLIG", false),
-    UDEFINERT(STANDARDKODE_UDEFINERT, "Ikke definert", null, false),
+            "pensjonOgAndreTyperYtelserUtenAnsettelsesforhold"),
+    SELVSTENDIG_NÆRINGSDRIVENDE("NÆRING", "Selvstendig næringsdrivende"),
+    UTENLANDSK_ARBEIDSFORHOLD("UTENLANDSK_ARBEIDSFORHOLD", "Arbeid i utlandet"),
+    VENTELØNN_VARTPENGER("VENTELØNN_VARTPENGER", "Ventelønn eller vartpenger"),
+    VANLIG("VANLIG", "Vanlig", "VANLIG"),
+    UDEFINERT(STANDARDKODE_UDEFINERT, "Ikke definert"),
     ;
 
     @Converter(autoApply = true)
@@ -61,6 +62,10 @@ public enum ArbeidType implements Kodeverdi, MedOffisiellKode {
         }
 
     }
+
+    private static final Set<ArbeidType> ANNEN_OPPTJENING = Set.of(
+        FRILANSER, MILITÆR_ELLER_SIVILTJENESTE, UTENLANDSK_ARBEIDSFORHOLD,
+        ETTERLØNN_SLUTTPAKKE, LØNN_UNDER_UTDANNING, VENTELØNN_VARTPENGER);
 
     public static final Set<ArbeidType> AA_REGISTER_TYPER = Set.of(
         ArbeidType.ORDINÆRT_ARBEIDSFORHOLD,
@@ -81,17 +86,18 @@ public enum ArbeidType implements Kodeverdi, MedOffisiellKode {
 
     @JsonValue
     private final String kode;
-
+    @JsonIgnore
     private final String navn;
-
+    @JsonIgnore
     private final String offisiellKode;
 
-    private final boolean visGui;
+    ArbeidType(String kode, String navn) {
+        this(kode, navn, null);
+    }
 
-    ArbeidType(String kode, String navn, String offisiellKode, boolean visGui) {
+    ArbeidType(String kode, String navn, String offisiellKode) {
         this.kode = kode;
         this.navn = navn;
-        this.visGui = visGui;
         this.offisiellKode = offisiellKode;
     }
 
@@ -111,7 +117,7 @@ public enum ArbeidType implements Kodeverdi, MedOffisiellKode {
     }
 
     public boolean erAnnenOpptjening() {
-        return visGui;
+        return ANNEN_OPPTJENING.contains(this);
     }
 
     @Override

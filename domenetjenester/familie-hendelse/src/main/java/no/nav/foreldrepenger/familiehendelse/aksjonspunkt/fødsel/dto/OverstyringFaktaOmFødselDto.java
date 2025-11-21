@@ -21,9 +21,8 @@ public class OverstyringFaktaOmFødselDto extends OverstyringAksjonspunktDto {
     @NotNull
     private LocalDate termindato;
 
-    @Valid
     @Size(min = 1, max = 9)
-    private List<DokumentertBarnDto> barn;
+    private List<@Valid DokumentertBarnDto> barn;
 
     public OverstyringFaktaOmFødselDto(String begrunnelse, LocalDate termindato, List<DokumentertBarnDto> barn) {
         super(begrunnelse);
