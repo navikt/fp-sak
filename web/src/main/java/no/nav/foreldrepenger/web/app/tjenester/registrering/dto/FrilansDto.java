@@ -8,11 +8,10 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 
-import no.nav.vedtak.util.InputValideringRegex;
-
 import org.hibernate.validator.constraints.Length;
 
-import com.fasterxml.jackson.annotation.JsonAlias;
+import no.nav.vedtak.util.InputValideringRegex;
+
 
 public class FrilansDto {
 
@@ -26,7 +25,6 @@ public class FrilansDto {
     private Boolean harHattOppdragForFamilie;
     private Collection<@Valid Oppdragperiode> oppdragPerioder;
 
-    @JsonAlias("harSokerPeriodeMedFrilans")
     public Boolean getHarSøkerPeriodeMedFrilans() {
         return harSøkerPeriodeMedFrilans;
     }

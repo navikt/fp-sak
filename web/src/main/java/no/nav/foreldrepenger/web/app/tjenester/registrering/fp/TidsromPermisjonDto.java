@@ -5,8 +5,6 @@ import java.util.List;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Size;
 
-import com.fasterxml.jackson.annotation.JsonAlias;
-
 import no.nav.foreldrepenger.web.app.tjenester.registrering.dto.GraderingDto;
 import no.nav.foreldrepenger.web.app.tjenester.registrering.dto.OppholdDto;
 import no.nav.foreldrepenger.web.app.tjenester.registrering.dto.OverføringsperiodeDto;
@@ -29,7 +27,6 @@ public class TidsromPermisjonDto {
     @Size(max = 100)
     private List<@Valid OppholdDto> oppholdPerioder;
 
-    @JsonAlias("overforingsperioder")
     public List<OverføringsperiodeDto> getOverføringsperioder() {
         return overføringsperioder == null ? List.of() : overføringsperioder;
     }
