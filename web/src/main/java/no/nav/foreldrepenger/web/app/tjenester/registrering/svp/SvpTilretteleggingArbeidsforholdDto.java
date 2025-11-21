@@ -8,6 +8,8 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
+import jakarta.validation.Valid;
+
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME)
 @JsonSubTypes({
@@ -19,7 +21,7 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 public abstract class SvpTilretteleggingArbeidsforholdDto {
 
     private LocalDate behovsdato;
-    private List<SvpTilretteleggingDto> tilrettelegginger = new ArrayList<>();
+    private List<@Valid SvpTilretteleggingDto> tilrettelegginger = new ArrayList<>();
 
     public LocalDate getBehovsdato() {
         return behovsdato;

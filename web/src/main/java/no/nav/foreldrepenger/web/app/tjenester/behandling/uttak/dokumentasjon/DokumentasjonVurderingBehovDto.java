@@ -7,19 +7,23 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.DecimalMax;
+import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.aktivitetskrav.AktivitetskravArbeidPeriodeEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.aktivitetskrav.AktivitetskravPermisjonType;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.DokumentasjonVurdering;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.MorsStillingsprosent;
-import no.nav.foreldrepenger.behandlingslager.virksomhet.OrgNummer;
 import no.nav.foreldrepenger.domene.typer.Stillingsprosent;
 import no.nav.foreldrepenger.domene.uttak.fakta.uttak.DokumentasjonVurderingBehov;
 import no.nav.foreldrepenger.domene.uttak.fakta.uttak.RegisterVurdering;
+import no.nav.foreldrepenger.validering.ValidKodeverk;
+import no.nav.vedtak.util.InputValideringRegex;
 
-public record DokumentasjonVurderingBehovDto(@NotNull LocalDate fom, @NotNull LocalDate tom, @NotNull DokumentasjonVurderingBehov.Behov.Type type,
-                                             @NotNull DokumentasjonVurderingBehov.Behov.Årsak årsak, Vurdering vurdering,
+public record DokumentasjonVurderingBehovDto(@NotNull LocalDate fom, @NotNull LocalDate tom, @NotNull @Valid DokumentasjonVurderingBehov.Behov.Type type,
+                                             @NotNull @Valid DokumentasjonVurderingBehov.Behov.Årsak årsak, @Valid Vurdering vurdering,
                                              @Valid MorsStillingsprosent morsStillingsprosent,
                                              Set<@Valid AktivitetskravGrunnlagArbeid> aktivitetskravGrunnlag) {
 
@@ -63,16 +67,19 @@ public record DokumentasjonVurderingBehovDto(@NotNull LocalDate fom, @NotNull Lo
         }
     }
 
-    record AktivitetskravGrunnlagArbeid(@NotNull OrgNummer orgNummer, @NotNull BigDecimal stillingsprosent, @NotNull Permisjon permisjon) {
+    record AktivitetskravGrunnlagArbeid(@NotNull @Pattern(regexp = InputValideringRegex.ARBEIDSGIVER) String orgNummer,
+                                        @NotNull @DecimalMin("0.00") @DecimalMax("100.00") BigDecimal stillingsprosent,
+                                        @NotNull @Valid Permisjon permisjon) {
         static AktivitetskravGrunnlagArbeid from(AktivitetskravArbeidPeriodeEntitet e) {
             var stilling = Optional.ofNullable(e.getSumStillingsprosent()).map(Stillingsprosent::getVerdi).orElse(BigDecimal.ZERO);
             var permisjonsprosent = Optional.ofNullable(e.getSumPermisjonsprosent()).map(Stillingsprosent::getVerdi).orElse(BigDecimal.ZERO);
             var permisjonstype = Optional.ofNullable(e.getPermisjonsbeskrivelseType()).orElse(AktivitetskravPermisjonType.UDEFINERT);
-            return new AktivitetskravGrunnlagArbeid(e.getOrgNummer(), stilling, new Permisjon(permisjonsprosent, permisjonstype));
+            return new AktivitetskravGrunnlagArbeid(e.getOrgNummer().getId(), stilling, new Permisjon(permisjonsprosent, permisjonstype));
         }
     }
 
-    private record Permisjon(@NotNull BigDecimal prosent, @NotNull AktivitetskravPermisjonType type) {
+    private record Permisjon(@NotNull @DecimalMin("0.00") @DecimalMax("100.00") BigDecimal prosent,
+                             @NotNull @ValidKodeverk AktivitetskravPermisjonType type) {
 
     }
 }

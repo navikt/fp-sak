@@ -3,12 +3,20 @@ package no.nav.foreldrepenger.web.app.tjenester.registrering.svp;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
+
 public class SvpTilretteleggingDto {
 
+    @Valid
     private SvpTilretteleggingTypeDto tilretteleggingType;
 
     private LocalDate dato;
 
+    @Valid
+    @Min(0)
+    @Max(100)
     private BigDecimal stillingsprosent;
 
     public SvpTilretteleggingTypeDto getTilretteleggingType() {

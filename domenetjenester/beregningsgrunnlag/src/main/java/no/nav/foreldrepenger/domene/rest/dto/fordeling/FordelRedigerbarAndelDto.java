@@ -2,7 +2,9 @@ package no.nav.foreldrepenger.domene.rest.dto.fordeling;
 
 
 import java.time.LocalDate;
+import java.util.UUID;
 
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
@@ -12,6 +14,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.OpptjeningAk
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.AktivitetStatus;
 import no.nav.foreldrepenger.domene.modell.kodeverk.AndelKilde;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
+import no.nav.foreldrepenger.validering.ValidKodeverk;
 import no.nav.vedtak.util.InputValideringRegex;
 
 public class FordelRedigerbarAndelDto {
@@ -21,11 +24,14 @@ public class FordelRedigerbarAndelDto {
     private Long andelsnr;
     @Pattern(regexp = InputValideringRegex.ARBEIDSGIVER)
     private String arbeidsgiverId;
-    private String arbeidsforholdId;
+    private UUID arbeidsforholdId;
     @NotNull
     private Boolean nyAndel;
+    @ValidKodeverk
     private AndelKilde kilde;
+    @ValidKodeverk
     private AktivitetStatus aktivitetStatus;
+    @ValidKodeverk
     private OpptjeningAktivitetType arbeidsforholdType;
     private Boolean lagtTilAvSaksbehandler;
     private LocalDate beregningsperiodeFom;
@@ -38,7 +44,7 @@ public class FordelRedigerbarAndelDto {
 
     public FordelRedigerbarAndelDto(@Min(0) @Max(Long.MAX_VALUE) Long andelsnr,
                                     @Pattern(regexp = InputValideringRegex.ARBEIDSGIVER) String arbeidsgiverId,
-                                    String arbeidsforholdId, @NotNull Boolean nyAndel,
+                                    UUID arbeidsforholdId, @NotNull Boolean nyAndel,
                                     AndelKilde kilde,
                                     AktivitetStatus aktivitetStatus,
                                     OpptjeningAktivitetType arbeidsforholdType,

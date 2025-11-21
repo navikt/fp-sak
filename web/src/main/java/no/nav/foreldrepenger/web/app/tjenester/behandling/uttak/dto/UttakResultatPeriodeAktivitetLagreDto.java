@@ -39,9 +39,7 @@ public class UttakResultatPeriodeAktivitetLagreDto {
     @Pattern(regexp = InputValideringRegex.ARBEIDSGIVER)
     private String arbeidsgiverReferanse;
 
-    @Pattern(regexp = InputValideringRegex.FRITEKST)
-    @Size(max = 200)
-    private String arbeidsforholdId;
+    private UUID arbeidsforholdId;
 
     @Valid
     private Utbetalingsgrad utbetalingsgrad;
@@ -112,16 +110,12 @@ public class UttakResultatPeriodeAktivitetLagreDto {
         }
 
         public Builder medArbeidsforholdId(InternArbeidsforholdRef internReferanse) {
-            kladd.arbeidsforholdId = internReferanse.getReferanse();
+            kladd.arbeidsforholdId = internReferanse.getUUIDReferanse();
             return this;
         }
         /** skal kun ta intern arbeidsforhold refearnse. */
-        public Builder medArbeidsforholdId(String arbeidsforholdId) {
-            if(arbeidsforholdId!=null) {
-                // kjapp validering - sjekk at ingen blander inn ekstern arbeidsforholdId her (fra LPS system, AAregister, Inntektsmelding)
-                UUID.fromString(arbeidsforholdId);
-            }
-            kladd.arbeidsforholdId = arbeidsforholdId;
+        public Builder medArbeidsforholdId(UUID arbeidsforholdId) {
+            kladd.arbeidsforholdId = arbeidsforholdId ;
             return this;
         }
 

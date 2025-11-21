@@ -50,6 +50,7 @@ public class VirksomhetDto {
     private String navnRegnskapsforer;
 
     @Size(min = 1, max = 30)
+    @Pattern(regexp = InputValideringRegex.FRITEKST)
     private String tlfRegnskapsforer;
 
     private Boolean familieEllerVennerTilknyttetNaringen;
