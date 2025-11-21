@@ -23,6 +23,7 @@ class FpOversiktDtoTjeneste {
     private EsDtoTjeneste esDtoTjeneste;
     private InntektsmeldingDtoTjeneste inntektsmeldingTjeneste;
     private ManglendeVedleggDtoTjeneste manglendeVedleggDtoTjeneste;
+    private BeregningOversiktDtoTjeneste beregningOversiktDtoTjeneste;
 
     @Inject
     FpOversiktDtoTjeneste(FagsakRepository fagsakRepository,
@@ -30,13 +31,15 @@ class FpOversiktDtoTjeneste {
                           SvpDtoTjeneste svpDtoTjeneste,
                           EsDtoTjeneste esDtoTjeneste,
                           InntektsmeldingDtoTjeneste inntektsmeldingTjeneste,
-                          ManglendeVedleggDtoTjeneste manglendeVedleggDtoTjeneste) {
+                          ManglendeVedleggDtoTjeneste manglendeVedleggDtoTjeneste,
+                          BeregningOversiktDtoTjeneste beregningOversiktDtoTjeneste) {
         this.fagsakRepository = fagsakRepository;
         this.fpDtoTjeneste = fpDtoTjeneste;
         this.svpDtoTjeneste = svpDtoTjeneste;
         this.esDtoTjeneste = esDtoTjeneste;
         this.inntektsmeldingTjeneste = inntektsmeldingTjeneste;
         this.manglendeVedleggDtoTjeneste = manglendeVedleggDtoTjeneste;
+        this.beregningOversiktDtoTjeneste = beregningOversiktDtoTjeneste;
     }
 
     FpOversiktDtoTjeneste() {
@@ -60,5 +63,9 @@ class FpOversiktDtoTjeneste {
 
     List<DokumentTyperDto> hentManglendeVedleggForSak(String saksnummer) {
         return manglendeVedleggDtoTjeneste.hentManglendeVedleggForSak(new Saksnummer(saksnummer));
+    }
+
+    FpSakBeregningDto hentBeregning(String saksnummer) {
+        return beregningOversiktDtoTjeneste.hentBeregningForSak(new Saksnummer(saksnummer));
     }
 }
