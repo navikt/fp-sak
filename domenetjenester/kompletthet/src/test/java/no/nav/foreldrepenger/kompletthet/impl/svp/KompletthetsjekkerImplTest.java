@@ -101,7 +101,7 @@ class KompletthetsjekkerImplTest extends EntityManagerAwareTest {
 
         // Assert
         assertThat(kompletthetResultat.erOppfylt()).isFalse();
-        assertThat(kompletthetResultat.ventefrist().toLocalDate()).isEqualTo(LocalDate.now().plusWeeks(2));
+        assertThat(kompletthetResultat.ventefrist().toLocalDate()).isEqualTo(STARTDATO_PERMISJON.plusWeeks(2));
     }
 
     private BehandlingReferanse lagRef(Behandling behandling) {

@@ -161,26 +161,27 @@ class KompletthetsjekkerImplTest extends EntityManagerAwareTest {
         // Arrange
         var behandling = ScenarioMorSøkerForeldrepenger.forFødsel().lagre(repositoryProvider);
         mockManglendeInntektsmeldingKompletthet(manglendeInntektsmeldinger);
-        testUtil.byggOgLagreFørstegangsSøknadMedMottattdato(behandling, LocalDate.now().minusWeeks(3), LocalDate.now());
+        var stp = LocalDate.now();
+        testUtil.byggOgLagreFørstegangsSøknadMedMottattdato(behandling, stp.minusWeeks(3), stp);
         lenient().when(inntektsmeldingTjeneste.hentInntektsmeldinger(any(), any())).thenReturn(
                 List.of(InntektsmeldingBuilder.builder().medInnsendingstidspunkt(LocalDateTime.now().minusDays(10)).build()));
 
         // Act
-        var kompletthetResultat = kompletthetsjekker.vurderEtterlysningInntektsmelding(
-                lagRef(behandling) , lagStp(LocalDate.now()));
+        var kompletthetResultat = kompletthetsjekker.vurderEtterlysningInntektsmelding(lagRef(behandling) , lagStp(stp));
 
         // Assert
         assertThat(kompletthetResultat.erOppfylt()).isFalse();
-        assertThat(kompletthetResultat.ventefrist().toLocalDate()).isEqualTo(LocalDate.now().plusWeeks(1));
+        assertThat(kompletthetResultat.ventefrist().toLocalDate()).isEqualTo(stp.plusWeeks(2));
     }
 
     @Test
     void skal_justere_ventefrist_ved_endret_skjæringstidspunkt() {
         // Arrange
         var stp = LocalDate.now().plusDays(2).plusWeeks(3);
+        var søknadsdato = LocalDate.now().minusDays(10);
         var behandling = ScenarioMorSøkerForeldrepenger.forFødsel().lagre(repositoryProvider);
         mockManglendeInntektsmeldingKompletthet(manglendeInntektsmeldinger);
-        testUtil.byggOgLagreFørstegangsSøknadMedMottattdato(behandling, LocalDate.now().minusDays(10), stp);
+        testUtil.byggOgLagreFørstegangsSøknadMedMottattdato(behandling, søknadsdato, stp);
         when(inntektsmeldingTjeneste.hentInntektsmeldinger(any(), any())).thenReturn(Collections.emptyList());
 
         // Act
@@ -189,7 +190,7 @@ class KompletthetsjekkerImplTest extends EntityManagerAwareTest {
 
         // Assert
         assertThat(kompletthetResultat.erOppfylt()).isFalse();
-        assertThat(kompletthetResultat.ventefrist().toLocalDate()).isEqualTo(LocalDate.now().plusWeeks(2));
+        assertThat(kompletthetResultat.ventefrist().toLocalDate()).isEqualTo(stp.plusWeeks(2));
 
         // Act 2
         stp = LocalDate.now().plusWeeks(2);
@@ -198,7 +199,7 @@ class KompletthetsjekkerImplTest extends EntityManagerAwareTest {
 
         // Assert
         assertThat(kompletthetResultat2.erOppfylt()).isFalse();
-        assertThat(kompletthetResultat2.ventefrist().toLocalDate()).isEqualTo(stp);
+        assertThat(kompletthetResultat2.ventefrist().toLocalDate()).isEqualTo(stp.plusWeeks(2));
     }
 
     @Test
@@ -206,17 +207,17 @@ class KompletthetsjekkerImplTest extends EntityManagerAwareTest {
         // Arrange
         var behandling = ScenarioMorSøkerForeldrepenger.forFødsel().lagre(repositoryProvider);
         mockManglendeInntektsmeldingKompletthet(manglendeInntektsmeldinger);
-        testUtil.byggOgLagreFørstegangsSøknadMedMottattdato(behandling, LocalDate.now().minusDays(10),
-                STARTDATO_PERMISJON);
+        var søknadsdato = LocalDate.now().minusDays(10);
+        var stp = STARTDATO_PERMISJON;
+        testUtil.byggOgLagreFørstegangsSøknadMedMottattdato(behandling, søknadsdato, STARTDATO_PERMISJON);
         when(inntektsmeldingTjeneste.hentInntektsmeldinger(any(), any())).thenReturn(Collections.emptyList());
 
         // Act
-        var kompletthetResultat = kompletthetsjekker.vurderEtterlysningInntektsmelding(
-                lagRef(behandling), lagStp(STARTDATO_PERMISJON));
+        var kompletthetResultat = kompletthetsjekker.vurderEtterlysningInntektsmelding(lagRef(behandling), lagStp(stp));
 
         // Assert
         assertThat(kompletthetResultat.erOppfylt()).isFalse();
-        assertThat(kompletthetResultat.ventefrist().toLocalDate()).isEqualTo(LocalDate.now().plusWeeks(2));
+        assertThat(kompletthetResultat.ventefrist().toLocalDate()).isEqualTo(stp.plusWeeks(2));
     }
 
     @Test
