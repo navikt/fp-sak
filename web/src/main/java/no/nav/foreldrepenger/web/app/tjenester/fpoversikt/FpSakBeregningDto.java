@@ -19,6 +19,7 @@ record FpSakBeregningDto(LocalDate skjæringsTidspunkt, List<BeregningsAndel> be
     enum InntektsKilde {
         INNTEKTSMELDING,
         A_INNTEKT,
+        VEDTAK_ANNEN_YTELSE,
         SKJØNNSFASTSATT,
         PGI // Pensjonsgivendeinntekt
     }
