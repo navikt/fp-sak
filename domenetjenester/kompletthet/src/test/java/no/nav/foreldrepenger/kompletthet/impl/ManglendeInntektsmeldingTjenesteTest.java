@@ -8,7 +8,6 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 import java.math.BigDecimal;
-import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
@@ -29,6 +28,7 @@ import no.nav.foreldrepenger.domene.arbeidsforhold.InntektsmeldingTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsforhold.impl.InntektsmeldingRegisterTjeneste;
 import no.nav.foreldrepenger.domene.iay.modell.Inntektsmelding;
 import no.nav.foreldrepenger.domene.iay.modell.InntektsmeldingBuilder;
+import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.Virkedager;
 
 
 @ExtendWith(MockitoExtension.class)
@@ -88,7 +88,7 @@ class ManglendeInntektsmeldingTjenesteTest {
     }
 
     @Test
-    void skal_utlede_ventefrist_basert_på_dagens_dato_hvis_søkt_tidligere_enn_4_uker_før_stp_ingen_IM_mottatt() {
+    void skal_utlede_ventefrist_basert_på_stp_hvis_søkt_tidligere_enn_4_uker_før_stp_og_ingen_IM_mottatt() {
         var mottattDato = LocalDate.now().minusWeeks(2);
         var skjæringstidspunkt = mottattDato.plusWeeks(5);
         when(dokumentBehandlingTjenesteMock.dokumentSistBestiltTidspunkt(any(), any())).thenReturn(Optional.of(mottattDato.atStartOfDay()));
@@ -112,9 +112,9 @@ class ManglendeInntektsmeldingTjenesteTest {
     }
 
     @Test
-    void skal_utledes_ventefrist_for_etterlysning_fra_maks_ventetid_etter_stp_hvis_søknad_er_sendt_inn_senere_enn_4_uker_etter_stp_ingen_IM_mottatt() {
+    void skal_utledes_ventefrist_for_etterlysning_mottattdato_hvis_søknad_er_sendt_inn_senere_enn_4_uker_etter_stp_ingen_IM_mottatt() {
         var skjæringstidspunkt = LocalDate.now().minusWeeks(5);
-        var mottattDato = LocalDate.now();
+        var mottattDato = skjæringstidspunkt.plusWeeks(5);
         when(dokumentBehandlingTjenesteMock.dokumentSistBestiltTidspunkt(any(), any())).thenReturn(Optional.of(mottattDato.atStartOfDay()));
         when(inntektsmeldingTjeneste.hentInntektsmeldinger(any(), any())).thenReturn(List.of());
 
@@ -151,11 +151,7 @@ class ManglendeInntektsmeldingTjenesteTest {
 
         var frist = manglendeInntektsmeldingTjeneste.finnNyVentefristVedEtterlysning(behandlingMedMottattdatoForSøknad(mottattDato), tilSkjæringstidspunkt(skjæringstidspunkt));
 
-        if (tidligstInnsendingstidspunktIM.getDayOfWeek().getValue() > DayOfWeek.TUESDAY.getValue()) {
-            assertThat(frist).isEqualTo(tidligstInnsendingstidspunktIM.plusDays(5));
-        } else {
-            assertThat(frist).isEqualTo(tidligstInnsendingstidspunktIM.plusDays(3));
-        }
+        assertThat(frist).isEqualTo(Virkedager.plusVirkedager(tidligstInnsendingstidspunktIM, 3));
     }
 
     @Test
@@ -174,6 +170,26 @@ class ManglendeInntektsmeldingTjenesteTest {
 
         var frist = manglendeInntektsmeldingTjeneste.finnNyVentefristVedEtterlysning(behandlingMedMottattdatoForSøknad(mottattDato), tilSkjæringstidspunkt(skjæringstidspunkt));
         assertThat(frist).isEqualTo(datoSendtUtEtterlysIM.plusWeeks(1));
+    }
+
+    @Test
+    void skal_utledes_ventefrist_ut_fra_dato_for_tidligste_mottatt_IM_etter_etterlysning_ikke_før() {
+        var skjæringstidspunkt = LocalDate.now().plusWeeks(4);
+        var mottattDato = LocalDate.now().minusWeeks(2);
+        var etterlysningsdato = LocalDate.now().minusWeeks(1);
+        var mottattdatoInntektsmeldingFørEtterlysning = etterlysningsdato.minusWeeks(1);
+        var mottattdatoInntektsmeldingEtterEtterlysning = etterlysningsdato.plusDays(3);
+
+        when(dokumentBehandlingTjenesteMock.dokumentSistBestiltTidspunkt(any(), any())).thenReturn(Optional.of(etterlysningsdato.atStartOfDay()));
+        when(inntektsmeldingTjeneste.hentInntektsmeldinger(any(), any()))
+            .thenReturn(List.of(
+                lagInntektsmelding(skjæringstidspunkt, mottattdatoInntektsmeldingFørEtterlysning),
+                lagInntektsmelding(skjæringstidspunkt, mottattdatoInntektsmeldingEtterEtterlysning)
+            ));
+
+        var frist = manglendeInntektsmeldingTjeneste.finnNyVentefristVedEtterlysning(behandlingMedMottattdatoForSøknad(mottattDato), tilSkjæringstidspunkt(skjæringstidspunkt));
+
+        assertThat(frist).isEqualTo(Virkedager.plusVirkedager(mottattdatoInntektsmeldingEtterEtterlysning, 3));
     }
 
 
