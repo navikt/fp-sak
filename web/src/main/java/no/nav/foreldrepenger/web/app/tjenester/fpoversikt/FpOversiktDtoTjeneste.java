@@ -1,6 +1,7 @@
 package no.nav.foreldrepenger.web.app.tjenester.fpoversikt;
 
 import java.util.List;
+import java.util.Optional;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -65,7 +66,7 @@ class FpOversiktDtoTjeneste {
         return manglendeVedleggDtoTjeneste.hentManglendeVedleggForSak(new Saksnummer(saksnummer));
     }
 
-    FpSakBeregningDto hentBeregning(String saksnummer) {
+    Optional<FpSakBeregningDto> hentBeregning(String saksnummer) {
         return beregningOversiktDtoTjeneste.hentBeregningForSak(new Saksnummer(saksnummer));
     }
 }

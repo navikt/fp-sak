@@ -16,6 +16,8 @@ import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.MediaType;
 
+import jakarta.ws.rs.core.Response;
+
 import no.nav.foreldrepenger.domene.typer.Beløp;
 
 import org.slf4j.Logger;
@@ -89,13 +91,13 @@ public class FpOversiktRestTjeneste {
     }
 
     @GET
-    @Path("beregninger")
+    @Path("beregning")
     @Produces(MediaType.APPLICATION_JSON)
     @Operation(description = "Henter beregninger på sak", tags = "fpoversikt")
     @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK, sporingslogg = false)
-    public List<FpSakBeregningDto> hentBeregninger(@TilpassetAbacAttributt(supplierClass = SaksnummerAbacSupplier.Supplier.class) @NotNull @Parameter(description = "Saksnummer for fagsak") @QueryParam("saksnummer") @Valid SaksnummerDto saksnummerDto) {
+    public Response hentBeregninger(@TilpassetAbacAttributt(supplierClass = SaksnummerAbacSupplier.Supplier.class) @NotNull @Parameter(description = "Saksnummer for fagsak") @QueryParam("saksnummer") @Valid SaksnummerDto saksnummerDto) {
         var saksnummer = saksnummerDto.getVerdi();
-        var beregning = new FpSakBeregningDto(new BigDecimal(23));
-        return Collections.singletonList(beregning);
+        var beregning = dtoTjeneste.hentBeregning(saksnummer);
+        return beregning.map(Response::ok).orElse(Response.noContent()).build();
     }
 }
