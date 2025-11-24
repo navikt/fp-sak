@@ -122,17 +122,16 @@ public final class EndringsdatoBerørtUtleder {
         var tidslinjeAnnenpart = lagTidslinje(annenpartsUttak, p -> inkluderPeriode(p, sammenhengendeUttak) && p.erFraSøknad(), EndringsdatoBerørtUtleder::helgFomMandagSegment);
         // Tidslinje der begge har uttak - fom endringsdato.
         var tidslinjeOverlappendeUttakFomEndringsdato = tidslinjeAnnenpart.intersection(tidslinjeBruker).intersection(periodeFomEndringsdato);
-        var farRundtFødsel = TidsperiodeFarRundtFødsel.intervallFarRundtFødsel(familieHendelser, utenMinsterett).orElse(null);
-        var tidslinjeOverlappendeUtenomFarRundFødsel = farRundtFødsel != null ? tidslinjeOverlappendeUttakFomEndringsdato.disjoint(farRundtFødsel) : tidslinjeOverlappendeUttakFomEndringsdato;
-        if (tidslinjeOverlappendeUtenomFarRundFødsel.isEmpty()) {
+        if (tidslinjeOverlappendeUttakFomEndringsdato.isEmpty()) {
             return Optional.empty();
         }
 
-        var tidslinjeBrukerSamtidig = lagTidslinje(brukersUttak, EndringsdatoBerørtUtleder::akseptertFulltSamtidigUttak, EndringsdatoBerørtUtleder::helgFomMandagSegment);
-        var tidslinjeAnnenpartSamtidig = lagTidslinje(annenpartsUttak, EndringsdatoBerørtUtleder::akseptertFulltSamtidigUttak, EndringsdatoBerørtUtleder::helgFomMandagSegment);
+        var farRundtFødsel = TidsperiodeFarRundtFødsel.intervallFarRundtFødsel(familieHendelser, utenMinsterett).orElse(null);
+        var tidslinjeBrukerSamtidig = lagTidslinje(brukersUttak, p -> akseptertFulltSamtidigUttak(p, farRundtFødsel), EndringsdatoBerørtUtleder::helgFomMandagSegment);
+        var tidslinjeAnnenpartSamtidig = lagTidslinje(annenpartsUttak, p -> akseptertFulltSamtidigUttak(p, farRundtFødsel), EndringsdatoBerørtUtleder::helgFomMandagSegment);
         var tidslinjeSamtidigUttak = slåSammenTidslinjer(tidslinjeBrukerSamtidig, tidslinjeAnnenpartSamtidig);
 
-        var overlappUtenomAkseptertFulltSamtidigUttak = tidslinjeOverlappendeUtenomFarRundFødsel.disjoint(tidslinjeSamtidigUttak);
+        var overlappUtenomAkseptertFulltSamtidigUttak = tidslinjeOverlappendeUttakFomEndringsdato.disjoint(tidslinjeSamtidigUttak);
         return overlappUtenomAkseptertFulltSamtidigUttak.isEmpty() ? Optional.empty() : Optional.of(overlappUtenomAkseptertFulltSamtidigUttak.getMinLocalDate());
     }
 
@@ -141,8 +140,9 @@ public final class EndringsdatoBerørtUtleder {
         return !periode.isOpphold() && (sammenhengendeUttak || !periode.isInnvilgetUtsettelse());
     }
 
-    private static boolean akseptertFulltSamtidigUttak(ForeldrepengerUttakPeriode periode) {
-        return periode.isSamtidigUttak() && periode.isFlerbarnsdager();
+    private static boolean akseptertFulltSamtidigUttak(ForeldrepengerUttakPeriode periode, LocalDateInterval farRundtFødsel) {
+        var periodeRundtFødsel = Optional.ofNullable(farRundtFødsel).filter(f -> f.contains(periode.getTidsperiode())).isPresent();
+        return periode.isSamtidigUttak() && (periode.isFlerbarnsdager() || periodeRundtFødsel);
     }
 
     private static LocalDateTimeline<Boolean> tidslinjeForSammenhengendeUttaksplan(ForeldrepengerUttak brukersUttak, ForeldrepengerUttak annenpartsUttak) {

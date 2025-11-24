@@ -524,7 +524,43 @@ class BerørtBehandlingTjenesteTest {
     }
 
     @Test
-    void berørt_behandling_ved_overlapp_mellom_partene_der_annenpart_har_innvilget_utsettelse() {
+    void berørt_behandling_ved_overlapp_mellom_partene_der_annenpart_har_innvilget_utsettelse_sammenhengende() {
+        var startDatoMor = LocalDate.of(2020, 1, 1);
+
+        var farBehandling = opprettBehandlingFar(startDatoMor);
+        var morBehandling = ScenarioMorSøkerForeldrepenger.forFødsel().medDefaultOppgittDekningsgrad().lagre(repositoryProvider);
+
+        lagUttakInputSammenhengendeUttak(farBehandling);
+
+        var morsPeriode = new ForeldrepengerUttakPeriode.Builder()
+            .medTidsperiode(startDatoMor, startDatoMor.plusWeeks(15))
+            .medResultatÅrsak(PeriodeResultatÅrsak.KVOTE_ELLER_OVERFØRT_KVOTE)
+            .medResultatType(PeriodeResultatType.INNVILGET)
+            .medUtsettelseType(UttakUtsettelseType.FERIE)
+            .medAktiviteter(List.of(new ForeldrepengerUttakPeriodeAktivitet.Builder()
+                .medArbeidsprosent(BigDecimal.ZERO)
+                .medTrekkdager(Trekkdager.ZERO)
+                .medUtbetalingsgrad(Utbetalingsgrad.ZERO)
+                .medAktivitet(new ForeldrepengerUttakAktivitet(UttakArbeidType.FRILANS))
+                .build()))
+            .build();
+        var farsPeriode = new ForeldrepengerUttakPeriode.Builder()
+            .medTidsperiode(morsPeriode.getFom().plusWeeks(1), morsPeriode.getTom().minusWeeks(1))
+            .medResultatÅrsak(PeriodeResultatÅrsak.KVOTE_ELLER_OVERFØRT_KVOTE)
+            .medAktiviteter(List.of(uttakPeriodeAktivitet(UttakPeriodeType.FEDREKVOTE)))
+            .build();
+        var morUttak = new ForeldrepengerUttak(List.of(morsPeriode));
+        lagreUttak(morBehandling, morUttak);
+
+        var farUttak = new ForeldrepengerUttak(List.of(farsPeriode));
+        lagreUttak(farBehandling, farUttak);
+
+        var resultat = skalBerørtOpprettes(farBehandling, morBehandling);
+        assertThat(resultat).isTrue();
+    }
+
+    @Test
+    void ikke_berørt_behandling_ved_overlapp_mellom_partene_der_annenpart_har_innvilget_utsettelse_fritt() {
         var startDatoMor = LocalDate.of(2020, 1, 1);
 
         var farBehandling = opprettBehandlingFar(startDatoMor);
@@ -556,7 +592,7 @@ class BerørtBehandlingTjenesteTest {
         lagreUttak(farBehandling, farUttak);
 
         var resultat = skalBerørtOpprettes(farBehandling, morBehandling);
-        assertThat(resultat).isTrue();
+        assertThat(resultat).isFalse();
     }
 
     @Test
