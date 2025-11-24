@@ -10,8 +10,6 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 
-import com.fasterxml.jackson.annotation.JsonAlias;
-
 import no.nav.foreldrepenger.behandling.aksjonspunkt.BekreftetAksjonspunktDto;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseType;
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.ForeldreType;
@@ -88,12 +86,10 @@ public abstract class ManuellRegistreringDto extends BekreftetAksjonspunktDto {
         // For Jackson
     }
 
-    @JsonAlias("soknadstype")
     public FagsakYtelseType getSøknadstype() {
         return søknadstype;
     }
 
-    @JsonAlias("soker")
     public ForeldreType getSøker() {
         return søker;
     }
@@ -162,7 +158,6 @@ public abstract class ManuellRegistreringDto extends BekreftetAksjonspunktDto {
         this.fremtidigeOppholdUtenlands = fremtidigeOppholdUtenlands;
     }
 
-    @JsonAlias("erBarnetFodt")
     public boolean getErBarnetFødt() {
         return erBarnetFødt;
     }
@@ -203,7 +198,6 @@ public abstract class ManuellRegistreringDto extends BekreftetAksjonspunktDto {
         this.antallBarn = antallBarn;
     }
 
-    @JsonAlias("foedselsDato")
     public LocalDate getFødselsdato() {
         return fødselsdato;
     }
@@ -260,7 +254,6 @@ public abstract class ManuellRegistreringDto extends BekreftetAksjonspunktDto {
         this.mottattDato = mottattDato;
     }
 
-    @JsonAlias("ufullstendigSoeknad")
     public boolean getUfullstendigSøknad() {
         return ufullstendigSøknad;
     }
