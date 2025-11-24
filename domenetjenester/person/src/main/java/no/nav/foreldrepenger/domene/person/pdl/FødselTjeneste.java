@@ -6,6 +6,8 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -69,9 +71,12 @@ public class FødselTjeneste {
                 .forEach(alleBarn::add);
         if (!alleBarn.isEmpty())
             LOG.info("FPSAK PDL FØDSEL dødfødsel registrert");
-        person.getForelderBarnRelasjon().stream()
+        var unikeRelasjoner = person.getForelderBarnRelasjon().stream()
             .filter(b -> ForelderBarnRelasjonRolle.BARN.equals(b.getRelatertPersonsRolle()))
             .filter(b -> relevantForelder(rolleType, b))
+            .map(LokalFamilieRelasjon::new)
+            .collect(Collectors.toSet());
+        unikeRelasjoner.stream()
             .map(r -> fraForelderBarnRelasjon(ytelseType, r))
             .filter(Objects::nonNull)
             .forEach(alleBarn::add);
@@ -82,7 +87,7 @@ public class FødselTjeneste {
                 .toList();
     }
 
-    public List<PersonIdent> hentForeldreTil(FagsakYtelseType ytelseType, PersonIdent barn) {
+    public Set<PersonIdent> hentForeldreTil(FagsakYtelseType ytelseType, PersonIdent barn) {
         var request = new HentPersonQueryRequest();
         request.setIdent(barn.getIdent());
         var projection = new PersonResponseProjection()
@@ -95,7 +100,7 @@ public class FødselTjeneste {
                 .map(ForelderBarnRelasjon::getRelatertPersonsIdent)
                 .filter(Objects::nonNull)
                 .map(PersonIdent::fra)
-                .toList();
+            .collect(Collectors.toSet());
     }
 
     private static FødtBarnInfo fraDødfødsel(DoedfoedtBarn barn) {
@@ -114,8 +119,8 @@ public class FødselTjeneste {
         return foreldersRolle.equals(rolleType);
     }
 
-    private FødtBarnInfo fraForelderBarnRelasjon(FagsakYtelseType ytelseType, ForelderBarnRelasjon forelderBarnRelasjon) {
-        var barnIdent = forelderBarnRelasjon.getRelatertPersonsIdent();
+    private FødtBarnInfo fraForelderBarnRelasjon(FagsakYtelseType ytelseType, LokalFamilieRelasjon forelderBarnRelasjon) {
+        var barnIdent = forelderBarnRelasjon.relatertPersonsIdent();
         if (barnIdent == null) {
             return null;
         }
@@ -143,7 +148,7 @@ public class FødselTjeneste {
                 .medIdent(new PersonIdent(barnIdent))
                 .medFødselsdato(fødselsdato.orElseThrow())
                 .medDødsdato(dødssdato)
-                .medForelderRolle(utledRolle(forelderBarnRelasjon.getMinRolleForPerson()))
+                .medForelderRolle(utledRolle(forelderBarnRelasjon.minRolleForPerson()))
                 .build();
     }
 
@@ -154,6 +159,13 @@ public class FødselTjeneste {
             case MEDMOR -> RelasjonsRolleType.MEDMOR;
             case BARN -> RelasjonsRolleType.UDEFINERT;
         };
+    }
+
+    private record LokalFamilieRelasjon(String relatertPersonsIdent,  ForelderBarnRelasjonRolle relatertPersonsRolle, ForelderBarnRelasjonRolle minRolleForPerson) {
+        public LokalFamilieRelasjon(ForelderBarnRelasjon relasjon) {
+            this(relasjon.getRelatertPersonsIdent(), relasjon.getRelatertPersonsRolle(), relasjon.getMinRolleForPerson());
+        }
+
     }
 
 
