@@ -6,8 +6,6 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 
-import com.fasterxml.jackson.annotation.JsonAlias;
-
 import no.nav.vedtak.util.InputValideringRegex;
 
 public class AnnenForelderDto {
@@ -25,7 +23,6 @@ public class AnnenForelderDto {
     private Boolean morMottarUføretrygd;
     private Boolean annenForelderRettEØS;
 
-    @JsonAlias("foedselsnummer")
     public String getFødselsnummer() {
         return fødselsnummer;
     }
@@ -50,7 +47,6 @@ public class AnnenForelderDto {
         this.kanIkkeOppgiBegrunnelse = kanIkkeOppgiBegrunnelse;
     }
 
-    @JsonAlias("sokerHarAleneomsorg")
     public boolean getSøkerHarAleneomsorg() {
         return søkerHarAleneomsorg;
     }
@@ -59,7 +55,6 @@ public class AnnenForelderDto {
         this.søkerHarAleneomsorg = søkerHarAleneomsorg;
     }
 
-    @JsonAlias("denAndreForelderenHarRettPaForeldrepenger")
     public boolean getDenAndreForelderenHarRettPåForeldrepenger() {
         return denAndreForelderenHarRettPåForeldrepenger;
     }
@@ -96,7 +91,6 @@ public class AnnenForelderDto {
         @Pattern(regexp = InputValideringRegex.NAVN)
         private String land;
 
-        @JsonAlias("arsak")
         public String getÅrsak() {
             return årsak;
         }
@@ -105,7 +99,6 @@ public class AnnenForelderDto {
             this.årsak = årsak;
         }
 
-        @JsonAlias("utenlandskFoedselsnummer")
         public String getUtenlandskFødselsnummer() {
             return utenlandskFødselsnummer;
         }
