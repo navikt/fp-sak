@@ -85,10 +85,14 @@ public class ForvaltningSøknadRestTjeneste {
     @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.FAGSAK, sporingslogg = true)
     public Response papirsøknad(@BeanParam @Valid MottaPapirsøknadDto dto) {
         var fagsak = fagsakRepository.hentSakGittSaksnummer(new Saksnummer(dto.getSaksnummer())).orElseThrow();
-        var dokumentTypeId = DokumentTypeId.finnForKodeverkEiersKode(dto.getDokumentTypeId());
-        if (!dokumentTypeId.erSøknadType() && !dokumentTypeId.erEndringsSøknadType()) {
-            throw new ForvaltningException("DokumentTypeId er ikke en søknad: " + dto.getDokumentTypeId());
-        }
+        var dokumentTypeId = switch (dto.getSøknadType()) {
+            case ENGANGSSTØNAD_ADOPSJON -> DokumentTypeId.SØKNAD_ENGANGSSTØNAD_ADOPSJON;
+            case ENGANGSSTØNAD_FØDSEL -> DokumentTypeId.SØKNAD_ENGANGSSTØNAD_FØDSEL;
+            case FORELDREPENGER_FØDSEL -> DokumentTypeId.SØKNAD_FORELDREPENGER_FØDSEL;
+            case FORELDREPENGER_ADOPSJON -> DokumentTypeId.SØKNAD_FORELDREPENGER_ADOPSJON;
+            case ENDRING_FORELDREPENGER -> DokumentTypeId.FORELDREPENGER_ENDRING_SØKNAD;
+            case SVANGERSKAPSPENGER -> DokumentTypeId.SØKNAD_SVANGERSKAPSPENGER;
+        };
         var ok = switch (fagsak.getYtelseType()) {
             case FORELDREPENGER -> dokumentTypeId.erForeldrepengeSøknad();
             case SVANGERSKAPSPENGER -> DokumentTypeId.SØKNAD_SVANGERSKAPSPENGER.equals(dokumentTypeId);
@@ -96,7 +100,7 @@ public class ForvaltningSøknadRestTjeneste {
             case null, default -> false;
         };
         if (!ok) {
-            throw new ForvaltningException("DokumentTypeId "+ dto.getDokumentTypeId() + "matcher ikke sakstype: " + fagsak.getYtelseType());
+            throw new ForvaltningException("DokumentTypeId "+ dokumentTypeId + "matcher ikke sakstype: " + fagsak.getYtelseType());
         }
         var journalpostId = new JournalpostId(dto.getJournalpostId());
         opprettSakTjeneste.knyttSakOgJournalpost(fagsak.getSaksnummer(), journalpostId);

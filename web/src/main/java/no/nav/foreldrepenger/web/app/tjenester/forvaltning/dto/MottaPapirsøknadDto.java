@@ -2,10 +2,9 @@ package no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto;
 
 import java.time.LocalDate;
 
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.Digits;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Pattern;
-import jakarta.validation.constraints.Size;
 import jakarta.ws.rs.QueryParam;
 
 import io.swagger.v3.oas.annotations.Parameter;
@@ -15,34 +14,32 @@ import no.nav.vedtak.sikkerhet.abac.AbacDto;
 
 public class MottaPapirsøknadDto implements AbacDto {
 
+    public enum SøknadType { ENGANGSSTØNAD_ADOPSJON, ENGANGSSTØNAD_FØDSEL,
+        FORELDREPENGER_ADOPSJON, FORELDREPENGER_FØDSEL, ENDRING_FORELDREPENGER, SVANGERSKAPSPENGER }
 
     @NotNull
-    @Parameter(description = "Saksnummer")
     @QueryParam("saksnummer")
     @Digits(integer = 18, fraction = 0)
     private String saksnummer;
 
     @NotNull
-    @Parameter(description = "JournalpostId")
     @QueryParam("journalpostId")
     @Digits(integer = 18, fraction = 0)
     private String journalpostId;
 
-    @Size(max = 8)
-    @Parameter(description = "DokumentTypeId for søknad")
-    @QueryParam("dokumentTypeId")
-    @Pattern(regexp = "^[a-zA-ZæøåÆØÅ_\\-0-9]*")
-    private String dokumentTypeId;
+    @NotNull
+    @QueryParam("søknadType")
+    @Valid
+    private SøknadType søknadType;
 
     @NotNull
-    @Parameter(description = "Mottatt dato")
     @QueryParam("forsendelseMottatt")
     private LocalDate forsendelseMottatt;
 
-    public MottaPapirsøknadDto(String saksnummer, String journalpostId, String dokumentTypeId, LocalDate forsendelseMottatt) {
+    public MottaPapirsøknadDto(String saksnummer, String journalpostId, SøknadType søknadType, LocalDate forsendelseMottatt) {
         this.saksnummer = saksnummer;
         this.journalpostId = journalpostId;
-        this.dokumentTypeId = dokumentTypeId;
+        this.søknadType = søknadType;
         this.forsendelseMottatt = forsendelseMottatt;
     }
 
@@ -59,8 +56,8 @@ public class MottaPapirsøknadDto implements AbacDto {
         return journalpostId;
     }
 
-    public String getDokumentTypeId() {
-        return dokumentTypeId;
+    public SøknadType getSøknadType() {
+        return søknadType;
     }
 
     public LocalDate getForsendelseMottatt() {
