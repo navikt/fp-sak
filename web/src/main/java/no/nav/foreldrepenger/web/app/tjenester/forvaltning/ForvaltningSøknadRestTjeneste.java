@@ -1,6 +1,7 @@
 package no.nav.foreldrepenger.web.app.tjenester.forvaltning;
 
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.List;
 
 import jakarta.enterprise.context.ApplicationScoped;
@@ -108,7 +109,7 @@ public class ForvaltningSøknadRestTjeneste {
             .medDokumentType(dokumentTypeId)
             .medDokumentKategori(DokumentKategori.SØKNAD)
             .medMottattDato(dto.getForsendelseMottatt())
-            .medMottattTidspunkt(LocalDateTime.now())
+            .medMottattTidspunkt(LocalDateTime.of(dto.getForsendelseMottatt(), LocalTime.now()))
             .medElektroniskRegistrert(false)
             .medFagsakId(fagsak.getId())
             .build();
