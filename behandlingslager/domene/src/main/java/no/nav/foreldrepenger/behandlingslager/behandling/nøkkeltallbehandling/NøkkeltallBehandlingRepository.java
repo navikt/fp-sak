@@ -140,6 +140,35 @@ public class NøkkeltallBehandlingRepository {
         return new NøkkeltallBehandlingVentefristUtløper(behandlendeEnhet, ytelseType, fristUtløper, antall.longValue());
     }
 
+    private static final String QUERY_FRIST_UTLØPER_UKE = """
+        select enhet, yt, frist, count(1) as ant from (
+            select enhet, yt,
+                   case when fristi <= sysdate then trunc(sysdate + 1, 'IW')
+                        when fristi > sysdate + 245 then trunc(sysdate+245, 'IW')
+                        else trunc(fristi, 'IW') end as frist
+            from (
+                select b.behandlende_enhet as enhet, f.ytelse_type as yt, trunc(nvl(ap.frist_tid, nvl(ap.endret_tid, ap.opprettet_tid) + 28))  as fristi
+                from aksjonspunkt ap join behandling b on ap.behandling_id = b.id join fagsak f on b.fagsak_id = f.id
+                where b.behandling_status != :avsluttetBehandlingStatus and ap.aksjonspunkt_status=:åpenAksjonspunktStatus
+                    and b.behandling_type = :førstegang and ap.aksjonspunkt_def >= :lavesteVentKode and ap.aksjonspunkt_def not in (:ventIgnorer)
+            )
+        )
+        group by enhet, yt, frist
+        """;
+
+    public List<NøkkeltallBehandlingVentefristUtløper> hentNøkkeltallVentefristUtløperUke() {
+        var query = entityManager.createNativeQuery(QUERY_FRIST_UTLØPER_UKE)
+            .setParameter("åpenAksjonspunktStatus", AksjonspunktStatus.OPPRETTET.getKode())
+            .setParameter("avsluttetBehandlingStatus", BehandlingStatus.AVSLUTTET.getKode())
+            .setParameter("førstegang", BehandlingType.FØRSTEGANGSSØKNAD.getKode())
+            .setParameter("lavesteVentKode", AksjonspunktDefinisjon.AUTO_MANUELT_SATT_PÅ_VENT.getKode())
+            .setParameter("ventIgnorer", List.of(AksjonspunktDefinisjon.VENT_PÅ_SØKNAD.getKode(), AksjonspunktDefinisjon.AUTO_KØET_BEHANDLING.getKode()))
+            ;
+        @SuppressWarnings("unchecked")
+        var result = (List<Object[]>) query.getResultList();
+        return result.stream().map(NøkkeltallBehandlingRepository::mapFrist).toList();
+    }
+
     private static LocalDate localDate(Object sqlTimestamp) {
         return TimestampConverter.toLocalDate(sqlTimestamp);
     }

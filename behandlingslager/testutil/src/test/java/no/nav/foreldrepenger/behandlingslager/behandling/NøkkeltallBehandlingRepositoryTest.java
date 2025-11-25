@@ -2,6 +2,7 @@ package no.nav.foreldrepenger.behandlingslager.behandling;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.temporal.TemporalAdjusters;
 import java.util.List;
@@ -70,9 +71,31 @@ class NøkkeltallBehandlingRepositoryTest {
         assertThat(resultat).isPositive();
     }
 
+    @Test
+    void skalRapportereFristUtløperUke() {
+        var søknad = ScenarioMorSøkerForeldrepenger.forFødsel()
+            .medBehandlendeEnhet("4833")
+            .medDefaultFordeling(LocalDate.now().plusDays(20))
+            .leggTilAksjonspunkt(AksjonspunktDefinisjon.AUTO_MANUELT_SATT_PÅ_VENT, BehandlingStegType.INNHENT_PERSONOPPLYSNINGER);
+        søknad.lagre(repositoryProvider);
+        var forventetNøkkeltallBehandlingVentestatus = forventetFristUke(søknad);
+        var nøkkeltall = nøkkeltallBehandlingRepository.hentNøkkeltallVentefristUtløperUke();
+        var resultat = antallTreff(nøkkeltall, forventetNøkkeltallBehandlingVentestatus);
+        assertThat(resultat).isPositive();
+    }
+
     private NøkkeltallBehandlingVentefristUtløper forventetFrist(ScenarioMorSøkerForeldrepenger søknad) {
         var forventetEnhet = søknad.getBehandling().getBehandlendeEnhet();
         var forventetFrist = søknad.getBehandling().getAksjonspunkter().stream().findFirst().map(Aksjonspunkt::getFristTid).orElseThrow().toLocalDate();
+        var forventetYtelseType = søknad.getFagsak().getYtelseType();
+        return new NøkkeltallBehandlingVentefristUtløper(forventetEnhet, forventetYtelseType, forventetFrist, 1L);
+    }
+
+    private NøkkeltallBehandlingVentefristUtløper forventetFristUke(ScenarioMorSøkerForeldrepenger søknad) {
+        var forventetEnhet = søknad.getBehandling().getBehandlendeEnhet();
+        var forventetFrist = søknad.getBehandling().getAksjonspunkter().stream().findFirst()
+            .map(Aksjonspunkt::getFristTid).orElseThrow()
+            .toLocalDate().with(DayOfWeek.MONDAY);
         var forventetYtelseType = søknad.getFagsak().getYtelseType();
         return new NøkkeltallBehandlingVentefristUtløper(forventetEnhet, forventetYtelseType, forventetFrist, 1L);
     }
