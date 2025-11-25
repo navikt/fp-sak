@@ -83,6 +83,11 @@
       "cluster": "prod-fss"
     },
     {
+      "app": "fpmottak",
+      "namespace": "teamforeldrepenger",
+      "cluster": "prod-gcp"
+    },
+    {
       "app": "fpabakus",
       "namespace": "teamforeldrepenger",
       "cluster": "prod-fss"

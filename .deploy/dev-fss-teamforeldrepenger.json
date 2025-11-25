@@ -83,6 +83,11 @@
       "cluster": "dev-fss"
     },
     {
+      "app": "fpmottak",
+      "namespace": "teamforeldrepenger",
+      "cluster": "dev-gcp"
+    },
+    {
       "app": "fpabakus",
       "namespace": "teamforeldrepenger",
       "cluster": "dev-fss"
