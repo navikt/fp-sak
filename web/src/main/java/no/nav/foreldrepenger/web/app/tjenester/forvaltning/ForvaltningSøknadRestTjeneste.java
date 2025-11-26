@@ -85,8 +85,8 @@ public class ForvaltningSøknadRestTjeneste {
     @Operation(description = "Send inn en journalpost som papirsøknad", tags = "FORVALTNING-søknad")
     @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.DRIFT, sporingslogg = true)
     public Response papirsøknad(@BeanParam @Valid MottaPapirsøknadDto dto) {
-        var fagsak = fagsakRepository.hentSakGittSaksnummer(new Saksnummer(dto.saksnummer())).orElseThrow();
-        var dokumentTypeId = switch (dto.søknadType()) {
+        var fagsak = fagsakRepository.hentSakGittSaksnummer(new Saksnummer(dto.getSaksnummer())).orElseThrow();
+        var dokumentTypeId = switch (dto.getSøknadType()) {
             case ENGANGSSTØNAD_ADOPSJON -> DokumentTypeId.SØKNAD_ENGANGSSTØNAD_ADOPSJON;
             case ENGANGSSTØNAD_FØDSEL -> DokumentTypeId.SØKNAD_ENGANGSSTØNAD_FØDSEL;
             case FORELDREPENGER_FØDSEL -> DokumentTypeId.SØKNAD_FORELDREPENGER_FØDSEL;
@@ -103,13 +103,13 @@ public class ForvaltningSøknadRestTjeneste {
         if (!ok) {
             throw new ForvaltningException("DokumentTypeId "+ dokumentTypeId + "matcher ikke sakstype: " + fagsak.getYtelseType());
         }
-        var journalpostId = new JournalpostId(dto.journalpostId());
+        var journalpostId = new JournalpostId(dto.getJournalpostId());
         opprettSakTjeneste.knyttSakOgJournalpost(fagsak.getSaksnummer(), journalpostId);
         var mottattDokument = new MottattDokument.Builder().medJournalPostId(journalpostId)
             .medDokumentType(dokumentTypeId)
             .medDokumentKategori(DokumentKategori.SØKNAD)
-            .medMottattDato(dto.forsendelseMottatt())
-            .medMottattTidspunkt(LocalDateTime.of(dto.forsendelseMottatt(), LocalTime.now()))
+            .medMottattDato(dto.getMottattDato())
+            .medMottattTidspunkt(LocalDateTime.of(dto.getMottattDato(), LocalTime.now()))
             .medElektroniskRegistrert(false)
             .medFagsakId(fagsak.getId())
             .build();
