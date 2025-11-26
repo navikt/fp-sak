@@ -4,6 +4,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
+import java.time.Year;
+import java.time.temporal.ChronoField;
 import java.time.temporal.TemporalAdjusters;
 import java.util.List;
 import java.util.Objects;
@@ -88,7 +90,8 @@ class NøkkeltallBehandlingRepositoryTest {
         var forventetEnhet = søknad.getBehandling().getBehandlendeEnhet();
         var forventetFrist = søknad.getBehandling().getAksjonspunkter().stream().findFirst().map(Aksjonspunkt::getFristTid).orElseThrow().toLocalDate();
         var forventetYtelseType = søknad.getFagsak().getYtelseType();
-        return new NøkkeltallBehandlingVentefristUtløper(forventetEnhet, forventetYtelseType, forventetFrist, 1L);
+        return new NøkkeltallBehandlingVentefristUtløper(forventetEnhet, forventetYtelseType, forventetFrist,
+            Year.from(forventetFrist) + "-" + forventetFrist.get(ChronoField.ALIGNED_WEEK_OF_YEAR), 1L);
     }
 
     private NøkkeltallBehandlingVentefristUtløper forventetFristUke(ScenarioMorSøkerForeldrepenger søknad) {
@@ -97,7 +100,8 @@ class NøkkeltallBehandlingRepositoryTest {
             .map(Aksjonspunkt::getFristTid).orElseThrow()
             .toLocalDate().with(DayOfWeek.MONDAY);
         var forventetYtelseType = søknad.getFagsak().getYtelseType();
-        return new NøkkeltallBehandlingVentefristUtløper(forventetEnhet, forventetYtelseType, forventetFrist, 1L);
+        return new NøkkeltallBehandlingVentefristUtløper(forventetEnhet, forventetYtelseType, forventetFrist,
+            Year.from(forventetFrist) + "-" + forventetFrist.get(ChronoField.ALIGNED_WEEK_OF_YEAR), 1L);
     }
 
     private static int antallTreff(List<NøkkeltallBehandlingFørsteUttak> nøkkeltallInitiell,
