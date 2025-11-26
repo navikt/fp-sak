@@ -103,7 +103,7 @@ public class ForvaltningBehandlingRestTjeneste {
             @ApiResponse(responseCode = "400", description = "Ukjent fagsak oppgitt."),
             @ApiResponse(responseCode = "500", description = "Feilet pga ukjent feil.")
     })
-    @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.FAGSAK, sporingslogg = true)
+    @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.DRIFT, sporingslogg = true)
     public Response henleggVentendeBehandling(@TilpassetAbacAttributt(supplierClass = SaksnummerAbacSupplier.Supplier.class)
         @NotNull @QueryParam("saksnummer") @Valid SaksnummerDto saksnummerDto) {
         var saksnummer = new Saksnummer(saksnummerDto.getVerdi());
@@ -155,7 +155,7 @@ public class ForvaltningBehandlingRestTjeneste {
             @ApiResponse(responseCode = "400", description = "Oppgitt fagsak er ukjent, ikke under behandling, eller engangsstønad."),
             @ApiResponse(responseCode = "500", description = "Feilet pga ukjent feil.")
     })
-    @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.FAGSAK, sporingslogg = true)
+    @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.DRIFT, sporingslogg = true)
     public Response henleggÅpenFørstegangsbehandlingOgOpprettNy(@TilpassetAbacAttributt(supplierClass = SaksnummerAbacSupplier.Supplier.class)
         @NotNull @QueryParam("saksnummer") @Valid SaksnummerDto saksnummerDto) {
         var saksnummer = new Saksnummer(saksnummerDto.getVerdi());
@@ -185,7 +185,7 @@ public class ForvaltningBehandlingRestTjeneste {
             @ApiResponse(responseCode = "400", description = "Oppgitt fagsak er ukjent, ikke under behandling, eller engangsstønad."),
             @ApiResponse(responseCode = "500", description = "Feilet pga ukjent feil.")
     })
-    @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.FAGSAK, sporingslogg = true)
+    @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.DRIFT, sporingslogg = true)
     public Response reInnsendInntektsmelding(@BeanParam @Valid SaksnummerJournalpostDto dto) {
         var journalpostId = new JournalpostId(dto.getJournalpostId());
         var saksnummer = new Saksnummer(dto.getSaksnummer());
@@ -220,7 +220,7 @@ public class ForvaltningBehandlingRestTjeneste {
             @ApiResponse(responseCode = "400", description = "Oppgitt fagsak er ukjent, ikke under behandling, eller engangsstønad."),
             @ApiResponse(responseCode = "500", description = "Feilet pga ukjent feil.")
     })
-    @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.FAGSAK, sporingslogg = true)
+    @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.DRIFT, sporingslogg = true)
     public Response opprettNyRevurderingBerørtBehandling(@TilpassetAbacAttributt(supplierClass = SaksnummerAbacSupplier.Supplier.class)
         @NotNull @QueryParam("saksnummer") @Valid SaksnummerDto saksnummerDto) {
         var saksnummer = new Saksnummer(saksnummerDto.getVerdi());

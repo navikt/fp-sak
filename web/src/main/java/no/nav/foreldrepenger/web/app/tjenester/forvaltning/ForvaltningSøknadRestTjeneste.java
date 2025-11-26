@@ -83,7 +83,7 @@ public class ForvaltningSøknadRestTjeneste {
     @Path("/papirsøknad")
     @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
     @Operation(description = "Send inn en journalpost som papirsøknad", tags = "FORVALTNING-søknad")
-    @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.FAGSAK, sporingslogg = true)
+    @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.DRIFT, sporingslogg = true)
     public Response papirsøknad(@BeanParam @Valid MottaPapirsøknadDto dto) {
         var fagsak = fagsakRepository.hentSakGittSaksnummer(new Saksnummer(dto.getSaksnummer())).orElseThrow();
         var dokumentTypeId = switch (dto.getSøknadType()) {
@@ -122,7 +122,7 @@ public class ForvaltningSøknadRestTjeneste {
     @Path("/endreTermindato")
     @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
     @Operation(description = "Oppdater termindato åpen/siste behandling ifm prematur situasjons", tags = "FORVALTNING-søknad")
-    @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.FAGSAK, sporingslogg = true)
+    @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.DRIFT, sporingslogg = true)
     public Response endreTermindato(@BeanParam @Valid SaksnummerTermindatoDto dto) {
         var fagsakId = fagsakRepository.hentSakGittSaksnummer(new Saksnummer(dto.getSaksnummer())).map(Fagsak::getId).orElseThrow();
         var behandling = behandlingRepository.hentÅpneYtelseBehandlingerForFagsakIdForUpdate(fagsakId).stream()
@@ -138,7 +138,7 @@ public class ForvaltningSøknadRestTjeneste {
     @Path("/manglendeTermindato")
     @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
     @Operation(description = "Legg til terminbekreftelse på åpen/siste behandling ifm prematur situasjons", tags = "FORVALTNING-søknad")
-    @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.FAGSAK, sporingslogg = true)
+    @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.DRIFT, sporingslogg = true)
     public Response manglendeTermindato(@BeanParam @Valid SaksnummerTermindatoDto dto) {
         var fagsakId = fagsakRepository.hentSakGittSaksnummer(new Saksnummer(dto.getSaksnummer())).map(Fagsak::getId).orElseThrow();
         var behandling = behandlingRepository.hentÅpneYtelseBehandlingerForFagsakIdForUpdate(fagsakId).stream()
@@ -162,7 +162,7 @@ public class ForvaltningSøknadRestTjeneste {
     @Path("/manglendeFødselsdato")
     @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
     @Operation(description = "Legg til fødsels/dødsdato på åpen/siste behandling", tags = "FORVALTNING-søknad")
-    @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.FAGSAK, sporingslogg = true)
+    @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.DRIFT, sporingslogg = true)
     public Response manglendeFødselsdato(@BeanParam @Valid SaksnummerFødselsdatoDto dto) {
         var fagsakId = fagsakRepository.hentSakGittSaksnummer(new Saksnummer(dto.getSaksnummer())).map(Fagsak::getId).orElseThrow();
         var behandling = behandlingRepository.hentÅpneYtelseBehandlingerForFagsakIdForUpdate(fagsakId).stream()
@@ -189,7 +189,7 @@ public class ForvaltningSøknadRestTjeneste {
     @Path("/settNorskIdentAnnenpart")
     @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
     @Operation(description = "Oppdater annen part men kun hvis oppgitt = bruker", tags = "FORVALTNING-søknad")
-    @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.FAGSAK, sporingslogg = true)
+    @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.DRIFT, sporingslogg = true)
     public Response settNorskIdentAnnenpart(@BeanParam @Valid SaksnummerAnnenpartIdentDto dto) {
         var fagsakId = fagsakRepository.hentSakGittSaksnummer(new Saksnummer(dto.getSaksnummer())).map(Fagsak::getId).orElseThrow();
         var behandling = behandlingRepository.hentÅpneYtelseBehandlingerForFagsakId(fagsakId).stream()
@@ -216,7 +216,7 @@ public class ForvaltningSøknadRestTjeneste {
     @Path("/settUtlandskIdentAnnenpart")
     @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
     @Operation(description = "Oppdater annen part men kun hvis oppgitt = bruker", tags = "FORVALTNING-søknad")
-    @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.FAGSAK, sporingslogg = true)
+    @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.DRIFT, sporingslogg = true)
     public Response settUtlandskIdentAnnenpart(@BeanParam @Valid SaksnummerAnnenpartIdentDto dto) {
         var fagsakId = fagsakRepository.hentSakGittSaksnummer(new Saksnummer(dto.getSaksnummer())).map(Fagsak::getId).orElseThrow();
         var behandling = behandlingRepository.hentÅpneYtelseBehandlingerForFagsakId(fagsakId).stream()
