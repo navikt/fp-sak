@@ -20,4 +20,3 @@ jobs:
       use-reader: true
     secrets:
       READER_TOKEN: ${{ secrets.READER_TOKEN }}
-      SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
