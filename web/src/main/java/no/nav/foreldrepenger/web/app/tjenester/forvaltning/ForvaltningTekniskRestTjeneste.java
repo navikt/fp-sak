@@ -89,7 +89,7 @@ public class ForvaltningTekniskRestTjeneste {
         @ApiResponse(responseCode = "400", description = "Fant ikke aktuell oppgave."),
         @ApiResponse(responseCode = "500", description = "Feilet pga ukjent feil.")
     })
-    @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.DRIFT, sporingslogg = false)
+    @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.DRIFT, sporingslogg = true)
     public Response ferdigstillOppgave(
         @TilpassetAbacAttributt(supplierClass = ForvaltningTekniskRestTjeneste.AbacDataSupplier.class)
         @Parameter(description = "Oppgave som skal settes ferdig") @NotNull @Valid ProsessTaskIdDto oppgaveIdDto) {
@@ -111,7 +111,7 @@ public class ForvaltningTekniskRestTjeneste {
             @ApiResponse(responseCode = "400", description = "Fant ikke aktuell oppgave."),
             @ApiResponse(responseCode = "500", description = "Feilet pga ukjent feil.")
     })
-    @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.DRIFT, sporingslogg = false)
+    @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.DRIFT, sporingslogg = true)
     public Response hentAlleÅpneOppgaver() {
         try {
             return Response.ok().entity(oppgaveTjeneste.alleÅpneOppgaver()).build();

@@ -49,6 +49,7 @@ public class LosRestTjeneste {
     private static final String LOS_FAGSAK_EGENSKAP_PATH = "/los-egenskap";
     public static final String LOS_NØKKELTALL_PATH = "/los-nokkeltall";
     public static final String LOS_FRISTUTLOP_PATH = "/los-fristutlop";
+    public static final String LOS_FRISTUTLOPUKE_PATH = "/los-fristutlop-uke";
 
     private FagsakRepository fagsakRepository;
     private BehandlingRepository behandlingRepository;
@@ -114,6 +115,15 @@ public class LosRestTjeneste {
     @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.OPPGAVESTYRING_AVDELINGENHET, sporingslogg = false)
     public List<NøkkeltallBehandlingVentefristUtløper> nøkkeltallFristUtløper() {
         return nøkkeltallBehandlingRepository.hentNøkkeltallVentefristUtløper();
+    }
+
+    @Path(LOS_FRISTUTLOPUKE_PATH)
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
+    @Operation(description = "Tilbyr data over når førstegangsbehandlinger går av vent", tags = "los-data")
+    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.OPPGAVESTYRING_AVDELINGENHET, sporingslogg = false)
+    public List<NøkkeltallBehandlingVentefristUtløper> nøkkeltallFristUtløperUke() {
+        return nøkkeltallBehandlingRepository.hentNøkkeltallVentefristUtløperUke();
     }
 
 }
