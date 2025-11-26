@@ -65,7 +65,7 @@ public class ForvaltningLagretVedtakRestTjeneste {
     }
 
     @POST
-    @Operation(description = "Generer vedtaksxml på nytt for gitt behandlingid.", tags = "datavarehus")
+    @Operation(description = "Generer vedtaksxml på nytt for gitt behandlingid.", tags = "FORVALTNING-lagret-vedtak")
     @Path("/regenerer_vedtaksdokument")
     @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.DRIFT, sporingslogg = true)
     public Response regenererVedtaksXml(@BeanParam @Valid ForvaltningBehandlingIdDto uuidDto) {
@@ -89,7 +89,7 @@ public class ForvaltningLagretVedtakRestTjeneste {
     }
 
     @POST
-    @Operation(description = "Generer vedtaksxmler som ikke er gyldige på nytt", tags = "vedtak")
+    @Operation(description = "Generer vedtaksxmler som ikke er gyldige på nytt", tags = "FORVALTNING-lagret-vedtak")
     @Path("/regenerer")
     @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.DRIFT, sporingslogg = true)
     @Transactional
@@ -120,7 +120,7 @@ public class ForvaltningLagretVedtakRestTjeneste {
     }
 
     @POST
-    @Operation(description = "Validerer vedtaksxml", tags = "vedtak")
+    @Operation(description = "Validerer vedtaksxml", tags = "FORVALTNING-lagret-vedtak")
     @Path("/validate")
     @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.DRIFT, sporingslogg = false)
     @Transactional
