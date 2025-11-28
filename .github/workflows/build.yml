@@ -30,7 +30,8 @@ jobs:
       build-image: ${{ github.ref_name == 'master' }} # default: true
       push-image: ${{ github.ref_name == 'master' }} # default: false
       use-reader: true
-    secrets: inherit
+    secrets:
+        READER_TOKEN: ${{ secrets.READER_TOKEN }}
 
   fpsak-tester:
     name: Fpsak tester
