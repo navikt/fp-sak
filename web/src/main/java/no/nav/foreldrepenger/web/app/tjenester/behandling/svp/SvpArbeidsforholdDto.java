@@ -38,7 +38,7 @@ public class SvpArbeidsforholdDto {
     @NotNull private boolean skalBrukes = true;
     @NotNull private boolean kanTilrettelegges = true;
     @DecimalMin("0.00")
-    @DecimalMax("100.00")
+    @DecimalMax("200.00")
     private BigDecimal stillingsprosentStartTilrettelegging;
     @NotNull private List<@Valid VelferdspermisjonDto> velferdspermisjoner = new ArrayList<>();
     @NotNull private List<@Valid SvpAvklartOppholdPeriodeDto> avklarteOppholdPerioder = new ArrayList<>();
