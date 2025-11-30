@@ -81,7 +81,7 @@ public class NøkkeltallBehandlingRepository {
             .setParameter("avsluttetBehandlingStatus", BehandlingStatus.AVSLUTTET.getKode())
             .setParameter("forstegang", BehandlingType.FØRSTEGANGSSØKNAD.getKode())
             .setParameter("endringsoknad", BehandlingÅrsakType.RE_ENDRING_FRA_BRUKER.getKode())
-            .setParameter("utsettelseOpphold", List.of(OppholdÅrsak.KODEVERK, UtsettelseÅrsak.KODEVERK))
+            .setParameter("utsettelseOpphold", List.of(OppholdÅrsak.DISKRIMINATOR, UtsettelseÅrsak.DISKRIMINATOR))
             .setParameter("ventSoknad", AksjonspunktDefinisjon.VENT_PÅ_SØKNAD.getKode())
             .setParameter("lavesteVentKode", AksjonspunktDefinisjon.AUTO_MANUELT_SATT_PÅ_VENT.getKode())
             .setParameter("fpYtelseType", FagsakYtelseType.YtelseType.FP.name());

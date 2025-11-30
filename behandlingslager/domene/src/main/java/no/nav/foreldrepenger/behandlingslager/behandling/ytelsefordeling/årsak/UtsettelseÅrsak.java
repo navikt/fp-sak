@@ -23,6 +23,8 @@ public enum UtsettelseÅrsak implements Årsak {
 
     public static final String KODEVERK = "UTSETTELSE_AARSAK_TYPE";
 
+    public static final String DISKRIMINATOR = "UTSETTELSE_AARSAK_TYPE";
+
     static {
         for (var v : values()) {
             if (KODER.putIfAbsent(v.kode, v) != null) {
@@ -69,5 +71,12 @@ public enum UtsettelseÅrsak implements Årsak {
     public String getKode() {
         return kode;
     }
+
+
+    @Override
+    public String getDiskriminator() {
+        return DISKRIMINATOR;
+    }
+
 
 }
