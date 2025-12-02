@@ -22,6 +22,8 @@ public enum OppholdÅrsak implements Årsak {
 
     public static final String KODEVERK = "OPPHOLD_AARSAK_TYPE";
 
+    public static final String DISKRIMINATOR = "OPPHOLD_AARSAK_TYPE";
+
     static {
         for (var v : values()) {
             if (KODER.putIfAbsent(v.kode, v) != null) {
@@ -67,6 +69,11 @@ public enum OppholdÅrsak implements Årsak {
     @Override
     public String getKode() {
         return kode;
+    }
+
+    @Override
+    public String getDiskriminator() {
+        return DISKRIMINATOR;
     }
 
     @Converter(autoApply = true)
