@@ -15,6 +15,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
+import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Venteårsak;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Språkkode;
 import no.nav.foreldrepenger.web.app.rest.ResourceLink;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.aksjonspunkt.AksjonspunktDto;
@@ -37,7 +38,7 @@ public class UtvidetBehandlingDto {
     private boolean alleUttaksperioderAvslått;
 
     @JsonProperty("venteÅrsakKode")
-    private String venteÅrsakKode;
+    private Venteårsak venteÅrsakKode;
 
     /** Eventuelt async status på tasks. */
     @JsonProperty("taskStatus")
@@ -156,11 +157,11 @@ public class UtvidetBehandlingDto {
         this.alleUttaksperioderAvslått = alleUttaksperioderAvslått;
     }
 
-    public String getVenteÅrsakKode() {
+    public Venteårsak getVenteÅrsakKode() {
         return venteÅrsakKode;
     }
 
-    public void setVenteÅrsakKode(String venteÅrsakKode) {
+    public void setVenteÅrsakKode(Venteårsak venteÅrsakKode) {
         this.venteÅrsakKode = venteÅrsakKode;
     }
 
