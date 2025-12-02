@@ -11,18 +11,10 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
-import no.nav.foreldrepenger.web.app.tjenester.behandling.vilkår.VilkårDtoMapper;
 
 final class BehandlingDtoUtil {
 
     private BehandlingDtoUtil() {
-    }
-
-    static void settStandardfelterUtvidet(Behandling behandling,
-                                          Behandlingsresultat behandlingsresultat,
-                                          UtvidetBehandlingDto dto) {
-        setStandardfelter(behandling, behandlingsresultat, dto);
-        dto.setBehandlingHenlagt(getBehandlingsResultatType(behandlingsresultat).erHenlagt());
     }
 
     static Optional<String> getFristDatoBehandlingPåVent(Behandling behandling) {
@@ -38,25 +30,6 @@ final class BehandlingDtoUtil {
             return behandling.getBehandlingÅrsaker().stream().map(BehandlingDtoUtil::map).toList();
         }
         return Collections.emptyList();
-    }
-
-    static void setStandardfelter(Behandling behandling,
-                                  Behandlingsresultat behandlingsresultat,
-                                  UtvidetBehandlingDto dto) {
-        dto.setUuid(behandling.getUuid());
-        dto.setId(behandling.getId());
-        dto.setOpprettet(behandling.getOpprettetTidspunkt());
-        dto.setVersjon(behandling.getVersjon());
-        dto.setType(behandling.getType());
-        dto.setStatus(behandling.getStatus());
-        dto.setBehandlendeEnhetId(behandling.getBehandlendeOrganisasjonsEnhet().enhetId());
-        dto.setBehandlendeEnhetNavn(behandling.getBehandlendeOrganisasjonsEnhet().enhetNavn());
-        dto.setAktivPapirsøknad(erAktivPapirsøknad(behandling));
-        dto.setBehandlingPåVent(behandling.isBehandlingPåVent());
-        dto.setBehandlingHenlagt(getBehandlingsResultatType(behandlingsresultat).erHenlagt());
-        getFristDatoBehandlingPåVent(behandling).ifPresent(dto::setFristBehandlingPåVent);
-        dto.setBehandlingÅrsaker(lagBehandlingÅrsakDto(behandling));
-        dto.setVilkår(!erAktivPapirsøknad(behandling) ? VilkårDtoMapper.lagVilkarDto(behandling, behandlingsresultat) : List.of());
     }
 
     static boolean erAktivPapirsøknad(Behandling behandling) {
