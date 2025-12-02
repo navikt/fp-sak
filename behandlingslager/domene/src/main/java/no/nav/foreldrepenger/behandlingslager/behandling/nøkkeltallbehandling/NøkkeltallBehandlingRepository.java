@@ -102,7 +102,7 @@ public class NøkkeltallBehandlingRepository {
     }
 
     private static final String QUERY_FRIST_UTLØPER_DAG = """
-        select enhet, yt, frist, to_char(frist, 'YYYY-IW'), count(1) as ant from (
+        select enhet, yt, frist, to_char(frist, 'IYYY-IW'), count(1) as ant from (
             select enhet, yt,
                    case when fristi <= sysdate then trunc(sysdate + 1)
                         when fristi > sysdate + 185 then trunc(sysdate+185)
@@ -114,7 +114,7 @@ public class NøkkeltallBehandlingRepository {
                     and b.behandling_type = :førstegang and ap.aksjonspunkt_def >= :lavesteVentKode and ap.aksjonspunkt_def not in (:ventIgnorer)
             )
         )
-        group by enhet, yt, frist
+        group by enhet, yt, frist, to_char(frist, 'IYYY-IW')
         """;
 
     public List<NøkkeltallBehandlingVentefristUtløper> hentNøkkeltallVentefristUtløper() {
@@ -141,7 +141,7 @@ public class NøkkeltallBehandlingRepository {
     }
 
     private static final String QUERY_FRIST_UTLØPER_UKE = """
-        select enhet, yt, frist, to_char(frist, 'YYYY-IW'), count(1) as ant from (
+        select enhet, yt, frist, to_char(frist, 'IYYY-IW'), count(1) as ant from (
             select enhet, yt,
                    case when fristi <= sysdate then trunc(sysdate + 1, 'IW')
                         when fristi > sysdate + 245 then trunc(sysdate+245, 'IW')
@@ -153,7 +153,7 @@ public class NøkkeltallBehandlingRepository {
                     and b.behandling_type = :førstegang and ap.aksjonspunkt_def >= :lavesteVentKode and ap.aksjonspunkt_def not in (:ventIgnorer)
             )
         )
-        group by enhet, yt, frist
+        group by enhet, yt, frist, to_char(frist, 'IYYY-IW')
         """;
 
     public List<NøkkeltallBehandlingVentefristUtløper> hentNøkkeltallVentefristUtløperUke() {
