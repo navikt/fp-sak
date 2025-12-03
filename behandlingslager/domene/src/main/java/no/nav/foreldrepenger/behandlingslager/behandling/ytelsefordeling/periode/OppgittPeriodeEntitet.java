@@ -70,7 +70,7 @@ public class OppgittPeriodeEntitet extends BaseEntitet implements IndexKey {
 
     @Column(name = "kl_aarsak_type", nullable = false)
     @ChangeTracked
-    private String årsakType = Årsak.UKJENT.getKodeverk();
+    private String årsakType = Årsak.UKJENT.getDiskriminator();
 
     @ChangeTracked
     @Column(name = "aarsak_type", nullable = false, updatable = false)
@@ -191,13 +191,13 @@ public class OppgittPeriodeEntitet extends BaseEntitet implements IndexKey {
     }
 
     public Årsak getÅrsak() {
-        if (Objects.equals(årsakType, OppholdÅrsak.KODEVERK)) {
+        if (Objects.equals(årsakType, OppholdÅrsak.DISKRIMINATOR)) {
             return OppholdÅrsak.fraKode(årsak);
         }
-        if (Objects.equals(årsakType, UtsettelseÅrsak.KODEVERK)) {
+        if (Objects.equals(årsakType, UtsettelseÅrsak.DISKRIMINATOR)) {
             return UtsettelseÅrsak.fraKode(årsak);
         }
-        if (Objects.equals(årsakType, OverføringÅrsak.KODEVERK)) {
+        if (Objects.equals(årsakType, OverføringÅrsak.DISKRIMINATOR)) {
             return OverføringÅrsak.fraKode(årsak);
         }
         return Årsak.UKJENT;

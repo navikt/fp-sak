@@ -8,7 +8,6 @@ import java.util.Objects;
 import java.util.Optional;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
-import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeType;
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
 import no.nav.foreldrepenger.xmlutils.DateUtil;
 import no.nav.vedtak.felles.xml.felles.v2.BooleanOpplysning;
@@ -89,7 +88,7 @@ public class VedtakXmlUtil {
         var kodeverksOpplysning = fellesObjectFactory.createKodeverksOpplysning();
         kodeverksOpplysning.setKode(kodeverdi.getKode());
         kodeverksOpplysning.setValue(kodeverdi.getNavn());
-        kodeverksOpplysning.setKodeverk(kodeverdi.getKodeverk());
+        kodeverksOpplysning.setKodeverk(kodeverdi.getClass().getSimpleName());
         return kodeverksOpplysning;
     }
 
@@ -122,7 +121,7 @@ public class VedtakXmlUtil {
         var kodeverksOpplysning = fellesObjectFactory.createKodeverksOpplysning();
         kodeverksOpplysning.setValue(aksjonspunktDefinisjon.getNavn());
         kodeverksOpplysning.setKode(aksjonspunktDefinisjon.getKode());
-        kodeverksOpplysning.setKodeverk(AksjonspunktDefinisjon.KODEVERK);
+        kodeverksOpplysning.setKodeverk("AKSJONSPUNKT_DEF");
         return kodeverksOpplysning;
     }
 
@@ -131,7 +130,7 @@ public class VedtakXmlUtil {
         // Annet er fjernet fra enum
         kodeverksOpplysning.setKode("ANNET");
         kodeverksOpplysning.setValue("Andre typer som f.eks utsettelse");
-        kodeverksOpplysning.setKodeverk(UttakPeriodeType.KODEVERK);
+        kodeverksOpplysning.setKodeverk("UTTAK_PERIODE_TYPE");
         return kodeverksOpplysning;
     }
 }

@@ -88,6 +88,7 @@ import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto.BehandlingMe
 import no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.fakta.FaktaUttakPeriodeDtoTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.vedtak.OppgaverRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.verge.VergeRestTjeneste;
+import no.nav.foreldrepenger.web.app.tjenester.behandling.vilkår.VilkårDtoMapper;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.ytelsefordeling.YtelsefordelingRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.brev.BrevRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.dokument.DokumentRestTjeneste;
@@ -173,15 +174,10 @@ public class BehandlingDtoTjeneste {
             .flatMap(behandlingRepository::hentSisteYtelsesBehandlingForFagsakId);
     }
 
-    private UtvidetBehandlingDto lagBehandlingDto(Behandling behandling,
-                                           Optional<BehandlingsresultatDto> behandlingsresultatDto) {
-        var dto = new UtvidetBehandlingDto();
-        var uuidDto = new UuidDto(behandling.getUuid());
-        BehandlingDtoUtil.setStandardfelter(behandling, getBehandlingsresultat(behandling.getId()), dto);
-        dto.setSpråkkode(getSpråkkode(behandling));
-        dto.setBehandlingsresultat(behandlingsresultatDto.orElse(null));
-        getVenteÅrsak(behandling).ifPresent(dto::setVenteÅrsakKode);
+    private UtvidetBehandlingDto lagBehandlingDto(Behandling behandling) {
+        var dto = lagUtvidetBehandlingDtoMedStandardFelter(behandling);
 
+        var uuidDto = new UuidDto(behandling.getUuid());
         if (behandling.erYtelseBehandling()) {
             dto.leggTil(get(PersonRestTjeneste.PERSONOVERSIKT_PATH, "behandling-personoversikt", uuidDto));
         }
@@ -197,12 +193,32 @@ public class BehandlingDtoTjeneste {
         return dto;
     }
 
-    private static Optional<String> getVenteÅrsak(Behandling behandling) {
-        var venteårsak = behandling.getVenteårsak();
-        if (venteårsak != null) {
-            return Optional.of(venteårsak.getKode());
-        }
-        return Optional.empty();
+    private UtvidetBehandlingDto lagUtvidetBehandlingDtoMedStandardFelter(Behandling behandling) {
+        var behandlingsresultat = getBehandlingsresultat(behandling.getId());
+        var behandlingsresultatDto = lagBehandlingsresultatDto(behandling, behandlingsresultat).orElse(null);
+        var venteÅrsakKode = behandling.getVenteårsak();
+        var språkkode = getSpråkkode(behandling);
+
+        var dto = new UtvidetBehandlingDto();
+        dto.setUuid(behandling.getUuid());
+        dto.setId(behandling.getId());
+        dto.setOpprettet(behandling.getOpprettetTidspunkt());
+        dto.setVersjon(behandling.getVersjon());
+        dto.setType(behandling.getType());
+        dto.setStatus(behandling.getStatus());
+        dto.setBehandlendeEnhetId(behandling.getBehandlendeOrganisasjonsEnhet().enhetId());
+        dto.setBehandlendeEnhetNavn(behandling.getBehandlendeOrganisasjonsEnhet().enhetNavn());
+        dto.setAktivPapirsøknad(BehandlingDtoUtil.erAktivPapirsøknad(behandling));
+        dto.setBehandlingPåVent(behandling.isBehandlingPåVent());
+        dto.setBehandlingHenlagt(BehandlingDtoUtil.getBehandlingsResultatType(behandlingsresultat).erHenlagt());
+        BehandlingDtoUtil.getFristDatoBehandlingPåVent(behandling).ifPresent(dto::setFristBehandlingPåVent);
+        dto.setBehandlingÅrsaker(BehandlingDtoUtil.lagBehandlingÅrsakDto(behandling));
+        dto.setVilkår(!BehandlingDtoUtil.erAktivPapirsøknad(behandling) ? VilkårDtoMapper.lagVilkarDto(behandling, behandlingsresultat) : List.of());
+        dto.setSpråkkode(språkkode);
+        dto.setBehandlingsresultat(behandlingsresultatDto);
+        dto.setVenteÅrsakKode(venteÅrsakKode);
+
+        return dto;
     }
 
     private Språkkode getSpråkkode(Behandling behandling) {
@@ -221,10 +237,7 @@ public class BehandlingDtoTjeneste {
         if (behandlinger.isEmpty()) {
             return Collections.emptyList();
         }
-        return behandlinger.stream().map(behandling -> {
-            var behandlingsresultatDto = lagBehandlingsresultatDto(behandling);
-            return lagBehandlingDto(behandling, behandlingsresultatDto);
-        }).toList();
+        return behandlinger.stream().map(this::lagBehandlingDto).toList();
     }
 
     public UtvidetBehandlingDto lagUtvidetBehandlingDto(Behandling behandling, AsyncPollingStatus asyncStatus) {
@@ -233,13 +246,6 @@ public class BehandlingDtoTjeneste {
             dto.setAsyncStatus(asyncStatus);
         }
         return dto;
-    }
-
-    private void settStandardfelterUtvidet(Behandling behandling, UtvidetBehandlingDto dto) {
-        BehandlingDtoUtil.settStandardfelterUtvidet(behandling, getBehandlingsresultat(behandling.getId()), dto);
-        dto.setSpråkkode(getSpråkkode(behandling));
-        var behandlingsresultatDto = lagBehandlingsresultatDto(behandling);
-        dto.setBehandlingsresultat(behandlingsresultatDto.orElse(null));
     }
 
     private void leggTilLenkerForBehandlingsoperasjoner(Behandling behandling, UtvidetBehandlingDto dto) {
@@ -277,14 +283,14 @@ public class BehandlingDtoTjeneste {
     }
 
     private UtvidetBehandlingDto mapFra(Behandling behandling) {
-        var dto = new UtvidetBehandlingDto();
-        settStandardfelterUtvidet(behandling, dto);
+        var dto = lagUtvidetBehandlingDtoMedStandardFelter(behandling);
 
         leggTilLenkerForBehandlingsoperasjoner(behandling, dto);
 
         var uuidDto = new UuidDto(behandling.getUuid());
         dto.leggTil(get(AksjonspunktRestTjeneste.AKSJONSPUNKT_V2_PATH, "aksjonspunkter", uuidDto));
-        var aksjonspunkt = AksjonspunktDtoMapper.lagAksjonspunktDto(behandling, getBehandlingsresultat(behandling.getId()),
+        var behandlingsresultat = getBehandlingsresultat(behandling.getId());
+        var aksjonspunkt = AksjonspunktDtoMapper.lagAksjonspunktDto(behandling, behandlingsresultat,
             totrinnTjeneste.hentTotrinnaksjonspunktvurderinger(behandling.getId()));
         dto.setAksjonspunkt(aksjonspunkt);
 
@@ -476,8 +482,7 @@ public class BehandlingDtoTjeneste {
             .anyMatch(ap -> ap.erOpprettet() || ap.erUtført());
     }
 
-    private Optional<BehandlingsresultatDto> lagBehandlingsresultatDto(Behandling behandling) {
-        var behandlingsresultat = getBehandlingsresultat(behandling.getId());
+    private Optional<BehandlingsresultatDto> lagBehandlingsresultatDto(Behandling behandling, Behandlingsresultat behandlingsresultat) {
         if (behandlingsresultat == null) {
             return Optional.empty();
         }

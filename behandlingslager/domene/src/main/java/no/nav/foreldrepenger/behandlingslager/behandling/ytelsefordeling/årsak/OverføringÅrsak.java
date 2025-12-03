@@ -21,6 +21,8 @@ public enum OverføringÅrsak implements Årsak {
 
     public static final String KODEVERK = "OVERFOERING_AARSAK_TYPE";
 
+    public static final String DISKRIMINATOR = "OVERFOERING_AARSAK_TYPE";
+
     static {
         for (var v : values()) {
             if (KODER.putIfAbsent(v.kode, v) != null) {
@@ -66,6 +68,11 @@ public enum OverføringÅrsak implements Årsak {
     @Override
     public String getKode() {
         return kode;
+    }
+
+    @Override
+    public String getDiskriminator() {
+        return DISKRIMINATOR;
     }
 
     @Converter(autoApply = true)
