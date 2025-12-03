@@ -290,7 +290,7 @@ class SøknadMapperTest {
         var oppholdsperiode = YtelseSøknadMapper.mapOppholdsperioder(List.of(oppholdDto));
         assertThat(oppholdsperiode).hasSize(1);
         assertThat(oppholdsperiode.get(0).getAarsak().getKode()).isEqualTo(oppholdDto.getÅrsak().getKode());
-        assertThat(oppholdsperiode.get(0).getAarsak().getKodeverk()).isEqualTo(OppholdÅrsak.KODEVERK);
+        assertThat(oppholdsperiode.get(0).getAarsak().getKodeverk()).isEqualTo(OppholdÅrsak.DISKRIMINATOR);
         assertThat(oppholdsperiode.get(0).getFom()).isEqualTo(oppholdDto.getPeriodeFom());
         assertThat(oppholdsperiode.get(0).getTom()).isEqualTo(oppholdDto.getPeriodeTom());
     }

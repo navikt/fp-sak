@@ -119,7 +119,7 @@ public class SøknadMapperFelles {
         }
         var spraakkode = new Spraakkode();
         spraakkode.setKode(språkkode.getKode());
-        spraakkode.setKodeverk(Språkkode.KODEVERK);
+        spraakkode.setKodeverk("SPRAAK_KODE");
         return spraakkode;
     }
 
