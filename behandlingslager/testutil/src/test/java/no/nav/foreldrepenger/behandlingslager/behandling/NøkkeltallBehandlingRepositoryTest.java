@@ -61,19 +61,6 @@ class NøkkeltallBehandlingRepositoryTest {
     }
 
     @Test
-    void skalRapportereFristUtløper() {
-        var søknad = ScenarioMorSøkerForeldrepenger.forFødsel()
-            .medBehandlendeEnhet("4833")
-            .medDefaultFordeling(LocalDate.now().plusDays(20))
-            .leggTilAksjonspunkt(AksjonspunktDefinisjon.AUTO_MANUELT_SATT_PÅ_VENT, BehandlingStegType.INNHENT_PERSONOPPLYSNINGER);
-        søknad.lagre(repositoryProvider);
-        var forventetNøkkeltallBehandlingVentestatus = forventetFrist(søknad);
-        var nøkkeltall = nøkkeltallBehandlingRepository.hentNøkkeltallVentefristUtløper();
-        var resultat = antallTreff(nøkkeltall, forventetNøkkeltallBehandlingVentestatus);
-        assertThat(resultat).isPositive();
-    }
-
-    @Test
     void skalRapportereFristUtløperUke() {
         var søknad = ScenarioMorSøkerForeldrepenger.forFødsel()
             .medBehandlendeEnhet("4833")
@@ -86,21 +73,13 @@ class NøkkeltallBehandlingRepositoryTest {
         assertThat(resultat).isPositive();
     }
 
-    private NøkkeltallBehandlingVentefristUtløper forventetFrist(ScenarioMorSøkerForeldrepenger søknad) {
-        var forventetEnhet = søknad.getBehandling().getBehandlendeEnhet();
-        var forventetFrist = søknad.getBehandling().getAksjonspunkter().stream().findFirst().map(Aksjonspunkt::getFristTid).orElseThrow().toLocalDate();
-        var forventetYtelseType = søknad.getFagsak().getYtelseType();
-        return new NøkkeltallBehandlingVentefristUtløper(forventetEnhet, forventetYtelseType, forventetFrist,
-            Year.from(forventetFrist) + "-" + forventetFrist.get(ChronoField.ALIGNED_WEEK_OF_YEAR), 1L);
-    }
-
     private NøkkeltallBehandlingVentefristUtløper forventetFristUke(ScenarioMorSøkerForeldrepenger søknad) {
         var forventetEnhet = søknad.getBehandling().getBehandlendeEnhet();
         var forventetFrist = søknad.getBehandling().getAksjonspunkter().stream().findFirst()
             .map(Aksjonspunkt::getFristTid).orElseThrow()
             .toLocalDate().with(DayOfWeek.MONDAY);
         var forventetYtelseType = søknad.getFagsak().getYtelseType();
-        return new NøkkeltallBehandlingVentefristUtløper(forventetEnhet, forventetYtelseType, forventetFrist,
+        return new NøkkeltallBehandlingVentefristUtløper(forventetEnhet, forventetYtelseType,
             Year.from(forventetFrist) + "-" + forventetFrist.get(ChronoField.ALIGNED_WEEK_OF_YEAR), 1L);
     }
 
@@ -120,7 +99,6 @@ class NøkkeltallBehandlingRepositoryTest {
         return nøkkeltallInitiell.stream()
             .filter(i -> Objects.equals(i.behandlendeEnhet(), forventet.behandlendeEnhet()))
             .filter(i -> Objects.equals(i.fagsakYtelseType(), forventet.fagsakYtelseType()))
-            .filter(i -> Objects.equals(i.behandlingFrist(), forventet.behandlingFrist()))
             .mapToLong(NøkkeltallBehandlingVentefristUtløper::antall)
             .sum();
     }
