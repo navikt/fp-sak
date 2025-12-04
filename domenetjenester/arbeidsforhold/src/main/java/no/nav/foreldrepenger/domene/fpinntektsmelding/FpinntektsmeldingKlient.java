@@ -58,7 +58,6 @@ public class FpinntektsmeldingKlient {
     public void overstyrInntektsmelding(OverstyrInntektsmeldingRequest overstyrInntektsmeldingRequest) {
         Objects.requireNonNull(overstyrInntektsmeldingRequest, REQUEST);
         try {
-            LOG.info("Overstyrer inntektsmelding for arbeidsgiver {}", overstyrInntektsmeldingRequest.arbeidsgiverIdent().ident());
             var request = RestRequest.newPOSTJson(overstyrInntektsmeldingRequest, uriOverstyrInntektsmelding, restConfig);
             restClient.send(request, String.class);
         } catch (Exception e) {
