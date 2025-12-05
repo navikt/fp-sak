@@ -30,7 +30,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultatRepository;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Landkoder;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Region;
-import no.nav.foreldrepenger.behandlingslager.testutilities.aktør.FiktiveFnr;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
 import no.nav.foreldrepenger.behandlingsprosess.prosessering.BehandlingProsesseringTjeneste;
 import no.nav.foreldrepenger.dbstoette.CdiDbAwareTest;
@@ -184,7 +183,7 @@ class MedlemDtoTjenesteTest {
 
     private MedlemDtoTjeneste dtoTjeneste(AktørId aktørId) {
         var personinfoAdapter = mock(PersoninfoAdapter.class);
-        when(personinfoAdapter.hentFnr(aktørId)).thenReturn(Optional.of(new PersonIdent(new FiktiveFnr().nesteKvinneFnr())));
+        when(personinfoAdapter.hentFnr(aktørId)).thenReturn(Optional.of(PersonIdent.randomMor()));
         var utleder = new AvklarMedlemskapUtleder(new MedlemRegelGrunnlagBygger(medlemTjeneste, poTjeneste, medlemVurderingPeriodeTjeneste,
             iayTjeneste, satsRepository, stpTjeneste, personinfoAdapter));
         return new MedlemDtoTjeneste(repositoryProvider, stpTjeneste, medlemTjeneste, poTjeneste, utleder,

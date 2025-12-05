@@ -23,7 +23,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.Avklart
 import no.nav.foreldrepenger.behandlingslager.fagsak.Dekningsgrad;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Landkoder;
-import no.nav.foreldrepenger.behandlingslager.testutilities.aktør.FiktiveFnr;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioFarSøkerForeldrepenger;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
 import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
@@ -40,7 +39,7 @@ class KobleSakerTjenesteTest extends EntityManagerAwareTest {
     private static final AktørId FAR_AKTØR_ID = AktørId.dummy();
 
     private static final AktørId BARN_AKTØR_ID = AktørId.dummy();
-    private static final PersonIdent BARN_IDENT = new PersonIdent(new FiktiveFnr().nesteBarnFnr());
+    private static final PersonIdent BARN_IDENT = PersonIdent.randomBarn();
     private static FødtBarnInfo BARN_FBI;
     private static final LocalDate ELDRE_BARN_FØDT = LocalDate.of(2006, 6, 6);
     private static final LocalDate BARN_FØDT = LocalDate.of(2018, 3, 3);

@@ -28,7 +28,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.Relasj
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
-import no.nav.foreldrepenger.behandlingslager.testutilities.aktør.FiktiveFnr;
 import no.nav.foreldrepenger.behandlingslager.testutilities.aktør.NavBrukerBuilder;
 import no.nav.foreldrepenger.behandlingslager.testutilities.fagsak.FagsakBuilder;
 import no.nav.foreldrepenger.behandlingsprosess.prosessering.ProsesseringAsynkTjeneste;
@@ -43,7 +42,7 @@ import no.nav.vedtak.mapper.json.DefaultJsonMapper;
 @ExtendWith(MockitoExtension.class)
 class FagsakTjenesteTest {
 
-    private static final String FNR = new FiktiveFnr().nesteFnr();
+    private static final PersonIdent FNR = PersonIdent.randomVoksen();
     private static final AktørId AKTØR_ID = AktørId.dummy();
     private static final Saksnummer SAKSNUMMER = new Saksnummer("0123");
 
@@ -78,7 +77,7 @@ class FagsakTjenesteTest {
     @Test
     void skal_hente_saker_på_fnr() {
         var navBruker = new NavBrukerBuilder().medAktørId(AKTØR_ID).build();
-        when(personinfoAdapter.hentAktørForFnr(new PersonIdent(FNR))).thenReturn(Optional.of(AKTØR_ID));
+        when(personinfoAdapter.hentAktørForFnr(FNR)).thenReturn(Optional.of(AKTØR_ID));
 
         var fagsak = FagsakBuilder.nyEngangstønad(RelasjonsRolleType.MORA).medBruker(navBruker).medSaksnummer(SAKSNUMMER).build();
         fagsak.setId(-1L);
@@ -91,7 +90,7 @@ class FagsakTjenesteTest {
                 .thenReturn(Optional.of(Behandling.forFørstegangssøknad(fagsak).build()));
         when(hendelseTjeneste.finnAggregat(any())).thenReturn(Optional.of(grunnlag));
 
-        var view = tjeneste.søkFagsakDto(FNR);
+        var view = tjeneste.søkFagsakDto(FNR.getIdent());
 
         assertThat(view).hasSize(1);
         assertThat(view.get(0).saksnummer()).isEqualTo(fagsak.getSaksnummer().getVerdi());
@@ -138,9 +137,9 @@ class FagsakTjenesteTest {
 
     @Test
     void skal_returnere_tomt_view_ved_ukjent_fnr() {
-        when(personinfoAdapter.hentAktørForFnr(new PersonIdent(FNR))).thenReturn(Optional.empty());
+        when(personinfoAdapter.hentAktørForFnr(FNR)).thenReturn(Optional.empty());
 
-        var view = tjeneste.søkFagsakDto(FNR);
+        var view = tjeneste.søkFagsakDto(FNR.getIdent());
 
         assertThat(view).isEmpty();
     }

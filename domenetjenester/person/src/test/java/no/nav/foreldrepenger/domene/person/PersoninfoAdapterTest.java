@@ -26,7 +26,6 @@ import no.nav.foreldrepenger.behandlingslager.aktør.NavBrukerKjønn;
 import no.nav.foreldrepenger.behandlingslager.aktør.Personinfo;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
-import no.nav.foreldrepenger.behandlingslager.testutilities.aktør.FiktiveFnr;
 import no.nav.foreldrepenger.domene.person.pdl.AktørTjeneste;
 import no.nav.foreldrepenger.domene.person.pdl.FødselTjeneste;
 import no.nav.foreldrepenger.domene.person.pdl.PersonBasisTjeneste;
@@ -54,8 +53,8 @@ class PersoninfoAdapterTest {
     private static final AktørId AKTØR_ID_SØKER = AktørId.dummy();
     private static final AktørId AKTØR_ID_BARN = AktørId.dummy();
 
-    private static final PersonIdent FNR_SØKER = new PersonIdent(new FiktiveFnr().nesteKvinneFnr());
-    private static final PersonIdent FNR_BARN = new PersonIdent(new FiktiveFnr().nesteBarnFnr());
+    private static final PersonIdent FNR_SØKER = PersonIdent.randomMor();
+    private static final PersonIdent FNR_BARN = PersonIdent.randomBarn();
 
     private Personinfo mockPersoninfo;
 

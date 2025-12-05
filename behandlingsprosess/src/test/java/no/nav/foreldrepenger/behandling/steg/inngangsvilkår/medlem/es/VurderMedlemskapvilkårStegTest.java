@@ -32,7 +32,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallType;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Landkoder;
-import no.nav.foreldrepenger.behandlingslager.testutilities.aktør.FiktiveFnr;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.AbstractTestScenario;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerEngangsstønad;
 import no.nav.foreldrepenger.dbstoette.CdiDbAwareTest;
@@ -161,7 +160,7 @@ class VurderMedlemskapvilkårStegTest {
     private InngangsvilkårFellesTjeneste forutgåendeTjeneste() {
         var medlemRegelGrunnlagBygger = new MedlemRegelGrunnlagBygger(medlemTjeneste, personopplysningTjeneste, medlemskapVurderingPeriodeTjeneste,
             inntektArbeidYtelseTjeneste, satsRepo, stpTjeneste, personinfoAdapter);
-        when(personinfoAdapter.hentFnr(any())).thenReturn(Optional.of(new PersonIdent(new FiktiveFnr().nesteKvinneFnr())));
+        when(personinfoAdapter.hentFnr(any())).thenReturn(Optional.of(PersonIdent.randomMor()));
         var inngangsvilkårMedlemskap = new InngangsvilkårMedlemskapForutgående(new AvklarMedlemskapUtleder(medlemRegelGrunnlagBygger));
         var inngangsvilkårFellesTjeneste = new InngangsvilkårFellesTjeneste(new RegelOrkestrerer(new InngangsvilkårTjeneste(
             new UnitTestLookupInstanceImpl<>(inngangsvilkårMedlemskap), repositoryProvider)));
@@ -187,7 +186,7 @@ class VurderMedlemskapvilkårStegTest {
 
         var medlemRegelGrunnlagBygger = new MedlemRegelGrunnlagBygger(medlemTjeneste, personopplysningTjeneste, medlemskapVurderingPeriodeTjeneste,
             inntektArbeidYtelseTjeneste, satsRepo, stpTjeneste, personinfoAdapter);
-        when(personinfoAdapter.hentFnr(any())).thenReturn(Optional.of(new PersonIdent(new FiktiveFnr().nesteKvinneFnr())));
+        when(personinfoAdapter.hentFnr(any())).thenReturn(Optional.of(PersonIdent.randomMor()));
         var inngangsvilkårMedlemskap = new InngangsvilkårMedlemskap(new AvklarMedlemskapUtleder(medlemRegelGrunnlagBygger));
         var inngangsvilkårFellesTjeneste = new InngangsvilkårFellesTjeneste(new RegelOrkestrerer(new InngangsvilkårTjeneste(
             new UnitTestLookupInstanceImpl<>(inngangsvilkårMedlemskap), repositoryProvider)));
