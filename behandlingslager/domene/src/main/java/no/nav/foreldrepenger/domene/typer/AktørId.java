@@ -103,7 +103,7 @@ public class AktørId implements Serializable, Comparable<AktørId>, IndexKey {
         return "*".repeat(length - 4) + aktørId.substring(length - 4);
     }
 
-    private static AtomicLong DUMMY_AKTØRID = new AtomicLong(1000000000000L);
+    private static final AtomicLong DUMMY_AKTØRID = new AtomicLong(1000000000000L);
 
     /** Genererer dummy aktørid unikt for test. */
     public static AktørId dummy( ) {

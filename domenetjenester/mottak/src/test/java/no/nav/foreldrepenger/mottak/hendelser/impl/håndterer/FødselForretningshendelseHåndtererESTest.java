@@ -27,7 +27,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.EngangsstønadBeregningRepository;
 import no.nav.foreldrepenger.behandlingslager.hendelser.ForretningshendelseType;
-import no.nav.foreldrepenger.behandlingslager.testutilities.aktør.FiktiveFnr;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerEngangsstønad;
 import no.nav.foreldrepenger.behandlingsprosess.prosessering.BehandlingProsesseringTjeneste;
 import no.nav.foreldrepenger.domene.person.PersoninfoAdapter;
@@ -114,7 +113,7 @@ class FødselForretningshendelseHåndtererESTest {
     }
 
     private FødtBarnInfo.Builder lagBarn(LocalDate fødselsdato) {
-        return new FødtBarnInfo.Builder().medIdent(new PersonIdent(new FiktiveFnr().nesteBarnFnr())).medFødselsdato(fødselsdato);
+        return new FødtBarnInfo.Builder().medIdent(PersonIdent.randomBarn()).medFødselsdato(fødselsdato);
     }
 
     @Test

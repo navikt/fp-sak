@@ -9,7 +9,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
-import no.nav.foreldrepenger.behandlingslager.testutilities.aktør.FiktiveFnr;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.PersonIdent;
 import no.nav.pdl.IdentGruppe;
@@ -24,7 +23,7 @@ class AktørTjenesteTest {
     private Persondata pdlMock = Mockito.mock(Persondata.class);
 
     private final AktørId aktørId = AktørId.dummy();
-    private final PersonIdent fnr = new PersonIdent(new FiktiveFnr().nesteKvinneFnr());
+    private final PersonIdent fnr = PersonIdent.randomMor();
 
     @BeforeEach
     void setup() {
