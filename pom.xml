@@ -32,7 +32,7 @@
         <beregning.version>6.1.6</beregning.version>
         <fp-uttak.version>15.5.2</fp-uttak.version>
         <fp-stonadskonto.version>2.1.1</fp-stonadskonto.version>
-        <svp-uttak.version>2.4.5</svp-uttak.version>
+        <svp-uttak.version>2.4.6</svp-uttak.version>
         <fp-ytelse-beregn.version>1.0.4</fp-ytelse-beregn.version>
 
         <felles.version>7.6.11</felles.version>
