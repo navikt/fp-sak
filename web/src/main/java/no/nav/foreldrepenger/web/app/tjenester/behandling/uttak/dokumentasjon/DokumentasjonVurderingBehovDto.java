@@ -68,7 +68,7 @@ public record DokumentasjonVurderingBehovDto(@NotNull LocalDate fom, @NotNull Lo
     }
 
     record AktivitetskravGrunnlagArbeid(@NotNull @Pattern(regexp = InputValideringRegex.ARBEIDSGIVER) String orgNummer,
-                                        @NotNull @DecimalMin("0.00") @DecimalMax("100.00") BigDecimal stillingsprosent,
+                                        @NotNull @DecimalMin("0.00") @DecimalMax("2000.00") BigDecimal stillingsprosent,
                                         @NotNull @Valid Permisjon permisjon) {
         static AktivitetskravGrunnlagArbeid from(AktivitetskravArbeidPeriodeEntitet e) {
             var stilling = Optional.ofNullable(e.getSumStillingsprosent()).map(Stillingsprosent::getVerdi).orElse(BigDecimal.ZERO);
@@ -78,7 +78,7 @@ public record DokumentasjonVurderingBehovDto(@NotNull LocalDate fom, @NotNull Lo
         }
     }
 
-    private record Permisjon(@NotNull @DecimalMin("0.00") @DecimalMax("100.00") BigDecimal prosent,
+    private record Permisjon(@NotNull @DecimalMin("0.00") @DecimalMax("2000.00") BigDecimal prosent,
                              @NotNull @ValidKodeverk AktivitetskravPermisjonType type) {
 
     }
