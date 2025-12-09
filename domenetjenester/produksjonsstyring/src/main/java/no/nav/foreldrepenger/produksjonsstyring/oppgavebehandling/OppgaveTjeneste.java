@@ -199,6 +199,7 @@ public class OppgaveTjeneste {
 
     public void ferdigstillOppgave(String oppgaveId) {
         try {
+            LOG.info("FPSAK GOSYS ferdigstiller oppgave {}", oppgaveId);
             avslutt(oppgaveId);
         } catch (Exception e) {
             LOG.warn("Kunne ikke ferdigstille oppgave med id {}", oppgaveId, e);
