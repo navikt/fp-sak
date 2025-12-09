@@ -13,7 +13,7 @@ import java.util.List;
 import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseType;
-import no.nav.foreldrepenger.behandlingslager.testutilities.aktør.FiktiveFnr;
+import no.nav.foreldrepenger.domene.typer.PersonIdent;
 import no.nav.foreldrepenger.web.app.tjenester.registrering.dto.AnnenForelderDto;
 import no.nav.foreldrepenger.web.app.tjenester.registrering.dto.OmsorgDto;
 import no.nav.foreldrepenger.web.app.tjenester.registrering.dto.UtenlandsoppholdDto;
@@ -408,7 +408,7 @@ class ManuellRegistreringFellesValidatorTest {
         assertThat(feltFeil.get().getMelding()).as("Fødselsnummer til annen forelder er påkrevd").isEqualTo(PAAKREVD_FELT);
         assertThat(feltFeil.get().getNavn()).isEqualTo(forventetFeltnavn);
 
-        annenForelderDto.setFødselsnummer(new FiktiveFnr().nesteMannFnr());
+        annenForelderDto.setFødselsnummer(PersonIdent.randomFar().getIdent());
         feltFeil = ManuellRegistreringFellesValidator.validerAnnenForelderFødselsnummer(registreringDto);
         assertThat(feltFeil).as("Fødselsnummer til annen forelder er påkrevd og fylt ut").isNotPresent();
 
