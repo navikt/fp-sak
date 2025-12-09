@@ -9,9 +9,6 @@ import java.util.Map;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
 import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.SvpGrunnlagEntitet;
@@ -28,7 +25,6 @@ import no.nav.svangerskapspenger.tjeneste.fastsettuttak.SvpOppholdÅrsak;
 @ApplicationScoped
 public class OppholdTjeneste {
     private InntektsmeldingTjeneste inntektsmeldingTjeneste;
-    private static final Logger LOG = LoggerFactory.getLogger(OppholdTjeneste.class);
 
     @Inject
     public OppholdTjeneste(InntektsmeldingTjeneste inntektsmeldingTjeneste) {
@@ -48,18 +44,10 @@ public class OppholdTjeneste {
             //henter ferie- eller sykepenger-opphold registrert av saksbehandler
             var oppholdListeFraTIlr = hentOppholdListeFraTilrettelegging(tilrettelegging);
             List<Opphold> alleOppholdForArbeidsforhold = new ArrayList<>(oppholdListeFraTIlr);
-
-            LOG.info("OppholdAnalyse: alleOppholdForArbeidsforhold fra tilrettelegging: {}, antall: {}", tilrettelegging,alleOppholdForArbeidsforhold.size());
-            alleOppholdForArbeidsforhold.forEach(opphold -> LOG.info("OppholdAnalyse - fradato {},tildato {}, årsak {}",opphold.getFom(), opphold.getTom(), opphold.getÅrsak()));
             //henter ferier fra inntektsmelding meldt av arbeidsgiver
             tilrettelegging.getArbeidsgiver().ifPresent( arbeidsgiver -> {
                 var oppholdListeArbeidsforholdFraInntektsmelding = finnOppholdFraIMForArbeidsgiver(behandlingRef, stp, arbeidsgiver, tilrettelegging.getInternArbeidsforholdRef().orElse(InternArbeidsforholdRef.nullRef()));
-                LOG.info("Opphold fra Inntektsmelding for arbeidsforhold {}", arbeidsgiver);
-                oppholdListeArbeidsforholdFraInntektsmelding.forEach(oppholdIm -> LOG.info("OppholdAnalyse - fradato {}, tildato {}, årsak {}",oppholdIm.getFom(), oppholdIm.getTom(), oppholdIm.getÅrsak()));
-
                 alleOppholdForArbeidsforhold.addAll(oppholdListeArbeidsforholdFraInntektsmelding);
-
-                LOG.info("OppholdAnalyse: alleOppholdForArbeidsforhold antall etter Inntektsmelding: {}", alleOppholdForArbeidsforhold.size());
             });
             oppholdForAlleArbeidsforholdMap.put(arbeidsforhold, alleOppholdForArbeidsforhold);
         });
