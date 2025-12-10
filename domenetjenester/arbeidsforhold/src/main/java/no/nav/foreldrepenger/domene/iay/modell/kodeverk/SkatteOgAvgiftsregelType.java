@@ -29,8 +29,6 @@ public enum SkatteOgAvgiftsregelType implements Kodeverdi {
 
     private static final Map<String, SkatteOgAvgiftsregelType> KODER = new LinkedHashMap<>();
 
-    public static final String KODEVERK = "SKATTE_OG_AVGIFTSREGEL";
-
     static {
         for (var v : values()) {
             if (KODER.putIfAbsent(v.kode, v) != null) {
@@ -61,24 +59,14 @@ public enum SkatteOgAvgiftsregelType implements Kodeverdi {
         return ad;
     }
 
-    public static Map<String, SkatteOgAvgiftsregelType> kodeMap() {
-        return Collections.unmodifiableMap(KODER);
-    }
-
     @Override
     public String getNavn() {
         return navn;
     }
 
     @Override
-    public String getKodeverk() {
-        return KODEVERK;
-    }
-
-    @Override
     public String getKode() {
         return kode;
     }
-
 
 }

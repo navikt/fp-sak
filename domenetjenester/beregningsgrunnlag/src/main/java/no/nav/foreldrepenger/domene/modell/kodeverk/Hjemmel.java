@@ -26,8 +26,6 @@ public enum Hjemmel implements Kodeverdi {
 
     private static final Map<String, Hjemmel> KODER = new LinkedHashMap<>();
 
-    public static final String KODEVERK = "BG_HJEMMEL";
-
     static {
         for (var v : values()) {
             if (KODER.putIfAbsent(v.kode, v) != null) {
@@ -35,7 +33,6 @@ public enum Hjemmel implements Kodeverdi {
             }
         }
     }
-
 
     private final String navn;
     @JsonValue
@@ -57,24 +54,14 @@ public enum Hjemmel implements Kodeverdi {
         return ad;
     }
 
-    public static Map<String, Hjemmel> kodeMap() {
-        return Collections.unmodifiableMap(KODER);
-    }
-
     @Override
     public String getNavn() {
         return navn;
     }
 
     @Override
-    public String getKodeverk() {
-        return KODEVERK;
-    }
-
-    @Override
     public String getKode() {
         return kode;
     }
-
 
 }

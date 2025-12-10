@@ -21,8 +21,6 @@ public enum InnsynResultatType implements Kodeverdi {
 
     private static final Map<String, InnsynResultatType> KODER = new LinkedHashMap<>();
 
-    public static final String KODEVERK = "INNSYN_RESULTAT_TYPE";
-
     static {
         for (var v : values()) {
             if (KODER.putIfAbsent(v.kode, v) != null) {
@@ -41,18 +39,9 @@ public enum InnsynResultatType implements Kodeverdi {
         this.navn = navn;
     }
 
-    public static Map<String, InnsynResultatType> kodeMap() {
-        return Collections.unmodifiableMap(KODER);
-    }
-
     @Override
     public String getNavn() {
         return navn;
-    }
-
-    @Override
-    public String getKodeverk() {
-        return KODEVERK;
     }
 
     @Override

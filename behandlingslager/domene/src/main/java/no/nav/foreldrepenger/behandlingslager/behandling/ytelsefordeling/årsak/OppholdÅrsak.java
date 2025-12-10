@@ -9,7 +9,6 @@ import jakarta.persistence.Converter;
 
 import com.fasterxml.jackson.annotation.JsonValue;
 
-
 public enum OppholdÅrsak implements Årsak {
 
     UDEFINERT(STANDARDKODE_UDEFINERT, "Ikke satt eller valgt kode"),
@@ -19,8 +18,6 @@ public enum OppholdÅrsak implements Årsak {
     KVOTE_FORELDREPENGER_ANNEN_FORELDER("UTTAK_FORELDREPENGER_ANNEN_FORELDER", "Annen forelder har uttak av Foreldrepenger"),
     ;
     private static final Map<String, OppholdÅrsak> KODER = new LinkedHashMap<>();
-
-    public static final String KODEVERK = "OPPHOLD_AARSAK_TYPE";
 
     public static final String DISKRIMINATOR = "OPPHOLD_AARSAK_TYPE";
 
@@ -52,18 +49,10 @@ public enum OppholdÅrsak implements Årsak {
         }
         return ad;
     }
-    public static Map<String, OppholdÅrsak> kodeMap() {
-        return Collections.unmodifiableMap(KODER);
-    }
 
     @Override
     public String getNavn() {
         return navn;
-    }
-
-    @Override
-    public String getKodeverk() {
-        return KODEVERK;
     }
 
     @Override

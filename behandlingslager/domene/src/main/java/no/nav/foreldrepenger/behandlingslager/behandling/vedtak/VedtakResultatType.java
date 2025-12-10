@@ -25,8 +25,6 @@ public enum VedtakResultatType implements Kodeverdi {
 
     private static final Map<String, VedtakResultatType> KODER = new LinkedHashMap<>();
 
-    public static final String KODEVERK = "VEDTAK_RESULTAT_TYPE";
-
     private final String navn;
 
     @JsonValue
@@ -37,18 +35,9 @@ public enum VedtakResultatType implements Kodeverdi {
         this.navn = navn;
     }
 
-    public static Map<String, VedtakResultatType> kodeMap() {
-        return Collections.unmodifiableMap(KODER);
-    }
-
     @Override
     public String getNavn() {
         return navn;
-    }
-
-    @Override
-    public String getKodeverk() {
-        return KODEVERK;
     }
 
     @Override

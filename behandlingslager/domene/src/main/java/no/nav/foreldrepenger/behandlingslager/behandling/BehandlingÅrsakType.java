@@ -78,7 +78,6 @@ public enum BehandlingÅrsakType implements Kodeverdi {
     // Skille klageområder
     KLAGE_TILBAKEBETALING("KLAGE_TILBAKE", "Tilbakebetaling"),
 
-
     // UTGÅTT. men ikke slett - BehandlingÅrsak-tabellen er rensket og ikke bruk disse som nye behandlingsårsaker!
     // Det ligger en hel del i historikk-innslag (inntil evt konvertert) og de brukes til vise tekst frontend.
     // OPPLYSNINGER_OM_YTELSER brukes til å lage nye historikkinnslag - de øvrige er historiske
@@ -99,8 +98,6 @@ public enum BehandlingÅrsakType implements Kodeverdi {
     UDEFINERT(STANDARDKODE_UDEFINERT, "Ikke definert"),
 
     ;
-
-    public static final String KODEVERK = "BEHANDLING_AARSAK";
 
     private static final Set<BehandlingÅrsakType> SPESIELLE_BEHANDLINGER = Set.of(BehandlingÅrsakType.BERØRT_BEHANDLING,
         BehandlingÅrsakType.REBEREGN_FERIEPENGER, BehandlingÅrsakType.RE_UTSATT_START);
@@ -128,18 +125,9 @@ public enum BehandlingÅrsakType implements Kodeverdi {
         return ad;
     }
 
-    public static Map<String, BehandlingÅrsakType> kodeMap() {
-        return Collections.unmodifiableMap(KODER);
-    }
-
     @Override
     public String getNavn() {
         return navn;
-    }
-
-    @Override
-    public String getKodeverk() {
-        return KODEVERK;
     }
 
     @Override

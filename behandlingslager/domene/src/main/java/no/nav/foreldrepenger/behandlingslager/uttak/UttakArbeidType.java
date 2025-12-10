@@ -11,7 +11,6 @@ import com.fasterxml.jackson.annotation.JsonValue;
 
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
 
-
 public enum UttakArbeidType implements Kodeverdi {
 
     ORDINÆRT_ARBEID("ORDINÆRT_ARBEID", "Ordinært arbeid"),
@@ -20,8 +19,6 @@ public enum UttakArbeidType implements Kodeverdi {
     ANNET("ANNET", "Annet"),
     ;
     private static final Map<String, UttakArbeidType> KODER = new LinkedHashMap<>();
-
-    public static final String KODEVERK = "UTTAK_ARBEID_TYPE";
 
     static {
         for (var v : values()) {
@@ -41,18 +38,9 @@ public enum UttakArbeidType implements Kodeverdi {
         this.navn = navn;
     }
 
-    public static Map<String, UttakArbeidType> kodeMap() {
-        return Collections.unmodifiableMap(KODER);
-    }
-
     @Override
     public String getNavn() {
         return navn;
-    }
-
-    @Override
-    public String getKodeverk() {
-        return KODEVERK;
     }
 
     @Override

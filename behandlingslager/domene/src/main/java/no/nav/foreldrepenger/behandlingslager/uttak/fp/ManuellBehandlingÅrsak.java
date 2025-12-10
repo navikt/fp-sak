@@ -11,7 +11,6 @@ import com.fasterxml.jackson.annotation.JsonValue;
 
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
 
-
 public enum ManuellBehandlingÅrsak implements Kodeverdi {
 
     UKJENT(STANDARDKODE_UDEFINERT, "Ikke definert"),
@@ -42,8 +41,6 @@ public enum ManuellBehandlingÅrsak implements Kodeverdi {
 
     private static final Map<String, ManuellBehandlingÅrsak> KODER = new LinkedHashMap<>();
 
-    public static final String KODEVERK = "MANUELL_BEHANDLING_AARSAK";
-
     static {
         for (var v : values()) {
             if (KODER.putIfAbsent(v.kode, v) != null) {
@@ -61,7 +58,6 @@ public enum ManuellBehandlingÅrsak implements Kodeverdi {
         this.navn = navn;
     }
 
-
     public static ManuellBehandlingÅrsak fraKode(String kode) {
         if (kode == null) {
             return null;
@@ -72,18 +68,9 @@ public enum ManuellBehandlingÅrsak implements Kodeverdi {
         }
         return ad;
     }
-    public static Map<String, ManuellBehandlingÅrsak> kodeMap() {
-        return Collections.unmodifiableMap(KODER);
-    }
-
     @Override
     public String getNavn() {
         return navn;
-    }
-
-    @Override
-    public String getKodeverk() {
-        return KODEVERK;
     }
 
     @Override

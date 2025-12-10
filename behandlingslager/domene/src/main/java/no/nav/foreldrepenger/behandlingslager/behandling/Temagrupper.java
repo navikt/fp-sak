@@ -11,8 +11,6 @@ public enum Temagrupper implements Kodeverdi, MedOffisiellKode {
     UDEFINERT(STANDARDKODE_UDEFINERT, "Udefinert", null),
     ;
 
-    public static final String KODEVERK = "TEMAGRUPPER";
-
     @JsonValue
     private String kode;
 
@@ -24,11 +22,6 @@ public enum Temagrupper implements Kodeverdi, MedOffisiellKode {
         this.kode = kode;
         this.navn = navn;
         this.offisiellKode = offisiellKode;
-    }
-
-    @Override
-    public String getKodeverk() {
-        return KODEVERK;
     }
 
     @Override

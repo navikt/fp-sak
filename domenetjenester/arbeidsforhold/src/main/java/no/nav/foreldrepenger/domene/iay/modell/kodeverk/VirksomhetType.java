@@ -27,8 +27,6 @@ public enum VirksomhetType implements Kodeverdi {
 
     private static final Map<String, VirksomhetType> KODER = new LinkedHashMap<>();
 
-    public static final String KODEVERK = "VIRKSOMHET_TYPE";
-
     static {
         for (var v : values()) {
             if (KODER.putIfAbsent(v.kode, v) != null) {
@@ -62,18 +60,9 @@ public enum VirksomhetType implements Kodeverdi {
         return ad;
     }
 
-    public static Map<String, VirksomhetType> kodeMap() {
-        return Collections.unmodifiableMap(KODER);
-    }
-
     @Override
     public String getNavn() {
         return navn;
-    }
-
-    @Override
-    public String getKodeverk() {
-        return KODEVERK;
     }
 
     @Override

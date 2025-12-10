@@ -18,7 +18,6 @@ public enum NavBrukerKjønn implements Kodeverdi {
     UDEFINERT(STANDARDKODE_UDEFINERT, "Ikke definert"),
     ;
 
-    public static final String KODEVERK = "BRUKER_KJOENN";
     private static final Map<String, NavBrukerKjønn> KODER = new LinkedHashMap<>();
 
     static {
@@ -39,10 +38,6 @@ public enum NavBrukerKjønn implements Kodeverdi {
         this.navn = navn;
     }
 
-    public static Map<String, NavBrukerKjønn> kodeMap() {
-        return Collections.unmodifiableMap(KODER);
-    }
-
     @Override
     public String getNavn() {
         return navn;
@@ -51,11 +46,6 @@ public enum NavBrukerKjønn implements Kodeverdi {
     @Override
     public String getKode() {
         return kode;
-    }
-
-    @Override
-    public String getKodeverk() {
-        return KODEVERK;
     }
 
     @Converter(autoApply = true)

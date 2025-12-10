@@ -27,8 +27,6 @@ public enum MedlemskapManuellVurderingType implements Kodeverdi {
 
     private static final Map<String, MedlemskapManuellVurderingType> KODER = new LinkedHashMap<>();
 
-    public static final String KODEVERK = "MEDLEMSKAP_MANUELL_VURD";
-
     @JsonIgnore
     private final String navn;
 
@@ -51,10 +49,6 @@ public enum MedlemskapManuellVurderingType implements Kodeverdi {
         return ad;
     }
 
-    public static Map<String, MedlemskapManuellVurderingType> kodeMap() {
-        return Collections.unmodifiableMap(KODER);
-    }
-
     @Override
     public String getNavn() {
         return navn;
@@ -62,11 +56,6 @@ public enum MedlemskapManuellVurderingType implements Kodeverdi {
 
     public boolean visesPåKlient() {
         return GUI.contains(this);
-    }
-
-    @Override
-    public String getKodeverk() {
-        return KODEVERK;
     }
 
     @Override

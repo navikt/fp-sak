@@ -13,7 +13,6 @@ public enum OppgaveType implements Kodeverdi {
     VUR_KONSEKVENS("VUR_KONSEKVENS", "Vurder konsekvens for ytelse"),
     VUR_DOKUMENT("VUR_DOKUMENT", "Vurder dokument");
 
-    public static final String KODEVERK = "OPPGAVE_TYPE";
     private static final Map<String, OppgaveType> KODER = new LinkedHashMap<>();
 
     static {
@@ -34,18 +33,9 @@ public enum OppgaveType implements Kodeverdi {
         this.navn = navn;
     }
 
-    public static Map<String, OppgaveType> kodeMap() {
-        return Collections.unmodifiableMap(KODER);
-    }
-
     @Override
     public String getNavn() {
         return navn;
-    }
-
-    @Override
-    public String getKodeverk() {
-        return KODEVERK;
     }
 
     @Override

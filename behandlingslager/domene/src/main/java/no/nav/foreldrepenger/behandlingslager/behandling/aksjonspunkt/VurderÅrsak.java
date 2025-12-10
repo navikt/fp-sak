@@ -26,7 +26,6 @@ public enum VurderÅrsak implements Kodeverdi {
     ;
 
     private static final Map<String, VurderÅrsak> KODER = new LinkedHashMap<>();
-    public static final String KODEVERK = "VURDER_AARSAK";
 
     static {
         for (var v : values()) {
@@ -57,10 +56,6 @@ public enum VurderÅrsak implements Kodeverdi {
         return ad;
     }
 
-    public static Map<String, VurderÅrsak> kodeMap() {
-        return Collections.unmodifiableMap(KODER);
-    }
-
     @Override
     public String getNavn() {
         return navn;
@@ -69,11 +64,6 @@ public enum VurderÅrsak implements Kodeverdi {
     @Override
     public String getKode() {
         return kode;
-    }
-
-    @Override
-    public String getKodeverk() {
-        return KODEVERK;
     }
 
     @Converter(autoApply = true)

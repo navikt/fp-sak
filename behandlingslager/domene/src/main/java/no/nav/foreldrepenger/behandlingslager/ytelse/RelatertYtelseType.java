@@ -38,8 +38,6 @@ public enum RelatertYtelseType implements Kodeverdi {
 
     private static final Map<String, RelatertYtelseType> KODER = new LinkedHashMap<>();
 
-    public static final String KODEVERK = "RELATERT_YTELSE_TYPE";
-
     static {
         for (var v : values()) {
             if (KODER.putIfAbsent(v.kode, v) != null) {
@@ -63,11 +61,6 @@ public enum RelatertYtelseType implements Kodeverdi {
     }
 
     @Override
-    public String getKodeverk() {
-        return KODEVERK;
-    }
-
-    @Override
     public String getKode() {
         return kode;
     }
@@ -79,6 +72,5 @@ public enum RelatertYtelseType implements Kodeverdi {
         }
         return OPPTJENING_RELATERTYTELSE_FELLES.contains(this) || relatertYtelseTypeSet.contains(this);
     }
-
 
 }

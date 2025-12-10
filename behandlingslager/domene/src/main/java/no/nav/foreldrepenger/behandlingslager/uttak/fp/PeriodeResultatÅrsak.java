@@ -106,7 +106,6 @@ public enum PeriodeResultatÅrsak implements Kodeverdi {
     MSP_INNVILGET_FØRSTE_6_UKENE("2039", "14-09-6", "§ 14-9 sjette ledd: Innvilget første 6 uker etter fødsel", of(UTTAK), Set.of(MØDREKVOTE), null,
         of(MOR)),
 
-
     // Regel ikke oppfylt, resultat = avslått
     IKKE_STØNADSDAGER_IGJEN("4002", "14-09", "§ 14-9: Ikke stønadsdager igjen på stønadskonto", of(UTTAK)),
     MOR_HAR_IKKE_OMSORG("4003", "14-10-4", "§ 14-10 fjerde ledd: Mor har ikke omsorg", of(UTTAK), null, null, of(MOR)),
@@ -263,9 +262,6 @@ public enum PeriodeResultatÅrsak implements Kodeverdi {
 
     private static final Map<String, PeriodeResultatÅrsak> KODER = new LinkedHashMap<>();
 
-    public static final String KODEVERK = "PERIODE_RESULTAT_AARSAK";
-
-
     static {
         for (var v : values()) {
             if (KODER.putIfAbsent(v.kode, v) != null) {
@@ -352,18 +348,9 @@ public enum PeriodeResultatÅrsak implements Kodeverdi {
         return ad;
     }
 
-    public static Map<String, PeriodeResultatÅrsak> kodeMap() {
-        return Collections.unmodifiableMap(KODER);
-    }
-
     @Override
     public String getNavn() {
         return navn;
-    }
-
-    @Override
-    public String getKodeverk() {
-        return KODEVERK;
     }
 
     @Override

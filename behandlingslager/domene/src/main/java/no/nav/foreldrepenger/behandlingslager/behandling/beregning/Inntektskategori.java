@@ -12,7 +12,6 @@ import com.fasterxml.jackson.annotation.JsonValue;
 
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
 
-
 public enum Inntektskategori implements Kodeverdi {
 
     ARBEIDSTAKER("ARBEIDSTAKER", "Arbeidstaker"),
@@ -29,8 +28,6 @@ public enum Inntektskategori implements Kodeverdi {
     ;
     private static final Map<String, Inntektskategori> KODER = new LinkedHashMap<>();
     private static final Set<Inntektskategori> GIR_FERIEPENGER = Set.of(ARBEIDSTAKER, SJØMANN);
-
-    public static final String KODEVERK = "INNTEKTSKATEGORI";
 
     static {
         for (var v : values()) {
@@ -50,11 +47,6 @@ public enum Inntektskategori implements Kodeverdi {
         this.navn = navn;
     }
 
-
-    public static Map<String, Inntektskategori> kodeMap() {
-        return Collections.unmodifiableMap(KODER);
-    }
-
     public static Set<Inntektskategori> girFeriepenger() {
         return GIR_FERIEPENGER;
     }
@@ -62,11 +54,6 @@ public enum Inntektskategori implements Kodeverdi {
     @Override
     public String getNavn() {
         return navn;
-    }
-
-    @Override
-    public String getKodeverk() {
-        return KODEVERK;
     }
 
     @Override

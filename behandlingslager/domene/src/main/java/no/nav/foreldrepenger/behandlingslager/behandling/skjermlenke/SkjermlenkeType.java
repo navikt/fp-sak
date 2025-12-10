@@ -64,10 +64,6 @@ public enum SkjermlenkeType implements Kodeverdi {
 
     private static final Map<String, SkjermlenkeType> KODER = new LinkedHashMap<>();
 
-    public static final String KODEVERK = "SKJERMLENKE_TYPE";
-
-
-
     static {
         for (var v : values()) {
             if (KODER.putIfAbsent(v.kode, v) != null) {
@@ -96,10 +92,6 @@ public enum SkjermlenkeType implements Kodeverdi {
         return ad;
     }
 
-    public static Map<String, SkjermlenkeType> kodeMap() {
-        return Collections.unmodifiableMap(KODER);
-    }
-
     @Override
     public String getNavn() {
         return navn;
@@ -108,11 +100,6 @@ public enum SkjermlenkeType implements Kodeverdi {
     @Override
     public String getKode() {
         return kode;
-    }
-
-    @Override
-    public String getKodeverk() {
-        return KODEVERK;
     }
 
     public static boolean totrinnsSkjermlenke(SkjermlenkeType skjermlenkeType) {
@@ -131,7 +118,6 @@ public enum SkjermlenkeType implements Kodeverdi {
         return aksjonspunktDefinisjon.getSkjermlenkeType();
     }
 
-
     public static SkjermlenkeType getSkjermlenkeTypeForMottattStotte(Behandlingsresultat behandlingsresultat) {
         var vilkårType = Optional.ofNullable(behandlingsresultat)
             .map(Behandlingsresultat::getVilkårResultat)
@@ -148,7 +134,6 @@ public enum SkjermlenkeType implements Kodeverdi {
         }
         return SkjermlenkeType.UDEFINERT;
     }
-
 
     @Converter(autoApply = true)
     public static class KodeverdiConverter implements AttributeConverter<SkjermlenkeType, String> {

@@ -26,8 +26,6 @@ public enum SammenligningsgrunnlagType implements Kodeverdi {
 
     private static final Map<String, SammenligningsgrunnlagType> KODER = new LinkedHashMap<>();
 
-    public static final String KODEVERK = "SAMMENLIGNINGSGRUNNLAG_TYPE";
-
     static {
         for (var v : values()) {
             if (KODER.putIfAbsent(v.kode, v) != null) {
@@ -57,18 +55,9 @@ public enum SammenligningsgrunnlagType implements Kodeverdi {
         return ad;
     }
 
-    public static Map<String, SammenligningsgrunnlagType> kodeMap() {
-        return Collections.unmodifiableMap(KODER);
-    }
-
     @Override
     public String getNavn() {
         return navn;
-    }
-
-    @Override
-    public String getKodeverk() {
-        return KODEVERK;
     }
 
     @Override

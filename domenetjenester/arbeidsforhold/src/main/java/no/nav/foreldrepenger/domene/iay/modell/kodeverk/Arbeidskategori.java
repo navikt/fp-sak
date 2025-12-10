@@ -30,8 +30,6 @@ public enum Arbeidskategori implements Kodeverdi {
 
     private static final Map<String, Arbeidskategori> KODER = new LinkedHashMap<>();
 
-    public static final String KODEVERK = "ARBEIDSKATEGORI";
-
     static {
         for (var v : values()) {
             if (KODER.putIfAbsent(v.kode, v) != null) {
@@ -60,18 +58,9 @@ public enum Arbeidskategori implements Kodeverdi {
         return ad;
     }
 
-    public static Map<String, Arbeidskategori> kodeMap() {
-        return Collections.unmodifiableMap(KODER);
-    }
-
     @Override
     public String getNavn() {
         return navn;
-    }
-
-    @Override
-    public String getKodeverk() {
-        return KODEVERK;
     }
 
     @Override

@@ -97,10 +97,6 @@ public enum DokumentMalType implements Kodeverdi {
         return kode;
     }
 
-    @Override
-    public String getKodeverk() {
-        return "DOKUMENT_MAL_TYPE";
-    }
 
     @Override
     public String getNavn() {

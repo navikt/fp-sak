@@ -51,8 +51,6 @@ public enum OmsorgsovertakelseVilkårType implements Kodeverdi {
 
     private static final Map<String, OmsorgsovertakelseVilkårType> KODER = new LinkedHashMap<>();
 
-    public static final String KODEVERK = "OMSORGSOVERTAKELSE_VILKAR";
-
     private final String navn;
 
     private final Set<Avslagsårsak> avslagsårsaker;
@@ -66,18 +64,9 @@ public enum OmsorgsovertakelseVilkårType implements Kodeverdi {
         this.avslagsårsaker = Set.of(avslagsårsaker);
     }
 
-    public static Map<String, OmsorgsovertakelseVilkårType> kodeMap() {
-        return Collections.unmodifiableMap(KODER);
-    }
-
     @Override
     public String getNavn() {
         return navn;
-    }
-
-    @Override
-    public String getKodeverk() {
-        return KODEVERK;
     }
 
     @Override

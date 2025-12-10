@@ -19,8 +19,6 @@ public enum OverføringÅrsak implements Årsak {
     ;
     private static final Map<String, OverføringÅrsak> KODER = new LinkedHashMap<>();
 
-    public static final String KODEVERK = "OVERFOERING_AARSAK_TYPE";
-
     public static final String DISKRIMINATOR = "OVERFOERING_AARSAK_TYPE";
 
     static {
@@ -51,18 +49,10 @@ public enum OverføringÅrsak implements Årsak {
         }
         return ad;
     }
-    public static Map<String, OverføringÅrsak> kodeMap() {
-        return Collections.unmodifiableMap(KODER);
-    }
 
     @Override
     public String getNavn() {
         return navn;
-    }
-
-    @Override
-    public String getKodeverk() {
-        return KODEVERK;
     }
 
     @Override

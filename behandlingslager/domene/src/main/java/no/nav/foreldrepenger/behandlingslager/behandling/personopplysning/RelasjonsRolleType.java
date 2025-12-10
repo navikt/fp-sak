@@ -30,8 +30,6 @@ public enum RelasjonsRolleType implements Kodeverdi {
 
     private static final Map<String, RelasjonsRolleType> KODER = new LinkedHashMap<>();
 
-    public static final String KODEVERK = "RELASJONSROLLE_TYPE";
-
     private static final Set<RelasjonsRolleType> FORELDRE_ROLLER = Set.of(RelasjonsRolleType.MORA, RelasjonsRolleType.FARA, RelasjonsRolleType.MEDMOR);
 
     static {
@@ -41,7 +39,6 @@ public enum RelasjonsRolleType implements Kodeverdi {
             }
         }
     }
-
 
     private String navn;
     @JsonValue
@@ -57,18 +54,9 @@ public enum RelasjonsRolleType implements Kodeverdi {
             .orElseThrow(() -> new IllegalArgumentException("Ukjent RelasjonsRolleType: " + kode));
     }
 
-    public static Map<String, RelasjonsRolleType> kodeMap() {
-        return Collections.unmodifiableMap(KODER);
-    }
-
     @Override
     public String getNavn() {
         return navn;
-    }
-
-    @Override
-    public String getKodeverk() {
-        return KODEVERK;
     }
 
     @Override

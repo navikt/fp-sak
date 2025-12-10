@@ -12,7 +12,6 @@ import com.fasterxml.jackson.annotation.JsonValue;
 
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
 
-
 public enum UttakPeriodeType implements Kodeverdi {
 
     FELLESPERIODE("FELLESPERIODE", "Fellesperioden"),
@@ -23,8 +22,6 @@ public enum UttakPeriodeType implements Kodeverdi {
     UDEFINERT(STANDARDKODE_UDEFINERT, "Ikke satt eller valgt kode"),
     ;
     private static final Map<String, UttakPeriodeType> KODER = new LinkedHashMap<>();
-
-    public static final String KODEVERK = "UTTAK_PERIODE_TYPE";
 
     static {
         for (var v : values()) {
@@ -54,18 +51,9 @@ public enum UttakPeriodeType implements Kodeverdi {
         }
         return ad;
     }
-    public static Map<String, UttakPeriodeType> kodeMap() {
-        return Collections.unmodifiableMap(KODER);
-    }
-
     @Override
     public String getNavn() {
         return navn;
-    }
-
-    @Override
-    public String getKodeverk() {
-        return KODEVERK;
     }
 
     @Override

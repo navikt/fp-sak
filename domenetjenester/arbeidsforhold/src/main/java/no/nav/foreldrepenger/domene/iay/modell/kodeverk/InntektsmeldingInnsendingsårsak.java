@@ -17,8 +17,6 @@ public enum InntektsmeldingInnsendingsårsak implements Kodeverdi {
 
     private static final Map<String, InntektsmeldingInnsendingsårsak> KODER = new LinkedHashMap<>();
 
-    public static final String KODEVERK = "INNTEKTSMELDING_INNSENDINGSAARSAK";
-
     static {
         for (var v : values()) {
             if (KODER.putIfAbsent(v.kode, v) != null) {
@@ -48,18 +46,9 @@ public enum InntektsmeldingInnsendingsårsak implements Kodeverdi {
         return ad;
     }
 
-    public static Map<String, InntektsmeldingInnsendingsårsak> kodeMap() {
-        return Collections.unmodifiableMap(KODER);
-    }
-
     @Override
     public String getNavn() {
         return navn;
-    }
-
-    @Override
-    public String getKodeverk() {
-        return KODEVERK;
     }
 
     @Override

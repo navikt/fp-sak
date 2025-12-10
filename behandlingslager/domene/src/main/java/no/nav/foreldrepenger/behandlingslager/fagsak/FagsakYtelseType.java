@@ -19,8 +19,6 @@ public enum FagsakYtelseType implements Kodeverdi {
     UDEFINERT(STANDARDKODE_UDEFINERT, "Ikke definert"),
     ;
 
-    public static final String KODEVERK = "FAGSAK_YTELSE";
-
     private static final Map<String, FagsakYtelseType> KODER = new LinkedHashMap<>();
 
     static {
@@ -56,18 +54,9 @@ public enum FagsakYtelseType implements Kodeverdi {
         return ad;
     }
 
-    public static Map<String, FagsakYtelseType> kodeMap() {
-        return Collections.unmodifiableMap(KODER);
-    }
-
     @Override
     public String getKode() {
         return kode;
-    }
-
-    @Override
-    public String getKodeverk() {
-        return KODEVERK;
     }
 
     @Override

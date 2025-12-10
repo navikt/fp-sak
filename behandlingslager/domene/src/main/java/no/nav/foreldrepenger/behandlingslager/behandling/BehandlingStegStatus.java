@@ -23,7 +23,6 @@ import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
  */
 public enum BehandlingStegStatus implements Kodeverdi {
 
-
     /** midlertidig intern tilstand når steget startes (etter inngang). */
     STARTET("STARTET", "Steget er startet"),
     INNGANG("INNGANG", "Inngangkriterier er ikke oppfylt"),
@@ -41,8 +40,6 @@ public enum BehandlingStegStatus implements Kodeverdi {
     private static final Set<BehandlingStegStatus> SLUTT_STATUSER = new HashSet<>(Arrays.asList(AVBRUTT, UTFØRT, TILBAKEFØRT));
 
     private static final Map<String, BehandlingStegStatus> KODER = new LinkedHashMap<>();
-
-    public static final String KODEVERK = "BEHANDLING_STEG_STATUS";
 
     private final String navn;
     @JsonValue
@@ -76,15 +73,6 @@ public enum BehandlingStegStatus implements Kodeverdi {
 
     public static boolean erVedUtgang(BehandlingStegStatus stegStatus) {
         return Objects.equals(UTGANG, stegStatus);
-    }
-
-    public static Map<String, BehandlingStegStatus> kodeMap() {
-        return Collections.unmodifiableMap(KODER);
-    }
-
-    @Override
-    public String getKodeverk() {
-        return KODEVERK;
     }
 
     @Override

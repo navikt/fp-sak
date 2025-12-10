@@ -23,8 +23,6 @@ public enum FamilieHendelseType implements Kodeverdi {
 
     private static final Map<String, FamilieHendelseType> KODER = new LinkedHashMap<>();
 
-    public static final String KODEVERK = "FAMILIE_HENDELSE_TYPE";
-
     private final String navn;
 
     @JsonValue
@@ -33,10 +31,6 @@ public enum FamilieHendelseType implements Kodeverdi {
     FamilieHendelseType(String kode, String navn) {
         this.kode = kode;
         this.navn = navn;
-    }
-
-    public static Map<String, FamilieHendelseType> kodeMap() {
-        return Collections.unmodifiableMap(KODER);
     }
 
     @Override
@@ -50,11 +44,6 @@ public enum FamilieHendelseType implements Kodeverdi {
 
     public static boolean gjelderAdopsjon(FamilieHendelseType type) {
         return ADOPSJON.equals(type) || OMSORG.equals(type);
-    }
-
-    @Override
-    public String getKodeverk() {
-        return KODEVERK;
     }
 
     @Override

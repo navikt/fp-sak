@@ -24,8 +24,6 @@ public enum BekreftetPermisjonStatus implements Kodeverdi {
 
     private static final Map<String, BekreftetPermisjonStatus> KODER = new LinkedHashMap<>();
 
-    public static final String KODEVERK = "BEKREFTET_PERMISJON_STATUS";
-
     static {
         for (var v : values()) {
             if (KODER.putIfAbsent(v.kode, v) != null) {
@@ -55,18 +53,9 @@ public enum BekreftetPermisjonStatus implements Kodeverdi {
         return ad;
     }
 
-    public static Map<String, BekreftetPermisjonStatus> kodeMap() {
-        return Collections.unmodifiableMap(KODER);
-    }
-
     @Override
     public String getNavn() {
         return navn;
-    }
-
-    @Override
-    public String getKodeverk() {
-        return KODEVERK;
     }
 
     @Override

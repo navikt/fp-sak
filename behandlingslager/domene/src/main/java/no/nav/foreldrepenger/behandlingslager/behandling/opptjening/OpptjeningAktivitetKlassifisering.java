@@ -22,8 +22,6 @@ public enum OpptjeningAktivitetKlassifisering implements Kodeverdi {
 
     private static final Map<String, OpptjeningAktivitetKlassifisering> KODER = new LinkedHashMap<>();
 
-    public static final String KODEVERK = "OPPTJENING_AKTIVITET_KLASSIFISERING";
-
     static {
         for (var v : values()) {
             if (KODER.putIfAbsent(v.kode, v) != null) {
@@ -42,18 +40,9 @@ public enum OpptjeningAktivitetKlassifisering implements Kodeverdi {
         this.navn = navn;
     }
 
-    public static Map<String, OpptjeningAktivitetKlassifisering> kodeMap() {
-        return Collections.unmodifiableMap(KODER);
-    }
-
     @Override
     public String getNavn() {
         return navn;
-    }
-
-    @Override
-    public String getKodeverk() {
-        return KODEVERK;
     }
 
     @Override

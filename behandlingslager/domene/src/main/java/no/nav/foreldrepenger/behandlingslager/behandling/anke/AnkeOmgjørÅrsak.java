@@ -22,8 +22,6 @@ public enum AnkeOmgjørÅrsak implements Kodeverdi {
 
     private static final Map<String, AnkeOmgjørÅrsak> KODER = new LinkedHashMap<>();
 
-    public static final String KODEVERK = "ANKE_OMGJOER_AARSAK";
-
     static {
         for (var v : values()) {
             if (KODER.putIfAbsent(v.kode, v) != null) {
@@ -42,18 +40,9 @@ public enum AnkeOmgjørÅrsak implements Kodeverdi {
         this.navn = navn;
     }
 
-    public static Map<String, AnkeOmgjørÅrsak> kodeMap() {
-        return Collections.unmodifiableMap(KODER);
-    }
-
     @Override
     public String getNavn() {
         return navn;
-    }
-
-    @Override
-    public String getKodeverk() {
-        return KODEVERK;
     }
 
     @Override

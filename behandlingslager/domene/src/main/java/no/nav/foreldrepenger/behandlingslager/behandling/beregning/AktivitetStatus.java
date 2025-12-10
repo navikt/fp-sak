@@ -20,7 +20,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
 
-
 @JsonAutoDetect(getterVisibility = Visibility.NONE, setterVisibility = Visibility.NONE, fieldVisibility = Visibility.ANY)
 public enum AktivitetStatus implements Kodeverdi {
     ARBEIDSAVKLARINGSPENGER("AAP", "Arbeidsavklaringspenger", Inntektskategori.ARBEIDSAVKLARINGSPENGER),
@@ -40,8 +39,6 @@ public enum AktivitetStatus implements Kodeverdi {
     VENTELØNN_VARTPENGER("VENTELØNN_VARTPENGER", "Ventelønn/Vartpenger", Inntektskategori.UDEFINERT),
 
     UDEFINERT(STANDARDKODE_UDEFINERT, "Ikke definert", Inntektskategori.UDEFINERT);
-
-    public static final String KODEVERK = "AKTIVITET_STATUS";
 
     private static final Map<String, AktivitetStatus> KODER = new LinkedHashMap<>();
 
@@ -79,10 +76,6 @@ public enum AktivitetStatus implements Kodeverdi {
         return ad;
     }
 
-    public static Map<String, AktivitetStatus> kodeMap() {
-        return Collections.unmodifiableMap(KODER);
-    }
-
     private static final Set<AktivitetStatus> AT_STATUSER = new HashSet<>(Arrays.asList(ARBEIDSTAKER,
         KOMBINERT_AT_FL_SN, KOMBINERT_AT_SN, KOMBINERT_AT_FL));
 
@@ -107,12 +100,6 @@ public enum AktivitetStatus implements Kodeverdi {
     @Override
     public String getNavn() {
         return navn;
-    }
-
-    @JsonProperty
-    @Override
-    public String getKodeverk() {
-        return KODEVERK;
     }
 
     @JsonProperty

@@ -23,8 +23,6 @@ public enum InntektPeriodeType implements Kodeverdi {
 
     private static final Map<String, InntektPeriodeType> KODER = new LinkedHashMap<>();
 
-    public static final String KODEVERK = "INNTEKT_PERIODE_TYPE";
-
     static {
         for (var v : values()) {
             if (KODER.putIfAbsent(v.kode, v) != null) {
@@ -56,18 +54,9 @@ public enum InntektPeriodeType implements Kodeverdi {
         return ad;
     }
 
-    public static Map<String, InntektPeriodeType> kodeMap() {
-        return Collections.unmodifiableMap(KODER);
-    }
-
     @Override
     public String getNavn() {
         return navn;
-    }
-
-    @Override
-    public String getKodeverk() {
-        return KODEVERK;
     }
 
     @Override

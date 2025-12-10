@@ -17,7 +17,6 @@ public enum KontrollType implements Kodeverdi {
 
     ;
 
-    private static final String KODEVERK = "ETTERKONTROLL_TYPE";
     private static final Map<String, KontrollType> KODER = new LinkedHashMap<>();
 
     private final String navn;
@@ -30,18 +29,9 @@ public enum KontrollType implements Kodeverdi {
         this.navn = navn;
     }
 
-    public static Map<String, KontrollType> kodeMap() {
-        return Collections.unmodifiableMap(KODER);
-    }
-
     @Override
     public String getNavn() {
         return navn;
-    }
-
-    @Override
-    public String getKodeverk() {
-        return KODEVERK;
     }
 
     @Override

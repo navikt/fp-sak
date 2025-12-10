@@ -13,10 +13,6 @@ public interface Årsak extends Kodeverdi {
             return "Ikke definert";
         }
 
-        @Override
-        public String getKodeverk() {
-            return "AARSAK_TYPE";
-        }
 
         @Override
         public String getKode() {

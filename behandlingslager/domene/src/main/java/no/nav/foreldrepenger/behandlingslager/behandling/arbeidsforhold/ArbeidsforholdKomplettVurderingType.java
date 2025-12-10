@@ -40,7 +40,6 @@ public enum ArbeidsforholdKomplettVurderingType implements Kodeverdi {
 
     UDEFINERT(STANDARDKODE_UDEFINERT, "Ikke definert"),
     ;
-    public static final String KODEVERK = "ARBEIDSFORHOLD_KOMPLETT_VURDERING_TYPE";
 
     private static final Map<String, ArbeidsforholdKomplettVurderingType> KODER = new LinkedHashMap<>();
 
@@ -62,18 +61,9 @@ public enum ArbeidsforholdKomplettVurderingType implements Kodeverdi {
         this.navn = navn;
     }
 
-    public static Map<String, ArbeidsforholdKomplettVurderingType> kodeMap() {
-        return Collections.unmodifiableMap(KODER);
-    }
-
     @Override
     public String getNavn() {
         return navn;
-    }
-
-    @Override
-    public String getKodeverk() {
-        return KODEVERK;
     }
 
     @Override

@@ -17,7 +17,6 @@ public enum BeregningSatsType implements Kodeverdi {
     GSNITT("GSNITT", "Grunnbeløp årsgjennomsnitt"),
     UDEFINERT(STANDARDKODE_UDEFINERT, "Ikke definert"),
     ;
-    public static final String KODEVERK = "SATS_TYPE";
 
     private static final Map<String, BeregningSatsType> KODER = new LinkedHashMap<>();
 
@@ -39,18 +38,9 @@ public enum BeregningSatsType implements Kodeverdi {
         this.navn = navn;
     }
 
-    public static Map<String, BeregningSatsType> kodeMap() {
-        return Collections.unmodifiableMap(KODER);
-    }
-
     @Override
     public String getNavn() {
         return navn;
-    }
-
-    @Override
-    public String getKodeverk() {
-        return KODEVERK;
     }
 
     @Override

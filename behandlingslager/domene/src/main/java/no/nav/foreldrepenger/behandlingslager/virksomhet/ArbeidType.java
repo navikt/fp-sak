@@ -72,8 +72,6 @@ public enum ArbeidType implements Kodeverdi, MedOffisiellKode {
         ArbeidType.MARITIMT_ARBEIDSFORHOLD,
         ArbeidType.FORENKLET_OPPGJØRSORDNING);
 
-    public static final String KODEVERK = "ARBEID_TYPE";
-
     private static final Map<String, ArbeidType> KODER = new LinkedHashMap<>();
 
     static {
@@ -112,10 +110,6 @@ public enum ArbeidType implements Kodeverdi, MedOffisiellKode {
         return ad;
     }
 
-    public static Map<String, ArbeidType> kodeMap() {
-        return Collections.unmodifiableMap(KODER);
-    }
-
     public boolean erAnnenOpptjening() {
         return ANNEN_OPPTJENING.contains(this);
     }
@@ -123,11 +117,6 @@ public enum ArbeidType implements Kodeverdi, MedOffisiellKode {
     @Override
     public String getKode() {
         return kode;
-    }
-
-    @Override
-    public String getKodeverk() {
-        return KODEVERK;
     }
 
     @Override

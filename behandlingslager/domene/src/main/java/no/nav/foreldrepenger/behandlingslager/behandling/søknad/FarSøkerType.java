@@ -20,8 +20,6 @@ public enum FarSøkerType implements Kodeverdi {
     UDEFINERT(STANDARDKODE_UDEFINERT, "Ikke definert"),
     ;
 
-    public static final String KODEVERK = "FAR_SOEKER_TYPE";
-
     private static final Map<String, FarSøkerType> KODER = new LinkedHashMap<>();
 
     static {
@@ -52,10 +50,6 @@ public enum FarSøkerType implements Kodeverdi {
         return ad;
     }
 
-    public static Map<String, FarSøkerType> kodeMap() {
-        return Collections.unmodifiableMap(KODER);
-    }
-
     @Override
     public String getNavn() {
         return navn;
@@ -64,11 +58,6 @@ public enum FarSøkerType implements Kodeverdi {
     @Override
     public String getKode() {
         return kode;
-    }
-
-    @Override
-    public String getKodeverk() {
-        return KODEVERK;
     }
 
     @Converter(autoApply = true)

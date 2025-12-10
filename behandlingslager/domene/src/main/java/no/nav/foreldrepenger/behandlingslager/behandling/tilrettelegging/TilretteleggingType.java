@@ -20,8 +20,6 @@ public enum TilretteleggingType implements Kodeverdi {
 
     private static final Map<String, TilretteleggingType> KODER = new LinkedHashMap<>();
 
-    public static final String KODEVERK = "SVP_TILRETTELEGGING_TYPE";
-
     static {
         for (var v : values()) {
             if (KODER.putIfAbsent(v.kode, v) != null) {
@@ -40,18 +38,9 @@ public enum TilretteleggingType implements Kodeverdi {
         this.navn = navn;
     }
 
-    public static Map<String, TilretteleggingType> kodeMap() {
-        return Collections.unmodifiableMap(KODER);
-    }
-
     @Override
     public String getNavn() {
         return navn;
-    }
-
-    @Override
-    public String getKodeverk() {
-        return KODEVERK;
     }
 
     @Override

@@ -47,7 +47,6 @@ public enum BehandlingStegType implements Kodeverdi {
     VURDER_INNSYN("VURDINNSYN", "Vurder innsynskrav", UTREDES),
     INNHENT_PERSONOPPLYSNINGER("INPER", "Innhent personopplysninger", UTREDES),
 
-
     // Kun for Engangsstønad
     VURDER_SØKNADSFRISTVILKÅR("VURDERSFV", "Vurder felles inngangsvilkår", UTREDES),
 
@@ -100,8 +99,6 @@ public enum BehandlingStegType implements Kodeverdi {
     VULOMED("VULOMED", "Vurder løpende medlemskap", UTREDES), // Gammelt steg fortsatt medlemskap. Håndteres nå som inngangsvilkår
     ;
 
-    static final String KODEVERK = "BEHANDLING_STEG_TYPE";
-
     private static final Map<String, BehandlingStegType> KODER = new LinkedHashMap<>();
 
     static {
@@ -120,7 +117,6 @@ public enum BehandlingStegType implements Kodeverdi {
     private String navn;
 
     private String kode;
-
 
     BehandlingStegType(String kode, String navn, BehandlingStatus definertBehandlingStatus) {
         this.kode = kode;
@@ -155,11 +151,6 @@ public enum BehandlingStegType implements Kodeverdi {
         return navn;
     }
 
-    @Override
-    public String getKodeverk() {
-        return KODEVERK;
-    }
-
     // Denne metoden brukes ifm @QueryParam ved setting av verdi fra kode. For at dette skal være mulig må navnet enten være 'fromString' eller 'valueOf'. 'valueOf' kan ikke overskrives.
     public static BehandlingStegType fromString(String kode) {
         if (kode == null) {
@@ -177,10 +168,6 @@ public enum BehandlingStegType implements Kodeverdi {
         return super.toString() + "('" + getKode() + "')";
     }
 
-    public static Map<String, BehandlingStegType> kodeMap() {
-        return Collections.unmodifiableMap(KODER);
-    }
-
     @Converter(autoApply = true)
     public static class KodeverdiConverter implements AttributeConverter<BehandlingStegType, String> {
         @Override
@@ -193,6 +180,5 @@ public enum BehandlingStegType implements Kodeverdi {
             return dbData == null ? null : BehandlingStegType.fromString(dbData);
         }
     }
-
 
 }

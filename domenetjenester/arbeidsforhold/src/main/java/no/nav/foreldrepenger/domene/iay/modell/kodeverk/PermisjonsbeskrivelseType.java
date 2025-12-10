@@ -32,15 +32,11 @@ public enum PermisjonsbeskrivelseType implements Kodeverdi {
 
     private static final Map<String, PermisjonsbeskrivelseType> KODER = new LinkedHashMap<>();
 
-    public static final String KODEVERK = "PERMISJONSBESKRIVELSE_TYPE";
-
     private static final Set<PermisjonsbeskrivelseType> PERMISJON_IKKE_RELEVANT_FOR_ARBEIDSFORHOLD_ELLER_BEREGNING = Set.of(
         PermisjonsbeskrivelseType.UTDANNINGSPERMISJON,
         PermisjonsbeskrivelseType.UTDANNINGSPERMISJON_IKKE_LOVFESTET,
         PermisjonsbeskrivelseType.UTDANNINGSPERMISJON_LOVFESTET,
         PermisjonsbeskrivelseType.PERMISJON_MED_FORELDREPENGER);
-
-
 
     static {
         for (var v : values()) {
@@ -71,18 +67,9 @@ public enum PermisjonsbeskrivelseType implements Kodeverdi {
         return ad;
     }
 
-    public static Map<String, PermisjonsbeskrivelseType> kodeMap() {
-        return Collections.unmodifiableMap(KODER);
-    }
-
     @Override
     public String getNavn() {
         return navn;
-    }
-
-    @Override
-    public String getKodeverk() {
-        return KODEVERK;
     }
 
     @Override

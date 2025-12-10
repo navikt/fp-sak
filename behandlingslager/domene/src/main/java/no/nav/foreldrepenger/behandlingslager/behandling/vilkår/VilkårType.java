@@ -121,7 +121,6 @@ public enum VilkårType implements Kodeverdi {
     private static final Map<String, VilkårType> KODER = new LinkedHashMap<>();
     private static final Map<VilkårType, Set<Avslagsårsak>> INDEKS_VILKÅR_AVSLAGSÅRSAKER = new LinkedHashMap<>();
     private static final Map<Avslagsårsak, Set<VilkårType>> INDEKS_AVSLAGSÅRSAK_VILKÅR = new LinkedHashMap<>();
-    public static final String KODEVERK = "VILKAR_TYPE";
 
     private Map<FagsakYtelseType, String> lovReferanser = Map.of();
 
@@ -161,10 +160,6 @@ public enum VilkårType implements Kodeverdi {
         return RELASJON_TIL_BARN.contains(this);
     }
 
-    public static Map<String, VilkårType> kodeMap() {
-        return Collections.unmodifiableMap(KODER);
-    }
-
     public Set<Avslagsårsak> getAvslagsårsaker() {
         return avslagsårsaker;
     }
@@ -175,11 +170,6 @@ public enum VilkårType implements Kodeverdi {
 
     public static Set<VilkårType> getVilkårTyper(Avslagsårsak avslagsårsak) {
         return INDEKS_AVSLAGSÅRSAK_VILKÅR.get(avslagsårsak);
-    }
-
-    @Override
-    public String getKodeverk() {
-        return KODEVERK;
     }
 
     @Override

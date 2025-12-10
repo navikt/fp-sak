@@ -277,7 +277,6 @@ public enum Landkoder implements Kodeverdi {
     UDEFINERT(STANDARDKODE_UDEFINERT, "Ikke definert"),
     ;
 
-    public static final String KODEVERK = "LANDKODER";
     private static final Map<String, Landkoder> KODER = new LinkedHashMap<>();
 
     static {
@@ -315,10 +314,6 @@ public enum Landkoder implements Kodeverdi {
         return KODER.getOrDefault(kode, UDEFINERT);
     }
 
-    public static Map<String, Landkoder> kodeMap() {
-        return Collections.unmodifiableMap(KODER);
-    }
-
     @Override
     public String getNavn() {
         return navn;
@@ -327,11 +322,6 @@ public enum Landkoder implements Kodeverdi {
     @Override
     public String getKode() {
         return kode;
-    }
-
-    @Override
-    public String getKodeverk() {
-        return KODEVERK;
     }
 
     public static boolean erNorge(String kode) {

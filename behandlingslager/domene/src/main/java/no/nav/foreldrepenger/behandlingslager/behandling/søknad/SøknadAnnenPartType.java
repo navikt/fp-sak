@@ -23,8 +23,6 @@ public enum SøknadAnnenPartType implements Kodeverdi {
 
     private static final Map<String, SøknadAnnenPartType> KODER = new LinkedHashMap<>();
 
-    public static final String KODEVERK = "SOEKNAD_ANNEN_PART";
-
     static {
         for (var v : values()) {
             if (KODER.putIfAbsent(v.kode, v) != null) {
@@ -42,18 +40,9 @@ public enum SøknadAnnenPartType implements Kodeverdi {
         this.navn = navn;
     }
 
-    public static Map<String, SøknadAnnenPartType> kodeMap() {
-        return Collections.unmodifiableMap(KODER);
-    }
-
     @Override
     public String getNavn() {
         return navn;
-    }
-
-    @Override
-    public String getKodeverk() {
-        return KODEVERK;
     }
 
     @Override

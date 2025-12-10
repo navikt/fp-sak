@@ -26,7 +26,6 @@ public enum Språkkode implements Kodeverdi, MedOffisiellKode {
     UDEFINERT(STANDARDKODE_UDEFINERT, "Ikke definert", null),
     ;
 
-    public static final String KODEVERK = "SPRAAK_KODE";
     private static final Map<String, Språkkode> KODER = new LinkedHashMap<>();
 
     static {
@@ -36,7 +35,6 @@ public enum Språkkode implements Kodeverdi, MedOffisiellKode {
             }
         }
     }
-
 
     private String navn;
 
@@ -51,10 +49,6 @@ public enum Språkkode implements Kodeverdi, MedOffisiellKode {
         this.offisiellKode = offisiellKode;
     }
 
-    public static Map<String, Språkkode> kodeMap() {
-        return Collections.unmodifiableMap(KODER);
-    }
-
     @Override
     public String getNavn() {
         return navn;
@@ -63,11 +57,6 @@ public enum Språkkode implements Kodeverdi, MedOffisiellKode {
     @Override
     public String getKode() {
         return kode;
-    }
-
-    @Override
-    public String getKodeverk() {
-        return KODEVERK;
     }
 
     @Override
@@ -87,7 +76,6 @@ public enum Språkkode implements Kodeverdi, MedOffisiellKode {
             return dbData == null ? null : defaultNorsk(dbData);
         }
     }
-
 
     public static Språkkode finnForKodeverkEiersKode(String offisiellSpråkkode) {
         var kode = offisiellSpråkkode == null ? null : offisiellSpråkkode.toUpperCase();

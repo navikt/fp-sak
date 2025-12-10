@@ -47,8 +47,6 @@ public enum KlageHjemmel implements Kodeverdi {
 
     private static final Map<String, KlageHjemmel> KODER = new LinkedHashMap<>();
 
-    public static final String KODEVERK = "KLAGE_HJEMMEL";
-
     static {
         for (var v : values()) {
             if (KODER.putIfAbsent(v.kode, v) != null) {
@@ -56,7 +54,6 @@ public enum KlageHjemmel implements Kodeverdi {
             }
         }
     }
-
 
     private final String navn;
 
@@ -84,18 +81,9 @@ public enum KlageHjemmel implements Kodeverdi {
         return ad;
     }
 
-    public static Map<String, KlageHjemmel> kodeMap() {
-        return Collections.unmodifiableMap(KODER);
-    }
-
     @Override
     public String getNavn() {
         return navn;
-    }
-
-    @Override
-    public String getKodeverk() {
-        return KODEVERK;
     }
 
     @Override

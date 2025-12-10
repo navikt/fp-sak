@@ -30,7 +30,6 @@ public record DokumentasjonVurdering(Type type, MorsStillingsprosent morsStillin
         return type.erGodkjent();
     }
 
-
     public enum Type implements Kodeverdi {
         ///Både utsettelse
         SYKDOM_SØKER_GODKJENT("SYKDOM_SØKER_GODKJENT", "Søker er syk", true),
@@ -66,8 +65,6 @@ public record DokumentasjonVurdering(Type type, MorsStillingsprosent morsStillin
 
         private static final Map<String, Type> KODER = new LinkedHashMap<>();
 
-        public static final String KODEVERK = "DOKUMENTASJON_VURDERING";
-
         static {
             for (var v : values()) {
                 if (KODER.putIfAbsent(v.kode, v) != null) {
@@ -88,18 +85,9 @@ public record DokumentasjonVurdering(Type type, MorsStillingsprosent morsStillin
             this.godkjent = godkjent;
         }
 
-        public static Map<String, Type> kodeMap() {
-            return Collections.unmodifiableMap(KODER);
-        }
-
         @Override
         public String getNavn() {
             return navn;
-        }
-
-        @Override
-        public String getKodeverk() {
-            return KODEVERK;
         }
 
         @Override

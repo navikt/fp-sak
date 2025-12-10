@@ -100,7 +100,6 @@ public enum DokumentTypeId implements Kodeverdi, MedOffisiellKode {
     I000109("I000109", "Skjema for tilrettelegging og omplassering ved graviditet"),
     MEDISINSK_DOK("I000142", "Medisinsk dokumentasjon"),
 
-
     // Opptjening/beregning/etc
     INNTEKTSOPPLYSNING_SELVSTENDIG("INNTEKTSOPPLYSNING_SELVSTENDIG", "I000007", "Inntektsopplysninger om selvstendig næringsdrivende og/eller frilansere som skal ha foreldrepenger eller svangerskapspenger"),
     DOK_INNTEKT("DOK_INNTEKT", "I000016", "Dokumentasjon av inntekt"),
@@ -122,7 +121,6 @@ public enum DokumentTypeId implements Kodeverdi, MedOffisiellKode {
     I000110("I000110", "Dokumentasjon av aleneomsorg"),
     I000111("I000111", "Dokumentasjon av begrunnelse for hvorfor man søker tilbake i tid"),
     SEN_SØKNAD("I000118", "Begrunnelse for sen søknad"),
-
 
     // Ettersendelse forsider - bør unngås som hoveddokument
     ETTERSENDT_SØKNAD_SVANGERSKAPSPENGER_SELVSTENDIG("ETTERSENDT_SØKNAD_SVANGERSKAPSPENGER_SELVSTENDIG", "I500001",
@@ -151,8 +149,6 @@ public enum DokumentTypeId implements Kodeverdi, MedOffisiellKode {
 
     UDEFINERT(STANDARDKODE_UDEFINERT, "", "Ikke definert"),
     ;
-
-    public static final String KODEVERK = "DOKUMENT_TYPE_ID";
 
     private static final Map<String, DokumentTypeId> KODER = new LinkedHashMap<>();
 
@@ -190,18 +186,9 @@ public enum DokumentTypeId implements Kodeverdi, MedOffisiellKode {
         return KODER.getOrDefault(kode, ANNET);
     }
 
-    public static Map<String, DokumentTypeId> kodeMap() {
-        return Collections.unmodifiableMap(KODER);
-    }
-
     @Override
     public String getNavn() {
         return navn;
-    }
-
-    @Override
-    public String getKodeverk() {
-        return KODEVERK;
     }
 
     @Override
@@ -269,7 +256,6 @@ public enum DokumentTypeId implements Kodeverdi, MedOffisiellKode {
         ETTERSENDT_SØKNAD_FORELDREPENGER_FØDSEL, ETTERSENDT_SØKNAD_FORELDREPENGER_ADOPSJON,
         ETTERSENDT_FORELDREPENGER_ENDRING_SØKNAD, ETTERSENDT_FLEKSIBELT_UTTAK_FORELDREPENGER);
 
-
     public static Set<DokumentTypeId> getSpesialTyperKoder() {
         Set<DokumentTypeId> typer = new LinkedHashSet<>(SØKNAD_TYPER);
         typer.addAll(ENDRING_SØKNAD_TYPER);
@@ -327,8 +313,6 @@ public enum DokumentTypeId implements Kodeverdi, MedOffisiellKode {
         Set.of(I000111, SEN_SØKNAD),
         Set.of(SKATTEMELDING, KOPI_SKATTEMELDING)
     );
-
-
 
     // Ulike titler er brukt i selvbetjening, fordel, sak og kodeverk
     private static final Map<String, DokumentTypeId> ALT_TITLER = Map.ofEntries(

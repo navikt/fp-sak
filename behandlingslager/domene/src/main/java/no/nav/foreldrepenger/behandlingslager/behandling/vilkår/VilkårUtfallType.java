@@ -22,9 +22,6 @@ public enum VilkårUtfallType implements Kodeverdi {
 
     private static final Map<String, VilkårUtfallType> KODER = new LinkedHashMap<>();
 
-    public static final String KODEVERK = "VILKAR_UTFALL_TYPE";
-
-
     private final String navn;
     @JsonValue
     private final String kode;
@@ -34,10 +31,6 @@ public enum VilkårUtfallType implements Kodeverdi {
         this.navn = navn;
     }
 
-    public static Map<String, VilkårUtfallType> kodeMap() {
-        return Collections.unmodifiableMap(KODER);
-    }
-
     public static boolean erFastsatt(VilkårUtfallType type) {
         return OPPFYLT.equals(type) || IKKE_OPPFYLT.equals(type);
     }
@@ -45,12 +38,6 @@ public enum VilkårUtfallType implements Kodeverdi {
     @Override
     public String getNavn() {
         return navn;
-    }
-
-
-    @Override
-    public String getKodeverk() {
-        return KODEVERK;
     }
 
     @Override

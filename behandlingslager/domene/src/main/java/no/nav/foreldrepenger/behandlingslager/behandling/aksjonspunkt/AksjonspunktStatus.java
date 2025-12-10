@@ -15,13 +15,11 @@ import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
 
 public enum AksjonspunktStatus implements Kodeverdi {
 
-
     AVBRUTT ("AVBR", "Avbrutt"),
     OPPRETTET("OPPR", "Opprettet"),
     UTFØRT ("UTFO", "Utført"),
     ;
 
-    public static final String KODEVERK = "AKSJONSPUNKT_STATUS";
     private static final Map<String, AksjonspunktStatus> KODER = new LinkedHashMap<>();
     private static final List<AksjonspunktStatus> ÅPNE_AKSJONSPUNKT_KODER = List.of(OPPRETTET);
 
@@ -46,15 +44,6 @@ public enum AksjonspunktStatus implements Kodeverdi {
     @Override
     public String getKode() {
         return kode;
-    }
-
-    @Override
-    public String getKodeverk() {
-        return KODEVERK;
-    }
-
-    public static Map<String, AksjonspunktStatus> kodeMap() {
-        return Collections.unmodifiableMap(KODER);
     }
 
     @Override
