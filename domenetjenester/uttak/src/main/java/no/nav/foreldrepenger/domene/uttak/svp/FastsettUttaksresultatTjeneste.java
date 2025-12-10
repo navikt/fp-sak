@@ -7,9 +7,6 @@ import java.util.Map;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingsresultatRepository;
 import no.nav.foreldrepenger.behandlingslager.uttak.svp.SvangerskapspengerUttakResultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.svp.SvangerskapspengerUttakResultatRepository;
@@ -29,7 +26,6 @@ public class FastsettUttaksresultatTjeneste {
     private RegelmodellSøknaderMapper regelmodellSøknaderMapper;
     private OppholdTjeneste oppholdTjeneste;
     private final FastsettPerioderTjeneste fastsettPerioderTjeneste = new FastsettPerioderTjeneste();
-    private static final Logger LOG = LoggerFactory.getLogger(FastsettUttaksresultatTjeneste.class);
 
     public FastsettUttaksresultatTjeneste() {
         // For CDI
@@ -56,18 +52,12 @@ public class FastsettUttaksresultatTjeneste {
         var avklarteDatoer = avklarteDatoerTjeneste.finn(input);
         var inngangsvilkår = InngangsvilkårSvpBygger.byggInngangsvilårSvp(behandlingsresultat.getVilkårResultat());
         Map<Arbeidsforhold, List<Opphold>> oppholdListePerArbeidsforholdMap = new HashMap<>();
-        LOG.info("OppholdAnalyse - førsteLovligeUttaksdato: {}", avklarteDatoer.getFørsteLovligeUttaksdato());
         avklarteDatoer.getFørsteLovligeUttaksdato()
             .ifPresent(dato -> {
                 var oppholdListerPerArbeidsforhold = oppholdTjeneste.finnOppholdFraTilretteleggingOgInntektsmelding(input.getBehandlingReferanse(),
                     input.getSkjæringstidspunkt().orElseThrow(), input.getYtelsespesifiktGrunnlag());
-                oppholdListerPerArbeidsforhold.forEach((arbeidsforhold, opphold) -> {
-                    LOG.info("OppholdAnalyse - arbeidsforhold: {}", arbeidsforhold);
-                    opphold.forEach(o -> LOG.info("OppholdAnalyse - opphold - fradato {}, tildato {}, årsak {}",o.getFom(), o.getTom(), o.getÅrsak()));
-                });
                 oppholdListePerArbeidsforholdMap.putAll(oppholdListerPerArbeidsforhold);
             });
-
 
         var uttaksperioder = fastsettPerioderTjeneste.fastsettePerioder(nyeSøknader, avklarteDatoer, inngangsvilkår, oppholdListePerArbeidsforholdMap);
 
