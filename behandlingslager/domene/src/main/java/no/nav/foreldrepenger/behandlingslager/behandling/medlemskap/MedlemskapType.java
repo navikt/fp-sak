@@ -1,6 +1,5 @@
 package no.nav.foreldrepenger.behandlingslager.behandling.medlemskap;
 
-import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 

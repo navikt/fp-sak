@@ -1,6 +1,5 @@
 package no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke;
 
-import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Optional;

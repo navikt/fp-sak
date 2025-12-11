@@ -1,7 +1,6 @@
 package no.nav.foreldrepenger.domene.iay.modell.kodeverk;
 
 import java.time.Period;
-import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 

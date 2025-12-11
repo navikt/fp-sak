@@ -3,7 +3,6 @@ package no.nav.foreldrepenger.behandlingslager.behandling.medlemskap;
 import static java.util.Arrays.asList;
 import static java.util.Collections.unmodifiableList;
 
-import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;

@@ -14,7 +14,6 @@ import static no.nav.foreldrepenger.behandlingslager.uttak.fp.PeriodeResultatÅr
 import static no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakType.UTSETTELSE;
 import static no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakType.UTTAK;
 
-import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;

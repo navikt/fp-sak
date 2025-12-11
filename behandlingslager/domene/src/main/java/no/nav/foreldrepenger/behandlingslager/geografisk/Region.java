@@ -1,6 +1,5 @@
 package no.nav.foreldrepenger.behandlingslager.geografisk;
 
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.Map;
