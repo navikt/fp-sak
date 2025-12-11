@@ -1,6 +1,5 @@
 package no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak;
 
-import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 

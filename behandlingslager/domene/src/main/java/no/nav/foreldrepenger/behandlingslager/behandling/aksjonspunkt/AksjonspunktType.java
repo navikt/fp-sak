@@ -1,6 +1,5 @@
 package no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt;
 
-import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Objects;

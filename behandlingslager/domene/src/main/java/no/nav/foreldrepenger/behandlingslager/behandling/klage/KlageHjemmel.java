@@ -5,7 +5,6 @@ import static no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType.Yte
 import static no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType.YtelseType.SVP;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;

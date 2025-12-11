@@ -3,7 +3,6 @@ package no.nav.foreldrepenger.behandlingslager.behandling;
 import static no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStatus.IVERKSETTER_VEDTAK;
 import static no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStatus.UTREDES;
 
-import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
