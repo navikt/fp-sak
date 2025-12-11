@@ -1,6 +1,5 @@
 package no.nav.foreldrepenger.behandlingslager.kodeverk;
 
-import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -31,8 +30,6 @@ public enum Fagsystem implements Kodeverdi, MedOffisiellKode {
     UDEFINERT(STANDARDKODE_UDEFINERT, "Ikke definert", null),
     ;
 
-    public static final String KODEVERK = "FAGSYSTEM";
-
     private static final Map<String, Fagsystem> KODER = new LinkedHashMap<>();
 
     private final String navn;
@@ -58,10 +55,6 @@ public enum Fagsystem implements Kodeverdi, MedOffisiellKode {
         return ad;
     }
 
-    public static Map<String, Fagsystem> kodeMap() {
-        return Collections.unmodifiableMap(KODER);
-    }
-
     @Override
     public String getNavn() {
         return navn;
@@ -70,11 +63,6 @@ public enum Fagsystem implements Kodeverdi, MedOffisiellKode {
     @Override
     public String getOffisiellKode() {
         return offisiellKode;
-    }
-
-    @Override
-    public String getKodeverk() {
-        return KODEVERK;
     }
 
     @Override

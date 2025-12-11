@@ -1,11 +1,9 @@
 package no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak;
 
-import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
 import com.fasterxml.jackson.annotation.JsonValue;
-
 
 public enum UtsettelseÅrsak implements Årsak {
 
@@ -20,8 +18,6 @@ public enum UtsettelseÅrsak implements Årsak {
     UDEFINERT(STANDARDKODE_UDEFINERT, "Ikke satt eller valgt kode"),
     ;
     private static final Map<String, UtsettelseÅrsak> KODER = new LinkedHashMap<>();
-
-    public static final String KODEVERK = "UTSETTELSE_AARSAK_TYPE";
 
     public static final String DISKRIMINATOR = "UTSETTELSE_AARSAK_TYPE";
 
@@ -53,9 +49,6 @@ public enum UtsettelseÅrsak implements Årsak {
         }
         return ad;
     }
-    public static Map<String, UtsettelseÅrsak> kodeMap() {
-        return Collections.unmodifiableMap(KODER);
-    }
 
     @Override
     public String getNavn() {
@@ -63,20 +56,13 @@ public enum UtsettelseÅrsak implements Årsak {
     }
 
     @Override
-    public String getKodeverk() {
-        return KODEVERK;
-    }
-
-    @Override
     public String getKode() {
         return kode;
     }
-
 
     @Override
     public String getDiskriminator() {
         return DISKRIMINATOR;
     }
-
 
 }

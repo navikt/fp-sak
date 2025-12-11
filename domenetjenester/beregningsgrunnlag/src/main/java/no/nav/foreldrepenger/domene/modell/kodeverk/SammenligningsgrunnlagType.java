@@ -7,7 +7,6 @@ package no.nav.foreldrepenger.domene.modell.kodeverk;
  *
  */
 
-import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -25,8 +24,6 @@ public enum SammenligningsgrunnlagType implements Kodeverdi {
     ;
 
     private static final Map<String, SammenligningsgrunnlagType> KODER = new LinkedHashMap<>();
-
-    public static final String KODEVERK = "SAMMENLIGNINGSGRUNNLAG_TYPE";
 
     static {
         for (var v : values()) {
@@ -57,18 +54,9 @@ public enum SammenligningsgrunnlagType implements Kodeverdi {
         return ad;
     }
 
-    public static Map<String, SammenligningsgrunnlagType> kodeMap() {
-        return Collections.unmodifiableMap(KODER);
-    }
-
     @Override
     public String getNavn() {
         return navn;
-    }
-
-    @Override
-    public String getKodeverk() {
-        return KODEVERK;
     }
 
     @Override

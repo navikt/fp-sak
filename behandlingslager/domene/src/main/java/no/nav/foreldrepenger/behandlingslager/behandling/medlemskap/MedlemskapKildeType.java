@@ -1,6 +1,5 @@
 package no.nav.foreldrepenger.behandlingslager.behandling.medlemskap;
 
-import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -31,8 +30,6 @@ public enum MedlemskapKildeType implements Kodeverdi {
 
     private static final Map<String, MedlemskapKildeType> KODER = new LinkedHashMap<>();
 
-    public static final String KODEVERK = "MEDLEMSKAP_KILDE";
-
     static {
         for (var v : values()) {
             if (KODER.putIfAbsent(v.kode, v) != null) {
@@ -62,18 +59,9 @@ public enum MedlemskapKildeType implements Kodeverdi {
         return ad;
     }
 
-    public static Map<String, MedlemskapKildeType> kodeMap() {
-        return Collections.unmodifiableMap(KODER);
-    }
-
     @Override
     public String getNavn() {
         return navn;
-    }
-
-    @Override
-    public String getKodeverk() {
-        return KODEVERK;
     }
 
     @Override

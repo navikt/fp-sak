@@ -1,6 +1,5 @@
 package no.nav.foreldrepenger.behandlingslager.behandling.søknad;
 
-import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -22,8 +21,6 @@ public enum Innsendingsvalg implements Kodeverdi {
     ;
 
     private static final Map<String, Innsendingsvalg> KODER = new LinkedHashMap<>();
-
-    public static final String KODEVERK = "INNSENDINGSVALG";
 
     static {
         for (var v : values()) {
@@ -53,18 +50,9 @@ public enum Innsendingsvalg implements Kodeverdi {
         return ad;
     }
 
-    public static Map<String, Innsendingsvalg> kodeMap() {
-        return Collections.unmodifiableMap(KODER);
-    }
-
     @Override
     public String getNavn() {
         return navn;
-    }
-
-    @Override
-    public String getKodeverk() {
-        return KODEVERK;
     }
 
     @Override

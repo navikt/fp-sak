@@ -1,6 +1,5 @@
 package no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt;
 
-import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -74,7 +73,6 @@ public enum Venteårsak implements Kodeverdi {
     VENT_ØKONOMI("VENT_ØKONOMI", "Venter på økonomiløsningen"),
 
     ;
-    public static final String KODEVERK = "VENT_AARSAK";
     private static final Map<String, Venteårsak> KODER = new LinkedHashMap<>();
 
     static {
@@ -106,10 +104,6 @@ public enum Venteårsak implements Kodeverdi {
         return ad;
     }
 
-    public static Map<String, Venteårsak> kodeMap() {
-        return Collections.unmodifiableMap(KODER);
-    }
-
     @Override
     public String getNavn() {
         return navn;
@@ -118,11 +112,6 @@ public enum Venteårsak implements Kodeverdi {
     @Override
     public String getKode() {
         return kode;
-    }
-
-    @Override
-    public String getKodeverk() {
-        return KODEVERK;
     }
 
     @Converter(autoApply = true)

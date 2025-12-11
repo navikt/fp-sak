@@ -1,6 +1,5 @@
 package no.nav.foreldrepenger.behandlingslager.uttak.svp;
 
-import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -22,8 +21,6 @@ public enum ArbeidsforholdIkkeOppfyltÅrsak implements Kodeverdi {
     ;
 
     private static final Map<String, ArbeidsforholdIkkeOppfyltÅrsak> KODER = new LinkedHashMap<>();
-
-    public static final String KODEVERK = "SVP_ARBEIDSFORHOLD_IKKE_OPPFYLT_AARSAK";
 
     static {
         for (var v : values()) {
@@ -53,18 +50,9 @@ public enum ArbeidsforholdIkkeOppfyltÅrsak implements Kodeverdi {
         return ad;
     }
 
-    public static Map<String, ArbeidsforholdIkkeOppfyltÅrsak> kodeMap() {
-        return Collections.unmodifiableMap(KODER);
-    }
-
     @Override
     public String getNavn() {
         return navn;
-    }
-
-    @Override
-    public String getKodeverk() {
-        return KODEVERK;
     }
 
     @Override

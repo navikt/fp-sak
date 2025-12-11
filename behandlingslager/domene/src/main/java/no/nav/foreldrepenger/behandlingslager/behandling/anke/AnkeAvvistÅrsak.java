@@ -15,8 +15,6 @@ public enum AnkeAvvistÅrsak implements Kodeverdi {
     UDEFINERT(STANDARDKODE_UDEFINERT, "Udefinert"),
     ;
 
-    public static final String KODEVERK = "ANKE_AVVIST_AARSAK";
-
     private String navn;
 
     @JsonValue
@@ -30,11 +28,6 @@ public enum AnkeAvvistÅrsak implements Kodeverdi {
     @Override
     public String getNavn() {
         return navn;
-    }
-
-    @Override
-    public String getKodeverk() {
-        return KODEVERK;
     }
 
     @Override

@@ -1,6 +1,5 @@
 package no.nav.foreldrepenger.behandlingslager.uttak.fp;
 
-import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -10,7 +9,6 @@ import jakarta.persistence.Converter;
 import com.fasterxml.jackson.annotation.JsonValue;
 
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
-
 
 public enum UttakUtsettelseType implements Kodeverdi {
 
@@ -25,8 +23,6 @@ public enum UttakUtsettelseType implements Kodeverdi {
     UDEFINERT(STANDARDKODE_UDEFINERT, "Ikke satt eller valgt kode"),
     ;
     private static final Map<String, UttakUtsettelseType> KODER = new LinkedHashMap<>();
-
-    public static final String KODEVERK = "UTTAK_UTSETTELSE_TYPE";
 
     static {
         for (var v : values()) {
@@ -46,18 +42,9 @@ public enum UttakUtsettelseType implements Kodeverdi {
         this.navn = navn;
     }
 
-    public static Map<String, UttakUtsettelseType> kodeMap() {
-        return Collections.unmodifiableMap(KODER);
-    }
-
     @Override
     public String getNavn() {
         return navn;
-    }
-
-    @Override
-    public String getKodeverk() {
-        return KODEVERK;
     }
 
     @Override

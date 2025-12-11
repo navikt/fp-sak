@@ -1,6 +1,5 @@
 package no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak;
 
-import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -18,8 +17,6 @@ public enum OverføringÅrsak implements Årsak {
     UDEFINERT(STANDARDKODE_UDEFINERT, "Ikke satt eller valgt kode"),
     ;
     private static final Map<String, OverføringÅrsak> KODER = new LinkedHashMap<>();
-
-    public static final String KODEVERK = "OVERFOERING_AARSAK_TYPE";
 
     public static final String DISKRIMINATOR = "OVERFOERING_AARSAK_TYPE";
 
@@ -51,18 +48,10 @@ public enum OverføringÅrsak implements Årsak {
         }
         return ad;
     }
-    public static Map<String, OverføringÅrsak> kodeMap() {
-        return Collections.unmodifiableMap(KODER);
-    }
 
     @Override
     public String getNavn() {
         return navn;
-    }
-
-    @Override
-    public String getKodeverk() {
-        return KODEVERK;
     }
 
     @Override

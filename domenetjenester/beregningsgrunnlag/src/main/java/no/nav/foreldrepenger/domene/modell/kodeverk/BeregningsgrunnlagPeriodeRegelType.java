@@ -8,7 +8,6 @@ import com.fasterxml.jackson.annotation.JsonValue;
 
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
 
-
 public enum BeregningsgrunnlagPeriodeRegelType implements Kodeverdi {
     FORESLÅ("FORESLÅ", "Foreslå beregningsgrunnlag"),
     FORESLÅ_2("FORESLÅ_2", "Foreslå beregningsgrunnlag del 2"),
@@ -20,7 +19,6 @@ public enum BeregningsgrunnlagPeriodeRegelType implements Kodeverdi {
     FINN_GRENSEVERDI("FINN_GRENSEVERDI", "Finne grenseverdi til kjøring av fastsett beregningsgrunnlag for SVP"),
     UDEFINERT(STANDARDKODE_UDEFINERT, "Ikke definert"),
     ;
-    public static final String KODEVERK = "BG_PERIODE_REGEL_TYPE";
 
     private static final Map<String, BeregningsgrunnlagPeriodeRegelType> KODER = new LinkedHashMap<>();
 
@@ -53,18 +51,9 @@ public enum BeregningsgrunnlagPeriodeRegelType implements Kodeverdi {
         return ad;
     }
 
-    public static Map<String, BeregningsgrunnlagPeriodeRegelType> kodeMap() {
-        return Collections.unmodifiableMap(KODER);
-    }
-
     @Override
     public String getNavn() {
         return navn;
-    }
-
-    @Override
-    public String getKodeverk() {
-        return KODEVERK;
     }
 
     @Override

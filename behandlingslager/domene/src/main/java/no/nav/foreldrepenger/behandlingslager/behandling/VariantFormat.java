@@ -21,7 +21,6 @@ public enum VariantFormat implements Kodeverdi, MedOffisiellKode {
     UDEFINERT(STANDARDKODE_UDEFINERT, "Ikke definert", null),
 
     ;
-    private static final String KODEVERK = "VARIANT_FORMAT";
 
     private String navn;
 
@@ -35,15 +34,9 @@ public enum VariantFormat implements Kodeverdi, MedOffisiellKode {
         this.offisiellKode = offisiellKode;
     }
 
-
     @Override
     public String getNavn() {
         return navn;
-    }
-
-    @Override
-    public String getKodeverk() {
-        return KODEVERK;
     }
 
     @Override

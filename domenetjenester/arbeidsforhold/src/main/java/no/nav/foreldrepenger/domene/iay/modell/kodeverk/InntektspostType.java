@@ -1,6 +1,5 @@
 package no.nav.foreldrepenger.domene.iay.modell.kodeverk;
 
-import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -19,8 +18,6 @@ public enum InntektspostType implements Kodeverdi {
     ;
 
     private static final Map<String, InntektspostType> KODER = new LinkedHashMap<>();
-
-    public static final String KODEVERK = "INNTEKTSPOST_TYPE";
 
     static {
         for (var v : values()) {
@@ -50,24 +47,14 @@ public enum InntektspostType implements Kodeverdi {
         return ad;
     }
 
-    public static Map<String, InntektspostType> kodeMap() {
-        return Collections.unmodifiableMap(KODER);
-    }
-
     @Override
     public String getNavn() {
         return navn;
     }
 
     @Override
-    public String getKodeverk() {
-        return KODEVERK;
-    }
-
-    @Override
     public String getKode() {
         return kode;
     }
-
 
 }

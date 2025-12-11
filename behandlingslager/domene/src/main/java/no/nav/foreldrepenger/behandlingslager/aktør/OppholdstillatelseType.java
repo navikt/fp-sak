@@ -1,7 +1,6 @@
 package no.nav.foreldrepenger.behandlingslager.aktør;
 
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -23,9 +22,6 @@ public enum OppholdstillatelseType implements Kodeverdi {
     private static final Map<String, OppholdstillatelseType> KODER = Arrays.stream(values())
         .collect(Collectors.toMap(OppholdstillatelseType::getKode, Function.identity()));
 
-    public static final String KODEVERK = "OPPHOLDSTILLATELSE_TYPE";
-
-
     private String navn;
 
     @JsonValue
@@ -36,18 +32,9 @@ public enum OppholdstillatelseType implements Kodeverdi {
         this.navn = navn;
     }
 
-    public static Map<String, OppholdstillatelseType> kodeMap() {
-        return Collections.unmodifiableMap(KODER);
-    }
-
     @Override
     public String getNavn() {
         return navn;
-    }
-
-    @Override
-    public String getKodeverk() {
-        return KODEVERK;
     }
 
     @Override

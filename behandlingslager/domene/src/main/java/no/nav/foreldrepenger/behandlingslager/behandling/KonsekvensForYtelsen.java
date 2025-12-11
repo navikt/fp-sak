@@ -1,6 +1,5 @@
 package no.nav.foreldrepenger.behandlingslager.behandling;
 
-import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -13,7 +12,6 @@ import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
 
 public enum KonsekvensForYtelsen implements Kodeverdi{
 
-
     FORELDREPENGER_OPPHØRER("FORELDREPENGER_OPPHØRER", "Foreldrepenger opphører"),
     ENDRING_I_BEREGNING("ENDRING_I_BEREGNING", "Endring i beregning"),
     ENDRING_I_UTTAK("ENDRING_I_UTTAK", "Endring i uttak"),
@@ -22,8 +20,6 @@ public enum KonsekvensForYtelsen implements Kodeverdi{
     ;
 
     private static final Map<String, KonsekvensForYtelsen> KODER = new LinkedHashMap<>();
-
-    public static final String KODEVERK = "KONSEKVENS_FOR_YTELSEN";
 
     private String navn;
 
@@ -34,18 +30,9 @@ public enum KonsekvensForYtelsen implements Kodeverdi{
         this.kode = kode;
         this.navn = navn;
     }
-    public static Map<String, KonsekvensForYtelsen> kodeMap() {
-        return Collections.unmodifiableMap(KODER);
-    }
-
     @Override
     public String getNavn() {
         return navn;
-    }
-
-    @Override
-    public String getKodeverk() {
-        return KODEVERK;
     }
 
     @Override
@@ -84,8 +71,6 @@ public enum KonsekvensForYtelsen implements Kodeverdi{
             return ad;
         }
 
-
     }
-
 
 }

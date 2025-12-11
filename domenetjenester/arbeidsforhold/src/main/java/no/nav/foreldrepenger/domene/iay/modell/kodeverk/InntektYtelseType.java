@@ -8,7 +8,6 @@ import com.fasterxml.jackson.annotation.JsonValue;
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
 import no.nav.foreldrepenger.behandlingslager.ytelse.RelatertYtelseType;
 
-
 @JsonAutoDetect(getterVisibility = Visibility.NONE, setterVisibility = Visibility.NONE, fieldVisibility = Visibility.ANY)
 public enum InntektYtelseType implements Kodeverdi {
 
@@ -53,8 +52,6 @@ public enum InntektYtelseType implements Kodeverdi {
     KOMPENSASJON_FOR_TAPT_PERSONINNTEKT("Kompensasjon for tapt personinntekt", Kategori.NÆRING, RelatertYtelseType.FRISINN)
     ;
 
-    public static final String KODEVERK = "INNTEKT_YTELSE_TYPE";
-
     @JsonIgnore
     private final String navn;
     @JsonIgnore
@@ -73,11 +70,6 @@ public enum InntektYtelseType implements Kodeverdi {
     @Override
     public String getNavn() {
         return navn;
-    }
-
-    @Override
-    public String getKodeverk() {
-        return KODEVERK;
     }
 
     @Override

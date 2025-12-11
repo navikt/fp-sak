@@ -14,7 +14,6 @@ import static no.nav.foreldrepenger.behandlingslager.uttak.fp.PeriodeResultatÅr
 import static no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakType.UTSETTELSE;
 import static no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakType.UTTAK;
 
-import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
@@ -105,7 +104,6 @@ public enum PeriodeResultatÅrsak implements Kodeverdi {
     FORELDREPENGER_REDUSERT_GRAD_PGA_SAMTIDIG_UTTAK("2038", "14-10-6", "§ 14-10 sjette ledd: Samtidig uttak", of(UTTAK)),
     MSP_INNVILGET_FØRSTE_6_UKENE("2039", "14-09-6", "§ 14-9 sjette ledd: Innvilget første 6 uker etter fødsel", of(UTTAK), Set.of(MØDREKVOTE), null,
         of(MOR)),
-
 
     // Regel ikke oppfylt, resultat = avslått
     IKKE_STØNADSDAGER_IGJEN("4002", "14-09", "§ 14-9: Ikke stønadsdager igjen på stønadskonto", of(UTTAK)),
@@ -263,9 +261,6 @@ public enum PeriodeResultatÅrsak implements Kodeverdi {
 
     private static final Map<String, PeriodeResultatÅrsak> KODER = new LinkedHashMap<>();
 
-    public static final String KODEVERK = "PERIODE_RESULTAT_AARSAK";
-
-
     static {
         for (var v : values()) {
             if (KODER.putIfAbsent(v.kode, v) != null) {
@@ -352,18 +347,9 @@ public enum PeriodeResultatÅrsak implements Kodeverdi {
         return ad;
     }
 
-    public static Map<String, PeriodeResultatÅrsak> kodeMap() {
-        return Collections.unmodifiableMap(KODER);
-    }
-
     @Override
     public String getNavn() {
         return navn;
-    }
-
-    @Override
-    public String getKodeverk() {
-        return KODEVERK;
     }
 
     @Override

@@ -1,6 +1,5 @@
 package no.nav.foreldrepenger.behandlingslager.behandling;
 
-import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -33,8 +32,6 @@ public enum DokumentKategori implements Kodeverdi, MedOffisiellKode {
     VBRV("VBRV", "Vedtaksbrev", "VB"),
     ;
 
-    public static final String KODEVERK = "DOKUMENT_KATEGORI";
-
     private static final Map<String, DokumentKategori> KODER = new LinkedHashMap<>();
 
     private String navn;
@@ -49,18 +46,9 @@ public enum DokumentKategori implements Kodeverdi, MedOffisiellKode {
         this.offisiellKode = offisiellKode;
     }
 
-    public static Map<String, DokumentKategori> kodeMap() {
-        return Collections.unmodifiableMap(KODER);
-    }
-
     @Override
     public String getNavn() {
         return navn;
-    }
-
-    @Override
-    public String getKodeverk() {
-        return KODEVERK;
     }
 
     @Override
