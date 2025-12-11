@@ -62,6 +62,7 @@ public class FpDtoTjeneste {
     private DtoTjenesteFelles felles;
     private SøknadRepository søknadRepository;
     private EøsUttakRepository eøsUttakRepository;
+    private BeregningOversiktDtoTjeneste beregningOversiktDtoTjeneste;
 
     @Inject
     public FpDtoTjeneste(BehandlingRepositoryProvider repositoryProvider,
@@ -70,7 +71,8 @@ public class FpDtoTjeneste {
                          YtelseFordelingTjeneste ytelseFordelingTjeneste,
                          UføretrygdRepository uføretrygdRepository,
                          DtoTjenesteFelles felles,
-                         DekningsgradTjeneste dekningsgradTjeneste, EøsUttakRepository eøsUttakRepository) {
+                         DekningsgradTjeneste dekningsgradTjeneste, EøsUttakRepository eøsUttakRepository,
+                         BeregningOversiktDtoTjeneste beregningOversiktDtoTjeneste) {
         this.behandlingRepository = repositoryProvider.getBehandlingRepository();
         this.dekningsgradTjeneste = dekningsgradTjeneste;
         this.foreldrepengerUttakTjeneste = foreldrepengerUttakTjeneste;
@@ -80,6 +82,7 @@ public class FpDtoTjeneste {
         this.felles = felles;
         this.søknadRepository = repositoryProvider.getSøknadRepository();
         this.eøsUttakRepository = eøsUttakRepository;
+        this.beregningOversiktDtoTjeneste = beregningOversiktDtoTjeneste;
     }
 
     FpDtoTjeneste() {
@@ -344,8 +347,9 @@ public class FpDtoTjeneste {
             .flatMap(g -> g.getSaksbehandlerPerioderEntitet().getPerioder().stream())
             .map(this::map)
             .toList();
+        var beregningsgrunnlag = beregningOversiktDtoTjeneste.lagDtoForBehandling(BehandlingReferanse.fra(behandling));
         return new FpSak.Vedtak(vedtak.getVedtakstidspunkt(), uttaksperioder, dekningsgrad.map(FpDtoTjeneste::tilDekningsgradDto).orElse(null),
-            annenpartEøsUttaksperioder);
+            annenpartEøsUttaksperioder, beregningsgrunnlag.orElse(null));
     }
 
     private FpSak.Vedtak.EøsUttaksperiode map(EøsUttaksperiodeEntitet p) {

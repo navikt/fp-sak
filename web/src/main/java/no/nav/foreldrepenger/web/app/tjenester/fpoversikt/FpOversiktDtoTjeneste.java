@@ -1,7 +1,6 @@
 package no.nav.foreldrepenger.web.app.tjenester.fpoversikt;
 
 import java.util.List;
-import java.util.Optional;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -24,7 +23,6 @@ class FpOversiktDtoTjeneste {
     private EsDtoTjeneste esDtoTjeneste;
     private InntektsmeldingDtoTjeneste inntektsmeldingTjeneste;
     private ManglendeVedleggDtoTjeneste manglendeVedleggDtoTjeneste;
-    private BeregningOversiktDtoTjeneste beregningOversiktDtoTjeneste;
 
     @Inject
     FpOversiktDtoTjeneste(FagsakRepository fagsakRepository,
@@ -32,15 +30,13 @@ class FpOversiktDtoTjeneste {
                           SvpDtoTjeneste svpDtoTjeneste,
                           EsDtoTjeneste esDtoTjeneste,
                           InntektsmeldingDtoTjeneste inntektsmeldingTjeneste,
-                          ManglendeVedleggDtoTjeneste manglendeVedleggDtoTjeneste,
-                          BeregningOversiktDtoTjeneste beregningOversiktDtoTjeneste) {
+                          ManglendeVedleggDtoTjeneste manglendeVedleggDtoTjeneste) {
         this.fagsakRepository = fagsakRepository;
         this.fpDtoTjeneste = fpDtoTjeneste;
         this.svpDtoTjeneste = svpDtoTjeneste;
         this.esDtoTjeneste = esDtoTjeneste;
         this.inntektsmeldingTjeneste = inntektsmeldingTjeneste;
         this.manglendeVedleggDtoTjeneste = manglendeVedleggDtoTjeneste;
-        this.beregningOversiktDtoTjeneste = beregningOversiktDtoTjeneste;
     }
 
     FpOversiktDtoTjeneste() {
@@ -64,9 +60,5 @@ class FpOversiktDtoTjeneste {
 
     List<DokumentTyperDto> hentManglendeVedleggForSak(String saksnummer) {
         return manglendeVedleggDtoTjeneste.hentManglendeVedleggForSak(new Saksnummer(saksnummer));
-    }
-
-    Optional<FpSakBeregningDto> hentBeregning(String saksnummer) {
-        return beregningOversiktDtoTjeneste.hentBeregningForSak(new Saksnummer(saksnummer));
     }
 }

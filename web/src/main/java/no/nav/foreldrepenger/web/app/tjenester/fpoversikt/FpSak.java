@@ -1,5 +1,8 @@
 package no.nav.foreldrepenger.web.app.tjenester.fpoversikt;
 
+import no.nav.foreldrepenger.behandlingslager.behandling.beregning.AktivitetStatus;
+import no.nav.foreldrepenger.domene.modell.kodeverk.Hjemmel;
+
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -25,7 +28,7 @@ record FpSak(String saksnummer,
     }
 
     record Vedtak(LocalDateTime vedtakstidspunkt, List<Uttaksperiode> uttaksperioder, Dekningsgrad dekningsgrad,
-                  List<EøsUttaksperiode> annenpartEøsUttaksperioder) {
+                  List<EøsUttaksperiode> annenpartEøsUttaksperioder, Beregningsgrunnlag beregningsgrunnlag) {
         record EøsUttaksperiode(LocalDate fom, LocalDate tom, BigDecimal trekkdager, Konto konto) {
         }
     }
@@ -52,6 +55,25 @@ record FpSak(String saksnummer,
 
         record UttaksperiodeAktivitet(UttakAktivitet aktivitet, Konto konto, BigDecimal trekkdager, BigDecimal arbeidstidsprosent) {
 
+        }
+    }
+
+    record Beregningsgrunnlag(LocalDate skjæringsTidspunkt, List<BeregningsAndel> beregningsAndeler, List<BeregningAktivitetStatus> beregningAktivitetStatuser) {
+
+        // TODO: bruke denne AktivtetStatus?
+        record BeregningsAndel(AktivitetStatus aktivitetStatus, BigDecimal fastsattPrÅr, InntektsKilde inntektsKilde,
+                               Arbeidsforhold arbeidsforhold, BigDecimal dagsatsArbeidsgiver, BigDecimal dagsatsSøker) {}
+
+        record Arbeidsforhold(String arbeidsgiverIdent, BigDecimal refusjonPrMnd) {}
+
+        record BeregningAktivitetStatus(AktivitetStatus aktivitetStatus, Hjemmel hjemmel) {}
+
+        enum InntektsKilde {
+            INNTEKTSMELDING,
+            A_INNTEKT,
+            VEDTAK_ANNEN_YTELSE,
+            SKJØNNSFASTSATT,
+            PGI // Pensjonsgivendeinntekt
         }
     }
 
