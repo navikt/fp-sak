@@ -78,7 +78,8 @@ public class OppdatererDtoMapper {
 
     public static no.nav.folketrygdloven.kalkulus.håndtering.v1.refusjon.VurderRefusjonBeregningsgrunnlagDto mapVurderRefusjonBeregningsgrunnlag(
         VurderRefusjonBeregningsgrunnlagDto dto) {
-        return new no.nav.folketrygdloven.kalkulus.håndtering.v1.refusjon.VurderRefusjonBeregningsgrunnlagDto(mapTilRefusjonAndeler(dto.getFastsatteAndeler()));
+        //TFP-6403 Todo refusjonsfrist vil legges til senere når funksjonelle avklaringer er på plass
+        return new no.nav.folketrygdloven.kalkulus.håndtering.v1.refusjon.VurderRefusjonBeregningsgrunnlagDto(mapTilRefusjonAndeler(dto.getFastsatteAndeler()), null);
     }
 
     public static no.nav.folketrygdloven.kalkulus.håndtering.v1.foreslå.VurderVarigEndringEllerNyoppstartetDto mapVurderVarigEndringEllerNyoppstartetDto(
