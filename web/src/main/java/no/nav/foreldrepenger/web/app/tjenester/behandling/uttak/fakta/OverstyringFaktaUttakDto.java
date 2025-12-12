@@ -16,7 +16,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspun
 public class OverstyringFaktaUttakDto extends OverstyringAksjonspunktDto {
 
     @NotNull
-    @Size(min = 1, max = 200)
+    @Size(min = 1, max = 400)
     private List<@Valid FaktaUttakPeriodeDto> perioder;
 
     OverstyringFaktaUttakDto() {

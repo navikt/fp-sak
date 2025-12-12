@@ -15,7 +15,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspun
 class VurderUttakDokumentasjonDto extends BekreftetAksjonspunktDto {
 
     @NotNull
-    @Size(min = 1, max = 200)
+    @Size(min = 1, max = 400)
     private List<@Valid @NotNull DokumentasjonVurderingBehovDto> vurderingBehov;
 
     public VurderUttakDokumentasjonDto() {
