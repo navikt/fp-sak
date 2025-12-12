@@ -60,14 +60,26 @@ record FpSak(String saksnummer,
 
     record Beregningsgrunnlag(LocalDate skjæringsTidspunkt, List<BeregningsAndel> beregningsAndeler, List<BeregningAktivitetStatus> beregningAktivitetStatuser) {
 
-        // TODO: bruke denne AktivtetStatus?
         record BeregningsAndel(AktivitetStatus aktivitetStatus, BigDecimal fastsattPrÅr, InntektsKilde inntektsKilde,
                                Arbeidsforhold arbeidsforhold, BigDecimal dagsatsArbeidsgiver, BigDecimal dagsatsSøker) {}
 
         record Arbeidsforhold(String arbeidsgiverIdent, BigDecimal refusjonPrMnd) {}
 
         record BeregningAktivitetStatus(AktivitetStatus aktivitetStatus, Hjemmel hjemmel) {}
-
+        enum AktivitetStatus {
+            ARBEIDSAVKLARINGSPENGER,
+            ARBEIDSTAKER,
+            DAGPENGER,
+            FRILANSER,
+            MILITÆR_ELLER_SIVIL,
+            SELVSTENDIG_NÆRINGSDRIVENDE,
+            KOMBINERT_AT_FL,
+            KOMBINERT_AT_SN,
+            KOMBINERT_FL_SN,
+            KOMBINERT_AT_FL_SN,
+            BRUKERS_ANDEL,
+            KUN_YTELSE,
+        }
         enum InntektsKilde {
             INNTEKTSMELDING,
             A_INNTEKT,
