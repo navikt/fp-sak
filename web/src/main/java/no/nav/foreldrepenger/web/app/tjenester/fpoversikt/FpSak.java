@@ -1,6 +1,5 @@
 package no.nav.foreldrepenger.web.app.tjenester.fpoversikt;
 
-import no.nav.foreldrepenger.behandlingslager.behandling.beregning.AktivitetStatus;
 import no.nav.foreldrepenger.domene.modell.kodeverk.Hjemmel;
 
 import java.math.BigDecimal;
@@ -58,7 +57,7 @@ record FpSak(String saksnummer,
         }
     }
 
-    record Beregningsgrunnlag(LocalDate skjæringsTidspunkt, List<BeregningsAndel> beregningsAndeler, List<BeregningAktivitetStatus> beregningAktivitetStatuser) {
+    record Beregningsgrunnlag(LocalDate skjæringstidspunkt, List<BeregningsAndel> beregningsAndeler, List<BeregningAktivitetStatus> beregningAktivitetStatuser) {
 
         record BeregningsAndel(AktivitetStatus aktivitetStatus, BigDecimal fastsattPrÅr, InntektsKilde inntektsKilde,
                                Arbeidsforhold arbeidsforhold, BigDecimal dagsatsArbeidsgiver, BigDecimal dagsatsSøker) {}
@@ -85,7 +84,7 @@ record FpSak(String saksnummer,
             A_INNTEKT,
             VEDTAK_ANNEN_YTELSE,
             SKJØNNSFASTSATT,
-            PGI // Pensjonsgivendeinntekt
+            PENSJONSGIVENDE_INNTEKT,
         }
     }
 
