@@ -87,17 +87,6 @@ Avslutt fagsak hvis den er løpende og perioden for ytelsesvedtaket er passert
  Kjører behandlingskontroll automatisk fra start.
 ++++
 
-
-=== Melder om behandling til Sak Og Behandling.
-====
-* *Kode:* behandlingskontroll.oppdatersakogbehandling
-====
-
-++++
-Task som melder om opprettet eller avsluttet behandling til Sak Og Behandling.
-++++
-
-
 === Gjenoppta, oppdater, prosesser behandling
 ====
 * *Kode:* behandlingskontroll.gjenopptaOppdaterBehandling
