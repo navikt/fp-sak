@@ -3,6 +3,7 @@ package no.nav.foreldrepenger.domene.aksjonspunkt;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 import no.nav.folketrygdloven.kalkulus.håndtering.v1.fakta.FaktaOmBeregningTilfelleDto;
@@ -77,7 +78,8 @@ public class OppdatererDtoMapper {
 
     public static no.nav.folketrygdloven.kalkulus.håndtering.v1.refusjon.VurderRefusjonBeregningsgrunnlagDto mapVurderRefusjonBeregningsgrunnlag(
         VurderRefusjonBeregningsgrunnlagDto dto) {
-        return new no.nav.folketrygdloven.kalkulus.håndtering.v1.refusjon.VurderRefusjonBeregningsgrunnlagDto(mapTilRefusjonAndeler(dto.getFastsatteAndeler()));
+        //TFP-6403 Todo refusjonsfrist vil legges til senere når funksjonelle avklaringer er på plass
+        return new no.nav.folketrygdloven.kalkulus.håndtering.v1.refusjon.VurderRefusjonBeregningsgrunnlagDto(mapTilRefusjonAndeler(dto.getFastsatteAndeler()), null);
     }
 
     public static no.nav.folketrygdloven.kalkulus.håndtering.v1.foreslå.VurderVarigEndringEllerNyoppstartetDto mapVurderVarigEndringEllerNyoppstartetDto(
@@ -327,7 +329,7 @@ public class OppdatererDtoMapper {
         return new no.nav.folketrygdloven.kalkulus.håndtering.v1.refusjon.VurderRefusjonAndelBeregningsgrunnlagDto(
             andel.getArbeidsgiverOrgnr(),
             andel.getArbeidsgiverAktoerId(),
-            andel.getInternArbeidsforholdRef(),
+            Optional.ofNullable(andel.getInternArbeidsforholdRef()).map(UUID::toString).orElse(null),
             andel.getFastsattRefusjonFom(),
             andel.getDelvisRefusjonPrMndFørStart());
     }

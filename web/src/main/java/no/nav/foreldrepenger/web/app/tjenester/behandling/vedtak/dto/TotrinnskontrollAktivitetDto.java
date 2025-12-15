@@ -12,7 +12,6 @@ public class TotrinnskontrollAktivitetDto {
     private String arbeidsgiverReferanse;
     private String arbeidsgiverNavn;
     private String orgnr;
-    private LocalDate privatpersonFødselsdato;
 
     public TotrinnskontrollAktivitetDto() {
         //Tom
@@ -42,10 +41,6 @@ public class TotrinnskontrollAktivitetDto {
         return orgnr;
     }
 
-    public LocalDate getPrivatpersonFødselsdato() {
-        return privatpersonFødselsdato;
-    }
-
     public boolean isGodkjent() {
         return godkjent;
     }
@@ -68,9 +63,5 @@ public class TotrinnskontrollAktivitetDto {
 
     public void setGodkjent(boolean godkjent) {
         this.godkjent = godkjent;
-    }
-
-    public void setPrivatpersonFødselsdato(LocalDate privatpersonFødselsdato) {
-        this.privatpersonFødselsdato = privatpersonFødselsdato;
     }
 }

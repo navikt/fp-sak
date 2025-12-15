@@ -1,6 +1,5 @@
 package no.nav.foreldrepenger.behandlingslager.behandling;
 
-import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
@@ -28,8 +27,6 @@ public enum BehandlingStatus implements Kodeverdi {
 
     private static final Map<String, BehandlingStatus> KODER = new LinkedHashMap<>();
 
-    public static final String KODEVERK = "BEHANDLING_STATUS";
-
     private static final Set<BehandlingStatus> FERDIGBEHANDLET_STATUS = Set.of(AVSLUTTET, IVERKSETTER_VEDTAK);
 
     private final String navn;
@@ -39,10 +36,6 @@ public enum BehandlingStatus implements Kodeverdi {
     BehandlingStatus(String kode, String navn) {
         this.kode = kode;
         this.navn = navn;
-    }
-
-    public static Map<String, BehandlingStatus> kodeMap() {
-        return Collections.unmodifiableMap(KODER);
     }
 
     public static BehandlingStatus fraKode(String kode) {
@@ -67,11 +60,6 @@ public enum BehandlingStatus implements Kodeverdi {
 
     public boolean erFerdigbehandletStatus() {
         return FERDIGBEHANDLET_STATUS.contains(this);
-    }
-
-    @Override
-    public String getKodeverk() {
-        return KODEVERK;
     }
 
     @Override

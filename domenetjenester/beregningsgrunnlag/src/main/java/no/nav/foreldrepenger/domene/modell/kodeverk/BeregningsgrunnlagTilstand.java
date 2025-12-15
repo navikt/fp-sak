@@ -9,7 +9,6 @@ import com.fasterxml.jackson.annotation.JsonValue;
 
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
 
-
 public enum BeregningsgrunnlagTilstand implements Kodeverdi {
 
     OPPRETTET("OPPRETTET", "Opprettet", true),
@@ -29,7 +28,6 @@ public enum BeregningsgrunnlagTilstand implements Kodeverdi {
     FASTSATT("FASTSATT", "Fastsatt", true),
     UDEFINERT(STANDARDKODE_UDEFINERT, "Ikke definert", false),
     ;
-    public static final String KODEVERK = "BEREGNINGSGRUNNLAG_TILSTAND";
 
     private static final Map<String, BeregningsgrunnlagTilstand> KODER = new LinkedHashMap<>();
 
@@ -81,10 +79,6 @@ public enum BeregningsgrunnlagTilstand implements Kodeverdi {
         return ad;
     }
 
-    public static Map<String, BeregningsgrunnlagTilstand> kodeMap() {
-        return Collections.unmodifiableMap(KODER);
-    }
-
     public boolean erObligatoriskTilstand() {
         return this.obligatoriskTilstand;
     }
@@ -98,11 +92,6 @@ public enum BeregningsgrunnlagTilstand implements Kodeverdi {
     @Override
     public String getNavn() {
         return navn;
-    }
-
-    @Override
-    public String getKodeverk() {
-        return KODEVERK;
     }
 
     @Override

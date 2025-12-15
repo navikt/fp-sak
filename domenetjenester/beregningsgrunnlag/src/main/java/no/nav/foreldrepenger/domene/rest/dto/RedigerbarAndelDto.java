@@ -9,9 +9,10 @@ import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 
-import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.OpptjeningAktivitetType;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.AktivitetStatus;
+import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.OpptjeningAktivitetType;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
+import no.nav.foreldrepenger.validering.ValidKodeverk;
 import no.nav.vedtak.util.InputValideringRegex;
 
 public class RedigerbarAndelDto {
@@ -21,10 +22,13 @@ public class RedigerbarAndelDto {
     private Long andelsnr;
     @Pattern(regexp = InputValideringRegex.ARBEIDSGIVER)
     private String arbeidsgiverId;
+    @Pattern(regexp = "^[\\p{Graph}\\p{Space}\\p{Sc}\\p{L}\\p{M}\\p{N}]+$", message = "'${validatedValue}' matcher ikke tillatt pattern '{regexp}'")
     private String arbeidsforholdId;
     @NotNull
     private Boolean nyAndel;
+    @ValidKodeverk
     private AktivitetStatus aktivitetStatus;
+    @ValidKodeverk
     private OpptjeningAktivitetType arbeidsforholdType;
     private Boolean lagtTilAvSaksbehandler;
     private LocalDate beregningsperiodeFom;

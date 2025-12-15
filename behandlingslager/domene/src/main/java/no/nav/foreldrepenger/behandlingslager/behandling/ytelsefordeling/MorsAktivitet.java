@@ -1,6 +1,5 @@
 package no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling;
 
-import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
@@ -11,7 +10,6 @@ import jakarta.persistence.Converter;
 import com.fasterxml.jackson.annotation.JsonValue;
 
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
-
 
 public enum MorsAktivitet implements Kodeverdi {
 
@@ -29,8 +27,6 @@ public enum MorsAktivitet implements Kodeverdi {
     private static final Map<String, MorsAktivitet> KODER = new LinkedHashMap<>();
 
     private static final Set<String> LEGACY_KODER = Set.of("SAMTIDIGUTTAK");
-
-    public static final String KODEVERK = "MORS_AKTIVITET";
 
     static {
         for (var v : values()) {
@@ -63,10 +59,6 @@ public enum MorsAktivitet implements Kodeverdi {
         }
         return ad;
     }
-    public static Map<String, MorsAktivitet> kodeMap() {
-        return Collections.unmodifiableMap(KODER);
-    }
-
     public static boolean forventerDokumentasjon(MorsAktivitet aktivitet) {
         return aktivitet != null && !Set.of(UDEFINERT, UFØRE, IKKE_OPPGITT).contains(aktivitet);
     }
@@ -74,11 +66,6 @@ public enum MorsAktivitet implements Kodeverdi {
     @Override
     public String getNavn() {
         return navn;
-    }
-
-    @Override
-    public String getKodeverk() {
-        return KODEVERK;
     }
 
     @Override

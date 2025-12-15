@@ -1,6 +1,5 @@
 package no.nav.foreldrepenger.domene.modell.kodeverk;
 
-import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -30,7 +29,6 @@ public enum FaktaOmBeregningTilfelle implements Kodeverdi {
     FASTSETT_ENDRET_BEREGNINGSGRUNNLAG("FASTSETT_ENDRET_BEREGNINGSGRUNNLAG", "Fastsette endring i beregningsgrunnlag"),
     UDEFINERT(STANDARDKODE_UDEFINERT, "Ikke definert"),
     ;
-    public static final String KODEVERK = "FAKTA_OM_BEREGNING_TILFELLE";
 
     private static final Map<String, FaktaOmBeregningTilfelle> KODER = new LinkedHashMap<>();
 
@@ -62,18 +60,9 @@ public enum FaktaOmBeregningTilfelle implements Kodeverdi {
         return ad;
     }
 
-    public static Map<String, FaktaOmBeregningTilfelle> kodeMap() {
-        return Collections.unmodifiableMap(KODER);
-    }
-
     @Override
     public String getNavn() {
         return navn;
-    }
-
-    @Override
-    public String getKodeverk() {
-        return KODEVERK;
     }
 
     @Override

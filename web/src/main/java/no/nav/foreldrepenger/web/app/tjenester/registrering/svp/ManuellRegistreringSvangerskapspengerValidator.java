@@ -48,7 +48,7 @@ public class ManuellRegistreringSvangerskapspengerValidator {
 
 
     private static Optional<FeltFeilDto> validerFrilans(FrilansDto frilans) {
-        if (Boolean.TRUE.equals(frilans.getHarSokerPeriodeMedFrilans()) && empty(frilans.getPerioder())) {
+        if (Boolean.TRUE.equals(frilans.getHarSøkerPeriodeMedFrilans()) && empty(frilans.getPerioder())) {
             return Optional.of(new FeltFeilDto("frilans", PERIODER_MANGLER));
         }
         return Optional.empty();

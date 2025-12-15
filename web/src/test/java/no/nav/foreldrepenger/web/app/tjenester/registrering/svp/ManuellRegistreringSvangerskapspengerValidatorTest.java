@@ -50,7 +50,7 @@ class ManuellRegistreringSvangerskapspengerValidatorTest {
     @Test
     void skal_rapportere_valideringsfeil_dersom_frilans_mangler_perioder() {
         var dto = lagStandardDtoUtenValideringsfeil();
-        dto.getFrilans().setHarSokerPeriodeMedFrilans(true);
+        dto.getFrilans().setHarSøkerPeriodeMedFrilans(true);
         dto.getFrilans().setPerioder(Collections.emptyList());
 
         var feltFeilDtos = ManuellRegistreringSvangerskapspengerValidator.validerOpplysninger(dto);
@@ -87,7 +87,7 @@ class ManuellRegistreringSvangerskapspengerValidatorTest {
         dto.setEgenVirksomhet(egenVirksomhetDto);
 
         var frilansDto = new FrilansDto();
-        frilansDto.setHarSokerPeriodeMedFrilans(false);
+        frilansDto.setHarSøkerPeriodeMedFrilans(false);
         dto.setFrilans(frilansDto);
 
         var termindato = LocalDate.of(2019, 12, 24);

@@ -41,7 +41,7 @@ public class ManuellRegistreringSøknadValidator {
     }
 
     public static List<FeltFeilDto> validerFrilans(FrilansDto frilans) {
-        if (Boolean.TRUE.equals(frilans.getHarSokerPeriodeMedFrilans()) && frilans.getPerioder().isEmpty()) {
+        if (Boolean.TRUE.equals(frilans.getHarSøkerPeriodeMedFrilans()) && frilans.getPerioder().isEmpty()) {
             return List.of(new FeltFeilDto("", ManuellRegistreringValidatorTekster.MINDRE_ELLER_LIK_LENGDE));
         }
         return List.of();
@@ -122,7 +122,7 @@ public class ManuellRegistreringSøknadValidator {
 
     private static Optional<FeltFeilDto> validerTidsromPermisjonFarEllerMedmor(ManuellRegistreringForeldrepengerDto registreringDto) {
         var tidsromPermisjon = registreringDto.getTidsromPermisjon();
-        var overføringsperioder = tidsromPermisjon.getOverforingsperioder();
+        var overføringsperioder = tidsromPermisjon.getOverføringsperioder();
         for (var overføringsperiode : overføringsperioder) {
             if (isNull(overføringsperiode.getOverforingArsak())) {
                 return Optional.of(new FeltFeilDto("årsakForOverføring", PAAKREVD_FELT));

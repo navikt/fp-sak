@@ -13,7 +13,7 @@ import no.nav.foreldrepenger.web.app.tjenester.registrering.dto.UtsettelseDto;
 public class TidsromPermisjonDto {
 
     @Size(max = 100)
-    private List<@Valid OverføringsperiodeDto> overforingsperioder;
+    private List<@Valid OverføringsperiodeDto> overføringsperioder;
 
     @Size(max = 100)
     private List<@Valid PermisjonPeriodeDto> permisjonsPerioder;
@@ -27,12 +27,12 @@ public class TidsromPermisjonDto {
     @Size(max = 100)
     private List<@Valid OppholdDto> oppholdPerioder;
 
-    public List<OverføringsperiodeDto> getOverforingsperioder() {
-        return overforingsperioder == null ? List.of() : overforingsperioder;
+    public List<OverføringsperiodeDto> getOverføringsperioder() {
+        return overføringsperioder == null ? List.of() : overføringsperioder;
     }
 
-    public void setOverforingsperioder(List<OverføringsperiodeDto> overforingsperioder) {
-        this.overforingsperioder = overforingsperioder;
+    public void setOverføringsperioder(List<OverføringsperiodeDto> overføringsperioder) {
+        this.overføringsperioder = overføringsperioder;
     }
 
     public List<PermisjonPeriodeDto> getPermisjonsPerioder() {
@@ -67,3 +67,4 @@ public class TidsromPermisjonDto {
         this.oppholdPerioder = oppholdPerioder;
     }
 }
+

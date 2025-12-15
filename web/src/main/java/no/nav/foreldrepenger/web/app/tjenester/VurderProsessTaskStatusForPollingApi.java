@@ -88,7 +88,7 @@ public class VurderProsessTaskStatusForPollingApi {
                 AsyncPollingStatus.Status.PENDING,
                 task.getNesteKjøringEtter(),
                 "Venter på prosesstask [" + task.taskType().value() + "][id: " + task.getId() + "]",
-                null, 500L);
+                500L);
 
             return Optional.of(status);// fortsett å polle på gruppe, er ikke ferdig.
         }

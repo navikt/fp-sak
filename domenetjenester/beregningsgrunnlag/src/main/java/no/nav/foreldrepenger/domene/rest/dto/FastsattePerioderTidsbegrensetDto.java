@@ -3,6 +3,7 @@ package no.nav.foreldrepenger.domene.rest.dto;
 import java.time.LocalDate;
 import java.util.List;
 
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 
 public class FastsattePerioderTidsbegrensetDto {
@@ -11,7 +12,7 @@ public class FastsattePerioderTidsbegrensetDto {
     private LocalDate periodeFom;
     private LocalDate periodeTom;
 
-    private List<FastsatteAndelerTidsbegrensetDto> fastsatteTidsbegrensedeAndeler;
+    private List<@Valid FastsatteAndelerTidsbegrensetDto> fastsatteTidsbegrensedeAndeler;
 
     FastsattePerioderTidsbegrensetDto() {
         // Jackson

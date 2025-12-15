@@ -81,7 +81,7 @@ public class NøkkeltallBehandlingRepository {
             .setParameter("avsluttetBehandlingStatus", BehandlingStatus.AVSLUTTET.getKode())
             .setParameter("forstegang", BehandlingType.FØRSTEGANGSSØKNAD.getKode())
             .setParameter("endringsoknad", BehandlingÅrsakType.RE_ENDRING_FRA_BRUKER.getKode())
-            .setParameter("utsettelseOpphold", List.of(OppholdÅrsak.KODEVERK, UtsettelseÅrsak.KODEVERK))
+            .setParameter("utsettelseOpphold", List.of(OppholdÅrsak.DISKRIMINATOR, UtsettelseÅrsak.DISKRIMINATOR))
             .setParameter("ventSoknad", AksjonspunktDefinisjon.VENT_PÅ_SØKNAD.getKode())
             .setParameter("lavesteVentKode", AksjonspunktDefinisjon.AUTO_MANUELT_SATT_PÅ_VENT.getKode())
             .setParameter("fpYtelseType", FagsakYtelseType.YtelseType.FP.name());
@@ -101,12 +101,12 @@ public class NøkkeltallBehandlingRepository {
             status, førsteUttaksMåned, antall.intValue());
     }
 
-    private static final String QUERY_FRIST_UTLØPER_DAG = """
-        select enhet, yt, frist, count(1) as ant from (
+    private static final String QUERY_FRIST_UTLØPER_UKE = """
+        select enhet, yt, to_char(frist, 'IYYY-IW'), count(1) as ant from (
             select enhet, yt,
-                   case when fristi <= sysdate then trunc(sysdate + 1)
-                        when fristi > sysdate + 185 then trunc(sysdate+185)
-                        else fristi end as frist
+                   case when fristi <= sysdate then trunc(sysdate + 1, 'IW')
+                        when fristi > sysdate + 245 then trunc(sysdate+245, 'IW')
+                        else trunc(fristi, 'IW') end as frist
             from (
                 select b.behandlende_enhet as enhet, f.ytelse_type as yt, trunc(nvl(ap.frist_tid, nvl(ap.endret_tid, ap.opprettet_tid) + 28))  as fristi
                 from aksjonspunkt ap join behandling b on ap.behandling_id = b.id join fagsak f on b.fagsak_id = f.id
@@ -114,12 +114,11 @@ public class NøkkeltallBehandlingRepository {
                     and b.behandling_type = :førstegang and ap.aksjonspunkt_def >= :lavesteVentKode and ap.aksjonspunkt_def not in (:ventIgnorer)
             )
         )
-        group by enhet, yt, frist
+        group by enhet, yt, to_char(frist, 'IYYY-IW')
         """;
 
-    public List<NøkkeltallBehandlingVentefristUtløper> hentNøkkeltallVentefristUtløper() {
-        // vurder trunc(<dato>, 'IW') + 4 (= fredag) dersom grafen blir for hektisk
-        var query = entityManager.createNativeQuery(QUERY_FRIST_UTLØPER_DAG)
+    public List<NøkkeltallBehandlingVentefristUtløper> hentNøkkeltallVentefristUtløperUke() {
+        var query = entityManager.createNativeQuery(QUERY_FRIST_UTLØPER_UKE)
             .setParameter("åpenAksjonspunktStatus", AksjonspunktStatus.OPPRETTET.getKode())
             .setParameter("avsluttetBehandlingStatus", BehandlingStatus.AVSLUTTET.getKode())
             .setParameter("førstegang", BehandlingType.FØRSTEGANGSSØKNAD.getKode())
@@ -135,9 +134,9 @@ public class NøkkeltallBehandlingRepository {
         var queryResultat = (Object[]) record;
         var behandlendeEnhet = (String) queryResultat[0];
         var ytelseType = FagsakYtelseType.fraKode((String) queryResultat[1]);
-        var fristUtløper = localDate(queryResultat[2]);
+        var fristUke = (String) queryResultat[2];
         var antall = (BigDecimal) queryResultat[3];
-        return new NøkkeltallBehandlingVentefristUtløper(behandlendeEnhet, ytelseType, fristUtløper, antall.longValue());
+        return new NøkkeltallBehandlingVentefristUtløper(behandlendeEnhet, ytelseType, fristUke, antall.longValue());
     }
 
     private static LocalDate localDate(Object sqlTimestamp) {

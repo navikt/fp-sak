@@ -6,6 +6,8 @@ import java.time.LocalDate;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import jakarta.validation.constraints.DecimalMax;
+import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotNull;
 
 import no.nav.foreldrepenger.domene.iay.modell.kodeverk.PermisjonsbeskrivelseType;
@@ -18,6 +20,8 @@ public class VelferdspermisjonDto {
     @JsonProperty("permisjonTom")
     private LocalDate permisjonTom;
     @JsonProperty("permisjonsprosent") @NotNull
+    @DecimalMin("0.00")
+    @DecimalMax("100.00")
     private BigDecimal permisjonsprosent;
     @ValidKodeverk
     @JsonProperty("type") @NotNull

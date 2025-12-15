@@ -49,7 +49,7 @@ public class EndringssøknadSøknadMapper implements SøknadMapper {
 
     private static Fordeling mapFordelingEndringssøknad(ManuellRegistreringEndringsøknadDto registreringDto) {
         var fordeling = new Fordeling();
-        var perioder = mapFordelingPerioder(registreringDto.getTidsromPermisjon(), registreringDto.getSoker());
+        var perioder = mapFordelingPerioder(registreringDto.getTidsromPermisjon(), registreringDto.getSøker());
         fordeling.getPerioder().addAll(perioder.stream().filter(Objects::nonNull).toList());
         fordeling.setAnnenForelderErInformert(registreringDto.getAnnenForelderInformert());
         return fordeling;
@@ -58,7 +58,7 @@ public class EndringssøknadSøknadMapper implements SøknadMapper {
     private static List<LukketPeriodeMedVedlegg> mapFordelingPerioder(TidsromPermisjonDto tidsromPermisjon, ForeldreType soker) {
         List<LukketPeriodeMedVedlegg> result = new ArrayList<>();
         if (!isNull(tidsromPermisjon)) {
-            result.addAll(mapOverføringsperioder(tidsromPermisjon.getOverforingsperioder(), soker));
+            result.addAll(mapOverføringsperioder(tidsromPermisjon.getOverføringsperioder(), soker));
             result.addAll(mapUtsettelsesperioder(tidsromPermisjon.getUtsettelsePeriode()));
             result.addAll(mapUttaksperioder(tidsromPermisjon.getPermisjonsPerioder()));
             result.addAll(mapGraderingsperioder(tidsromPermisjon.getGraderingPeriode()));

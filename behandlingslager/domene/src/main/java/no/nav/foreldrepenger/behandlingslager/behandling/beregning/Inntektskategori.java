@@ -1,6 +1,5 @@
 package no.nav.foreldrepenger.behandlingslager.behandling.beregning;
 
-import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
@@ -11,7 +10,6 @@ import jakarta.persistence.Converter;
 import com.fasterxml.jackson.annotation.JsonValue;
 
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
-
 
 public enum Inntektskategori implements Kodeverdi {
 
@@ -29,8 +27,6 @@ public enum Inntektskategori implements Kodeverdi {
     ;
     private static final Map<String, Inntektskategori> KODER = new LinkedHashMap<>();
     private static final Set<Inntektskategori> GIR_FERIEPENGER = Set.of(ARBEIDSTAKER, SJØMANN);
-
-    public static final String KODEVERK = "INNTEKTSKATEGORI";
 
     static {
         for (var v : values()) {
@@ -50,11 +46,6 @@ public enum Inntektskategori implements Kodeverdi {
         this.navn = navn;
     }
 
-
-    public static Map<String, Inntektskategori> kodeMap() {
-        return Collections.unmodifiableMap(KODER);
-    }
-
     public static Set<Inntektskategori> girFeriepenger() {
         return GIR_FERIEPENGER;
     }
@@ -62,11 +53,6 @@ public enum Inntektskategori implements Kodeverdi {
     @Override
     public String getNavn() {
         return navn;
-    }
-
-    @Override
-    public String getKodeverk() {
-        return KODEVERK;
     }
 
     @Override

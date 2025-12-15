@@ -29,11 +29,11 @@ public abstract class ManuellRegistreringDto extends BekreftetAksjonspunktDto {
     private FamilieHendelseType tema;
     @NotNull
     @ValidKodeverk
-    private FagsakYtelseType soknadstype;
+    private FagsakYtelseType søknadstype;
 
     @NotNull
     @ValidKodeverk
-    private ForeldreType soker;
+    private ForeldreType søker;
 
     @Valid
     private RettigheterDto rettigheter;
@@ -48,7 +48,7 @@ public abstract class ManuellRegistreringDto extends BekreftetAksjonspunktDto {
     @Size(max = 1000)
     private List<@Valid UtenlandsoppholdDto> fremtidigeOppholdUtenlands;
 
-    private boolean erBarnetFodt;
+    private boolean erBarnetFødt;
     private LocalDate termindato;
     private LocalDate terminbekreftelseDato;
 
@@ -60,7 +60,7 @@ public abstract class ManuellRegistreringDto extends BekreftetAksjonspunktDto {
     @Max(9)
     private Integer antallBarn;
 
-    private LocalDate foedselsDato;
+    private LocalDate fødselsdato;
 
     @Valid
     private AnnenForelderDto annenForelder;
@@ -77,7 +77,7 @@ public abstract class ManuellRegistreringDto extends BekreftetAksjonspunktDto {
     private String kommentarEndring;
     private boolean registrerVerge = Boolean.FALSE;
     private LocalDate mottattDato;
-    private boolean ufullstendigSoeknad;
+    private boolean ufullstendigSøknad;
 
     @Valid
     OmsorgDto omsorg;
@@ -86,20 +86,20 @@ public abstract class ManuellRegistreringDto extends BekreftetAksjonspunktDto {
         // For Jackson
     }
 
-    public FagsakYtelseType getSoknadstype() {
-        return soknadstype;
+    public FagsakYtelseType getSøknadstype() {
+        return søknadstype;
     }
 
-    public ForeldreType getSoker() {
-        return soker;
+    public ForeldreType getSøker() {
+        return søker;
     }
 
-    public void setSoker(ForeldreType soker) {
-        this.soker = soker;
+    public void setSøker(ForeldreType søker) {
+        this.søker = søker;
     }
 
-    public void setSoknadstype(FagsakYtelseType soknadstype) {
-        this.soknadstype = soknadstype;
+    public void setSøknadstype(FagsakYtelseType søknadstype) {
+        this.søknadstype = søknadstype;
     }
 
     public FamilieHendelseType getTema() {
@@ -158,12 +158,12 @@ public abstract class ManuellRegistreringDto extends BekreftetAksjonspunktDto {
         this.fremtidigeOppholdUtenlands = fremtidigeOppholdUtenlands;
     }
 
-    public boolean getErBarnetFodt() {
-        return erBarnetFodt;
+    public boolean getErBarnetFødt() {
+        return erBarnetFødt;
     }
 
-    public void setErBarnetFodt(boolean erBarnetFodt) {
-        this.erBarnetFodt = erBarnetFodt;
+    public void setErBarnetFødt(boolean erBarnetFødt) {
+        this.erBarnetFødt = erBarnetFødt;
     }
 
     public LocalDate getTermindato() {
@@ -198,12 +198,12 @@ public abstract class ManuellRegistreringDto extends BekreftetAksjonspunktDto {
         this.antallBarn = antallBarn;
     }
 
-    public LocalDate getFoedselsDato() {
-        return foedselsDato;
+    public LocalDate getFødselsdato() {
+        return fødselsdato;
     }
 
-    public void setFoedselsDato(LocalDate foedselsDato) {
-        this.foedselsDato = foedselsDato;
+    public void setFødselsdato(LocalDate fødselsdato) {
+        this.fødselsdato = fødselsdato;
     }
 
     public AnnenForelderDto getAnnenForelder() {
@@ -254,12 +254,12 @@ public abstract class ManuellRegistreringDto extends BekreftetAksjonspunktDto {
         this.mottattDato = mottattDato;
     }
 
-    public boolean getUfullstendigSoeknad() {
-        return ufullstendigSoeknad;
+    public boolean getUfullstendigSøknad() {
+        return ufullstendigSøknad;
     }
 
-    public void setUfullstendigSoeknad(boolean ufullstendigSoeknad) {
-        this.ufullstendigSoeknad = ufullstendigSoeknad;
+    public void setUfullstendigSøknad(boolean ufullstendigSøknad) {
+        this.ufullstendigSøknad = ufullstendigSøknad;
     }
 
     public OmsorgDto getOmsorg() {

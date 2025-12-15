@@ -13,8 +13,6 @@ public enum Organisasjonstype implements Kodeverdi {
     UDEFINERT(STANDARDKODE_UDEFINERT, "Udefinert"),
     ;
 
-    public static final String KODEVERK = "ORGANISASJONSTYPE";
-
     private final String navn;
     @JsonValue
     private final String kode;
@@ -27,11 +25,6 @@ public enum Organisasjonstype implements Kodeverdi {
     @Override
     public String getNavn() {
         return navn;
-    }
-
-    @Override
-    public String getKodeverk() {
-        return KODEVERK;
     }
 
     @Override

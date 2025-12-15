@@ -108,7 +108,7 @@ public class YtelseSøknadMapper implements SøknadMapper {
         var fordeling = new Fordeling();
         fordeling.setAnnenForelderErInformert(registreringDto.getAnnenForelderInformert());
 
-        var perioder = mapFordelingPerioder(registreringDto.getTidsromPermisjon(), registreringDto.getSoker());
+        var perioder = mapFordelingPerioder(registreringDto.getTidsromPermisjon(), registreringDto.getSøker());
         fordeling.getPerioder().addAll(perioder.stream().filter(Objects::nonNull).toList());
 
         return fordeling;
@@ -117,7 +117,7 @@ public class YtelseSøknadMapper implements SøknadMapper {
     private static List<LukketPeriodeMedVedlegg> mapFordelingPerioder(TidsromPermisjonDto tidsromPermisjon, ForeldreType soker) {
         List<LukketPeriodeMedVedlegg> result = new ArrayList<>();
         if (!isNull(tidsromPermisjon)) {
-            result.addAll(mapOverføringsperioder(tidsromPermisjon.getOverforingsperioder(), soker));
+            result.addAll(mapOverføringsperioder(tidsromPermisjon.getOverføringsperioder(), soker));
             result.addAll(mapUtsettelsesperioder(tidsromPermisjon.getUtsettelsePeriode()));
             result.addAll(mapUttaksperioder(tidsromPermisjon.getPermisjonsPerioder()));
             result.addAll(mapGraderingsperioder(tidsromPermisjon.getGraderingPeriode()));
@@ -158,7 +158,7 @@ public class YtelseSøknadMapper implements SøknadMapper {
         oppholdPeriode.setTom(oppholdDto.getPeriodeTom());
         var oppholdsaarsaker = new Oppholdsaarsaker();
         oppholdsaarsaker.setKode(oppholdDto.getÅrsak().getKode());
-        oppholdsaarsaker.setKodeverk(OppholdÅrsak.KODEVERK);
+        oppholdsaarsaker.setKodeverk(OppholdÅrsak.DISKRIMINATOR);
         oppholdPeriode.setAarsak(oppholdsaarsaker);
         return oppholdPeriode;
     }
@@ -225,8 +225,8 @@ public class YtelseSøknadMapper implements SøknadMapper {
         if (!isNull(tidsromPermisjon)) {
             var rettighet = new Rettigheter();
             if (!isNull(annenForelder)) {
-                rettighet.setHarAleneomsorgForBarnet(TRUE.equals(annenForelder.getSokerHarAleneomsorg()));
-                rettighet.setHarAnnenForelderRett(TRUE.equals(annenForelder.getDenAndreForelderenHarRettPaForeldrepenger()));
+                rettighet.setHarAleneomsorgForBarnet(annenForelder.getSøkerHarAleneomsorg());
+                rettighet.setHarAnnenForelderRett(annenForelder.getDenAndreForelderenHarRettPåForeldrepenger());
                 Optional.ofNullable(annenForelder.getMorMottarUføretrygd()).ifPresent(rettighet::setHarMorUforetrygd);
                 Optional.ofNullable(annenForelder.getAnnenForelderRettEØS())
                     .ifPresent(rettighet::setHarAnnenForelderTilsvarendeRettEOS);
@@ -298,7 +298,7 @@ public class YtelseSøknadMapper implements SøknadMapper {
 
         var årsak = new Overfoeringsaarsaker();
         årsak.setKode(overføringsperiode.getOverforingArsak().getKode());
-        årsak.setKodeverk(OverføringÅrsak.KODEVERK);
+        årsak.setKodeverk(OverføringÅrsak.DISKRIMINATOR);
         overfoeringsperiode.setAarsak(årsak);
 
         return overfoeringsperiode;

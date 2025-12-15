@@ -72,7 +72,7 @@ class FastsettUttakOppdatererTest {
     void skalReturnereUtenOveropp() {
         var fom = LocalDate.now();
         var tom = LocalDate.now().plusWeeks(2);
-        var aktivitetLagreDto = new UttakResultatPeriodeAktivitetLagreDto.Builder().medArbeidsforholdId(ARBEIDSFORHOLD_ID.getReferanse())
+        var aktivitetLagreDto = new UttakResultatPeriodeAktivitetLagreDto.Builder().medArbeidsforholdId(ARBEIDSFORHOLD_ID.getUUIDReferanse())
             .medUttakArbeidType(UttakArbeidType.ORDINÆRT_ARBEID)
             .medArbeidsgiver(new ArbeidsgiverLagreDto(ORGNR, null))
             .medTrekkdager(BigDecimal.ZERO)

@@ -1,6 +1,5 @@
 package no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode;
 
-import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -11,7 +10,6 @@ import com.fasterxml.jackson.annotation.JsonValue;
 
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
 
-
 public enum FordelingPeriodeKilde implements Kodeverdi {
 
     SØKNAD("SØKNAD", "Søknad"),
@@ -20,8 +18,6 @@ public enum FordelingPeriodeKilde implements Kodeverdi {
     SAKSBEHANDLER("SAKSBEHANDLER", "Saksbehandler")
     ;
     private static final Map<String, FordelingPeriodeKilde> KODER = new LinkedHashMap<>();
-
-    public static final String KODEVERK = "FORDELING_PERIODE_KILDE";
 
     static {
         for (var v : values()) {
@@ -40,18 +36,9 @@ public enum FordelingPeriodeKilde implements Kodeverdi {
         this.navn = navn;
     }
 
-    public static Map<String, FordelingPeriodeKilde> kodeMap() {
-        return Collections.unmodifiableMap(KODER);
-    }
-
     @Override
     public String getNavn() {
         return navn;
-    }
-
-    @Override
-    public String getKodeverk() {
-        return KODEVERK;
     }
 
     @Override

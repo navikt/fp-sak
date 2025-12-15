@@ -6,7 +6,6 @@ package no.nav.foreldrepenger.domene.iay.modell.kodeverk;
  * <p>
  */
 
-import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
@@ -33,8 +32,6 @@ public enum ArbeidsforholdHandlingType implements Kodeverdi {
             LAGT_TIL_AV_SAKSBEHANDLER);
 
     private static final Map<String, ArbeidsforholdHandlingType> KODER = new LinkedHashMap<>();
-
-    public static final String KODEVERK = "ARBEIDSFORHOLD_HANDLING_TYPE";
 
     static {
         for (var v : values()) {
@@ -64,18 +61,9 @@ public enum ArbeidsforholdHandlingType implements Kodeverdi {
         return ad;
     }
 
-    public static Map<String, ArbeidsforholdHandlingType> kodeMap() {
-        return Collections.unmodifiableMap(KODER);
-    }
-
     @Override
     public String getNavn() {
         return navn;
-    }
-
-    @Override
-    public String getKodeverk() {
-        return KODEVERK;
     }
 
     @Override

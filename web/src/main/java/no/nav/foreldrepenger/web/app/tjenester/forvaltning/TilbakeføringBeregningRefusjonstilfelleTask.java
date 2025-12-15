@@ -64,10 +64,10 @@ public class TilbakeføringBeregningRefusjonstilfelleTask extends BehandlingPros
     private void taAvVentOgTilbakefør(Behandling behandling) {
         var lås = behandlingRepository.taSkriveLås(behandling.getId());
         var stegFørBeregning = behandling.getFagsakYtelseType().equals(FagsakYtelseType.FORELDREPENGER) ? BehandlingStegType.DEKNINGSGRAD : BehandlingStegType.VURDER_SAMLET;
-        prosesseringTjeneste.reposisjonerBehandlingTilbakeTil(behandling, lås, stegFørBeregning);
         if (behandling.isBehandlingPåVent()) {
             prosesseringTjeneste.taBehandlingAvVent(behandling);
         }
+        prosesseringTjeneste.reposisjonerBehandlingTilbakeTil(behandling, lås, stegFørBeregning);
         prosesseringTjeneste.opprettTasksForFortsettBehandling(behandling);
 
     }

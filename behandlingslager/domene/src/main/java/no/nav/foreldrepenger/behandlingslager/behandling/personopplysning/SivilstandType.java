@@ -1,6 +1,5 @@
 package no.nav.foreldrepenger.behandlingslager.behandling.personopplysning;
 
-import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -27,8 +26,6 @@ public enum SivilstandType implements Kodeverdi {
     UGIFT("UGIF", "Ugift"),
     ;
 
-    public static final String KODEVERK = "SIVILSTAND_TYPE";
-
     private static final Map<String, SivilstandType> KODER = new LinkedHashMap<>();
 
     static {
@@ -38,7 +35,6 @@ public enum SivilstandType implements Kodeverdi {
             }
         }
     }
-
 
     private String navn;
     @JsonValue
@@ -55,19 +51,9 @@ public enum SivilstandType implements Kodeverdi {
     }
 
     @Override
-    public String getKodeverk() {
-        return KODEVERK;
-    }
-
-    @Override
     public String getNavn() {
         return navn;
     }
-
-    public static Map<String, SivilstandType> kodeMap() {
-        return Collections.unmodifiableMap(KODER);
-    }
-
 
     @Converter(autoApply = true)
     public static class KodeverdiConverter implements AttributeConverter<SivilstandType, String> {

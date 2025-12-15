@@ -25,8 +25,6 @@ public enum PeriodeÅrsak implements Kodeverdi {
 
     private static final Map<String, PeriodeÅrsak> KODER = new LinkedHashMap<>();
 
-    public static final String KODEVERK = "PERIODE_AARSAK";
-
     static {
         for (var v : values()) {
             if (KODER.putIfAbsent(v.kode, v) != null) {
@@ -56,18 +54,9 @@ public enum PeriodeÅrsak implements Kodeverdi {
         return ad;
     }
 
-    public static Map<String, PeriodeÅrsak> kodeMap() {
-        return Collections.unmodifiableMap(KODER);
-    }
-
     @Override
     public String getNavn() {
         return navn;
-    }
-
-    @Override
-    public String getKodeverk() {
-        return KODEVERK;
     }
 
     @Override

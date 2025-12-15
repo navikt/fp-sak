@@ -160,8 +160,12 @@ public class SvangerskapspengerTjeneste {
                 .map(yrkesaktivitet -> finnStillingsprosentForDato(yrkesaktivitet, førsteTilrStartDato, finnOverstyring(yrkesaktivitet.getArbeidsgiver(), yrkesaktivitet.getArbeidsforholdRef(), overstyringer).orElse(null)))
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
 
+            // Todo må legge inn regler for hvordan vi skal håndtere stillingsprosent over 100%, enn så lenge setter jeg den til 100% siden den ikke brukes i front end. Logger resultatet for å få en oversikt over hvor ofte dette skjer.
             if (stillingsprosent.compareTo(BigDecimal.valueOf(100)) > 0) {
                 LOG.info("SvangerskapspengerTjeneste: utledStillingsprosentForTilrPeriode: Stillingsprosent over 100% for tilrettelegging med id:{} og arbeidsgiver:{}, stillingsprosent:{}", tilrettelegging.getId(), tilrettelegging.getArbeidsgiver(), stillingsprosent);
+                yrkesaktiviteter.forEach( yrkesaktivitet -> LOG.info("SvangerskapspengerTjeneste: Yrkesaktivitet {}, stillingsprosent {} ",yrkesaktivitet.getArbeidsgiver(),
+                    finnStillingsprosentForDato(yrkesaktivitet, førsteTilrStartDato, finnOverstyring(yrkesaktivitet.getArbeidsgiver(), yrkesaktivitet.getArbeidsforholdRef(), overstyringer).orElse(null))));
+                stillingsprosent = BigDecimal.valueOf(100);
             }
             return Optional.of(stillingsprosent);
         } else {
@@ -261,7 +265,7 @@ public class SvangerskapspengerTjeneste {
         arbeidsforholdDto.setSkalBrukes(svpTilrettelegging.getSkalBrukes());
         arbeidsforholdDto.setUttakArbeidType(ARBTYPE_MAP.getOrDefault(svpTilrettelegging.getArbeidType(), UttakArbeidType.ANNET));
         svpTilrettelegging.getArbeidsgiver().ifPresent(ag -> arbeidsforholdDto.setArbeidsgiverReferanse(ag.getIdentifikator()));
-        svpTilrettelegging.getInternArbeidsforholdRef().ifPresent(ref -> arbeidsforholdDto.setInternArbeidsforholdReferanse(ref.getReferanse()));
+        svpTilrettelegging.getInternArbeidsforholdRef().ifPresent(ref -> arbeidsforholdDto.setInternArbeidsforholdReferanse(ref.getUUIDReferanse()));
         registerFilter.flatMap(rf -> utledStillingsprosentForTilrPeriode(rf, overstyringer, svpTilrettelegging)).ifPresent(arbeidsforholdDto::setStillingsprosentStartTilrettelegging);
         arbeidsforholdDto.setVelferdspermisjoner(finnRelevanteVelferdspermisjoner(svpTilrettelegging, registerFilter, saksbehandletFilter));
         finnEksternRef(svpTilrettelegging, arbeidsforholdInformasjon).ifPresent(arbeidsforholdDto::setEksternArbeidsforholdReferanse);

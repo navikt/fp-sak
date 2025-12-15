@@ -1,6 +1,5 @@
 package no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt;
 
-import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -19,7 +18,6 @@ public enum AksjonspunktType implements Kodeverdi {
     ;
 
     private static final Map<String, AksjonspunktType> KODER = new LinkedHashMap<>();
-    public static final String KODEVERK = "AKSJONSPUNKT_TYPE";
 
     static {
         for (var v : values()) {
@@ -40,7 +38,6 @@ public enum AksjonspunktType implements Kodeverdi {
         this.navn = navn;
     }
 
-
     @Override
     public String getNavn() {
         return navn;
@@ -49,15 +46,6 @@ public enum AksjonspunktType implements Kodeverdi {
     @Override
     public String getKode() {
         return kode;
-    }
-
-    @Override
-    public String getKodeverk() {
-        return KODEVERK;
-    }
-
-    public static Map<String, AksjonspunktType> kodeMap() {
-        return Collections.unmodifiableMap(KODER);
     }
 
     public boolean erAutopunkt() {

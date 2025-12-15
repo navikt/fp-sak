@@ -23,7 +23,7 @@ public class OppdaterAksjonspunktDefinisjonBatchTjeneste implements BatchTjenest
 
     static final String BATCHNAME = "BVL010";
     private static final String EXECUTION_ID_SEPARATOR = "-";
-    private static final String KODEVERK_AKSJONSPUNKT_DEF = AksjonspunktDefinisjon.KODEVERK;
+    private static final String KODEVERK_AKSJONSPUNKT_DEF = "AKSJONSPUNKT_DEF";
 
     private final LagretKodeverdiRepository lagretKodeverdiRepository;
 

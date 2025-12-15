@@ -1,6 +1,5 @@
 package no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak;
 
-import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -8,7 +7,6 @@ import jakarta.persistence.AttributeConverter;
 import jakarta.persistence.Converter;
 
 import com.fasterxml.jackson.annotation.JsonValue;
-
 
 public enum OppholdÅrsak implements Årsak {
 
@@ -20,7 +18,7 @@ public enum OppholdÅrsak implements Årsak {
     ;
     private static final Map<String, OppholdÅrsak> KODER = new LinkedHashMap<>();
 
-    public static final String KODEVERK = "OPPHOLD_AARSAK_TYPE";
+    public static final String DISKRIMINATOR = "OPPHOLD_AARSAK_TYPE";
 
     static {
         for (var v : values()) {
@@ -50,9 +48,6 @@ public enum OppholdÅrsak implements Årsak {
         }
         return ad;
     }
-    public static Map<String, OppholdÅrsak> kodeMap() {
-        return Collections.unmodifiableMap(KODER);
-    }
 
     @Override
     public String getNavn() {
@@ -60,13 +55,13 @@ public enum OppholdÅrsak implements Årsak {
     }
 
     @Override
-    public String getKodeverk() {
-        return KODEVERK;
+    public String getKode() {
+        return kode;
     }
 
     @Override
-    public String getKode() {
-        return kode;
+    public String getDiskriminator() {
+        return DISKRIMINATOR;
     }
 
     @Converter(autoApply = true)

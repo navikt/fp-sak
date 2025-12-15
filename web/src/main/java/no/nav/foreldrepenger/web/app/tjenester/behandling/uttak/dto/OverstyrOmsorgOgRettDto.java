@@ -1,5 +1,6 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto;
 
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -13,6 +14,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.Rettigh
 public class OverstyrOmsorgOgRettDto extends OverstyringAksjonspunktDto {
 
     @NotNull
+    @Valid
     private Rettighetstype rettighetstype;
 
     OverstyrOmsorgOgRettDto() {

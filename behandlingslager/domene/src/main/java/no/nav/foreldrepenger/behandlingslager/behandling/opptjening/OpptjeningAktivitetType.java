@@ -93,8 +93,6 @@ public enum OpptjeningAktivitetType implements Kodeverdi {
     private static final Map<OpptjeningAktivitetType, Set<ArbeidType>> INDEKS_OPPTJ_ARBEID = new LinkedHashMap<>();
     private static final Map<OpptjeningAktivitetType, Set<RelatertYtelseType>> INDEKS_OPPTJ_RELYT = new LinkedHashMap<>();
 
-    public static final String KODEVERK = "OPPTJENING_AKTIVITET_TYPE";
-
     static {
         for (var v : values()) {
             if (KODER.putIfAbsent(v.kode, v) != null) {
@@ -139,18 +137,9 @@ public enum OpptjeningAktivitetType implements Kodeverdi {
         return ad;
     }
 
-    public static Map<String, OpptjeningAktivitetType> kodeMap() {
-        return Collections.unmodifiableMap(KODER);
-    }
-
     @Override
     public String getNavn() {
         return navn;
-    }
-
-    @Override
-    public String getKodeverk() {
-        return KODEVERK;
     }
 
     @Override

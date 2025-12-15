@@ -16,8 +16,6 @@ public enum Diskresjonskode implements Kodeverdi, MedOffisiellKode {
 
     ;
 
-    private static final String KODEVERK = "DISKRESJONSKODE";
-
     private String navn;
 
     private String offisiellKode;
@@ -33,11 +31,6 @@ public enum Diskresjonskode implements Kodeverdi, MedOffisiellKode {
     @Override
     public String getNavn() {
         return navn;
-    }
-
-    @Override
-    public String getKodeverk() {
-        return KODEVERK;
     }
 
     @Override

@@ -1,6 +1,5 @@
 package no.nav.foreldrepenger.behandlingslager.behandling.opptjening;
 
-import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -20,8 +19,6 @@ public enum ReferanseType implements Kodeverdi {
 
     private static final Map<String, ReferanseType> KODER = new LinkedHashMap<>();
 
-    public static final String KODEVERK = "REFERANSE_TYPE";
-
     static {
         for (var v : values()) {
             if (KODER.putIfAbsent(v.kode, v) != null) {
@@ -40,18 +37,9 @@ public enum ReferanseType implements Kodeverdi {
         this.navn = navn;
     }
 
-    public static Map<String, ReferanseType> kodeMap() {
-        return Collections.unmodifiableMap(KODER);
-    }
-
     @Override
     public String getNavn() {
         return navn;
-    }
-
-    @Override
-    public String getKodeverk() {
-        return KODEVERK;
     }
 
     @Override

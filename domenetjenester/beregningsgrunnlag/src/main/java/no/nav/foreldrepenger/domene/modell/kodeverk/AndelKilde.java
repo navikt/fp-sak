@@ -8,7 +8,6 @@ import com.fasterxml.jackson.annotation.JsonValue;
 
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
 
-
 public enum AndelKilde implements Kodeverdi {
 
     SAKSBEHANDLER_KOFAKBER("SAKSBEHANDLER_KOFAKBER", "Saksbehandler i steg kontroller fakta beregning"),
@@ -19,8 +18,6 @@ public enum AndelKilde implements Kodeverdi {
     PROSESS_START("PROSESS_START", "Start av beregning"),
     ;
     private static final Map<String, AndelKilde> KODER = new LinkedHashMap<>();
-
-    public static final String KODEVERK = "ANDEL_KILDE";
 
     static {
         for (var v : values()) {
@@ -50,18 +47,9 @@ public enum AndelKilde implements Kodeverdi {
         }
         return ad;
     }
-    public static Map<String, AndelKilde> kodeMap() {
-        return Collections.unmodifiableMap(KODER);
-    }
-
     @Override
     public String getNavn() {
         return navn;
-    }
-
-    @Override
-    public String getKodeverk() {
-        return KODEVERK;
     }
 
     @Override

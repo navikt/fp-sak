@@ -8,14 +8,12 @@ import com.fasterxml.jackson.annotation.JsonValue;
 
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
 
-
 public enum BeregningAktivitetHandlingType implements Kodeverdi {
 
     BENYTT("BENYTT", "Benytt beregningaktivitet"),
     IKKE_BENYTT("IKKE_BENYTT", "Ikke benytt beregningaktivitet"),
     UDEFINERT(STANDARDKODE_UDEFINERT, "Ikke definert"),
     ;
-    public static final String KODEVERK = "BEREGNING_AKTIVITET_HANDLING_TYPE";
 
     private static final Map<String, BeregningAktivitetHandlingType> KODER = new LinkedHashMap<>();
 
@@ -48,18 +46,9 @@ public enum BeregningAktivitetHandlingType implements Kodeverdi {
         return ad;
     }
 
-    public static Map<String, BeregningAktivitetHandlingType> kodeMap() {
-        return Collections.unmodifiableMap(KODER);
-    }
-
     @Override
     public String getNavn() {
         return navn;
-    }
-
-    @Override
-    public String getKodeverk() {
-        return KODEVERK;
     }
 
     @Override

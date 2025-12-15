@@ -1,6 +1,5 @@
 package no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak;
 
-import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -19,7 +18,7 @@ public enum OverføringÅrsak implements Årsak {
     ;
     private static final Map<String, OverføringÅrsak> KODER = new LinkedHashMap<>();
 
-    public static final String KODEVERK = "OVERFOERING_AARSAK_TYPE";
+    public static final String DISKRIMINATOR = "OVERFOERING_AARSAK_TYPE";
 
     static {
         for (var v : values()) {
@@ -49,9 +48,6 @@ public enum OverføringÅrsak implements Årsak {
         }
         return ad;
     }
-    public static Map<String, OverføringÅrsak> kodeMap() {
-        return Collections.unmodifiableMap(KODER);
-    }
 
     @Override
     public String getNavn() {
@@ -59,13 +55,13 @@ public enum OverføringÅrsak implements Årsak {
     }
 
     @Override
-    public String getKodeverk() {
-        return KODEVERK;
+    public String getKode() {
+        return kode;
     }
 
     @Override
-    public String getKode() {
-        return kode;
+    public String getDiskriminator() {
+        return DISKRIMINATOR;
     }
 
     @Converter(autoApply = true)

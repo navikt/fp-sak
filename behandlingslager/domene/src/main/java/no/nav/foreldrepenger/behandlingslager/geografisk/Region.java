@@ -1,6 +1,5 @@
 package no.nav.foreldrepenger.behandlingslager.geografisk;
 
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -22,7 +21,6 @@ public enum Region implements Kodeverdi {
 
     public static final Comparator<Region> COMPARATOR = Comparator.comparing(Region::getRank);
 
-    public static final String KODEVERK = "REGION";
     private static final Map<String, Region> KODER = new LinkedHashMap<>();
 
     static {
@@ -45,10 +43,6 @@ public enum Region implements Kodeverdi {
         this.rank = rank;
     }
 
-    public static Map<String, Region> kodeMap() {
-        return Collections.unmodifiableMap(KODER);
-    }
-
     public int getRank() {
         return rank;
     }
@@ -61,11 +55,6 @@ public enum Region implements Kodeverdi {
     @Override
     public String getKode() {
         return kode;
-    }
-
-    @Override
-    public String getKodeverk() {
-        return KODEVERK;
     }
 
 }

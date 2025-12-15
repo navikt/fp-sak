@@ -17,7 +17,7 @@ import no.nav.vedtak.felles.xml.soeknad.svangerskapspenger.v1.Svangerskapspenger
 
 class SøknadMapperTest {
 
-    private YtelseSøknadMapper ytelseSøknadMapper = new YtelseSøknadMapper();
+    private final YtelseSøknadMapper ytelseSøknadMapper = new YtelseSøknadMapper();
 
     @Test
     void mapping_av_dto_struktur_til_xml_for_arbeidstaker_i_virksomhet() {
@@ -26,7 +26,7 @@ class SøknadMapperTest {
 
         var svangerskapspengerDto = new ManuellRegistreringSvangerskapspengerDto();
 
-        svangerskapspengerDto.setSoker(ForeldreType.MOR);
+        svangerskapspengerDto.setSøker(ForeldreType.MOR);
         svangerskapspengerDto.setTermindato(termindato);
 
         var tilretteleggingArbeidsforhold = new SvpTilretteleggingVirksomhetDto();
@@ -41,14 +41,14 @@ class SøknadMapperTest {
         var søknad = ytelseSøknadMapper.mapSøknad(svangerskapspengerDto, lagNavBruker());
 
         assertThat(søknad).isNotNull();
-        var object = ((JAXBElement<?>) søknad.getOmYtelse().getAny().get(0)).getValue();
+        var object = ((JAXBElement<?>) søknad.getOmYtelse().getAny().getFirst()).getValue();
         assertThat(object).isInstanceOf(Svangerskapspenger.class);
         var svangerskapspenger = (Svangerskapspenger) object;
         assertThat(svangerskapspenger.getTermindato()).isEqualTo(termindato);
         assertThat(svangerskapspenger.getTilretteleggingListe().getTilrettelegging()).hasSize(1);
-        var tilretteleggingRot = svangerskapspenger.getTilretteleggingListe().getTilrettelegging().get(0);
+        var tilretteleggingRot = svangerskapspenger.getTilretteleggingListe().getTilrettelegging().getFirst();
         assertThat(tilretteleggingRot.getIngenTilrettelegging()).hasSize(1);
-        assertThat(tilretteleggingRot.getIngenTilrettelegging().get(0).getSlutteArbeidFom()).isEqualTo(behovsdato);
+        assertThat(tilretteleggingRot.getIngenTilrettelegging().getFirst().getSlutteArbeidFom()).isEqualTo(behovsdato);
         assertThat(tilretteleggingRot.getHelTilrettelegging()).isEmpty();
         assertThat(tilretteleggingRot.getDelvisTilrettelegging()).isEmpty();
     }

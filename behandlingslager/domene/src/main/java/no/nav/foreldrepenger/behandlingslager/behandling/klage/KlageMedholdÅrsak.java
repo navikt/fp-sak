@@ -1,6 +1,5 @@
 package no.nav.foreldrepenger.behandlingslager.behandling.klage;
 
-import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -22,8 +21,6 @@ public enum KlageMedholdÅrsak implements Kodeverdi {
 
     private static final Map<String, KlageMedholdÅrsak> KODER = new LinkedHashMap<>();
 
-    public static final String KODEVERK = "KLAGE_MEDHOLD_AARSAK";
-
     static {
         for (var v : values()) {
             if (KODER.putIfAbsent(v.kode, v) != null) {
@@ -42,18 +39,9 @@ public enum KlageMedholdÅrsak implements Kodeverdi {
         this.navn = navn;
     }
 
-    public static Map<String, KlageMedholdÅrsak> kodeMap() {
-        return Collections.unmodifiableMap(KODER);
-    }
-
     @Override
     public String getNavn() {
         return navn;
-    }
-
-    @Override
-    public String getKodeverk() {
-        return KODEVERK;
     }
 
     @Override

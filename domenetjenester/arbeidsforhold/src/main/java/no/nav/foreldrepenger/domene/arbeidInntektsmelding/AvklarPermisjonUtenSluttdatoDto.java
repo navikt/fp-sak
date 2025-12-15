@@ -1,7 +1,16 @@
 package no.nav.foreldrepenger.domene.arbeidInntektsmelding;
 
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 
-import no.nav.foreldrepenger.domene.iay.modell.kodeverk.BekreftetPermisjonStatus;
+import jakarta.validation.constraints.Pattern;
 
-public record AvklarPermisjonUtenSluttdatoDto(@NotNull String arbeidsgiverIdent, String internArbeidsforholdId, @NotNull BekreftetPermisjonStatus permisjonStatus) {}
+import no.nav.foreldrepenger.domene.iay.modell.kodeverk.BekreftetPermisjonStatus;
+import no.nav.foreldrepenger.validering.ValidKodeverk;
+import no.nav.vedtak.util.InputValideringRegex;
+
+import java.util.UUID;
+
+public record AvklarPermisjonUtenSluttdatoDto(@NotNull @Pattern(regexp = InputValideringRegex.ARBEIDSGIVER) String arbeidsgiverIdent,
+                                              UUID internArbeidsforholdId,
+                                              @NotNull @ValidKodeverk BekreftetPermisjonStatus permisjonStatus) {}

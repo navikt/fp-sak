@@ -17,8 +17,6 @@ public enum FaktaVurderingKilde implements Kodeverdi {
 
     private static final Map<String, FaktaVurderingKilde> KODER = new LinkedHashMap<>();
 
-    public static final String KODEVERK = "FAKTA_VURDERING_KILDE";
-
     static {
         for (var v : values()) {
             if (KODER.putIfAbsent(v.kode, v) != null) {
@@ -47,18 +45,9 @@ public enum FaktaVurderingKilde implements Kodeverdi {
         return ad;
     }
 
-    public static Map<String, FaktaVurderingKilde> kodeMap() {
-        return Collections.unmodifiableMap(KODER);
-    }
-
     @Override
     public String getKode() {
         return kode;
-    }
-
-    @Override
-    public String getKodeverk() {
-        return KODEVERK;
     }
 
     @Override

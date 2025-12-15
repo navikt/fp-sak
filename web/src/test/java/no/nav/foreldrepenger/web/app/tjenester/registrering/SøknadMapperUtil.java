@@ -42,11 +42,11 @@ public class SøknadMapperUtil {
                                             LocalDate fødselssdato,
                                             int antallBarn) {
         dto.setTema(FamilieHendelseType.FØDSEL);
-        dto.setSoker(ForeldreType.MOR);
+        dto.setSøker(ForeldreType.MOR);
         dto.setMottattDato(LocalDate.now());
-        dto.setFoedselsDato(fødselssdato);
+        dto.setFødselsdato(fødselssdato);
         dto.setAntallBarn(antallBarn);
-        dto.setErBarnetFodt(erBarnetFødt);
+        dto.setErBarnetFødt(erBarnetFødt);
     }
 
     public static UtsettelseDto opprettUtsettelseDto(LocalDate fraDato, LocalDate tilDato, UttakPeriodeType gradering) {
@@ -77,16 +77,16 @@ public class SøknadMapperUtil {
 
     static ManuellRegistreringEngangsstonadDto opprettAdosjonDto(FamilieHendelseType tema,
                                                                  LocalDate omsorgsovertakelsesdato,
-                                                                 LocalDate fødselssdato,
+                                                                 LocalDate fødselsdato,
                                                                  int antallBarn,
                                                                  LocalDate ankomstdato) {
         var manuellRegistreringEngangsstonadDto = new ManuellRegistreringEngangsstonadDto();
         manuellRegistreringEngangsstonadDto.setTema(tema);
-        manuellRegistreringEngangsstonadDto.setSoker(ForeldreType.MOR);
+        manuellRegistreringEngangsstonadDto.setSøker(ForeldreType.MOR);
 
         var omsorgDto = new OmsorgDto();
         omsorgDto.setOmsorgsovertakelsesdato(omsorgsovertakelsesdato);
-        omsorgDto.setFoedselsDato(List.of(fødselssdato));
+        omsorgDto.setFødselsdato(List.of(fødselsdato));
         omsorgDto.setAntallBarn(antallBarn);
         omsorgDto.setAnkomstdato(ankomstdato);
         manuellRegistreringEngangsstonadDto.setOmsorg(omsorgDto);
@@ -100,14 +100,14 @@ public class SøknadMapperUtil {
                                                                 int antallBarn,
                                                                 LocalDate fødselsdato) {
         var manuellRegistreringEngangsstonadDto = new ManuellRegistreringEngangsstonadDto();
-        manuellRegistreringEngangsstonadDto.setSoker(ForeldreType.MOR);
+        manuellRegistreringEngangsstonadDto.setSøker(ForeldreType.MOR);
         manuellRegistreringEngangsstonadDto.setRettigheter(rettighet);
         manuellRegistreringEngangsstonadDto.setTema(tema);
 
         var omsorgDto = new OmsorgDto();
         omsorgDto.setOmsorgsovertakelsesdato(omsorgsovertakelsesdato);
         omsorgDto.setAntallBarn(antallBarn);
-        omsorgDto.setFoedselsDato(List.of(fødselsdato));
+        omsorgDto.setFødselsdato(List.of(fødselsdato));
         manuellRegistreringEngangsstonadDto.setOmsorg(omsorgDto);
 
         return manuellRegistreringEngangsstonadDto;
@@ -121,8 +121,8 @@ public class SøknadMapperUtil {
             annenForelderDto.setKanIkkeOppgiAnnenForelder(kanIkkeOppgiAnnenForelder);
             var kanIkkeOppgiBegrunnelse = new AnnenForelderDto.KanIkkeOppgiBegrunnelse();
             annenForelderDto.setKanIkkeOppgiBegrunnelse(kanIkkeOppgiBegrunnelse);
-            annenForelderDto.setDenAndreForelderenHarRettPaForeldrepenger(harRettPåForeldrepenger);
-            annenForelderDto.setSokerHarAleneomsorg(harAleneomsorg);
+            annenForelderDto.setDenAndreForelderenHarRettPåForeldrepenger(harRettPåForeldrepenger);
+            annenForelderDto.setSøkerHarAleneomsorg(harAleneomsorg);
         }
         return annenForelderDto;
     }

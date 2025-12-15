@@ -1,6 +1,5 @@
 package no.nav.foreldrepenger.behandlingslager.behandling.vilkår;
 
-import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -51,8 +50,6 @@ public enum VilkårUtfallMerknad implements Kodeverdi {
 
     private static final Map<String, VilkårUtfallMerknad> KODER = new LinkedHashMap<>();
 
-    public static final String KODEVERK = "VILKAR_UTFALL_MERKNAD";
-
     private final String navn;
     @JsonValue
     private final String kode;
@@ -73,18 +70,9 @@ public enum VilkårUtfallMerknad implements Kodeverdi {
         return ad;
     }
 
-    public static Map<String, VilkårUtfallMerknad> kodeMap() {
-        return Collections.unmodifiableMap(KODER);
-    }
-
     @Override
     public String getNavn() {
         return navn;
-    }
-
-    @Override
-    public String getKodeverk() {
-        return KODEVERK;
     }
 
     @Override

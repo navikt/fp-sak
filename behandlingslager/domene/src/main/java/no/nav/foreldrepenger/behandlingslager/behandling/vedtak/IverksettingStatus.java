@@ -1,6 +1,5 @@
 package no.nav.foreldrepenger.behandlingslager.behandling.vedtak;
 
-import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -20,7 +19,6 @@ public enum IverksettingStatus implements Kodeverdi {
 
     ;
 
-    public static final String KODEVERK = "IVERKSETTING_STATUS";
     private static final Map<String, IverksettingStatus> KODER = new LinkedHashMap<>();
 
     private String navn;
@@ -33,18 +31,9 @@ public enum IverksettingStatus implements Kodeverdi {
         this.navn = navn;
     }
 
-    public static Map<String, IverksettingStatus> kodeMap() {
-        return Collections.unmodifiableMap(KODER);
-    }
-
     @Override
     public String getNavn() {
         return navn;
-    }
-
-    @Override
-    public String getKodeverk() {
-        return KODEVERK;
     }
 
     @Override

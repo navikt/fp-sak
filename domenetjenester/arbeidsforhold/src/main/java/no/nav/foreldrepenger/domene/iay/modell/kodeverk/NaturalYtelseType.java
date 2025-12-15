@@ -1,6 +1,5 @@
 package no.nav.foreldrepenger.domene.iay.modell.kodeverk;
 
-import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -37,8 +36,6 @@ public enum NaturalYtelseType implements Kodeverdi, MedOffisiellKode {
 
     private static final Map<String, NaturalYtelseType> KODER = new LinkedHashMap<>();
 
-    public static final String KODEVERK = "NATURAL_YTELSE_TYPE";
-
     static {
         for (var v : values()) {
             if (KODER.putIfAbsent(v.kode, v) != null) {
@@ -69,18 +66,9 @@ public enum NaturalYtelseType implements Kodeverdi, MedOffisiellKode {
         return ad;
     }
 
-    public static Map<String, NaturalYtelseType> kodeMap() {
-        return Collections.unmodifiableMap(KODER);
-    }
-
     @Override
     public String getNavn() {
         return navn;
-    }
-
-    @Override
-    public String getKodeverk() {
-        return KODEVERK;
     }
 
     @Override
