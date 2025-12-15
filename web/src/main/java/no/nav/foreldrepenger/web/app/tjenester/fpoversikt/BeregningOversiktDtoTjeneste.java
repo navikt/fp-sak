@@ -102,7 +102,8 @@ public class BeregningOversiktDtoTjeneste {
     private List<FpSak.Beregningsgrunnlag.BeregningsAndel> mapAndelerMedArbeidsforhold(List<BeregningsgrunnlagPrStatusOgAndel> arbeidsandeler, List<Inntektsmelding> inntektsmeldinger) {
         var finnesArbeidsandelUtenArbeidstaker = arbeidsandeler.stream().anyMatch(a -> a.getBgAndelArbeidsforhold().map(BGAndelArbeidsforhold::getArbeidsgiver).isEmpty());
         if (finnesArbeidsandelUtenArbeidstaker) {
-            throw new IllegalStateException("Støttes ikke ennå");
+            // TODO Implementer
+            return List.of();
         }
         Map<Arbeidsgiver, List<BeregningsgrunnlagPrStatusOgAndel>> andelerPrArbeidsgiver = arbeidsandeler.stream()
             .collect(Collectors.groupingBy(
@@ -156,6 +157,9 @@ public class BeregningOversiktDtoTjeneste {
         }
         if (andel.getAktivitetStatus().equals(AktivitetStatus.DAGPENGER)) {
             return new FpSak.Beregningsgrunnlag.BeregningsAndel(mapAktivitetstatus(andel.getAktivitetStatus()), fastsattPrÅr, FpSak.Beregningsgrunnlag.InntektsKilde.VEDTAK_ANNEN_YTELSE, null, null, BigDecimal.valueOf(andel.getDagsats()));
+        }
+        if (andel.getAktivitetStatus().equals(AktivitetStatus.BRUKERS_ANDEL)) {
+            return new FpSak.Beregningsgrunnlag.BeregningsAndel(mapAktivitetstatus(andel.getAktivitetStatus()), fastsattPrÅr, FpSak.Beregningsgrunnlag.InntektsKilde.SKJØNNSFASTSATT, null, null, BigDecimal.valueOf(andel.getDagsats()));
         }
         if (andel.getAktivitetStatus().equals(AktivitetStatus.MILITÆR_ELLER_SIVIL)) {
             throw new IllegalStateException("Støttes ikke ennå");
