@@ -78,22 +78,12 @@
       "cluster": "prod-fss"
     },
     {
-      "app": "fpfordel",
-      "namespace": "teamforeldrepenger",
-      "cluster": "prod-fss"
-    },
-    {
       "app": "fpmottak",
       "namespace": "teamforeldrepenger",
       "cluster": "prod-gcp"
     },
     {
       "app": "fpabakus",
-      "namespace": "teamforeldrepenger",
-      "cluster": "prod-fss"
-    },
-    {
-      "app": "fpabonnent",
       "namespace": "teamforeldrepenger",
       "cluster": "prod-fss"
     },
