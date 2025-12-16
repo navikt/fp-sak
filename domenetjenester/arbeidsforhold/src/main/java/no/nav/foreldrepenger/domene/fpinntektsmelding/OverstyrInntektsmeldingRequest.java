@@ -40,4 +40,12 @@ public record OverstyrInntektsmeldingRequest(@NotNull @Valid AktørIdDto aktorId
                                                   LocalDate tom,
                                                   @NotNull NaturalYtelseType naturalytelsetype,
                                                   @NotNull @Min(0) @Max(Integer.MAX_VALUE) @Digits(integer = 20, fraction = 2) BigDecimal beløp) {}
+
+    @Override
+    public String toString() {
+        return "OverstyrInntektsmeldingRequest{" + "aktorId=" + "***" + ", arbeidsgiverIdent=" + "***" + ", startdato=" + startdato
+            + ", ytelse=" + ytelse + ", inntekt=" + inntekt + ", refusjon=" + refusjon + ", refusjonsendringer=" + refusjonsendringer
+            + ", bortfaltNaturalytelsePerioder=" + bortfaltNaturalytelsePerioder + ", opprettetAv='" + opprettetAv + '\'' + ", fagsystemSaksnummer="
+            + fagsystemSaksnummer + '}';
+    }
 }

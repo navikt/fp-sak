@@ -10,7 +10,6 @@ public interface Kodeverdi extends IndexKey {
 
     String getKode();
 
-    String getKodeverk();
 
     String getNavn();
 

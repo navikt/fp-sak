@@ -1,6 +1,5 @@
 package no.nav.foreldrepenger.behandlingslager.behandling;
 
-import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
@@ -36,7 +35,6 @@ public enum BehandlingType implements Kodeverdi, MedOffisiellKode {
     private static final Set<BehandlingType> KLAGE_BEHANDLING_TYPER = Set.of(KLAGE, ANKE);
     private static final Set<BehandlingType> ANDRE_BEHANDLING_TYPER = Set.of(KLAGE, ANKE, INNSYN);
 
-    public static final String KODEVERK = "BEHANDLING_TYPE";
     private static final Map<String, BehandlingType> KODER = new LinkedHashMap<>();
 
     static {
@@ -77,10 +75,6 @@ public enum BehandlingType implements Kodeverdi, MedOffisiellKode {
         return ad;
     }
 
-    public static Map<String, BehandlingType> kodeMap() {
-        return Collections.unmodifiableMap(KODER);
-    }
-
     @Override
     public String getNavn() {
         return navn;
@@ -89,11 +83,6 @@ public enum BehandlingType implements Kodeverdi, MedOffisiellKode {
     @Override
     public String getKode() {
         return kode;
-    }
-
-    @Override
-    public String getKodeverk() {
-        return KODEVERK;
     }
 
     @Override

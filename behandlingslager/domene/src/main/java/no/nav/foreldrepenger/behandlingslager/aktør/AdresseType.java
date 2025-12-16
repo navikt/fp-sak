@@ -1,6 +1,5 @@
 package no.nav.foreldrepenger.behandlingslager.aktør;
 
-import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
@@ -25,8 +24,6 @@ public enum AdresseType implements Kodeverdi {
 
     private static final Map<String, AdresseType> KODER = new LinkedHashMap<>();
 
-    private static final String KODEVERK = "ADRESSE_TYPE";
-
     static {
         for (var v : values()) {
             if (KODER.putIfAbsent(v.kode, v) != null) {
@@ -45,18 +42,9 @@ public enum AdresseType implements Kodeverdi {
         this.navn = navn;
     }
 
-    public static Map<String, AdresseType> kodeMap() {
-        return Collections.unmodifiableMap(KODER);
-    }
-
     @Override
     public String getNavn() {
         return navn;
-    }
-
-    @Override
-    public String getKodeverk() {
-        return KODEVERK;
     }
 
     @Override

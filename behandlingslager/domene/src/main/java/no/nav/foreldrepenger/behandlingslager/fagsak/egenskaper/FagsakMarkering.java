@@ -1,6 +1,5 @@
 package no.nav.foreldrepenger.behandlingslager.fagsak.egenskaper;
 
-import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
@@ -54,10 +53,6 @@ public enum FagsakMarkering implements EgenskapVerdi, Kodeverdi {
         return name();
     }
 
-    @Override
-    public String getKodeverk() {
-        return EgenskapNøkkel.FAGSAK_MARKERING.name();
-    }
 
     @Override
     public String getNavn() {
@@ -78,7 +73,4 @@ public enum FagsakMarkering implements EgenskapVerdi, Kodeverdi {
         }
     }
 
-    public static Map<String, FagsakMarkering> kodeMap() {
-        return Collections.unmodifiableMap(KODER);
-    }
 }

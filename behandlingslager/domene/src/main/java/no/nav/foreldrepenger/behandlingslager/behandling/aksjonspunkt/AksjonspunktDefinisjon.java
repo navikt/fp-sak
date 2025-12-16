@@ -477,7 +477,6 @@ public enum AksjonspunktDefinisjon implements Kodeverdi {
     @Deprecated
     UTGÅTT_7041("7041", AksjonspunktType.AUTOPUNKT, "Vent på vedtak om lovendring vedrørende beregning av næring i kombinasjon med arbeid eller frilans"),
     ;
-    public static final String KODEVERK = "AKSJONSPUNKT_DEF";
 
     private static final Map<String, AksjonspunktDefinisjon> KODER = new LinkedHashMap<>();
 
@@ -500,7 +499,6 @@ public enum AksjonspunktDefinisjon implements Kodeverdi {
 
     private static final Set<AksjonspunktDefinisjon> IKKE_KLAR_FOR_INNTEKTSMELDING = Set.of(AksjonspunktDefinisjon.VENT_PGA_FOR_TIDLIG_SØKNAD,
         AksjonspunktDefinisjon.VENT_PÅ_SØKNAD, AksjonspunktDefinisjon.REGISTRER_PAPIRSØKNAD_FORELDREPENGER);
-
 
     private static final Map<AksjonspunktDefinisjon, Set<AksjonspunktDefinisjon>> UTELUKKENDE_AP_MAP = Map.ofEntries(
         Map.entry(AksjonspunktDefinisjon.SJEKK_MANGLENDE_FØDSEL, Set.of(AksjonspunktDefinisjon.SJEKK_TERMINBEKREFTELSE)),
@@ -606,7 +604,6 @@ public enum AksjonspunktDefinisjon implements Kodeverdi {
         this.utviderBehandlingsfrist = utviderBehandlingsfrist;
     }
 
-
     /**
      * @deprecated Bruk heller
      *             {@link Historikkinnslag.Builder#medTittel(SkjermlenkeType)}
@@ -688,11 +685,6 @@ public enum AksjonspunktDefinisjon implements Kodeverdi {
         return vurderingspunktType;
     }
 
-    @Override
-    public String getKodeverk() {
-        return KODEVERK;
-    }
-
     /** Aksjonspunkt tidligere brukt, nå utgått (kan ikke gjenoppstå). */
     public boolean erUtgått() {
         return erUtgått;
@@ -712,10 +704,6 @@ public enum AksjonspunktDefinisjon implements Kodeverdi {
             throw new IllegalArgumentException("Ukjent AksjonspunktDefinisjon: " + kode);
         }
         return ad;
-    }
-
-    public static Map<String, AksjonspunktDefinisjon> kodeMap() {
-        return Collections.unmodifiableMap(KODER);
     }
 
     public static List<AksjonspunktDefinisjon> finnAksjonspunktDefinisjoner(BehandlingStegType behandlingStegType, VurderingspunktType vurderingspunktType) {

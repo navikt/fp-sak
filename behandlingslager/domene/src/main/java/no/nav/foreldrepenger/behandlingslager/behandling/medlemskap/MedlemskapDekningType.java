@@ -3,7 +3,6 @@ package no.nav.foreldrepenger.behandlingslager.behandling.medlemskap;
 import static java.util.Arrays.asList;
 import static java.util.Collections.unmodifiableList;
 
-import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -33,7 +32,6 @@ public enum MedlemskapDekningType implements Kodeverdi {
     UDEFINERT(STANDARDKODE_UDEFINERT, "Ikke definert"),
     ;
 
-
     public static final List<MedlemskapDekningType> DEKNINGSTYPER = unmodifiableList(asList(
         FTL_2_6, FTL_2_7_A, FTL_2_7_B, FTL_2_9_1_A, FTL_2_9_1_B, FTL_2_9_1_C, FTL_2_9_2_A, FTL_2_9_2_C,
         FULL,
@@ -49,10 +47,7 @@ public enum MedlemskapDekningType implements Kodeverdi {
 
     public static final List<MedlemskapDekningType> DEKNINGSTYPE_ER_UAVKLART = List.of(IHT_AVTALE, OPPHOR);
 
-
     private static final Map<String, MedlemskapDekningType> KODER = new LinkedHashMap<>();
-
-    public static final String KODEVERK = "MEDLEMSKAP_DEKNING";
 
     static {
         for (var v : values()) {
@@ -72,18 +67,9 @@ public enum MedlemskapDekningType implements Kodeverdi {
         this.navn = navn;
     }
 
-    public static Map<String, MedlemskapDekningType> kodeMap() {
-        return Collections.unmodifiableMap(KODER);
-    }
-
     @Override
     public String getNavn() {
         return navn;
-    }
-
-    @Override
-    public String getKodeverk() {
-        return KODEVERK;
     }
 
     @Override

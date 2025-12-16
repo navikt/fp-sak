@@ -2,7 +2,10 @@ package no.nav.foreldrepenger.behandlingslager.behandling;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import java.time.DayOfWeek;
 import java.time.LocalDate;
+import java.time.Year;
+import java.time.temporal.ChronoField;
 import java.time.temporal.TemporalAdjusters;
 import java.util.List;
 import java.util.Objects;
@@ -58,23 +61,26 @@ class NøkkeltallBehandlingRepositoryTest {
     }
 
     @Test
-    void skalRapportereFristUtløper() {
+    void skalRapportereFristUtløperUke() {
         var søknad = ScenarioMorSøkerForeldrepenger.forFødsel()
             .medBehandlendeEnhet("4833")
             .medDefaultFordeling(LocalDate.now().plusDays(20))
             .leggTilAksjonspunkt(AksjonspunktDefinisjon.AUTO_MANUELT_SATT_PÅ_VENT, BehandlingStegType.INNHENT_PERSONOPPLYSNINGER);
         søknad.lagre(repositoryProvider);
-        var forventetNøkkeltallBehandlingVentestatus = forventetFrist(søknad);
-        var nøkkeltall = nøkkeltallBehandlingRepository.hentNøkkeltallVentefristUtløper();
+        var forventetNøkkeltallBehandlingVentestatus = forventetFristUke(søknad);
+        var nøkkeltall = nøkkeltallBehandlingRepository.hentNøkkeltallVentefristUtløperUke();
         var resultat = antallTreff(nøkkeltall, forventetNøkkeltallBehandlingVentestatus);
         assertThat(resultat).isPositive();
     }
 
-    private NøkkeltallBehandlingVentefristUtløper forventetFrist(ScenarioMorSøkerForeldrepenger søknad) {
+    private NøkkeltallBehandlingVentefristUtløper forventetFristUke(ScenarioMorSøkerForeldrepenger søknad) {
         var forventetEnhet = søknad.getBehandling().getBehandlendeEnhet();
-        var forventetFrist = søknad.getBehandling().getAksjonspunkter().stream().findFirst().map(Aksjonspunkt::getFristTid).orElseThrow().toLocalDate();
+        var forventetFrist = søknad.getBehandling().getAksjonspunkter().stream().findFirst()
+            .map(Aksjonspunkt::getFristTid).orElseThrow()
+            .toLocalDate().with(DayOfWeek.MONDAY);
         var forventetYtelseType = søknad.getFagsak().getYtelseType();
-        return new NøkkeltallBehandlingVentefristUtløper(forventetEnhet, forventetYtelseType, forventetFrist, 1L);
+        return new NøkkeltallBehandlingVentefristUtløper(forventetEnhet, forventetYtelseType,
+            Year.from(forventetFrist) + "-" + forventetFrist.get(ChronoField.ALIGNED_WEEK_OF_YEAR), 1L);
     }
 
     private static int antallTreff(List<NøkkeltallBehandlingFørsteUttak> nøkkeltallInitiell,
@@ -93,7 +99,6 @@ class NøkkeltallBehandlingRepositoryTest {
         return nøkkeltallInitiell.stream()
             .filter(i -> Objects.equals(i.behandlendeEnhet(), forventet.behandlendeEnhet()))
             .filter(i -> Objects.equals(i.fagsakYtelseType(), forventet.fagsakYtelseType()))
-            .filter(i -> Objects.equals(i.behandlingFrist(), forventet.behandlingFrist()))
             .mapToLong(NøkkeltallBehandlingVentefristUtløper::antall)
             .sum();
     }

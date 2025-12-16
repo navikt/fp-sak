@@ -1,6 +1,5 @@
 package no.nav.foreldrepenger.behandlingslager.behandling;
 
-import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -18,8 +17,6 @@ public enum RettenTil implements Kodeverdi {
     UDEFINERT(STANDARDKODE_UDEFINERT, "Udefinert"),
     ;
 
-    public static final String KODEVERK = "RETTEN_TIL";
-
     private static final Map<String, RettenTil> KODER = new LinkedHashMap<>();
 
     private String navn;
@@ -32,18 +29,9 @@ public enum RettenTil implements Kodeverdi {
         this.navn = navn;
     }
 
-    public static Map<String, RettenTil> kodeMap() {
-        return Collections.unmodifiableMap(KODER);
-    }
-
     @Override
     public String getNavn() {
         return navn;
-    }
-
-    @Override
-    public String getKodeverk() {
-        return KODEVERK;
     }
 
     @Override

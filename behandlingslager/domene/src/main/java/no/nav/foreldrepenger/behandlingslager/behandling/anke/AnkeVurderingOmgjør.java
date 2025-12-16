@@ -1,6 +1,5 @@
 package no.nav.foreldrepenger.behandlingslager.behandling.anke;
 
-import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -11,7 +10,6 @@ import com.fasterxml.jackson.annotation.JsonValue;
 
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
 
-
 public enum AnkeVurderingOmgjør implements Kodeverdi {
 
     ANKE_TIL_GUNST("ANKE_TIL_GUNST", "Gunst omgjør i anke"),
@@ -20,8 +18,6 @@ public enum AnkeVurderingOmgjør implements Kodeverdi {
     UDEFINERT(STANDARDKODE_UDEFINERT, "Udefinert"),
     ;
     private static final Map<String, AnkeVurderingOmgjør> KODER = new LinkedHashMap<>();
-
-    public static final String KODEVERK = "ANKE_VURDERING_OMGJOER";
 
     static {
         for (var v : values()) {
@@ -41,18 +37,9 @@ public enum AnkeVurderingOmgjør implements Kodeverdi {
         this.navn = navn;
     }
 
-    public static Map<String, AnkeVurderingOmgjør> kodeMap() {
-        return Collections.unmodifiableMap(KODER);
-    }
-
     @Override
     public String getNavn() {
         return navn;
-    }
-
-    @Override
-    public String getKodeverk() {
-        return KODEVERK;
     }
 
     @Override

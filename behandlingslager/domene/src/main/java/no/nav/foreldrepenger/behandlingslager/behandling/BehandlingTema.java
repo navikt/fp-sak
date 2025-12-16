@@ -25,8 +25,6 @@ public enum BehandlingTema implements Kodeverdi, MedOffisiellKode {
 
     ;
 
-    public static final String KODEVERK = "BEHANDLING_TEMA";
-
     private final String navn;
 
     private final String offisiellKode;
@@ -39,15 +37,9 @@ public enum BehandlingTema implements Kodeverdi, MedOffisiellKode {
         this.offisiellKode = offisiellKode;
     }
 
-
     @Override
     public String getNavn() {
         return navn;
-    }
-
-    @Override
-    public String getKodeverk() {
-        return KODEVERK;
     }
 
     @Override

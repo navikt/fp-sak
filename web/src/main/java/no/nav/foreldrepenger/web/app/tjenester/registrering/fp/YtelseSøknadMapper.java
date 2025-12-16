@@ -158,7 +158,7 @@ public class YtelseSøknadMapper implements SøknadMapper {
         oppholdPeriode.setTom(oppholdDto.getPeriodeTom());
         var oppholdsaarsaker = new Oppholdsaarsaker();
         oppholdsaarsaker.setKode(oppholdDto.getÅrsak().getKode());
-        oppholdsaarsaker.setKodeverk(OppholdÅrsak.KODEVERK);
+        oppholdsaarsaker.setKodeverk(OppholdÅrsak.DISKRIMINATOR);
         oppholdPeriode.setAarsak(oppholdsaarsaker);
         return oppholdPeriode;
     }
@@ -298,7 +298,7 @@ public class YtelseSøknadMapper implements SøknadMapper {
 
         var årsak = new Overfoeringsaarsaker();
         årsak.setKode(overføringsperiode.getOverforingArsak().getKode());
-        årsak.setKodeverk(OverføringÅrsak.KODEVERK);
+        årsak.setKodeverk(OverføringÅrsak.DISKRIMINATOR);
         overfoeringsperiode.setAarsak(årsak);
 
         return overfoeringsperiode;

@@ -15,8 +15,6 @@ public enum Tema implements Kodeverdi, MedOffisiellKode {
     UDEFINERT(STANDARDKODE_UDEFINERT, "Ikke definert", null)
     ;
 
-    public static final String KODEVERK = "TEMA";
-
     private String navn;
 
     private String offisiellKode;
@@ -32,11 +30,6 @@ public enum Tema implements Kodeverdi, MedOffisiellKode {
     @Override
     public String getNavn() {
         return navn;
-    }
-
-    @Override
-    public String getKodeverk() {
-        return KODEVERK;
     }
 
     @Override

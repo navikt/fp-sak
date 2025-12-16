@@ -44,7 +44,6 @@ public class OppholdTjeneste {
             //henter ferie- eller sykepenger-opphold registrert av saksbehandler
             var oppholdListeFraTIlr = hentOppholdListeFraTilrettelegging(tilrettelegging);
             List<Opphold> alleOppholdForArbeidsforhold = new ArrayList<>(oppholdListeFraTIlr);
-
             //henter ferier fra inntektsmelding meldt av arbeidsgiver
             tilrettelegging.getArbeidsgiver().ifPresent( arbeidsgiver -> {
                 var oppholdListeArbeidsforholdFraInntektsmelding = finnOppholdFraIMForArbeidsgiver(behandlingRef, stp, arbeidsgiver, tilrettelegging.getInternArbeidsforholdRef().orElse(InternArbeidsforholdRef.nullRef()));

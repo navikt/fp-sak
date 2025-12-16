@@ -17,8 +17,6 @@ public enum RelatertYtelseTilstand implements Kodeverdi {
 
     private static final Map<String, RelatertYtelseTilstand> KODER = new LinkedHashMap<>();
 
-    public static final String KODEVERK = "RELATERT_YTELSE_TILSTAND";
-
     static {
         for (var v : values()) {
             if (KODER.putIfAbsent(v.kode, v) != null) {
@@ -40,11 +38,6 @@ public enum RelatertYtelseTilstand implements Kodeverdi {
     @Override
     public String getNavn() {
         return navn;
-    }
-
-    @Override
-    public String getKodeverk() {
-        return KODEVERK;
     }
 
     @Override

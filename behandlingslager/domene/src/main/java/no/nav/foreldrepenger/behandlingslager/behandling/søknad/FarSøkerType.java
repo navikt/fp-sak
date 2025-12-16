@@ -1,6 +1,5 @@
 package no.nav.foreldrepenger.behandlingslager.behandling.søknad;
 
-import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -19,8 +18,6 @@ public enum FarSøkerType implements Kodeverdi {
     ANDRE_FORELD_DØD_F("ANDRE_FORELD_DØD_F", "Overtatt omsorg ifm. død ved fødsel"),
     UDEFINERT(STANDARDKODE_UDEFINERT, "Ikke definert"),
     ;
-
-    public static final String KODEVERK = "FAR_SOEKER_TYPE";
 
     private static final Map<String, FarSøkerType> KODER = new LinkedHashMap<>();
 
@@ -52,10 +49,6 @@ public enum FarSøkerType implements Kodeverdi {
         return ad;
     }
 
-    public static Map<String, FarSøkerType> kodeMap() {
-        return Collections.unmodifiableMap(KODER);
-    }
-
     @Override
     public String getNavn() {
         return navn;
@@ -64,11 +57,6 @@ public enum FarSøkerType implements Kodeverdi {
     @Override
     public String getKode() {
         return kode;
-    }
-
-    @Override
-    public String getKodeverk() {
-        return KODEVERK;
     }
 
     @Converter(autoApply = true)

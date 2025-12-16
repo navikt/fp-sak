@@ -1,6 +1,5 @@
 package no.nav.foreldrepenger.behandlingslager.hendelser;
 
-import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -20,8 +19,6 @@ public enum ForretningshendelseType implements Kodeverdi {
     ;
 
     private static final Map<String, ForretningshendelseType> KODER = new LinkedHashMap<>();
-
-    public static final String KODEVERK = "FORRETNINGSHENDELSE_TYPE";
 
     private String navn;
     @JsonValue
@@ -43,18 +40,9 @@ public enum ForretningshendelseType implements Kodeverdi {
         return ad;
     }
 
-    public static Map<String, ForretningshendelseType> kodeMap() {
-        return Collections.unmodifiableMap(KODER);
-    }
-
     @Override
     public String getNavn() {
         return navn;
-    }
-
-    @Override
-    public String getKodeverk() {
-        return KODEVERK;
     }
 
     @Override
@@ -69,6 +57,5 @@ public enum ForretningshendelseType implements Kodeverdi {
             }
         }
     }
-
 
 }

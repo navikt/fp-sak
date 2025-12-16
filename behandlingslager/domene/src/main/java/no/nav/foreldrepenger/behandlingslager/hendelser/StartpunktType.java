@@ -4,7 +4,6 @@ import static java.util.stream.Collectors.toSet;
 
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.EnumMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -39,7 +38,6 @@ public enum StartpunktType implements Kodeverdi {
     UDEFINERT(STANDARDKODE_UDEFINERT, "Ikke definert", 99, BehandlingStegType.KONTROLLERER_SØKERS_OPPLYSNINGSPLIKT, Set.of()),
     ;
 
-    public static final String KODEVERK = "STARTPUNKT_TYPE";
     private static final Map<String, StartpunktType> KODER = new LinkedHashMap<>();
 
     static {
@@ -122,10 +120,6 @@ public enum StartpunktType implements Kodeverdi {
         this.unntakYtelseTyper = unntakYtelseTyper;
     }
 
-    public static Map<String, StartpunktType> kodeMap() {
-        return Collections.unmodifiableMap(KODER);
-    }
-
     @Override
     public String getNavn() {
         return navn;
@@ -134,11 +128,6 @@ public enum StartpunktType implements Kodeverdi {
     @Override
     public String getKode() {
         return this.kode;
-    }
-
-    @Override
-    public String getKodeverk() {
-        return KODEVERK;
     }
 
     @Override

@@ -1,6 +1,5 @@
 package no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode;
 
-import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -29,7 +28,6 @@ public record DokumentasjonVurdering(Type type, MorsStillingsprosent morsStillin
     public boolean erGodkjent() {
         return type.erGodkjent();
     }
-
 
     public enum Type implements Kodeverdi {
         ///Både utsettelse
@@ -66,8 +64,6 @@ public record DokumentasjonVurdering(Type type, MorsStillingsprosent morsStillin
 
         private static final Map<String, Type> KODER = new LinkedHashMap<>();
 
-        public static final String KODEVERK = "DOKUMENTASJON_VURDERING";
-
         static {
             for (var v : values()) {
                 if (KODER.putIfAbsent(v.kode, v) != null) {
@@ -88,18 +84,9 @@ public record DokumentasjonVurdering(Type type, MorsStillingsprosent morsStillin
             this.godkjent = godkjent;
         }
 
-        public static Map<String, Type> kodeMap() {
-            return Collections.unmodifiableMap(KODER);
-        }
-
         @Override
         public String getNavn() {
             return navn;
-        }
-
-        @Override
-        public String getKodeverk() {
-            return KODEVERK;
         }
 
         @Override

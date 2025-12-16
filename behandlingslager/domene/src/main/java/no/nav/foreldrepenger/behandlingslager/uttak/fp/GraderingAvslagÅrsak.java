@@ -1,6 +1,5 @@
 package no.nav.foreldrepenger.behandlingslager.uttak.fp;
 
-import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -26,8 +25,6 @@ public enum GraderingAvslagÅrsak implements Kodeverdi {
 
     private static final Map<String, GraderingAvslagÅrsak> KODER = new LinkedHashMap<>();
 
-    public static final String KODEVERK = "GRADERING_AVSLAG_AARSAK";
-
     static {
         for (var v : values()) {
             if (KODER.putIfAbsent(v.kode, v) != null) {
@@ -46,18 +43,9 @@ public enum GraderingAvslagÅrsak implements Kodeverdi {
         this.navn = navn;
     }
 
-    public static Map<String, GraderingAvslagÅrsak> kodeMap() {
-        return Collections.unmodifiableMap(KODER);
-    }
-
     @Override
     public String getNavn() {
         return navn;
-    }
-
-    @Override
-    public String getKodeverk() {
-        return KODEVERK;
     }
 
     @Override

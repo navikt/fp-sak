@@ -1,6 +1,5 @@
 package no.nav.foreldrepenger.behandlingslager.behandling.vilkår;
 
-import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -71,8 +70,6 @@ public enum Avslagsårsak implements Kodeverdi {
         }
     }
 
-    public static final String KODEVERK = "AVSLAGSARSAK";
-
     private String navn;
     @JsonValue
     private String kode;
@@ -97,10 +94,6 @@ public enum Avslagsårsak implements Kodeverdi {
         return Optional.ofNullable(fraKode(kode)).filter(a -> !UDEFINERT.equals(a));
     }
 
-    public static Map<String, Avslagsårsak> kodeMap() {
-        return Collections.unmodifiableMap(KODER);
-    }
-
     @Override
     public String getNavn() {
         return navn;
@@ -109,11 +102,6 @@ public enum Avslagsårsak implements Kodeverdi {
     @Override
     public String getKode() {
         return kode;
-    }
-
-    @Override
-    public String getKodeverk() {
-        return KODEVERK;
     }
 
     /**
@@ -135,6 +123,5 @@ public enum Avslagsårsak implements Kodeverdi {
             return dbData == null ? null : fraKode(dbData);
         }
     }
-
 
 }

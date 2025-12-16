@@ -6,7 +6,6 @@ package no.nav.foreldrepenger.domene.iay.modell.kodeverk;
  * </p>
  */
 
-import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -23,8 +22,6 @@ public enum BekreftetPermisjonStatus implements Kodeverdi {
     ;
 
     private static final Map<String, BekreftetPermisjonStatus> KODER = new LinkedHashMap<>();
-
-    public static final String KODEVERK = "BEKREFTET_PERMISJON_STATUS";
 
     static {
         for (var v : values()) {
@@ -55,18 +52,9 @@ public enum BekreftetPermisjonStatus implements Kodeverdi {
         return ad;
     }
 
-    public static Map<String, BekreftetPermisjonStatus> kodeMap() {
-        return Collections.unmodifiableMap(KODER);
-    }
-
     @Override
     public String getNavn() {
         return navn;
-    }
-
-    @Override
-    public String getKodeverk() {
-        return KODEVERK;
     }
 
     @Override

@@ -21,7 +21,6 @@ public enum BeregningsgrunnlagRegelType implements Kodeverdi {
     PERIODISERING_GRADERING("PERIODISERING_GRADERING", "Periodiser beregningsgrunnlag pga gradering og endring i utbetalingsgrad"),
     UDEFINERT(STANDARDKODE_UDEFINERT, "Ikke definert"),
     ;
-    public static final String KODEVERK = "BG_REGEL_TYPE";
 
     private static final Map<String, BeregningsgrunnlagRegelType> KODER = new LinkedHashMap<>();
 
@@ -54,18 +53,9 @@ public enum BeregningsgrunnlagRegelType implements Kodeverdi {
         return ad;
     }
 
-    public static Map<String, BeregningsgrunnlagRegelType> kodeMap() {
-        return Collections.unmodifiableMap(KODER);
-    }
-
     @Override
     public String getNavn() {
         return navn;
-    }
-
-    @Override
-    public String getKodeverk() {
-        return KODEVERK;
     }
 
     @Override

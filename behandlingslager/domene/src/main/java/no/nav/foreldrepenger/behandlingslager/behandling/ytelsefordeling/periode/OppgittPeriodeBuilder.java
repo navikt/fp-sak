@@ -46,7 +46,7 @@ public class OppgittPeriodeBuilder {
     }
 
     public OppgittPeriodeBuilder medÅrsak(Årsak årsak) {
-        kladd.setÅrsakType(årsak.getKodeverk());
+        kladd.setÅrsakType(årsak.getDiskriminator());
         kladd.setÅrsak(årsak);
         return this;
     }

@@ -1,6 +1,5 @@
 package no.nav.foreldrepenger.behandlingslager.fagsak;
 
-import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -18,8 +17,6 @@ public enum FagsakYtelseType implements Kodeverdi {
     SVANGERSKAPSPENGER("SVP", "Svangerskapspenger"),
     UDEFINERT(STANDARDKODE_UDEFINERT, "Ikke definert"),
     ;
-
-    public static final String KODEVERK = "FAGSAK_YTELSE";
 
     private static final Map<String, FagsakYtelseType> KODER = new LinkedHashMap<>();
 
@@ -56,18 +53,9 @@ public enum FagsakYtelseType implements Kodeverdi {
         return ad;
     }
 
-    public static Map<String, FagsakYtelseType> kodeMap() {
-        return Collections.unmodifiableMap(KODER);
-    }
-
     @Override
     public String getKode() {
         return kode;
-    }
-
-    @Override
-    public String getKodeverk() {
-        return KODEVERK;
     }
 
     @Override

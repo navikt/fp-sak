@@ -1,6 +1,5 @@
 package no.nav.foreldrepenger.behandlingslager.aktør;
 
-import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -38,8 +37,6 @@ public enum PersonstatusType implements Kodeverdi {
 
     private static final Map<String, PersonstatusType> KODER = new LinkedHashMap<>();
 
-    public static final String KODEVERK = "PERSONSTATUS_TYPE";
-
     private String navn;
 
     @JsonValue
@@ -54,19 +51,9 @@ public enum PersonstatusType implements Kodeverdi {
         return DØD.equals(personstatus);
     }
 
-
-    public static Map<String, PersonstatusType> kodeMap() {
-        return Collections.unmodifiableMap(KODER);
-    }
-
     @Override
     public String getNavn() {
         return navn;
-    }
-
-    @Override
-    public String getKodeverk() {
-        return KODEVERK;
     }
 
     @Override

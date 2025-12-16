@@ -1,6 +1,5 @@
 package no.nav.foreldrepenger.behandlingslager.behandling.aktivitetskrav;
 
-import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -21,8 +20,6 @@ public enum AktivitetskravPermisjonType implements Kodeverdi {
     ;
 
     private static final Map<String, AktivitetskravPermisjonType> KODER = new LinkedHashMap<>();
-
-    public static final String KODEVERK = "AKTIVITETSKRAV_PERMISJON_TYPE";
 
     static {
         for (var v : values()) {
@@ -53,18 +50,9 @@ public enum AktivitetskravPermisjonType implements Kodeverdi {
         return ad;
     }
 
-    public static Map<String, AktivitetskravPermisjonType> kodeMap() {
-        return Collections.unmodifiableMap(KODER);
-    }
-
     @Override
     public String getNavn() {
         return navn;
-    }
-
-    @Override
-    public String getKodeverk() {
-        return KODEVERK;
     }
 
     @Override

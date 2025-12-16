@@ -1,13 +1,10 @@
 package no.nav.foreldrepenger.behandlingslager.behandling.beregning;
 
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
-
-import com.fasterxml.jackson.annotation.JsonValue;
 
 import jakarta.persistence.AttributeConverter;
 import jakarta.persistence.Converter;
@@ -17,9 +14,9 @@ import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonValue;
 
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
-
 
 @JsonAutoDetect(getterVisibility = Visibility.NONE, setterVisibility = Visibility.NONE, fieldVisibility = Visibility.ANY)
 public enum AktivitetStatus implements Kodeverdi {
@@ -40,8 +37,6 @@ public enum AktivitetStatus implements Kodeverdi {
     VENTELØNN_VARTPENGER("VENTELØNN_VARTPENGER", "Ventelønn/Vartpenger", Inntektskategori.UDEFINERT),
 
     UDEFINERT(STANDARDKODE_UDEFINERT, "Ikke definert", Inntektskategori.UDEFINERT);
-
-    public static final String KODEVERK = "AKTIVITET_STATUS";
 
     private static final Map<String, AktivitetStatus> KODER = new LinkedHashMap<>();
 
@@ -79,10 +74,6 @@ public enum AktivitetStatus implements Kodeverdi {
         return ad;
     }
 
-    public static Map<String, AktivitetStatus> kodeMap() {
-        return Collections.unmodifiableMap(KODER);
-    }
-
     private static final Set<AktivitetStatus> AT_STATUSER = new HashSet<>(Arrays.asList(ARBEIDSTAKER,
         KOMBINERT_AT_FL_SN, KOMBINERT_AT_SN, KOMBINERT_AT_FL));
 
@@ -107,12 +98,6 @@ public enum AktivitetStatus implements Kodeverdi {
     @Override
     public String getNavn() {
         return navn;
-    }
-
-    @JsonProperty
-    @Override
-    public String getKodeverk() {
-        return KODEVERK;
     }
 
     @JsonProperty
