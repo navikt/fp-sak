@@ -42,7 +42,7 @@ public class StatsborgerskapEntitet extends BaseEntitet implements HarAktørId, 
     @ChangeTracked
     @Convert(converter = Landkoder.KodeverdiConverter.class)
     @Column(name="statsborgerskap", nullable = false)
-    private Landkoder statsborgerskap = Landkoder.UDEFINERT;
+    private Landkoder statsborgerskap;
 
     @ManyToOne(optional = false)
     @JoinColumn(name = "po_informasjon_id", nullable = false, updatable = false)
