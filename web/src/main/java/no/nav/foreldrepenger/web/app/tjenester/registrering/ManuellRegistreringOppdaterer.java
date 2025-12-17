@@ -99,7 +99,7 @@ public class ManuellRegistreringOppdaterer implements AksjonspunktOppdaterer<Man
 
         // minihack for endringssøknader
         var behandlingType = REGISTRER_PAPIR_ENDRINGSØKNAD_FORELDREPENGER.equals(dto.getAksjonspunktDefinisjon()) ? BehandlingType.REVURDERING : behandlingReferanse.behandlingType();
-        var søknadXml = opprettSøknadsskjema(dto, behandlingType, behandlingReferanse, navBruker);
+        var søknadXml = opprettSøknadsskjema(dto, behandlingType, behandlingReferanse.fagsakYtelseType(), navBruker);
         var dokumentTypeId = finnDokumentType(dto, behandlingType);
 
         dokumentRegistrererTjeneste.aksjonspunktManuellRegistrering(behandlingReferanse, søknadXml, dokumentTypeId, dto.getMottattDato());
@@ -151,8 +151,7 @@ public class ManuellRegistreringOppdaterer implements AksjonspunktOppdaterer<Man
         return FamilieHendelseType.FØDSEL.getKode().equals(dto.getTema().getKode());
     }
 
-    private String opprettSøknadsskjema(ManuellRegistreringDto dto, BehandlingType behandlingType, BehandlingReferanse behandlingReferanse, NavBruker navBruker) {
-        var ytelseType = behandlingReferanse.fagsakYtelseType();
+    private String opprettSøknadsskjema(ManuellRegistreringDto dto, BehandlingType behandlingType, FagsakYtelseType ytelseType, NavBruker navBruker) {
         var mapper = finnSøknadMapper(ytelseType, behandlingType);
         var søknad = mapper.mapSøknad(dto, navBruker);
         try {
