@@ -95,7 +95,7 @@ public class PersonopplysningXmlFelles {
         person.setPersonstatus(VedtakXmlUtil.lagKodeverksOpplysning(personstatus));
 
         var statsborgerskap = aggregat.getRangertStatsborgerskapVedSkjæringstidspunktFor(personopplysning.getAktørId(), stp.getUtledetSkjæringstidspunkt())
-            .map(StatsborgerskapEntitet::getStatsborgerskap).orElse(Landkoder.UDEFINERT);
+            .map(StatsborgerskapEntitet::getStatsborgerskap).orElse(Landkoder.XUK);
 
         person.setStatsborgerskap(VedtakXmlUtil.lagKodeverksOpplysning(statsborgerskap));
 

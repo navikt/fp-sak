@@ -87,7 +87,7 @@ public class AnnetPeriodisertMapper {
         var gyldigFra = Optional.ofNullable(statsborgerskap.getGyldigFraOgMed())
             .or(() -> Optional.ofNullable(statsborgerskap.getBekreftelsesdato()))
             .map(d -> LocalDate.parse(d, DateTimeFormatter.ISO_LOCAL_DATE)).orElse(null);
-        var land = Landkoder.fraKodeDefaultUdefinert(statsborgerskap.getLand());
+        var land = Landkoder.fraKodeDefaultUkjent(statsborgerskap.getLand());
         return new StatsborgerskapPeriode(Gyldighetsperiode.innenfor(gyldigFra, gyldigTil), land);
     }
 

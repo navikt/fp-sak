@@ -306,11 +306,11 @@ public enum Landkoder implements Kodeverdi {
         return ad;
     }
 
-    public static Landkoder fraKodeDefaultUdefinert(String kode) {
+    public static Landkoder fraKodeDefaultUkjent(String kode) {
         if (kode == null) {
             return null;
         }
-        return KODER.getOrDefault(kode, UDEFINERT);
+        return KODER.getOrDefault(kode, XUK);
     }
 
     @Override
