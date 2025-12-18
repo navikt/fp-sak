@@ -139,14 +139,14 @@ class BeregningOversiktDtoTjenesteTest {
         assertThat(frilansAndel.fastsattPrÅr()).isEqualByComparingTo(BigDecimal.TEN);
         assertThat(frilansAndel.inntektsKilde()).isEqualTo(FpSak.Beregningsgrunnlag.InntektsKilde.A_INNTEKT);
 
-        var SNAndel = dto.get()
+        var SnAndel = dto.get()
             .beregningsAndeler()
             .stream()
             .filter(a -> a.aktivitetStatus().equals(FpSak.Beregningsgrunnlag.AktivitetStatus.SELVSTENDIG_NÆRINGSDRIVENDE))
             .findFirst()
             .orElseThrow();
-        assertThat(SNAndel.fastsattPrÅr()).isEqualByComparingTo(BigDecimal.TWO);
-        assertThat(SNAndel.inntektsKilde()).isEqualTo(FpSak.Beregningsgrunnlag.InntektsKilde.PENSJONSGIVENDE_INNTEKT);
+        assertThat(SnAndel.fastsattPrÅr()).isEqualByComparingTo(BigDecimal.TWO);
+        assertThat(SnAndel.inntektsKilde()).isEqualTo(FpSak.Beregningsgrunnlag.InntektsKilde.PENSJONSGIVENDE_INNTEKT);
     }
 
 
