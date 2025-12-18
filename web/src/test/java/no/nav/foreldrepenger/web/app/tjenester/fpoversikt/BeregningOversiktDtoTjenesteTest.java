@@ -59,19 +59,22 @@ class BeregningOversiktDtoTjenesteTest {
             .leggTilBeregningsgrunnlagPeriode(BeregningsgrunnlagPeriode.builder()
                 .medBeregningsgrunnlagPeriode(LocalDate.now(), LocalDate.now())
                 .leggTilBeregningsgrunnlagPrStatusOgAndel(BeregningsgrunnlagPrStatusOgAndel.builder()
-                    .medBGAndelArbeidsforhold(BGAndelArbeidsforhold.builder()
-                        .medArbeidsgiver(Arbeidsgiver.virksomhet("9".repeat(9))).build())
+                    .medBGAndelArbeidsforhold(BGAndelArbeidsforhold.builder().medArbeidsgiver(Arbeidsgiver.virksomhet("9".repeat(9))).build())
                     .medBeregnetPrÅr(BigDecimal.TEN)
                     .medKilde(AndelKilde.PROSESS_START)
-                    .medAktivitetStatus(AktivitetStatus.ARBEIDSTAKER).build()).build())
+                    .medAktivitetStatus(AktivitetStatus.ARBEIDSTAKER)
+                    .build())
+                .build())
             .build();
 
-        var grunnlagBeregningsgrunnlag = BeregningsgrunnlagGrunnlagBuilder.nytt().medBeregningsgrunnlag(beregningsgrunnlag).build(
-            BeregningsgrunnlagTilstand.FASTSATT);
+        var grunnlagBeregningsgrunnlag = BeregningsgrunnlagGrunnlagBuilder.nytt()
+            .medBeregningsgrunnlag(beregningsgrunnlag)
+            .build(BeregningsgrunnlagTilstand.FASTSATT);
 
-        var iaygr = InntektArbeidYtelseGrunnlagBuilder.nytt().medInntektsmeldinger(
-            List.of(InntektsmeldingBuilder.builder().medArbeidsgiver(Arbeidsgiver.virksomhet("9".repeat(9))).medBeløp(BigDecimal.TEN).build())
-        ).build();
+        var iaygr = InntektArbeidYtelseGrunnlagBuilder.nytt()
+            .medInntektsmeldinger(
+                List.of(InntektsmeldingBuilder.builder().medArbeidsgiver(Arbeidsgiver.virksomhet("9".repeat(9))).medBeløp(BigDecimal.TEN).build()))
+            .build();
 
         when(inntektArbeidYtelseTjeneste.finnGrunnlag(any())).thenReturn(Optional.of(iaygr));
         when(beregningTjeneste.hent(any())).thenReturn(Optional.of(grunnlagBeregningsgrunnlag));
@@ -101,17 +104,20 @@ class BeregningOversiktDtoTjenesteTest {
                     .medBeregnetPrÅr(BigDecimal.TEN)
                     .medAndelsnr(1L)
                     .medKilde(AndelKilde.PROSESS_START)
-                    .medAktivitetStatus(AktivitetStatus.FRILANSER).build())
+                    .medAktivitetStatus(AktivitetStatus.FRILANSER)
+                    .build())
                 .leggTilBeregningsgrunnlagPrStatusOgAndel(BeregningsgrunnlagPrStatusOgAndel.builder()
                     .medBeregnetPrÅr(BigDecimal.TWO)
                     .medAndelsnr(2L)
                     .medKilde(AndelKilde.PROSESS_START)
-                    .medAktivitetStatus(AktivitetStatus.SELVSTENDIG_NÆRINGSDRIVENDE).build())
+                    .medAktivitetStatus(AktivitetStatus.SELVSTENDIG_NÆRINGSDRIVENDE)
+                    .build())
                 .build())
             .build();
 
-        var grunnlagBeregningsgrunnlag = BeregningsgrunnlagGrunnlagBuilder.nytt().medBeregningsgrunnlag(beregningsgrunnlag).build(
-            BeregningsgrunnlagTilstand.FASTSATT);
+        var grunnlagBeregningsgrunnlag = BeregningsgrunnlagGrunnlagBuilder.nytt()
+            .medBeregningsgrunnlag(beregningsgrunnlag)
+            .build(BeregningsgrunnlagTilstand.FASTSATT);
 
         when(inntektArbeidYtelseTjeneste.finnGrunnlag(any())).thenReturn(Optional.empty());
         when(beregningTjeneste.hent(any())).thenReturn(Optional.of(grunnlagBeregningsgrunnlag));
@@ -124,16 +130,24 @@ class BeregningOversiktDtoTjenesteTest {
         assertThat(dto.get().skjæringstidspunkt()).isEqualTo(LocalDate.now());
         assertThat(dto.get().beregningsAndeler()).hasSize(2);
 
-        var frilansAndel = dto.get().beregningsAndeler().stream().filter(a -> a.aktivitetStatus().equals(FpSak.Beregningsgrunnlag.AktivitetStatus.FRILANSER)).findFirst().orElseThrow();
+        var frilansAndel = dto.get()
+            .beregningsAndeler()
+            .stream()
+            .filter(a -> a.aktivitetStatus().equals(FpSak.Beregningsgrunnlag.AktivitetStatus.FRILANSER))
+            .findFirst()
+            .orElseThrow();
         assertThat(frilansAndel.fastsattPrÅr()).isEqualByComparingTo(BigDecimal.TEN);
         assertThat(frilansAndel.inntektsKilde()).isEqualTo(FpSak.Beregningsgrunnlag.InntektsKilde.A_INNTEKT);
 
-        var SNAndel = dto.get().beregningsAndeler().stream().filter(a -> a.aktivitetStatus().equals(FpSak.Beregningsgrunnlag.AktivitetStatus.SELVSTENDIG_NÆRINGSDRIVENDE)).findFirst().orElseThrow();
+        var SNAndel = dto.get()
+            .beregningsAndeler()
+            .stream()
+            .filter(a -> a.aktivitetStatus().equals(FpSak.Beregningsgrunnlag.AktivitetStatus.SELVSTENDIG_NÆRINGSDRIVENDE))
+            .findFirst()
+            .orElseThrow();
         assertThat(SNAndel.fastsattPrÅr()).isEqualByComparingTo(BigDecimal.TWO);
         assertThat(SNAndel.inntektsKilde()).isEqualTo(FpSak.Beregningsgrunnlag.InntektsKilde.PENSJONSGIVENDE_INNTEKT);
     }
-
-
 
 
 }
