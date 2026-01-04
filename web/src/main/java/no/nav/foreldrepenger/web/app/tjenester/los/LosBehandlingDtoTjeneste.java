@@ -24,6 +24,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspunkt;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
+import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktType;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.OppgittAnnenPartEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
 import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.SvangerskapspengerRepository;
@@ -53,6 +54,7 @@ import no.nav.foreldrepenger.domene.uttak.uttaksgrunnlag.fp.EndringsdatoRevurder
 import no.nav.foreldrepenger.domene.ytelsefordeling.YtelseFordelingTjeneste;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 import no.nav.vedtak.hendelser.behandling.Aksjonspunktstatus;
+import no.nav.vedtak.hendelser.behandling.Aksjonspunkttype;
 import no.nav.vedtak.hendelser.behandling.AktørId;
 import no.nav.vedtak.hendelser.behandling.Behandlingsstatus;
 import no.nav.vedtak.hendelser.behandling.Behandlingstype;
@@ -212,7 +214,23 @@ public class LosBehandlingDtoTjeneste {
 
     private static LosBehandlingDto.LosAksjonspunktDto mapTilLosAksjonspunkt(Aksjonspunkt aksjonspunkt) {
         return new LosBehandlingDto.LosAksjonspunktDto(aksjonspunkt.getAksjonspunktDefinisjon().getKode(),
-            mapAksjonspunktstatus(aksjonspunkt), aksjonspunkt.getFristTid());
+            mapAksjonspunkttype(aksjonspunkt.getAksjonspunktDefinisjon()), mapAksjonspunktstatus(aksjonspunkt), aksjonspunkt.getFristTid());
+    }
+
+    private static Aksjonspunkttype mapAksjonspunkttype(AksjonspunktDefinisjon aksjonspunktDefinisjon) {
+        return switch (aksjonspunktDefinisjon.getAksjonspunktType()) {
+            case AUTOPUNKT -> Aksjonspunkttype.VENT;
+            case OVERSTYRING -> Aksjonspunkttype.OVERSTYRING;
+            case null, default -> {
+                if (AksjonspunktDefinisjon.FATTER_VEDTAK.equals(aksjonspunktDefinisjon)) {
+                    yield Aksjonspunkttype.BESLUTTER;
+                } else if (aksjonspunktDefinisjon.erPapirsøknadAksjonspunkt()) {
+                    yield Aksjonspunkttype.PAPIRSØKNAD;
+                } else {
+                    yield Aksjonspunkttype.AKSJONSPUNKT;
+                }
+            }
+        };
     }
 
     private static Aksjonspunktstatus mapAksjonspunktstatus(Aksjonspunkt aksjonspunkt) {
