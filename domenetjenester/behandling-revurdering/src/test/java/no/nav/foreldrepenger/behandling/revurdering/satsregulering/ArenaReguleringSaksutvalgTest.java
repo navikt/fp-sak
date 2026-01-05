@@ -62,8 +62,9 @@ class ArenaReguleringSaksutvalgTest {
 
     @Test
     void skal_ikke_finne_saker_til_revurdering(EntityManager em) {
+        var avsluttetDato = LocalDate.now().isBefore(arenaDato) ? arenaDato.minusYears(1) : arenaDato;
         opprettRevurderingsKandidat(em, BehandlingStatus.UTREDES, cutoff.minusDays(5));
-        opprettRevurderingsKandidat(em, BehandlingStatus.AVSLUTTET, arenaDato.minusDays(5));
+        opprettRevurderingsKandidat(em, BehandlingStatus.AVSLUTTET, avsluttetDato.minusDays(5));
 
         task.doTask(SatsReguleringUtil.lagFinnSakerTask("FP"));
 
@@ -72,10 +73,11 @@ class ArenaReguleringSaksutvalgTest {
 
     @Test
     void skal_finne_tre_saker_til_revurdering(EntityManager em) {
+        var avsluttetDato = LocalDate.now().isBefore(arenaDato) ? arenaDato.minusYears(1) : arenaDato;
         var kandidat1 = opprettRevurderingsKandidat(em, BehandlingStatus.AVSLUTTET, cutoff.plusWeeks(2));
         var kandidat2 = opprettRevurderingsKandidat(em, BehandlingStatus.AVSLUTTET, cutoff.plusDays(2));
         var kandidat3 = opprettRevurderingsKandidat(em, BehandlingStatus.AVSLUTTET, cutoff.plusMonths(2));
-        var kandidat4 = opprettRevurderingsKandidat(em, BehandlingStatus.AVSLUTTET, arenaDato.minusDays(5));
+        var kandidat4 = opprettRevurderingsKandidat(em, BehandlingStatus.AVSLUTTET, avsluttetDato.minusDays(5));
 
         task.doTask(SatsReguleringUtil.lagFinnSakerTask("FP"));
 

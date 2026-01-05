@@ -1,7 +1,6 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.dto.behandling;
 
 import java.time.format.DateTimeFormatter;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -10,6 +9,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsak;
+import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspunkt;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 
 final class BehandlingDtoUtil {
@@ -33,12 +33,9 @@ final class BehandlingDtoUtil {
     }
 
     static boolean erAktivPapirsøknad(Behandling behandling) {
-        var kriterier = Arrays.asList(
-            AksjonspunktDefinisjon.REGISTRER_PAPIRSØKNAD_ENGANGSSTØNAD,
-            AksjonspunktDefinisjon.REGISTRER_PAPIRSØKNAD_FORELDREPENGER,
-            AksjonspunktDefinisjon.REGISTRER_PAPIR_ENDRINGSØKNAD_FORELDREPENGER,
-            AksjonspunktDefinisjon.REGISTRER_PAPIRSØKNAD_SVANGERSKAPSPENGER);
-        return !behandling.getÅpneAksjonspunkter(kriterier).isEmpty();
+        return behandling.getÅpneAksjonspunkter().stream()
+            .map(Aksjonspunkt::getAksjonspunktDefinisjon)
+            .anyMatch(AksjonspunktDefinisjon::erPapirsøknadAksjonspunkt);
     }
 
     static BehandlingÅrsakDto map(BehandlingÅrsak årsak) {
