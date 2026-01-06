@@ -179,7 +179,7 @@ class BekreftOpptjeningPeriodeAksjonspunkt {
             }
             return getYrkesaktivitetBuilderForArbeid(behandlingId, aktørId, iayGrunnlag, overstyrtBuilder, arbeidType, gruppe.opptjeningsnøkkel());
         } else {
-            return overstyrtBuilder.getYrkesaktivitetBuilderForType(arbeidType.stream().findFirst().orElse(ArbeidType.UDEFINERT));
+            return overstyrtBuilder.getYrkesaktivitetBuilderForType(arbeidType.stream().findFirst().orElse(null));
         }
     }
 

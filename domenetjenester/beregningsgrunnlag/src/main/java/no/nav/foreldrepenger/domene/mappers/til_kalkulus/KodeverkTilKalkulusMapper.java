@@ -93,7 +93,6 @@ public class KodeverkTilKalkulusMapper {
             case UTENLANDSK_ARBEIDSFORHOLD -> ArbeidType.UTENLANDSK_ARBEIDSFORHOLD;
             case VENTELØNN_VARTPENGER -> ArbeidType.VENTELØNN_VARTPENGER;
             case VANLIG -> ArbeidType.VANLIG;
-            case UDEFINERT -> ArbeidType.UDEFINERT;
         };
     }
 
