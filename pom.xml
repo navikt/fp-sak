@@ -6,7 +6,7 @@
     <parent>
         <groupId>no.nav.foreldrepenger.felles</groupId>
         <artifactId>fp-parent-app</artifactId>
-        <version>5.1.1</version>
+        <version>5.2.0</version>
     </parent>
 
     <groupId>no.nav.foreldrepenger</groupId>
@@ -38,7 +38,7 @@
         <felles.version>7.6.11</felles.version>
         <prosesstask.version>5.2.1</prosesstask.version>
         <openapi-spec-utils.version>2.0.6</openapi-spec-utils.version>
-        <fp-kontrakter.version>9.4.14</fp-kontrakter.version>
+        <fp-kontrakter.version>9.4.20</fp-kontrakter.version>
         <abakus-kontrakt.version>2.3.6</abakus-kontrakt.version>
 
         <sonar.moduleKey>${project.artifactId}</sonar.moduleKey>
@@ -125,7 +125,7 @@
             <dependency>
                 <groupId>no.nav.foreldrepenger.felles</groupId>
                 <artifactId>jms-integrasjon</artifactId>
-                <version>3.2.16</version>
+                <version>3.2.17</version>
             </dependency>
 
             <dependency>
@@ -136,7 +136,7 @@
                 <type>pom</type>
             </dependency>
             <dependency>
-                <groupId>no.nav.foreldrepenger.kontrakter.topics</groupId>
+                <groupId>no.nav.foreldrepenger.kontrakter</groupId>
                 <artifactId>hendelser-behandling</artifactId>
                 <version>${fp-kontrakter.version}</version>
             </dependency>

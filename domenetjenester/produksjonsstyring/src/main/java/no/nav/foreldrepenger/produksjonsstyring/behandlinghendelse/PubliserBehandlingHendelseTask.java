@@ -1,7 +1,6 @@
 package no.nav.foreldrepenger.produksjonsstyring.behandlinghendelse;
 
 import java.time.LocalDateTime;
-import java.util.Set;
 import java.util.UUID;
 
 import jakarta.enterprise.context.Dependent;
@@ -34,12 +33,6 @@ public class PubliserBehandlingHendelseTask extends GenerellProsessTask {
     public static final String HENDELSE_TYPE = "hendelseType";
 
     private static final Logger LOG = LoggerFactory.getLogger(PubliserBehandlingHendelseTask.class);
-
-    private static final Set<AksjonspunktDefinisjon> PAPIR = Set.of(
-        AksjonspunktDefinisjon.REGISTRER_PAPIRSØKNAD_ENGANGSSTØNAD,
-        AksjonspunktDefinisjon.REGISTRER_PAPIRSØKNAD_FORELDREPENGER,
-        AksjonspunktDefinisjon.REGISTRER_PAPIR_ENDRINGSØKNAD_FORELDREPENGER,
-        AksjonspunktDefinisjon.REGISTRER_PAPIRSØKNAD_SVANGERSKAPSPENGER);
 
     private final BehandlingHendelseProducer kafkaProducer;
     private final BehandlingRepository behandlingRepository;
@@ -87,7 +80,7 @@ public class PubliserBehandlingHendelseTask extends GenerellProsessTask {
             return Hendelse.LAGRET_SØKNAD;
         } else if (behandling.isBehandlingPåVent()) {
             return behandling.harÅpentAksjonspunktMedType(AksjonspunktDefinisjon.VENT_PÅ_SØKNAD) ? Hendelse.MANGLERSØKNAD : Hendelse.VENTETILSTAND;
-        } else if (!behandling.getÅpneAksjonspunkter(PAPIR).isEmpty()) {
+        } else if (behandling.getÅpneAksjonspunkter().stream().anyMatch(a-> a.getAksjonspunktDefinisjon().erPapirsøknadAksjonspunkt())) {
             return Hendelse.PAPIRSØKNAD;
         } else if (HendelseForBehandling.OPPRETTET.equals(oppgittHendelse)) {
             return Hendelse.OPPRETTET;

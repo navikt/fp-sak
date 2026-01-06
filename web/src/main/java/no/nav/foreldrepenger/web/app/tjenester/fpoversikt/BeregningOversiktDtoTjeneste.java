@@ -16,6 +16,7 @@ import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.AktivitetStatus;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
+import no.nav.foreldrepenger.domene.arbeidsgiver.ArbeidsgiverTjeneste;
 import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlag;
 import no.nav.foreldrepenger.domene.iay.modell.Inntektsmelding;
 import no.nav.foreldrepenger.domene.iay.modell.InntektsmeldingAggregat;
@@ -34,12 +35,14 @@ public class BeregningOversiktDtoTjeneste {
 
     private BeregningTjeneste beregningTjeneste;
     private InntektArbeidYtelseTjeneste inntektArbeidYtelseTjeneste;
+    private ArbeidsgiverTjeneste arbeidsgiverTjeneste;
 
     @Inject
     public BeregningOversiktDtoTjeneste(BeregningTjeneste beregningTjeneste,
-                                        InntektArbeidYtelseTjeneste inntektArbeidYtelseTjeneste) {
+                                        InntektArbeidYtelseTjeneste inntektArbeidYtelseTjeneste, ArbeidsgiverTjeneste arbeidsgiverTjeneste) {
         this.beregningTjeneste = beregningTjeneste;
         this.inntektArbeidYtelseTjeneste = inntektArbeidYtelseTjeneste;
+        this.arbeidsgiverTjeneste = arbeidsgiverTjeneste;
     }
 
     public BeregningOversiktDtoTjeneste() {
@@ -67,7 +70,8 @@ public class BeregningOversiktDtoTjeneste {
         }
         var aktivitetStatuser = beregningsgrunnlag.getAktivitetStatuser().stream().map(this::mapAktivitetStatusMedHjemmel).toList();
         var beregningsAndeler = førsteBeregningsperiode(beregningsgrunnlag).map(førstePeriode -> mapAndeler(førstePeriode.getBeregningsgrunnlagPrStatusOgAndelList(), inntektsmeldinger)).orElse(List.of());
-        return Optional.of(new FpSak.Beregningsgrunnlag(beregningsgrunnlag.getSkjæringstidspunkt(), beregningsAndeler, aktivitetStatuser));
+        var grunnbeløp = beregningsgrunnlag.getGrunnbeløp() == null ? null : beregningsgrunnlag.getGrunnbeløp().getVerdi();
+        return Optional.of(new FpSak.Beregningsgrunnlag(beregningsgrunnlag.getSkjæringstidspunkt(), beregningsAndeler, aktivitetStatuser, grunnbeløp));
     }
 
     private static Optional<BeregningsgrunnlagPeriode> førsteBeregningsperiode(Beregningsgrunnlag beregningsgrunnlag) {
@@ -127,7 +131,9 @@ public class BeregningOversiktDtoTjeneste {
                 .orElse(BigDecimal.ZERO);
             var refusjonPerMnd = refusjonPerÅr.divide(BigDecimal.valueOf(12), 2, RoundingMode.HALF_EVEN);
 
-            var arbeidsforhold = new FpSak.Beregningsgrunnlag.Arbeidsforhold(entry.getKey().getIdentifikator(), refusjonPerMnd);
+            var arbeidsgivernavn = arbeidsgiverTjeneste.hent(entry.getKey()).getNavn();
+
+            var arbeidsforhold = new FpSak.Beregningsgrunnlag.Arbeidsforhold(entry.getKey().getIdentifikator(), arbeidsgivernavn, refusjonPerMnd);
 
             var dagsatsArbeidsgiver = entry.getValue().stream()
                 .map(BeregningsgrunnlagPrStatusOgAndel::getDagsatsArbeidsgiver)

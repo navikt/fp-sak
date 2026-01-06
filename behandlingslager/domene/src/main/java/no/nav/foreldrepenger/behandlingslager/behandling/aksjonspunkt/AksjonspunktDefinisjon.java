@@ -488,24 +488,26 @@ public enum AksjonspunktDefinisjon implements Kodeverdi {
         }
     }
 
-    private static final Set<AksjonspunktDefinisjon> DYNAMISK_SKJERMLENKE = Set.of(AksjonspunktDefinisjon.AVKLAR_OM_SØKER_HAR_MOTTATT_STØTTE);
+    private static final Set<AksjonspunktDefinisjon> DYNAMISK_SKJERMLENKE = Set.of(AVKLAR_OM_SØKER_HAR_MOTTATT_STØTTE);
 
-    private static final Set<AksjonspunktDefinisjon> FORESLÅ_VEDTAK_AP = Set.of(AksjonspunktDefinisjon.FORESLÅ_VEDTAK,
-        AksjonspunktDefinisjon.FORESLÅ_VEDTAK_MANUELT);
+    private static final Set<AksjonspunktDefinisjon> FORESLÅ_VEDTAK_AP = Set.of(FORESLÅ_VEDTAK, FORESLÅ_VEDTAK_MANUELT);
 
-    private static final Set<AksjonspunktDefinisjon> AVVIK_I_BEREGNING = Set.of(AksjonspunktDefinisjon.FASTSETT_BEREGNINGSGRUNNLAG_ARBEIDSTAKER_FRILANS,
-        AksjonspunktDefinisjon.FASTSETT_BEREGNINGSGRUNNLAG_FOR_SN_NY_I_ARBEIDSLIVET, FASTSETT_BEREGNINGSGRUNNLAG_TIDSBEGRENSET_ARBEIDSFORHOLD,
-        AksjonspunktDefinisjon.VURDER_VARIG_ENDRET_ELLER_NYOPPSTARTET_NÆRING_SELVSTENDIG_NÆRINGSDRIVENDE);
+    private static final Set<AksjonspunktDefinisjon> PAPIRSØKNAD_AP = Set.of(REGISTRER_PAPIRSØKNAD_ENGANGSSTØNAD,
+        REGISTRER_PAPIRSØKNAD_FORELDREPENGER, REGISTRER_PAPIRSØKNAD_SVANGERSKAPSPENGER, REGISTRER_PAPIR_ENDRINGSØKNAD_FORELDREPENGER);
 
-    private static final Set<AksjonspunktDefinisjon> IKKE_KLAR_FOR_INNTEKTSMELDING = Set.of(AksjonspunktDefinisjon.VENT_PGA_FOR_TIDLIG_SØKNAD,
-        AksjonspunktDefinisjon.VENT_PÅ_SØKNAD, AksjonspunktDefinisjon.REGISTRER_PAPIRSØKNAD_FORELDREPENGER);
+    private static final Set<AksjonspunktDefinisjon> AVVIK_I_BEREGNING = Set.of(FASTSETT_BEREGNINGSGRUNNLAG_ARBEIDSTAKER_FRILANS,
+        FASTSETT_BEREGNINGSGRUNNLAG_FOR_SN_NY_I_ARBEIDSLIVET, FASTSETT_BEREGNINGSGRUNNLAG_TIDSBEGRENSET_ARBEIDSFORHOLD,
+        VURDER_VARIG_ENDRET_ELLER_NYOPPSTARTET_NÆRING_SELVSTENDIG_NÆRINGSDRIVENDE);
+
+    private static final Set<AksjonspunktDefinisjon> IKKE_KLAR_FOR_INNTEKTSMELDING = Set.of(VENT_PGA_FOR_TIDLIG_SØKNAD,
+        VENT_PÅ_SØKNAD, REGISTRER_PAPIRSØKNAD_FORELDREPENGER);
 
     private static final Map<AksjonspunktDefinisjon, Set<AksjonspunktDefinisjon>> UTELUKKENDE_AP_MAP = Map.ofEntries(
-        Map.entry(AksjonspunktDefinisjon.SJEKK_MANGLENDE_FØDSEL, Set.of(AksjonspunktDefinisjon.SJEKK_TERMINBEKREFTELSE)),
-        Map.entry(AksjonspunktDefinisjon.SJEKK_TERMINBEKREFTELSE, Set.of(AksjonspunktDefinisjon.SJEKK_MANGLENDE_FØDSEL))
+        Map.entry(SJEKK_MANGLENDE_FØDSEL, Set.of(SJEKK_TERMINBEKREFTELSE)),
+        Map.entry(SJEKK_TERMINBEKREFTELSE, Set.of(SJEKK_MANGLENDE_FØDSEL))
         /* TODO: Vurder om disse skal tas med
-        , Map.entry(AksjonspunktDefinisjon.FORESLÅ_VEDTAK, Set.of(AksjonspunktDefinisjon.FORESLÅ_VEDTAK_MANUELT))
-        , Map.entry(AksjonspunktDefinisjon.FORESLÅ_VEDTAK_MANUELT, Set.of(AksjonspunktDefinisjon.FORESLÅ_VEDTAK))
+        , Map.entry(FORESLÅ_VEDTAK, Set.of(FORESLÅ_VEDTAK_MANUELT))
+        , Map.entry(FORESLÅ_VEDTAK_MANUELT, Set.of(FORESLÅ_VEDTAK))
          */
     );
 
@@ -688,6 +690,10 @@ public enum AksjonspunktDefinisjon implements Kodeverdi {
     /** Aksjonspunkt tidligere brukt, nå utgått (kan ikke gjenoppstå). */
     public boolean erUtgått() {
         return erUtgått;
+    }
+
+    public boolean erPapirsøknadAksjonspunkt() {
+        return PAPIRSØKNAD_AP.contains(this);
     }
 
     @Override

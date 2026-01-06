@@ -83,7 +83,7 @@ public class PdlKlientLogCause {
     }
 
     private static Landkoder mapStatsborgerskap(FalskIdentitet.Informasjon pi) {
-        return pi.statsborgerskap().stream().findFirst().map(Landkoder::fraKodeDefaultUdefinert).orElse(Landkoder.XUK);
+        return pi.statsborgerskap().stream().findFirst().map(Landkoder::fraKodeDefaultUkjent).orElse(Landkoder.XUK);
     }
 
     public Person hentPerson(FagsakYtelseType ytelseType, HentPersonQueryRequest q, PersonResponseProjection p, boolean ignoreNotFound) {
