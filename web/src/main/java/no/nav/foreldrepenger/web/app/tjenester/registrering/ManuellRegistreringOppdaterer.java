@@ -96,8 +96,11 @@ public class ManuellRegistreringOppdaterer implements AksjonspunktOppdaterer<Man
 
         var fagsak = fagsakRepository.finnEksaktFagsak(behandlingReferanse.fagsakId());
         var navBruker = fagsak.getNavBruker();
-        var søknadXml = opprettSøknadsskjema(dto, behandlingReferanse, navBruker);
-        var dokumentTypeId = finnDokumentType(dto, behandlingReferanse.behandlingType());
+
+        // minihack for endringssøknader
+        var behandlingType = REGISTRER_PAPIR_ENDRINGSØKNAD_FORELDREPENGER.equals(dto.getAksjonspunktDefinisjon()) ? BehandlingType.REVURDERING : behandlingReferanse.behandlingType();
+        var søknadXml = opprettSøknadsskjema(dto, behandlingType, behandlingReferanse.fagsakYtelseType(), navBruker);
+        var dokumentTypeId = finnDokumentType(dto, behandlingType);
 
         dokumentRegistrererTjeneste.aksjonspunktManuellRegistrering(behandlingReferanse, søknadXml, dokumentTypeId, dto.getMottattDato());
         if (dto.isRegistrerVerge()) {
@@ -148,19 +151,9 @@ public class ManuellRegistreringOppdaterer implements AksjonspunktOppdaterer<Man
         return FamilieHendelseType.FØDSEL.getKode().equals(dto.getTema().getKode());
     }
 
-    private String opprettSøknadsskjema(ManuellRegistreringDto dto, BehandlingReferanse behandlingReferanse, NavBruker navBruker) {
-
-        var ytelseType = behandlingReferanse.fagsakYtelseType();
-        var behandlingType = behandlingReferanse.behandlingType();
-
-        if (REGISTRER_PAPIR_ENDRINGSØKNAD_FORELDREPENGER.equals(dto.getAksjonspunktDefinisjon())) {
-            // minihack for
-            behandlingType = BehandlingType.REVURDERING;
-        }
-
+    private String opprettSøknadsskjema(ManuellRegistreringDto dto, BehandlingType behandlingType, FagsakYtelseType ytelseType, NavBruker navBruker) {
         var mapper = finnSøknadMapper(ytelseType, behandlingType);
         var søknad = mapper.mapSøknad(dto, navBruker);
-
         try {
             return JaxbHelper.marshalAndValidateJaxb(SøknadConstants.JAXB_CLASS,
                 new ObjectFactory().createSoeknad(søknad),
