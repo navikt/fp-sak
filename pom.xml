@@ -6,7 +6,7 @@
     <parent>
         <groupId>no.nav.foreldrepenger.felles</groupId>
         <artifactId>fp-parent-app</artifactId>
-        <version>5.1.1</version>
+        <version>5.2.0</version>
     </parent>
 
     <groupId>no.nav.foreldrepenger</groupId>
@@ -125,7 +125,7 @@
             <dependency>
                 <groupId>no.nav.foreldrepenger.felles</groupId>
                 <artifactId>jms-integrasjon</artifactId>
-                <version>3.2.16</version>
+                <version>3.2.17</version>
             </dependency>
 
             <dependency>
