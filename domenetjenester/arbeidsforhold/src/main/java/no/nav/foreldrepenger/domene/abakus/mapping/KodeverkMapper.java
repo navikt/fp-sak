@@ -120,8 +120,7 @@ public final class KodeverkMapper {
     }
 
     static no.nav.abakus.iaygrunnlag.kodeverk.ArbeidType mapArbeidTypeTilDto(ArbeidType arbeidType) {
-        return arbeidType == null || ArbeidType.UDEFINERT.equals(arbeidType) ? null : no.nav.abakus.iaygrunnlag.kodeverk.ArbeidType.fraKode(
-            arbeidType.getKode());
+        return arbeidType == null ? null : no.nav.abakus.iaygrunnlag.kodeverk.ArbeidType.fraKode(arbeidType.getKode());
     }
 
     static no.nav.abakus.iaygrunnlag.kodeverk.PermisjonsbeskrivelseType mapPermisjonbeskrivelseTypeTilDto(PermisjonsbeskrivelseType kode) {
@@ -135,9 +134,7 @@ public final class KodeverkMapper {
     }
 
     static ArbeidType mapArbeidType(no.nav.abakus.iaygrunnlag.kodeverk.ArbeidType dto) {
-        return dto == null
-                ? ArbeidType.UDEFINERT
-                : ArbeidType.fraKode(dto.getKode());
+        return dto == null ? null : ArbeidType.fraKode(dto.getKode());
     }
 
     static InntektsmeldingInnsendingsårsakType mapInntektsmeldingInnsendingsårsak(InntektsmeldingInnsendingsårsak kode) {

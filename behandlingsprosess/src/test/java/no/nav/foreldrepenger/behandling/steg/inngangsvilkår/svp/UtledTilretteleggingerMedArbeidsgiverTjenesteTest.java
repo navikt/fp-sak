@@ -64,7 +64,7 @@ class UtledTilretteleggingerMedArbeidsgiverTjenesteTest {
     void skal_returne_tom_liste_hvis_ingen_tilrettelegginger_har_arbeidsgiver() {
 
         // Arrange
-        var tilrettelegging = new SvpTilretteleggingEntitet.Builder().build();
+        var tilrettelegging = new SvpTilretteleggingEntitet.Builder().medArbeidType(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD).build();
 
         // Act
         var result = utledTilretteleggingerMedArbeidsgiverTjeneste.utled(behandling, skjæringstidspunkt, List.of(tilrettelegging));

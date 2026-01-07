@@ -20,8 +20,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
 
-import jakarta.persistence.AttributeConverter;
-import jakarta.persistence.Converter;
+import jakarta.persistence.EnumeratedValue;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonValue;
@@ -45,22 +44,7 @@ public enum ArbeidType implements Kodeverdi, MedOffisiellKode {
     UTENLANDSK_ARBEIDSFORHOLD("UTENLANDSK_ARBEIDSFORHOLD", "Arbeid i utlandet"),
     VENTELØNN_VARTPENGER("VENTELØNN_VARTPENGER", "Ventelønn eller vartpenger"),
     VANLIG("VANLIG", "Vanlig", "VANLIG"),
-    UDEFINERT(STANDARDKODE_UDEFINERT, "Ikke definert"),
     ;
-
-    @Converter(autoApply = true)
-    public static class KodeverdiConverter implements AttributeConverter<ArbeidType, String> {
-        @Override
-        public String convertToDatabaseColumn(ArbeidType attribute) {
-            return attribute == null ? null : attribute.getKode();
-        }
-
-        @Override
-        public ArbeidType convertToEntityAttribute(String dbData) {
-            return dbData == null ? null : fraKode(dbData);
-        }
-
-    }
 
     private static final Set<ArbeidType> ANNEN_OPPTJENING = Set.of(
         FRILANSER, MILITÆR_ELLER_SIVILTJENESTE, UTENLANDSK_ARBEIDSFORHOLD,
@@ -81,6 +65,7 @@ public enum ArbeidType implements Kodeverdi, MedOffisiellKode {
         }
     }
 
+    @EnumeratedValue
     @JsonValue
     private final String kode;
     @JsonIgnore

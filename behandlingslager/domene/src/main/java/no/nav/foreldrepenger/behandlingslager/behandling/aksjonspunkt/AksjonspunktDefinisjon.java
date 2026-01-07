@@ -23,8 +23,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import jakarta.persistence.AttributeConverter;
-import jakarta.persistence.Converter;
+import jakarta.persistence.EnumeratedValue;
 
 import com.fasterxml.jackson.annotation.JsonValue;
 
@@ -327,7 +326,6 @@ public enum AksjonspunktDefinisjon implements Kodeverdi {
         BehandlingStegType.KLAGE_NK, VurderingspunktType.INN, UTEN_VILKÅR, UTEN_SKJERMLENKE, ENTRINN, TILBAKE, UTEN_FRIST, SAMME_BEHFRIST, EnumSet.of(ES, FP, SVP)),
     AUTO_VENT_PÅ_KABAL_ANKE(AksjonspunktKodeDefinisjon.AUTO_VENT_PÅ_KABAL_ANKE_KODE, AksjonspunktType.AUTOPUNKT, "Vent på ankebehandling hos Nav klageinstans",
         BehandlingStegType.ANKE, VurderingspunktType.UT, UTEN_VILKÅR, UTEN_SKJERMLENKE, ENTRINN, TILBAKE, UTEN_FRIST, SAMME_BEHFRIST, EnumSet.of(ES, FP, SVP)),
-    UNDEFINED,
 
     // Utgåtte aksjonspunktkoder - kun her for bakoverkompatibilitet. Finnes historisk i databasen til fpsak i PROD !
     @Deprecated
@@ -542,6 +540,7 @@ public enum AksjonspunktDefinisjon implements Kodeverdi {
     private boolean erUtgått = false;
 
     @JsonValue
+    @EnumeratedValue
     private String kode;
 
     AksjonspunktDefinisjon() {
@@ -716,18 +715,5 @@ public enum AksjonspunktDefinisjon implements Kodeverdi {
         return KODER.values().stream()
             .filter(ad -> Objects.equals(ad.getBehandlingSteg(), behandlingStegType) && Objects.equals(ad.getVurderingspunktType(), vurderingspunktType))
             .toList();
-    }
-
-    @Converter(autoApply = true)
-    public static class KodeverdiConverter implements AttributeConverter<AksjonspunktDefinisjon, String> {
-        @Override
-        public String convertToDatabaseColumn(AksjonspunktDefinisjon attribute) {
-            return attribute == null ? null : attribute.getKode();
-        }
-
-        @Override
-        public AksjonspunktDefinisjon convertToEntityAttribute(String dbData) {
-            return dbData == null ? null : AksjonspunktDefinisjon.fraKode(dbData);
-        }
     }
 }
