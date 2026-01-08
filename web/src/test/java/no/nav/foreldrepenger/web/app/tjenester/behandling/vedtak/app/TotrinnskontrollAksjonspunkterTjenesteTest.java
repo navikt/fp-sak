@@ -454,7 +454,7 @@ class TotrinnskontrollAksjonspunkterTjenesteTest {
             AksjonspunktDefinisjon.OVERSTYRING_AV_RETT_OG_OMSORG, AksjonspunktDefinisjon.VURDER_UTTAK_DOKUMENTASJON);
 
         var dtos = aksjonspunktDefs.stream()
-            .map(ad -> new TotrinnskontrollSkjermlenkeContextDto(ad.getSkjermlenkeType().getKode(),
+            .map(ad -> new TotrinnskontrollSkjermlenkeContextDto(ad.getSkjermlenkeType(),
                 List.of(opprettTotrinnskontrollAksjonspunkterDto(Optional.of(ad), Optional.empty()))))
             .toList();
 

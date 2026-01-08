@@ -66,7 +66,7 @@ public class TotrinnskontrollAksjonspunkterTjeneste {
             lagTotrinnsaksjonspunkt(behandling, behandlingsresultat, skjermlenkeMap, builder.build());
         }
         for (var skjermlenke : skjermlenkeMap.entrySet()) {
-            var context = new TotrinnskontrollSkjermlenkeContextDto(skjermlenke.getKey().getKode(),
+            var context = new TotrinnskontrollSkjermlenkeContextDto(skjermlenke.getKey(),
                 skjermlenke.getValue());
             skjermlenkeContext.add(context);
         }
@@ -81,7 +81,7 @@ public class TotrinnskontrollAksjonspunkterTjeneste {
             lagTotrinnsaksjonspunkt(behandling, behandlingsresultat, skjermlenkeMap, vurdering);
         }
         for (var skjermlenke : skjermlenkeMap.entrySet()) {
-            var context = new TotrinnskontrollSkjermlenkeContextDto(skjermlenke.getKey().getKode(),
+            var context = new TotrinnskontrollSkjermlenkeContextDto(skjermlenke.getKey(),
                 skjermlenke.getValue());
             skjermlenkeContext.add(context);
         }
