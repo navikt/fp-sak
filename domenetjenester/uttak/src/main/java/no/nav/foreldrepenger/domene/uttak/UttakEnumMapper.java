@@ -107,9 +107,6 @@ public final class UttakEnumMapper {
     }
 
     public static Stønadskontotype map(StønadskontoType stønadskontoType) {
-        if (stønadskontoType == StønadskontoType.UDEFINERT) {
-            return null;
-        }
         return STØNADSKONTOTYPE_KODE_MAPPER
             .map(stønadskontoType)
             .orElseThrow(() -> new UnsupportedOperationException(String.format("Har ikke støtte for søknadstype %s", stønadskontoType.getKode())));
@@ -243,19 +240,6 @@ public final class UttakEnumMapper {
         };
     }
 
-    public static StønadskontoType map(Stønadskontotype stønadskontotype) {
-        if (stønadskontotype == null) {
-            return StønadskontoType.UDEFINERT;
-        }
-        return switch (stønadskontotype) {
-            case FEDREKVOTE -> StønadskontoType.FEDREKVOTE;
-            case MØDREKVOTE -> StønadskontoType.MØDREKVOTE;
-            case FELLESPERIODE -> StønadskontoType.FELLESPERIODE;
-            case FORELDREPENGER -> StønadskontoType.FORELDREPENGER;
-            case FORELDREPENGER_FØR_FØDSEL -> StønadskontoType.FORELDREPENGER_FØR_FØDSEL;
-        };
-    }
-
     public static UttakPeriodeType mapTrekkonto(Stønadskontotype stønadskontotype) {
         if (stønadskontotype == null) {
             return UttakPeriodeType.UDEFINERT;
@@ -284,7 +268,6 @@ public final class UttakEnumMapper {
             case TETTE_SAKER_FAR -> StønadskontoType.TETTE_SAKER_FAR;
             case BARE_FAR_RETT -> StønadskontoType.BARE_FAR_RETT;
             case FAR_RUNDT_FØDSEL -> StønadskontoType.FAR_RUNDT_FØDSEL;
-            case null -> StønadskontoType.UDEFINERT;
         };
     }
 
@@ -303,7 +286,6 @@ public final class UttakEnumMapper {
             case TETTE_SAKER_FAR -> StønadskontoKontotype.TETTE_SAKER_FAR;
             case BARE_FAR_RETT -> StønadskontoKontotype.BARE_FAR_RETT;
             case FAR_RUNDT_FØDSEL -> StønadskontoKontotype.FAR_RUNDT_FØDSEL;
-            case UDEFINERT -> throw new IllegalArgumentException("Ugyldig stønadskonto");
         };
     }
 

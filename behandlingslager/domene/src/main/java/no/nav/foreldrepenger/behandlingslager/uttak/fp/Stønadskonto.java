@@ -3,8 +3,9 @@ package no.nav.foreldrepenger.behandlingslager.uttak.fp;
 import java.util.Objects;
 
 import jakarta.persistence.Column;
-import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -29,7 +30,7 @@ public class Stønadskonto extends BaseEntitet implements IndexKey {
     private Integer maxDager;
 
     @ChangeTracked
-    @Convert(converter = StønadskontoType.KodeverdiConverter.class)
+    @Enumerated(EnumType.STRING)
     @Column(name="stoenadskontotype", nullable = false)
     private StønadskontoType stønadskontoType;
 

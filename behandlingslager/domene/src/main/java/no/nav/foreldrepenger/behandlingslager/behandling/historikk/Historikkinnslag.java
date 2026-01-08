@@ -7,6 +7,8 @@ import java.util.Objects;
 import jakarta.persistence.Column;
 import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -32,7 +34,7 @@ public class Historikkinnslag extends BaseCreateableEntitet {
     @Column(name = "behandling_id")
     private Long behandlingId;
 
-    @Convert(converter = HistorikkAktør.KodeverdiConverter.class)
+    @Enumerated(EnumType.STRING)
     @Column(name = "aktoer", nullable = false)
     private HistorikkAktør aktør;
 
