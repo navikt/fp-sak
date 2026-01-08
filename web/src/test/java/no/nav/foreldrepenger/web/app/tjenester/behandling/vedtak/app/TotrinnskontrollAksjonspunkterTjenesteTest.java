@@ -146,7 +146,7 @@ class TotrinnskontrollAksjonspunkterTjenesteTest {
         assertThat(context).hasSize(1);
 
         var totrinnskontrollSkjermlenkeContextDto = context.get(0);
-        assertThat(totrinnskontrollSkjermlenkeContextDto.getSkjermlenkeType()).isEqualTo(SkjermlenkeType.FAKTA_OM_MEDLEMSKAP.getKode());
+        assertThat(totrinnskontrollSkjermlenkeContextDto.getSkjermlenkeType()).isEqualTo(SkjermlenkeType.FAKTA_OM_MEDLEMSKAP);
 
         var totrinnskontrollAksjonspunkter = totrinnskontrollSkjermlenkeContextDto.getTotrinnskontrollAksjonspunkter();
         assertThat(totrinnskontrollAksjonspunkter).hasSize(1);
@@ -189,7 +189,7 @@ class TotrinnskontrollAksjonspunkterTjenesteTest {
                 assertThat(context).hasSize(1);
 
                 var totrinnskontrollSkjermlenkeContextDto = context.get(0);
-                assertThat(totrinnskontrollSkjermlenkeContextDto.getSkjermlenkeType()).isEqualTo(vilkårTypeSkjermlenkeTypeMap.get(vilkårType).getKode());
+                assertThat(totrinnskontrollSkjermlenkeContextDto.getSkjermlenkeType()).isEqualTo(vilkårTypeSkjermlenkeTypeMap.get(vilkårType));
 
                 var totrinnskontrollAksjonspunkter = totrinnskontrollSkjermlenkeContextDto.getTotrinnskontrollAksjonspunkter();
                 assertThat(totrinnskontrollAksjonspunkter).hasSize(1);
@@ -236,7 +236,7 @@ class TotrinnskontrollAksjonspunkterTjenesteTest {
             assertThat(context).hasSize(1);
 
             var totrinnskontrollSkjermlenkeContextDto = context.get(0);
-            assertThat(totrinnskontrollSkjermlenkeContextDto.getSkjermlenkeType()).isEqualTo(fagsakYtelseTypeSkjermlenkeTypeMap.get(fagsakYtelseType).getKode());
+            assertThat(totrinnskontrollSkjermlenkeContextDto.getSkjermlenkeType()).isEqualTo(fagsakYtelseTypeSkjermlenkeTypeMap.get(fagsakYtelseType));
 
             var totrinnskontrollAksjonspunkter = totrinnskontrollSkjermlenkeContextDto.getTotrinnskontrollAksjonspunkter();
             assertThat(totrinnskontrollAksjonspunkter).hasSize(1);
@@ -307,7 +307,7 @@ class TotrinnskontrollAksjonspunkterTjenesteTest {
 
         // Assert
         assertThat(context).hasSize(1);
-        assertThat(context.get(0).getSkjermlenkeType()).isEqualTo(SkjermlenkeType.FAKTA_OM_MEDLEMSKAP.getKode());
+        assertThat(context.get(0).getSkjermlenkeType()).isEqualTo(SkjermlenkeType.FAKTA_OM_MEDLEMSKAP);
         var totrinnskontrollAksjonspunkter = context.get(0).getTotrinnskontrollAksjonspunkter();
         assertThat(totrinnskontrollAksjonspunkter).hasSize(1);
         assertThat(totrinnskontrollAksjonspunkter.get(0).getAksjonspunktKode()).isEqualTo(AksjonspunktDefinisjon.VURDER_MEDLEMSKAPSVILKÅRET.getKode());
@@ -336,7 +336,7 @@ class TotrinnskontrollAksjonspunkterTjenesteTest {
 
         // Assert
         assertThat(context).hasSize(1);
-        assertThat(context.get(0).getSkjermlenkeType()).isEqualTo(SkjermlenkeType.FAKTA_OM_MEDLEMSKAP.getKode());
+        assertThat(context.get(0).getSkjermlenkeType()).isEqualTo(SkjermlenkeType.FAKTA_OM_MEDLEMSKAP);
 
         var totrinnskontrollAksjonspunkter = context.get(0).getTotrinnskontrollAksjonspunkter();
         assertThat(totrinnskontrollAksjonspunkter).hasSize(1);
@@ -434,7 +434,7 @@ class TotrinnskontrollAksjonspunkterTjenesteTest {
             assertThat(context).hasSize(1);
 
             var totrinnskontrollSkjermlenkeContextDto = context.getFirst();
-            assertThat(totrinnskontrollSkjermlenkeContextDto.getSkjermlenkeType()).isEqualTo(vilkårTypeSkjermlenkeTypeMap.get(vilkårType).getKode());
+            assertThat(totrinnskontrollSkjermlenkeContextDto.getSkjermlenkeType()).isEqualTo(vilkårTypeSkjermlenkeTypeMap.get(vilkårType));
 
             var totrinnskontrollAksjonspunkter = totrinnskontrollSkjermlenkeContextDto.getTotrinnskontrollAksjonspunkter();
             assertThat(totrinnskontrollAksjonspunkter).hasSize(1);
@@ -462,22 +462,22 @@ class TotrinnskontrollAksjonspunkterTjenesteTest {
             BehandlingType.FØRSTEGANGSSØKNAD, dtos);
 
         assertThat(sortert).hasSize(6);
-        assertThat(sortert.getFirst().getSkjermlenkeType()).isEqualTo(AksjonspunktDefinisjon.VURDER_MEDLEMSKAPSVILKÅRET.getSkjermlenkeType().getKode());
+        assertThat(sortert.getFirst().getSkjermlenkeType()).isEqualTo(AksjonspunktDefinisjon.VURDER_MEDLEMSKAPSVILKÅRET.getSkjermlenkeType());
         assertThat(sortert.getFirst().getTotrinnskontrollAksjonspunkter()).hasSize(1);
 
-        assertThat(sortert.get(1).getSkjermlenkeType()).isEqualTo(AksjonspunktDefinisjon.OVERSTYRING_AV_AVKLART_STARTDATO.getSkjermlenkeType().getKode());
+        assertThat(sortert.get(1).getSkjermlenkeType()).isEqualTo(AksjonspunktDefinisjon.OVERSTYRING_AV_AVKLART_STARTDATO.getSkjermlenkeType());
         assertThat(sortert.get(1).getTotrinnskontrollAksjonspunkter()).hasSize(1);
 
-        assertThat(sortert.get(2).getSkjermlenkeType()).isEqualTo(AksjonspunktDefinisjon.OVERSTYRING_AV_RETT_OG_OMSORG.getSkjermlenkeType().getKode());
+        assertThat(sortert.get(2).getSkjermlenkeType()).isEqualTo(AksjonspunktDefinisjon.OVERSTYRING_AV_RETT_OG_OMSORG.getSkjermlenkeType());
         assertThat(sortert.get(2).getTotrinnskontrollAksjonspunkter()).hasSize(1);
 
-        assertThat(sortert.get(3).getSkjermlenkeType()).isEqualTo(AksjonspunktDefinisjon.VURDER_UTTAK_DOKUMENTASJON.getSkjermlenkeType().getKode());
+        assertThat(sortert.get(3).getSkjermlenkeType()).isEqualTo(AksjonspunktDefinisjon.VURDER_UTTAK_DOKUMENTASJON.getSkjermlenkeType());
         assertThat(sortert.get(3).getTotrinnskontrollAksjonspunkter()).hasSize(1);
 
-        assertThat(sortert.get(4).getSkjermlenkeType()).isEqualTo(AksjonspunktDefinisjon.FASTSETT_UTTAKPERIODER.getSkjermlenkeType().getKode());
+        assertThat(sortert.get(4).getSkjermlenkeType()).isEqualTo(AksjonspunktDefinisjon.FASTSETT_UTTAKPERIODER.getSkjermlenkeType());
         assertThat(sortert.get(4).getTotrinnskontrollAksjonspunkter()).hasSize(1);
 
-        assertThat(sortert.get(5).getSkjermlenkeType()).isEqualTo(AksjonspunktDefinisjon.FASTSETT_UTTAKPERIODER.getSkjermlenkeType().getKode());
+        assertThat(sortert.get(5).getSkjermlenkeType()).isEqualTo(AksjonspunktDefinisjon.FASTSETT_UTTAKPERIODER.getSkjermlenkeType());
         assertThat(sortert.get(5).getTotrinnskontrollAksjonspunkter()).hasSize(1);
 
     }
