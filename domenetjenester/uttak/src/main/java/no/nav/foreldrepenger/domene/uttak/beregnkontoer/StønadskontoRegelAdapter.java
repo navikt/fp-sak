@@ -11,7 +11,6 @@ import jakarta.enterprise.context.Dependent;
 import jakarta.inject.Inject;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
-import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelseFordelingAggregat;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Dekningsgrad;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.Stønadskonto;

@@ -85,10 +85,17 @@ public class VedtakXmlUtil {
     }
 
     public static KodeverksOpplysning lagKodeverksOpplysning(Kodeverdi kodeverdi) {
+        var kode = kodeverdi.getKode();
+        var navn = kodeverdi.getNavn();
+        var kodeverk = kodeverdi.getClass().getSimpleName();
+        return lagKodeverksOpplysning(kode, navn, kodeverk);
+    }
+
+    public static KodeverksOpplysning lagKodeverksOpplysning(String kode, String navn, String kodeverk) {
         var kodeverksOpplysning = fellesObjectFactory.createKodeverksOpplysning();
-        kodeverksOpplysning.setKode(kodeverdi.getKode());
-        kodeverksOpplysning.setValue(kodeverdi.getNavn());
-        kodeverksOpplysning.setKodeverk(kodeverdi.getClass().getSimpleName());
+        kodeverksOpplysning.setKode(kode);
+        kodeverksOpplysning.setValue(navn);
+        kodeverksOpplysning.setKodeverk(kodeverk);
         return kodeverksOpplysning;
     }
 
@@ -122,15 +129,6 @@ public class VedtakXmlUtil {
         kodeverksOpplysning.setValue(aksjonspunktDefinisjon.getNavn());
         kodeverksOpplysning.setKode(aksjonspunktDefinisjon.getKode());
         kodeverksOpplysning.setKodeverk("AKSJONSPUNKT_DEF");
-        return kodeverksOpplysning;
-    }
-
-    public static KodeverksOpplysning lagOppholdPeriodeTypeKodeverkOpplysning() {
-        var kodeverksOpplysning = fellesObjectFactory.createKodeverksOpplysning();
-        // Annet er fjernet fra enum
-        kodeverksOpplysning.setKode("ANNET");
-        kodeverksOpplysning.setValue("Andre typer som f.eks utsettelse");
-        kodeverksOpplysning.setKodeverk("UTTAK_PERIODE_TYPE");
         return kodeverksOpplysning;
     }
 }

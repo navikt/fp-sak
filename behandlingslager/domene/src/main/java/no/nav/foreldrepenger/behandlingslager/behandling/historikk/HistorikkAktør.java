@@ -3,8 +3,7 @@ package no.nav.foreldrepenger.behandlingslager.behandling.historikk;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import jakarta.persistence.AttributeConverter;
-import jakarta.persistence.Converter;
+import jakarta.persistence.EnumeratedValue;
 
 import com.fasterxml.jackson.annotation.JsonValue;
 
@@ -17,7 +16,6 @@ public enum HistorikkAktør implements Kodeverdi {
     SØKER("SOKER", "Søker"),
     ARBEIDSGIVER("ARBEIDSGIVER", "Arbeidsgiver"),
     VEDTAKSLØSNINGEN("VL", "Vedtaksløsningen"),
-    UDEFINERT(STANDARDKODE_UDEFINERT, "Ikke definert"),
     ;
 
     private static final Map<String, HistorikkAktør> KODER = new LinkedHashMap<>();
@@ -32,6 +30,7 @@ public enum HistorikkAktør implements Kodeverdi {
 
     private final String navn;
 
+    @EnumeratedValue
     @JsonValue
     private final String kode;
 
@@ -48,29 +47,5 @@ public enum HistorikkAktør implements Kodeverdi {
     @Override
     public String getKode() {
         return kode;
-    }
-
-    @Converter(autoApply = true)
-    public static class KodeverdiConverter implements AttributeConverter<HistorikkAktør, String> {
-        @Override
-        public String convertToDatabaseColumn(HistorikkAktør attribute) {
-            return attribute == null ? null : attribute.getKode();
-        }
-
-        @Override
-        public HistorikkAktør convertToEntityAttribute(String dbData) {
-            return dbData == null ? null : fraKode(dbData);
-        }
-
-        private static HistorikkAktør fraKode(String kode) {
-            if (kode == null) {
-                return null;
-            }
-            var ad = KODER.get(kode);
-            if (ad == null) {
-                throw new IllegalArgumentException("Ukjent HistorikkAktør: " + kode);
-            }
-            return ad;
-        }
     }
 }
