@@ -14,6 +14,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelsesFordelingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeEntitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeType;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.uttak.Uttaksperiodegrense;
 import no.nav.foreldrepenger.behandlingslager.uttak.UttaksperiodegrenseRepository;
@@ -24,6 +25,7 @@ import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakPeriodeAktivitet;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakTjeneste;
 import no.nav.foreldrepenger.domene.uttak.beregnkontoer.UtregnetStønadskontoTjeneste;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.Virkedager;
+import no.nav.vedtak.felles.xml.felles.v2.KodeverksOpplysning;
 import no.nav.vedtak.felles.xml.vedtak.uttak.fp.v2.FordelingPeriode;
 import no.nav.vedtak.felles.xml.vedtak.uttak.fp.v2.ObjectFactory;
 import no.nav.vedtak.felles.xml.vedtak.uttak.fp.v2.Stoenadskonto;
@@ -101,9 +103,14 @@ public class UttakXmlTjeneste {
         var kontrakt = new FordelingPeriode();
         kontrakt.setMorsAktivitet(VedtakXmlUtil.lagKodeverksOpplysning(periodeDomene.getMorsAktivitet()));
         kontrakt.setPeriode(VedtakXmlUtil.lagPeriodeOpplysning(periodeDomene.getFom(), periodeDomene.getTom()));
-        kontrakt.setPeriodetype(periodeDomene.isOpphold() ? VedtakXmlUtil.lagOppholdPeriodeTypeKodeverkOpplysning()
+        kontrakt.setPeriodetype(periodeDomene.isOpphold() ? lagOppholdPeriodeTypeKodeverkOpplysning()
             : VedtakXmlUtil.lagKodeverksOpplysning(periodeDomene.getPeriodeType()));
         return kontrakt;
+    }
+
+    private static KodeverksOpplysning lagOppholdPeriodeTypeKodeverkOpplysning() {
+        //Annet fjernet fra enum
+        return VedtakXmlUtil.lagKodeverksOpplysning("ANNET", "Andre typer som f.eks utsettelse", "UTTAK_PERIODE_TYPE");
     }
 
     private void setUttakResultatPerioder(UttakForeldrepenger uttakForeldrepenger, List<ForeldrepengerUttakPeriode> perioderDomene) {
@@ -143,14 +150,7 @@ public class UttakXmlTjeneste {
 
     private UttaksresultatPeriodeAktivitet konverterFraDomene(ForeldrepengerUttakPeriodeAktivitet periodeAktivitet, int antVirkedager) {
         var kontrakt = new UttaksresultatPeriodeAktivitet();
-        kontrakt.setTrekkkonto(VedtakXmlUtil.lagKodeverksOpplysning(switch (periodeAktivitet.getTrekkonto()) {
-            case FELLESPERIODE -> StønadskontoType.FELLESPERIODE;
-            case MØDREKVOTE -> StønadskontoType.MØDREKVOTE;
-            case FEDREKVOTE -> StønadskontoType.FEDREKVOTE;
-            case FORELDREPENGER -> StønadskontoType.FORELDREPENGER;
-            case FORELDREPENGER_FØR_FØDSEL -> StønadskontoType.FORELDREPENGER_FØR_FØDSEL;
-            case UDEFINERT -> StønadskontoType.UDEFINERT;
-        }));
+        kontrakt.setTrekkkonto(lagKodeverksOpplysningFor(periodeAktivitet.getTrekkonto()));
         kontrakt.setTrekkdager(VedtakXmlUtil.lagDecimalOpplysning(periodeAktivitet.getTrekkdager().decimalValue()));
         periodeAktivitet.getArbeidsgiver().ifPresent(ag -> {
             kontrakt.setVirksomhet(VedtakXmlUtil.lagStringOpplysning(ag.getIdentifikator()));
@@ -167,6 +167,22 @@ public class UttakXmlTjeneste {
             kontrakt.setGraderingsdager(VedtakXmlUtil.lagIntOpplysning(antVirkedager));
         }
         return kontrakt;
+    }
+
+    private static KodeverksOpplysning lagKodeverksOpplysningFor(UttakPeriodeType trekkonto) {
+        if (trekkonto == UttakPeriodeType.UDEFINERT) {
+            //StønadskontoType.UDEFINERT fjernet
+            return VedtakXmlUtil.lagKodeverksOpplysning("-", "Ikke valgt stønadskonto", trekkonto.getClass().getSimpleName());
+        }
+        var kodeverdi = switch (trekkonto) {
+            case FELLESPERIODE -> StønadskontoType.FELLESPERIODE;
+            case MØDREKVOTE -> StønadskontoType.MØDREKVOTE;
+            case FEDREKVOTE -> StønadskontoType.FEDREKVOTE;
+            case FORELDREPENGER -> StønadskontoType.FORELDREPENGER;
+            case FORELDREPENGER_FØR_FØDSEL -> StønadskontoType.FORELDREPENGER_FØR_FØDSEL;
+            case UDEFINERT -> throw new IllegalStateException("UttakPeriodeType.UDEFINERT kan ikke mappes til StønadskontoType");
+        };
+        return VedtakXmlUtil.lagKodeverksOpplysning(kodeverdi);
     }
 
     private void setStoenadskontoer(UttakForeldrepenger uttakForeldrepenger, Behandling behandling) {

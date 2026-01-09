@@ -3,8 +3,7 @@ package no.nav.foreldrepenger.behandlingslager.uttak.fp;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import jakarta.persistence.AttributeConverter;
-import jakarta.persistence.Converter;
+import jakarta.persistence.EnumeratedValue;
 
 import com.fasterxml.jackson.annotation.JsonValue;
 
@@ -43,8 +42,6 @@ public enum StønadskontoType implements Kodeverdi {
 
     // Annet, bla dager med fullt (200%) samtidig uttak (se også flerbarnsdager)
     FAR_RUNDT_FØDSEL("FAR_RUNDT_FØDSEL", "Fars uttak ifm fødsel", KontoKategori.ANNET),
-
-    UDEFINERT(STANDARDKODE_UDEFINERT, "Ikke valgt stønadskonto", KontoKategori.ANNET),
     ;
 
     public enum KontoKategori { STØNADSDAGER, UTVIDELSE, AKTIVITETSKRAV, MINSTERETT, ANNET }
@@ -61,6 +58,7 @@ public enum StønadskontoType implements Kodeverdi {
 
     private final String navn;
 
+    @EnumeratedValue
     @JsonValue
     private final String kode;
 
@@ -97,32 +95,7 @@ public enum StønadskontoType implements Kodeverdi {
             case FEDREKVOTE -> UttakPeriodeType.FEDREKVOTE;
             case FORELDREPENGER -> UttakPeriodeType.FORELDREPENGER;
             case FORELDREPENGER_FØR_FØDSEL -> UttakPeriodeType.FORELDREPENGER_FØR_FØDSEL;
-            case UDEFINERT -> UttakPeriodeType.UDEFINERT;
             default -> throw new IllegalStateException("Unexpected value: " + this);
         };
-    }
-
-    @Converter(autoApply = true)
-    public static class KodeverdiConverter implements AttributeConverter<StønadskontoType, String> {
-        @Override
-        public String convertToDatabaseColumn(StønadskontoType attribute) {
-            return attribute == null ? null : attribute.getKode();
-        }
-
-        @Override
-        public StønadskontoType convertToEntityAttribute(String dbData) {
-            return dbData == null ? null : fraKode(dbData);
-        }
-
-        private static StønadskontoType fraKode(String kode) {
-            if (kode == null) {
-                return null;
-            }
-            var ad = KODER.get(kode);
-            if (ad == null) {
-                throw new IllegalArgumentException("Ukjent StønadskontoType: " + kode);
-            }
-            return ad;
-        }
     }
 }
