@@ -61,12 +61,12 @@ public class AapEtterbetalingBeregningTask implements ProsessTaskHandler {
 
         if (alleEtterbetalinger.isEmpty()) {
             LOG.info("AAP_ETTERBETALINGER: Behandlinger med id fra {} til {} hadde ingen etterbetalinger", fraOgMedId, tilOgMedId);
+        } else {
+            var sumEtterbetalinger = alleEtterbetalinger.stream().reduce(Long::sum).orElseThrow();
+            var snittEtterbetaling = BigDecimal.valueOf(sumEtterbetalinger).divide(BigDecimal.valueOf(alleEtterbetalinger.size()), 2, RoundingMode.HALF_EVEN);
+
+            LOG.info("AAP_ETTERBETALINGER: Behandlinger med id fra {} til {} hadde i snitt {} i etterbetaling fordelt over totalt {} simuleringsresultat", fraOgMedId, tilOgMedId, snittEtterbetaling, alleEtterbetalinger.size());
         }
-
-        var sumEtterbetalinger = alleEtterbetalinger.stream().reduce(Long::sum).orElseThrow();
-        var snittEtterbetaling = BigDecimal.valueOf(sumEtterbetalinger).divide(BigDecimal.valueOf(alleEtterbetalinger.size()), 2, RoundingMode.HALF_EVEN);
-
-        LOG.info("AAP_ETTERBETALINGER: Behandlinger med id fra {} til {} hadde i snitt {} i etterbetaling fordelt over totalt {} simuleringsresultat", fraOgMedId, tilOgMedId, snittEtterbetaling, alleEtterbetalinger.size());
     }
 
     private List<Behandling> finnAktuelleBehandlinger(Long fraOgMedId, Long tilOgMedId) {
