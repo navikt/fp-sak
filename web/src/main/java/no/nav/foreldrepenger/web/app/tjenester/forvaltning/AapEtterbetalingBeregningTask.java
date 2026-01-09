@@ -50,7 +50,7 @@ public class AapEtterbetalingBeregningTask implements ProsessTaskHandler {
         var fraOgMedId = Optional.ofNullable(prosessTaskData.getPropertyValue(FRA_OG_MED)).map(Long::valueOf).orElseThrow();
         var tilOgMedId = Optional.ofNullable(prosessTaskData.getPropertyValue(TIL_OG_MED)).map(Long::valueOf).orElseThrow();
 
-        var behandlinger = finnAktuelleFagsaker(fraOgMedId, tilOgMedId);
+        var behandlinger = finnAktuelleBehandlinger(fraOgMedId, tilOgMedId);
 
         List<Long> alleEtterbetalinger = behandlinger.stream().map(behandling -> {
             var simulering = fpOppdragRestKlient.hentSimuleringResultatMedOgUtenInntrekk(behandling.getId(), behandling.getUuid(),
@@ -69,7 +69,7 @@ public class AapEtterbetalingBeregningTask implements ProsessTaskHandler {
         LOG.info("AAP_ETTERBETALINGER: Behandlinger med id fra {} til {} hadde i snitt {} i etterbetaling fordelt over totalt {} simuleringsresultat", fraOgMedId, tilOgMedId, snittEtterbetaling, alleEtterbetalinger.size());
     }
 
-    private List<Behandling> finnAktuelleFagsaker(Long fraOgMedId, Long tilOgMedId) {
+    private List<Behandling> finnAktuelleBehandlinger(Long fraOgMedId, Long tilOgMedId) {
         var query = entityManager.createNativeQuery("""
             select * from (select * from behandling where id in (select distinct(beh.id) from Behandling beh
              inner join BEHANDLING_ARSAK ar on ar.behandling_id = beh.id
