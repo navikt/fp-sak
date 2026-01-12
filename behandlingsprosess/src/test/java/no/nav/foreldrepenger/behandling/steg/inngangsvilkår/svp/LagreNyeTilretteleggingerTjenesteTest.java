@@ -7,6 +7,8 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
 
+import no.nav.foreldrepenger.behandlingslager.virksomhet.ArbeidType;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -38,20 +40,21 @@ class LagreNyeTilretteleggingerTjenesteTest extends EntityManagerAwareTest {
         var behandling = ScenarioMorSøkerSvangerskapspenger.forSvangerskapspenger().lagre(repositoryProvider);
 
         var gammeltGrunnlag = new SvpGrunnlagEntitet.Builder()
-                .medOpprinneligeTilrettelegginger(List.of(new SvpTilretteleggingEntitet.Builder()
-                        .medBehovForTilretteleggingFom(LocalDate.of(2019, 8, 1))
-                        .medMottattTidspunkt(LocalDateTime.of(LocalDate.of(2019, 4, 1), LocalTime.MIDNIGHT))
-                        .medKopiertFraTidligereBehandling(false)
-                        .build()))
-                .medOverstyrteTilrettelegginger(List.of())
-                .medBehandlingId(behandling.getId()).build();
-        svangerskapspengerRepository.lagreOgFlush(gammeltGrunnlag);
-
-        var overstyrtTilrettelegging = new SvpTilretteleggingEntitet.Builder()
+            .medOpprinneligeTilrettelegginger(List.of(
+            new SvpTilretteleggingEntitet.Builder()
                 .medBehovForTilretteleggingFom(LocalDate.of(2019, 8, 1))
                 .medMottattTidspunkt(LocalDateTime.of(LocalDate.of(2019, 4, 1), LocalTime.MIDNIGHT))
                 .medKopiertFraTidligereBehandling(false)
-                .build();
+                .medArbeidType(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD)
+                .build())).medOverstyrteTilrettelegginger(List.of()).medBehandlingId(behandling.getId()).build();
+        svangerskapspengerRepository.lagreOgFlush(gammeltGrunnlag);
+
+        var overstyrtTilrettelegging = new SvpTilretteleggingEntitet.Builder()
+            .medArbeidType(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD)
+            .medBehovForTilretteleggingFom(LocalDate.of(2019, 8, 1))
+            .medMottattTidspunkt(LocalDateTime.of(LocalDate.of(2019, 4, 1), LocalTime.MIDNIGHT))
+            .medKopiertFraTidligereBehandling(false)
+            .build();
 
         // Act
         utledNyeTilretteleggingerTjeneste.lagre(behandling, List.of(overstyrtTilrettelegging));

@@ -14,6 +14,8 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Convert;
 import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -50,9 +52,9 @@ public class SvpTilretteleggingEntitet extends BaseEntitet {
     @JoinColumn(name = "SVP_TILRETTELEGGING_ID")
     private List<TilretteleggingFOM> tilretteleggingFOMListe = new ArrayList<>();
 
-    @Convert(converter = ArbeidType.KodeverdiConverter.class)
+    @Enumerated(EnumType.STRING)
     @Column(name="arbeid_type", nullable = false)
-    private ArbeidType arbeidType = ArbeidType.UDEFINERT;
+    private ArbeidType arbeidType;
 
     @Embedded
     private Arbeidsgiver arbeidsgiver;
@@ -336,6 +338,7 @@ public class SvpTilretteleggingEntitet extends BaseEntitet {
         }
 
         public SvpTilretteleggingEntitet build() {
+            Objects.requireNonNull(mal.arbeidType, "arbeidType must not be null");
             return this.mal;
         }
     }

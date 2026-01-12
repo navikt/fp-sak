@@ -316,4 +316,20 @@ public class ForvaltningUttrekkRestTjeneste {
         return Response.ok(restanse).build();
     }
 
+    @POST
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    @Operation(description = "Gir åpne aksjonspunkter med angitt kode", tags = "FORVALTNING-uttrekk")
+    @Path("/fikseGamleTekniskeAvvik")
+    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.DRIFT, sporingslogg = false)
+    public Response fikseGamleTekniskeAvvik() {
+        entityManager.createNativeQuery("DELETE from VILKAR where vilkar_type = '-'").executeUpdate();
+        entityManager.createNativeQuery("DELETE from gr_familie_hendelse where soeknad_familie_hendelse_id in (select id from FH_FAMILIE_HENDELSE where familie_hendelse_type = '-')").executeUpdate();
+        entityManager.createNativeQuery("DELETE from FH_FAMILIE_HENDELSE where familie_hendelse_type = '-'").executeUpdate();
+        entityManager.createNativeQuery("UPDATE PO_PERSONOPPLYSNING set BRUKER_KJOENN = 'K' where id = 5016597").executeUpdate();
+        entityManager.createNativeQuery("UPDATE PO_PERSONSTATUS set PERSONSTATUS = 'BOSA' where id in (7168231,7306947)").executeUpdate();
+        entityManager.createNativeQuery("update PO_STATSBORGERSKAP set statsborgerskap = 'XUK' where statsborgerskap = '-'").executeUpdate();
+        return Response.ok().build();
+    }
+
 }

@@ -6,6 +6,8 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 
+import no.nav.foreldrepenger.behandlingslager.virksomhet.ArbeidType;
+
 import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.SvpGrunnlagEntitet;
@@ -19,6 +21,7 @@ class SøknadsperiodeFristTjenesteImplTest {
         var forventetSkjæringstidspunkt = LocalDate.of(2019, 7, 10);
 
         var svp = new SvpTilretteleggingEntitet.Builder()
+            .medArbeidType(ArbeidType.FRILANSER)
             .medBehovForTilretteleggingFom(forventetSkjæringstidspunkt)
             .medDelvisTilrettelegging(forventetSkjæringstidspunkt, BigDecimal.valueOf(50), forventetSkjæringstidspunkt, SvpTilretteleggingFomKilde.SØKNAD)
             .medDelvisTilrettelegging(LocalDate.of(2019, 9, 17), BigDecimal.valueOf(30), forventetSkjæringstidspunkt, SvpTilretteleggingFomKilde.SØKNAD)

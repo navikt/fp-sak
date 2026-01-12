@@ -6,6 +6,8 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import no.nav.foreldrepenger.behandlingslager.virksomhet.ArbeidType;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -64,6 +66,7 @@ class SvangerskapspengerRepositoryTest extends EntityManagerAwareTest {
         return new SvpTilretteleggingEntitet.Builder()
             .medKopiertFraTidligereBehandling(false)
             .medMottattTidspunkt(I_GÅR)
+            .medArbeidType(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD)
             .medBehovForTilretteleggingFom(fom)
             .medTilretteleggingFom(new TilretteleggingFOM.Builder()
                 .medFomDato(LocalDate.now())
