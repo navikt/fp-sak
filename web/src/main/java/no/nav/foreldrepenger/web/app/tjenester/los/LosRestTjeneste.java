@@ -1,7 +1,5 @@
 package no.nav.foreldrepenger.web.app.tjenester.los;
 
-import java.util.List;
-
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
@@ -20,9 +18,6 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import no.nav.foreldrepenger.behandlingslager.behandling.nøkkeltallbehandling.NøkkeltallBehandlingFørsteUttak;
-import no.nav.foreldrepenger.behandlingslager.behandling.nøkkeltallbehandling.NøkkeltallBehandlingRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.nøkkeltallbehandling.NøkkeltallBehandlingVentefristUtløper;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
@@ -47,13 +42,10 @@ public class LosRestTjeneste {
 
     private static final String LOS_BEHANDLING_PATH = "/los-behandling";
     private static final String LOS_FAGSAK_EGENSKAP_PATH = "/los-egenskap";
-    public static final String LOS_NØKKELTALL_PATH = "/los-nokkeltall";
-    public static final String LOS_FRISTUTLOPUKE_PATH = "/los-fristutlop-uke";
 
     private FagsakRepository fagsakRepository;
     private BehandlingRepository behandlingRepository;
     private LosBehandlingDtoTjeneste losBehandlingDtoTjeneste;
-    private NøkkeltallBehandlingRepository nøkkeltallBehandlingRepository;
 
     public LosRestTjeneste() {
         // CDI
@@ -62,12 +54,10 @@ public class LosRestTjeneste {
     @Inject
     public LosRestTjeneste(BehandlingRepository behandlingRepository,
                            FagsakRepository fagsakRepository,
-                           LosBehandlingDtoTjeneste losBehandlingDtoTjeneste,
-                           NøkkeltallBehandlingRepository nøkkeltallBehandlingRepository) {
+                           LosBehandlingDtoTjeneste losBehandlingDtoTjeneste) {
         this.losBehandlingDtoTjeneste = losBehandlingDtoTjeneste;
         this.behandlingRepository = behandlingRepository;
         this.fagsakRepository = fagsakRepository;
-        this.nøkkeltallBehandlingRepository = nøkkeltallBehandlingRepository;
     }
 
     @GET
@@ -96,24 +86,6 @@ public class LosRestTjeneste {
             .map(f -> new LosFagsakEgenskaperDto(losBehandlingDtoTjeneste.lagFagsakEgenskaperString(f), null))
             .map(Response::ok)
             .orElseGet(() -> Response.status(Response.Status.FORBIDDEN)).build(); // Etablert praksis
-    }
-
-    @Path(LOS_NØKKELTALL_PATH)
-    @GET
-    @Produces(MediaType.APPLICATION_JSON)
-    @Operation(description = "Tilbyr første søkte uttaksdato for åpne foreldrepenge-behandlinger med info om venting", tags = "los-data")
-    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.OPPGAVESTYRING_AVDELINGENHET, sporingslogg = false)
-    public List<NøkkeltallBehandlingFørsteUttak> nøkkeltallFørsteUttakPrMåned() {
-        return nøkkeltallBehandlingRepository.hentNøkkeltallSøknadFørsteUttakPrMånedForeldrepenger();
-    }
-
-    @Path(LOS_FRISTUTLOPUKE_PATH)
-    @GET
-    @Produces(MediaType.APPLICATION_JSON)
-    @Operation(description = "Tilbyr data over når førstegangsbehandlinger går av vent", tags = "los-data")
-    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.OPPGAVESTYRING_AVDELINGENHET, sporingslogg = false)
-    public List<NøkkeltallBehandlingVentefristUtløper> nøkkeltallFristUtløperUke() {
-        return nøkkeltallBehandlingRepository.hentNøkkeltallVentefristUtløperUke();
     }
 
 }

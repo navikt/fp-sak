@@ -45,8 +45,6 @@ spec:
       memory: "{{requests.mem}}"
   kafka:
       pool: {{kafkaPool}}
-  secureLogs:
-    enabled: false
   observability:
     autoInstrumentation:
       enabled: true
