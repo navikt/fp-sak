@@ -14,7 +14,6 @@ import jakarta.inject.Inject;
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.DekningsgradTjeneste;
 import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
-import no.nav.foreldrepenger.behandlingslager.aktør.OppholdstillatelseType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.behandling.GrunnlagRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonInformasjonEntitet;
@@ -185,7 +184,6 @@ class StartpunktUtlederPersonopplysning implements StartpunktUtleder {
             var tredjeland = getRegionIntervaller(aktivtgrunnlag, ref.aktørId(), periode, skjæringstidspunkt).filterValue(Region.TREDJELANDS_BORGER::equals);
             if (!tredjeland.isEmpty()) {
                 var oppholdstillatelser = aktivtgrunnlag.getRegisterVersjon().map(PersonInformasjonEntitet::getOppholdstillatelser).orElse(List.of()).stream()
-                    .filter(o -> !OppholdstillatelseType.UDEFINERT.equals(o.getTillatelse()))
                     .filter(o -> ref.aktørId().equals(o.getAktørId()))
                     .filter(o -> periode.overlapper(o.getPeriode()))
                     .map(o -> new LocalDateSegment<>(o.getPeriode().getFomDato(), o.getPeriode().getTomDato(), Boolean.TRUE))

@@ -4,9 +4,10 @@ import java.util.Objects;
 
 import jakarta.persistence.AttributeOverride;
 import jakarta.persistence.Column;
-import jakarta.persistence.Convert;
 import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -40,9 +41,9 @@ public class OppholdstillatelseEntitet extends BaseEntitet implements HarAktørI
     private DatoIntervallEntitet periode;
 
     @ChangeTracked
-    @Convert(converter = OppholdstillatelseType.KodeverdiConverter.class)
+    @Enumerated(EnumType.STRING)
     @Column(name="tillatelse", nullable = false)
-    private OppholdstillatelseType tillatelse = OppholdstillatelseType.UDEFINERT;
+    private OppholdstillatelseType tillatelse;
 
     @ManyToOne(optional = false)
     @JoinColumn(name = "po_informasjon_id", nullable = false, updatable = false)
