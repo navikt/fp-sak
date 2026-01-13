@@ -31,7 +31,7 @@ public class VedtakMetrikker {
 
     static List<Tag> tilTags(VedtakStatistikkRepository.VedtakResultat vedtakResultatType) {
         return Optional.ofNullable(vedtakResultatType)
-            .map(ba -> List.of(Tag.of("vedtak_resultat_type", vedtakResultatType.name())))
+            .map(vr -> List.of(Tag.of("vedtak_resultat_type", vr.name())))
             .orElseGet(List::of);
     }
 
