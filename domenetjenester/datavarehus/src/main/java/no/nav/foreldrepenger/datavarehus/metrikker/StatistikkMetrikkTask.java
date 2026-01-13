@@ -41,7 +41,7 @@ public class StatistikkMetrikkTask implements ProsessTaskHandler {
         }
         var vedtakPerType = vedtakStatistikkRepository.hent();
         for (var vedtakType: vedtakPerType) {
-            VedtakMetrikker.setAntall(vedtakType.vedtakResultatType(), vedtakType.antall());
+            VedtakMetrikker.setAntall(vedtakType.vedtakResultat(), vedtakType.antall());
         }
     }
 }

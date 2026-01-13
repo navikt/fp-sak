@@ -39,13 +39,13 @@ public class VedtakStatistikkRepository {
     }
 
     record VedtakResultatQR(VedtakResultatType vedtakResultatType, Long antall) { }
-    public record VedtakStatistikk(VedtakResultatType vedtakResultatType, Long antall) { }
+    public record VedtakStatistikk(VedtakResultat vedtakResultat, Long antall) { }
 
 
-    static List<VedtakStatistikk> map(List<VedtakResultatQR> b) {
-        return b.stream()
+    static List<VedtakStatistikk> map(List<VedtakResultatQR> vedtakResultatQRList) {
+        return vedtakResultatQRList.stream()
             .map(VedtakStatistikkRepository::tilBehandlingStatistikk)
-            .collect(groupingBy(bs -> Optional.ofNullable(bs.vedtakResultatType()).orElse(VedtakResultatType.UDEFINERT),
+            .collect(groupingBy(bs -> Optional.ofNullable(bs.vedtakResultat).orElse(VedtakResultat.ANNET),
                 summarizingLong(bs -> Optional.ofNullable(bs.antall()).orElse(0L))))
             .entrySet()
             .stream()
@@ -54,7 +54,29 @@ public class VedtakStatistikkRepository {
     }
 
     private static VedtakStatistikk tilBehandlingStatistikk(VedtakResultatQR entitet) {
-        return new VedtakStatistikk(entitet.vedtakResultatType, entitet.antall());
+        return new VedtakStatistikk(tilVedtakResultat(entitet.vedtakResultatType), entitet.antall());
+    }
+
+    private static VedtakResultat tilVedtakResultat(VedtakResultatType vedtakResultatType) {
+        return switch (vedtakResultatType) {
+            case AVSLAG -> VedtakResultat.AVSLAG;
+            case OPPHØR -> VedtakResultat.OPPHØR;
+            case INNVILGET -> VedtakResultat.INNVILGET;
+            case VEDTAK_I_KLAGEBEHANDLING -> VedtakResultat.VEDTAK_I_KLAGEBEHANDLING;
+            case VEDTAK_I_ANKEBEHANDLING -> VedtakResultat.VEDTAK_I_ANKEBEHANDLING;
+            case VEDTAK_I_INNSYNBEHANDLING -> VedtakResultat.VEDTAK_I_INNSYNBEHANDLING;
+            default -> VedtakResultat.ANNET;
+        };
+    }
+
+    public enum VedtakResultat {
+        INNVILGET,
+        AVSLAG,
+        OPPHØR,
+        VEDTAK_I_KLAGEBEHANDLING,
+        VEDTAK_I_ANKEBEHANDLING,
+        VEDTAK_I_INNSYNBEHANDLING,
+        ANNET,
     }
 
 }

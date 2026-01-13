@@ -14,13 +14,13 @@ import static no.nav.vedtak.log.metrics.MetricsUtil.REGISTRY;
 public class VedtakMetrikker {
 
     private static final String VEDTAK_METRIKK_NAVN = "fp.vedtak.antall";
-    private static final Map<VedtakResultatType, AtomicLong> VEDTAK_GAUGES = new EnumMap<>(VedtakResultatType.class);
+    private static final Map<VedtakStatistikkRepository.VedtakResultat, AtomicLong> VEDTAK_GAUGES = new EnumMap<>(VedtakStatistikkRepository.VedtakResultat.class);
 
     VedtakMetrikker() {
         // CDI
     }
 
-    public static void setAntall(VedtakResultatType vedtakResultatType, Long antall) {
+    public static void setAntall(VedtakStatistikkRepository.VedtakResultat vedtakResultatType, Long antall) {
         if (VEDTAK_GAUGES.containsKey(vedtakResultatType)) {
             VEDTAK_GAUGES.get(vedtakResultatType).set(antall);
         } else {
@@ -29,9 +29,9 @@ public class VedtakMetrikker {
         }
     }
 
-    static List<Tag> tilTags(VedtakResultatType vedtakResultatType) {
+    static List<Tag> tilTags(VedtakStatistikkRepository.VedtakResultat vedtakResultatType) {
         return Optional.ofNullable(vedtakResultatType)
-            .map(ba -> List.of(Tag.of("type", vedtakResultatType.name())))
+            .map(ba -> List.of(Tag.of("vedtak_resultat_type", vedtakResultatType.name())))
             .orElseGet(List::of);
     }
 
