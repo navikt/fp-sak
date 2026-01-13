@@ -12,7 +12,6 @@ import jakarta.inject.Inject;
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
 import no.nav.foreldrepenger.behandlingslager.aktør.AdresseType;
-import no.nav.foreldrepenger.behandlingslager.aktør.OppholdstillatelseType;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningSatsType;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.SatsRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapOppgittTilknytningEntitet;
@@ -141,7 +140,6 @@ public class MedlemRegelGrunnlagBygger {
             .collect(Collectors.toSet());
         var oppholdstillatelser = personopplysningerAggregat.getOppholdstillatelseFor(aktørId, opplysningsperiode)
             .stream()
-            .filter(o -> !OppholdstillatelseType.UDEFINERT.equals(o.getTillatelse()))
             .map(o -> map(o.getPeriode()))
             .collect(Collectors.toSet());
         var personstatus = personopplysningerAggregat.getPersonstatuserFor(aktørId, opplysningsperiode)
