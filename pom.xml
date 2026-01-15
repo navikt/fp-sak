@@ -38,7 +38,7 @@
         <felles.version>7.6.12</felles.version>
         <prosesstask.version>5.2.2</prosesstask.version>
         <openapi-spec-utils.version>2.0.6</openapi-spec-utils.version>
-        <fp-kontrakter.version>9.4.20</fp-kontrakter.version>
+        <fp-kontrakter.version>9.4.22</fp-kontrakter.version>
         <abakus-kontrakt.version>2.3.6</abakus-kontrakt.version>
 
         <sonar.moduleKey>${project.artifactId}</sonar.moduleKey>
