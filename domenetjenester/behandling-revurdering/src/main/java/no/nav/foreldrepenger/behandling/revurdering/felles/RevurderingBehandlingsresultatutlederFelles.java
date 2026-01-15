@@ -5,10 +5,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.Predicate;
 
 import jakarta.enterprise.context.ApplicationScoped;
-
 import jakarta.inject.Inject;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
@@ -40,12 +40,18 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.domene.medlem.MedlemTjeneste;
 import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagGrunnlag;
 import no.nav.foreldrepenger.domene.prosess.BeregningTjeneste;
+import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttak;
 import no.nav.foreldrepenger.domene.uttak.Uttak;
 import no.nav.foreldrepenger.domene.uttak.UttakTjeneste;
 import no.nav.foreldrepenger.regler.uttak.UttakParametre;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 @ApplicationScoped
 public class RevurderingBehandlingsresultatutlederFelles {
+
+    private static final Logger LOG = LoggerFactory.getLogger(RevurderingBehandlingsresultatutlederFelles.class);
 
     private BeregningTjeneste beregningTjeneste;
     private MedlemTjeneste medlemTjeneste;
@@ -109,7 +115,7 @@ public class RevurderingBehandlingsresultatutlederFelles {
         var behandlingsresultatRevurdering = behandlingsresultatRepository.hentHvisEksisterer(behandlingId).orElseThrow();
         var behandlingsresultatOriginal = finnBehandlingsresultatPåOriginalBehandling(originalBehandling.getId()).orElseThrow();
 
-        if (SpesialBehandling.erOppsagtUttak(revurdering)) {
+        if (SpesialBehandling.erOppsagtUttak(revurdering) || erAnnulleringAvUttak(uttakRevurdering, revurdering)) {
             return buildBehandlingsresultat(revurdering, behandlingsresultatRevurdering, BehandlingResultatType.FORELDREPENGER_SENERE,
                 RettenTil.HAR_RETT_TIL_FP, Vedtaksbrev.AUTOMATISK, List.of(KonsekvensForYtelsen.ENDRING_I_UTTAK));
         }
@@ -154,6 +160,29 @@ public class RevurderingBehandlingsresultatutlederFelles {
 
         return fastsettResultatVedEndringer(revurdering, uttakOriginal, erEndringIBeregning, erEndringIUttak, erVarselOmRevurderingSendt,
             erKunEndringIFordelingAvYtelsen, harInnvilgetIkkeOpphørtVedtak(revurdering.getFagsak()));
+    }
+
+    private static boolean erAnnulleringAvUttak(Optional<Uttak> uttak, Behandling revurdering) {
+        if (uttak.isEmpty()) {
+            return true;
+        } else if (uttak.get() instanceof ForeldrepengerUttak fpUttak) {
+            return erUttakTomt(fpUttak) && erRelevantBehandlingÅrsakSatt(revurdering);
+        } else {
+            return false;
+        }
+    }
+
+    private static boolean erRelevantBehandlingÅrsakSatt(Behandling revurdering) {
+        return revurdering.harNoenBehandlingÅrsaker(
+            Set.of(BehandlingÅrsakType.RE_VEDTAK_PLEIEPENGER, BehandlingÅrsakType.RE_OPPLYSNINGER_OM_FORDELING, BehandlingÅrsakType.BERØRT_BEHANDLING));
+    }
+
+    private static boolean erUttakTomt(ForeldrepengerUttak uttak) {
+        if (uttak == null || uttak.getGjeldendePerioder().isEmpty()) {
+            return true;
+        }
+        return uttak.getGjeldendePerioder().stream()
+            .noneMatch(periode -> periode.harUtbetaling() || periode.harTrekkdager());
     }
 
     private boolean erEndringIUttak(Optional<Uttak> uttakRevurdering, Optional<Uttak> uttakOriginal, BehandlingReferanse revurderingRef) {
