@@ -113,40 +113,19 @@ class RevurderingBehandlingsresultatutlederFellesTest {
 
     @Test
     void skal_returnere_true_når_uttak_er_tomt_med_riktig_årsak() {
-        // Arrange
-        var originalBehandling = opprettOriginalBehandling();
-        var revurdering = lagRevurdering(originalBehandling, BehandlingÅrsakType.RE_OPPLYSNINGER_OM_FORDELING);
-
         // Act
-        var resultat = erAnnulleringAvUttak(Optional.empty(), revurdering);
+        var resultat = erAnnulleringAvUttak(Optional.empty());
 
         // Assert
         assertThat(resultat).isTrue();
     }
 
     @Test
-    void skal_returnere_false_når_feil_årsak_satt() {
-        // Arrange
-        var originalBehandling = opprettOriginalBehandling();
-        var revurdering = lagRevurdering(originalBehandling, BehandlingÅrsakType.REBEREGN_FERIEPENGER);
-
-        // Act
-        var resultat = erAnnulleringAvUttak(Optional.empty(), revurdering);
-
-        // Assert
-        assertThat(resultat).isFalse();
-    }
-
-    @Test
     void skal_returnere_true_når_uttak_har_perioder_uten_utbetaling_og_trekk_med_riktig_årsak() {
-        // Arrange
-        var originalBehandling = opprettOriginalBehandling();
-        var revurdering = lagRevurdering(originalBehandling, BehandlingÅrsakType.RE_OPPLYSNINGER_OM_FORDELING);
-
         var foreldrepengerUttak = new ForeldrepengerUttak(List.of(lagPeriode(List.of(lagAktivitet(Utbetalingsgrad.ZERO, Trekkdager.ZERO)))));
 
         // Act
-        var resultat = erAnnulleringAvUttak(Optional.of(foreldrepengerUttak), revurdering);
+        var resultat = erAnnulleringAvUttak(Optional.of(foreldrepengerUttak));
 
         // Assert
         assertThat(resultat).isTrue();
@@ -154,14 +133,10 @@ class RevurderingBehandlingsresultatutlederFellesTest {
 
     @Test
     void skal_returnere_false_når_uttak_har_perioder_med_utbetaling_og_trekk_med_riktig_årsak() {
-        // Arrange
-        var originalBehandling = opprettOriginalBehandling();
-        var revurdering = lagRevurdering(originalBehandling, BehandlingÅrsakType.BERØRT_BEHANDLING);
-
         var foreldrepengerUttak = new ForeldrepengerUttak(List.of(lagPeriode(List.of(lagAktivitet(Utbetalingsgrad.HUNDRED, Trekkdager.ZERO)))));
 
         // Act
-        var resultat = erAnnulleringAvUttak(Optional.of(foreldrepengerUttak), revurdering);
+        var resultat = erAnnulleringAvUttak(Optional.of(foreldrepengerUttak));
 
         // Assert
         assertThat(resultat).isFalse();
@@ -169,14 +144,10 @@ class RevurderingBehandlingsresultatutlederFellesTest {
 
     @Test
     void skal_returnere_false_når_uttak_har_perioder_uten_utbetaling_men_med_trekk_og_riktig_årsak() {
-        // Arrange
-        var originalBehandling = opprettOriginalBehandling();
-        var revurdering = lagRevurdering(originalBehandling, BehandlingÅrsakType.RE_VEDTAK_PLEIEPENGER);
-
         var foreldrepengerUttak = new ForeldrepengerUttak(List.of(lagPeriode(List.of(lagAktivitet(Utbetalingsgrad.ZERO, new Trekkdager(BigDecimal.TEN))))));
 
         // Act
-        var resultat = erAnnulleringAvUttak(Optional.of(foreldrepengerUttak), revurdering);
+        var resultat = erAnnulleringAvUttak(Optional.of(foreldrepengerUttak));
 
         // Assert
         assertThat(resultat).isFalse();
@@ -184,14 +155,10 @@ class RevurderingBehandlingsresultatutlederFellesTest {
 
     @Test
     void skal_returnere_false_hvis_ikke_foreldrepenger_uttak() {
-        // Arrange
-        var originalBehandling = opprettOriginalBehandling();
-        var revurdering = lagRevurdering(originalBehandling, BehandlingÅrsakType.RE_VEDTAK_PLEIEPENGER);
-
         var svangerskapspengerUttak = new SvangerskapspengerUttak(null);
 
         // Act
-        var resultat = erAnnulleringAvUttak(Optional.of(svangerskapspengerUttak), revurdering);
+        var resultat = erAnnulleringAvUttak(Optional.of(svangerskapspengerUttak));
 
         // Assert
         assertThat(resultat).isFalse();
@@ -205,6 +172,15 @@ class RevurderingBehandlingsresultatutlederFellesTest {
             .build();
     }
 
+    @Test
+    void skal_returnere_true_når_uttak_er_null_med_riktig_årsak() {
+        // Act
+        var resultat = erAnnulleringAvUttak(Optional.empty());
+
+        // Assert
+        assertThat(resultat).isTrue();
+    }
+
     private static ForeldrepengerUttakPeriodeAktivitet lagAktivitet(Utbetalingsgrad utbetalingsgrad, Trekkdager trekkdager) {
         return new ForeldrepengerUttakPeriodeAktivitet.Builder()
             .medAktivitet(new ForeldrepengerUttakAktivitet(UttakArbeidType.ORDINÆRT_ARBEID, null, null))
@@ -212,20 +188,6 @@ class RevurderingBehandlingsresultatutlederFellesTest {
             .medUtbetalingsgrad(utbetalingsgrad)
             .medTrekkdager(trekkdager)
             .build();
-    }
-
-    @Test
-    void skal_returnere_true_når_uttak_er_null_med_riktig_årsak() {
-        // Arrange
-        var originalBehandling = opprettOriginalBehandling();
-        var revurdering = lagRevurdering(originalBehandling, BehandlingÅrsakType.RE_OPPLYSNINGER_OM_FORDELING);
-        behandlingRepository.lagre(revurdering, behandlingRepository.taSkriveLås(revurdering));
-
-        // Act
-        var resultat = erAnnulleringAvUttak(Optional.empty(), revurdering);
-
-        // Assert
-        assertThat(resultat).isTrue();
     }
 
     private Behandling lagRevurdering(Behandling originalBehandling, BehandlingÅrsakType behandlingÅrsak) {

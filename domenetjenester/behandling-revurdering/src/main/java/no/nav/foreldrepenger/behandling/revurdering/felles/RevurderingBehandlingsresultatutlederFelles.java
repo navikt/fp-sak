@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.Set;
 import java.util.function.Predicate;
 
 import jakarta.enterprise.context.ApplicationScoped;
@@ -110,7 +109,7 @@ public class RevurderingBehandlingsresultatutlederFelles {
         var behandlingsresultatRevurdering = behandlingsresultatRepository.hentHvisEksisterer(behandlingId).orElseThrow();
         var behandlingsresultatOriginal = finnBehandlingsresultatPåOriginalBehandling(originalBehandling.getId()).orElseThrow();
 
-        if (SpesialBehandling.erOppsagtUttak(revurdering) || erAnnulleringAvUttak(uttakRevurdering, revurdering)) {
+        if (SpesialBehandling.erOppsagtUttak(revurdering) || erAnnulleringAvUttak(uttakRevurdering)) {
             return buildBehandlingsresultat(revurdering, behandlingsresultatRevurdering, BehandlingResultatType.FORELDREPENGER_SENERE,
                 RettenTil.HAR_RETT_TIL_FP, Vedtaksbrev.AUTOMATISK, List.of(KonsekvensForYtelsen.ENDRING_I_UTTAK));
         }
@@ -157,26 +156,19 @@ public class RevurderingBehandlingsresultatutlederFelles {
             erKunEndringIFordelingAvYtelsen, harInnvilgetIkkeOpphørtVedtak(revurdering.getFagsak()));
     }
 
-    static boolean erAnnulleringAvUttak(Optional<Uttak> uttak, Behandling revurdering) {
-        if (!erRelevantBehandlingÅrsakSatt(revurdering)) {
-            return false;
-        } else if (uttak.isEmpty()) {
+    static boolean erAnnulleringAvUttak(Optional<Uttak> uttak) {
+        if (uttak.isEmpty()) {
             return true;
-        } else if (uttak.get() instanceof ForeldrepengerUttak fpUttak) {
-            return erUttakTomt(fpUttak);
-        } else {
-            return false;
         }
-    }
-
-    private static boolean erRelevantBehandlingÅrsakSatt(Behandling revurdering) {
-        return revurdering.harNoenBehandlingÅrsaker(
-            Set.of(BehandlingÅrsakType.RE_VEDTAK_PLEIEPENGER, BehandlingÅrsakType.RE_OPPLYSNINGER_OM_FORDELING,
-                BehandlingÅrsakType.BERØRT_BEHANDLING));
+        return uttak
+            .filter(ForeldrepengerUttak.class::isInstance)
+            .map(ForeldrepengerUttak.class::cast)
+            .map(RevurderingBehandlingsresultatutlederFelles::erUttakTomt)
+            .orElse(false);
     }
 
     private static boolean erUttakTomt(ForeldrepengerUttak uttak) {
-        if (uttak == null || uttak.getGjeldendePerioder().isEmpty()) {
+        if (uttak == null) {
             return true;
         }
         return uttak.getGjeldendePerioder().stream().noneMatch(periode -> periode.harUtbetaling() || periode.harTrekkdager());
