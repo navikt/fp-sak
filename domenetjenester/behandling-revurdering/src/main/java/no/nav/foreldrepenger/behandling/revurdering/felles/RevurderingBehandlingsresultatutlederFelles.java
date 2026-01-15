@@ -45,13 +45,8 @@ import no.nav.foreldrepenger.domene.uttak.Uttak;
 import no.nav.foreldrepenger.domene.uttak.UttakTjeneste;
 import no.nav.foreldrepenger.regler.uttak.UttakParametre;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 @ApplicationScoped
 public class RevurderingBehandlingsresultatutlederFelles {
-
-    private static final Logger LOG = LoggerFactory.getLogger(RevurderingBehandlingsresultatutlederFelles.class);
 
     private BeregningTjeneste beregningTjeneste;
     private MedlemTjeneste medlemTjeneste;
@@ -162,11 +157,13 @@ public class RevurderingBehandlingsresultatutlederFelles {
             erKunEndringIFordelingAvYtelsen, harInnvilgetIkkeOpphørtVedtak(revurdering.getFagsak()));
     }
 
-    private static boolean erAnnulleringAvUttak(Optional<Uttak> uttak, Behandling revurdering) {
-        if (uttak.isEmpty()) {
+    static boolean erAnnulleringAvUttak(Optional<Uttak> uttak, Behandling revurdering) {
+        if (!erRelevantBehandlingÅrsakSatt(revurdering)) {
+            return false;
+        } else if (uttak.isEmpty()) {
             return true;
         } else if (uttak.get() instanceof ForeldrepengerUttak fpUttak) {
-            return erUttakTomt(fpUttak) && erRelevantBehandlingÅrsakSatt(revurdering);
+            return erUttakTomt(fpUttak);
         } else {
             return false;
         }
@@ -174,15 +171,15 @@ public class RevurderingBehandlingsresultatutlederFelles {
 
     private static boolean erRelevantBehandlingÅrsakSatt(Behandling revurdering) {
         return revurdering.harNoenBehandlingÅrsaker(
-            Set.of(BehandlingÅrsakType.RE_VEDTAK_PLEIEPENGER, BehandlingÅrsakType.RE_OPPLYSNINGER_OM_FORDELING, BehandlingÅrsakType.BERØRT_BEHANDLING));
+            Set.of(BehandlingÅrsakType.RE_VEDTAK_PLEIEPENGER, BehandlingÅrsakType.RE_OPPLYSNINGER_OM_FORDELING,
+                BehandlingÅrsakType.BERØRT_BEHANDLING));
     }
 
     private static boolean erUttakTomt(ForeldrepengerUttak uttak) {
         if (uttak == null || uttak.getGjeldendePerioder().isEmpty()) {
             return true;
         }
-        return uttak.getGjeldendePerioder().stream()
-            .noneMatch(periode -> periode.harUtbetaling() || periode.harTrekkdager());
+        return uttak.getGjeldendePerioder().stream().noneMatch(periode -> periode.harUtbetaling() || periode.harTrekkdager());
     }
 
     private boolean erEndringIUttak(Optional<Uttak> uttakRevurdering, Optional<Uttak> uttakOriginal, BehandlingReferanse revurderingRef) {

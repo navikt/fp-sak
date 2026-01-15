@@ -1,9 +1,23 @@
 package no.nav.foreldrepenger.behandling.revurdering.felles;
 
+import static no.nav.foreldrepenger.behandling.revurdering.felles.RevurderingBehandlingsresultatutlederFelles.erAnnulleringAvUttak;
 import static no.nav.foreldrepenger.behandling.revurdering.felles.RevurderingBehandlingsresultatutlederFelles.erAvslagPåAvslag;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import jakarta.persistence.EntityManager;
+
+import no.nav.foreldrepenger.behandlingslager.uttak.Utbetalingsgrad;
+import no.nav.foreldrepenger.behandlingslager.uttak.UttakArbeidType;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.PeriodeResultatÅrsak;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.Trekkdager;
+import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttak;
+
+import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakAktivitet;
+import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakPeriode;
+
+import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakPeriodeAktivitet;
+
+import no.nav.foreldrepenger.domene.uttak.SvangerskapspengerUttak;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -25,6 +39,11 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallTy
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
 import no.nav.foreldrepenger.dbstoette.JpaExtension;
 
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.util.List;
+import java.util.Optional;
+
 @ExtendWith(JpaExtension.class)
 class RevurderingBehandlingsresultatutlederFellesTest {
 
@@ -41,7 +60,7 @@ class RevurderingBehandlingsresultatutlederFellesTest {
     void skal_ikke_gi_avslag_på_avslag() {
         // Arrange
         var originalBehandling = opprettOriginalBehandling();
-        var revurdering = lagRevurdering(originalBehandling);
+        var revurdering = lagRevurdering(originalBehandling, BehandlingÅrsakType.RE_ENDRING_FRA_BRUKER);
 
         // Act
         var erAvslagPåAvslag = erAvslagPåAvslag(
@@ -58,7 +77,7 @@ class RevurderingBehandlingsresultatutlederFellesTest {
     void skal_gi_avslag_på_avslag() {
         // Arrange
         var originalBehandling = opprettOriginalBehandling();
-        var revurdering = lagRevurdering(originalBehandling);
+        var revurdering = lagRevurdering(originalBehandling, BehandlingÅrsakType.RE_ENDRING_FRA_BRUKER);
 
         // Act
         var erAvslagPåAvslag = erAvslagPåAvslag(
@@ -68,17 +87,6 @@ class RevurderingBehandlingsresultatutlederFellesTest {
 
         // Assert
         assertThat(erAvslagPåAvslag).isTrue();
-    }
-
-    private Behandling lagRevurdering(Behandling originalBehandling) {
-        var revurdering = Behandling.fraTidligereBehandling(originalBehandling, BehandlingType.REVURDERING)
-            .medBehandlingÅrsak(
-                BehandlingÅrsak.builder(BehandlingÅrsakType.RE_ENDRING_FRA_BRUKER)
-                    .medManueltOpprettet(true)
-                    .medOriginalBehandlingId(originalBehandling.getId()))
-            .build();
-        behandlingRepository.lagre(revurdering, behandlingRepository.taSkriveLås(revurdering));
-        return revurdering;
     }
 
     private Behandling opprettOriginalBehandling() {
@@ -101,6 +109,134 @@ class RevurderingBehandlingsresultatutlederFellesTest {
             behandlingRepository.taSkriveLås(behandling));
 
         return behandlingsresultat;
+    }
+
+    @Test
+    void skal_returnere_true_når_uttak_er_tomt_med_riktig_årsak() {
+        // Arrange
+        var originalBehandling = opprettOriginalBehandling();
+        var revurdering = lagRevurdering(originalBehandling, BehandlingÅrsakType.RE_OPPLYSNINGER_OM_FORDELING);
+
+        // Act
+        var resultat = erAnnulleringAvUttak(Optional.empty(), revurdering);
+
+        // Assert
+        assertThat(resultat).isTrue();
+    }
+
+    @Test
+    void skal_returnere_false_når_feil_årsak_satt() {
+        // Arrange
+        var originalBehandling = opprettOriginalBehandling();
+        var revurdering = lagRevurdering(originalBehandling, BehandlingÅrsakType.REBEREGN_FERIEPENGER);
+
+        // Act
+        var resultat = erAnnulleringAvUttak(Optional.empty(), revurdering);
+
+        // Assert
+        assertThat(resultat).isFalse();
+    }
+
+    @Test
+    void skal_returnere_true_når_uttak_har_perioder_uten_utbetaling_og_trekk_med_riktig_årsak() {
+        // Arrange
+        var originalBehandling = opprettOriginalBehandling();
+        var revurdering = lagRevurdering(originalBehandling, BehandlingÅrsakType.RE_OPPLYSNINGER_OM_FORDELING);
+
+        var foreldrepengerUttak = new ForeldrepengerUttak(List.of(lagPeriode(List.of(lagAktivitet(Utbetalingsgrad.ZERO, Trekkdager.ZERO)))));
+
+        // Act
+        var resultat = erAnnulleringAvUttak(Optional.of(foreldrepengerUttak), revurdering);
+
+        // Assert
+        assertThat(resultat).isTrue();
+    }
+
+    @Test
+    void skal_returnere_false_når_uttak_har_perioder_med_utbetaling_og_trekk_med_riktig_årsak() {
+        // Arrange
+        var originalBehandling = opprettOriginalBehandling();
+        var revurdering = lagRevurdering(originalBehandling, BehandlingÅrsakType.BERØRT_BEHANDLING);
+
+        var foreldrepengerUttak = new ForeldrepengerUttak(List.of(lagPeriode(List.of(lagAktivitet(Utbetalingsgrad.HUNDRED, Trekkdager.ZERO)))));
+
+        // Act
+        var resultat = erAnnulleringAvUttak(Optional.of(foreldrepengerUttak), revurdering);
+
+        // Assert
+        assertThat(resultat).isFalse();
+    }
+
+    @Test
+    void skal_returnere_false_når_uttak_har_perioder_uten_utbetaling_men_med_trekk_og_riktig_årsak() {
+        // Arrange
+        var originalBehandling = opprettOriginalBehandling();
+        var revurdering = lagRevurdering(originalBehandling, BehandlingÅrsakType.RE_VEDTAK_PLEIEPENGER);
+
+        var foreldrepengerUttak = new ForeldrepengerUttak(List.of(lagPeriode(List.of(lagAktivitet(Utbetalingsgrad.ZERO, new Trekkdager(BigDecimal.TEN))))));
+
+        // Act
+        var resultat = erAnnulleringAvUttak(Optional.of(foreldrepengerUttak), revurdering);
+
+        // Assert
+        assertThat(resultat).isFalse();
+    }
+
+    @Test
+    void skal_returnere_false_hvis_ikke_foreldrepenger_uttak() {
+        // Arrange
+        var originalBehandling = opprettOriginalBehandling();
+        var revurdering = lagRevurdering(originalBehandling, BehandlingÅrsakType.RE_VEDTAK_PLEIEPENGER);
+
+        var svangerskapspengerUttak = new SvangerskapspengerUttak(null);
+
+        // Act
+        var resultat = erAnnulleringAvUttak(Optional.of(svangerskapspengerUttak), revurdering);
+
+        // Assert
+        assertThat(resultat).isFalse();
+    }
+
+    private static ForeldrepengerUttakPeriode lagPeriode(List<ForeldrepengerUttakPeriodeAktivitet> aktiviteter) {
+        return new ForeldrepengerUttakPeriode.Builder()
+            .medResultatÅrsak(PeriodeResultatÅrsak.SØKNADSFRIST)
+            .medTidsperiode(LocalDate.now(), LocalDate.now().plusDays(7))
+            .medAktiviteter(aktiviteter)
+            .build();
+    }
+
+    private static ForeldrepengerUttakPeriodeAktivitet lagAktivitet(Utbetalingsgrad utbetalingsgrad, Trekkdager trekkdager) {
+        return new ForeldrepengerUttakPeriodeAktivitet.Builder()
+            .medAktivitet(new ForeldrepengerUttakAktivitet(UttakArbeidType.ORDINÆRT_ARBEID, null, null))
+            .medArbeidsprosent(BigDecimal.ZERO)
+            .medUtbetalingsgrad(utbetalingsgrad)
+            .medTrekkdager(trekkdager)
+            .build();
+    }
+
+    @Test
+    void skal_returnere_true_når_uttak_er_null_med_riktig_årsak() {
+        // Arrange
+        var originalBehandling = opprettOriginalBehandling();
+        var revurdering = lagRevurdering(originalBehandling, BehandlingÅrsakType.RE_OPPLYSNINGER_OM_FORDELING);
+        behandlingRepository.lagre(revurdering, behandlingRepository.taSkriveLås(revurdering));
+
+        // Act
+        var resultat = erAnnulleringAvUttak(Optional.empty(), revurdering);
+
+        // Assert
+        assertThat(resultat).isTrue();
+    }
+
+    private Behandling lagRevurdering(Behandling originalBehandling, BehandlingÅrsakType behandlingÅrsak) {
+        var revurdering = Behandling.fraTidligereBehandling(originalBehandling, BehandlingType.REVURDERING)
+            .medBehandlingÅrsak(
+                BehandlingÅrsak.builder(behandlingÅrsak)
+                    .medManueltOpprettet(true)
+                    .medOriginalBehandlingId(originalBehandling.getId()))
+            .build();
+        behandlingRepository.lagre(revurdering, behandlingRepository.taSkriveLås(revurdering));
+        return revurdering;
     }
 
 }
