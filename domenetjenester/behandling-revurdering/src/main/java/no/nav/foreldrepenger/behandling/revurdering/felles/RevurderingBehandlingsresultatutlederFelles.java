@@ -112,9 +112,6 @@ public class RevurderingBehandlingsresultatutlederFelles {
         if (erAvslagPåAvslag(behandlingsresultatRevurdering, behandlingsresultatOriginal)) {
             return buildBehandlingsresultat(revurdering, behandlingsresultatRevurdering, BehandlingResultatType.INGEN_ENDRING,
                 RettenTil.HAR_IKKE_RETT_TIL_FP, Vedtaksbrev.INGEN, List.of(KonsekvensForYtelsen.INGEN_ENDRING));
-        } else if (SpesialBehandling.erOppsagtUttak(revurdering) || (erAnnulleringAvUttak(uttakRevurdering) && uttakOriginal.isPresent())) {
-            return buildBehandlingsresultat(revurdering, behandlingsresultatRevurdering, BehandlingResultatType.FORELDREPENGER_SENERE,
-                RettenTil.HAR_RETT_TIL_FP, Vedtaksbrev.AUTOMATISK, List.of(KonsekvensForYtelsen.ENDRING_I_UTTAK));
         }
 
         if (behandlingsresultatRevurdering.isInngangsVilkårAvslått()) {
@@ -140,6 +137,13 @@ public class RevurderingBehandlingsresultatutlederFelles {
                 return opphør(revurdering, behandlingsresultatRevurdering);
             }
         }
+
+        // Denne er viktig å kjøre etter opphørs-sjekkene er ferdige overfor pga de kan føre til tom uttak også.
+        if (SpesialBehandling.erOppsagtUttak(revurdering) || (erAnnulleringAvUttak(uttakRevurdering) && uttakOriginal.isPresent())) {
+            return buildBehandlingsresultat(revurdering, behandlingsresultatRevurdering, BehandlingResultatType.FORELDREPENGER_SENERE,
+                RettenTil.HAR_RETT_TIL_FP, Vedtaksbrev.AUTOMATISK, List.of(KonsekvensForYtelsen.ENDRING_I_UTTAK));
+        }
+
         var revurderingsGrunnlagOpt = beregningTjeneste.hent(BehandlingReferanse.fra(revurdering))
             .flatMap(BeregningsgrunnlagGrunnlag::getBeregningsgrunnlag);
         var originalGrunnlagOpt = beregningTjeneste.hent(BehandlingReferanse.fra(originalBehandling))
