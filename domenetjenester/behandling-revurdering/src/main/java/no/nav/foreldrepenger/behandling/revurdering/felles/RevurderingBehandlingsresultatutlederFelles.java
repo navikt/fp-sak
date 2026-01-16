@@ -109,14 +109,12 @@ public class RevurderingBehandlingsresultatutlederFelles {
         var behandlingsresultatRevurdering = behandlingsresultatRepository.hentHvisEksisterer(behandlingId).orElseThrow();
         var behandlingsresultatOriginal = finnBehandlingsresultatPåOriginalBehandling(originalBehandling.getId()).orElseThrow();
 
-        if (SpesialBehandling.erOppsagtUttak(revurdering) || erAnnulleringAvUttak(uttakRevurdering)) {
-            return buildBehandlingsresultat(revurdering, behandlingsresultatRevurdering, BehandlingResultatType.FORELDREPENGER_SENERE,
-                RettenTil.HAR_RETT_TIL_FP, Vedtaksbrev.AUTOMATISK, List.of(KonsekvensForYtelsen.ENDRING_I_UTTAK));
-        }
-
         if (erAvslagPåAvslag(behandlingsresultatRevurdering, behandlingsresultatOriginal)) {
             return buildBehandlingsresultat(revurdering, behandlingsresultatRevurdering, BehandlingResultatType.INGEN_ENDRING,
                 RettenTil.HAR_IKKE_RETT_TIL_FP, Vedtaksbrev.INGEN, List.of(KonsekvensForYtelsen.INGEN_ENDRING));
+        } else if (SpesialBehandling.erOppsagtUttak(revurdering) || (erAnnulleringAvUttak(uttakRevurdering) && uttakOriginal.isPresent())) {
+            return buildBehandlingsresultat(revurdering, behandlingsresultatRevurdering, BehandlingResultatType.FORELDREPENGER_SENERE,
+                RettenTil.HAR_RETT_TIL_FP, Vedtaksbrev.AUTOMATISK, List.of(KonsekvensForYtelsen.ENDRING_I_UTTAK));
         }
 
         if (behandlingsresultatRevurdering.isInngangsVilkårAvslått()) {
