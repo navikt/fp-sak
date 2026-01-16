@@ -4,20 +4,12 @@ import static no.nav.foreldrepenger.behandling.revurdering.felles.RevurderingBeh
 import static no.nav.foreldrepenger.behandling.revurdering.felles.RevurderingBehandlingsresultatutlederFelles.erAvslagPåAvslag;
 import static org.assertj.core.api.Assertions.assertThat;
 
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.util.List;
+import java.util.Optional;
+
 import jakarta.persistence.EntityManager;
-
-import no.nav.foreldrepenger.behandlingslager.uttak.Utbetalingsgrad;
-import no.nav.foreldrepenger.behandlingslager.uttak.UttakArbeidType;
-import no.nav.foreldrepenger.behandlingslager.uttak.fp.PeriodeResultatÅrsak;
-import no.nav.foreldrepenger.behandlingslager.uttak.fp.Trekkdager;
-import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttak;
-
-import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakAktivitet;
-import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakPeriode;
-
-import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakPeriodeAktivitet;
-
-import no.nav.foreldrepenger.domene.uttak.SvangerskapspengerUttak;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -37,12 +29,16 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultat
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallType;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
+import no.nav.foreldrepenger.behandlingslager.uttak.Utbetalingsgrad;
+import no.nav.foreldrepenger.behandlingslager.uttak.UttakArbeidType;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.PeriodeResultatÅrsak;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.Trekkdager;
 import no.nav.foreldrepenger.dbstoette.JpaExtension;
-
-import java.math.BigDecimal;
-import java.time.LocalDate;
-import java.util.List;
-import java.util.Optional;
+import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttak;
+import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakAktivitet;
+import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakPeriode;
+import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakPeriodeAktivitet;
+import no.nav.foreldrepenger.domene.uttak.SvangerskapspengerUttak;
 
 @ExtendWith(JpaExtension.class)
 class RevurderingBehandlingsresultatutlederFellesTest {
@@ -60,7 +56,7 @@ class RevurderingBehandlingsresultatutlederFellesTest {
     void skal_ikke_gi_avslag_på_avslag() {
         // Arrange
         var originalBehandling = opprettOriginalBehandling();
-        var revurdering = lagRevurdering(originalBehandling, BehandlingÅrsakType.RE_ENDRING_FRA_BRUKER);
+        var revurdering = lagRevurdering(originalBehandling);
 
         // Act
         var erAvslagPåAvslag = erAvslagPåAvslag(
@@ -77,7 +73,7 @@ class RevurderingBehandlingsresultatutlederFellesTest {
     void skal_gi_avslag_på_avslag() {
         // Arrange
         var originalBehandling = opprettOriginalBehandling();
-        var revurdering = lagRevurdering(originalBehandling, BehandlingÅrsakType.RE_ENDRING_FRA_BRUKER);
+        var revurdering = lagRevurdering(originalBehandling);
 
         // Act
         var erAvslagPåAvslag = erAvslagPåAvslag(
@@ -112,7 +108,7 @@ class RevurderingBehandlingsresultatutlederFellesTest {
     }
 
     @Test
-    void skal_returnere_true_når_uttak_er_tomt_med_riktig_årsak() {
+    void skal_returnere_true_når_uttak_er_tomt() {
         // Act
         var resultat = erAnnulleringAvUttak(Optional.empty());
 
@@ -132,7 +128,7 @@ class RevurderingBehandlingsresultatutlederFellesTest {
     }
 
     @Test
-    void skal_returnere_false_når_uttak_har_perioder_med_utbetaling_og_trekk_med_riktig_årsak() {
+    void skal_returnere_false_når_uttak_har_perioder_med_utbetaling_og_uten_trekk() {
         var foreldrepengerUttak = new ForeldrepengerUttak(List.of(lagPeriode(List.of(lagAktivitet(Utbetalingsgrad.HUNDRED, Trekkdager.ZERO)))));
 
         // Act
@@ -143,8 +139,19 @@ class RevurderingBehandlingsresultatutlederFellesTest {
     }
 
     @Test
-    void skal_returnere_false_når_uttak_har_perioder_uten_utbetaling_men_med_trekk_og_riktig_årsak() {
+    void skal_returnere_false_når_uttak_har_perioder_uten_utbetaling_men_med_trekk() {
         var foreldrepengerUttak = new ForeldrepengerUttak(List.of(lagPeriode(List.of(lagAktivitet(Utbetalingsgrad.ZERO, new Trekkdager(BigDecimal.TEN))))));
+
+        // Act
+        var resultat = erAnnulleringAvUttak(Optional.of(foreldrepengerUttak));
+
+        // Assert
+        assertThat(resultat).isFalse();
+    }
+
+    @Test
+    void skal_returnere_false_når_uttak_har_perioder_med_utbetaling_og_med_trekk() {
+        var foreldrepengerUttak = new ForeldrepengerUttak(List.of(lagPeriode(List.of(lagAktivitet(Utbetalingsgrad.HUNDRED, new Trekkdager(BigDecimal.TEN))))));
 
         // Act
         var resultat = erAnnulleringAvUttak(Optional.of(foreldrepengerUttak));
@@ -172,15 +179,6 @@ class RevurderingBehandlingsresultatutlederFellesTest {
             .build();
     }
 
-    @Test
-    void skal_returnere_true_når_uttak_er_null_med_riktig_årsak() {
-        // Act
-        var resultat = erAnnulleringAvUttak(Optional.empty());
-
-        // Assert
-        assertThat(resultat).isTrue();
-    }
-
     private static ForeldrepengerUttakPeriodeAktivitet lagAktivitet(Utbetalingsgrad utbetalingsgrad, Trekkdager trekkdager) {
         return new ForeldrepengerUttakPeriodeAktivitet.Builder()
             .medAktivitet(new ForeldrepengerUttakAktivitet(UttakArbeidType.ORDINÆRT_ARBEID, null, null))
@@ -190,10 +188,10 @@ class RevurderingBehandlingsresultatutlederFellesTest {
             .build();
     }
 
-    private Behandling lagRevurdering(Behandling originalBehandling, BehandlingÅrsakType behandlingÅrsak) {
+    private Behandling lagRevurdering(Behandling originalBehandling) {
         var revurdering = Behandling.fraTidligereBehandling(originalBehandling, BehandlingType.REVURDERING)
             .medBehandlingÅrsak(
-                BehandlingÅrsak.builder(behandlingÅrsak)
+                BehandlingÅrsak.builder(BehandlingÅrsakType.RE_ENDRING_FRA_BRUKER)
                     .medManueltOpprettet(true)
                     .medOriginalBehandlingId(originalBehandling.getId()))
             .build();
