@@ -151,7 +151,11 @@ public class BehandlingskontrollTransisjonTilbakeføringEventObserver {
         var erManueltOpprettet = a.erManueltOpprettet();
         var erOpprettetIFørsteSteg = erOpprettetIFørsteSteg(a, førsteSteg);
         var hensyntaÅpneOpprettetIFørste = erOpprettetIFørsteSteg && tilInngangFørsteSteg && a.erÅpentAksjonspunkt();
-        return !erManueltOpprettet && erFunnetIFørsteStegEllerSenere && (hensyntaÅpneOpprettetIFørste || !erOpprettetIFørsteSteg);
+        // Tilpasning for å avbryte FatteVedtak (VP FatteVedtak.INN) ved tilbakeføring av ForeslåVedtakAP (VP ForeslåVedtak.UT).
+        var hensyntaFatteTilForeslåVedtak = erOpprettetIFørsteSteg && a.getAksjonspunktDefinisjon().avbrytVedTilbakeføring();
+        var ulikeHensynOppfylt = hensyntaÅpneOpprettetIFørste || !erOpprettetIFørsteSteg || hensyntaFatteTilForeslåVedtak;
+        var avbryt = !erManueltOpprettet && erFunnetIFørsteStegEllerSenere && ulikeHensynOppfylt;
+        return avbryt;
     }
 
     private boolean erOpprettetIFørsteSteg(Aksjonspunkt ap, BehandlingStegType førsteSteg) {
