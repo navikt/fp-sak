@@ -1,18 +1,18 @@
 package no.nav.foreldrepenger.datavarehus.metrikker;
 
-import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.inject.Inject;
-import jakarta.persistence.EntityManager;
-
-import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.VedtakResultatType;
-
-import org.hibernate.jpa.HibernateHints;
+import static java.util.stream.Collectors.groupingBy;
+import static java.util.stream.Collectors.summarizingLong;
 
 import java.util.List;
 import java.util.Optional;
 
-import static java.util.stream.Collectors.groupingBy;
-import static java.util.stream.Collectors.summarizingLong;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
+import jakarta.persistence.EntityManager;
+
+import org.hibernate.jpa.HibernateHints;
+
+import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.VedtakResultatType;
 
 @ApplicationScoped
 public class VedtakStatistikkRepository {
@@ -45,7 +45,8 @@ public class VedtakStatistikkRepository {
     static List<VedtakStatistikk> map(List<VedtakResultatQR> vedtakResultatQRList) {
         return vedtakResultatQRList.stream()
             .map(VedtakStatistikkRepository::tilBehandlingStatistikk)
-            .collect(groupingBy(bs -> Optional.ofNullable(bs.vedtakResultat).orElse(VedtakResultat.ANNET),
+            .flatMap(Optional::stream)
+            .collect(groupingBy(bs -> bs.vedtakResultat,
                 summarizingLong(bs -> Optional.ofNullable(bs.antall()).orElse(0L))))
             .entrySet()
             .stream()
@@ -53,8 +54,9 @@ public class VedtakStatistikkRepository {
             .toList();
     }
 
-    private static VedtakStatistikk tilBehandlingStatistikk(VedtakResultatQR entitet) {
-        return new VedtakStatistikk(tilVedtakResultat(entitet.vedtakResultatType), entitet.antall());
+    private static Optional<VedtakStatistikk> tilBehandlingStatistikk(VedtakResultatQR entitet) {
+        return Optional.ofNullable(tilVedtakResultat(entitet.vedtakResultatType))
+            .map(v -> new VedtakStatistikk(tilVedtakResultat(entitet.vedtakResultatType), entitet.antall()));
     }
 
     private static VedtakResultat tilVedtakResultat(VedtakResultatType vedtakResultatType) {
@@ -62,10 +64,10 @@ public class VedtakStatistikkRepository {
             case AVSLAG -> VedtakResultat.AVSLAG;
             case OPPHØR -> VedtakResultat.OPPHØR;
             case INNVILGET -> VedtakResultat.INNVILGET;
-            case VEDTAK_I_KLAGEBEHANDLING -> VedtakResultat.VEDTAK_I_KLAGEBEHANDLING;
-            case VEDTAK_I_ANKEBEHANDLING -> VedtakResultat.VEDTAK_I_ANKEBEHANDLING;
-            case VEDTAK_I_INNSYNBEHANDLING -> VedtakResultat.VEDTAK_I_INNSYNBEHANDLING;
-            default -> VedtakResultat.ANNET;
+            case VEDTAK_I_KLAGEBEHANDLING -> VedtakResultat.KLAGE;
+            case VEDTAK_I_ANKEBEHANDLING -> VedtakResultat.ANKE;
+            case VEDTAK_I_INNSYNBEHANDLING -> VedtakResultat.INNSYN;
+            default -> null;
         };
     }
 
@@ -73,10 +75,9 @@ public class VedtakStatistikkRepository {
         INNVILGET,
         AVSLAG,
         OPPHØR,
-        VEDTAK_I_KLAGEBEHANDLING,
-        VEDTAK_I_ANKEBEHANDLING,
-        VEDTAK_I_INNSYNBEHANDLING,
-        ANNET,
+        KLAGE,
+        ANKE,
+        INNSYN,
     }
 
 }
