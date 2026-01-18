@@ -96,6 +96,14 @@ class TilbakehoppTest {
     }
 
     @Test
+    void tilfelle_fatte_tilbake_til_foreslå_vedtak() {
+        var foreslå = BehandlingStegType.FORESLÅ_VEDTAK;
+        var fatte = BehandlingStegType.FATTE_VEDTAK;
+        // Tilfelle Fatte til Foreslå vedtak
+        assertAPAvbrytesVedTilbakehopp(fra(fatte, INN), til(foreslå, UT), medUtførtAP(identifisertI(foreslå), løsesI(fatte, INN)));
+    }
+
+    @Test
     void skal_ikke_endre_aksjonspunkter_som_oppsto_før_til_steget_og_som_skulle_utføres_i_eller_etter_til_steget() {
         assertAPUendretVedTilbakehopp(fra(steg3, INN), til(steg2), medUtførtAP(identifisertI(steg1), løsesI(steg2, UT)));
         assertAPUendretVedTilbakehopp(fra(steg3, INN), til(steg2), medUtførtAP(identifisertI(steg1), løsesI(steg3, INN)));
