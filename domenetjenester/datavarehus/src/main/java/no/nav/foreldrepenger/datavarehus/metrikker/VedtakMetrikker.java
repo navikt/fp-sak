@@ -1,7 +1,6 @@
 package no.nav.foreldrepenger.datavarehus.metrikker;
 
-import io.micrometer.core.instrument.Tag;
-import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.VedtakResultatType;
+import static no.nav.vedtak.log.metrics.MetricsUtil.REGISTRY;
 
 import java.util.EnumMap;
 import java.util.List;
@@ -9,7 +8,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicLong;
 
-import static no.nav.vedtak.log.metrics.MetricsUtil.REGISTRY;
+import io.micrometer.core.instrument.Tag;
 
 public class VedtakMetrikker {
 
@@ -29,8 +28,8 @@ public class VedtakMetrikker {
         }
     }
 
-    static List<Tag> tilTags(VedtakStatistikkRepository.VedtakResultat vedtakResultatType) {
-        return Optional.ofNullable(vedtakResultatType)
+    static List<Tag> tilTags(VedtakStatistikkRepository.VedtakResultat vedtakResultat) {
+        return Optional.ofNullable(vedtakResultat)
             .map(vr -> List.of(Tag.of("vedtak_resultat_type", vr.name())))
             .orElseGet(List::of);
     }
