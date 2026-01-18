@@ -82,6 +82,10 @@ public class ForeldrepengerUttak implements Uttak {
         return getGjeldendePerioder().stream().anyMatch(ForeldrepengerUttakPeriode::harUtbetaling);
     }
 
+    public boolean harTrekkdager() {
+        return getGjeldendePerioder().stream().anyMatch(ForeldrepengerUttakPeriode::harTrekkdager);
+    }
+
     public boolean harAvslagPgaMedlemskap() {
         return getGjeldendePerioder().stream().anyMatch(ForeldrepengerUttakPeriode::harAvslagPgaMedlemskap);
     }

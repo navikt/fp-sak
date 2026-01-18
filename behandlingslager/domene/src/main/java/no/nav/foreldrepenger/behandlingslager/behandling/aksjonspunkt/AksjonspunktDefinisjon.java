@@ -695,6 +695,10 @@ public enum AksjonspunktDefinisjon implements Kodeverdi {
         return PAPIRSØKNAD_AP.contains(this);
     }
 
+    public boolean avbrytVedTilbakeføring() {
+        return FATTER_VEDTAK.equals(this);
+    }
+
     @Override
     public String toString() {
         return super.toString() + "('" + getKode() + "')";
