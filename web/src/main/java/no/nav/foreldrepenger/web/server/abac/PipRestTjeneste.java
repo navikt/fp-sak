@@ -45,8 +45,8 @@ public class PipRestTjeneste {
 
     protected static final String PIP_BASE_PATH = "/pip";
 
-    private static final String AKTOER_FOR_SAK = "/aktoer-for-sak"; // Ekstern bruk fra SAF
-    private static final String IDENT_FOR_SAK = "/ident-for-sak"; // FP-tilgang - midlertidig for å etterpopulere. Kan antagelig fjernes sent mai
+    private static final String AKTOER_FOR_SAK = "/aktoer-for-sak"; // Ekstern bruk fra SAF og Kabal
+    private static final String IDENT_FOR_SAK = "/ident-for-sak"; // FP-tilgang - unntakshåndtering
     private static final String FULL_FOR_SAK = "/full-for-sak"; // FP-tilgang bruker gåde GET og POST
     private static final String SAKSNUMMER_FOR_BEHANDLING = "/saksnummer-for-behandling"; // FP-tilgang
 
