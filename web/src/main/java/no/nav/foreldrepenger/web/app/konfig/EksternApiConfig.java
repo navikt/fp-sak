@@ -6,6 +6,8 @@ import java.util.Set;
 
 import jakarta.ws.rs.ApplicationPath;
 
+import no.nav.foreldrepenger.web.server.abac.EksternPipRestTjeneste;
+
 import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.server.ServerProperties;
 import org.slf4j.Logger;
@@ -49,7 +51,7 @@ public class EksternApiConfig extends ResourceConfig {
 
     private Set<Class<?>> getEksternalApplicationClasses() {
         // eksponert grensesnitt
-        return Set.of(EksternDelingYtelseInfoRestTjeneste.class);
+        return Set.of(EksternDelingYtelseInfoRestTjeneste.class, EksternPipRestTjeneste.class);
     }
 
     private Map<String, Object> getApplicationProperties() {

@@ -45,8 +45,10 @@ public class PipRestTjeneste {
 
     protected static final String PIP_BASE_PATH = "/pip";
 
-    private static final String AKTOER_FOR_SAK = "/aktoer-for-sak"; // Ekstern bruk fra SAF
-    private static final String IDENT_FOR_SAK = "/ident-for-sak"; // FP-tilgang - midlertidig for å etterpopulere. Kan antagelig fjernes sent mai
+    @Deprecated(forRemoval = true) // Bruk kontekstpath/ekstern/api/pip/aktoer-for-sak
+    private static final String AKTOER_FOR_SAK = "/aktoer-for-sak"; // Ekstern bruk fra SAF og Kabal
+
+    private static final String IDENT_FOR_SAK = "/ident-for-sak"; // FP-tilgang - unntakshåndtering
     private static final String FULL_FOR_SAK = "/full-for-sak"; // FP-tilgang bruker gåde GET og POST
     private static final String SAKSNUMMER_FOR_BEHANDLING = "/saksnummer-for-behandling"; // FP-tilgang
 
@@ -64,6 +66,7 @@ public class PipRestTjeneste {
     }
 
     @GET // Enkelt-sak
+    @Deprecated(forRemoval = true) // Bruk kontekstpath/ekstern/api/pip/aktoer-for-sak
     @Path(AKTOER_FOR_SAK)
     @Operation(description = "Henter alle aktørId tilknyttet en fagsak", tags = "pip")
     @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.PIP, availabilityType = AvailabilityType.ALL, sporingslogg = false)

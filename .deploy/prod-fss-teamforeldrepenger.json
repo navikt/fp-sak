@@ -108,6 +108,11 @@
       "cluster": "prod-fss"
     },
     {
+      "app": "kabal-api",
+      "namespace": "klage",
+      "cluster": "prod-gcp"
+    },
+    {
       "app": "modiapersonoversikt-api",
       "namespace": "personoversikt",
       "cluster": "prod-gcp"

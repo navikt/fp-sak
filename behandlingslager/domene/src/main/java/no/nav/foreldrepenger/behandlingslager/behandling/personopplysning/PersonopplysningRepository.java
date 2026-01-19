@@ -309,7 +309,8 @@ public class PersonopplysningRepository {
             """;
 
         var query = entityManager.createNativeQuery(sql)
-            .setParameter("saksnummer", saksnummer.getVerdi());
+            .setParameter("saksnummer", saksnummer.getVerdi())
+            .setHint(HibernateHints.HINT_READ_ONLY, true);
 
         @SuppressWarnings("unchecked")
         List<String> aktørIdList = query.getResultList();
