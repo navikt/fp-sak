@@ -114,7 +114,7 @@ public class RestImplementationClasses {
         Set<Class<?>> classes = new HashSet<>();
 
         classes.add(VedtakJsonFeedRestTjeneste.class); // Infotrygd og Arena
-        classes.add(PipRestTjeneste.class); // FPtilgang og SAF
+        classes.add(PipRestTjeneste.class); // FPtilgang og SAF og Kabal
         classes.add(IAYRegisterdataCallbackRestTjeneste.class); // FPabakus
         classes.add(FordelRestTjeneste.class); // FPfordel
         classes.add(HendelserRestTjeneste.class); // FPabonnent
