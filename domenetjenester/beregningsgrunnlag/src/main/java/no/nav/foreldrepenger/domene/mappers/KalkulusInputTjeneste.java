@@ -5,8 +5,6 @@ import jakarta.enterprise.inject.Any;
 import jakarta.enterprise.inject.Instance;
 import jakarta.inject.Inject;
 
-import no.nav.folketrygdloven.kalkulus.beregning.v1.YtelsespesifiktGrunnlagDto;
-import no.nav.folketrygdloven.kalkulus.felles.v1.KalkulatorInputDto;
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
@@ -15,6 +13,8 @@ import no.nav.foreldrepenger.domene.mappers.til_kalkulus.MapIAYTilKalkulusInput;
 import no.nav.foreldrepenger.domene.mappers.til_kalkulus.MapKalkulusYtelsegrunnlag;
 import no.nav.foreldrepenger.domene.mappers.til_kalkulus.MapOpptjeningTilKalkulusInput;
 import no.nav.foreldrepenger.domene.opptjening.OpptjeningForBeregningTjeneste;
+import no.nav.foreldrepenger.kalkulus.kontrakt.request.input.KalkulatorInputDto;
+import no.nav.foreldrepenger.kalkulus.kontrakt.request.input.YtelsespesifiktGrunnlagDto;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 
 @ApplicationScoped
@@ -55,10 +55,8 @@ public class KalkulusInputTjeneste {
         var inntektsmeldingerForBehandling = inntektsmeldingTjeneste.hentInntektsmeldinger(ref, skjæringstidspunkt.getUtledetSkjæringstidspunkt(), iayGrunnlag, true);
         var iayDto = MapIAYTilKalkulusInput.mapIAY(iayGrunnlag, inntektsmeldingerForBehandling, ref, alleInntektsmeldingerForSak);
         var opptjeningDto = MapOpptjeningTilKalkulusInput.mapOpptjening(opptjeningAktiviteter.get(), iayGrunnlag, ref, skjæringstidspunkt);
-        var kalkulatorInputDto = new KalkulatorInputDto(iayDto, opptjeningDto, skjæringstidspunkt.getSkjæringstidspunktOpptjening());
         var ytelseMapper = FagsakYtelseTypeRef.Lookup.find(ytelsegrunnlagMappere, ref.fagsakYtelseType()).orElseThrow();
         YtelsespesifiktGrunnlagDto ytelsegrunnlag = ytelseMapper.mapYtelsegrunnlag(ref, skjæringstidspunkt);
-        kalkulatorInputDto.medYtelsespesifiktGrunnlag(ytelsegrunnlag);
-        return kalkulatorInputDto;
+        return new KalkulatorInputDto(iayDto, opptjeningDto, skjæringstidspunkt.getSkjæringstidspunktOpptjening(), ytelsegrunnlag);
     }
 }

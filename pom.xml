@@ -34,6 +34,7 @@
         <fp-stonadskonto.version>2.1.1</fp-stonadskonto.version>
         <svp-uttak.version>2.4.6</svp-uttak.version>
         <fp-ytelse-beregn.version>1.0.4</fp-ytelse-beregn.version>
+        <fpkalkulus.kontrakt.version>1.0.1</fpkalkulus.kontrakt.version>
 
         <felles.version>7.6.12</felles.version>
         <prosesstask.version>5.2.2</prosesstask.version>
@@ -57,7 +58,6 @@
                 <scope>import</scope>
                 <type>pom</type>
             </dependency>
-
             <dependency>
                 <groupId>no.nav.vedtak.prosesstask</groupId>
                 <artifactId>prosesstask</artifactId>
@@ -119,6 +119,11 @@
                 <groupId>no.nav.folketrygdloven.kalkulus</groupId>
                 <artifactId>beregning-kontrakt</artifactId>
                 <version>${beregning.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>no.nav.foreldrepenger.kalkulus</groupId>
+                <artifactId>kalkulus-kontrakt</artifactId>
+                <version>${fpkalkulus.kontrakt.version}</version>
             </dependency>
 
             <!-- MQ -->

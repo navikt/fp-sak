@@ -11,31 +11,28 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 
-import no.nav.folketrygdloven.kalkulus.kodeverk.BeregningsgrunnlagTilstand;
-import no.nav.folketrygdloven.kalkulus.response.v1.beregningsgrunnlag.detaljert.FaktaAggregatDto;
-import no.nav.folketrygdloven.kalkulus.response.v1.beregningsgrunnlag.detaljert.FaktaAktørDto;
-import no.nav.folketrygdloven.kalkulus.response.v1.besteberegning.BesteberegningGrunnlagDto;
-
-import no.nav.foreldrepenger.domene.modell.FaktaAggregat;
-
-
 import org.junit.jupiter.api.Test;
 
-import no.nav.folketrygdloven.kalkulus.felles.v1.Beløp;
-import no.nav.folketrygdloven.kalkulus.felles.v1.InternArbeidsforholdRefDto;
-import no.nav.folketrygdloven.kalkulus.felles.v1.Periode;
+import no.nav.folketrygdloven.kalkulus.kodeverk.BeregningsgrunnlagTilstand;
 import no.nav.folketrygdloven.kalkulus.kodeverk.OpptjeningAktivitetType;
-import no.nav.folketrygdloven.kalkulus.response.v1.beregningsgrunnlag.detaljert.BGAndelArbeidsforhold;
-import no.nav.folketrygdloven.kalkulus.response.v1.beregningsgrunnlag.detaljert.BeregningAktivitetDto;
-import no.nav.folketrygdloven.kalkulus.response.v1.beregningsgrunnlag.detaljert.BeregningsgrunnlagGrunnlagDto;
-import no.nav.folketrygdloven.kalkulus.response.v1.beregningsgrunnlag.detaljert.BeregningsgrunnlagPeriodeDto;
-import no.nav.folketrygdloven.kalkulus.response.v1.beregningsgrunnlag.detaljert.BeregningsgrunnlagPrStatusOgAndelDto;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.domene.json.StandardJsonConfig;
 import no.nav.foreldrepenger.domene.modell.BeregningAktivitet;
 import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagAktivitetStatus;
 import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagPeriode;
 import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagPrStatusOgAndel;
+import no.nav.foreldrepenger.domene.modell.FaktaAggregat;
+import no.nav.foreldrepenger.kalkulus.kontrakt.response.beregningsgrunnlag.besteberegning.BesteberegningGrunnlagDto;
+import no.nav.foreldrepenger.kalkulus.kontrakt.response.beregningsgrunnlag.detaljert.BGAndelArbeidsforhold;
+import no.nav.foreldrepenger.kalkulus.kontrakt.response.beregningsgrunnlag.detaljert.BeregningAktivitetDto;
+import no.nav.foreldrepenger.kalkulus.kontrakt.response.beregningsgrunnlag.detaljert.BeregningsgrunnlagGrunnlagDto;
+import no.nav.foreldrepenger.kalkulus.kontrakt.response.beregningsgrunnlag.detaljert.BeregningsgrunnlagPeriodeDto;
+import no.nav.foreldrepenger.kalkulus.kontrakt.response.beregningsgrunnlag.detaljert.BeregningsgrunnlagPrStatusOgAndelDto;
+import no.nav.foreldrepenger.kalkulus.kontrakt.response.beregningsgrunnlag.detaljert.FaktaAggregatDto;
+import no.nav.foreldrepenger.kalkulus.kontrakt.response.beregningsgrunnlag.detaljert.FaktaAktørDto;
+import no.nav.foreldrepenger.kalkulus.kontrakt.typer.Beløp;
+import no.nav.foreldrepenger.kalkulus.kontrakt.typer.InternArbeidsforholdRefDto;
+import no.nav.foreldrepenger.kalkulus.kontrakt.typer.Periode;
 
 class KalkulusTilFpsakMapperTest {
 
@@ -91,7 +88,7 @@ class KalkulusTilFpsakMapperTest {
         var inntektDPDto = new BesteberegningGrunnlagDto.BesteberegningInntektDto(OpptjeningAktivitetType.DAGPENGER, Beløp.fra(5000),
             null, null);
         var inntektATDto = new BesteberegningGrunnlagDto.BesteberegningInntektDto(OpptjeningAktivitetType.ARBEID, Beløp.fra(1234),
-            new no.nav.folketrygdloven.kalkulus.response.v1.Arbeidsgiver("999999999", null), new InternArbeidsforholdRefDto(arbRef));
+            new no.nav.foreldrepenger.kalkulus.kontrakt.typer.Arbeidsgiver("999999999", null), new InternArbeidsforholdRefDto(arbRef));
         var inntektMåned = new BesteberegningGrunnlagDto.BesteberegningMånedDto(
             new Periode(LocalDate.of(2024, 1, 1), LocalDate.of(2024, 1, 31)), List.of(inntektDPDto, inntektATDto));
         var besteberegningDto = new BesteberegningGrunnlagDto(Collections.singletonList(inntektMåned), Beløp.fra(70000));
@@ -144,7 +141,7 @@ class KalkulusTilFpsakMapperTest {
         });
     }
 
-    private boolean matcherArbeidsgiver(Arbeidsgiver domeneAG, no.nav.folketrygdloven.kalkulus.response.v1.Arbeidsgiver kontraktAG) {
+    private boolean matcherArbeidsgiver(Arbeidsgiver domeneAG, no.nav.foreldrepenger.kalkulus.kontrakt.typer.Arbeidsgiver kontraktAG) {
         if (domeneAG == null) {
             return kontraktAG == null;
         }

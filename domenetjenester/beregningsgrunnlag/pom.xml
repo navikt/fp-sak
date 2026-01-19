@@ -27,7 +27,10 @@
             <groupId>no.nav.folketrygdloven.kalkulus</groupId>
             <artifactId>beregning-kontrakt</artifactId>
         </dependency>
-
+        <dependency>
+            <groupId>no.nav.foreldrepenger.kalkulus</groupId>
+            <artifactId>kalkulus-kontrakt</artifactId>
+        </dependency>
 
         <!-- Test avhengigheter -->
         <dependency>

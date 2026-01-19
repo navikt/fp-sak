@@ -8,22 +8,6 @@ import java.util.Optional;
 
 import no.nav.folketrygdloven.kalkulus.kodeverk.FaktaOmBeregningTilfelle;
 import no.nav.folketrygdloven.kalkulus.kodeverk.PeriodeÅrsak;
-import no.nav.folketrygdloven.kalkulus.response.v1.beregningsgrunnlag.detaljert.BeregningAktivitetAggregatDto;
-import no.nav.folketrygdloven.kalkulus.response.v1.beregningsgrunnlag.detaljert.BeregningAktivitetDto;
-import no.nav.folketrygdloven.kalkulus.response.v1.beregningsgrunnlag.detaljert.BeregningAktivitetOverstyringDto;
-import no.nav.folketrygdloven.kalkulus.response.v1.beregningsgrunnlag.detaljert.BeregningAktivitetOverstyringerDto;
-import no.nav.folketrygdloven.kalkulus.response.v1.beregningsgrunnlag.detaljert.BeregningRefusjonOverstyringDto;
-import no.nav.folketrygdloven.kalkulus.response.v1.beregningsgrunnlag.detaljert.BeregningRefusjonOverstyringerDto;
-import no.nav.folketrygdloven.kalkulus.response.v1.beregningsgrunnlag.detaljert.BeregningsgrunnlagAktivitetStatusDto;
-import no.nav.folketrygdloven.kalkulus.response.v1.beregningsgrunnlag.detaljert.BeregningsgrunnlagDto;
-import no.nav.folketrygdloven.kalkulus.response.v1.beregningsgrunnlag.detaljert.BeregningsgrunnlagGrunnlagDto;
-import no.nav.folketrygdloven.kalkulus.response.v1.beregningsgrunnlag.detaljert.BeregningsgrunnlagPeriodeDto;
-import no.nav.folketrygdloven.kalkulus.response.v1.beregningsgrunnlag.detaljert.BeregningsgrunnlagPrStatusOgAndelDto;
-import no.nav.folketrygdloven.kalkulus.response.v1.beregningsgrunnlag.detaljert.FaktaAggregatDto;
-import no.nav.folketrygdloven.kalkulus.response.v1.beregningsgrunnlag.detaljert.FaktaAktørDto;
-import no.nav.folketrygdloven.kalkulus.response.v1.beregningsgrunnlag.detaljert.FaktaArbeidsforholdDto;
-import no.nav.folketrygdloven.kalkulus.response.v1.beregningsgrunnlag.detaljert.SammenligningsgrunnlagPrStatusDto;
-import no.nav.folketrygdloven.kalkulus.response.v1.besteberegning.BesteberegningGrunnlagDto;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.domene.modell.BGAndelArbeidsforhold;
 import no.nav.foreldrepenger.domene.modell.BeregningAktivitet;
@@ -45,13 +29,29 @@ import no.nav.foreldrepenger.domene.modell.BesteberegningMånedsgrunnlag;
 import no.nav.foreldrepenger.domene.modell.FaktaAggregat;
 import no.nav.foreldrepenger.domene.modell.FaktaAktør;
 import no.nav.foreldrepenger.domene.modell.FaktaArbeidsforhold;
+import no.nav.foreldrepenger.domene.modell.FaktaVurdering;
 import no.nav.foreldrepenger.domene.modell.SammenligningsgrunnlagPrStatus;
 import no.nav.foreldrepenger.domene.modell.kodeverk.FaktaVurderingKilde;
-import no.nav.foreldrepenger.domene.modell.FaktaVurdering;
 import no.nav.foreldrepenger.domene.tid.ÅpenDatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.Beløp;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
+import no.nav.foreldrepenger.kalkulus.kontrakt.response.beregningsgrunnlag.besteberegning.BesteberegningGrunnlagDto;
+import no.nav.foreldrepenger.kalkulus.kontrakt.response.beregningsgrunnlag.detaljert.BeregningAktivitetAggregatDto;
+import no.nav.foreldrepenger.kalkulus.kontrakt.response.beregningsgrunnlag.detaljert.BeregningAktivitetDto;
+import no.nav.foreldrepenger.kalkulus.kontrakt.response.beregningsgrunnlag.detaljert.BeregningAktivitetOverstyringDto;
+import no.nav.foreldrepenger.kalkulus.kontrakt.response.beregningsgrunnlag.detaljert.BeregningAktivitetOverstyringerDto;
+import no.nav.foreldrepenger.kalkulus.kontrakt.response.beregningsgrunnlag.detaljert.BeregningRefusjonOverstyringDto;
+import no.nav.foreldrepenger.kalkulus.kontrakt.response.beregningsgrunnlag.detaljert.BeregningRefusjonOverstyringerDto;
+import no.nav.foreldrepenger.kalkulus.kontrakt.response.beregningsgrunnlag.detaljert.BeregningsgrunnlagAktivitetStatusDto;
+import no.nav.foreldrepenger.kalkulus.kontrakt.response.beregningsgrunnlag.detaljert.BeregningsgrunnlagDto;
+import no.nav.foreldrepenger.kalkulus.kontrakt.response.beregningsgrunnlag.detaljert.BeregningsgrunnlagGrunnlagDto;
+import no.nav.foreldrepenger.kalkulus.kontrakt.response.beregningsgrunnlag.detaljert.BeregningsgrunnlagPeriodeDto;
+import no.nav.foreldrepenger.kalkulus.kontrakt.response.beregningsgrunnlag.detaljert.BeregningsgrunnlagPrStatusOgAndelDto;
+import no.nav.foreldrepenger.kalkulus.kontrakt.response.beregningsgrunnlag.detaljert.FaktaAggregatDto;
+import no.nav.foreldrepenger.kalkulus.kontrakt.response.beregningsgrunnlag.detaljert.FaktaAktørDto;
+import no.nav.foreldrepenger.kalkulus.kontrakt.response.beregningsgrunnlag.detaljert.FaktaArbeidsforholdDto;
+import no.nav.foreldrepenger.kalkulus.kontrakt.response.beregningsgrunnlag.detaljert.SammenligningsgrunnlagPrStatusDto;
 
 /**
  * Skal etterhvert benytte seg av kontrakten som skal lages i ft-Kalkulus, benytter foreløping en, en-til-en mapping på klassenivå...
@@ -205,7 +205,7 @@ public final class KalkulusTilFpsakMapper {
     }
 
     public static Beregningsgrunnlag mapGrunnlag(BeregningsgrunnlagDto beregningsgrunnlagDto,
-                                                  Optional<BesteberegningGrunnlagDto> besteberegningGrunnlagDto) {
+                                                 Optional<BesteberegningGrunnlagDto> besteberegningGrunnlagDto) {
         var builder = Beregningsgrunnlag.builder()
             .medSkjæringstidspunkt(beregningsgrunnlagDto.getSkjæringstidspunkt())
             .medGrunnbeløp(mapTilBeløp(beregningsgrunnlagDto.getGrunnbeløp()))
@@ -313,19 +313,19 @@ public final class KalkulusTilFpsakMapper {
         return builder.build();
     }
 
-    private static BGAndelArbeidsforhold mapBgAndelArbeidsforhold(no.nav.folketrygdloven.kalkulus.response.v1.beregningsgrunnlag.detaljert.BGAndelArbeidsforhold bgAndelArbeidsforhold) {
+    private static BGAndelArbeidsforhold mapBgAndelArbeidsforhold(no.nav.foreldrepenger.kalkulus.kontrakt.response.beregningsgrunnlag.detaljert.BGAndelArbeidsforhold bgAndelArbeidsforhold) {
         return BGAndelArbeidsforhold.builder()
             .medArbeidsforholdRef(bgAndelArbeidsforhold.getArbeidsforholdRef() == null ? InternArbeidsforholdRef.nullRef() : InternArbeidsforholdRef.ref(bgAndelArbeidsforhold.getArbeidsforholdRef()))
             .medArbeidsgiver(mapArbeidsgiver(bgAndelArbeidsforhold.getArbeidsgiver()))
             .medArbeidsperiodeFom(bgAndelArbeidsforhold.getArbeidsperiodeFom())
             .medArbeidsperiodeTom(bgAndelArbeidsforhold.getArbeidsperiodeTom())
             .medRefusjonskravPrÅr(mapTilBigDecimal(bgAndelArbeidsforhold.getRefusjonskravPrÅr()))
-            .medNaturalytelseBortfaltPrÅr(no.nav.folketrygdloven.kalkulus.felles.v1.Beløp.safeVerdi(bgAndelArbeidsforhold.getNaturalytelseBortfaltPrÅr()))
-            .medNaturalytelseTilkommetPrÅr(no.nav.folketrygdloven.kalkulus.felles.v1.Beløp.safeVerdi(bgAndelArbeidsforhold.getNaturalytelseTilkommetPrÅr()))
+            .medNaturalytelseBortfaltPrÅr(no.nav.foreldrepenger.kalkulus.kontrakt.typer.Beløp.safeVerdi(bgAndelArbeidsforhold.getNaturalytelseBortfaltPrÅr()))
+            .medNaturalytelseTilkommetPrÅr(no.nav.foreldrepenger.kalkulus.kontrakt.typer.Beløp.safeVerdi(bgAndelArbeidsforhold.getNaturalytelseTilkommetPrÅr()))
             .build();
     }
 
-    private static BigDecimal mapTilBigDecimal(no.nav.folketrygdloven.kalkulus.felles.v1.Beløp beløp) {
+    private static BigDecimal mapTilBigDecimal(no.nav.foreldrepenger.kalkulus.kontrakt.typer.Beløp beløp) {
         return beløp == null ? null : beløp.verdi();
     }
 
@@ -336,11 +336,11 @@ public final class KalkulusTilFpsakMapper {
             .build();
     }
 
-    private static Beløp mapTilBeløp(no.nav.folketrygdloven.kalkulus.felles.v1.Beløp beløpDto) {
+    private static Beløp mapTilBeløp(no.nav.foreldrepenger.kalkulus.kontrakt.typer.Beløp beløpDto) {
         return beløpDto == null ? null : Beløp.fra(beløpDto.verdi());
     }
 
-    private static Arbeidsgiver mapArbeidsgiver(no.nav.folketrygdloven.kalkulus.response.v1.Arbeidsgiver arbeidsgiver) {
+    private static Arbeidsgiver mapArbeidsgiver(no.nav.foreldrepenger.kalkulus.kontrakt.typer.Arbeidsgiver arbeidsgiver) {
         if (arbeidsgiver.getArbeidsgiverOrgnr() != null) {
             return Arbeidsgiver.virksomhet(arbeidsgiver.getArbeidsgiverOrgnr());
         }
