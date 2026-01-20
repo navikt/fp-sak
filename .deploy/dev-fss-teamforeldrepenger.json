@@ -128,7 +128,7 @@
       "cluster": "dev-fss"
     },
     {
-      "app": "kabal-api",
+      "app": "klage-lookup",
       "namespace": "klage",
       "cluster": "dev-gcp"
     },

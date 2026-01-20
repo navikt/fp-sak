@@ -108,7 +108,7 @@
       "cluster": "prod-fss"
     },
     {
-      "app": "kabal-api",
+      "app": "klage-lookup",
       "namespace": "klage",
       "cluster": "prod-gcp"
     },
