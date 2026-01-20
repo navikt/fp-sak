@@ -5,7 +5,6 @@ import java.util.Objects;
 
 import jakarta.persistence.AttributeOverride;
 import jakarta.persistence.Column;
-import jakarta.persistence.Convert;
 import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -51,7 +50,7 @@ public class Oppdragslinje150 extends BaseCreateableEntitet {
     @Column(name = "delytelse_id", nullable = false)
     private Long delytelseId;
 
-    @Convert(converter = KodeKlassifik.KodeverdiConverter.class)
+    @Enumerated(EnumType.STRING)
     @Column(name = "kode_klassifik", nullable = false)
     private KodeKlassifik kodeKlassifik;
 
