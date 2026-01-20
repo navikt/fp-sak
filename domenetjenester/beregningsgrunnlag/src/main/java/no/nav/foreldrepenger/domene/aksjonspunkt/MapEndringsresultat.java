@@ -5,21 +5,17 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-import no.nav.folketrygdloven.kalkulus.felles.v1.Aktør;
-import no.nav.folketrygdloven.kalkulus.felles.v1.Beløp;
-import no.nav.folketrygdloven.kalkulus.response.v1.håndtering.BeregningAktivitetEndring;
-import no.nav.folketrygdloven.kalkulus.response.v1.håndtering.OppdateringRespons;
-import no.nav.folketrygdloven.kalkulus.response.v1.håndtering.RefusjonoverstyringEndring;
-import no.nav.folketrygdloven.kalkulus.response.v1.håndtering.VarigEndretEllerNyoppstartetNæringEndring;
 import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.OpptjeningAktivitetType;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.AktivitetStatus;
-import no.nav.foreldrepenger.behandlingslager.behandling.beregning.Inntektskategori;
 import no.nav.foreldrepenger.domene.mappers.fra_kalkulus.KodeverkFraKalkulusMapper;
-import no.nav.foreldrepenger.domene.mappers.til_kalkulus.KodeverkTilKalkulusMapper;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
+import no.nav.foreldrepenger.kalkulus.kontrakt.response.håndtering.OppdateringRespons;
+import no.nav.foreldrepenger.kalkulus.kontrakt.response.håndtering.VarigEndretEllerNyoppstartetNæringEndring;
+import no.nav.foreldrepenger.kalkulus.kontrakt.typer.Aktør;
+import no.nav.foreldrepenger.kalkulus.kontrakt.typer.Beløp;
 
 public class MapEndringsresultat {
 
@@ -36,12 +32,12 @@ public class MapEndringsresultat {
                 mapBeregningAktivitetEndringer(oppdateringRespons.getBeregningAktiviteterEndring()));
     }
 
-    private static List<no.nav.foreldrepenger.domene.aksjonspunkt.BeregningAktivitetEndring> mapBeregningAktivitetEndringer(no.nav.folketrygdloven.kalkulus.response.v1.håndtering.BeregningAktiviteterEndring beregningAktiviteterEndring) {
+    private static List<no.nav.foreldrepenger.domene.aksjonspunkt.BeregningAktivitetEndring> mapBeregningAktivitetEndringer(no.nav.foreldrepenger.kalkulus.kontrakt.response.håndtering.BeregningAktiviteterEndring beregningAktiviteterEndring) {
         return beregningAktiviteterEndring == null ? Collections.emptyList() :
             beregningAktiviteterEndring.getAktivitetEndringer().stream().map(MapEndringsresultat::mapTilAktivitetEndring).toList();
     }
 
-    private static no.nav.foreldrepenger.domene.aksjonspunkt.BeregningAktivitetEndring mapTilAktivitetEndring(BeregningAktivitetEndring beregningAktivitetEndring) {
+    private static no.nav.foreldrepenger.domene.aksjonspunkt.BeregningAktivitetEndring mapTilAktivitetEndring(no.nav.foreldrepenger.kalkulus.kontrakt.response.håndtering.BeregningAktivitetEndring beregningAktivitetEndring) {
         return new no.nav.foreldrepenger.domene.aksjonspunkt.BeregningAktivitetEndring(
             mapNøkkel(beregningAktivitetEndring.getAktivitetNøkkel()),
             mapTilToggle(beregningAktivitetEndring.getSkalBrukesEndring()),
@@ -49,7 +45,7 @@ public class MapEndringsresultat {
         );
     }
 
-    private static BeregningAktivitetNøkkel mapNøkkel(no.nav.folketrygdloven.kalkulus.response.v1.håndtering.BeregningAktivitetNøkkel aktivitetNøkkel) {
+    private static BeregningAktivitetNøkkel mapNøkkel(no.nav.foreldrepenger.kalkulus.kontrakt.response.håndtering.BeregningAktivitetNøkkel aktivitetNøkkel) {
         return new BeregningAktivitetNøkkel(
             OpptjeningAktivitetType.fraKode(aktivitetNøkkel.getOpptjeningAktivitetType().getKode()),
             aktivitetNøkkel.getFom(),
@@ -57,7 +53,7 @@ public class MapEndringsresultat {
             aktivitetNøkkel.getArbeidsforholdRef() != null ? mapArbeidsforholdRef(aktivitetNøkkel.getArbeidsforholdRef().getAbakusReferanse()) : InternArbeidsforholdRef.nullRef());
     }
 
-    private static no.nav.foreldrepenger.domene.aksjonspunkt.RefusjonoverstyringEndring mapEndringRefusjon(RefusjonoverstyringEndring refusjonoverstyringEndring) {
+    private static no.nav.foreldrepenger.domene.aksjonspunkt.RefusjonoverstyringEndring mapEndringRefusjon(no.nav.foreldrepenger.kalkulus.kontrakt.response.håndtering.RefusjonoverstyringEndring refusjonoverstyringEndring) {
         if (refusjonoverstyringEndring == null) {
             return null;
         }
@@ -66,14 +62,14 @@ public class MapEndringsresultat {
         );
     }
 
-    private static List<RefusjonoverstyringPeriodeEndring> mapRefusjonOverstyringPerioder(List<no.nav.folketrygdloven.kalkulus.response.v1.håndtering.RefusjonoverstyringPeriodeEndring> refusjonperiodeEndringer) {
+    private static List<RefusjonoverstyringPeriodeEndring> mapRefusjonOverstyringPerioder(List<no.nav.foreldrepenger.kalkulus.kontrakt.response.håndtering.RefusjonoverstyringPeriodeEndring> refusjonperiodeEndringer) {
         if (refusjonperiodeEndringer == null) {
             return null;
         }
         return refusjonperiodeEndringer.stream().map(MapEndringsresultat::mapRefusjonPeriodeEndring).toList();
     }
 
-    private static RefusjonoverstyringPeriodeEndring mapRefusjonPeriodeEndring(no.nav.folketrygdloven.kalkulus.response.v1.håndtering.RefusjonoverstyringPeriodeEndring r) {
+    private static RefusjonoverstyringPeriodeEndring mapRefusjonPeriodeEndring(no.nav.foreldrepenger.kalkulus.kontrakt.response.håndtering.RefusjonoverstyringPeriodeEndring r) {
         return new RefusjonoverstyringPeriodeEndring(
             mapArbeidsgiver(r.getArbeidsgiver()),
             mapArbeidsforholdRef(Optional.ofNullable(r.getArbeidsforholdRef()).map(UUID::toString).orElse(null)),
@@ -84,7 +80,7 @@ public class MapEndringsresultat {
         );
     }
 
-    private static DatoEndring mapDatoEndring(no.nav.folketrygdloven.kalkulus.response.v1.håndtering.DatoEndring datoEndring) {
+    private static DatoEndring mapDatoEndring(no.nav.foreldrepenger.kalkulus.kontrakt.response.håndtering.DatoEndring datoEndring) {
         return datoEndring == null ? null : new DatoEndring(datoEndring.getFraVerdi(), datoEndring.getTilVerdi());
     }
 
@@ -101,7 +97,7 @@ public class MapEndringsresultat {
         return varigEndretEllerNyoppstartetNæringEndring != null && (varigEndretEllerNyoppstartetNæringEndring.getErVarigEndretNaeringEndring() != null || varigEndretEllerNyoppstartetNæringEndring.getErNyoppstartetNaeringEndring() != null);
     }
 
-    private static FaktaOmBeregningVurderinger mapFaktaOmBeregningVurderinger(no.nav.folketrygdloven.kalkulus.response.v1.håndtering.FaktaOmBeregningVurderinger faktaOmBeregningVurderinger) {
+    private static FaktaOmBeregningVurderinger mapFaktaOmBeregningVurderinger(no.nav.foreldrepenger.kalkulus.kontrakt.response.håndtering.FaktaOmBeregningVurderinger faktaOmBeregningVurderinger) {
         if (faktaOmBeregningVurderinger == null) {
             return null;
         }
@@ -117,14 +113,14 @@ public class MapEndringsresultat {
         return vurderinger;
     }
 
-    private static List<ErTidsbegrensetArbeidsforholdEndring> mapTilErTidsbegrensetArbeidsforholdEndringer(List<no.nav.folketrygdloven.kalkulus.response.v1.håndtering.ErTidsbegrensetArbeidsforholdEndring> erTidsbegrensetArbeidsforholdEndringer) {
+    private static List<ErTidsbegrensetArbeidsforholdEndring> mapTilErTidsbegrensetArbeidsforholdEndringer(List<no.nav.foreldrepenger.kalkulus.kontrakt.response.håndtering.ErTidsbegrensetArbeidsforholdEndring> erTidsbegrensetArbeidsforholdEndringer) {
         return erTidsbegrensetArbeidsforholdEndringer == null ? null :
             erTidsbegrensetArbeidsforholdEndringer.stream()
                 .map(MapEndringsresultat::mapErTidsbegrensetArbeidsforholdEndring)
                 .toList();
     }
 
-    private static ErTidsbegrensetArbeidsforholdEndring mapErTidsbegrensetArbeidsforholdEndring(no.nav.folketrygdloven.kalkulus.response.v1.håndtering.ErTidsbegrensetArbeidsforholdEndring erTidsbegrensetArbeidsforholdEndring) {
+    private static ErTidsbegrensetArbeidsforholdEndring mapErTidsbegrensetArbeidsforholdEndring(no.nav.foreldrepenger.kalkulus.kontrakt.response.håndtering.ErTidsbegrensetArbeidsforholdEndring erTidsbegrensetArbeidsforholdEndring) {
         return erTidsbegrensetArbeidsforholdEndring == null ? null :
             new ErTidsbegrensetArbeidsforholdEndring(
                 mapArbeidsgiver(erTidsbegrensetArbeidsforholdEndring.getArbeidsgiver()),
@@ -133,13 +129,13 @@ public class MapEndringsresultat {
             );
     }
 
-    private static List<ErMottattYtelseEndring> mapTilErMottattYtelseEndringer(List<no.nav.folketrygdloven.kalkulus.response.v1.håndtering.ErMottattYtelseEndring> erMottattYtelseEndringer) {
+    private static List<ErMottattYtelseEndring> mapTilErMottattYtelseEndringer(List<no.nav.foreldrepenger.kalkulus.kontrakt.response.håndtering.ErMottattYtelseEndring> erMottattYtelseEndringer) {
         return erMottattYtelseEndringer == null ? null : erMottattYtelseEndringer.stream()
             .map(MapEndringsresultat::mapErMottattYtelseEndring)
             .toList();
     }
 
-    private static ErMottattYtelseEndring mapErMottattYtelseEndring(no.nav.folketrygdloven.kalkulus.response.v1.håndtering.ErMottattYtelseEndring erMottattYtelseEndring) {
+    private static ErMottattYtelseEndring mapErMottattYtelseEndring(no.nav.foreldrepenger.kalkulus.kontrakt.response.håndtering.ErMottattYtelseEndring erMottattYtelseEndring) {
         if (erMottattYtelseEndring == null) {
             return null;
         }
@@ -151,45 +147,45 @@ public class MapEndringsresultat {
         );
     }
 
-    private static List<RefusjonskravGyldighetEndring> mapTilRefusjonskravGyldighetEndringer(List<no.nav.folketrygdloven.kalkulus.response.v1.håndtering.RefusjonskravGyldighetEndring> vurderRefusjonskravGyldighetEndringer) {
+    private static List<RefusjonskravGyldighetEndring> mapTilRefusjonskravGyldighetEndringer(List<no.nav.foreldrepenger.kalkulus.kontrakt.response.håndtering.RefusjonskravGyldighetEndring> vurderRefusjonskravGyldighetEndringer) {
         return vurderRefusjonskravGyldighetEndringer == null ? null : vurderRefusjonskravGyldighetEndringer.stream().map(MapEndringsresultat::mapRefusjonskravGyldighetEndring)
             .toList();
     }
 
-    private static RefusjonskravGyldighetEndring mapRefusjonskravGyldighetEndring(no.nav.folketrygdloven.kalkulus.response.v1.håndtering.RefusjonskravGyldighetEndring refusjonskravGyldighetEndring) {
+    private static RefusjonskravGyldighetEndring mapRefusjonskravGyldighetEndring(no.nav.foreldrepenger.kalkulus.kontrakt.response.håndtering.RefusjonskravGyldighetEndring refusjonskravGyldighetEndring) {
         return refusjonskravGyldighetEndring == null ? null :
             new RefusjonskravGyldighetEndring(new ToggleEndring(refusjonskravGyldighetEndring.getErGyldighetUtvidet().getFraVerdi(), refusjonskravGyldighetEndring.getErGyldighetUtvidet().getTilVerdi()),
                 refusjonskravGyldighetEndring.getArbeidsgiver().getErOrganisasjon() ? Arbeidsgiver.virksomhet(refusjonskravGyldighetEndring.getArbeidsgiver().getIdent()) :
                     Arbeidsgiver.person(new AktørId(refusjonskravGyldighetEndring.getArbeidsgiver().getIdent())));
     }
 
-    private static ToggleEndring mapTilToggle(no.nav.folketrygdloven.kalkulus.response.v1.håndtering.ToggleEndring toggleEndring) {
+    private static ToggleEndring mapTilToggle(no.nav.foreldrepenger.kalkulus.kontrakt.response.håndtering.ToggleEndring toggleEndring) {
         return toggleEndring == null ? null : new ToggleEndring(toggleEndring.getFraVerdi(), toggleEndring.getTilVerdi());
     }
 
 
-    private static BeregningsgrunnlagEndring mapTilBeregningsgrunnlagEndring(no.nav.folketrygdloven.kalkulus.response.v1.håndtering.BeregningsgrunnlagEndring beregningsgrunnlagEndring) {
+    private static BeregningsgrunnlagEndring mapTilBeregningsgrunnlagEndring(no.nav.foreldrepenger.kalkulus.kontrakt.response.håndtering.BeregningsgrunnlagEndring beregningsgrunnlagEndring) {
         return beregningsgrunnlagEndring == null ? null :
             new BeregningsgrunnlagEndring(mapTilPeriodeEndringer(beregningsgrunnlagEndring.getBeregningsgrunnlagPeriodeEndringer()));
     }
 
-    private static List<BeregningsgrunnlagPeriodeEndring> mapTilPeriodeEndringer(List<no.nav.folketrygdloven.kalkulus.response.v1.håndtering.BeregningsgrunnlagPeriodeEndring> beregningsgrunnlagPeriodeEndringer) {
+    private static List<BeregningsgrunnlagPeriodeEndring> mapTilPeriodeEndringer(List<no.nav.foreldrepenger.kalkulus.kontrakt.response.håndtering.BeregningsgrunnlagPeriodeEndring> beregningsgrunnlagPeriodeEndringer) {
         return beregningsgrunnlagPeriodeEndringer == null ? null :
             beregningsgrunnlagPeriodeEndringer.stream().map(MapEndringsresultat::mapTilPeriodeEndring).toList();
     }
 
-    private static BeregningsgrunnlagPeriodeEndring mapTilPeriodeEndring(no.nav.folketrygdloven.kalkulus.response.v1.håndtering.BeregningsgrunnlagPeriodeEndring beregningsgrunnlagPeriodeEndring) {
+    private static BeregningsgrunnlagPeriodeEndring mapTilPeriodeEndring(no.nav.foreldrepenger.kalkulus.kontrakt.response.håndtering.BeregningsgrunnlagPeriodeEndring beregningsgrunnlagPeriodeEndring) {
         return new BeregningsgrunnlagPeriodeEndring(
             mapAndelEndringer(beregningsgrunnlagPeriodeEndring.getBeregningsgrunnlagPrStatusOgAndelEndringer()),
             DatoIntervallEntitet.fraOgMedTilOgMed(beregningsgrunnlagPeriodeEndring.getPeriode().getFom(), beregningsgrunnlagPeriodeEndring.getPeriode().getTom())
         );
     }
 
-    private static List<BeregningsgrunnlagPrStatusOgAndelEndring> mapAndelEndringer(List<no.nav.folketrygdloven.kalkulus.response.v1.håndtering.BeregningsgrunnlagPrStatusOgAndelEndring> beregningsgrunnlagPrStatusOgAndelEndringer) {
+    private static List<BeregningsgrunnlagPrStatusOgAndelEndring> mapAndelEndringer(List<no.nav.foreldrepenger.kalkulus.kontrakt.response.håndtering.BeregningsgrunnlagPrStatusOgAndelEndring> beregningsgrunnlagPrStatusOgAndelEndringer) {
         return beregningsgrunnlagPrStatusOgAndelEndringer.stream().map(MapEndringsresultat::mapAndelEndring).toList();
     }
 
-    private static BeregningsgrunnlagPrStatusOgAndelEndring mapAndelEndring(no.nav.folketrygdloven.kalkulus.response.v1.håndtering.BeregningsgrunnlagPrStatusOgAndelEndring beregningsgrunnlagPrStatusOgAndelEndring) {
+    private static BeregningsgrunnlagPrStatusOgAndelEndring mapAndelEndring(no.nav.foreldrepenger.kalkulus.kontrakt.response.håndtering.BeregningsgrunnlagPrStatusOgAndelEndring beregningsgrunnlagPrStatusOgAndelEndring) {
         return new BeregningsgrunnlagPrStatusOgAndelEndring(
             mapInntektEndring(beregningsgrunnlagPrStatusOgAndelEndring.getInntektEndring()),
             mapInntektskategoriEndring(beregningsgrunnlagPrStatusOgAndelEndring.getInntektskategoriEndring()),
@@ -201,7 +197,7 @@ public class MapEndringsresultat {
         );
     }
 
-    private static RefusjonEndring mapRefusjonEndring(no.nav.folketrygdloven.kalkulus.response.v1.håndtering.RefusjonEndring refusjonEndring) {
+    private static RefusjonEndring mapRefusjonEndring(no.nav.foreldrepenger.kalkulus.kontrakt.response.håndtering.RefusjonEndring refusjonEndring) {
         return refusjonEndring == null ? null : new RefusjonEndring(Beløp.safeVerdi(refusjonEndring.getFraRefusjon()),
             Beløp.safeVerdi(refusjonEndring.getTilRefusjon()));
     }
@@ -217,13 +213,13 @@ public class MapEndringsresultat {
         return arbeidsgiver.getErOrganisasjon() ? Arbeidsgiver.virksomhet(arbeidsgiver.getIdent()) : Arbeidsgiver.person(new AktørId(arbeidsgiver.getIdent()));
     }
 
-    private static InntektskategoriEndring mapInntektskategoriEndring(no.nav.folketrygdloven.kalkulus.response.v1.håndtering.InntektskategoriEndring inntektskategoriEndring) {
+    private static InntektskategoriEndring mapInntektskategoriEndring(no.nav.foreldrepenger.kalkulus.kontrakt.response.håndtering.InntektskategoriEndring inntektskategoriEndring) {
         return inntektskategoriEndring == null ? null : new InntektskategoriEndring(
             inntektskategoriEndring.getFraVerdi() == null ? null : KodeverkFraKalkulusMapper.mapInntektskategori(inntektskategoriEndring.getFraVerdi()),
             KodeverkFraKalkulusMapper.mapInntektskategori(inntektskategoriEndring.getTilVerdi()));
     }
 
-    private static BeløpEndring mapInntektEndring(no.nav.folketrygdloven.kalkulus.response.v1.håndtering.InntektEndring inntektEndring) {
+    private static BeløpEndring mapInntektEndring(no.nav.foreldrepenger.kalkulus.kontrakt.response.håndtering.InntektEndring inntektEndring) {
         return inntektEndring == null ? null : new BeløpEndring(Beløp.safeVerdi(inntektEndring.getFraInntekt()),
             Beløp.safeVerdi(inntektEndring.getTilInntekt()));
     }

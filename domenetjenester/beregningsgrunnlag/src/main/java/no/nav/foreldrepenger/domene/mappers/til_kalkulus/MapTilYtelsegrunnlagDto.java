@@ -7,10 +7,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
-import no.nav.folketrygdloven.kalkulus.beregning.v1.besteberegning.Ytelseandel;
-import no.nav.folketrygdloven.kalkulus.beregning.v1.besteberegning.Ytelsegrunnlag;
-import no.nav.folketrygdloven.kalkulus.beregning.v1.besteberegning.Ytelseperiode;
-import no.nav.folketrygdloven.kalkulus.felles.v1.Periode;
 import no.nav.folketrygdloven.kalkulus.kodeverk.AktivitetStatus;
 import no.nav.folketrygdloven.kalkulus.kodeverk.Inntektskategori;
 import no.nav.folketrygdloven.kalkulus.kodeverk.YtelseType;
@@ -29,6 +25,10 @@ import no.nav.foreldrepenger.domene.iay.modell.kodeverk.RelatertYtelseTilstand;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.typer.Beløp;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
+import no.nav.foreldrepenger.kalkulus.kontrakt.request.input.foreldrepenger.besteberegning.Ytelseandel;
+import no.nav.foreldrepenger.kalkulus.kontrakt.request.input.foreldrepenger.besteberegning.Ytelsegrunnlag;
+import no.nav.foreldrepenger.kalkulus.kontrakt.request.input.foreldrepenger.besteberegning.Ytelseperiode;
+import no.nav.foreldrepenger.kalkulus.kontrakt.typer.Periode;
 
 public class MapTilYtelsegrunnlagDto {
     private static final List<RelatertYtelseType> FPSAK_YTELSER = Arrays.asList(RelatertYtelseType.FORELDREPENGER,

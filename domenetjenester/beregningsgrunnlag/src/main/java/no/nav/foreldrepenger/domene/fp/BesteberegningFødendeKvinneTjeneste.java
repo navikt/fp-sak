@@ -37,6 +37,7 @@ import no.nav.foreldrepenger.domene.opptjening.OpptjeningForBeregningTjeneste;
 import no.nav.foreldrepenger.domene.prosess.BeregningTjeneste;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
+import no.nav.foreldrepenger.kalkulus.kontrakt.request.input.foreldrepenger.besteberegning.Ytelsegrunnlag;
 
 @ApplicationScoped
 public class BesteberegningFødendeKvinneTjeneste {
@@ -187,7 +188,8 @@ public class BesteberegningFødendeKvinneTjeneste {
      * @param stp
      * @return liste over ytelsegrunnlag til bruk i besteberegning
      */
-    public List<no.nav.folketrygdloven.kalkulus.beregning.v1.besteberegning.Ytelsegrunnlag> lagYtelsegrunnlagKalkulus(BehandlingReferanse behandlingReferanse, Skjæringstidspunkt stp) {
+
+    public List<Ytelsegrunnlag> lagYtelsegrunnlagKalkulus(BehandlingReferanse behandlingReferanse, Skjæringstidspunkt stp) {
         var iayGrunnlag = inntektArbeidYtelseTjeneste.hentGrunnlag(behandlingReferanse.behandlingId());
         var ytelseFilter = new YtelseFilter(iayGrunnlag.getAktørYtelseFraRegister(behandlingReferanse.aktørId()));
         var periodeYtelserKanVæreRelevantForBB = stp.getSkjæringstidspunktHvisUtledet()
@@ -195,7 +197,7 @@ public class BesteberegningFødendeKvinneTjeneste {
         if (periodeYtelserKanVæreRelevantForBB.isEmpty() || !brukerOmfattesAvBesteBeregningsRegelForFødendeKvinne(behandlingReferanse, stp)) {
             return Collections.emptyList();
         }
-        List<no.nav.folketrygdloven.kalkulus.beregning.v1.besteberegning.Ytelsegrunnlag> grunnlag = new ArrayList<>();
+        List<Ytelsegrunnlag> grunnlag = new ArrayList<>();
 
         // Obs: Før flere ytelser legges til her, validerer med produkteier hvordan
         // inntekten skal fordeles under besteberegning og sjekk om eksiterende kode støtter dette
@@ -217,8 +219,8 @@ public class BesteberegningFødendeKvinneTjeneste {
         return grunnlag;
     }
 
-    private List<no.nav.folketrygdloven.kalkulus.beregning.v1.besteberegning.Ytelsegrunnlag> hentOgMapFpsakYtelserTilKalkulusDto(List<Saksnummer> saksnummer) {
-        List<no.nav.folketrygdloven.kalkulus.beregning.v1.besteberegning.Ytelsegrunnlag> resultater = new ArrayList<>();
+    private List<Ytelsegrunnlag> hentOgMapFpsakYtelserTilKalkulusDto(List<Saksnummer> saksnummer) {
+        List<Ytelsegrunnlag> resultater = new ArrayList<>();
         saksnummer.forEach(sak -> {
             var fagsak = fagsakRepository.hentSakGittSaksnummer(sak);
             fagsak.flatMap(fag -> behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(fag.getId()))

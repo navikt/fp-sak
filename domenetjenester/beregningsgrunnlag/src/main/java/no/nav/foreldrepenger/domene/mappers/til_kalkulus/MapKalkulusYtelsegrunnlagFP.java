@@ -9,15 +9,6 @@ import java.util.Map;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
-import no.nav.folketrygdloven.kalkulus.beregning.v1.AktivitetGraderingDto;
-import no.nav.folketrygdloven.kalkulus.beregning.v1.AndelGraderingDto;
-import no.nav.folketrygdloven.kalkulus.beregning.v1.ForeldrepengerGrunnlag;
-import no.nav.folketrygdloven.kalkulus.beregning.v1.GraderingDto;
-import no.nav.folketrygdloven.kalkulus.beregning.v1.YtelsespesifiktGrunnlagDto;
-import no.nav.folketrygdloven.kalkulus.felles.v1.Aktør;
-import no.nav.folketrygdloven.kalkulus.felles.v1.AktørIdPersonident;
-import no.nav.folketrygdloven.kalkulus.felles.v1.Organisasjon;
-import no.nav.folketrygdloven.kalkulus.felles.v1.Periode;
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.DekningsgradTjeneste;
 import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
@@ -28,6 +19,16 @@ import no.nav.foreldrepenger.domene.fp.BesteberegningFødendeKvinneTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.AktivitetStatus;
 import no.nav.foreldrepenger.domene.prosess.BeregningGraderingTjeneste;
 import no.nav.foreldrepenger.domene.prosess.PeriodeMedGradering;
+import no.nav.foreldrepenger.kalkulus.kontrakt.request.input.YtelsespesifiktGrunnlagDto;
+import no.nav.foreldrepenger.kalkulus.kontrakt.request.input.foreldrepenger.ForeldrepengerGrunnlag;
+import no.nav.foreldrepenger.kalkulus.kontrakt.request.input.foreldrepenger.gradering.AktivitetGraderingDto;
+import no.nav.foreldrepenger.kalkulus.kontrakt.request.input.foreldrepenger.gradering.AndelGraderingDto;
+import no.nav.foreldrepenger.kalkulus.kontrakt.request.input.foreldrepenger.gradering.GraderingDto;
+import no.nav.foreldrepenger.kalkulus.kontrakt.typer.Aktivitetsgrad;
+import no.nav.foreldrepenger.kalkulus.kontrakt.typer.Aktør;
+import no.nav.foreldrepenger.kalkulus.kontrakt.typer.AktørIdPersonident;
+import no.nav.foreldrepenger.kalkulus.kontrakt.typer.Organisasjon;
+import no.nav.foreldrepenger.kalkulus.kontrakt.typer.Periode;
 
 @ApplicationScoped
 @FagsakYtelseTypeRef(FagsakYtelseType.FORELDREPENGER)
@@ -68,7 +69,7 @@ public class MapKalkulusYtelsegrunnlagFP implements MapKalkulusYtelsegrunnlag {
         perioderMedGradering.forEach(periodeMedGradering -> {
             var nøkkel = new AktivitetNøkkel(periodeMedGradering.aktivitetStatus(), periodeMedGradering.arbeidsgiver());
             var graderingDto = new GraderingDto(new Periode(periodeMedGradering.fom(), periodeMedGradering.tom()),
-                new no.nav.folketrygdloven.kalkulus.felles.v1.Aktivitetsgrad(periodeMedGradering.arbeidsprosent()));
+                new Aktivitetsgrad(periodeMedGradering.arbeidsprosent()));
             if (map.containsKey(nøkkel)) {
                 map.get(nøkkel).add(graderingDto);
             } else {

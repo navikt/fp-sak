@@ -6,7 +6,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-import no.nav.folketrygdloven.kalkulus.håndtering.v1.fakta.FaktaOmBeregningTilfelleDto;
 import no.nav.folketrygdloven.kalkulus.kodeverk.AndelKilde;
 import no.nav.folketrygdloven.kalkulus.kodeverk.Inntektskategori;
 import no.nav.foreldrepenger.domene.mappers.til_kalkulus.KodeverkTilKalkulusMapper;
@@ -50,51 +49,52 @@ import no.nav.foreldrepenger.domene.rest.dto.fordeling.FordelBeregningsgrunnlagD
 import no.nav.foreldrepenger.domene.rest.dto.fordeling.FordelBeregningsgrunnlagPeriodeDto;
 import no.nav.foreldrepenger.domene.rest.dto.fordeling.FordelFastsatteVerdierDto;
 import no.nav.foreldrepenger.domene.rest.dto.fordeling.FordelRedigerbarAndelDto;
+import no.nav.foreldrepenger.kalkulus.kontrakt.request.håndtering.fakta.FaktaOmBeregningTilfelleDto;
 
 
 public class OppdatererDtoMapper {
 
-    public static no.nav.folketrygdloven.kalkulus.håndtering.v1.foreslå.FastsettBGTidsbegrensetArbeidsforholdDto mapFastsettBGTidsbegrensetArbeidsforholdDto(
+    public static no.nav.foreldrepenger.kalkulus.kontrakt.request.håndtering.foreslå.FastsettBGTidsbegrensetArbeidsforholdDto mapFastsettBGTidsbegrensetArbeidsforholdDto(
         FastsettBGTidsbegrensetArbeidsforholdDto tidsbegrensetDto) {
-        return new no.nav.folketrygdloven.kalkulus.håndtering.v1.foreslå.FastsettBGTidsbegrensetArbeidsforholdDto(
+        return new no.nav.foreldrepenger.kalkulus.kontrakt.request.håndtering.foreslå.FastsettBGTidsbegrensetArbeidsforholdDto(
             tidsbegrensetDto.getFastsatteTidsbegrensedePerioder() == null ? null : mapTilFastsattTidsbegrensetPerioder(tidsbegrensetDto.getFastsatteTidsbegrensedePerioder()),
             tidsbegrensetDto.getFrilansInntekt());
     }
 
-    public static no.nav.folketrygdloven.kalkulus.håndtering.v1.avklaraktiviteter.AvklarteAktiviteterDto mapAvklarteAktiviteterDto(
+    public static no.nav.foreldrepenger.kalkulus.kontrakt.request.håndtering.avklaraktiviteter.AvklarteAktiviteterDto mapAvklarteAktiviteterDto(
         AvklarteAktiviteterDto dto) {
-        return new no.nav.folketrygdloven.kalkulus.håndtering.v1.avklaraktiviteter.AvklarteAktiviteterDto(mapTilBeregningsaktivitetLagreDtoList(dto.getBeregningsaktivitetLagreDtoList()));
+        return new no.nav.foreldrepenger.kalkulus.kontrakt.request.håndtering.avklaraktiviteter.AvklarteAktiviteterDto(mapTilBeregningsaktivitetLagreDtoList(dto.getBeregningsaktivitetLagreDtoList()));
     }
 
-    public static no.nav.folketrygdloven.kalkulus.håndtering.v1.foreslå.FastsettBruttoBeregningsgrunnlagSNforNyIArbeidslivetDto mapFastsettBruttoBeregningsgrunnlagSNforNyIArbeidslivetDto(
+    public static no.nav.foreldrepenger.kalkulus.kontrakt.request.håndtering.foreslå.FastsettBruttoBeregningsgrunnlagSNforNyIArbeidslivetDto mapFastsettBruttoBeregningsgrunnlagSNforNyIArbeidslivetDto(
         FastsettBruttoBeregningsgrunnlagSNforNyIArbeidslivetDto dto) {
-        return new no.nav.folketrygdloven.kalkulus.håndtering.v1.foreslå.FastsettBruttoBeregningsgrunnlagSNforNyIArbeidslivetDto(dto.getBruttoBeregningsgrunnlag());
+        return new no.nav.foreldrepenger.kalkulus.kontrakt.request.håndtering.foreslå.FastsettBruttoBeregningsgrunnlagSNforNyIArbeidslivetDto(dto.getBruttoBeregningsgrunnlag());
     }
 
-    public static no.nav.folketrygdloven.kalkulus.håndtering.v1.fordeling.FordelBeregningsgrunnlagDto mapFordelBeregningsgrunnlagDto(
+    public static no.nav.foreldrepenger.kalkulus.kontrakt.request.håndtering.fordeling.FordelBeregningsgrunnlagDto mapFordelBeregningsgrunnlagDto(
         FordelBeregningsgrunnlagDto dto) {
-        return new no.nav.folketrygdloven.kalkulus.håndtering.v1.fordeling.FordelBeregningsgrunnlagDto(mapTilEndredePerioderList(dto.getEndretBeregningsgrunnlagPerioder()));
+        return new no.nav.foreldrepenger.kalkulus.kontrakt.request.håndtering.fordeling.FordelBeregningsgrunnlagDto(mapTilEndredePerioderList(dto.getEndretBeregningsgrunnlagPerioder()));
     }
 
-    public static no.nav.folketrygdloven.kalkulus.håndtering.v1.refusjon.VurderRefusjonBeregningsgrunnlagDto mapVurderRefusjonBeregningsgrunnlag(
+    public static no.nav.foreldrepenger.kalkulus.kontrakt.request.håndtering.refusjon.VurderRefusjonBeregningsgrunnlagDto mapVurderRefusjonBeregningsgrunnlag(
         VurderRefusjonBeregningsgrunnlagDto dto) {
         //TFP-6403 Todo refusjonsfrist vil legges til senere når funksjonelle avklaringer er på plass
-        return new no.nav.folketrygdloven.kalkulus.håndtering.v1.refusjon.VurderRefusjonBeregningsgrunnlagDto(mapTilRefusjonAndeler(dto.getFastsatteAndeler()), null);
+        return new no.nav.foreldrepenger.kalkulus.kontrakt.request.håndtering.refusjon.VurderRefusjonBeregningsgrunnlagDto(mapTilRefusjonAndeler(dto.getFastsatteAndeler()), null);
     }
 
-    public static no.nav.folketrygdloven.kalkulus.håndtering.v1.foreslå.VurderVarigEndringEllerNyoppstartetDto mapVurderVarigEndringEllerNyoppstartetDto(
+    public static no.nav.foreldrepenger.kalkulus.kontrakt.request.håndtering.foreslå.VurderVarigEndringEllerNyoppstartetDto mapVurderVarigEndringEllerNyoppstartetDto(
         VurderVarigEndringEllerNyoppstartetSNDto dto) {
-        return new no.nav.folketrygdloven.kalkulus.håndtering.v1.foreslå.VurderVarigEndringEllerNyoppstartetDto(dto.getErVarigEndretNaering(), dto.getBruttoBeregningsgrunnlag());
+        return new no.nav.foreldrepenger.kalkulus.kontrakt.request.håndtering.foreslå.VurderVarigEndringEllerNyoppstartetDto(dto.getErVarigEndretNaering(), dto.getBruttoBeregningsgrunnlag());
     }
 
 
-    public static List<no.nav.folketrygdloven.kalkulus.håndtering.v1.avklaraktiviteter.BeregningsaktivitetLagreDto> mapOverstyrBeregningsaktiviteterDto(List<BeregningsaktivitetLagreDto> beregningsaktivitetLagreDtoList) {
+    public static List<no.nav.foreldrepenger.kalkulus.kontrakt.request.håndtering.avklaraktiviteter.BeregningsaktivitetLagreDto> mapOverstyrBeregningsaktiviteterDto(List<BeregningsaktivitetLagreDto> beregningsaktivitetLagreDtoList) {
         return beregningsaktivitetLagreDtoList.stream().map(OppdatererDtoMapper::mapTilBeregningsaktivitetLagreDto).toList();
     }
 
 
-    public static no.nav.folketrygdloven.kalkulus.håndtering.v1.fakta.FaktaBeregningLagreDto mapTilFaktaOmBeregningLagreDto(FaktaBeregningLagreDto fakta) {
-        return fakta == null || fakta.getFaktaOmBeregningTilfeller().isEmpty() ? null : new no.nav.folketrygdloven.kalkulus.håndtering.v1.fakta.FaktaBeregningLagreDto(
+    public static no.nav.foreldrepenger.kalkulus.kontrakt.request.håndtering.fakta.FaktaBeregningLagreDto mapTilFaktaOmBeregningLagreDto(FaktaBeregningLagreDto fakta) {
+        return fakta == null || fakta.getFaktaOmBeregningTilfeller().isEmpty() ? null : new no.nav.foreldrepenger.kalkulus.kontrakt.request.håndtering.fakta.FaktaBeregningLagreDto(
                 fakta.getVurderNyoppstartetFL() == null ? null : mapVurderNyoppstartetFLDto(fakta.getVurderNyoppstartetFL()),
                 fakta.getVurderTidsbegrensetArbeidsforhold() == null ? null : mapTidsbegrensetArbeidsforhold(fakta.getVurderTidsbegrensetArbeidsforhold()),
                 fakta.getVurderNyIArbeidslivet() == null ? null : mapVurderNyIArbeidslivet(fakta.getVurderNyIArbeidslivet()),
@@ -113,63 +113,63 @@ public class OppdatererDtoMapper {
         );
     }
 
-    private static List<no.nav.folketrygdloven.kalkulus.håndtering.v1.fakta.RefusjonskravPrArbeidsgiverVurderingDto> mapRefusjonskravPrArbeidsgiverVurderingDto(List<RefusjonskravPrArbeidsgiverVurderingDto> refusjonskravGyldighet) {
+    private static List<no.nav.foreldrepenger.kalkulus.kontrakt.request.håndtering.fakta.RefusjonskravPrArbeidsgiverVurderingDto> mapRefusjonskravPrArbeidsgiverVurderingDto(List<RefusjonskravPrArbeidsgiverVurderingDto> refusjonskravGyldighet) {
         return refusjonskravGyldighet.stream().map(OppdatererDtoMapper::mapRefusjonskravGyldighet).toList();
     }
 
-    private static no.nav.folketrygdloven.kalkulus.håndtering.v1.fakta.RefusjonskravPrArbeidsgiverVurderingDto mapRefusjonskravGyldighet(RefusjonskravPrArbeidsgiverVurderingDto refusjonskravPrArbeidsgiverVurderingDto) {
-        return new no.nav.folketrygdloven.kalkulus.håndtering.v1.fakta.RefusjonskravPrArbeidsgiverVurderingDto(
+    private static no.nav.foreldrepenger.kalkulus.kontrakt.request.håndtering.fakta.RefusjonskravPrArbeidsgiverVurderingDto mapRefusjonskravGyldighet(RefusjonskravPrArbeidsgiverVurderingDto refusjonskravPrArbeidsgiverVurderingDto) {
+        return new no.nav.foreldrepenger.kalkulus.kontrakt.request.håndtering.fakta.RefusjonskravPrArbeidsgiverVurderingDto(
             refusjonskravPrArbeidsgiverVurderingDto.getArbeidsgiverId(),
             refusjonskravPrArbeidsgiverVurderingDto.isSkalUtvideGyldighet()
             );
     }
 
-    private static no.nav.folketrygdloven.kalkulus.håndtering.v1.fakta.VurderMilitærDto mapVurderMilitær(VurderMilitærDto vurderMilitaer) {
-        return new no.nav.folketrygdloven.kalkulus.håndtering.v1.fakta.VurderMilitærDto(vurderMilitaer.getHarMilitaer());
+    private static no.nav.foreldrepenger.kalkulus.kontrakt.request.håndtering.fakta.VurderMilitærDto mapVurderMilitær(VurderMilitærDto vurderMilitaer) {
+        return new no.nav.foreldrepenger.kalkulus.kontrakt.request.håndtering.fakta.VurderMilitærDto(vurderMilitaer.getHarMilitaer());
     }
 
-    private static no.nav.folketrygdloven.kalkulus.håndtering.v1.fakta.MottarYtelseDto mapMottarYtelse(MottarYtelseDto mottarYtelse) {
-        return new no.nav.folketrygdloven.kalkulus.håndtering.v1.fakta.MottarYtelseDto(
+    private static no.nav.foreldrepenger.kalkulus.kontrakt.request.håndtering.fakta.MottarYtelseDto mapMottarYtelse(MottarYtelseDto mottarYtelse) {
+        return new no.nav.foreldrepenger.kalkulus.kontrakt.request.håndtering.fakta.MottarYtelseDto(
             mottarYtelse.getFrilansMottarYtelse(),
             mottarYtelse.getArbeidstakerUtenIMMottarYtelse() == null ? null : mapArbeidstakterUtenIMMottarYtelseListe(mottarYtelse.getArbeidstakerUtenIMMottarYtelse()));
     }
 
-    private static List<no.nav.folketrygdloven.kalkulus.håndtering.v1.fakta.ArbeidstakerandelUtenIMMottarYtelseDto> mapArbeidstakterUtenIMMottarYtelseListe(List<ArbeidstakerandelUtenIMMottarYtelseDto> arbeidstakerUtenIMMottarYtelse) {
+    private static List<no.nav.foreldrepenger.kalkulus.kontrakt.request.håndtering.fakta.ArbeidstakerandelUtenIMMottarYtelseDto> mapArbeidstakterUtenIMMottarYtelseListe(List<ArbeidstakerandelUtenIMMottarYtelseDto> arbeidstakerUtenIMMottarYtelse) {
         return arbeidstakerUtenIMMottarYtelse.stream().map(OppdatererDtoMapper::mapArbeidstakterUtenIMMottarYtelse).toList();
     }
 
-    private static no.nav.folketrygdloven.kalkulus.håndtering.v1.fakta.ArbeidstakerandelUtenIMMottarYtelseDto mapArbeidstakterUtenIMMottarYtelse(ArbeidstakerandelUtenIMMottarYtelseDto arbeidstakerandelUtenIMMottarYtelseDto) {
-        return new no.nav.folketrygdloven.kalkulus.håndtering.v1.fakta.ArbeidstakerandelUtenIMMottarYtelseDto(
+    private static no.nav.foreldrepenger.kalkulus.kontrakt.request.håndtering.fakta.ArbeidstakerandelUtenIMMottarYtelseDto mapArbeidstakterUtenIMMottarYtelse(ArbeidstakerandelUtenIMMottarYtelseDto arbeidstakerandelUtenIMMottarYtelseDto) {
+        return new no.nav.foreldrepenger.kalkulus.kontrakt.request.håndtering.fakta.ArbeidstakerandelUtenIMMottarYtelseDto(
             arbeidstakerandelUtenIMMottarYtelseDto.getAndelsnr(),
             arbeidstakerandelUtenIMMottarYtelseDto.getMottarYtelse()
         );
     }
 
-    private static no.nav.folketrygdloven.kalkulus.håndtering.v1.fakta.FastsettEtterlønnSluttpakkeDto mapFastsettEtterlønnSluttpakker(
+    private static no.nav.foreldrepenger.kalkulus.kontrakt.request.håndtering.fakta.FastsettEtterlønnSluttpakkeDto mapFastsettEtterlønnSluttpakker(
         FastsettEtterlønnSluttpakkeDto fastsettEtterlønnSluttpakke) {
-        return new no.nav.folketrygdloven.kalkulus.håndtering.v1.fakta.FastsettEtterlønnSluttpakkeDto(fastsettEtterlønnSluttpakke.getFastsattPrMnd());
+        return new no.nav.foreldrepenger.kalkulus.kontrakt.request.håndtering.fakta.FastsettEtterlønnSluttpakkeDto(fastsettEtterlønnSluttpakke.getFastsattPrMnd());
     }
 
-    private static no.nav.folketrygdloven.kalkulus.håndtering.v1.fakta.VurderEtterlønnSluttpakkeDto mapVurderEtterlønnSluttpakke(
+    private static no.nav.foreldrepenger.kalkulus.kontrakt.request.håndtering.fakta.VurderEtterlønnSluttpakkeDto mapVurderEtterlønnSluttpakke(
         VurderEtterlønnSluttpakkeDto vurderEtterlønnSluttpakke) {
-        return new no.nav.folketrygdloven.kalkulus.håndtering.v1.fakta.VurderEtterlønnSluttpakkeDto(
+        return new no.nav.foreldrepenger.kalkulus.kontrakt.request.håndtering.fakta.VurderEtterlønnSluttpakkeDto(
             vurderEtterlønnSluttpakke.erEtterlønnSluttpakke()
         );
     }
 
-    private static no.nav.folketrygdloven.kalkulus.håndtering.v1.fakta.FastsettBgKunYtelseDto mapFastsettKunYtelseDto(FastsettBgKunYtelseDto kunYtelseFordeling) {
-        return new no.nav.folketrygdloven.kalkulus.håndtering.v1.fakta.FastsettBgKunYtelseDto(
+    private static no.nav.foreldrepenger.kalkulus.kontrakt.request.håndtering.fakta.FastsettBgKunYtelseDto mapFastsettKunYtelseDto(FastsettBgKunYtelseDto kunYtelseFordeling) {
+        return new no.nav.foreldrepenger.kalkulus.kontrakt.request.håndtering.fakta.FastsettBgKunYtelseDto(
             mapKunYtelseAndeler(kunYtelseFordeling.getAndeler()),
             kunYtelseFordeling.getSkalBrukeBesteberegning()
         );
     }
 
-    private static List<no.nav.folketrygdloven.kalkulus.håndtering.v1.fakta.FastsattBrukersAndel> mapKunYtelseAndeler(List<FastsattBrukersAndel> andeler) {
+    private static List<no.nav.foreldrepenger.kalkulus.kontrakt.request.håndtering.fakta.FastsattBrukersAndel> mapKunYtelseAndeler(List<FastsattBrukersAndel> andeler) {
         return andeler.stream().map(OppdatererDtoMapper::mapFastsattBrukersAndel).toList();
     }
 
-    private static no.nav.folketrygdloven.kalkulus.håndtering.v1.fakta.FastsattBrukersAndel mapFastsattBrukersAndel(FastsattBrukersAndel fastsattBrukersAndel) {
-        return new no.nav.folketrygdloven.kalkulus.håndtering.v1.fakta.FastsattBrukersAndel(
+    private static no.nav.foreldrepenger.kalkulus.kontrakt.request.håndtering.fakta.FastsattBrukersAndel mapFastsattBrukersAndel(FastsattBrukersAndel fastsattBrukersAndel) {
+        return new no.nav.foreldrepenger.kalkulus.kontrakt.request.håndtering.fakta.FastsattBrukersAndel(
             fastsattBrukersAndel.getAndelsnr(),
             fastsattBrukersAndel.getNyAndel(),
             fastsattBrukersAndel.getLagtTilAvSaksbehandler(),
@@ -179,94 +179,94 @@ public class OppdatererDtoMapper {
         );
     }
 
-    private static no.nav.folketrygdloven.kalkulus.håndtering.v1.fakta.VurderATogFLiSammeOrganisasjonDto mapVurderAtOgFLiSammeOrganisasjonDto(
+    private static no.nav.foreldrepenger.kalkulus.kontrakt.request.håndtering.fakta.VurderATogFLiSammeOrganisasjonDto mapVurderAtOgFLiSammeOrganisasjonDto(
         VurderATogFLiSammeOrganisasjonDto vurderATogFLiSammeOrganisasjon) {
-        return new no.nav.folketrygdloven.kalkulus.håndtering.v1.fakta.VurderATogFLiSammeOrganisasjonDto(
+        return new no.nav.foreldrepenger.kalkulus.kontrakt.request.håndtering.fakta.VurderATogFLiSammeOrganisasjonDto(
             mapVurderAtOgFLiSammeOranisasjonAndelListe(vurderATogFLiSammeOrganisasjon.getVurderATogFLiSammeOrganisasjonAndelListe())
         );
     }
 
-    private static List<no.nav.folketrygdloven.kalkulus.håndtering.v1.fakta.VurderATogFLiSammeOrganisasjonAndelDto> mapVurderAtOgFLiSammeOranisasjonAndelListe(List<VurderATogFLiSammeOrganisasjonAndelDto> vurderATogFLiSammeOrganisasjonAndelListe) {
+    private static List<no.nav.foreldrepenger.kalkulus.kontrakt.request.håndtering.fakta.VurderATogFLiSammeOrganisasjonAndelDto> mapVurderAtOgFLiSammeOranisasjonAndelListe(List<VurderATogFLiSammeOrganisasjonAndelDto> vurderATogFLiSammeOrganisasjonAndelListe) {
         return vurderATogFLiSammeOrganisasjonAndelListe.stream().map(OppdatererDtoMapper::mapVurderATOgFLiSammeOrgAndel).toList();
     }
 
-    private static no.nav.folketrygdloven.kalkulus.håndtering.v1.fakta.VurderATogFLiSammeOrganisasjonAndelDto mapVurderATOgFLiSammeOrgAndel(VurderATogFLiSammeOrganisasjonAndelDto vurderATogFLiSammeOrganisasjonAndelDto) {
-        return new no.nav.folketrygdloven.kalkulus.håndtering.v1.fakta.VurderATogFLiSammeOrganisasjonAndelDto(vurderATogFLiSammeOrganisasjonAndelDto.getAndelsnr(), vurderATogFLiSammeOrganisasjonAndelDto.getArbeidsinntekt());
+    private static no.nav.foreldrepenger.kalkulus.kontrakt.request.håndtering.fakta.VurderATogFLiSammeOrganisasjonAndelDto mapVurderATOgFLiSammeOrgAndel(VurderATogFLiSammeOrganisasjonAndelDto vurderATogFLiSammeOrganisasjonAndelDto) {
+        return new no.nav.foreldrepenger.kalkulus.kontrakt.request.håndtering.fakta.VurderATogFLiSammeOrganisasjonAndelDto(vurderATogFLiSammeOrganisasjonAndelDto.getAndelsnr(), vurderATogFLiSammeOrganisasjonAndelDto.getArbeidsinntekt());
     }
 
-    private static no.nav.folketrygdloven.kalkulus.håndtering.v1.fakta.FastsettMånedsinntektUtenInntektsmeldingDto mapFastsattUtenInntektsmeldingDto(
+    private static no.nav.foreldrepenger.kalkulus.kontrakt.request.håndtering.fakta.FastsettMånedsinntektUtenInntektsmeldingDto mapFastsattUtenInntektsmeldingDto(
         FastsettMånedsinntektUtenInntektsmeldingDto fastsattUtenInntektsmelding) {
-        return new no.nav.folketrygdloven.kalkulus.håndtering.v1.fakta.FastsettMånedsinntektUtenInntektsmeldingDto(mapFastsattUtenInntektsmeldingAndelListe(fastsattUtenInntektsmelding.getAndelListe()));
+        return new no.nav.foreldrepenger.kalkulus.kontrakt.request.håndtering.fakta.FastsettMånedsinntektUtenInntektsmeldingDto(mapFastsattUtenInntektsmeldingAndelListe(fastsattUtenInntektsmelding.getAndelListe()));
     }
 
-    private static List<no.nav.folketrygdloven.kalkulus.håndtering.v1.fakta.FastsettMånedsinntektUtenInntektsmeldingAndelDto> mapFastsattUtenInntektsmeldingAndelListe(List<FastsettMånedsinntektUtenInntektsmeldingAndelDto> andelListe) {
+    private static List<no.nav.foreldrepenger.kalkulus.kontrakt.request.håndtering.fakta.FastsettMånedsinntektUtenInntektsmeldingAndelDto> mapFastsattUtenInntektsmeldingAndelListe(List<FastsettMånedsinntektUtenInntektsmeldingAndelDto> andelListe) {
         return andelListe.stream().map(OppdatererDtoMapper::mapAndel).toList();
     }
 
-    private static no.nav.folketrygdloven.kalkulus.håndtering.v1.fakta.FastsettMånedsinntektUtenInntektsmeldingAndelDto mapAndel(FastsettMånedsinntektUtenInntektsmeldingAndelDto fastsettMånedsinntektUtenInntektsmeldingAndelDto) {
-        return new no.nav.folketrygdloven.kalkulus.håndtering.v1.fakta.FastsettMånedsinntektUtenInntektsmeldingAndelDto(
+    private static no.nav.foreldrepenger.kalkulus.kontrakt.request.håndtering.fakta.FastsettMånedsinntektUtenInntektsmeldingAndelDto mapAndel(FastsettMånedsinntektUtenInntektsmeldingAndelDto fastsettMånedsinntektUtenInntektsmeldingAndelDto) {
+        return new no.nav.foreldrepenger.kalkulus.kontrakt.request.håndtering.fakta.FastsettMånedsinntektUtenInntektsmeldingAndelDto(
             fastsettMånedsinntektUtenInntektsmeldingAndelDto.getAndelsnr(),
                 fastsettMånedsinntektUtenInntektsmeldingAndelDto.getFastsattBeløp(),
                 fastsettMånedsinntektUtenInntektsmeldingAndelDto.getInntektskategori() == null ?  null :
                 Inntektskategori.fraKode(fastsettMånedsinntektUtenInntektsmeldingAndelDto.getInntektskategori().getKode()));
     }
 
-    private static no.nav.folketrygdloven.kalkulus.håndtering.v1.fakta.VurderLønnsendringDto mapVurderLønnsendringDto(VurderLønnsendringDto vurdertLonnsendring) {
-        return new no.nav.folketrygdloven.kalkulus.håndtering.v1.fakta.VurderLønnsendringDto(vurdertLonnsendring.erLønnsendringIBeregningsperioden());
+    private static no.nav.foreldrepenger.kalkulus.kontrakt.request.håndtering.fakta.VurderLønnsendringDto mapVurderLønnsendringDto(VurderLønnsendringDto vurdertLonnsendring) {
+        return new no.nav.foreldrepenger.kalkulus.kontrakt.request.håndtering.fakta.VurderLønnsendringDto(vurdertLonnsendring.erLønnsendringIBeregningsperioden());
     }
 
-    private static no.nav.folketrygdloven.kalkulus.håndtering.v1.fakta.FastsettMånedsinntektFLDto mapFastsettMånedsinntektFL(
+    private static no.nav.foreldrepenger.kalkulus.kontrakt.request.håndtering.fakta.FastsettMånedsinntektFLDto mapFastsettMånedsinntektFL(
         FastsettMånedsinntektFLDto fastsettMaanedsinntektFL) {
-        return new no.nav.folketrygdloven.kalkulus.håndtering.v1.fakta.FastsettMånedsinntektFLDto(fastsettMaanedsinntektFL.getMaanedsinntekt());
+        return new no.nav.foreldrepenger.kalkulus.kontrakt.request.håndtering.fakta.FastsettMånedsinntektFLDto(fastsettMaanedsinntektFL.getMaanedsinntekt());
     }
 
-    private static no.nav.folketrygdloven.kalkulus.håndtering.v1.fakta.VurderSelvstendigNæringsdrivendeNyIArbeidslivetDto mapVurderNyIArbeidslivet(
+    private static no.nav.foreldrepenger.kalkulus.kontrakt.request.håndtering.fakta.VurderSelvstendigNæringsdrivendeNyIArbeidslivetDto mapVurderNyIArbeidslivet(
         VurderSelvstendigNæringsdrivendeNyIArbeidslivetDto vurderNyIArbeidslivet) {
-        return new no.nav.folketrygdloven.kalkulus.håndtering.v1.fakta.VurderSelvstendigNæringsdrivendeNyIArbeidslivetDto(vurderNyIArbeidslivet.erNyIArbeidslivet());
+        return new no.nav.foreldrepenger.kalkulus.kontrakt.request.håndtering.fakta.VurderSelvstendigNæringsdrivendeNyIArbeidslivetDto(vurderNyIArbeidslivet.erNyIArbeidslivet());
     }
 
-    private static no.nav.folketrygdloven.kalkulus.håndtering.v1.fakta.VurderTidsbegrensetArbeidsforholdDto mapTidsbegrensetArbeidsforhold(
+    private static no.nav.foreldrepenger.kalkulus.kontrakt.request.håndtering.fakta.VurderTidsbegrensetArbeidsforholdDto mapTidsbegrensetArbeidsforhold(
         VurderTidsbegrensetArbeidsforholdDto vurderTidsbegrensetArbeidsforhold) {
-        return new no.nav.folketrygdloven.kalkulus.håndtering.v1.fakta.VurderTidsbegrensetArbeidsforholdDto(
+        return new no.nav.foreldrepenger.kalkulus.kontrakt.request.håndtering.fakta.VurderTidsbegrensetArbeidsforholdDto(
             mapVurderteArbeidsforhold(vurderTidsbegrensetArbeidsforhold.getFastsatteArbeidsforhold())
         );
     }
 
-    private static List<no.nav.folketrygdloven.kalkulus.håndtering.v1.fakta.VurderteArbeidsforholdDto> mapVurderteArbeidsforhold(List<VurderteArbeidsforholdDto> fastsatteArbeidsforhold) {
+    private static List<no.nav.foreldrepenger.kalkulus.kontrakt.request.håndtering.fakta.VurderteArbeidsforholdDto> mapVurderteArbeidsforhold(List<VurderteArbeidsforholdDto> fastsatteArbeidsforhold) {
         return fastsatteArbeidsforhold.stream().map(OppdatererDtoMapper::mapVurdertArbeidsforhold).toList();
     }
 
-    private static no.nav.folketrygdloven.kalkulus.håndtering.v1.fakta.VurderteArbeidsforholdDto mapVurdertArbeidsforhold(VurderteArbeidsforholdDto vurderteArbeidsforholdDto) {
-        return new no.nav.folketrygdloven.kalkulus.håndtering.v1.fakta.VurderteArbeidsforholdDto(
+    private static no.nav.foreldrepenger.kalkulus.kontrakt.request.håndtering.fakta.VurderteArbeidsforholdDto mapVurdertArbeidsforhold(VurderteArbeidsforholdDto vurderteArbeidsforholdDto) {
+        return new no.nav.foreldrepenger.kalkulus.kontrakt.request.håndtering.fakta.VurderteArbeidsforholdDto(
             vurderteArbeidsforholdDto.getAndelsnr(),
             vurderteArbeidsforholdDto.isTidsbegrensetArbeidsforhold()
         );
     }
 
-    private static no.nav.folketrygdloven.kalkulus.håndtering.v1.fakta.VurderNyoppstartetFLDto mapVurderNyoppstartetFLDto(VurderNyoppstartetFLDto vurderNyoppstartetFLDto) {
-        return new no.nav.folketrygdloven.kalkulus.håndtering.v1.fakta.VurderNyoppstartetFLDto(vurderNyoppstartetFLDto.erErNyoppstartetFL());
+    private static no.nav.foreldrepenger.kalkulus.kontrakt.request.håndtering.fakta.VurderNyoppstartetFLDto mapVurderNyoppstartetFLDto(VurderNyoppstartetFLDto vurderNyoppstartetFLDto) {
+        return new no.nav.foreldrepenger.kalkulus.kontrakt.request.håndtering.fakta.VurderNyoppstartetFLDto(vurderNyoppstartetFLDto.erErNyoppstartetFL());
     }
 
-    private static no.nav.folketrygdloven.kalkulus.håndtering.v1.fakta.BesteberegningFødendeKvinneDto mapBesteberegningFødendeKvinneDto(
+    private static no.nav.foreldrepenger.kalkulus.kontrakt.request.håndtering.fakta.BesteberegningFødendeKvinneDto mapBesteberegningFødendeKvinneDto(
         BesteberegningFødendeKvinneDto besteberegningAndeler) {
-        return new no.nav.folketrygdloven.kalkulus.håndtering.v1.fakta.BesteberegningFødendeKvinneDto(
+        return new no.nav.foreldrepenger.kalkulus.kontrakt.request.håndtering.fakta.BesteberegningFødendeKvinneDto(
             mapBesteberegningAndeler(besteberegningAndeler.getBesteberegningAndelListe()),
             besteberegningAndeler.getNyDagpengeAndel() == null ? null : mapNyDagpengeandel(besteberegningAndeler.getNyDagpengeAndel())
             );
     }
 
-    private static no.nav.folketrygdloven.kalkulus.håndtering.v1.fakta.DagpengeAndelLagtTilBesteberegningDto mapNyDagpengeandel(
+    private static no.nav.foreldrepenger.kalkulus.kontrakt.request.håndtering.fakta.DagpengeAndelLagtTilBesteberegningDto mapNyDagpengeandel(
         DagpengeAndelLagtTilBesteberegningDto nyDagpengeAndel) {
-        return new no.nav.folketrygdloven.kalkulus.håndtering.v1.fakta.DagpengeAndelLagtTilBesteberegningDto(nyDagpengeAndel.getFastsatteVerdier().getFastsattBeløp(),
+        return new no.nav.foreldrepenger.kalkulus.kontrakt.request.håndtering.fakta.DagpengeAndelLagtTilBesteberegningDto(nyDagpengeAndel.getFastsatteVerdier().getFastsattBeløp(),
             Inntektskategori.fraKode(nyDagpengeAndel.getFastsatteVerdier().getInntektskategori().getKode()));
     }
 
-    private static List<no.nav.folketrygdloven.kalkulus.håndtering.v1.fakta.BesteberegningFødendeKvinneAndelDto> mapBesteberegningAndeler(List<BesteberegningFødendeKvinneAndelDto> besteberegningAndelListe) {
+    private static List<no.nav.foreldrepenger.kalkulus.kontrakt.request.håndtering.fakta.BesteberegningFødendeKvinneAndelDto> mapBesteberegningAndeler(List<BesteberegningFødendeKvinneAndelDto> besteberegningAndelListe) {
         return besteberegningAndelListe.stream().map(OppdatererDtoMapper::mapBesteberegningAndel).toList();
     }
 
-    private static no.nav.folketrygdloven.kalkulus.håndtering.v1.fakta.BesteberegningFødendeKvinneAndelDto mapBesteberegningAndel(BesteberegningFødendeKvinneAndelDto besteberegningFødendeKvinneAndelDto) {
-        return new no.nav.folketrygdloven.kalkulus.håndtering.v1.fakta.BesteberegningFødendeKvinneAndelDto(
+    private static no.nav.foreldrepenger.kalkulus.kontrakt.request.håndtering.fakta.BesteberegningFødendeKvinneAndelDto mapBesteberegningAndel(BesteberegningFødendeKvinneAndelDto besteberegningFødendeKvinneAndelDto) {
+        return new no.nav.foreldrepenger.kalkulus.kontrakt.request.håndtering.fakta.BesteberegningFødendeKvinneAndelDto(
             besteberegningFødendeKvinneAndelDto.getAndelsnr(),
             besteberegningFødendeKvinneAndelDto.getFastsatteVerdier().getFastsattBeløp(),
             Inntektskategori.fraKode(besteberegningFødendeKvinneAndelDto.getFastsatteVerdier().getInntektskategori().getKode()),
@@ -278,39 +278,39 @@ public class OppdatererDtoMapper {
             tilfeller.stream().map(no.nav.foreldrepenger.domene.modell.kodeverk.FaktaOmBeregningTilfelle::getKode).map(no.nav.folketrygdloven.kalkulus.kodeverk.FaktaOmBeregningTilfelle::fraKode).toList());
     }
 
-    public static List<no.nav.folketrygdloven.kalkulus.håndtering.v1.foreslå.InntektPrAndelDto> mapTilInntektPrAndelListe(List<InntektPrAndelDto> inntektPrAndelList) {
+    public static List<no.nav.foreldrepenger.kalkulus.kontrakt.request.håndtering.foreslå.InntektPrAndelDto> mapTilInntektPrAndelListe(List<InntektPrAndelDto> inntektPrAndelList) {
         if(inntektPrAndelList == null){
             return Collections.emptyList();
         }
         return inntektPrAndelList.stream().map(OppdatererDtoMapper::mapInntektPrAndel).toList();
     }
 
-    private static no.nav.folketrygdloven.kalkulus.håndtering.v1.foreslå.InntektPrAndelDto mapInntektPrAndel(InntektPrAndelDto inntektPrAndelDto) {
-        return new no.nav.folketrygdloven.kalkulus.håndtering.v1.foreslå.InntektPrAndelDto(inntektPrAndelDto.getInntekt(), inntektPrAndelDto.getAndelsnr());
+    private static no.nav.foreldrepenger.kalkulus.kontrakt.request.håndtering.foreslå.InntektPrAndelDto mapInntektPrAndel(InntektPrAndelDto inntektPrAndelDto) {
+        return new no.nav.foreldrepenger.kalkulus.kontrakt.request.håndtering.foreslå.InntektPrAndelDto(inntektPrAndelDto.getInntekt(), inntektPrAndelDto.getAndelsnr());
     }
 
-    private static List<no.nav.folketrygdloven.kalkulus.håndtering.v1.fakta.FastsattePerioderTidsbegrensetDto> mapTilFastsattTidsbegrensetPerioder(List<FastsattePerioderTidsbegrensetDto> fastsatteTidsbegrensedePerioder) {
+    private static List<no.nav.foreldrepenger.kalkulus.kontrakt.request.håndtering.fakta.FastsattePerioderTidsbegrensetDto> mapTilFastsattTidsbegrensetPerioder(List<FastsattePerioderTidsbegrensetDto> fastsatteTidsbegrensedePerioder) {
         return fastsatteTidsbegrensedePerioder.stream().map(OppdatererDtoMapper::mapTilFastsattTidsbegrensetPeriode).toList();
     }
 
-    private static no.nav.folketrygdloven.kalkulus.håndtering.v1.fakta.FastsattePerioderTidsbegrensetDto mapTilFastsattTidsbegrensetPeriode(FastsattePerioderTidsbegrensetDto fastsattePerioderTidsbegrensetDto) {
-        return new no.nav.folketrygdloven.kalkulus.håndtering.v1.fakta.FastsattePerioderTidsbegrensetDto(fastsattePerioderTidsbegrensetDto.getPeriodeFom(), fastsattePerioderTidsbegrensetDto.getPeriodeTom(), mapTilFastsattTidsbegrensetAndeler(fastsattePerioderTidsbegrensetDto.getFastsatteTidsbegrensedeAndeler()));
+    private static no.nav.foreldrepenger.kalkulus.kontrakt.request.håndtering.fakta.FastsattePerioderTidsbegrensetDto mapTilFastsattTidsbegrensetPeriode(FastsattePerioderTidsbegrensetDto fastsattePerioderTidsbegrensetDto) {
+        return new no.nav.foreldrepenger.kalkulus.kontrakt.request.håndtering.fakta.FastsattePerioderTidsbegrensetDto(fastsattePerioderTidsbegrensetDto.getPeriodeFom(), fastsattePerioderTidsbegrensetDto.getPeriodeTom(), mapTilFastsattTidsbegrensetAndeler(fastsattePerioderTidsbegrensetDto.getFastsatteTidsbegrensedeAndeler()));
     }
 
-    private static List<no.nav.folketrygdloven.kalkulus.håndtering.v1.fakta.FastsatteAndelerTidsbegrensetDto> mapTilFastsattTidsbegrensetAndeler(List<FastsatteAndelerTidsbegrensetDto> fastsatteTidsbegrensedeAndeler) {
+    private static List<no.nav.foreldrepenger.kalkulus.kontrakt.request.håndtering.fakta.FastsatteAndelerTidsbegrensetDto> mapTilFastsattTidsbegrensetAndeler(List<FastsatteAndelerTidsbegrensetDto> fastsatteTidsbegrensedeAndeler) {
         return fastsatteTidsbegrensedeAndeler.stream().map(OppdatererDtoMapper::mapTilFastsattTidsbegrensetAndel).toList();
     }
 
-    private static no.nav.folketrygdloven.kalkulus.håndtering.v1.fakta.FastsatteAndelerTidsbegrensetDto mapTilFastsattTidsbegrensetAndel(FastsatteAndelerTidsbegrensetDto fastsatteAndelerTidsbegrensetDto) {
-        return new no.nav.folketrygdloven.kalkulus.håndtering.v1.fakta.FastsatteAndelerTidsbegrensetDto(fastsatteAndelerTidsbegrensetDto.getAndelsnr(), fastsatteAndelerTidsbegrensetDto.getBruttoFastsattInntekt());
+    private static no.nav.foreldrepenger.kalkulus.kontrakt.request.håndtering.fakta.FastsatteAndelerTidsbegrensetDto mapTilFastsattTidsbegrensetAndel(FastsatteAndelerTidsbegrensetDto fastsatteAndelerTidsbegrensetDto) {
+        return new no.nav.foreldrepenger.kalkulus.kontrakt.request.håndtering.fakta.FastsatteAndelerTidsbegrensetDto(fastsatteAndelerTidsbegrensetDto.getAndelsnr(), fastsatteAndelerTidsbegrensetDto.getBruttoFastsattInntekt());
     }
 
-    private static List<no.nav.folketrygdloven.kalkulus.håndtering.v1.avklaraktiviteter.BeregningsaktivitetLagreDto> mapTilBeregningsaktivitetLagreDtoList(List<BeregningsaktivitetLagreDto> beregningsaktivitetLagreDtoList) {
+    private static List<no.nav.foreldrepenger.kalkulus.kontrakt.request.håndtering.avklaraktiviteter.BeregningsaktivitetLagreDto> mapTilBeregningsaktivitetLagreDtoList(List<BeregningsaktivitetLagreDto> beregningsaktivitetLagreDtoList) {
         return beregningsaktivitetLagreDtoList.stream().map(OppdatererDtoMapper::mapTilBeregningsaktivitetLagreDto).toList();
     }
 
-    private static no.nav.folketrygdloven.kalkulus.håndtering.v1.avklaraktiviteter.BeregningsaktivitetLagreDto mapTilBeregningsaktivitetLagreDto(BeregningsaktivitetLagreDto beregningsaktivitetLagreDto) {
-        return no.nav.folketrygdloven.kalkulus.håndtering.v1.avklaraktiviteter.BeregningsaktivitetLagreDto.builder()
+    private static no.nav.foreldrepenger.kalkulus.kontrakt.request.håndtering.avklaraktiviteter.BeregningsaktivitetLagreDto mapTilBeregningsaktivitetLagreDto(BeregningsaktivitetLagreDto beregningsaktivitetLagreDto) {
+        return no.nav.foreldrepenger.kalkulus.kontrakt.request.håndtering.avklaraktiviteter.BeregningsaktivitetLagreDto.builder()
             .medArbeidsforholdRef(beregningsaktivitetLagreDto.getArbeidsforholdRef() == null ? null : UUID.fromString(beregningsaktivitetLagreDto.getArbeidsforholdRef()))
             .medArbeidsgiverIdentifikator(beregningsaktivitetLagreDto.getArbeidsgiverIdentifikator())
             .medFom(beregningsaktivitetLagreDto.getFom())
@@ -321,12 +321,12 @@ public class OppdatererDtoMapper {
             .build();
     }
 
-    private static List<no.nav.folketrygdloven.kalkulus.håndtering.v1.refusjon.VurderRefusjonAndelBeregningsgrunnlagDto> mapTilRefusjonAndeler(List<VurderRefusjonAndelBeregningsgrunnlagDto> andelListe) {
+    private static List<no.nav.foreldrepenger.kalkulus.kontrakt.request.håndtering.refusjon.VurderRefusjonAndelBeregningsgrunnlagDto> mapTilRefusjonAndeler(List<VurderRefusjonAndelBeregningsgrunnlagDto> andelListe) {
         return andelListe.stream().map(OppdatererDtoMapper::mapRefusjonAndel).toList();
     }
 
-    private static no.nav.folketrygdloven.kalkulus.håndtering.v1.refusjon.VurderRefusjonAndelBeregningsgrunnlagDto mapRefusjonAndel(VurderRefusjonAndelBeregningsgrunnlagDto andel) {
-        return new no.nav.folketrygdloven.kalkulus.håndtering.v1.refusjon.VurderRefusjonAndelBeregningsgrunnlagDto(
+    private static no.nav.foreldrepenger.kalkulus.kontrakt.request.håndtering.refusjon.VurderRefusjonAndelBeregningsgrunnlagDto mapRefusjonAndel(VurderRefusjonAndelBeregningsgrunnlagDto andel) {
+        return new no.nav.foreldrepenger.kalkulus.kontrakt.request.håndtering.refusjon.VurderRefusjonAndelBeregningsgrunnlagDto(
             andel.getArbeidsgiverOrgnr(),
             andel.getArbeidsgiverAktoerId(),
             Optional.ofNullable(andel.getInternArbeidsforholdRef()).map(UUID::toString).orElse(null),
@@ -335,24 +335,24 @@ public class OppdatererDtoMapper {
     }
 
 
-    private static List<no.nav.folketrygdloven.kalkulus.håndtering.v1.fordeling.FordelBeregningsgrunnlagPeriodeDto> mapTilEndredePerioderList(List<FordelBeregningsgrunnlagPeriodeDto> endretBeregningsgrunnlagPerioder) {
+    private static List<no.nav.foreldrepenger.kalkulus.kontrakt.request.håndtering.fordeling.FordelBeregningsgrunnlagPeriodeDto> mapTilEndredePerioderList(List<FordelBeregningsgrunnlagPeriodeDto> endretBeregningsgrunnlagPerioder) {
         return endretBeregningsgrunnlagPerioder.stream().map(OppdatererDtoMapper::mapTilFordelBeregningsgrunnlagPeriodeDto).toList();
     }
 
-    private static no.nav.folketrygdloven.kalkulus.håndtering.v1.fordeling.FordelBeregningsgrunnlagPeriodeDto mapTilFordelBeregningsgrunnlagPeriodeDto(FordelBeregningsgrunnlagPeriodeDto fordelBeregningsgrunnlagPeriodeDto) {
-        return new no.nav.folketrygdloven.kalkulus.håndtering.v1.fordeling.FordelBeregningsgrunnlagPeriodeDto(mapFordelBeregningsgrunnlagPeriodeAndeler(fordelBeregningsgrunnlagPeriodeDto.getAndeler()), fordelBeregningsgrunnlagPeriodeDto.getFom(), fordelBeregningsgrunnlagPeriodeDto.getTom());
+    private static no.nav.foreldrepenger.kalkulus.kontrakt.request.håndtering.fordeling.FordelBeregningsgrunnlagPeriodeDto mapTilFordelBeregningsgrunnlagPeriodeDto(FordelBeregningsgrunnlagPeriodeDto fordelBeregningsgrunnlagPeriodeDto) {
+        return new no.nav.foreldrepenger.kalkulus.kontrakt.request.håndtering.fordeling.FordelBeregningsgrunnlagPeriodeDto(mapFordelBeregningsgrunnlagPeriodeAndeler(fordelBeregningsgrunnlagPeriodeDto.getAndeler()), fordelBeregningsgrunnlagPeriodeDto.getFom(), fordelBeregningsgrunnlagPeriodeDto.getTom());
     }
 
-    private static List<no.nav.folketrygdloven.kalkulus.håndtering.v1.fordeling.FordelBeregningsgrunnlagAndelDto> mapFordelBeregningsgrunnlagPeriodeAndeler(List<FordelBeregningsgrunnlagAndelDto> andeler) {
+    private static List<no.nav.foreldrepenger.kalkulus.kontrakt.request.håndtering.fordeling.FordelBeregningsgrunnlagAndelDto> mapFordelBeregningsgrunnlagPeriodeAndeler(List<FordelBeregningsgrunnlagAndelDto> andeler) {
         return andeler.stream().map(OppdatererDtoMapper::mapFordelBeregningsgrunnlagPeriodeAndelDto).toList();
     }
 
-    public static List<no.nav.folketrygdloven.kalkulus.håndtering.v1.fakta.FastsettBeregningsgrunnlagAndelDto> mapFastsettBeregningsgrunnlagPeriodeAndeler(List<FastsettBeregningsgrunnlagAndelDto> andeler) {
+    public static List<no.nav.foreldrepenger.kalkulus.kontrakt.request.håndtering.fakta.FastsettBeregningsgrunnlagAndelDto> mapFastsettBeregningsgrunnlagPeriodeAndeler(List<FastsettBeregningsgrunnlagAndelDto> andeler) {
         return andeler.stream().map(OppdatererDtoMapper::mapFastsettBeregningsgrunnlagPeriodeAndelDto).toList();
     }
 
-    private static no.nav.folketrygdloven.kalkulus.håndtering.v1.fordeling.FordelBeregningsgrunnlagAndelDto mapFordelBeregningsgrunnlagPeriodeAndelDto(FordelBeregningsgrunnlagAndelDto fordelBeregningsgrunnlagAndelDto) {
-        return new no.nav.folketrygdloven.kalkulus.håndtering.v1.fordeling.FordelBeregningsgrunnlagAndelDto(
+    private static no.nav.foreldrepenger.kalkulus.kontrakt.request.håndtering.fordeling.FordelBeregningsgrunnlagAndelDto mapFordelBeregningsgrunnlagPeriodeAndelDto(FordelBeregningsgrunnlagAndelDto fordelBeregningsgrunnlagAndelDto) {
+        return new no.nav.foreldrepenger.kalkulus.kontrakt.request.håndtering.fordeling.FordelBeregningsgrunnlagAndelDto(
             mapTilFordelRedigerbarAndelDto(fordelBeregningsgrunnlagAndelDto),
             mapTilFordelFastsatteVerdier(fordelBeregningsgrunnlagAndelDto.getFastsatteVerdier()),
             fordelBeregningsgrunnlagAndelDto.getForrigeInntektskategori() == null ? null : Inntektskategori.fraKode(fordelBeregningsgrunnlagAndelDto.getForrigeInntektskategori().getKode()),
@@ -360,8 +360,8 @@ public class OppdatererDtoMapper {
             fordelBeregningsgrunnlagAndelDto.getForrigeArbeidsinntektPrÅr());
     }
 
-    private static no.nav.folketrygdloven.kalkulus.håndtering.v1.fakta.FastsettBeregningsgrunnlagAndelDto mapFastsettBeregningsgrunnlagPeriodeAndelDto(FastsettBeregningsgrunnlagAndelDto fastsettBeregningsgrunnlagAndelDto) {
-        return new no.nav.folketrygdloven.kalkulus.håndtering.v1.fakta.FastsettBeregningsgrunnlagAndelDto(
+    private static no.nav.foreldrepenger.kalkulus.kontrakt.request.håndtering.fakta.FastsettBeregningsgrunnlagAndelDto mapFastsettBeregningsgrunnlagPeriodeAndelDto(FastsettBeregningsgrunnlagAndelDto fastsettBeregningsgrunnlagAndelDto) {
+        return new no.nav.foreldrepenger.kalkulus.kontrakt.request.håndtering.fakta.FastsettBeregningsgrunnlagAndelDto(
             mapTilRedigerbarAndelDto(fastsettBeregningsgrunnlagAndelDto),
             mapTilFastsatteVerdier(fastsettBeregningsgrunnlagAndelDto.getFastsatteVerdier()),
             fastsettBeregningsgrunnlagAndelDto.getForrigeInntektskategori() == null ? null : Inntektskategori.fraKode(fastsettBeregningsgrunnlagAndelDto.getForrigeInntektskategori().getKode()),
@@ -369,9 +369,9 @@ public class OppdatererDtoMapper {
             fastsettBeregningsgrunnlagAndelDto.getForrigeArbeidsinntektPrÅr());
     }
 
-    private static no.nav.folketrygdloven.kalkulus.håndtering.v1.fordeling.FordelFastsatteVerdierDto mapTilFordelFastsatteVerdier(
+    private static no.nav.foreldrepenger.kalkulus.kontrakt.request.håndtering.fordeling.FordelFastsatteVerdierDto mapTilFordelFastsatteVerdier(
         FordelFastsatteVerdierDto fastsatteVerdier) {
-        return new no.nav.folketrygdloven.kalkulus.håndtering.v1.fordeling.FordelFastsatteVerdierDto(
+        return new no.nav.foreldrepenger.kalkulus.kontrakt.request.håndtering.fordeling.FordelFastsatteVerdierDto(
             fastsatteVerdier.getRefusjonPrÅr(),
             null,
             Inntektskategori.fraKode(fastsatteVerdier.getInntektskategori().getKode()),
@@ -379,16 +379,16 @@ public class OppdatererDtoMapper {
         );
     }
 
-    private static no.nav.folketrygdloven.kalkulus.håndtering.v1.fakta.FastsatteVerdierDto mapTilFastsatteVerdier(FastsatteVerdierDto fastsatteVerdier) {
-        return new no.nav.folketrygdloven.kalkulus.håndtering.v1.fakta.FastsatteVerdierDto(
+    private static no.nav.foreldrepenger.kalkulus.kontrakt.request.håndtering.fakta.FastsatteVerdierDto mapTilFastsatteVerdier(FastsatteVerdierDto fastsatteVerdier) {
+        return new no.nav.foreldrepenger.kalkulus.kontrakt.request.håndtering.fakta.FastsatteVerdierDto(
             fastsatteVerdier.getFastsattBeløp(),
             Inntektskategori.fraKode(fastsatteVerdier.getInntektskategori().getKode()),
             false);
     }
 
-    private static no.nav.folketrygdloven.kalkulus.håndtering.v1.fordeling.FordelRedigerbarAndelDto mapTilFordelRedigerbarAndelDto(
+    private static no.nav.foreldrepenger.kalkulus.kontrakt.request.håndtering.fordeling.FordelRedigerbarAndelDto mapTilFordelRedigerbarAndelDto(
         FordelRedigerbarAndelDto redigerbarAndel) {
-        return new no.nav.folketrygdloven.kalkulus.håndtering.v1.fordeling.FordelRedigerbarAndelDto(
+        return new no.nav.foreldrepenger.kalkulus.kontrakt.request.håndtering.fordeling.FordelRedigerbarAndelDto(
             redigerbarAndel.getAndelsnr(),
             redigerbarAndel.getArbeidsgiverId(),
             redigerbarAndel.getArbeidsforholdId().getReferanse(),
@@ -397,8 +397,8 @@ public class OppdatererDtoMapper {
             );
     }
 
-    private static no.nav.folketrygdloven.kalkulus.håndtering.v1.fakta.RedigerbarAndelDto mapTilRedigerbarAndelDto(RedigerbarAndelDto redigerbarAndel) {
-        return new no.nav.folketrygdloven.kalkulus.håndtering.v1.fakta.RedigerbarAndelDto(
+    private static no.nav.foreldrepenger.kalkulus.kontrakt.request.håndtering.fakta.RedigerbarAndelDto mapTilRedigerbarAndelDto(RedigerbarAndelDto redigerbarAndel) {
+        return new no.nav.foreldrepenger.kalkulus.kontrakt.request.håndtering.fakta.RedigerbarAndelDto(
             redigerbarAndel.getAndelsnr(),
             redigerbarAndel.getLagtTilAvSaksbehandler());
     }
