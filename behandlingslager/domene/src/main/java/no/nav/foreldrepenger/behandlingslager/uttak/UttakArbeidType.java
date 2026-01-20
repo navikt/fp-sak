@@ -1,10 +1,6 @@
 package no.nav.foreldrepenger.behandlingslager.uttak;
 
-import java.util.LinkedHashMap;
-import java.util.Map;
-
-import jakarta.persistence.AttributeConverter;
-import jakarta.persistence.Converter;
+import jakarta.persistence.EnumeratedValue;
 
 import com.fasterxml.jackson.annotation.JsonValue;
 
@@ -17,20 +13,12 @@ public enum UttakArbeidType implements Kodeverdi {
     FRILANS("FRILANS", "Frilans"),
     ANNET("ANNET", "Annet"),
     ;
-    private static final Map<String, UttakArbeidType> KODER = new LinkedHashMap<>();
 
-    static {
-        for (var v : values()) {
-            if (KODER.putIfAbsent(v.kode, v) != null) {
-                throw new IllegalArgumentException("Duplikat : " + v.kode);
-            }
-        }
-    }
+    private final String navn;
 
-    private String navn;
-
+    @EnumeratedValue
     @JsonValue
-    private String kode;
+    private final String kode;
 
     UttakArbeidType(String kode, String navn) {
         this.kode = kode;
@@ -45,30 +33,6 @@ public enum UttakArbeidType implements Kodeverdi {
     @Override
     public String getKode() {
         return kode;
-    }
-
-    @Converter(autoApply = true)
-    public static class KodeverdiConverter implements AttributeConverter<UttakArbeidType, String> {
-        @Override
-        public String convertToDatabaseColumn(UttakArbeidType attribute) {
-            return attribute == null ? null : attribute.getKode();
-        }
-
-        @Override
-        public UttakArbeidType convertToEntityAttribute(String dbData) {
-            return dbData == null ? null : fraKode(dbData);
-        }
-
-        private static UttakArbeidType fraKode(String kode) {
-            if (kode == null) {
-                return null;
-            }
-            var ad = KODER.get(kode);
-            if (ad == null) {
-                throw new IllegalArgumentException("Ukjent UttakArbeidType: " + kode);
-            }
-            return ad;
-        }
     }
 
     public boolean erArbeidstakerEllerFrilans() {
