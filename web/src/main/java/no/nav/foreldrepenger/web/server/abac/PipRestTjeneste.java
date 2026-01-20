@@ -28,7 +28,6 @@ import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.BehandlingAbacSuppliers;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.UuidDto;
-import no.nav.foreldrepenger.web.app.tjenester.brev.BrevRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.SaksnummerAbacSupplier;
 import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.SaksnummerDto;
 import no.nav.vedtak.sikkerhet.abac.AbacDataAttributter;
@@ -38,21 +37,13 @@ import no.nav.vedtak.sikkerhet.abac.beskyttet.ActionType;
 import no.nav.vedtak.sikkerhet.abac.beskyttet.AvailabilityType;
 import no.nav.vedtak.sikkerhet.abac.beskyttet.ResourceType;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 @Path(PipRestTjeneste.PIP_BASE_PATH)
 @ApplicationScoped
 @Transactional
 @Produces(MediaType.APPLICATION_JSON)
 public class PipRestTjeneste {
 
-    private static final Logger LOG = LoggerFactory.getLogger(PipRestTjeneste.class);
-
     protected static final String PIP_BASE_PATH = "/pip";
-
-    @Deprecated(forRemoval = true) // Bruk kontekstpath/ekstern/api/pip/aktoer-for-sak
-    private static final String AKTOER_FOR_SAK = "/aktoer-for-sak"; // Ekstern bruk fra SAF og Kabal
 
     private static final String IDENT_FOR_SAK = "/ident-for-sak"; // FP-tilgang - unntakshåndtering
     private static final String FULL_FOR_SAK = "/full-for-sak"; // FP-tilgang bruker gåde GET og POST
@@ -69,17 +60,6 @@ public class PipRestTjeneste {
 
     public PipRestTjeneste() {
         // Ja gjett tre ganger på hva denne er til for.
-    }
-
-    @GET // Enkelt-sak
-    @Deprecated(forRemoval = true) // Bruk kontekstpath/ekstern/api/pip/aktoer-for-sak
-    @Path(AKTOER_FOR_SAK)
-    @Operation(description = "Henter alle aktørId tilknyttet en fagsak", tags = "pip")
-    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.PIP, availabilityType = AvailabilityType.ALL, sporingslogg = false)
-    public Set<AktørId> hentAktørIdListeTilknyttetSak(@TilpassetAbacAttributt(supplierClass = SaksnummerAbacSupplier.Supplier.class)
-        @NotNull @QueryParam("saksnummer") @Valid SaksnummerDto saksnummerDto) {
-        LOG.info("FPSAK-PIP kall til utgått endepunkt aktoer-for-sak.");
-        return personopplysningRepository.hentAktørIdKnyttetTilSaksnummer(new Saksnummer(saksnummerDto.getVerdi()));
     }
 
     @GET // Enkelt-sak
