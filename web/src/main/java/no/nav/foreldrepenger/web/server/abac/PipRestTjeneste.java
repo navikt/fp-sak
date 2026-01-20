@@ -28,6 +28,7 @@ import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.BehandlingAbacSuppliers;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.UuidDto;
+import no.nav.foreldrepenger.web.app.tjenester.brev.BrevRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.SaksnummerAbacSupplier;
 import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.SaksnummerDto;
 import no.nav.vedtak.sikkerhet.abac.AbacDataAttributter;
@@ -37,11 +38,16 @@ import no.nav.vedtak.sikkerhet.abac.beskyttet.ActionType;
 import no.nav.vedtak.sikkerhet.abac.beskyttet.AvailabilityType;
 import no.nav.vedtak.sikkerhet.abac.beskyttet.ResourceType;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 @Path(PipRestTjeneste.PIP_BASE_PATH)
 @ApplicationScoped
 @Transactional
 @Produces(MediaType.APPLICATION_JSON)
 public class PipRestTjeneste {
+
+    private static final Logger LOG = LoggerFactory.getLogger(PipRestTjeneste.class);
 
     protected static final String PIP_BASE_PATH = "/pip";
 
@@ -72,6 +78,7 @@ public class PipRestTjeneste {
     @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.PIP, availabilityType = AvailabilityType.ALL, sporingslogg = false)
     public Set<AktørId> hentAktørIdListeTilknyttetSak(@TilpassetAbacAttributt(supplierClass = SaksnummerAbacSupplier.Supplier.class)
         @NotNull @QueryParam("saksnummer") @Valid SaksnummerDto saksnummerDto) {
+        LOG.info("FPSAK-PIP kall til utgått endepunkt aktoer-for-sak.");
         return personopplysningRepository.hentAktørIdKnyttetTilSaksnummer(new Saksnummer(saksnummerDto.getVerdi()));
     }
 
