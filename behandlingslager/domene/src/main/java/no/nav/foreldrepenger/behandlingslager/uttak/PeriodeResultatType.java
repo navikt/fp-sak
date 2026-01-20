@@ -1,10 +1,6 @@
 package no.nav.foreldrepenger.behandlingslager.uttak;
 
-import java.util.LinkedHashMap;
-import java.util.Map;
-
-import jakarta.persistence.AttributeConverter;
-import jakarta.persistence.Converter;
+import jakarta.persistence.EnumeratedValue;
 
 import com.fasterxml.jackson.annotation.JsonValue;
 
@@ -17,18 +13,9 @@ public enum PeriodeResultatType implements Kodeverdi {
     MANUELL_BEHANDLING("MANUELL_BEHANDLING", "Til manuell behandling"),
     ;
 
-    private static final Map<String, PeriodeResultatType> KODER = new LinkedHashMap<>();
-
-    static {
-        for (var v : values()) {
-            if (KODER.putIfAbsent(v.kode, v) != null) {
-                throw new IllegalArgumentException("Duplikat : " + v.kode);
-            }
-        }
-    }
-
     private final String navn;
 
+    @EnumeratedValue
     @JsonValue
     private final String kode;
 
@@ -45,29 +32,5 @@ public enum PeriodeResultatType implements Kodeverdi {
     @Override
     public String getKode() {
         return kode;
-    }
-
-    @Converter(autoApply = true)
-    public static class KodeverdiConverter implements AttributeConverter<PeriodeResultatType, String> {
-        @Override
-        public String convertToDatabaseColumn(PeriodeResultatType attribute) {
-            return attribute == null ? null : attribute.getKode();
-        }
-
-        @Override
-        public PeriodeResultatType convertToEntityAttribute(String dbData) {
-            return dbData == null ? null : fraKode(dbData);
-        }
-
-        private static PeriodeResultatType fraKode(String kode) {
-            if (kode == null) {
-                return null;
-            }
-            var ad = KODER.get(kode);
-            if (ad == null) {
-                throw new IllegalArgumentException("Ukjent PeriodeResultatType: " + kode);
-            }
-            return ad;
-        }
     }
 }

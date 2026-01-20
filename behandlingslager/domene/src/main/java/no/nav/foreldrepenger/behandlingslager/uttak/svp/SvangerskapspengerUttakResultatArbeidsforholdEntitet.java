@@ -9,6 +9,8 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Convert;
 import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -42,7 +44,7 @@ public class SvangerskapspengerUttakResultatArbeidsforholdEntitet extends BaseEn
     @JoinColumn(name = "svp_uttak_arbeidsforhold_id")
     private List<SvangerskapspengerUttakResultatPeriodeEntitet> perioder = new ArrayList<>();
 
-    @Convert(converter = UttakArbeidType.KodeverdiConverter.class)
+    @Enumerated(EnumType.STRING)
     @Column(name = "UTTAK_ARBEID_TYPE")
     private UttakArbeidType uttakArbeidType;
 

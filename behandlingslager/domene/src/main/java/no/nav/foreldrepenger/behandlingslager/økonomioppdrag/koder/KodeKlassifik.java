@@ -4,8 +4,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Objects;
 
-import jakarta.persistence.AttributeConverter;
-import jakarta.persistence.Converter;
+import jakarta.persistence.EnumeratedValue;
 
 public enum KodeKlassifik {
 
@@ -65,6 +64,7 @@ public enum KodeKlassifik {
         }
     }
 
+    @EnumeratedValue
     private final String kode;
 
     KodeKlassifik(String kodeKlassifik) {
@@ -85,28 +85,11 @@ public enum KodeKlassifik {
     }
 
     public boolean gjelderFeriepenger() {
-        return this.equals(FERIEPENGER_BRUKER) || this.equals(FPA_FERIEPENGER_BRUKER) || this.equals(SVP_FERIEPENGER_BRUKER) ||
-            this.equals(FPF_FERIEPENGER_AG) || this.equals(FPA_FERIEPENGER_AG) || this.equals(SVP_FERIEPENGER_AG);
-    }
-
-    public boolean gjelderArbeidsgiver() {
-        return this.equals(FPF_REFUSJON_AG) || this.equals(FPA_REFUSJON_AG) || this.equals(SVP_REFUSJON_AG);
+        return this.equals(FERIEPENGER_BRUKER) || this.equals(FPA_FERIEPENGER_BRUKER) || this.equals(SVP_FERIEPENGER_BRUKER) || this.equals(
+            FPF_FERIEPENGER_AG) || this.equals(FPA_FERIEPENGER_AG) || this.equals(SVP_FERIEPENGER_AG);
     }
 
     public boolean gjelderEngangsstønad() {
         return this.equals(ES_FØDSEL) || this.equals(ES_ADOPSJON);
-    }
-
-    @Converter(autoApply = true)
-    public static class KodeverdiConverter implements AttributeConverter<KodeKlassifik, String> {
-        @Override
-        public String convertToDatabaseColumn(KodeKlassifik attribute) {
-            return attribute.getKode();
-        }
-
-        @Override
-        public KodeKlassifik convertToEntityAttribute(String dbData) {
-            return fraKode(dbData);
-        }
     }
 }

@@ -4,9 +4,10 @@ import java.util.Objects;
 import java.util.Optional;
 
 import jakarta.persistence.Column;
-import jakarta.persistence.Convert;
 import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -38,7 +39,7 @@ public class UttakAktivitetEntitet extends BaseEntitet {
     @ChangeTracked
     private InternArbeidsforholdRef arbeidsforholdRef;
 
-    @Convert(converter = UttakArbeidType.KodeverdiConverter.class)
+    @Enumerated(EnumType.STRING)
     @Column(name = "UTTAK_ARBEID_TYPE", nullable = false, updatable = false)
     private UttakArbeidType uttakArbeidType;
 
@@ -88,7 +89,7 @@ public class UttakAktivitetEntitet extends BaseEntitet {
 
     public static class Builder {
 
-        private UttakAktivitetEntitet kladd = new UttakAktivitetEntitet();
+        private final UttakAktivitetEntitet kladd = new UttakAktivitetEntitet();
 
         public Builder medArbeidsforhold(Arbeidsgiver arbeidsgiver, InternArbeidsforholdRef arbeidsforholdRef) {
             kladd.arbeidsgiver = arbeidsgiver;
