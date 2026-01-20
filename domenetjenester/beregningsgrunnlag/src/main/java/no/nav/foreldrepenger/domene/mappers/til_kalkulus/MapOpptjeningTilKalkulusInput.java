@@ -1,16 +1,16 @@
 package no.nav.foreldrepenger.domene.mappers.til_kalkulus;
 
-import no.nav.folketrygdloven.kalkulus.felles.v1.Aktør;
-import no.nav.folketrygdloven.kalkulus.felles.v1.AktørIdPersonident;
-import no.nav.folketrygdloven.kalkulus.felles.v1.InternArbeidsforholdRefDto;
-import no.nav.folketrygdloven.kalkulus.felles.v1.Organisasjon;
-import no.nav.folketrygdloven.kalkulus.felles.v1.Periode;
-import no.nav.folketrygdloven.kalkulus.opptjening.v1.OpptjeningAktiviteterDto;
-import no.nav.folketrygdloven.kalkulus.opptjening.v1.OpptjeningPeriodeDto;
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
 import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlag;
 import no.nav.foreldrepenger.domene.opptjening.OpptjeningAktiviteter;
+import no.nav.foreldrepenger.kalkulus.kontrakt.request.input.opptjening.OpptjeningAktiviteterDto;
+import no.nav.foreldrepenger.kalkulus.kontrakt.request.input.opptjening.OpptjeningPeriodeDto;
+import no.nav.foreldrepenger.kalkulus.kontrakt.typer.Aktør;
+import no.nav.foreldrepenger.kalkulus.kontrakt.typer.AktørIdPersonident;
+import no.nav.foreldrepenger.kalkulus.kontrakt.typer.InternArbeidsforholdRefDto;
+import no.nav.foreldrepenger.kalkulus.kontrakt.typer.Organisasjon;
+import no.nav.foreldrepenger.kalkulus.kontrakt.typer.Periode;
 
 public class MapOpptjeningTilKalkulusInput {
 
@@ -19,8 +19,8 @@ public class MapOpptjeningTilKalkulusInput {
     }
 
     public static OpptjeningAktiviteterDto mapOpptjening(OpptjeningAktiviteter opptjeningAktiviteter,
-                                                         InntektArbeidYtelseGrunnlag iayGrunnlag,
-                                                         BehandlingReferanse ref, Skjæringstidspunkt stp) {
+                                                           InntektArbeidYtelseGrunnlag iayGrunnlag,
+                                                           BehandlingReferanse ref, Skjæringstidspunkt stp) {
         var relevanteAktiviteter = RelevantOpptjeningMapper.map(opptjeningAktiviteter, iayGrunnlag, ref, stp);
         return new OpptjeningAktiviteterDto(relevanteAktiviteter.stream()
             .map(opptjeningPeriode -> new OpptjeningPeriodeDto(

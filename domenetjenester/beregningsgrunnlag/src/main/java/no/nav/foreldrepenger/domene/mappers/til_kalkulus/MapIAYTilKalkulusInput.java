@@ -8,35 +8,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import no.nav.folketrygdloven.kalkulus.felles.v1.Aktør;
-import no.nav.folketrygdloven.kalkulus.felles.v1.AktørIdPersonident;
-import no.nav.folketrygdloven.kalkulus.felles.v1.EksternArbeidsforholdRef;
-import no.nav.folketrygdloven.kalkulus.felles.v1.InternArbeidsforholdRefDto;
-import no.nav.folketrygdloven.kalkulus.felles.v1.Organisasjon;
-import no.nav.folketrygdloven.kalkulus.felles.v1.Periode;
-import no.nav.folketrygdloven.kalkulus.iay.IayProsent;
-import no.nav.folketrygdloven.kalkulus.iay.arbeid.v1.AktivitetsAvtaleDto;
-import no.nav.folketrygdloven.kalkulus.iay.arbeid.v1.ArbeidDto;
-import no.nav.folketrygdloven.kalkulus.iay.arbeid.v1.ArbeidsforholdInformasjonDto;
-import no.nav.folketrygdloven.kalkulus.iay.arbeid.v1.ArbeidsforholdOverstyringDto;
-import no.nav.folketrygdloven.kalkulus.iay.arbeid.v1.ArbeidsforholdReferanseDto;
-import no.nav.folketrygdloven.kalkulus.iay.arbeid.v1.PermisjonDto;
-import no.nav.folketrygdloven.kalkulus.iay.arbeid.v1.YrkesaktivitetDto;
-import no.nav.folketrygdloven.kalkulus.iay.inntekt.v1.InntekterDto;
-import no.nav.folketrygdloven.kalkulus.iay.inntekt.v1.InntektsmeldingDto;
-import no.nav.folketrygdloven.kalkulus.iay.inntekt.v1.InntektsmeldingerDto;
-import no.nav.folketrygdloven.kalkulus.iay.inntekt.v1.NaturalYtelseDto;
-import no.nav.folketrygdloven.kalkulus.iay.inntekt.v1.RefusjonDto;
-import no.nav.folketrygdloven.kalkulus.iay.inntekt.v1.UtbetalingDto;
-import no.nav.folketrygdloven.kalkulus.iay.inntekt.v1.UtbetalingsPostDto;
-import no.nav.folketrygdloven.kalkulus.iay.v1.InntektArbeidYtelseGrunnlagDto;
-import no.nav.folketrygdloven.kalkulus.iay.ytelse.v1.YtelseAnvistDto;
-import no.nav.folketrygdloven.kalkulus.iay.ytelse.v1.YtelseDto;
-import no.nav.folketrygdloven.kalkulus.iay.ytelse.v1.YtelserDto;
-import no.nav.folketrygdloven.kalkulus.opptjening.v1.OppgittArbeidsforholdDto;
-import no.nav.folketrygdloven.kalkulus.opptjening.v1.OppgittEgenNæringDto;
-import no.nav.folketrygdloven.kalkulus.opptjening.v1.OppgittFrilansDto;
-import no.nav.folketrygdloven.kalkulus.opptjening.v1.OppgittOpptjeningDto;
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.domene.iay.modell.AktørArbeid;
@@ -61,6 +32,35 @@ import no.nav.foreldrepenger.domene.iay.modell.YtelseGrunnlag;
 import no.nav.foreldrepenger.domene.iay.modell.kodeverk.BekreftetPermisjonStatus;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.typer.Beløp;
+import no.nav.foreldrepenger.kalkulus.kontrakt.request.input.iay.IayProsent;
+import no.nav.foreldrepenger.kalkulus.kontrakt.request.input.iay.InntektArbeidYtelseGrunnlagDto;
+import no.nav.foreldrepenger.kalkulus.kontrakt.request.input.iay.arbeid.AktivitetsAvtaleDto;
+import no.nav.foreldrepenger.kalkulus.kontrakt.request.input.iay.arbeid.ArbeidDto;
+import no.nav.foreldrepenger.kalkulus.kontrakt.request.input.iay.arbeid.ArbeidsforholdInformasjonDto;
+import no.nav.foreldrepenger.kalkulus.kontrakt.request.input.iay.arbeid.ArbeidsforholdOverstyringDto;
+import no.nav.foreldrepenger.kalkulus.kontrakt.request.input.iay.arbeid.ArbeidsforholdReferanseDto;
+import no.nav.foreldrepenger.kalkulus.kontrakt.request.input.iay.arbeid.PermisjonDto;
+import no.nav.foreldrepenger.kalkulus.kontrakt.request.input.iay.arbeid.YrkesaktivitetDto;
+import no.nav.foreldrepenger.kalkulus.kontrakt.request.input.iay.inntekt.InntekterDto;
+import no.nav.foreldrepenger.kalkulus.kontrakt.request.input.iay.inntekt.InntektsmeldingDto;
+import no.nav.foreldrepenger.kalkulus.kontrakt.request.input.iay.inntekt.InntektsmeldingerDto;
+import no.nav.foreldrepenger.kalkulus.kontrakt.request.input.iay.inntekt.NaturalYtelseDto;
+import no.nav.foreldrepenger.kalkulus.kontrakt.request.input.iay.inntekt.RefusjonDto;
+import no.nav.foreldrepenger.kalkulus.kontrakt.request.input.iay.inntekt.UtbetalingDto;
+import no.nav.foreldrepenger.kalkulus.kontrakt.request.input.iay.inntekt.UtbetalingsPostDto;
+import no.nav.foreldrepenger.kalkulus.kontrakt.request.input.iay.oppgitt.OppgittArbeidsforholdDto;
+import no.nav.foreldrepenger.kalkulus.kontrakt.request.input.iay.oppgitt.OppgittEgenNæringDto;
+import no.nav.foreldrepenger.kalkulus.kontrakt.request.input.iay.oppgitt.OppgittFrilansDto;
+import no.nav.foreldrepenger.kalkulus.kontrakt.request.input.iay.oppgitt.OppgittOpptjeningDto;
+import no.nav.foreldrepenger.kalkulus.kontrakt.request.input.iay.ytelse.YtelseAnvistDto;
+import no.nav.foreldrepenger.kalkulus.kontrakt.request.input.iay.ytelse.YtelseDto;
+import no.nav.foreldrepenger.kalkulus.kontrakt.request.input.iay.ytelse.YtelserDto;
+import no.nav.foreldrepenger.kalkulus.kontrakt.typer.Aktør;
+import no.nav.foreldrepenger.kalkulus.kontrakt.typer.AktørIdPersonident;
+import no.nav.foreldrepenger.kalkulus.kontrakt.typer.EksternArbeidsforholdRef;
+import no.nav.foreldrepenger.kalkulus.kontrakt.typer.InternArbeidsforholdRefDto;
+import no.nav.foreldrepenger.kalkulus.kontrakt.typer.Organisasjon;
+import no.nav.foreldrepenger.kalkulus.kontrakt.typer.Periode;
 
 public class MapIAYTilKalkulusInput {
 
@@ -129,17 +129,17 @@ public class MapIAYTilKalkulusInput {
     private static List<InntektsmeldingDto> mapInntektsmeldinger(List<Inntektsmelding> inntektsmeldinger) {
         return inntektsmeldinger.stream().map(inntektsmelding -> {
             Aktør aktør = mapTilAktør(inntektsmelding.getArbeidsgiver());
-            var inntektBeløp = no.nav.folketrygdloven.kalkulus.felles.v1.Beløp.fra((inntektsmelding.getInntektBeløp().getVerdi()));
+            var inntektBeløp = no.nav.foreldrepenger.kalkulus.kontrakt.typer.Beløp.fra((inntektsmelding.getInntektBeløp().getVerdi()));
             var naturalYtelseDtos = inntektsmelding.getNaturalYtelser()
                 .stream()
                 .map(naturalYtelse -> new NaturalYtelseDto(mapPeriode(naturalYtelse.getPeriode()),
-                    no.nav.folketrygdloven.kalkulus.felles.v1.Beløp.fra(naturalYtelse.getBeloepPerMnd().getVerdi()),
+                    no.nav.foreldrepenger.kalkulus.kontrakt.typer.Beløp.fra(naturalYtelse.getBeloepPerMnd().getVerdi()),
                     KodeverkTilKalkulusMapper.mapNaturalytelsetype(naturalYtelse.getType())))
                 .toList();
 
             var refusjonDtos = inntektsmelding.getEndringerRefusjon()
                 .stream()
-                .map(refusjon -> new RefusjonDto(no.nav.folketrygdloven.kalkulus.felles.v1.Beløp.fra(refusjon.getRefusjonsbeløp().getVerdi()),
+                .map(refusjon -> new RefusjonDto(no.nav.foreldrepenger.kalkulus.kontrakt.typer.Beløp.fra(refusjon.getRefusjonsbeløp().getVerdi()),
                     refusjon.getFom()))
                 .toList();
 
@@ -147,11 +147,11 @@ public class MapIAYTilKalkulusInput {
                 .gjelderForSpesifiktArbeidsforhold() ? new InternArbeidsforholdRefDto(inntektsmelding.getArbeidsforholdRef().getReferanse()) : null;
             var startDato = inntektsmelding.getStartDatoPermisjon().isPresent() ? inntektsmelding.getStartDatoPermisjon().get() : null;
             var refusjonOpphører = inntektsmelding.getRefusjonOpphører();
-            var refusjonBeløp = inntektsmelding.getRefusjonBeløpPerMnd() != null ? no.nav.folketrygdloven.kalkulus.felles.v1.Beløp.fra(
+            var refusjonBeløp = inntektsmelding.getRefusjonBeløpPerMnd() != null ? no.nav.foreldrepenger.kalkulus.kontrakt.typer.Beløp.fra(
                 inntektsmelding.getRefusjonBeløpPerMnd().getVerdi()) : null;
 
             return new InntektsmeldingDto(aktør, inntektBeløp, naturalYtelseDtos, refusjonDtos, internArbeidsforholdRefDto, startDato,
-                refusjonOpphører, refusjonBeløp, null, inntektsmelding.getInnsendingstidspunkt().toLocalDate());
+                refusjonOpphører, refusjonBeløp, inntektsmelding.getInnsendingstidspunkt().toLocalDate());
         }).toList();
     }
 
@@ -174,11 +174,11 @@ public class MapIAYTilKalkulusInput {
         return null;
     }
 
-    private static no.nav.folketrygdloven.kalkulus.felles.v1.Beløp mapBeløp(Optional<Beløp> beløp) {
-        return beløp.map(value -> no.nav.folketrygdloven.kalkulus.felles.v1.Beløp.fra((value.getVerdi()))).orElse(null);
+    private static no.nav.foreldrepenger.kalkulus.kontrakt.typer.Beløp mapBeløp(Optional<Beløp> beløp) {
+        return beløp.map(value -> no.nav.foreldrepenger.kalkulus.kontrakt.typer.Beløp.fra((value.getVerdi()))).orElse(null);
     }
 
-    private static Set<no.nav.folketrygdloven.kalkulus.iay.ytelse.v1.YtelseAnvistDto> mapYtelseAnvist(Collection<YtelseAnvist> ytelseAnvist) {
+    private static Set<YtelseAnvistDto> mapYtelseAnvist(Collection<YtelseAnvist> ytelseAnvist) {
         return ytelseAnvist.stream().map(ya -> {
             var beløpDto = mapBeløp(ya.getBeløp());
             var dagsatsDto = mapBeløp(ya.getDagsats());
@@ -272,7 +272,7 @@ public class MapIAYTilKalkulusInput {
         var utbetalingsPostDto = new UtbetalingsPostDto(
             mapPeriode(inntektspost.getPeriode()),
             KodeverkTilKalkulusMapper.mapInntektspostType(inntektspost.getInntektspostType()),
-            no.nav.folketrygdloven.kalkulus.felles.v1.Beløp.fra(inntektspost.getBeløp().getVerdi()));
+            no.nav.foreldrepenger.kalkulus.kontrakt.typer.Beløp.fra(inntektspost.getBeløp().getVerdi()));
         if (inntektspost.getInntektYtelseType() != null) {
             var ytelseType = inntektspost.getInntektYtelseType();
             utbetalingsPostDto.setInntektYtelseType(KodeverkTilKalkulusMapper.mapInntektytelseType(ytelseType));
@@ -283,9 +283,7 @@ public class MapIAYTilKalkulusInput {
 
     private static OppgittOpptjeningDto mapTilOppgittOpptjeningDto(OppgittOpptjening oppgittOpptjening) {
         if (oppgittOpptjening != null) {
-            return new OppgittOpptjeningDto(
-                null,
-                oppgittOpptjening.getFrilans().map(MapIAYTilKalkulusInput::mapOppgittFrilansOppdragListe).orElse(null),
+            return new OppgittOpptjeningDto(oppgittOpptjening.getFrilans().map(MapIAYTilKalkulusInput::mapOppgittFrilansOppdragListe).orElse(null),
                 mapOppgittEgenNæringListe(oppgittOpptjening.getEgenNæring()),
                 mapOppgittArbeidsforholdDto(oppgittOpptjening.getOppgittArbeidsforhold()));
         }
@@ -317,7 +315,7 @@ public class MapIAYTilKalkulusInput {
             oppgittEgenNæring.getEndringDato(),
             oppgittEgenNæring.getNyIArbeidslivet(),
             oppgittEgenNæring.getBegrunnelse(),
-            no.nav.folketrygdloven.kalkulus.felles.v1.Beløp.fra(oppgittEgenNæring.getBruttoInntekt()));
+            no.nav.foreldrepenger.kalkulus.kontrakt.typer.Beløp.fra(oppgittEgenNæring.getBruttoInntekt()));
     }
 
     private static List<OppgittArbeidsforholdDto> mapOppgittArbeidsforholdDto(List<OppgittArbeidsforhold> arbeidsforhold) {

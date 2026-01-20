@@ -1,7 +1,6 @@
 package no.nav.foreldrepenger.domene.mappers.til_kalkulus;
 
 import no.nav.abakus.iaygrunnlag.Periode;
-import no.nav.folketrygdloven.kalkulus.opptjening.v1.OpptjeningAktiviteterDto;
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
 import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.OpptjeningAktivitetType;
@@ -18,6 +17,7 @@ import no.nav.foreldrepenger.domene.iay.modell.YrkesaktivitetBuilder;
 import no.nav.foreldrepenger.domene.opptjening.OpptjeningAktiviteter;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
+import no.nav.foreldrepenger.kalkulus.kontrakt.request.input.opptjening.OpptjeningAktiviteterDto;
 import no.nav.vedtak.konfig.Tid;
 
 import org.junit.jupiter.api.Test;

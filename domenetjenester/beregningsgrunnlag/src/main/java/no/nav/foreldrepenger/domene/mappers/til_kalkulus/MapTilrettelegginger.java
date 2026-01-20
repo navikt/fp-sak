@@ -2,21 +2,21 @@ package no.nav.foreldrepenger.domene.mappers.til_kalkulus;
 
 import java.util.List;
 
-import no.nav.folketrygdloven.kalkulus.beregning.v1.AktivitetDto;
-import no.nav.folketrygdloven.kalkulus.beregning.v1.PeriodeMedUtbetalingsgradDto;
-import no.nav.folketrygdloven.kalkulus.beregning.v1.UtbetalingsgradPrAktivitetDto;
-import no.nav.folketrygdloven.kalkulus.felles.v1.Aktør;
-import no.nav.folketrygdloven.kalkulus.felles.v1.AktørIdPersonident;
-import no.nav.folketrygdloven.kalkulus.felles.v1.InternArbeidsforholdRefDto;
-import no.nav.folketrygdloven.kalkulus.felles.v1.Organisasjon;
-import no.nav.folketrygdloven.kalkulus.felles.v1.Periode;
-import no.nav.folketrygdloven.kalkulus.felles.v1.Utbetalingsgrad;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.domene.arbeidsforhold.svp.PeriodeMedUtbetalingsgrad;
 import no.nav.foreldrepenger.domene.arbeidsforhold.svp.TilretteleggingArbeidsforhold;
 import no.nav.foreldrepenger.domene.arbeidsforhold.svp.TilretteleggingMedUtbelingsgrad;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
+import no.nav.foreldrepenger.kalkulus.kontrakt.request.input.svangerskapspenger.AktivitetDto;
+import no.nav.foreldrepenger.kalkulus.kontrakt.request.input.svangerskapspenger.PeriodeMedUtbetalingsgradDto;
+import no.nav.foreldrepenger.kalkulus.kontrakt.request.input.svangerskapspenger.UtbetalingsgradPrAktivitetDto;
+import no.nav.foreldrepenger.kalkulus.kontrakt.typer.Aktør;
+import no.nav.foreldrepenger.kalkulus.kontrakt.typer.AktørIdPersonident;
+import no.nav.foreldrepenger.kalkulus.kontrakt.typer.InternArbeidsforholdRefDto;
+import no.nav.foreldrepenger.kalkulus.kontrakt.typer.Organisasjon;
+import no.nav.foreldrepenger.kalkulus.kontrakt.typer.Periode;
+import no.nav.foreldrepenger.kalkulus.kontrakt.typer.Utbetalingsgrad;
 
 public class MapTilrettelegginger {
 
@@ -66,7 +66,7 @@ public class MapTilrettelegginger {
     }
 
     private static InternArbeidsforholdRefDto mapReferanse(InternArbeidsforholdRef arbeidsforholdRef) {
-        return arbeidsforholdRef.getReferanse() == null ? null : new no.nav.folketrygdloven.kalkulus.felles.v1.InternArbeidsforholdRefDto(arbeidsforholdRef.getReferanse());
+        return arbeidsforholdRef.getReferanse() == null ? null : new InternArbeidsforholdRefDto(arbeidsforholdRef.getReferanse());
     }
 
 
