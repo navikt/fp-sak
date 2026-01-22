@@ -387,7 +387,7 @@ class FastsettUttaksgrunnlagTjenesteTest {
     }
 
     @Test
-    void skal_fjerne_oppholdsperioder() {
+    void skal_ikke_fjerne_oppholdsperioder() {
         var søknadFom = LocalDate.of(2022, 7, 31);
         var periode1 = ny()
                 .medPeriode(søknadFom, søknadFom.plusDays(10))
@@ -419,9 +419,7 @@ class FastsettUttaksgrunnlagTjenesteTest {
         var resultat = repositoryProvider.getYtelsesFordelingRepository().hentAggregat(behandling.getId());
 
         var oppgittePerioder = resultat.getGjeldendeFordeling().getPerioder();
-        assertThat(oppgittePerioder).hasSize(2);
-        assertThat(oppgittePerioder.get(0).getFom()).isEqualTo(periode1.getFom());
-        assertThat(oppgittePerioder.get(1).getFom()).isEqualTo(periode2.getFom());
+        assertThat(oppgittePerioder).hasSize(4);
     }
 
     @Test

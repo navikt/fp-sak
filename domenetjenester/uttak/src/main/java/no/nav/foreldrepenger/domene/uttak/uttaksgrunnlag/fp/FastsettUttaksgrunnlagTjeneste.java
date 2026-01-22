@@ -100,7 +100,7 @@ public class FastsettUttaksgrunnlagTjeneste {
             justertePerioder = justerFordelingEtterFamilieHendelse(input.getYtelsespesifiktGrunnlag(), justertePerioder, ref.relasjonRolle(), fordeling.ønskerJustertVedFødsel());
         }
         justertePerioder = slåSammenLikePerioder(justertePerioder);
-        justertePerioder = fjernOppholdsperioderFriEllerLiggendeTilSlutt(justertePerioder);
+        justertePerioder = fjernOppholdsperioderTilSluttForSammenhengendeUttak(justertePerioder);
         justertePerioder = leggTilUtsettelserForPleiepenger(input, justertePerioder);
         return new OppgittFordelingEntitet(kopier(justertePerioder), fordeling.getErAnnenForelderInformert(), fordeling.ønskerJustertVedFødsel());
     }
@@ -126,19 +126,12 @@ public class FastsettUttaksgrunnlagTjeneste {
         return PleiepengerJustering.juster(input.getBehandlingReferanse().aktørId(), input.getIayGrunnlag(), perioder);
     }
 
-    private List<OppgittPeriodeEntitet> fjernOppholdsperioderFriEllerLiggendeTilSlutt(List<OppgittPeriodeEntitet> perioder) {
-        var perioderUtenFriOpphold = perioder.stream()
-            .filter(p -> !p.isOpphold() || UtsettelseCore2021.kreverSammenhengendeUttak(p))
-            .toList();
-        var sortertePerioder = perioderUtenFriOpphold.stream()
-                .sorted(Comparator.comparing(OppgittPeriodeEntitet::getFom))
-                .collect(Collectors.toList());
+    private List<OppgittPeriodeEntitet> fjernOppholdsperioderTilSluttForSammenhengendeUttak(List<OppgittPeriodeEntitet> perioder) {
+        var sortertePerioder = perioder.stream().sorted(Comparator.comparing(OppgittPeriodeEntitet::getFom)).collect(Collectors.toList());
 
-        while (!sortertePerioder.isEmpty() && sortertePerioder.get(sortertePerioder.size() - 1).isOpphold()) {
-            sortertePerioder.remove(sortertePerioder.size() - 1);
-        }
-        if (sortertePerioder.isEmpty()) {
-            return perioderUtenFriOpphold;
+        while (!sortertePerioder.isEmpty() && UtsettelseCore2021.kreverSammenhengendeUttak(sortertePerioder.getLast()) && sortertePerioder.getLast()
+            .isOpphold()) {
+            sortertePerioder.removeLast();
         }
         return sortertePerioder;
     }
