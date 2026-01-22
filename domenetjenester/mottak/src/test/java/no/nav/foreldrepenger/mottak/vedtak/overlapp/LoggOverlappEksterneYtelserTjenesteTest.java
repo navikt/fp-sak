@@ -16,6 +16,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
+import no.nav.foreldrepenger.mottak.vedtak.rest.DpsakKlient;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -83,6 +85,8 @@ class LoggOverlappEksterneYtelserTjenesteTest extends EntityManagerAwareTest {
     @Mock
     private AbakusTjeneste abakusMock;
     @Mock
+    private DpsakKlient dpsakKlientMock;
+    @Mock
     private OppgaveTjeneste oppgaveTjenesteMock;
 
     private Behandling behandlingFP;
@@ -97,7 +101,7 @@ class LoggOverlappEksterneYtelserTjenesteTest extends EntityManagerAwareTest {
         var overlappOppgaveTjeneste = new OverlappOppgaveTjeneste(oppgaveTjenesteMock);
         overlappendeInfotrygdYtelseTjeneste = new LoggOverlappEksterneYtelserTjeneste(
             beregningsresultatRepository, personinfoAdapter, infotrygdPSGrTjenesteMock, infotrygdSPGrTjenesteMock,
-            abakusMock, spøkelseMock, overlappRepository, behandlingRepository, overlappOppgaveTjeneste);
+            abakusMock, spøkelseMock, dpsakKlientMock, overlappRepository, behandlingRepository, overlappOppgaveTjeneste);
         førsteUttaksdatoFp = LocalDate.now().minusMonths(4).minusWeeks(2);
         førsteUttaksdatoFp = VirkedagUtil.fomVirkedag(førsteUttaksdatoFp);
 
