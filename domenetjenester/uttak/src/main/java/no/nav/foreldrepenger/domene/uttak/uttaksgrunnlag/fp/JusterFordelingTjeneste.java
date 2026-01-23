@@ -10,12 +10,17 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Stream;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeType;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.Virkedager;
 
 final class JusterFordelingTjeneste {
+
+    private static final Logger LOG = LoggerFactory.getLogger(JusterFordelingTjeneste.class);
 
     private JusterFordelingTjeneste() {
     }
@@ -64,10 +69,16 @@ final class JusterFordelingTjeneste {
         var justering = RelasjonsRolleType.erMor(relasjonsRolleType) ?
             new MorsJustering(gammelFamiliehendelse, nyFamiliehendelse) :
             new FarsJustering(gammelFamiliehendelse, nyFamiliehendelse, ønskerJustertVedFødsel);
-        if (nyFamiliehendelse.isAfter(gammelFamiliehendelse)) {
-            return justering.justerVedFødselEtterTermin(oppgittePerioder);
+
+        try {
+            LOG.info("Justere uttak fra gammel {} til ny {} familiehendelse", gammelFamiliehendelse, nyFamiliehendelse);
+            return nyFamiliehendelse.isAfter(gammelFamiliehendelse)
+                ? justering.justerVedFødselEtterTermin(oppgittePerioder)
+                : justering.justerVedFødselFørTermin(oppgittePerioder);
+        } catch (Exception e) {
+            LOG.info("Fødselsjusterer feilet fra {} til {} for uttak: {}", gammelFamiliehendelse, nyFamiliehendelse, oppgittePerioder);
+            throw e;
         }
-        return justering.justerVedFødselFørTermin(oppgittePerioder);
     }
 
     private static List<OppgittPeriodeEntitet> splitPåDato(LocalDate dato,
