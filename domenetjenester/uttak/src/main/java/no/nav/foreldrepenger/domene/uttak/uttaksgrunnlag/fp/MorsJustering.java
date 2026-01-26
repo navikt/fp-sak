@@ -200,10 +200,10 @@ class MorsJustering implements ForelderFødselJustering {
     }
 
     private static int antallDagerSkøvetInnIHullFørDato(LocalDate fom, List<OppgittPeriodeEntitet> justertePerioder, List<OppgittPeriodeEntitet> ikkeFlyttbarePerioder) {
-        var ikkeFlyttbarTimeline = tilLocalDateTimeLine(ikkeFlyttbarePerioder);
+        var alleHull = tilLocalDateTimeLine(ikkeFlyttbarePerioder.stream().filter(JusterPeriodeHull.class::isInstance).toList());
         var tidligereJustertePerioder = tilLocalDateTimeLine(justertePerioder);
         var gjeldendeIntervall = new LocalDateInterval(LocalDateInterval.TIDENES_BEGYNNELSE, fom);
-        return ikkeFlyttbarTimeline.intersection(tidligereJustertePerioder).intersection(gjeldendeIntervall).stream()
+        return alleHull.intersection(tidligereJustertePerioder).intersection(gjeldendeIntervall).stream()
             .mapToInt(seg -> beregnAntallVirkedager(seg.getFom(), seg.getTom()))
             .sum();
     }
