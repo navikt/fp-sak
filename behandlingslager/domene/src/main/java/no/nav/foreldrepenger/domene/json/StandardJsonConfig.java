@@ -59,7 +59,7 @@ public final class StandardJsonConfig {
 
     public static <T> T fromJson(URL json, Class<T> clazz) {
         try {
-            return OM.readerFor(clazz).readValue(json);
+            return OM.readerFor(clazz).readValue(json.openStream());
         } catch (IOException e) {
             throw deserialiseringException(e);
         }

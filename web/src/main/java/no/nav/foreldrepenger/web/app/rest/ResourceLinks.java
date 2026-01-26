@@ -1,10 +1,10 @@
 package no.nav.foreldrepenger.web.app.rest;
 
 import com.fasterxml.jackson.annotation.JsonAnySetter;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 import no.nav.foreldrepenger.konfig.Environment;
 import no.nav.foreldrepenger.web.app.konfig.ApiConfig;
+import no.nav.vedtak.mapper.json.DefaultJsonMapper;
 
 public final class ResourceLinks {
 
@@ -46,8 +46,7 @@ public final class ResourceLinks {
 
     public static String toQuery(Object queryParams) {
         if (queryParams != null) {
-            var mapper = new ObjectMapper();
-            var mappedQueryParams = mapper.convertValue(queryParams, UriFormat.class).toString();
+            var mappedQueryParams = DefaultJsonMapper.getJsonMapper().convertValue(queryParams, UriFormat.class).toString();
             if (!mappedQueryParams.isEmpty()) {
                 return "?" + mappedQueryParams;
             }
@@ -61,7 +60,7 @@ public final class ResourceLinks {
 
         @JsonAnySetter
         public void addToUri(String name, Object property) {
-            if (builder.length() > 0) {
+            if (!builder.isEmpty()) {
                 builder.append("&");
             }
             builder.append(name).append("=").append(property);
