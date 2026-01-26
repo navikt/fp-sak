@@ -2,7 +2,10 @@ package no.nav.foreldrepenger.web.app.tjenester.fpoversikt;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.AktivitetStatus;
+import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.OpptjeningAktivitetType;
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeType;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
+import no.nav.foreldrepenger.behandlingslager.uttak.PeriodeResultatType;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsgiver.ArbeidsgiverOpplysninger;
@@ -18,6 +21,15 @@ import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagPrStatusOgAndel;
 import no.nav.foreldrepenger.domene.modell.kodeverk.AndelKilde;
 import no.nav.foreldrepenger.domene.modell.kodeverk.BeregningsgrunnlagTilstand;
 import no.nav.foreldrepenger.domene.prosess.BeregningTjeneste;
+
+import no.nav.foreldrepenger.web.app.tjenester.behandling.beregningsresultat.BeregningsresultatRestTjeneste;
+
+import no.nav.foreldrepenger.web.app.tjenester.behandling.beregningsresultat.app.BeregningsresultatTjeneste;
+
+import no.nav.foreldrepenger.web.app.tjenester.behandling.beregningsresultat.dto.BeregningsresultatMedUttaksplanDto;
+import no.nav.foreldrepenger.web.app.tjenester.behandling.beregningsresultat.dto.BeregningsresultatPeriodeAndelDto;
+import no.nav.foreldrepenger.web.app.tjenester.behandling.beregningsresultat.dto.BeregningsresultatPeriodeDto;
+import no.nav.foreldrepenger.web.app.tjenester.behandling.beregningsresultat.dto.UttakDto;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -43,12 +55,14 @@ class BeregningOversiktDtoTjenesteTest {
     private InntektArbeidYtelseTjeneste inntektArbeidYtelseTjeneste;
     @Mock
     private BeregningTjeneste beregningTjeneste;
+    @Mock
+    private BeregningsresultatTjeneste beregningsresultatTjeneste;
 
     private BeregningOversiktDtoTjeneste beregningOversiktDtoTjeneste;
 
     @BeforeEach
     void setUp() {
-        beregningOversiktDtoTjeneste = new BeregningOversiktDtoTjeneste(beregningTjeneste, inntektArbeidYtelseTjeneste, arbeidsgiverTjeneste);
+        beregningOversiktDtoTjeneste = new BeregningOversiktDtoTjeneste(beregningTjeneste, inntektArbeidYtelseTjeneste, beregningsresultatTjeneste, arbeidsgiverTjeneste);
     }
 
     @Test
@@ -76,8 +90,36 @@ class BeregningOversiktDtoTjenesteTest {
                 List.of(InntektsmeldingBuilder.builder().medArbeidsgiver(Arbeidsgiver.virksomhet("9".repeat(9))).medBeløp(BigDecimal.TEN).build()))
             .build();
 
+        var uttakDto = UttakDto.build()
+            .medStønadskontoType(UttakPeriodeType.FORELDREPENGER)
+            .medPeriodeResultatType(PeriodeResultatType.INNVILGET)
+            .medGradering(false)
+            .create();
+
+        var andel = BeregningsresultatPeriodeAndelDto.build()
+            .medArbeidsgiverReferanse("9".repeat(9))
+            .medRefusjon(0)
+            .medTilSøker(1500)
+            .medUtbetalingsgrad(BigDecimal.valueOf(100))
+            .medSisteUtbetalingsdato(LocalDate.now().plusMonths(3))
+            .medAktivitetstatus(AktivitetStatus.ARBEIDSTAKER)
+            .medArbeidsforholdType(OpptjeningAktivitetType.ARBEID)
+            .medEksternArbeidsforholdId("ARB001")
+            .medUttak(uttakDto)
+            .create();
+
+        var periode = BeregningsresultatPeriodeDto.build()
+            .medFom(LocalDate.now())
+            .medTom(LocalDate.now().plusMonths(3))
+            .medDagsats(1500)
+            .medAndeler(List.of(andel))
+            .create();
+
+        var beregningsresultat = new BeregningsresultatMedUttaksplanDto(List.of(periode));
+
         when(inntektArbeidYtelseTjeneste.finnGrunnlag(any())).thenReturn(Optional.of(iaygr));
         when(beregningTjeneste.hent(any())).thenReturn(Optional.of(grunnlagBeregningsgrunnlag));
+        when(beregningsresultatTjeneste.lagBeregningsresultatMedUttaksplan(any())).thenReturn(Optional.of(beregningsresultat));
         when(arbeidsgiverTjeneste.hent(any())).thenReturn(new ArbeidsgiverOpplysninger("9".repeat(9), "Testbedriften"));
 
         var ref = BehandlingReferanse.fra(ScenarioMorSøkerForeldrepenger.forFødsel().lagMocked());
@@ -91,6 +133,8 @@ class BeregningOversiktDtoTjenesteTest {
         assertThat(dto.get().beregningsAndeler().getFirst().arbeidsforhold().arbeidsgivernavn()).isEqualTo("Testbedriften");
         assertThat(dto.get().beregningsAndeler().getFirst().fastsattPrÅr()).isEqualByComparingTo(BigDecimal.TEN);
         assertThat(dto.get().beregningsAndeler().getFirst().inntektsKilde()).isEqualTo(FpSak.Beregningsgrunnlag.InntektsKilde.INNTEKTSMELDING);
+        assertThat(dto.get().beregningsresultatMedUttaksplanDto().perioder().size()).isEqualTo(1);
+        assertThat(dto.get().beregningsresultatMedUttaksplanDto().perioder().getFirst().getDagsats()).isEqualTo(1500);
     }
 
     @Test

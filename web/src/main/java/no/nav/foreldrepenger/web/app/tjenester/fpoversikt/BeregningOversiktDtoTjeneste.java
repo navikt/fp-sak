@@ -29,19 +29,25 @@ import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagPrStatusOgAndel;
 import no.nav.foreldrepenger.domene.modell.kodeverk.AndelKilde;
 import no.nav.foreldrepenger.domene.prosess.BeregningTjeneste;
 import no.nav.foreldrepenger.konfig.Environment;
+import no.nav.foreldrepenger.web.app.tjenester.behandling.beregningsresultat.app.BeregningsresultatTjeneste;
+import no.nav.foreldrepenger.web.app.tjenester.behandling.beregningsresultat.dto.BeregningsresultatMedUttaksplanDto;
+import no.nav.foreldrepenger.ytelse.beregning.regelmodell.Beregningsresultat;
 
 @ApplicationScoped
 public class BeregningOversiktDtoTjeneste {
 
     private BeregningTjeneste beregningTjeneste;
     private InntektArbeidYtelseTjeneste inntektArbeidYtelseTjeneste;
+    private BeregningsresultatTjeneste beregningsresultatTjeneste;
     private ArbeidsgiverTjeneste arbeidsgiverTjeneste;
 
     @Inject
     public BeregningOversiktDtoTjeneste(BeregningTjeneste beregningTjeneste,
-                                        InntektArbeidYtelseTjeneste inntektArbeidYtelseTjeneste, ArbeidsgiverTjeneste arbeidsgiverTjeneste) {
+                                        InntektArbeidYtelseTjeneste inntektArbeidYtelseTjeneste,
+                                        BeregningsresultatTjeneste beregningsresultatTjeneste, ArbeidsgiverTjeneste arbeidsgiverTjeneste) {
         this.beregningTjeneste = beregningTjeneste;
         this.inntektArbeidYtelseTjeneste = inntektArbeidYtelseTjeneste;
+        this.beregningsresultatTjeneste = beregningsresultatTjeneste;
         this.arbeidsgiverTjeneste = arbeidsgiverTjeneste;
     }
 
@@ -60,10 +66,11 @@ public class BeregningOversiktDtoTjeneste {
             .flatMap(InntektArbeidYtelseGrunnlag::getInntektsmeldinger)
             .map(InntektsmeldingAggregat::getAlleInntektsmeldinger)
             .orElse(List.of());
-        return grBeregningsgrunnlag.flatMap(BeregningsgrunnlagGrunnlag::getBeregningsgrunnlag).flatMap(bg -> mapBeregning(bg, inntektsmeldinger));
+        var beregningsresultat = beregningsresultatTjeneste.lagBeregningsresultatMedUttaksplan(ref);
+        return grBeregningsgrunnlag.flatMap(BeregningsgrunnlagGrunnlag::getBeregningsgrunnlag).flatMap(bg -> mapBeregning(bg, beregningsresultat, inntektsmeldinger));
     }
 
-    private Optional<FpSak.Beregningsgrunnlag> mapBeregning(Beregningsgrunnlag beregningsgrunnlag, List<Inntektsmelding> inntektsmeldinger) {
+    private Optional<FpSak.Beregningsgrunnlag> mapBeregning(Beregningsgrunnlag beregningsgrunnlag, Optional<BeregningsresultatMedUttaksplanDto> beregningsresultat, List<Inntektsmelding> inntektsmeldinger) {
         if (gjelderBesteberegning(beregningsgrunnlag)) {
             // TODO -- implementeres senere
             return Optional.empty();
@@ -71,7 +78,7 @@ public class BeregningOversiktDtoTjeneste {
         var aktivitetStatuser = beregningsgrunnlag.getAktivitetStatuser().stream().map(this::mapAktivitetStatusMedHjemmel).toList();
         var beregningsAndeler = førsteBeregningsperiode(beregningsgrunnlag).map(førstePeriode -> mapAndeler(førstePeriode.getBeregningsgrunnlagPrStatusOgAndelList(), inntektsmeldinger)).orElse(List.of());
         var grunnbeløp = beregningsgrunnlag.getGrunnbeløp() == null ? null : beregningsgrunnlag.getGrunnbeløp().getVerdi();
-        return Optional.of(new FpSak.Beregningsgrunnlag(beregningsgrunnlag.getSkjæringstidspunkt(), beregningsAndeler, aktivitetStatuser, grunnbeløp));
+        return Optional.of(new FpSak.Beregningsgrunnlag(beregningsgrunnlag.getSkjæringstidspunkt(), beregningsAndeler, aktivitetStatuser, grunnbeløp, beregningsresultat.orElse(null)));
     }
 
     private static Optional<BeregningsgrunnlagPeriode> førsteBeregningsperiode(Beregningsgrunnlag beregningsgrunnlag) {
