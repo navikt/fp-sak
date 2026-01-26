@@ -7,6 +7,7 @@ import static no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.
 import static no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeType.MØDREKVOTE;
 import static no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.UtsettelseÅrsak.ARBEID;
 import static no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.UtsettelseÅrsak.FERIE;
+import static no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.UtsettelseÅrsak.SYKDOM;
 import static no.nav.foreldrepenger.domene.uttak.uttaksgrunnlag.fp.JusterFordelingTjeneste.erHelg;
 import static no.nav.foreldrepenger.domene.uttak.uttaksgrunnlag.fp.JusterFordelingTjeneste.flyttFraHelgTilFredag;
 import static no.nav.foreldrepenger.domene.uttak.uttaksgrunnlag.fp.JusterFordelingTjeneste.flyttFraHelgTilMandag;
@@ -2260,7 +2261,33 @@ class JusterFordelingTjenesteTest {
         assertThat(justertePerioder.get(0).getPeriodeType()).isEqualTo(MØDREKVOTE);
         assertThat(justertePerioder.get(1)).isEqualTo(felles1);
         assertThat(justertePerioder.get(2)).isEqualTo(felles2);
+    }
 
+    //---|----uu-  --  --   (2 dag forskyvning)
+    //  ---|		        (2 dag forskyvning)
+    //  ---|--  --		    (2 dag forskyvning, fyller hull)
+    //  ---|--uu--		    (2 dag forskyvning)
+    //  ---|--uu-- -		(2 dag forskyvning, full forskyvning siden fylte hull er etter starten av denne perioden)
+    //  ---|--uu-- --  - 	(1 dag forskyvning, redusert forskyvning tilsvarende fylte hull som er før starten av denne perioden)
+    //  ---|--uu-- --  --- 	(1 dag forskyvning)
+    @Test
+    void mødrekvote_skal_fylle_hull_hvis_innenfor_de_6_første_ukene_ved_justering_og_senere_justering_må_redusere_forskyvning_i_henhold_til_hvor_mye_hullet_er_tettet() {
+        var termindato = LocalDate.of(2025, 9, 8);
+        var fødselsdato = LocalDate.of(2025, 9, 18);
+
+        var oppgittePerioder = List.of(
+            lagPeriode(FORELDREPENGER_FØR_FØDSEL, LocalDate.of(2025, 8, 18), LocalDate.of(2025, 9, 5)),
+            lagPeriode(MØDREKVOTE, LocalDate.of(2025, 9, 8), LocalDate.of(2025, 10, 6)),
+            lagUtsettelse(LocalDate.of(2025, 10, 7), LocalDate.of(2025, 10, 16), SYKDOM),
+            lagUtsettelse(LocalDate.of(2025, 10, 17), LocalDate.of(2025, 10, 17), SYKDOM),
+            lagPeriode(MØDREKVOTE, LocalDate.of(2025, 10, 20), LocalDate.of(2025, 10, 24)),
+            // hull som delvis fylles med mødrekvote ved justering
+            lagPeriode(MØDREKVOTE, LocalDate.of(2025, 10, 30), LocalDate.of(2025, 12, 24))
+        );
+
+        var justertePerioder = juster(oppgittePerioder, termindato, fødselsdato);
+
+        assertThat(justertePerioder).isNotEmpty();
 
     }
 
