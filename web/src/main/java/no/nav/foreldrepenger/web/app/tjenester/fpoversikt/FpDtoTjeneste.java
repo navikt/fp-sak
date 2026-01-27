@@ -63,6 +63,7 @@ public class FpDtoTjeneste {
     private SøknadRepository søknadRepository;
     private EøsUttakRepository eøsUttakRepository;
     private BeregningOversiktDtoTjeneste beregningOversiktDtoTjeneste;
+    private TilkjentYtelseDtoTjeneste tilkjentYtelseDtoTjeneste;
 
     @Inject
     public FpDtoTjeneste(BehandlingRepositoryProvider repositoryProvider,
@@ -72,7 +73,7 @@ public class FpDtoTjeneste {
                          UføretrygdRepository uføretrygdRepository,
                          DtoTjenesteFelles felles,
                          DekningsgradTjeneste dekningsgradTjeneste, EøsUttakRepository eøsUttakRepository,
-                         BeregningOversiktDtoTjeneste beregningOversiktDtoTjeneste) {
+                         BeregningOversiktDtoTjeneste beregningOversiktDtoTjeneste, TilkjentYtelseDtoTjeneste tilkjentYtelseDtoTjeneste) {
         this.behandlingRepository = repositoryProvider.getBehandlingRepository();
         this.dekningsgradTjeneste = dekningsgradTjeneste;
         this.foreldrepengerUttakTjeneste = foreldrepengerUttakTjeneste;
@@ -83,6 +84,7 @@ public class FpDtoTjeneste {
         this.søknadRepository = repositoryProvider.getSøknadRepository();
         this.eøsUttakRepository = eøsUttakRepository;
         this.beregningOversiktDtoTjeneste = beregningOversiktDtoTjeneste;
+        this.tilkjentYtelseDtoTjeneste = tilkjentYtelseDtoTjeneste;
     }
 
     FpDtoTjeneste() {
@@ -349,7 +351,7 @@ public class FpDtoTjeneste {
             .map(this::map)
             .toList();
         var beregningsgrunnlag = beregningOversiktDtoTjeneste.lagDtoForBehandling(ref);
-        var tilkjentYtelse = beregningOversiktDtoTjeneste.lagDtoForTilkjentYtelse(ref);
+        var tilkjentYtelse = tilkjentYtelseDtoTjeneste.lagDtoForTilkjentYtelse(ref);
 
         return new FpSak.Vedtak(vedtak.getVedtakstidspunkt(), uttaksperioder, dekningsgrad.map(FpDtoTjeneste::tilDekningsgradDto).orElse(null),
             annenpartEøsUttaksperioder, beregningsgrunnlag.orElse(null), tilkjentYtelse);

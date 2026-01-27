@@ -40,7 +40,6 @@ public class BeregningOversiktDtoTjeneste {
     private BeregningTjeneste beregningTjeneste;
     private InntektArbeidYtelseTjeneste inntektArbeidYtelseTjeneste;
     private ArbeidsgiverTjeneste arbeidsgiverTjeneste;
-    private BeregningsresultatRepository beregningsresultatRepository;
 
     @Inject
     public BeregningOversiktDtoTjeneste(BeregningTjeneste beregningTjeneste,
@@ -50,7 +49,6 @@ public class BeregningOversiktDtoTjeneste {
         this.beregningTjeneste = beregningTjeneste;
         this.inntektArbeidYtelseTjeneste = inntektArbeidYtelseTjeneste;
         this.arbeidsgiverTjeneste = arbeidsgiverTjeneste;
-        this.beregningsresultatRepository = beregningsresultatRepository;
     }
 
     public BeregningOversiktDtoTjeneste() {
@@ -86,34 +84,6 @@ public class BeregningOversiktDtoTjeneste {
             new FpSak.Beregningsgrunnlag(beregningsgrunnlag.getSkjæringstidspunkt(), beregningsAndeler, aktivitetStatuser, grunnbeløp));
     }
 
-    public List<FpSak.TilkjentYtelsePeriode> lagDtoForTilkjentYtelse(BehandlingReferanse ref) {
-        var beregningsresultatEntitet = beregningsresultatRepository.hentBeregningsresultatAggregat(ref.behandlingId());
-
-        if (beregningsresultatEntitet.isEmpty()) {
-            return List.of();
-        }
-
-        return beregningsresultatEntitet.get()
-            .getBgBeregningsresultatFP()
-            .getBeregningsresultatPerioder()
-            .stream()
-            .map(this::mapTilkjentYtelsePeriode)
-            .toList();
-    }
-
-    private FpSak.TilkjentYtelsePeriode mapTilkjentYtelsePeriode(BeregningsresultatPeriode periode) {
-        var andeler = periode.getBeregningsresultatAndelList().stream().map(this::mapTilkjentYtelseAndel).toList();
-        return new FpSak.TilkjentYtelsePeriode(periode.getBeregningsresultatPeriodeFom(),
-            periode.getBeregningsresultatPeriodeTom(), andeler);
-    }
-
-    private FpSak.TilkjentYtelsePeriode.Andel mapTilkjentYtelseAndel(BeregningsresultatAndel andel) {
-        var arbeidsgiverIdent = andel.getArbeidsgiver().map(Arbeidsgiver::getIdentifikator).orElse(null);
-        var arbeidsgivernavn = andel.getArbeidsgiver().map(arbeidsgiverTjeneste::hent).map(ArbeidsgiverOpplysninger::getNavn).orElse(null);
-
-        return new FpSak.TilkjentYtelsePeriode.Andel(mapAktivitetstatus(andel.getAktivitetStatus()), arbeidsgiverIdent,
-            arbeidsgivernavn, andel.getDagsats(), andel.erBrukerMottaker(), andel.getUtbetalingsgrad().doubleValue());
-    }
 
     private static Optional<BeregningsgrunnlagPeriode> førsteBeregningsperiode(Beregningsgrunnlag beregningsgrunnlag) {
         return beregningsgrunnlag.getBeregningsgrunnlagPerioder()
