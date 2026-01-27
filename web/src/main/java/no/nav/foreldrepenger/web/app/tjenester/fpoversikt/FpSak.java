@@ -26,15 +26,25 @@ record FpSak(String saksnummer,
         HUNDRE
     }
 
-    record Vedtak(LocalDateTime vedtakstidspunkt, List<Uttaksperiode> uttaksperioder, Dekningsgrad dekningsgrad,
-                  List<EøsUttaksperiode> annenpartEøsUttaksperioder, Beregningsgrunnlag beregningsgrunnlag) {
+    record Vedtak(LocalDateTime vedtakstidspunkt,
+                  List<Uttaksperiode> uttaksperioder,
+                  Dekningsgrad dekningsgrad,
+                  List<EøsUttaksperiode> annenpartEøsUttaksperioder,
+                  Beregningsgrunnlag beregningsgrunnlag,
+                  List<TilkjentYtelsePeriode> tilkjentYtelse) {
         record EøsUttaksperiode(LocalDate fom, LocalDate tom, BigDecimal trekkdager, Konto konto) {
         }
     }
 
-    record Uttaksperiode(LocalDate fom, LocalDate tom, UtsettelseÅrsak utsettelseÅrsak, OppholdÅrsak oppholdÅrsak,
-                         OverføringÅrsak overføringÅrsak, BigDecimal samtidigUttak, Boolean flerbarnsdager,
-                         MorsAktivitet morsAktivitet, Resultat resultat) {
+    record Uttaksperiode(LocalDate fom,
+                         LocalDate tom,
+                         UtsettelseÅrsak utsettelseÅrsak,
+                         OppholdÅrsak oppholdÅrsak,
+                         OverføringÅrsak overføringÅrsak,
+                         BigDecimal samtidigUttak,
+                         Boolean flerbarnsdager,
+                         MorsAktivitet morsAktivitet,
+                         Resultat resultat) {
         record Resultat(Type type, Årsak årsak, Set<UttaksperiodeAktivitet> aktiviteter, boolean trekkerMinsterett) {
 
             enum Type {
@@ -57,15 +67,36 @@ record FpSak(String saksnummer,
         }
     }
 
-    record Beregningsgrunnlag(LocalDate skjæringstidspunkt, List<BeregningsAndel> beregningsAndeler, List<BeregningAktivitetStatus> beregningAktivitetStatuser, BigDecimal grunnbeløp,
-                              no.nav.foreldrepenger.web.app.tjenester.behandling.beregningsresultat.dto.BeregningsresultatMedUttaksplanDto beregningsresultatMedUttaksplanDto) {
+    record TilkjentYtelsePeriode(LocalDate fom, LocalDate tom, List<Andel> andeler) {
+        record Andel(Beregningsgrunnlag.AktivitetStatus aktivitetStatus,
+                     String arbeidsgiverIdent,
+                     String arbeidsgivernavn,
+                     Integer dagsats,
+                     boolean tilBruker,
+                     Double utbetalingsgrad) {
+        }
+    }
 
-        record BeregningsAndel(AktivitetStatus aktivitetStatus, BigDecimal fastsattPrÅr, InntektsKilde inntektsKilde,
-                               Arbeidsforhold arbeidsforhold, BigDecimal dagsatsArbeidsgiver, BigDecimal dagsatsSøker) {}
+    record Beregningsgrunnlag(LocalDate skjæringstidspunkt,
+                              List<BeregningsAndel> beregningsAndeler,
+                              List<BeregningAktivitetStatus> beregningAktivitetStatuser,
+                              BigDecimal grunnbeløp) {
 
-        record Arbeidsforhold(String arbeidsgiverIdent, String arbeidsgivernavn, BigDecimal refusjonPrMnd) {}
 
-        record BeregningAktivitetStatus(AktivitetStatus aktivitetStatus, Hjemmel hjemmel) {}
+        record BeregningsAndel(AktivitetStatus aktivitetStatus,
+                               BigDecimal fastsattPrÅr,
+                               InntektsKilde inntektsKilde,
+                               Arbeidsforhold arbeidsforhold,
+                               BigDecimal dagsatsArbeidsgiver,
+                               BigDecimal dagsatsSøker) {
+        }
+
+        record Arbeidsforhold(String arbeidsgiverIdent, String arbeidsgivernavn, BigDecimal refusjonPrMnd) {
+        }
+
+        record BeregningAktivitetStatus(AktivitetStatus aktivitetStatus, Hjemmel hjemmel) {
+        }
+
         enum AktivitetStatus {
             ARBEIDSAVKLARINGSPENGER,
             ARBEIDSTAKER,
@@ -80,6 +111,7 @@ record FpSak(String saksnummer,
             BRUKERS_ANDEL,
             KUN_YTELSE,
         }
+
         enum InntektsKilde {
             INNTEKTSMELDING,
             A_INNTEKT,
@@ -89,17 +121,26 @@ record FpSak(String saksnummer,
         }
     }
 
-    record Søknad(SøknadStatus status, LocalDateTime mottattTidspunkt, Set<Periode> perioder, Dekningsgrad dekningsgrad,
-                  boolean morArbeidUtenDok) {
+    record Søknad(SøknadStatus status, LocalDateTime mottattTidspunkt, Set<Periode> perioder, Dekningsgrad dekningsgrad, boolean morArbeidUtenDok) {
 
-        record Periode(LocalDate fom, LocalDate tom, Konto konto, UtsettelseÅrsak utsettelseÅrsak, OppholdÅrsak oppholdÅrsak,
-                       OverføringÅrsak overføringÅrsak, Gradering gradering, BigDecimal samtidigUttak, boolean flerbarnsdager,
+        record Periode(LocalDate fom,
+                       LocalDate tom,
+                       Konto konto,
+                       UtsettelseÅrsak utsettelseÅrsak,
+                       OppholdÅrsak oppholdÅrsak,
+                       OverføringÅrsak overføringÅrsak,
+                       Gradering gradering,
+                       BigDecimal samtidigUttak,
+                       boolean flerbarnsdager,
                        MorsAktivitet morsAktivitet) {
         }
     }
 
     enum BrukerRolle {
-        MOR, FAR, MEDMOR, UKJENT
+        MOR,
+        FAR,
+        MEDMOR,
+        UKJENT
     }
 
     record Rettigheter(boolean aleneomsorg, boolean morUføretrygd, boolean annenForelderTilsvarendeRettEØS) {

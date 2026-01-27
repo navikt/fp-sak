@@ -341,15 +341,18 @@ public class FpDtoTjeneste {
         var behandlingId = vedtak.getBehandlingsresultat().getBehandlingId();
         var uttaksperioder = finnUttaksperioder(behandlingId);
         var behandling = behandlingRepository.hentBehandling(behandlingId);
-        var dekningsgrad = dekningsgradTjeneste.finnGjeldendeDekningsgradHvisEksisterer(BehandlingReferanse.fra(behandling));
+        var ref = BehandlingReferanse.fra(behandling);
+        var dekningsgrad = dekningsgradTjeneste.finnGjeldendeDekningsgradHvisEksisterer(ref);
         var annenpartEøsUttaksperioder = eøsUttakRepository.hentGrunnlag(behandlingId)
             .stream()
             .flatMap(g -> g.getSaksbehandlerPerioderEntitet().getPerioder().stream())
             .map(this::map)
             .toList();
-        var beregningsgrunnlag = beregningOversiktDtoTjeneste.lagDtoForBehandling(BehandlingReferanse.fra(behandling));
+        var beregningsgrunnlag = beregningOversiktDtoTjeneste.lagDtoForBehandling(ref);
+        var tilkjentYtelse = beregningOversiktDtoTjeneste.lagDtoForTilkjentYtelse(ref);
+
         return new FpSak.Vedtak(vedtak.getVedtakstidspunkt(), uttaksperioder, dekningsgrad.map(FpDtoTjeneste::tilDekningsgradDto).orElse(null),
-            annenpartEøsUttaksperioder, beregningsgrunnlag.orElse(null));
+            annenpartEøsUttaksperioder, beregningsgrunnlag.orElse(null), tilkjentYtelse);
     }
 
     private FpSak.Vedtak.EøsUttaksperiode map(EøsUttaksperiodeEntitet p) {
