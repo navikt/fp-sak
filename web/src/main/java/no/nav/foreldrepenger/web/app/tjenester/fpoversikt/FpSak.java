@@ -81,9 +81,7 @@ record FpSak(String saksnummer,
         record BeregningsAndel(AktivitetStatus aktivitetStatus,
                                BigDecimal fastsattPrÅr,
                                InntektsKilde inntektsKilde,
-                               Arbeidsforhold arbeidsforhold,
-                               BigDecimal dagsatsArbeidsgiver,
-                               BigDecimal dagsatsSøker) {
+                               Arbeidsforhold arbeidsforhold) {
         }
 
         record Arbeidsforhold(String arbeidsgiverIdent, String arbeidsgivernavn, BigDecimal refusjonPrMnd) {

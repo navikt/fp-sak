@@ -14,7 +14,6 @@ import jakarta.inject.Inject;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.AktivitetStatus;
-import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatRepository;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsgiver.ArbeidsgiverTjeneste;
@@ -41,8 +40,7 @@ public class BeregningOversiktDtoTjeneste {
     @Inject
     public BeregningOversiktDtoTjeneste(BeregningTjeneste beregningTjeneste,
                                         InntektArbeidYtelseTjeneste inntektArbeidYtelseTjeneste,
-                                        ArbeidsgiverTjeneste arbeidsgiverTjeneste,
-                                        BeregningsresultatRepository beregningsresultatRepository) {
+                                        ArbeidsgiverTjeneste arbeidsgiverTjeneste) {
         this.beregningTjeneste = beregningTjeneste;
         this.inntektArbeidYtelseTjeneste = inntektArbeidYtelseTjeneste;
         this.arbeidsgiverTjeneste = arbeidsgiverTjeneste;
@@ -154,7 +152,7 @@ public class BeregningOversiktDtoTjeneste {
                 .orElse(0L);
 
             return new FpSak.Beregningsgrunnlag.BeregningsAndel(FpSak.Beregningsgrunnlag.AktivitetStatus.ARBEIDSTAKER, fastsattPerÅr, inntektsKilde,
-                arbeidsforhold, BigDecimal.valueOf(dagsatsArbeidsgiver), BigDecimal.valueOf(dagsatsSøker));
+                arbeidsforhold);
         }).toList();
     }
 
@@ -163,25 +161,23 @@ public class BeregningOversiktDtoTjeneste {
         var fastsattPrÅr = erSkjønsfastsatt ? andel.getOverstyrtPrÅr() : andel.getBeregnetPrÅr();
         if (andel.getAktivitetStatus().equals(AktivitetStatus.SELVSTENDIG_NÆRINGSDRIVENDE)) {
             var inntektsKilde = erSkjønsfastsatt ? FpSak.Beregningsgrunnlag.InntektsKilde.SKJØNNSFASTSATT : FpSak.Beregningsgrunnlag.InntektsKilde.PENSJONSGIVENDE_INNTEKT;
-            return new FpSak.Beregningsgrunnlag.BeregningsAndel(mapAktivitetstatus(andel.getAktivitetStatus()), fastsattPrÅr, inntektsKilde, null,
-                null, mapDagsats(andel));
+            return new FpSak.Beregningsgrunnlag.BeregningsAndel(mapAktivitetstatus(andel.getAktivitetStatus()), fastsattPrÅr, inntektsKilde, null);
         }
         if (andel.getAktivitetStatus().equals(AktivitetStatus.FRILANSER)) {
             var inntektsKilde = erSkjønsfastsatt ? FpSak.Beregningsgrunnlag.InntektsKilde.SKJØNNSFASTSATT : FpSak.Beregningsgrunnlag.InntektsKilde.A_INNTEKT;
-            return new FpSak.Beregningsgrunnlag.BeregningsAndel(mapAktivitetstatus(andel.getAktivitetStatus()), fastsattPrÅr, inntektsKilde, null,
-                null, mapDagsats(andel));
+            return new FpSak.Beregningsgrunnlag.BeregningsAndel(mapAktivitetstatus(andel.getAktivitetStatus()), fastsattPrÅr, inntektsKilde, null);
         }
         if (andel.getAktivitetStatus().equals(AktivitetStatus.ARBEIDSAVKLARINGSPENGER)) {
             return new FpSak.Beregningsgrunnlag.BeregningsAndel(mapAktivitetstatus(andel.getAktivitetStatus()), fastsattPrÅr,
-                FpSak.Beregningsgrunnlag.InntektsKilde.VEDTAK_ANNEN_YTELSE, null, null, mapDagsats(andel));
+                FpSak.Beregningsgrunnlag.InntektsKilde.VEDTAK_ANNEN_YTELSE, null);
         }
         if (andel.getAktivitetStatus().equals(AktivitetStatus.DAGPENGER)) {
             return new FpSak.Beregningsgrunnlag.BeregningsAndel(mapAktivitetstatus(andel.getAktivitetStatus()), fastsattPrÅr,
-                FpSak.Beregningsgrunnlag.InntektsKilde.VEDTAK_ANNEN_YTELSE, null, null, mapDagsats(andel));
+                FpSak.Beregningsgrunnlag.InntektsKilde.VEDTAK_ANNEN_YTELSE, null);
         }
         if (andel.getAktivitetStatus().equals(AktivitetStatus.BRUKERS_ANDEL)) {
             return new FpSak.Beregningsgrunnlag.BeregningsAndel(mapAktivitetstatus(andel.getAktivitetStatus()), fastsattPrÅr,
-                FpSak.Beregningsgrunnlag.InntektsKilde.SKJØNNSFASTSATT, null, null, mapDagsats(andel));
+                FpSak.Beregningsgrunnlag.InntektsKilde.SKJØNNSFASTSATT, null);
         }
         if (andel.getAktivitetStatus().equals(AktivitetStatus.MILITÆR_ELLER_SIVIL)) {
             throw new IllegalStateException("Støttes ikke ennå");
@@ -189,12 +185,6 @@ public class BeregningOversiktDtoTjeneste {
         throw new IllegalStateException("Ukjent aktivitetstatus uten arbeidsforhold: " + andel.getAktivitetStatus());
     }
 
-    private static BigDecimal mapDagsats(BeregningsgrunnlagPrStatusOgAndel andel) {
-        if (andel.getDagsats() == null) {
-            return null;
-        }
-        return BigDecimal.valueOf(andel.getDagsats());
-    }
 
     private FpSak.Beregningsgrunnlag.AktivitetStatus mapAktivitetstatus(AktivitetStatus aktivitetStatus) {
         return switch (aktivitetStatus) {

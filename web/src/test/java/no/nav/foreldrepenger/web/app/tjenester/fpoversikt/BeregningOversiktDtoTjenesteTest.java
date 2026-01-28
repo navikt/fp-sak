@@ -2,11 +2,9 @@ package no.nav.foreldrepenger.web.app.tjenester.fpoversikt;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.AktivitetStatus;
-import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BehandlingBeregningsresultatBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatAndel;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatPeriode;
-import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.Inntektskategori;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
@@ -49,15 +47,13 @@ class BeregningOversiktDtoTjenesteTest {
     private InntektArbeidYtelseTjeneste inntektArbeidYtelseTjeneste;
     @Mock
     private BeregningTjeneste beregningTjeneste;
-    @Mock
-    private BeregningsresultatRepository beregningsresultatRepository;
+
 
     private BeregningOversiktDtoTjeneste beregningOversiktDtoTjeneste;
 
     @BeforeEach
     void setUp() {
-        beregningOversiktDtoTjeneste = new BeregningOversiktDtoTjeneste(beregningTjeneste, inntektArbeidYtelseTjeneste, arbeidsgiverTjeneste,
-            beregningsresultatRepository);
+        beregningOversiktDtoTjeneste = new BeregningOversiktDtoTjeneste(beregningTjeneste, inntektArbeidYtelseTjeneste, arbeidsgiverTjeneste);
     }
 
     @Test
@@ -86,10 +82,7 @@ class BeregningOversiktDtoTjenesteTest {
             .build();
 
         // Opprett beregningsresultat med periode og andel
-        var beregningsresultatEntitet = BeregningsresultatEntitet.builder()
-            .medRegelInput("")
-            .medRegelSporing("")
-            .build();
+        var beregningsresultatEntitet = BeregningsresultatEntitet.builder().medRegelInput("").medRegelSporing("").build();
 
         var beregningsresultatPeriode = BeregningsresultatPeriode.builder()
             .medBeregningsresultatPeriodeFomOgTom(LocalDate.now(), LocalDate.now().plusDays(30))
@@ -106,13 +99,9 @@ class BeregningOversiktDtoTjenesteTest {
             .medUtbetalingsgrad(BigDecimal.valueOf(100))
             .build(beregningsresultatPeriode);
 
-        var beregningsresultat = BehandlingBeregningsresultatBuilder.ny()
-            .medBgBeregningsresultatFP(beregningsresultatEntitet)
-            .build(1L);
 
         when(inntektArbeidYtelseTjeneste.finnGrunnlag(any())).thenReturn(Optional.of(iaygr));
         when(beregningTjeneste.hent(any())).thenReturn(Optional.of(grunnlagBeregningsgrunnlag));
-        when(beregningsresultatRepository.hentBeregningsresultatAggregat(any())).thenReturn(Optional.of(beregningsresultat));
         when(arbeidsgiverTjeneste.hent(any())).thenReturn(new ArbeidsgiverOpplysninger("9".repeat(9), "Testbedriften"));
 
         var ref = BehandlingReferanse.fra(ScenarioMorSøkerForeldrepenger.forFødsel().lagMocked());
