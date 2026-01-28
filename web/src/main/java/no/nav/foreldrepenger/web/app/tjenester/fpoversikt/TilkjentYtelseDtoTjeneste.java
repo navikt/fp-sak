@@ -2,6 +2,8 @@ package no.nav.foreldrepenger.web.app.tjenester.fpoversikt;
 
 import jakarta.enterprise.context.ApplicationScoped;
 
+import jakarta.inject.Inject;
+
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatAndel;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatPeriode;
@@ -22,6 +24,7 @@ public class TilkjentYtelseDtoTjeneste {
         // CDI
     }
 
+    @Inject
     public TilkjentYtelseDtoTjeneste(BeregningsresultatRepository beregningsresultatRepository, ArbeidsgiverTjeneste arbeidsgiverTjeneste) {
         this.beregningsresultatRepository = beregningsresultatRepository;
         this.arbeidsgiverTjeneste = arbeidsgiverTjeneste;
