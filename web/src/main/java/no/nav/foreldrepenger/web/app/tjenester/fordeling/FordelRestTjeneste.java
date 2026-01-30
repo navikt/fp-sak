@@ -271,25 +271,6 @@ public class FordelRestTjeneste {
     }
 
     @POST
-    @Path("/sakInntektsmelding")
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
-    @Operation(description = "Sjekker om det finnes en sak som potensielt kan knyttes til inntektsmelding med gitt startdato", tags = "fordel")
-    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK, sporingslogg = false)
-    public Response sjekkSakForInntektsmelding(@TilpassetAbacAttributt(supplierClass = SakInntektsmeldingDtoAbacDataSupplier.class) @Parameter(description = "AktørId") @Valid SakInntektsmeldingDto sakInntektsmeldingDto) {
-        ensureCallId();
-        if (!AktørId.erGyldigAktørId(sakInntektsmeldingDto.bruker().aktørId())) {
-            throw new IllegalArgumentException("Oppgitt aktørId er ikke en gyldig ident.");
-        }
-        var søkersFagsaker = fagsakTjeneste.finnFagsakerForAktør(new AktørId(sakInntektsmeldingDto.bruker().aktørId()));
-        var ytelseDetSjekkesMot = sakInntektsmeldingDto.ytelse().equals(SakInntektsmeldingDto.YtelseType.FORELDREPENGER) ? FagsakYtelseType.FORELDREPENGER : FagsakYtelseType.SVANGERSKAPSPENGER;
-        var finnesSakPåSøkerForYtelse = søkersFagsaker.stream()
-            .filter(fag -> !fag.getStatus().equals(FagsakStatus.AVSLUTTET))
-            .anyMatch(fag -> erÅpenForBehandling(fag.getId()) && fag.getYtelseType().equals(ytelseDetSjekkesMot));
-        return Response.ok(new SakInntektsmeldingResponse(finnesSakPåSøkerForYtelse)).build();
-    }
-
-    @POST
     @Path("/infoOmSakInntektsmelding")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
@@ -362,19 +343,6 @@ public class FordelRestTjeneste {
         VENTER_PÅ_SØKNAD,
         PAPIRSØKNAD_IKKE_REGISTRERT,
         INGEN_BEHANDLING
-    }
-
-    private boolean erÅpenForBehandling(Long fagsakId) {
-        var behandling = behandlingRepository.hentSisteYtelsesBehandlingForFagsakId(fagsakId);
-        // I enkelte tilfeller skal vi ikke tillate innsending av inntektsmelding selv om det finnes sak, fordi saken reelt sett ikke er klar for behandling
-        return behandling.map(b -> b.getAksjonspunkter().stream()
-            .noneMatch(ap -> stårIÅpentAksjonspunkt(ap, Set.of(AksjonspunktDefinisjon.VENT_PGA_FOR_TIDLIG_SØKNAD,
-                AksjonspunktDefinisjon.VENT_PÅ_SØKNAD, AksjonspunktDefinisjon.REGISTRER_PAPIRSØKNAD_FORELDREPENGER))))
-            .orElse(false);
-    }
-
-    private boolean stårIÅpentAksjonspunkt(Aksjonspunkt ap, Set<AksjonspunktDefinisjon> definisjoner) {
-        return ap.getStatus().equals(AksjonspunktStatus.OPPRETTET) && definisjoner.contains(ap.getAksjonspunktDefinisjon());
     }
 
     public record AktørIdDto(@NotNull @Digits(integer = 19, fraction = 0) String aktørId) {
