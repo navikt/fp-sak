@@ -190,8 +190,7 @@ public class ForvaltningUttrekkRestTjeneste {
             return Optional.empty();
         }
 
-//        var task = ProsessTaskData.forProsessTask(TilbakeføringTilStegTask.class);
-        var task = ProsessTaskData.forProsessTask(TilbakeføringBeregningRefusjonstilfelleTask.class);
+        var task = ProsessTaskData.forProsessTask(TilbakeføringTilStegTask.class);
         task.setBehandling(behandling.getSaksnummer().getVerdi(), behandling.getFagsakId(), behandling.getId());
         return Optional.of(task);
     }
