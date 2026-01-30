@@ -29,18 +29,18 @@
         <fp-tidsserie.version>2.7.3</fp-tidsserie.version>
         <fp-nare.version>2.6.3</fp-nare.version>
         <fp-inngangsvilkar.version>1.1.4</fp-inngangsvilkar.version>
-        <beregning.version>6.4.2</beregning.version>
+        <beregning.version>6.5.1</beregning.version>
         <fp-uttak.version>15.5.3</fp-uttak.version>
         <fp-stonadskonto.version>2.1.1</fp-stonadskonto.version>
         <svp-uttak.version>2.4.6</svp-uttak.version>
         <fp-ytelse-beregn.version>1.0.4</fp-ytelse-beregn.version>
-        <fpkalkulus.kontrakt.version>1.0.1</fpkalkulus.kontrakt.version>
+        <fpkalkulus.kontrakt.version>1.0.2</fpkalkulus.kontrakt.version>
 
-        <felles.version>7.6.12</felles.version>
+        <felles.version>7.6.14</felles.version>
         <prosesstask.version>5.2.2</prosesstask.version>
         <openapi-spec-utils.version>2.1.0</openapi-spec-utils.version>
-        <fp-kontrakter.version>9.4.23</fp-kontrakter.version>
-        <abakus-kontrakt.version>2.3.6</abakus-kontrakt.version>
+        <fp-kontrakter.version>9.4.24</fp-kontrakter.version>
+        <abakus-kontrakt.version>2.3.7</abakus-kontrakt.version>
 
         <sonar.moduleKey>${project.artifactId}</sonar.moduleKey>
         <sonar.projectName>fp-sak</sonar.projectName>
