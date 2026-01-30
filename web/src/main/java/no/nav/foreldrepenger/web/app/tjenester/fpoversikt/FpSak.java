@@ -31,7 +31,7 @@ record FpSak(String saksnummer,
                   Dekningsgrad dekningsgrad,
                   List<EøsUttaksperiode> annenpartEøsUttaksperioder,
                   Beregningsgrunnlag beregningsgrunnlag,
-                  List<TilkjentYtelsePeriode> tilkjentYtelse) {
+                  TilkjentYtelse tilkjentYtelse) {
         record EøsUttaksperiode(LocalDate fom, LocalDate tom, BigDecimal trekkdager, Konto konto) {
         }
     }
@@ -67,9 +67,17 @@ record FpSak(String saksnummer,
         }
     }
 
+    // TODO: navngiving?
+    record TilkjentYtelse(List<TilkjentYtelsePeriode> utbetalingsPerioder, List<FeriepengeAndel> feriepenger) {
+
+    }
+
     record TilkjentYtelsePeriode(LocalDate fom, LocalDate tom, List<Andel> andeler) {
         record Andel(String arbeidsgiverIdent, String arbeidsgivernavn, Integer dagsats, boolean tilBruker, Double utbetalingsgrad) {
         }
+    }
+
+    record FeriepengeAndel(LocalDate opptjeningsår, Integer årsbeløp, String arbeidsgiverIdent) {
     }
 
     record Beregningsgrunnlag(LocalDate skjæringstidspunkt,
@@ -78,10 +86,7 @@ record FpSak(String saksnummer,
                               BigDecimal grunnbeløp) {
 
 
-        record BeregningsAndel(AktivitetStatus aktivitetStatus,
-                               BigDecimal fastsattPrÅr,
-                               InntektsKilde inntektsKilde,
-                               Arbeidsforhold arbeidsforhold) {
+        record BeregningsAndel(AktivitetStatus aktivitetStatus, BigDecimal fastsattPrÅr, InntektsKilde inntektsKilde, Arbeidsforhold arbeidsforhold) {
         }
 
         record Arbeidsforhold(String arbeidsgiverIdent, String arbeidsgivernavn, BigDecimal refusjonPrMnd) {

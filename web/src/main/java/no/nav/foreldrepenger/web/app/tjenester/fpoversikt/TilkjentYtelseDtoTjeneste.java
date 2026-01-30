@@ -31,19 +31,21 @@ public class TilkjentYtelseDtoTjeneste {
     }
 
 
-    public List<FpSak.TilkjentYtelsePeriode> lagDtoForTilkjentYtelse(BehandlingReferanse ref) {
+    public FpSak.TilkjentYtelse lagDtoForTilkjentYtelse(BehandlingReferanse ref) {
         var beregningsresultatEntitet = beregningsresultatRepository.hentBeregningsresultatAggregat(ref.behandlingId());
 
         if (beregningsresultatEntitet.isEmpty()) {
-            return List.of();
+            return new FpSak.TilkjentYtelse(List.of(), List.of());
         }
 
-        return beregningsresultatEntitet.get()
+        var perioder = beregningsresultatEntitet.get()
             .getBgBeregningsresultatFP()
             .getBeregningsresultatPerioder()
             .stream()
             .map(this::mapTilkjentYtelsePeriode)
             .toList();
+
+        return new FpSak.TilkjentYtelse(perioder, List.of());
     }
 
     private FpSak.TilkjentYtelsePeriode mapTilkjentYtelsePeriode(BeregningsresultatPeriode periode) {

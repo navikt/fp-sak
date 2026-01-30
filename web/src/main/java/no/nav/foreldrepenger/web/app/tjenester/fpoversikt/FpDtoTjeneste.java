@@ -72,8 +72,10 @@ public class FpDtoTjeneste {
                          YtelseFordelingTjeneste ytelseFordelingTjeneste,
                          UføretrygdRepository uføretrygdRepository,
                          DtoTjenesteFelles felles,
-                         DekningsgradTjeneste dekningsgradTjeneste, EøsUttakRepository eøsUttakRepository,
-                         BeregningOversiktDtoTjeneste beregningOversiktDtoTjeneste, TilkjentYtelseDtoTjeneste tilkjentYtelseDtoTjeneste) {
+                         DekningsgradTjeneste dekningsgradTjeneste,
+                         EøsUttakRepository eøsUttakRepository,
+                         BeregningOversiktDtoTjeneste beregningOversiktDtoTjeneste,
+                         TilkjentYtelseDtoTjeneste tilkjentYtelseDtoTjeneste) {
         this.behandlingRepository = repositoryProvider.getBehandlingRepository();
         this.dekningsgradTjeneste = dekningsgradTjeneste;
         this.foreldrepengerUttakTjeneste = foreldrepengerUttakTjeneste;
@@ -119,7 +121,9 @@ public class FpDtoTjeneste {
             fødteBarn, rettigheter.orElse(null), ønskerJustertUttakVedFødsel);
     }
 
-    private Optional<FpSak.Rettigheter> finnRettigheter(Fagsak fagsak, Optional<BehandlingVedtak> gjeldendeVedtak, Optional<Behandling> åpenYtelseBehandling) {
+    private Optional<FpSak.Rettigheter> finnRettigheter(Fagsak fagsak,
+                                                        Optional<BehandlingVedtak> gjeldendeVedtak,
+                                                        Optional<Behandling> åpenYtelseBehandling) {
         if (gjeldendeVedtak.isPresent()) {
             return finnGjeldendeRettigheter(gjeldendeVedtak.get().getBehandlingsresultat().getBehandlingId());
         }
@@ -150,7 +154,9 @@ public class FpDtoTjeneste {
         });
     }
 
-    private Optional<Behandling> finnGjeldendeBehandling(Fagsak fagsak, Optional<BehandlingVedtak> gjeldendeVedtak, Optional<Behandling> åpenYtelseBehandling) {
+    private Optional<Behandling> finnGjeldendeBehandling(Fagsak fagsak,
+                                                         Optional<BehandlingVedtak> gjeldendeVedtak,
+                                                         Optional<Behandling> åpenYtelseBehandling) {
         final Optional<Behandling> behandling;
         if (gjeldendeVedtak.isPresent()) {
             var behandlingId = gjeldendeVedtak.get().getBehandlingsresultat().getBehandlingId();
@@ -193,7 +199,8 @@ public class FpDtoTjeneste {
             case MORA -> FpSak.BrukerRolle.MOR;
             case MEDMOR -> FpSak.BrukerRolle.MEDMOR;
             case UDEFINERT -> FpSak.BrukerRolle.UKJENT;
-            case EKTE, REGISTRERT_PARTNER, BARN, ANNEN_PART_FRA_SØKNAD -> throw new IllegalStateException(UNEXPECTED_VALUE + fagsak.getRelasjonsRolleType());
+            case EKTE, REGISTRERT_PARTNER, BARN, ANNEN_PART_FRA_SØKNAD ->
+                throw new IllegalStateException(UNEXPECTED_VALUE + fagsak.getRelasjonsRolleType());
         };
     }
 
@@ -217,8 +224,7 @@ public class FpDtoTjeneste {
         if (!behandling.getFagsak().getRelasjonsRolleType().erFarEllerMedMor()) {
             return false;
         }
-        var søknad = søknadRepository.hentSøknadFraGrunnlag(behandling.getId())
-            .filter(SøknadEntitet::getElektroniskRegistrert);
+        var søknad = søknadRepository.hentSøknadFraGrunnlag(behandling.getId()).filter(SøknadEntitet::getElektroniskRegistrert);
         if (søknad.isEmpty() || mottattEllerVenterDokumentasjonPåAtMorErIArbeid(søknad.get())) {
             return false;
         }
@@ -249,8 +255,8 @@ public class FpDtoTjeneste {
         var morsAktivitet = map(periode.getMorsAktivitet());
         var gradering = mapGradering(periode);
         var samtidigUttak = periode.getSamtidigUttaksprosent() == null ? null : periode.getSamtidigUttaksprosent().decimalValue();
-        return new FpSak.Søknad.Periode(periode.getFom(), periode.getTom(), konto, utsettelseÅrsak, oppholdÅrsak, overføringÅrsak,
-            gradering, samtidigUttak, periode.isFlerbarnsdager(), morsAktivitet);
+        return new FpSak.Søknad.Periode(periode.getFom(), periode.getTom(), konto, utsettelseÅrsak, oppholdÅrsak, overføringÅrsak, gradering,
+            samtidigUttak, periode.isFlerbarnsdager(), morsAktivitet);
     }
 
     private static MorsAktivitet map(no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.MorsAktivitet morsAktivitet) {
@@ -417,8 +423,8 @@ public class FpDtoTjeneste {
         } : null;
         var samtidigUttaksprosent = periode.getSamtidigUttaksprosent();
         return new FpSak.Uttaksperiode(periode.getFom(), periode.getTom(), utsettelseÅrsak, oppholdÅrsak, overføringÅrsak,
-            samtidigUttaksprosent == null ? null : samtidigUttaksprosent.decimalValue(), periode.isFlerbarnsdager(),
-            map(periode.getMorsAktivitet()), resultat);
+            samtidigUttaksprosent == null ? null : samtidigUttaksprosent.decimalValue(), periode.isFlerbarnsdager(), map(periode.getMorsAktivitet()),
+            resultat);
     }
 
     private static Konto map(UttakPeriodeType trekkonto) {
@@ -433,14 +439,15 @@ public class FpDtoTjeneste {
     }
 
     private static FpSak.Uttaksperiode.Resultat.Årsak tilResultatÅrsak(ForeldrepengerUttakPeriode periode) {
-        if (periode.getGraderingAvslagÅrsak().equals(GraderingAvslagÅrsak.FOR_SEN_SØKNAD) && periode.harTrekkdager() &&
-            periode.harRedusertUtbetaling() && harAktivitetMerTrekkEnnUtbetalingTilsier(periode)) {
+        if (periode.getGraderingAvslagÅrsak().equals(GraderingAvslagÅrsak.FOR_SEN_SØKNAD) && periode.harTrekkdager()
+            && periode.harRedusertUtbetaling() && harAktivitetMerTrekkEnnUtbetalingTilsier(periode)) {
             return FpSak.Uttaksperiode.Resultat.Årsak.INNVILGET_UTTAK_AVSLÅTT_GRADERING_TILBAKE_I_TID;
         }
 
         return switch (periode.getResultatÅrsak()) {
             case HULL_MELLOM_FORELDRENES_PERIODER, BARE_FAR_RETT_IKKE_SØKT -> FpSak.Uttaksperiode.Resultat.Årsak.AVSLAG_HULL_I_UTTAKSPLAN;
-            case AVSLAG_UTSETTELSE_PGA_ARBEID_TILBAKE_I_TID, AVSLAG_UTSETTELSE_PGA_FERIE_TILBAKE_I_TID -> FpSak.Uttaksperiode.Resultat.Årsak.AVSLAG_UTSETTELSE_TILBAKE_I_TID;
+            case AVSLAG_UTSETTELSE_PGA_ARBEID_TILBAKE_I_TID, AVSLAG_UTSETTELSE_PGA_FERIE_TILBAKE_I_TID ->
+                FpSak.Uttaksperiode.Resultat.Årsak.AVSLAG_UTSETTELSE_TILBAKE_I_TID;
             case FRATREKK_PLEIEPENGER -> FpSak.Uttaksperiode.Resultat.Årsak.AVSLAG_FRATREKK_PLEIEPENGER;
             default -> FpSak.Uttaksperiode.Resultat.Årsak.ANNET;
         };
@@ -457,7 +464,8 @@ public class FpDtoTjeneste {
 
     private static Trekkdager graderingForventetTrekkdager(ForeldrepengerUttakPeriode periode, ForeldrepengerUttakPeriodeAktivitet aktivitet) {
         var virkedager = Virkedager.beregnAntallVirkedager(periode.getFom(), periode.getTom());
-        var forventetTrekkdager = new BigDecimal(virkedager).multiply(aktivitet.getUtbetalingsgrad().decimalValue()).divide(BigDecimal.valueOf(100L), 1, RoundingMode.DOWN);
+        var forventetTrekkdager = new BigDecimal(virkedager).multiply(aktivitet.getUtbetalingsgrad().decimalValue())
+            .divide(BigDecimal.valueOf(100L), 1, RoundingMode.DOWN);
         return new Trekkdager(forventetTrekkdager);
     }
 

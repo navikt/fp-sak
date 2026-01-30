@@ -49,7 +49,7 @@ class TilkjentYtelseDtoTjenesteTest {
 
         var resultat = tjeneste.lagDtoForTilkjentYtelse(ref);
 
-        assertThat(resultat).isEmpty();
+        assertThat(resultat.utbetalingsPerioder()).isEmpty();
     }
 
     @Test
@@ -86,7 +86,7 @@ class TilkjentYtelseDtoTjenesteTest {
         when(beregningsresultatRepository.hentBeregningsresultatAggregat(any())).thenReturn(Optional.of(beregningsresultat));
         when(arbeidsgiverTjeneste.hent(arbeidsgiver)).thenReturn(new ArbeidsgiverOpplysninger("999999999", "Test Bedrift AS"));
 
-        var resultat = tjeneste.lagDtoForTilkjentYtelse(ref);
+        var resultat = tjeneste.lagDtoForTilkjentYtelse(ref).utbetalingsPerioder();
 
         assertThat(resultat).hasSize(1);
         var dto = resultat.getFirst();
@@ -153,7 +153,7 @@ class TilkjentYtelseDtoTjenesteTest {
         when(beregningsresultatRepository.hentBeregningsresultatAggregat(any())).thenReturn(Optional.of(beregningsresultat));
         when(arbeidsgiverTjeneste.hent(arbeidsgiver)).thenReturn(new ArbeidsgiverOpplysninger("888888888", "Annen Bedrift"));
 
-        var resultat = tjeneste.lagDtoForTilkjentYtelse(ref);
+        var resultat = tjeneste.lagDtoForTilkjentYtelse(ref).utbetalingsPerioder();
 
         assertThat(resultat).hasSize(2);
         assertThat(resultat.get(0).fom()).isEqualTo(fom1);
@@ -215,7 +215,7 @@ class TilkjentYtelseDtoTjenesteTest {
         when(arbeidsgiverTjeneste.hent(arbeidsgiver1)).thenReturn(new ArbeidsgiverOpplysninger("111111111", "Bedrift En"));
         when(arbeidsgiverTjeneste.hent(arbeidsgiver2)).thenReturn(new ArbeidsgiverOpplysninger("222222222", "Bedrift To"));
 
-        var resultat = tjeneste.lagDtoForTilkjentYtelse(ref);
+        var resultat = tjeneste.lagDtoForTilkjentYtelse(ref).utbetalingsPerioder();
 
         assertThat(resultat).hasSize(1);
         var dto = resultat.getFirst();
@@ -265,8 +265,8 @@ class TilkjentYtelseDtoTjenesteTest {
 
         var resultat = tjeneste.lagDtoForTilkjentYtelse(ref);
 
-        assertThat(resultat).hasSize(1);
-        var andel = resultat.getFirst().andeler().getFirst();
+        assertThat(resultat.utbetalingsPerioder()).hasSize(1);
+        var andel = resultat.utbetalingsPerioder().getFirst().andeler().getFirst();
         assertThat(andel.arbeidsgiverIdent()).isNull();
         assertThat(andel.arbeidsgivernavn()).isNull();
         assertThat(andel.dagsats()).isEqualTo(500);
