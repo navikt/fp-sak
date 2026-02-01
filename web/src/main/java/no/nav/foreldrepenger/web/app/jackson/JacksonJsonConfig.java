@@ -20,17 +20,12 @@ import no.nav.foreldrepenger.familiehendelse.aksjonspunkt.omsorgsovertakelse.dto
 import no.nav.foreldrepenger.web.app.IndexClasses;
 import no.nav.foreldrepenger.web.app.tjenester.RestImplementationClasses;
 import no.nav.vedtak.mapper.json.DefaultJsonMapper;
+import no.nav.vedtak.sikkerhet.oidc.token.impl.TokenXExchangeKlient;
 
 @Provider
 public class JacksonJsonConfig implements ContextResolver<ObjectMapper> {
 
-    private static JsonMapper JM;
-
-    public JacksonJsonConfig() {
-        if (JM == null) {
-            JM = createObjectMapper();
-        }
-    }
+    private static final JsonMapper JSON_MAPPER = createObjectMapper();
 
     private static synchronized JsonMapper createObjectMapper() {
         // registrer jackson JsonTypeName subtypes basert på rest implementasjoner
@@ -75,7 +70,7 @@ public class JacksonJsonConfig implements ContextResolver<ObjectMapper> {
 
     @Override
     public ObjectMapper getContext(Class<?> type) {
-        return JM;
+        return JSON_MAPPER;
     }
 
 }
