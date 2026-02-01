@@ -9,15 +9,9 @@ import java.util.Set;
 import jakarta.ws.rs.ext.ContextResolver;
 import jakarta.ws.rs.ext.Provider;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonTypeName;
-import com.fasterxml.jackson.core.Version;
-import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
-import com.fasterxml.jackson.databind.module.SimpleModule;
-import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import com.fasterxml.jackson.databind.json.JsonMapper;
 
 import no.nav.foreldrepenger.domene.opptjening.dto.AvklarAktivitetsPerioderDto;
 import no.nav.foreldrepenger.domene.person.verge.dto.AvklarVergeDto;
@@ -25,29 +19,20 @@ import no.nav.foreldrepenger.domene.rest.dto.VurderFaktaOmBeregningDto;
 import no.nav.foreldrepenger.familiehendelse.aksjonspunkt.omsorgsovertakelse.dto.VurderOmsorgsovertakelseVilkårAksjonspunktDto;
 import no.nav.foreldrepenger.web.app.IndexClasses;
 import no.nav.foreldrepenger.web.app.tjenester.RestImplementationClasses;
+import no.nav.vedtak.mapper.json.DefaultJsonMapper;
 
 @Provider
 public class JacksonJsonConfig implements ContextResolver<ObjectMapper> {
 
-    private final ObjectMapper objectMapper;
+    private static JsonMapper JM;
 
-    /**
-     * Default instance for Jax-rs application. Genererer ikke navn som del av
-     * output for kodeverk.
-     */
     public JacksonJsonConfig() {
-        objectMapper = createObjectMapper(createModule());
+        if (JM == null) {
+            JM = createObjectMapper();
+        }
     }
 
-    private static ObjectMapper createObjectMapper(SimpleModule simpleModule) {
-        var om = new ObjectMapper();
-        om.registerModule(new Jdk8Module());
-        om.registerModule(new JavaTimeModule());
-        om.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
-        om.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-        om.setDefaultPropertyInclusion(JsonInclude.Include.NON_NULL);
-        om.registerModule(simpleModule);
-
+    private static synchronized JsonMapper createObjectMapper() {
         // registrer jackson JsonTypeName subtypes basert på rest implementasjoner
         var restClasses = RestImplementationClasses.getImplementationClasses();
 
@@ -62,7 +47,7 @@ public class JacksonJsonConfig implements ContextResolver<ObjectMapper> {
         scanClasses.add(AvklarVergeDto.class);
 
         // avled code location fra klassene
-        scanClasses
+        var typeNameClasses = scanClasses
                 .stream()
                 .map(c -> {
                     try {
@@ -72,21 +57,10 @@ public class JacksonJsonConfig implements ContextResolver<ObjectMapper> {
                     }
                 })
                 .distinct()
-                .forEach(uri -> om.registerSubtypes(getJsonTypeNameClasses(uri)));
-        return om;
-    }
-
-    private static SimpleModule createModule() {
-        var module = new SimpleModule("VL-REST", new Version(1, 0, 0, null, null, null));
-
-        addSerializers(module);
-
-        return module;
-    }
-
-    private static void addSerializers(SimpleModule module) {
-        module.addSerializer(new KodeverdiSerializer());
-        module.addSerializer(new KalkulusKodeverdiSerializer());
+                .map(JacksonJsonConfig::getJsonTypeNameClasses)
+                .flatMap(List::stream)
+                .toList();
+        return DefaultJsonMapper.getJsonMapper().rebuild().registerSubtypes(typeNameClasses).build();
     }
 
     /**
@@ -99,13 +73,9 @@ public class JacksonJsonConfig implements ContextResolver<ObjectMapper> {
         return indexClasses.getClassesWithAnnotation(JsonTypeName.class);
     }
 
-    public ObjectMapper getObjectMapper() {
-        return objectMapper;
-    }
-
     @Override
     public ObjectMapper getContext(Class<?> type) {
-        return objectMapper;
+        return JM;
     }
 
 }
