@@ -5,6 +5,7 @@ import java.net.URISyntaxException;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import jakarta.ws.rs.ext.ContextResolver;
 import jakarta.ws.rs.ext.Provider;
@@ -20,7 +21,6 @@ import no.nav.foreldrepenger.familiehendelse.aksjonspunkt.omsorgsovertakelse.dto
 import no.nav.foreldrepenger.web.app.IndexClasses;
 import no.nav.foreldrepenger.web.app.tjenester.RestImplementationClasses;
 import no.nav.vedtak.mapper.json.DefaultJsonMapper;
-import no.nav.vedtak.sikkerhet.oidc.token.impl.TokenXExchangeKlient;
 
 @Provider
 public class JacksonJsonConfig implements ContextResolver<ObjectMapper> {
@@ -28,33 +28,7 @@ public class JacksonJsonConfig implements ContextResolver<ObjectMapper> {
     private static final JsonMapper JSON_MAPPER = createObjectMapper();
 
     private static synchronized JsonMapper createObjectMapper() {
-        // registrer jackson JsonTypeName subtypes basert på rest implementasjoner
-        var restClasses = RestImplementationClasses.getImplementationClasses();
-
-        Set<Class<?>> scanClasses = new LinkedHashSet<>(restClasses);
-
-        // hack - additional locations to scan (jars uten rest services) - trenger det
-        // her p.t. for å bestemme hvilke jars / maven moduler som skal scannes for
-        // andre dtoer
-        scanClasses.add(AvklarAktivitetsPerioderDto.class);
-        scanClasses.add(VurderFaktaOmBeregningDto.class);
-        scanClasses.add(VurderOmsorgsovertakelseVilkårAksjonspunktDto.class);
-        scanClasses.add(AvklarVergeDto.class);
-
-        // avled code location fra klassene
-        var typeNameClasses = scanClasses
-                .stream()
-                .map(c -> {
-                    try {
-                        return c.getProtectionDomain().getCodeSource().getLocation().toURI();
-                    } catch (URISyntaxException e) {
-                        throw new IllegalArgumentException("Ikke en URI for klasse: " + c, e);
-                    }
-                })
-                .distinct()
-                .map(JacksonJsonConfig::getJsonTypeNameClasses)
-                .flatMap(List::stream)
-                .toList();
+        var typeNameClasses = allJsonTypeNameClasses();
         return DefaultJsonMapper.getJsonMapper().rebuild().registerSubtypes(typeNameClasses).build();
     }
 
@@ -73,4 +47,25 @@ public class JacksonJsonConfig implements ContextResolver<ObjectMapper> {
         return JSON_MAPPER;
     }
 
+    public static Set<Class<?>> allJsonTypeNameClasses() {
+        final var scanClasses = new LinkedHashSet<>(RestImplementationClasses.getImplementationClasses());
+
+        scanClasses.add(AvklarAktivitetsPerioderDto.class);
+        scanClasses.add(VurderFaktaOmBeregningDto.class);
+        scanClasses.add(VurderOmsorgsovertakelseVilkårAksjonspunktDto.class);
+        scanClasses.add(AvklarVergeDto.class);
+
+        return scanClasses.stream()
+            .map(c -> {
+                try {
+                    return c.getProtectionDomain().getCodeSource().getLocation().toURI();
+                } catch (URISyntaxException e) {
+                    throw new IllegalArgumentException("Ikke en URI for klasse: " + c, e);
+                }
+            })
+            .distinct()
+            .flatMap(uri -> getJsonTypeNameClasses(uri).stream())
+            .collect(Collectors.toUnmodifiableSet());
+
+    }
 }

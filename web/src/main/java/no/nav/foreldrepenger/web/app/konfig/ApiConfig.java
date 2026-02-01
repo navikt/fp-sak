@@ -1,17 +1,11 @@
 package no.nav.foreldrepenger.web.app.konfig;
 
-import static no.nav.foreldrepenger.web.app.jackson.JacksonJsonConfig.getJsonTypeNameClasses;
-
-import java.net.URISyntaxException;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import jakarta.ws.rs.ApplicationPath;
 import jakarta.ws.rs.core.Application;
@@ -28,11 +22,8 @@ import io.swagger.v3.core.jackson.ModelResolver;
 import io.swagger.v3.core.util.ObjectMapperFactory;
 import io.swagger.v3.jaxrs2.integration.resources.OpenApiResource;
 import io.swagger.v3.oas.models.info.Info;
-import no.nav.foreldrepenger.domene.opptjening.dto.AvklarAktivitetsPerioderDto;
-import no.nav.foreldrepenger.domene.person.verge.dto.AvklarVergeDto;
-import no.nav.foreldrepenger.domene.rest.dto.VurderFaktaOmBeregningDto;
-import no.nav.foreldrepenger.familiehendelse.aksjonspunkt.omsorgsovertakelse.dto.VurderOmsorgsovertakelseVilkårAksjonspunktDto;
 import no.nav.foreldrepenger.konfig.Environment;
+import no.nav.foreldrepenger.web.app.jackson.JacksonJsonConfig;
 import no.nav.foreldrepenger.web.app.tjenester.RestImplementationClasses;
 import no.nav.openapi.spec.utils.openapi.DiscriminatorModelConverter;
 import no.nav.openapi.spec.utils.openapi.EnumVarnamesConverter;
@@ -84,7 +75,7 @@ public class ApiConfig extends Application {
 
         ModelConverters.getInstance().addConverter(new ModelResolver(lagObjectMapperUtenJsonSubTypeAnnotasjoner(),  typeNameResolver));
 
-        Set<Class<?>> registeredSubtypes = allJsonTypeNameClasses();
+        Set<Class<?>> registeredSubtypes = JacksonJsonConfig.allJsonTypeNameClasses();
         ModelConverters.getInstance().addConverter(new RegisteredSubtypesModelConverter(registeredSubtypes));
         ModelConverters.getInstance().addConverter(new JsonSubTypesModelConverter());
         ModelConverters.getInstance().addConverter(new DiscriminatorModelConverter(new RefToClassLookup()));
@@ -104,30 +95,6 @@ public class ApiConfig extends Application {
         // Ved å fjerne jsonSubType annotasjoner får vi heller en enveis-lenke der superklassen definerer arvingene sine med "oneOf".
         om.setAnnotationIntrospector(new NoJsonSubTypesAnnotationIntrospector());
         return om;
-    }
-
-    public static Set<Class<?>> allJsonTypeNameClasses() {
-        final Collection<Class<?>> restClasses = RestImplementationClasses.getImplementationClasses();
-
-        final Set<Class<?>> scanClasses = new LinkedHashSet<>(restClasses);
-        scanClasses.add(AvklarAktivitetsPerioderDto.class);
-        scanClasses.add(VurderFaktaOmBeregningDto.class);
-        scanClasses.add(VurderOmsorgsovertakelseVilkårAksjonspunktDto.class);
-        scanClasses.add(AvklarVergeDto.class);
-
-        return scanClasses
-            .stream()
-            .map(c -> {
-                try {
-                    return c.getProtectionDomain().getCodeSource().getLocation().toURI();
-                } catch (URISyntaxException e) {
-                    throw new IllegalArgumentException("Ikke en URI for klasse: " + c, e);
-                }
-            })
-            .distinct()
-            .flatMap(uri -> getJsonTypeNameClasses(uri).stream())
-            .collect(Collectors.toUnmodifiableSet());
-
     }
 
     @Override
