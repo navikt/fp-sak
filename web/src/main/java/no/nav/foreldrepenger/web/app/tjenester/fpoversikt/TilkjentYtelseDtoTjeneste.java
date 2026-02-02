@@ -6,6 +6,7 @@ import jakarta.inject.Inject;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatAndel;
+import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatFeriepengerPrÅr;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatPeriode;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatRepository;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
@@ -45,7 +46,13 @@ public class TilkjentYtelseDtoTjeneste {
             .map(this::mapTilkjentYtelsePeriode)
             .toList();
 
-        return new FpSak.TilkjentYtelse(perioder, List.of());
+        var feriepenger = beregningsresultatEntitet.get().getGjeldendeFeriepenger().stream().map(this::mapFeriepengeAndel).toList();
+
+        return new FpSak.TilkjentYtelse(perioder, feriepenger);
+    }
+
+    private FpSak.FeriepengeAndel mapFeriepengeAndel(BeregningsresultatFeriepengerPrÅr r) {
+        return new FpSak.FeriepengeAndel(r.getOpptjeningsår(), r.getÅrsbeløp().getVerdi(), r.getArbeidsforholdIdentifikator(), r.erBrukerMottaker());
     }
 
     private FpSak.TilkjentYtelsePeriode mapTilkjentYtelsePeriode(BeregningsresultatPeriode periode) {

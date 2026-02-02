@@ -77,7 +77,7 @@ record FpSak(String saksnummer,
         }
     }
 
-    record FeriepengeAndel(LocalDate opptjeningsår, Integer årsbeløp, String arbeidsgiverIdent) {
+    record FeriepengeAndel(LocalDate opptjeningsår, BigDecimal årsbeløp, String arbeidsgiverIdent, boolean tilBruker) {
     }
 
     record Beregningsgrunnlag(LocalDate skjæringstidspunkt,
@@ -86,7 +86,12 @@ record FpSak(String saksnummer,
                               BigDecimal grunnbeløp) {
 
 
-        record BeregningsAndel(AktivitetStatus aktivitetStatus, BigDecimal fastsattPrÅr, InntektsKilde inntektsKilde, Arbeidsforhold arbeidsforhold) {
+        record BeregningsAndel(AktivitetStatus aktivitetStatus,
+                               BigDecimal fastsattPrÅr,
+                               InntektsKilde inntektsKilde,
+                               Arbeidsforhold arbeidsforhold,
+                               BigDecimal dagsatsArbeidsgiver,
+                               BigDecimal dagsatsSøker) {
         }
 
         record Arbeidsforhold(String arbeidsgiverIdent, String arbeidsgivernavn, BigDecimal refusjonPrMnd) {
