@@ -36,7 +36,7 @@
         <fp-ytelse-beregn.version>1.0.4</fp-ytelse-beregn.version>
         <fpkalkulus.kontrakt.version>1.0.2</fpkalkulus.kontrakt.version>
 
-        <felles.version>7.6.14</felles.version>
+        <felles.version>7.6.15</felles.version>
         <prosesstask.version>5.2.3</prosesstask.version>
         <openapi-spec-utils.version>2.1.0</openapi-spec-utils.version>
         <fp-kontrakter.version>9.4.26</fp-kontrakter.version>
@@ -434,8 +434,8 @@
             <artifactId>jakarta.enterprise.cdi-api</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.oracle.ojdbc</groupId>
-            <artifactId>ojdbc8</artifactId>
+            <groupId>com.oracle.database.jdbc</groupId>
+            <artifactId>ojdbc17</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>

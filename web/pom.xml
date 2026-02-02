@@ -25,8 +25,8 @@
             <artifactId>flyway-database-oracle</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.oracle.ojdbc</groupId>
-            <artifactId>ojdbc8</artifactId>
+            <groupId>com.oracle.database.jdbc</groupId>
+            <artifactId>ojdbc17</artifactId>
             <scope>compile</scope>
         </dependency>
 
