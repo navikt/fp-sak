@@ -26,7 +26,6 @@ class InngangsvilkårOpptjeningTest {
     @Test
     void test_beregn_opptjening_fra_periode_over_mndskifte_godkjenn_antatt_case1() {
         var resource = InngangsvilkårOpptjening.class.getResource("/opptjening/TFP-2566-wait-1.json");
-        assertThat(resource).isNotNull();
         var grunnlag = StandardJsonConfig.fromJson(resource, Opptjeningsgrunnlag.class);
 
         var resultat = InngangsvilkårRegler.opptjening(RegelYtelse.SVANGERSKAPSPENGER, grunnlag);
@@ -47,7 +46,6 @@ class InngangsvilkårOpptjeningTest {
     @Test
     void test_beregn_opptjening_fra_periode_over_mndskifte_godkjenn_antatt_case2() {
         var resource = InngangsvilkårOpptjening.class.getResource("/opptjening/TFP-2566-wait.json");
-        assertThat(resource).isNotNull();
         var grunnlag = StandardJsonConfig.fromJson(resource, Opptjeningsgrunnlag.class);
 
         var resultat = InngangsvilkårRegler.opptjening(RegelYtelse.SVANGERSKAPSPENGER, grunnlag);
@@ -61,14 +59,13 @@ class InngangsvilkårOpptjeningTest {
         // Skal vente til 5te i neste mnd på inntektsregistrering
         assertThat(output.getResultatOpptjent()).isEqualTo(Period.parse("P28D"));
 
-        var expectedTimeline = new LocalDateTimeline<>(new LocalDateInterval(LocalDate.parse("2020-01-09"), LocalDate.parse("2020-02-05")), Boolean.TRUE);
+        var expectedTimeline = new LocalDateTimeline<Boolean>(new LocalDateInterval(LocalDate.parse("2020-01-09"), LocalDate.parse("2020-02-05")), Boolean.TRUE);
         assertThat(output.getResultatTidslinje()).isEqualTo(expectedTimeline);
     }
 
     @Test
     void test_beregn_opptjening_fra_periode_over_mndskifte_avslag_case2() {
         var resource = InngangsvilkårOpptjening.class.getResource("/opptjening/TFP-2566-deny.json");
-        assertThat(resource).isNotNull();
         var grunnlag = StandardJsonConfig.fromJson(resource, Opptjeningsgrunnlag.class);
 
         var resultat = InngangsvilkårRegler.opptjening(RegelYtelse.SVANGERSKAPSPENGER, grunnlag);
@@ -82,14 +79,13 @@ class InngangsvilkårOpptjeningTest {
         // Skal vente til 5te i neste mnd på inntektsregistrering
         assertThat(output.getResultatOpptjent()).isEqualTo(Period.parse("P28D"));
 
-        var expectedTimeline = new LocalDateTimeline<>(new LocalDateInterval(LocalDate.parse("2020-01-09"), LocalDate.parse("2020-02-05")), Boolean.TRUE);
+        var expectedTimeline = new LocalDateTimeline<Boolean>(new LocalDateInterval(LocalDate.parse("2020-01-09"), LocalDate.parse("2020-02-05")), Boolean.TRUE);
         assertThat(output.getResultatTidslinje()).isEqualTo(expectedTimeline);
     }
 
     @Test
     void test_aktivitet_første_og_siste() {
         var resource = InngangsvilkårOpptjening.class.getResource("/opptjening/TFP-2566-broken.json");
-        assertThat(resource).isNotNull();
         var grunnlag = StandardJsonConfig.fromJson(resource, Opptjeningsgrunnlag.class);
 
         var resultat = InngangsvilkårRegler.opptjening(RegelYtelse.SVANGERSKAPSPENGER, grunnlag);
@@ -105,14 +101,13 @@ class InngangsvilkårOpptjeningTest {
 
         var første = LocalDate.of(2020, 1,9);
         var siste = LocalDate.of(2020, 2,5);
-        var expectedTimeline = new LocalDateTimeline<>(Set.of(new LocalDateSegment<>(new LocalDateInterval(første, første), Boolean.TRUE), new LocalDateSegment<>(new LocalDateInterval(siste, siste), Boolean.TRUE)));
+        var expectedTimeline = new LocalDateTimeline<Boolean>(Set.of(new LocalDateSegment<>(new LocalDateInterval(første, første), Boolean.TRUE), new LocalDateSegment<>(new LocalDateInterval(siste, siste), Boolean.TRUE)));
         assertThat(output.getResultatTidslinje()).isEqualTo(expectedTimeline);
     }
 
     @Test
     void test_beregn_opptjening_nok_aktivitet() {
         var resource = InngangsvilkårOpptjening.class.getResource("/opptjening/TFP-2566-ok.json");
-        assertThat(resource).isNotNull();
         var grunnlag = StandardJsonConfig.fromJson(resource, Opptjeningsgrunnlag.class);
 
         var resultat = InngangsvilkårRegler.opptjening(RegelYtelse.SVANGERSKAPSPENGER, grunnlag);
