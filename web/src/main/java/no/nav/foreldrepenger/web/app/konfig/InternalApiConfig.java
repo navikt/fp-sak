@@ -12,10 +12,10 @@ import no.nav.foreldrepenger.web.app.metrics.PrometheusRestService;
 /**
  * Konfigurer Prometheus og Healthchecks
  */
-@ApplicationPath(InternalApiConfig.INTERNAL_URI)
+@ApplicationPath(InternalApiConfig.API_URI)
 public class InternalApiConfig extends Application {
 
-    public static final String INTERNAL_URI = "/internal";
+    public static final String API_URI = "/internal";
 
     @Override
     public Set<Class<?>> getClasses() {
