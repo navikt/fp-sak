@@ -13,7 +13,7 @@ import jakarta.ws.rs.core.Application;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 
 import io.swagger.v3.jaxrs2.integration.resources.OpenApiResource;
-import no.nav.foreldrepenger.web.app.jackson.JacksonJsonConfig;
+import no.nav.foreldrepenger.web.app.tjenester.RestImplementationClasses;
 
 public class RestApiTester {
 
@@ -32,7 +32,7 @@ public class RestApiTester {
     }
 
     static Collection<Class<?>> finnAlleJsonTypeNameClasses() {
-        return JacksonJsonConfig.allJsonTypeNameClasses();
+        return RestImplementationClasses.allJsonTypeNameClasses();
     }
 
     static Collection<Class<?>> finnAlleJsonSubTypeClasses(Class<?> klasse) {

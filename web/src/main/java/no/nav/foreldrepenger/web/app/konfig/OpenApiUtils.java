@@ -7,13 +7,11 @@ import java.util.stream.Collectors;
 import jakarta.ws.rs.core.Application;
 
 import com.fasterxml.jackson.databind.MapperFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 
 import io.swagger.v3.core.converter.ModelConverters;
 import io.swagger.v3.core.jackson.ModelResolver;
-import io.swagger.v3.core.util.ObjectMapperFactory;
 import io.swagger.v3.jaxrs2.integration.JaxrsAnnotationScanner;
 import io.swagger.v3.jaxrs2.integration.JaxrsOpenApiContextBuilder;
 import io.swagger.v3.oas.integration.OpenApiConfigurationException;
@@ -21,7 +19,7 @@ import io.swagger.v3.oas.integration.SwaggerConfiguration;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Info;
 import io.swagger.v3.oas.models.servers.Server;
-import no.nav.foreldrepenger.web.app.jackson.JacksonJsonConfig;
+import no.nav.foreldrepenger.web.app.tjenester.RestImplementationClasses;
 import no.nav.openapi.spec.utils.openapi.DiscriminatorModelConverter;
 import no.nav.openapi.spec.utils.openapi.EnumVarnamesConverter;
 import no.nav.openapi.spec.utils.openapi.JsonSubTypesModelConverter;
@@ -30,6 +28,7 @@ import no.nav.openapi.spec.utils.openapi.PrefixStrippingFQNTypeNameResolver;
 import no.nav.openapi.spec.utils.openapi.RefToClassLookup;
 import no.nav.openapi.spec.utils.openapi.RegisteredSubtypesModelConverter;
 import no.nav.vedtak.exception.TekniskException;
+import no.nav.vedtak.mapper.json.DefaultJsonMapper;
 
 public class OpenApiUtils {
 
@@ -89,15 +88,15 @@ public class OpenApiUtils {
 
         ModelConverters.getInstance().addConverter(new ModelResolver(lagObjectMapperUtenJsonSubTypeAnnotasjoner(),  typeNameResolver));
 
-        Set<Class<?>> registeredSubtypes = JacksonJsonConfig.allJsonTypeNameClasses();
+        Set<Class<?>> registeredSubtypes = RestImplementationClasses.allJsonTypeNameClasses();
         ModelConverters.getInstance().addConverter(new RegisteredSubtypesModelConverter(registeredSubtypes));
         ModelConverters.getInstance().addConverter(new JsonSubTypesModelConverter());
         ModelConverters.getInstance().addConverter(new DiscriminatorModelConverter(new RefToClassLookup()));
         ModelConverters.getInstance().addConverter(new EnumVarnamesConverter());
     }
 
-    private static ObjectMapper lagObjectMapperUtenJsonSubTypeAnnotasjoner() {
-        return JsonMapper.builder(ObjectMapperFactory.createJson().getFactory())
+    private static JsonMapper lagObjectMapperUtenJsonSubTypeAnnotasjoner() {
+        return DefaultJsonMapper.getJsonMapper().rebuild()
             // OpenApi-spec som blir generert er ikke alltid konsekvent på rekkefølgen til properties.
             // Ved å skru på disse flaggene blir output deterministic og det blir enklere å se hva som faktisk er diff fra forrige typegenerering
             .enable(SerializationFeature.ORDER_MAP_ENTRIES_BY_KEYS)
