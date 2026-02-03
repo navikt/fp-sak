@@ -21,7 +21,9 @@ import no.nav.foreldrepenger.domene.arbeidInntektsmelding.dto.ArbeidsforholdDto;
 import no.nav.foreldrepenger.domene.arbeidInntektsmelding.dto.InntektDto;
 import no.nav.foreldrepenger.domene.arbeidInntektsmelding.dto.InntektsmeldingDto;
 import no.nav.foreldrepenger.domene.arbeidInntektsmelding.dto.InntektspostDto;
+import no.nav.foreldrepenger.domene.arbeidInntektsmelding.dto.NaturalYtelseDto;
 import no.nav.foreldrepenger.domene.arbeidInntektsmelding.dto.PermisjonOgMangelDto;
+import no.nav.foreldrepenger.domene.arbeidInntektsmelding.dto.RefusjonDto;
 import no.nav.foreldrepenger.domene.arbeidsforhold.impl.AksjonspunktÅrsak;
 import no.nav.foreldrepenger.domene.iay.modell.AktivitetsAvtale;
 import no.nav.foreldrepenger.domene.iay.modell.ArbeidsforholdOverstyring;
@@ -32,6 +34,7 @@ import no.nav.foreldrepenger.domene.iay.modell.Inntekt;
 import no.nav.foreldrepenger.domene.iay.modell.InntektFilter;
 import no.nav.foreldrepenger.domene.iay.modell.Inntektsmelding;
 import no.nav.foreldrepenger.domene.iay.modell.Inntektspost;
+import no.nav.foreldrepenger.domene.iay.modell.NaturalYtelse;
 import no.nav.foreldrepenger.domene.iay.modell.Refusjon;
 import no.nav.foreldrepenger.domene.iay.modell.Yrkesaktivitet;
 import no.nav.foreldrepenger.domene.iay.modell.YrkesaktivitetFilter;
@@ -89,8 +92,8 @@ public class ArbeidOgInntektsmeldingMapper {
                 vurderingPåInntektsmelding.map(ArbeidsforholdValg::getVurdering).orElse(null),
                 im.getKildesystem() == null ? "" : im.getKildesystem(), // Enkelte eldre IM har ikke kildesystem, men frontend forventer NotNull
                 im.getStartDatoPermisjon().orElse(null),
-                im.getNaturalYtelser(),
-                refusjonsEndringer,
+                mapNaturalYtelser(im.getNaturalYtelser()),
+                mapRefusjonendringer(refusjonsEndringer),
                 im.getInntektsmeldingInnsendingsårsak(),
             tilknyttedeBehandlingIder != null ? tilknyttedeBehandlingIder : List.of()
             );
@@ -315,5 +318,28 @@ public class ArbeidOgInntektsmeldingMapper {
         return erOpprettetFraInntektsmelding
             ? ArbeidsforholdKomplettVurderingType.OPPRETT_BASERT_PÅ_INNTEKTSMELDING
             : ArbeidsforholdKomplettVurderingType.MANUELT_OPPRETTET_AV_SAKSBEHANDLER;
+    }
+
+    private static List<NaturalYtelseDto> mapNaturalYtelser(List<NaturalYtelse> naturalYtelser) {
+        return Optional.ofNullable(naturalYtelser).orElseGet(List::of).stream()
+            .map(ArbeidOgInntektsmeldingMapper::mapNaturalYtelse)
+            .toList();
+    }
+
+    private static NaturalYtelseDto mapNaturalYtelse(NaturalYtelse naturalYtelse) {
+        var periode = new NaturalYtelseDto.Periode(naturalYtelse.getPeriode().getFomDato(), naturalYtelse.getPeriode().getTomDato());
+        var beløp = new NaturalYtelseDto.Beløp(naturalYtelse.getBeloepPerMnd().getVerdi());
+        return new NaturalYtelseDto(periode, beløp, naturalYtelse.getType(), naturalYtelse.getIndexKey());
+    }
+
+    private static List<RefusjonDto> mapRefusjonendringer(List<Refusjon> refusjon) {
+        return Optional.ofNullable(refusjon).orElseGet(List::of).stream()
+            .map(ArbeidOgInntektsmeldingMapper::mapRefusjonendring)
+            .toList();
+    }
+
+    private static RefusjonDto mapRefusjonendring(Refusjon refusjon) {
+        var beløp = new RefusjonDto.Beløp(refusjon.getRefusjonsbeløp().getVerdi());
+        return new RefusjonDto(refusjon.getFom(), beløp, beløp, refusjon.getIndexKey());
     }
 }

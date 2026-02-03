@@ -63,8 +63,7 @@ public class VurderProsessTaskStatusForPollingApi {
         LOG.info("FP-193308 [{}]. Forespørsel på fagsak [{}] som ikke kan fortsette, Problemer med task gruppe [{}]. Siste prosesstask[{}] status={}",
             callId, entityId, gruppe, task.getId(), task.getStatus());
 
-        var status = new AsyncPollingStatus(AsyncPollingStatus.Status.HALTED,
-            null, task.getSisteFeil());
+        var status = new AsyncPollingStatus(AsyncPollingStatus.Status.HALTED, task.getSisteFeil(), null);
         return Optional.of(status);// fortsett å polle på gruppe, er ikke ferdig.
     }
 
@@ -73,22 +72,16 @@ public class VurderProsessTaskStatusForPollingApi {
             callId, entityId, gruppe, task.getId(), task.getStatus());
         LOG.info(feilmelding);
 
-        var status = new AsyncPollingStatus(
-            AsyncPollingStatus.Status.DELAYED,
-            task.getNesteKjøringEtter(),
-            feilmelding);
+        var status = new AsyncPollingStatus(AsyncPollingStatus.Status.DELAYED, feilmelding, task.getNesteKjøringEtter());
 
         return Optional.of(status);// er ikke ferdig, men ok å videresende til visning av behandling med feilmelding der.
     }
 
     private Optional<AsyncPollingStatus> ventPåKlar(String gruppe, LocalDateTime maksTidFørNesteKjøring, ProsessTaskData task, String callId) {
         if (task.getNesteKjøringEtter().isBefore(maksTidFørNesteKjøring)) {
+            var feilmelding = "Venter på prosesstask [" + task.taskType().value() + "][id: " + task.getId() + "]";
 
-            var status = new AsyncPollingStatus(
-                AsyncPollingStatus.Status.PENDING,
-                task.getNesteKjøringEtter(),
-                "Venter på prosesstask [" + task.taskType().value() + "][id: " + task.getId() + "]",
-                500L);
+            var status = new AsyncPollingStatus(AsyncPollingStatus.Status.PENDING, feilmelding, task.getNesteKjøringEtter(), 500L);
 
             return Optional.of(status);// fortsett å polle på gruppe, er ikke ferdig.
         }
@@ -96,10 +89,7 @@ public class VurderProsessTaskStatusForPollingApi {
            callId, entityId, gruppe, task.getId(), task.getStatus(), task.getNesteKjøringEtter());
         LOG.info(feilmelding);
 
-        var status = new AsyncPollingStatus(
-            AsyncPollingStatus.Status.DELAYED,
-            task.getNesteKjøringEtter(),
-            feilmelding);
+        var status = new AsyncPollingStatus(AsyncPollingStatus.Status.DELAYED, feilmelding, task.getNesteKjøringEtter());
 
         return Optional.of(status);// er ikke ferdig, men ok å videresende til visning av behandling med feilmelding der.
     }
