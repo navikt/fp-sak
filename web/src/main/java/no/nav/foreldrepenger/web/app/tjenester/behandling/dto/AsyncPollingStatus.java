@@ -17,9 +17,11 @@ import jakarta.validation.constraints.NotNull;
 @JsonInclude(Include.NON_NULL)
 public class AsyncPollingStatus {
 
+    @NotNull
     private Status status;
     private LocalDateTime eta;
-    @NotNull private String message;
+    @NotNull
+    private String message;
     private Long pollIntervalMillis;
     private URI location;
     private boolean readOnly;
@@ -27,26 +29,14 @@ public class AsyncPollingStatus {
     AsyncPollingStatus() {
     }
 
-    public AsyncPollingStatus(Status status) {
-        this(status, null);
+    public AsyncPollingStatus(Status status, String message, LocalDateTime eta) {
+        this(status, message, eta, null);
     }
 
-    public AsyncPollingStatus(Status status, String message) {
-        this(status, message, 0L);
-    }
-
-    public AsyncPollingStatus(Status status, String message, long pollIntervalMillis) {
-        this(status, null, message, pollIntervalMillis);
-    }
-
-    public AsyncPollingStatus(Status status, LocalDateTime eta, String message) {
-        this(status, eta, message, null);
-    }
-
-    public AsyncPollingStatus(Status status, LocalDateTime eta, String message, Long pollIntervalMillis) {
+    public AsyncPollingStatus(Status status, String message, LocalDateTime eta, Long pollIntervalMillis) {
         this.status = status;
-        this.eta = eta;
         this.message = message;
+        this.eta = eta;
         this.pollIntervalMillis = pollIntervalMillis;
         this.readOnly = status == Status.PENDING || status == Status.DELAYED || status == Status.HALTED;
     }
@@ -93,7 +83,7 @@ public class AsyncPollingStatus {
 
         private int httpStatus;
 
-        Status(int httpStatus){
+        Status(int httpStatus) {
             this.httpStatus = httpStatus;
         }
 

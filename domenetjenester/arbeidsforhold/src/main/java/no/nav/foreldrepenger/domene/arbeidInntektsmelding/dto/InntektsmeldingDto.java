@@ -10,8 +10,6 @@ import jakarta.validation.constraints.NotNull;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.arbeidsforhold.ArbeidsforholdKomplettVurderingType;
 import no.nav.foreldrepenger.domene.arbeidsforhold.impl.AksjonspunktÅrsak;
-import no.nav.foreldrepenger.domene.iay.modell.NaturalYtelse;
-import no.nav.foreldrepenger.domene.iay.modell.Refusjon;
 import no.nav.foreldrepenger.domene.iay.modell.kodeverk.InntektsmeldingInnsendingsårsak;
 
 public record InntektsmeldingDto(@NotNull BigDecimal inntektPrMnd,
@@ -30,8 +28,8 @@ public record InntektsmeldingDto(@NotNull BigDecimal inntektPrMnd,
                                  ArbeidsforholdKomplettVurderingType saksbehandlersVurdering,
                                  @NotNull String kildeSystem,
                                  LocalDate startDatoPermisjon,
-                                 @NotNull List<NaturalYtelse> aktiveNaturalytelser,
-                                 @NotNull List<Refusjon> refusjonsperioder,
+                                 @NotNull List<NaturalYtelseDto> aktiveNaturalytelser,
+                                 @NotNull List<RefusjonDto> refusjonsperioder,
                                  @NotNull InntektsmeldingInnsendingsårsak innsendingsårsak,
                                  @NotNull List<UUID> tilknyttedeBehandlingIder
                                  ){}
