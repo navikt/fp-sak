@@ -67,7 +67,6 @@ record FpSak(String saksnummer,
         }
     }
 
-    // TODO: navngiving?
     record TilkjentYtelse(List<TilkjentYtelsePeriode> utbetalingsPerioder, List<FeriepengeAndel> feriepenger) {
 
     }
