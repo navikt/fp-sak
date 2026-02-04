@@ -2,6 +2,7 @@ package no.nav.foreldrepenger.web.app.tjenester.los;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
@@ -19,6 +20,7 @@ import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
 import no.nav.foreldrepenger.behandling.revurdering.ytelse.UttakInputTjeneste;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
@@ -126,6 +128,7 @@ public class LosBehandlingDtoTjeneste {
             mapBehandlingstype(behandling),
             mapBehandlingsstatus(behandling),
             behandling.getOpprettetTidspunkt(),
+            behandling.getAvsluttetDato(),
             behandling.getBehandlendeEnhet(),
             behandling.getBehandlingstidFrist(),
             behandling.getAnsvarligSaksbehandler(),

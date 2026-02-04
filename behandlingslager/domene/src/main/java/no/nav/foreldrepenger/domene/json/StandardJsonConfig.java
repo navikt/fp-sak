@@ -5,34 +5,16 @@ import java.io.StringWriter;
 import java.io.Writer;
 import java.net.URL;
 
-import com.fasterxml.jackson.annotation.JsonAutoDetect;
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.PropertyAccessor;
-import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
-import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import com.fasterxml.jackson.databind.json.JsonMapper;
 
 import no.nav.vedtak.exception.TekniskException;
+import no.nav.vedtak.mapper.json.DefaultJsonMapper;
 
 public final class StandardJsonConfig {
 
-    private static final ObjectMapper OM = new ObjectMapper();
-
-    static {
-        OM.registerModule(new Jdk8Module());
-        OM.registerModule(new JavaTimeModule());
-        OM.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
-        OM.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-        OM.setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
-        OM.setVisibility(PropertyAccessor.GETTER, JsonAutoDetect.Visibility.NONE);
-        OM.setVisibility(PropertyAccessor.SETTER, JsonAutoDetect.Visibility.NONE);
-        OM.setVisibility(PropertyAccessor.IS_GETTER, JsonAutoDetect.Visibility.NONE);
-        OM.setVisibility(PropertyAccessor.FIELD, JsonAutoDetect.Visibility.ANY);
-        OM.setVisibility(PropertyAccessor.CREATOR, JsonAutoDetect.Visibility.ANY);
-    }
+    // Dette gjør det litt enklere å bytte ut denne med Jackson3
+    private static final JsonMapper OM = DefaultJsonMapper.getJsonMapper();
 
     private StandardJsonConfig() {
         // skjul public constructor

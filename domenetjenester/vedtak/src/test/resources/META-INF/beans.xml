@@ -3,7 +3,4 @@
        xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/javaee http://xmlns.jcp.org/xml/ns/javaee/beans_4_0.xsd"
        bean-discovery-mode="annotated"
        version="4.0">
-    <alternatives>
-        <class>no.nav.foreldrepenger.domene.abakus.AbakusInMemoryInntektArbeidYtelseTjeneste</class>
-    </alternatives>
 </beans>

@@ -1,15 +1,19 @@
 package no.nav.foreldrepenger.domene.uttak;
 
-import jakarta.validation.constraints.NotNull;
-
 import java.time.LocalDate;
+import java.util.Objects;
+
+import jakarta.validation.constraints.NotNull;
 
 public class UttakPeriodeEndringDto {
 
-    @NotNull private LocalDate fom;
+    @NotNull
+    private LocalDate fom;
 
-    @NotNull private LocalDate tom;
+    @NotNull
+    private LocalDate tom;
 
+    @NotNull
     private TypeEndring typeEndring;
 
     public LocalDate getFom() {
@@ -18,6 +22,10 @@ public class UttakPeriodeEndringDto {
 
     public LocalDate getTom() {
         return tom;
+    }
+
+    public TypeEndring getTypeEndring() {
+        return typeEndring;
     }
 
     public boolean getErSlettet() {
@@ -52,6 +60,9 @@ public class UttakPeriodeEndringDto {
         }
 
         public UttakPeriodeEndringDto build() {
+            Objects.requireNonNull(kladd.typeEndring, "typeEndring");
+            Objects.requireNonNull(kladd.fom, "fom");
+            Objects.requireNonNull(kladd.tom, "tom");
             return kladd;
         }
     }

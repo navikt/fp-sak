@@ -6,7 +6,7 @@
     <parent>
         <groupId>no.nav.foreldrepenger.felles</groupId>
         <artifactId>fp-parent-app</artifactId>
-        <version>5.2.1</version>
+        <version>5.2.3</version>
     </parent>
 
     <groupId>no.nav.foreldrepenger</groupId>
@@ -26,8 +26,8 @@
 
     <properties>
         <!-- generelle verktøy og regel-repositories -->
-        <fp-tidsserie.version>2.7.3</fp-tidsserie.version>
-        <fp-nare.version>2.6.3</fp-nare.version>
+        <fp-tidsserie.version>2.7.4</fp-tidsserie.version>
+        <fp-nare.version>2.6.4</fp-nare.version>
         <fp-inngangsvilkar.version>1.1.4</fp-inngangsvilkar.version>
         <beregning.version>6.5.1</beregning.version>
         <fp-uttak.version>15.5.3</fp-uttak.version>
@@ -36,10 +36,10 @@
         <fp-ytelse-beregn.version>1.0.4</fp-ytelse-beregn.version>
         <fpkalkulus.kontrakt.version>1.0.2</fpkalkulus.kontrakt.version>
 
-        <felles.version>7.6.14</felles.version>
-        <prosesstask.version>5.2.2</prosesstask.version>
+        <felles.version>7.6.15</felles.version>
+        <prosesstask.version>5.2.3</prosesstask.version>
         <openapi-spec-utils.version>2.1.0</openapi-spec-utils.version>
-        <fp-kontrakter.version>9.4.24</fp-kontrakter.version>
+        <fp-kontrakter.version>9.4.26</fp-kontrakter.version>
         <abakus-kontrakt.version>2.3.7</abakus-kontrakt.version>
 
         <sonar.moduleKey>${project.artifactId}</sonar.moduleKey>
@@ -434,8 +434,8 @@
             <artifactId>jakarta.enterprise.cdi-api</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.oracle.ojdbc</groupId>
-            <artifactId>ojdbc8</artifactId>
+            <groupId>com.oracle.database.jdbc</groupId>
+            <artifactId>ojdbc17</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>

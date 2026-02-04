@@ -1,10 +1,22 @@
 package no.nav.foreldrepenger.web.app.tjenester;
 
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
+import com.fasterxml.jackson.annotation.JsonTypeName;
+
+import no.nav.foreldrepenger.domene.opptjening.dto.AvklarAktivitetsPerioderDto;
+import no.nav.foreldrepenger.domene.person.verge.dto.AvklarVergeDto;
+import no.nav.foreldrepenger.domene.rest.dto.VurderFaktaOmBeregningDto;
+import no.nav.foreldrepenger.familiehendelse.aksjonspunkt.omsorgsovertakelse.dto.VurderOmsorgsovertakelseVilkårAksjonspunktDto;
+import no.nav.foreldrepenger.web.app.IndexClasses;
 import no.nav.foreldrepenger.web.app.tjenester.abakus.IAYRegisterdataCallbackRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.BehandlingRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.BehandlingRestTjenestePathHack1;
@@ -149,5 +161,37 @@ public class RestImplementationClasses {
         classes.add(FpoversiktMigreringRestTjeneste.class);
 
         return Collections.unmodifiableSet(classes);
+    }
+
+    public static Set<Class<?>> allJsonTypeNameClasses() {
+        final var scanClasses = new LinkedHashSet<>(getImplementationClasses());
+
+        scanClasses.add(AvklarAktivitetsPerioderDto.class);
+        scanClasses.add(VurderFaktaOmBeregningDto.class);
+        scanClasses.add(VurderOmsorgsovertakelseVilkårAksjonspunktDto.class);
+        scanClasses.add(AvklarVergeDto.class);
+
+        return scanClasses.stream()
+            .map(c -> {
+                try {
+                    return c.getProtectionDomain().getCodeSource().getLocation().toURI();
+                } catch (URISyntaxException e) {
+                    throw new IllegalArgumentException("Ikke en URI for klasse: " + c, e);
+                }
+            })
+            .distinct()
+            .flatMap(uri -> getJsonTypeNameClasses(uri).stream())
+            .collect(Collectors.toUnmodifiableSet());
+
+    }
+
+    /**
+     * Scan subtyper dynamisk fra WAR slik at superklasse slipper å
+     * deklarere @JsonSubtypes.
+     */
+    public static List<Class<?>> getJsonTypeNameClasses(URI classLocation) {
+        IndexClasses indexClasses;
+        indexClasses = IndexClasses.getIndexFor(classLocation);
+        return indexClasses.getClassesWithAnnotation(JsonTypeName.class);
     }
 }
