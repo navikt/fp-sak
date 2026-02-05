@@ -6,8 +6,6 @@ import java.util.Set;
 
 import jakarta.ws.rs.ApplicationPath;
 
-import no.nav.foreldrepenger.web.server.abac.EksternPipRestTjeneste;
-
 import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.server.ServerProperties;
 import org.slf4j.Logger;
@@ -19,15 +17,16 @@ import no.nav.foreldrepenger.web.app.exceptions.JsonMappingExceptionMapper;
 import no.nav.foreldrepenger.web.app.exceptions.JsonParseExceptionMapper;
 import no.nav.foreldrepenger.web.app.jackson.JacksonJsonConfig;
 import no.nav.foreldrepenger.web.app.tjenester.vedtak.ytelseinfo.EksternDelingYtelseInfoRestTjeneste;
+import no.nav.foreldrepenger.web.server.abac.EksternPipRestTjeneste;
 
-@ApplicationPath(EksternApiConfig.EKSTERN_API_URI)
+@ApplicationPath(EksternApiConfig.API_URI)
 public class EksternApiConfig extends ResourceConfig {
 
     private static final Logger LOG = LoggerFactory.getLogger(EksternApiConfig.class);
-    public static final String EKSTERN_API_URI = "/ekstern/api";
+    public static final String API_URI = "/ekstern/api";
 
     public EksternApiConfig() {
-        LOG.info("Initialiserer: {}", EKSTERN_API_URI);
+        LOG.info("Initialiserer: {}", API_URI);
         setApplicationName(EksternApiConfig.class.getSimpleName());
         // Sikkerhet
         register(AuthenticationFilter.class);
@@ -39,7 +38,7 @@ public class EksternApiConfig extends ResourceConfig {
         register(JacksonJsonConfig.class);
 
         setProperties(getApplicationProperties());
-        LOG.info("Ferdig med initialisering av {}", EKSTERN_API_URI);
+        LOG.info("Ferdig med initialisering av {}", API_URI);
     }
 
     void registerExceptionMappers() {
