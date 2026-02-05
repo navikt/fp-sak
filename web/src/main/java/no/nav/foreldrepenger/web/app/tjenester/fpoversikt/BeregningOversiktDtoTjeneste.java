@@ -172,10 +172,12 @@ public class BeregningOversiktDtoTjeneste {
         if (andel.getAktivitetStatus().equals(AktivitetStatus.ARBEIDSAVKLARINGSPENGER)) {
             return new FpSak.Beregningsgrunnlag.BeregningsAndel(mapAktivitetstatus(andel.getAktivitetStatus()), fastsattPrÅr,
                 FpSak.Beregningsgrunnlag.InntektsKilde.VEDTAK_ANNEN_YTELSE, null, BigDecimal.ZERO, mapDagsats(andel));
-        } if (andel.getAktivitetStatus().equals(AktivitetStatus.DAGPENGER)) {
+        }
+        if (andel.getAktivitetStatus().equals(AktivitetStatus.DAGPENGER)) {
             return new FpSak.Beregningsgrunnlag.BeregningsAndel(mapAktivitetstatus(andel.getAktivitetStatus()), fastsattPrÅr,
                 FpSak.Beregningsgrunnlag.InntektsKilde.VEDTAK_ANNEN_YTELSE, null, BigDecimal.ZERO, mapDagsats(andel));
-        } if (andel.getAktivitetStatus().equals(AktivitetStatus.BRUKERS_ANDEL)) {
+        }
+        if (andel.getAktivitetStatus().equals(AktivitetStatus.BRUKERS_ANDEL)) {
             return new FpSak.Beregningsgrunnlag.BeregningsAndel(mapAktivitetstatus(andel.getAktivitetStatus()), fastsattPrÅr,
                 FpSak.Beregningsgrunnlag.InntektsKilde.SKJØNNSFASTSATT, null, BigDecimal.ZERO, mapDagsats(andel));
         }
