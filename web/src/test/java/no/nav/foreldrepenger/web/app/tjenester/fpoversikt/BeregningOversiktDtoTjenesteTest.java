@@ -110,11 +110,11 @@ class BeregningOversiktDtoTjenesteTest {
         assertThat(dto).isPresent();
         assertThat(dto.get().grunnbeløp()).isEqualByComparingTo(BigDecimal.TEN);
         assertThat(dto.get().skjæringstidspunkt()).isEqualTo(LocalDate.now());
-        assertThat(dto.get().beregningsAndeler()).hasSize(1);
-        assertThat(dto.get().beregningsAndeler().getFirst().arbeidsforhold().arbeidsgiverIdent()).isEqualTo("9".repeat(9));
-        assertThat(dto.get().beregningsAndeler().getFirst().arbeidsforhold().arbeidsgivernavn()).isEqualTo("Testbedriften");
-        assertThat(dto.get().beregningsAndeler().getFirst().fastsattPrÅr()).isEqualByComparingTo(BigDecimal.TEN);
-        assertThat(dto.get().beregningsAndeler().getFirst().inntektsKilde()).isEqualTo(FpSak.Beregningsgrunnlag.InntektsKilde.INNTEKTSMELDING);
+        assertThat(dto.get().beregningsandeler()).hasSize(1);
+        assertThat(dto.get().beregningsandeler().getFirst().arbeidsforhold().arbeidsgiverIdent()).isEqualTo("9".repeat(9));
+        assertThat(dto.get().beregningsandeler().getFirst().arbeidsforhold().arbeidsgivernavn()).isEqualTo("Testbedriften");
+        assertThat(dto.get().beregningsandeler().getFirst().fastsattPrÅr()).isEqualByComparingTo(BigDecimal.TEN);
+        assertThat(dto.get().beregningsandeler().getFirst().inntektsKilde()).isEqualTo(FpSak.Beregningsgrunnlag.InntektsKilde.INNTEKTSMELDING);
     }
 
     @Test
@@ -152,10 +152,10 @@ class BeregningOversiktDtoTjenesteTest {
         assertThat(dto).isPresent();
         assertThat(dto.get().grunnbeløp()).isEqualByComparingTo(BigDecimal.TEN);
         assertThat(dto.get().skjæringstidspunkt()).isEqualTo(LocalDate.now());
-        assertThat(dto.get().beregningsAndeler()).hasSize(2);
+        assertThat(dto.get().beregningsandeler()).hasSize(2);
 
         var frilansAndel = dto.get()
-            .beregningsAndeler()
+            .beregningsandeler()
             .stream()
             .filter(a -> a.aktivitetStatus().equals(FpSak.Beregningsgrunnlag.AktivitetStatus.FRILANSER))
             .findFirst()
@@ -164,7 +164,7 @@ class BeregningOversiktDtoTjenesteTest {
         assertThat(frilansAndel.inntektsKilde()).isEqualTo(FpSak.Beregningsgrunnlag.InntektsKilde.A_INNTEKT);
 
         var SnAndel = dto.get()
-            .beregningsAndeler()
+            .beregningsandeler()
             .stream()
             .filter(a -> a.aktivitetStatus().equals(FpSak.Beregningsgrunnlag.AktivitetStatus.SELVSTENDIG_NÆRINGSDRIVENDE))
             .findFirst()
