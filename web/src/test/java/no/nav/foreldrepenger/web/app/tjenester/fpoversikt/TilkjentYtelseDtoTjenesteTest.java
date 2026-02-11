@@ -97,9 +97,9 @@ class TilkjentYtelseDtoTjenesteTest {
         var andel = dto.andeler().getFirst();
         assertThat(andel.arbeidsgiverIdent()).isEqualTo("999999999");
         assertThat(andel.arbeidsgivernavn()).isEqualTo("Test Bedrift AS");
-        assertThat(andel.dagsats()).isEqualTo(1500);
+        assertThat(andel.dagsats()).isEqualTo(BigDecimal.valueOf(1500));
         assertThat(andel.tilBruker()).isTrue();
-        assertThat(andel.utbetalingsgrad()).isEqualTo(100.0);
+        assertThat(andel.utbetalingsgrad()).isEqualTo(BigDecimal.valueOf(100));
     }
 
     @Test
@@ -158,14 +158,14 @@ class TilkjentYtelseDtoTjenesteTest {
         assertThat(resultat).hasSize(2);
         assertThat(resultat.get(0).fom()).isEqualTo(fom1);
         assertThat(resultat.get(0).tom()).isEqualTo(tom1);
-        assertThat(resultat.get(0).andeler().getFirst().dagsats()).isEqualTo(1000);
-        assertThat(resultat.get(0).andeler().getFirst().utbetalingsgrad()).isEqualTo(80.0);
+        assertThat(resultat.get(0).andeler().getFirst().dagsats()).isEqualTo(BigDecimal.valueOf(1000));
+        assertThat(resultat.get(0).andeler().getFirst().utbetalingsgrad()).isEqualTo(BigDecimal.valueOf(80));
         assertThat(resultat.get(0).andeler().getFirst().tilBruker()).isFalse();
 
         assertThat(resultat.get(1).fom()).isEqualTo(fom2);
         assertThat(resultat.get(1).tom()).isEqualTo(tom2);
-        assertThat(resultat.get(1).andeler().getFirst().dagsats()).isEqualTo(1200);
-        assertThat(resultat.get(1).andeler().getFirst().utbetalingsgrad()).isEqualTo(100.0);
+        assertThat(resultat.get(1).andeler().getFirst().dagsats()).isEqualTo(BigDecimal.valueOf(1200));
+        assertThat(resultat.get(1).andeler().getFirst().utbetalingsgrad()).isEqualTo(BigDecimal.valueOf(100));
     }
 
     @Test
@@ -224,12 +224,12 @@ class TilkjentYtelseDtoTjenesteTest {
         var andel1 = dto.andeler().get(0);
         assertThat(andel1.arbeidsgiverIdent()).isEqualTo("111111111");
         assertThat(andel1.arbeidsgivernavn()).isEqualTo("Bedrift En");
-        assertThat(andel1.dagsats()).isEqualTo(800);
+        assertThat(andel1.dagsats()).isEqualTo(BigDecimal.valueOf(800));
 
         var andel2 = dto.andeler().get(1);
         assertThat(andel2.arbeidsgiverIdent()).isEqualTo("222222222");
         assertThat(andel2.arbeidsgivernavn()).isEqualTo("Bedrift To");
-        assertThat(andel2.dagsats()).isEqualTo(700);
+        assertThat(andel2.dagsats()).isEqualTo(BigDecimal.valueOf(700));
     }
 
     @Test
@@ -269,7 +269,7 @@ class TilkjentYtelseDtoTjenesteTest {
         var andel = resultat.utbetalingsperioder().getFirst().andeler().getFirst();
         assertThat(andel.arbeidsgiverIdent()).isNull();
         assertThat(andel.arbeidsgivernavn()).isNull();
-        assertThat(andel.dagsats()).isEqualTo(500);
+        assertThat(andel.dagsats()).isEqualTo(BigDecimal.valueOf(500));
         assertThat(andel.tilBruker()).isTrue();
     }
 }
