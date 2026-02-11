@@ -32,6 +32,8 @@ import no.nav.foreldrepenger.konfig.Environment;
 
 @ApplicationScoped
 public class BeregningOversiktDtoTjeneste {
+    private static final List<AktivitetStatus> IKKE_STØTTEDE_AKTIVITET_STATUSER = List.of(AktivitetStatus.VENTELØNN_VARTPENGER, AktivitetStatus.TTLSTØTENDE_YTELSE, AktivitetStatus.ARBEIDSAVKLARINGSPENGER,
+        AktivitetStatus.DAGPENGER, AktivitetStatus.MILITÆR_ELLER_SIVIL, AktivitetStatus.BRUKERS_ANDEL);
 
     private BeregningTjeneste beregningTjeneste;
     private InntektArbeidYtelseTjeneste inntektArbeidYtelseTjeneste;
@@ -66,7 +68,7 @@ public class BeregningOversiktDtoTjeneste {
     }
 
     private Optional<FpSak.Beregningsgrunnlag> mapBeregning(Beregningsgrunnlag beregningsgrunnlag, List<Inntektsmelding> inntektsmeldinger) {
-        if (gjelderBesteberegning(beregningsgrunnlag)) {
+        if (gjelderSakInnsynIkkeStøtter(beregningsgrunnlag)) {
             // TODO -- implementeres senere
             return Optional.empty();
         }
@@ -87,11 +89,24 @@ public class BeregningOversiktDtoTjeneste {
             .findFirst();
     }
 
-    private boolean gjelderBesteberegning(Beregningsgrunnlag beregningsgrunnlag) {
-        return førsteBeregningsperiode(beregningsgrunnlag).map(BeregningsgrunnlagPeriode::getBeregningsgrunnlagPrStatusOgAndelList)
+    private boolean gjelderSakInnsynIkkeStøtter(Beregningsgrunnlag beregningsgrunnlag) {
+        // Besteberegning er ikke støttet i innsyn enda, og det må implementeres støtte for det uavhengig av statusen dagpenger
+        var erBesteberegnet = førsteBeregningsperiode(beregningsgrunnlag).map(BeregningsgrunnlagPeriode::getBeregningsgrunnlagPrStatusOgAndelList)
             .orElse(List.of())
             .stream()
             .anyMatch(andel -> andel.getBesteberegnetPrÅr() != null);
+
+        // Saker med statuser som det ikke er laget støtte for å vise i innsyn enda
+        var harIkkeStøttetStatus = beregningsgrunnlag.getAktivitetStatuser().stream().anyMatch(as -> IKKE_STØTTEDE_AKTIVITET_STATUSER.contains(as.getAktivitetStatus()));
+
+        // Kan skje i et fåtall tilfeller, f.eks etterlønn / sluttpakke
+        var harArbeidsandelUtenArbeidsgiver = førsteBeregningsperiode(beregningsgrunnlag)
+            .map(BeregningsgrunnlagPeriode::getBeregningsgrunnlagPrStatusOgAndelList)
+            .orElse(List.of())
+            .stream()
+            .anyMatch(a -> a.getAktivitetStatus().equals(AktivitetStatus.ARBEIDSTAKER) && a.getArbeidsgiver().isEmpty());
+
+        return harIkkeStøttetStatus || erBesteberegnet || harArbeidsandelUtenArbeidsgiver;
     }
 
     private List<FpSak.Beregningsgrunnlag.BeregningsAndel> mapAndeler(List<BeregningsgrunnlagPrStatusOgAndel> beregningsgrunnlagPrStatusOgAndelList,
@@ -109,12 +124,7 @@ public class BeregningOversiktDtoTjeneste {
 
     private List<FpSak.Beregningsgrunnlag.BeregningsAndel> mapAndelerMedArbeidsforhold(List<BeregningsgrunnlagPrStatusOgAndel> arbeidsandeler,
                                                                                        List<Inntektsmelding> inntektsmeldinger) {
-        var finnesArbeidsandelUtenArbeidstaker = arbeidsandeler.stream()
-            .anyMatch(a -> a.getBgAndelArbeidsforhold().map(BGAndelArbeidsforhold::getArbeidsgiver).isEmpty());
-        if (finnesArbeidsandelUtenArbeidstaker) {
-            // TODO Implementer
-            return List.of();
-        }
+
         Map<Arbeidsgiver, List<BeregningsgrunnlagPrStatusOgAndel>> andelerPrArbeidsgiver = arbeidsandeler.stream()
             .collect(Collectors.groupingBy(andel -> andel.getBgAndelArbeidsforhold().map(BGAndelArbeidsforhold::getArbeidsgiver).orElseThrow()));
         return andelerPrArbeidsgiver.entrySet().stream().map(entry -> {
