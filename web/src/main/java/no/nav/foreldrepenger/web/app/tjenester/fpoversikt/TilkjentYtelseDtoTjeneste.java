@@ -13,6 +13,7 @@ import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.domene.arbeidsgiver.ArbeidsgiverOpplysninger;
 import no.nav.foreldrepenger.domene.arbeidsgiver.ArbeidsgiverTjeneste;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 @ApplicationScoped
@@ -64,7 +65,7 @@ public class TilkjentYtelseDtoTjeneste {
         var arbeidsgiverIdent = andel.getArbeidsgiver().map(Arbeidsgiver::getIdentifikator).orElse(null);
         var arbeidsgivernavn = andel.getArbeidsgiver().map(arbeidsgiverTjeneste::hent).map(ArbeidsgiverOpplysninger::getNavn).orElse(null);
 
-        return new FpSak.TilkjentYtelsePeriode.Andel(arbeidsgiverIdent, arbeidsgivernavn, andel.getDagsats(), andel.erBrukerMottaker(),
-            andel.getUtbetalingsgrad().doubleValue());
+        return new FpSak.TilkjentYtelsePeriode.Andel(arbeidsgiverIdent, arbeidsgivernavn, BigDecimal.valueOf(andel.getDagsats()),
+            andel.erBrukerMottaker(), andel.getUtbetalingsgrad());
     }
 }
