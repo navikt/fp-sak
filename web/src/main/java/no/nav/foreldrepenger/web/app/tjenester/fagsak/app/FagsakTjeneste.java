@@ -28,7 +28,7 @@ import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.familiehendelse.FamilieHendelseTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.VurderProsessTaskStatusForPollingApi;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.AsyncPollingStatus;
-import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.AktoerInfoDto;
+import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.AktørInfoDto;
 import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.FagsakDto;
 import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.FagsakSøkDto;
 import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.PersonDto;
@@ -113,7 +113,7 @@ public class FagsakTjeneste {
         return hentFagsakForSaksnummer(saksnummer).map(this::mapFraFagsakTilFagsakDto);
     }
 
-    public Optional<AktoerInfoDto> lagAktoerInfoDto(AktørId aktørId) {
+    public Optional<AktørInfoDto> lagAktørInfoDto(AktørId aktørId) {
         var personinfo = personinfoAdapter.hentBrukerBasisForAktør(FagsakYtelseType.FORELDREPENGER, aktørId).orElse(null);
         if (personinfo == null) {
             return Optional.empty();
@@ -123,7 +123,7 @@ public class FagsakTjeneste {
             .stream()
             .map(f -> mapFraFagsakTilFagsakSøkDto(f, null))
             .toList();
-        var aktoerInfoDto = new AktoerInfoDto(personinfo.aktørId().getId(), personDto, fagsakDtoer);
+        var aktoerInfoDto = new AktørInfoDto(personinfo.aktørId().getId(), personDto, fagsakDtoer);
         return Optional.of(aktoerInfoDto);
     }
 
@@ -147,7 +147,7 @@ public class FagsakTjeneste {
 
     private static PersonDto mapFraPersoninfoBasisTilPersonDto(PersoninfoBasis pi, Språkkode språkkode) {
         return new PersonDto(pi.aktørId().getId(), pi.navn(), pi.personIdent().getIdent(), pi.kjønn(),
-            pi.diskresjonskode().getKode(), pi.fødselsdato(), pi.dødsdato(), pi.dødsdato(), språkkode);
+            pi.diskresjonskode().getKode(), pi.fødselsdato(), pi.dødsdato(), språkkode);
     }
 
     private FagsakDto mapFraFagsakTilFagsakDto(Fagsak fagsak) {

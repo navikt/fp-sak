@@ -156,7 +156,7 @@ public class FagsakFullTjeneste {
                 .map(BehandlingReferanse::fra)
                 .flatMap(b -> personopplysningTjeneste.hentOppgittAnnenPart(b))
                 .filter(ap -> ap.getAktørId() == null && ap.getUtenlandskFnrLand() != null && !Landkoder.UDEFINERT.equals(ap.getUtenlandskFnrLand()))
-                .map(ap -> new PersonDto(null, null, null, null, null, null, null, null, null)));
+                .map(ap -> new PersonDto(null, null, null, null, null, null, null, null)));
     }
 
     private Integer finnDekningsgrad(Fagsak fagsak) {
@@ -173,7 +173,7 @@ public class FagsakFullTjeneste {
 
     private static PersonDto mapFraPersoninfoBasisTilPersonDto(PersoninfoBasis pi, Språkkode språkkode) {
         return new PersonDto(pi.aktørId().getId(), pi.navn(), pi.personIdent().getIdent(), pi.kjønn(),
-            pi.diskresjonskode().getKode(), pi.fødselsdato(), pi.dødsdato(), pi.dødsdato(), språkkode);
+            pi.diskresjonskode().getKode(), pi.fødselsdato(), pi.dødsdato(), språkkode);
     }
 
     private Optional<SakHendelseDto> hentFamilieHendelse(Fagsak fagsak) {
