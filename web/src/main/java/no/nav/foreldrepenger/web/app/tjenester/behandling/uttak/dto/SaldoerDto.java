@@ -6,7 +6,7 @@ import jakarta.validation.constraints.NotNull;
 
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.Stønadskontotype;
 
-public record SaldoerDto(@NotNull Map<SaldoVisningStønadskontoType, StønadskontoDto> stonadskontoer, @NotNull int tapteDagerFpff) {
+public record SaldoerDto(@NotNull Map<SaldoVisningStønadskontoType, StønadskontoDto> stonadskontoer, @NotNull Map<SaldoVisningStønadskontoType, StønadskontoDto> stønadskonti, @NotNull int tapteDagerFpff) {
 
     public enum SaldoVisningStønadskontoType {
         MØDREKVOTE,

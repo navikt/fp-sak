@@ -127,7 +127,7 @@ public class SaldoerDtoTjeneste {
         }
 
         var tapteDagerFpff = finnTapteDagerFpff(input, stønadskontoMap);
-        return new SaldoerDto(stønadskontoMap, tapteDagerFpff);
+        return new SaldoerDto(stønadskontoMap, stønadskontoMap, tapteDagerFpff);
     }
 
     private Optional<KontoReduksjoner> finnKontoReduksjoner(ForeldrepengerGrunnlag fpGrunnlag, Stønadskontotype stønadskontotype) {

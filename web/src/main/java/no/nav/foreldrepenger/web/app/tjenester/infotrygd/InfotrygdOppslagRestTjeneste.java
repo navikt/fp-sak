@@ -188,7 +188,7 @@ public class InfotrygdOppslagRestTjeneste {
         }
         var mappedSaker = saker.stream()
             .map(s -> new InfotrygdVedtakDto.SakDto(mapSakTermnavn(s.resultat()), s.registrert(), s.saksBlokkNummer(), mapSakTermnavn(s.type()),
-                s.vedtatt(), mapSakStønad(s.valg(), s.undervalg()), mapSakTermnavn(s.undervalg()), mapSakTermnavn(s.nivaa())))
+                s.vedtatt(), mapSakStønad(s.valg(), s.undervalg()), mapSakTermnavn(s.undervalg()), mapSakTermnavn(s.nivaa()), mapSakTermnavn(s.nivaa())))
             .sorted(Comparator.comparing(InfotrygdVedtakDto.SakDto::registrert))
             .toList();
         var mapped = grunnlagene.stream().map(InfotrygdOppslagRestTjeneste::mapTilVedtakDtoGrunnlag)
