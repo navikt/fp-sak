@@ -41,7 +41,8 @@ public class BeregningOversiktDtoTjeneste {
 
     @Inject
     public BeregningOversiktDtoTjeneste(BeregningTjeneste beregningTjeneste,
-                                        InntektArbeidYtelseTjeneste inntektArbeidYtelseTjeneste, ArbeidsgiverTjeneste arbeidsgiverTjeneste) {
+                                        InntektArbeidYtelseTjeneste inntektArbeidYtelseTjeneste,
+                                        ArbeidsgiverTjeneste arbeidsgiverTjeneste) {
         this.beregningTjeneste = beregningTjeneste;
         this.inntektArbeidYtelseTjeneste = inntektArbeidYtelseTjeneste;
         this.arbeidsgiverTjeneste = arbeidsgiverTjeneste;
@@ -62,6 +63,7 @@ public class BeregningOversiktDtoTjeneste {
             .flatMap(InntektArbeidYtelseGrunnlag::getInntektsmeldinger)
             .map(InntektsmeldingAggregat::getAlleInntektsmeldinger)
             .orElse(List.of());
+
         return grBeregningsgrunnlag.flatMap(BeregningsgrunnlagGrunnlag::getBeregningsgrunnlag).flatMap(bg -> mapBeregning(bg, inntektsmeldinger));
     }
 
@@ -71,10 +73,14 @@ public class BeregningOversiktDtoTjeneste {
             return Optional.empty();
         }
         var aktivitetStatuser = beregningsgrunnlag.getAktivitetStatuser().stream().map(this::mapAktivitetStatusMedHjemmel).toList();
-        var beregningsAndeler = førsteBeregningsperiode(beregningsgrunnlag).map(førstePeriode -> mapAndeler(førstePeriode.getBeregningsgrunnlagPrStatusOgAndelList(), inntektsmeldinger)).orElse(List.of());
+        var beregningsAndeler = førsteBeregningsperiode(beregningsgrunnlag).map(
+            førstePeriode -> mapAndeler(førstePeriode.getBeregningsgrunnlagPrStatusOgAndelList(), inntektsmeldinger)).orElse(List.of());
         var grunnbeløp = beregningsgrunnlag.getGrunnbeløp() == null ? null : beregningsgrunnlag.getGrunnbeløp().getVerdi();
-        return Optional.of(new FpSak.Beregningsgrunnlag(beregningsgrunnlag.getSkjæringstidspunkt(), beregningsAndeler, aktivitetStatuser, grunnbeløp));
+
+        return Optional.of(
+            new FpSak.Beregningsgrunnlag(beregningsgrunnlag.getSkjæringstidspunkt(), beregningsAndeler, aktivitetStatuser, grunnbeløp));
     }
+
 
     private static Optional<BeregningsgrunnlagPeriode> førsteBeregningsperiode(Beregningsgrunnlag beregningsgrunnlag) {
         return beregningsgrunnlag.getBeregningsgrunnlagPerioder()
@@ -103,10 +109,9 @@ public class BeregningOversiktDtoTjeneste {
         return harIkkeStøttetStatus || erBesteberegnet || harArbeidsandelUtenArbeidsgiver;
     }
 
-    private List<FpSak.Beregningsgrunnlag.BeregningsAndel> mapAndeler(List<BeregningsgrunnlagPrStatusOgAndel> beregningsgrunnlagPrStatusOgAndelList, List<Inntektsmelding> inntektsmeldinger) {
-        var andelerFraStart = beregningsgrunnlagPrStatusOgAndelList.stream()
-            .filter(a -> a.getKilde().equals(AndelKilde.PROSESS_START))
-            .toList();
+    private List<FpSak.Beregningsgrunnlag.BeregningsAndel> mapAndeler(List<BeregningsgrunnlagPrStatusOgAndel> beregningsgrunnlagPrStatusOgAndelList,
+                                                                      List<Inntektsmelding> inntektsmeldinger) {
+        var andelerFraStart = beregningsgrunnlagPrStatusOgAndelList.stream().filter(a -> a.getKilde().equals(AndelKilde.PROSESS_START)).toList();
         var andelerUtenArbeidsforhold = andelerFraStart.stream()
             .filter(a -> !a.getAktivitetStatus().equals(AktivitetStatus.ARBEIDSTAKER))
             .map(this::mapAndelUtenArbeidsforhold)
@@ -114,28 +119,26 @@ public class BeregningOversiktDtoTjeneste {
         var arbeidsandeler = andelerFraStart.stream().filter(andel -> andel.getAktivitetStatus().equals(AktivitetStatus.ARBEIDSTAKER)).toList();
         var andelerMedArbeidsforhold = mapAndelerMedArbeidsforhold(arbeidsandeler, inntektsmeldinger);
 
-        return Stream.of(andelerMedArbeidsforhold, andelerUtenArbeidsforhold)
-                    .flatMap(List::stream)
-                    .toList();
+        return Stream.of(andelerMedArbeidsforhold, andelerUtenArbeidsforhold).flatMap(List::stream).toList();
     }
 
-    private List<FpSak.Beregningsgrunnlag.BeregningsAndel> mapAndelerMedArbeidsforhold(List<BeregningsgrunnlagPrStatusOgAndel> arbeidsandeler, List<Inntektsmelding> inntektsmeldinger) {
+    private List<FpSak.Beregningsgrunnlag.BeregningsAndel> mapAndelerMedArbeidsforhold(List<BeregningsgrunnlagPrStatusOgAndel> arbeidsandeler,
+                                                                                       List<Inntektsmelding> inntektsmeldinger) {
+
         Map<Arbeidsgiver, List<BeregningsgrunnlagPrStatusOgAndel>> andelerPrArbeidsgiver = arbeidsandeler.stream()
-            .collect(Collectors.groupingBy(
-                andel -> andel.getBgAndelArbeidsforhold()
-                    .map(BGAndelArbeidsforhold::getArbeidsgiver)
-                    .orElseThrow()
-            ));
+            .collect(Collectors.groupingBy(andel -> andel.getBgAndelArbeidsforhold().map(BGAndelArbeidsforhold::getArbeidsgiver).orElseThrow()));
         return andelerPrArbeidsgiver.entrySet().stream().map(entry -> {
             var erSkjønnsfastsatt = entry.getValue().stream().anyMatch(a -> a.getOverstyrtPrÅr() != null);
             var finnesIM = inntektsmeldinger.stream().anyMatch(im -> im.getArbeidsgiver().equals(entry.getKey()));
-            var fastsattPerÅr = entry.getValue().stream()
+            var fastsattPerÅr = entry.getValue()
+                .stream()
                 .map(erSkjønnsfastsatt ? BeregningsgrunnlagPrStatusOgAndel::getOverstyrtPrÅr : BeregningsgrunnlagPrStatusOgAndel::getBeregnetPrÅr)
                 .reduce(BigDecimal::add)
                 .orElse(BigDecimal.ZERO);
             var inntektsKilde = erSkjønnsfastsatt ? FpSak.Beregningsgrunnlag.InntektsKilde.SKJØNNSFASTSATT : finnesIM ? FpSak.Beregningsgrunnlag.InntektsKilde.INNTEKTSMELDING : FpSak.Beregningsgrunnlag.InntektsKilde.A_INNTEKT;
 
-            var refusjonPerÅr = entry.getValue().stream()
+            var refusjonPerÅr = entry.getValue()
+                .stream()
                 .map(a -> a.getBgAndelArbeidsforhold().map(BGAndelArbeidsforhold::getRefusjonskravPrÅr).orElse(BigDecimal.ZERO))
                 .reduce(BigDecimal::add)
                 .orElse(BigDecimal.ZERO);
@@ -145,18 +148,21 @@ public class BeregningOversiktDtoTjeneste {
 
             var arbeidsforhold = new FpSak.Beregningsgrunnlag.Arbeidsforhold(entry.getKey().getIdentifikator(), arbeidsgivernavn, refusjonPerMnd);
 
-            var dagsatsArbeidsgiver = entry.getValue().stream()
+            var dagsatsArbeidsgiver = entry.getValue()
+                .stream()
                 .map(BeregningsgrunnlagPrStatusOgAndel::getDagsatsArbeidsgiver)
                 .filter(Objects::nonNull)
                 .reduce(Long::sum)
                 .orElse(0L);
-            var dagsatsSøker = entry.getValue().stream()
+            var dagsatsSøker = entry.getValue()
+                .stream()
                 .map(BeregningsgrunnlagPrStatusOgAndel::getDagsatsBruker)
                 .filter(Objects::nonNull)
                 .reduce(Long::sum)
                 .orElse(0L);
 
-            return new FpSak.Beregningsgrunnlag.BeregningsAndel(FpSak.Beregningsgrunnlag.AktivitetStatus.ARBEIDSTAKER, fastsattPerÅr, inntektsKilde, arbeidsforhold, BigDecimal.valueOf(dagsatsArbeidsgiver), BigDecimal.valueOf(dagsatsSøker));
+            return new FpSak.Beregningsgrunnlag.BeregningsAndel(FpSak.Beregningsgrunnlag.AktivitetStatus.ARBEIDSTAKER, fastsattPerÅr, inntektsKilde,
+                arbeidsforhold, BigDecimal.valueOf(dagsatsArbeidsgiver), BigDecimal.valueOf(dagsatsSøker));
         }).toList();
     }
 
@@ -165,25 +171,25 @@ public class BeregningOversiktDtoTjeneste {
         var fastsattPrÅr = erSkjønsfastsatt ? andel.getOverstyrtPrÅr() : andel.getBeregnetPrÅr();
         if (andel.getAktivitetStatus().equals(AktivitetStatus.SELVSTENDIG_NÆRINGSDRIVENDE)) {
             var inntektsKilde = erSkjønsfastsatt ? FpSak.Beregningsgrunnlag.InntektsKilde.SKJØNNSFASTSATT : FpSak.Beregningsgrunnlag.InntektsKilde.PENSJONSGIVENDE_INNTEKT;
-            return new FpSak.Beregningsgrunnlag.BeregningsAndel(mapAktivitetstatus(andel.getAktivitetStatus()), fastsattPrÅr, inntektsKilde, null, null,
-                mapDagsats(andel));
+            return new FpSak.Beregningsgrunnlag.BeregningsAndel(mapAktivitetstatus(andel.getAktivitetStatus()), fastsattPrÅr, inntektsKilde, null,
+                BigDecimal.ZERO, mapDagsats(andel));
         }
         if (andel.getAktivitetStatus().equals(AktivitetStatus.FRILANSER)) {
             var inntektsKilde = erSkjønsfastsatt ? FpSak.Beregningsgrunnlag.InntektsKilde.SKJØNNSFASTSATT : FpSak.Beregningsgrunnlag.InntektsKilde.A_INNTEKT;
-            return new FpSak.Beregningsgrunnlag.BeregningsAndel(mapAktivitetstatus(andel.getAktivitetStatus()), fastsattPrÅr, inntektsKilde, null, null,
-                mapDagsats(andel));
+            return new FpSak.Beregningsgrunnlag.BeregningsAndel(mapAktivitetstatus(andel.getAktivitetStatus()), fastsattPrÅr, inntektsKilde, null,
+                BigDecimal.ZERO, mapDagsats(andel));
         }
         if (andel.getAktivitetStatus().equals(AktivitetStatus.ARBEIDSAVKLARINGSPENGER)) {
-            return new FpSak.Beregningsgrunnlag.BeregningsAndel(mapAktivitetstatus(andel.getAktivitetStatus()), fastsattPrÅr, FpSak.Beregningsgrunnlag.InntektsKilde.VEDTAK_ANNEN_YTELSE, null, null,
-                mapDagsats(andel));
+            return new FpSak.Beregningsgrunnlag.BeregningsAndel(mapAktivitetstatus(andel.getAktivitetStatus()), fastsattPrÅr,
+                FpSak.Beregningsgrunnlag.InntektsKilde.VEDTAK_ANNEN_YTELSE, null, BigDecimal.ZERO, mapDagsats(andel));
         }
         if (andel.getAktivitetStatus().equals(AktivitetStatus.DAGPENGER)) {
-            return new FpSak.Beregningsgrunnlag.BeregningsAndel(mapAktivitetstatus(andel.getAktivitetStatus()), fastsattPrÅr, FpSak.Beregningsgrunnlag.InntektsKilde.VEDTAK_ANNEN_YTELSE, null, null,
-                mapDagsats(andel));
+            return new FpSak.Beregningsgrunnlag.BeregningsAndel(mapAktivitetstatus(andel.getAktivitetStatus()), fastsattPrÅr,
+                FpSak.Beregningsgrunnlag.InntektsKilde.VEDTAK_ANNEN_YTELSE, null, BigDecimal.ZERO, mapDagsats(andel));
         }
         if (andel.getAktivitetStatus().equals(AktivitetStatus.BRUKERS_ANDEL)) {
-            return new FpSak.Beregningsgrunnlag.BeregningsAndel(mapAktivitetstatus(andel.getAktivitetStatus()), fastsattPrÅr, FpSak.Beregningsgrunnlag.InntektsKilde.SKJØNNSFASTSATT, null, null,
-                mapDagsats(andel));
+            return new FpSak.Beregningsgrunnlag.BeregningsAndel(mapAktivitetstatus(andel.getAktivitetStatus()), fastsattPrÅr,
+                FpSak.Beregningsgrunnlag.InntektsKilde.SKJØNNSFASTSATT, null, BigDecimal.ZERO, mapDagsats(andel));
         }
         if (andel.getAktivitetStatus().equals(AktivitetStatus.MILITÆR_ELLER_SIVIL)) {
             throw new IllegalStateException("Støttes ikke ennå");

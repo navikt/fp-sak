@@ -2,6 +2,10 @@ package no.nav.foreldrepenger.web.app.tjenester.fpoversikt;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.AktivitetStatus;
+import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatAndel;
+import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatEntitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatPeriode;
+import no.nav.foreldrepenger.behandlingslager.behandling.beregning.Inntektskategori;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
@@ -44,6 +48,7 @@ class BeregningOversiktDtoTjenesteTest {
     @Mock
     private BeregningTjeneste beregningTjeneste;
 
+
     private BeregningOversiktDtoTjeneste beregningOversiktDtoTjeneste;
 
     @BeforeEach
@@ -76,6 +81,25 @@ class BeregningOversiktDtoTjenesteTest {
                 List.of(InntektsmeldingBuilder.builder().medArbeidsgiver(Arbeidsgiver.virksomhet("9".repeat(9))).medBeløp(BigDecimal.TEN).build()))
             .build();
 
+        // Opprett beregningsresultat med periode og andel
+        var beregningsresultatEntitet = BeregningsresultatEntitet.builder().medRegelInput("").medRegelSporing("").build();
+
+        var beregningsresultatPeriode = BeregningsresultatPeriode.builder()
+            .medBeregningsresultatPeriodeFomOgTom(LocalDate.now(), LocalDate.now().plusDays(30))
+            .build(beregningsresultatEntitet);
+
+        BeregningsresultatAndel.builder()
+            .medArbeidsgiver(Arbeidsgiver.virksomhet("9".repeat(9)))
+            .medDagsats(1500)
+            .medDagsatsFraBg(1500)
+            .medBrukerErMottaker(true)
+            .medAktivitetStatus(AktivitetStatus.ARBEIDSTAKER)
+            .medInntektskategori(Inntektskategori.ARBEIDSTAKER)
+            .medStillingsprosent(BigDecimal.valueOf(100))
+            .medUtbetalingsgrad(BigDecimal.valueOf(100))
+            .build(beregningsresultatPeriode);
+
+
         when(inntektArbeidYtelseTjeneste.finnGrunnlag(any())).thenReturn(Optional.of(iaygr));
         when(beregningTjeneste.hent(any())).thenReturn(Optional.of(grunnlagBeregningsgrunnlag));
         when(arbeidsgiverTjeneste.hent(any())).thenReturn(new ArbeidsgiverOpplysninger("9".repeat(9), "Testbedriften"));
@@ -86,11 +110,11 @@ class BeregningOversiktDtoTjenesteTest {
         assertThat(dto).isPresent();
         assertThat(dto.get().grunnbeløp()).isEqualByComparingTo(BigDecimal.TEN);
         assertThat(dto.get().skjæringstidspunkt()).isEqualTo(LocalDate.now());
-        assertThat(dto.get().beregningsAndeler()).hasSize(1);
-        assertThat(dto.get().beregningsAndeler().getFirst().arbeidsforhold().arbeidsgiverIdent()).isEqualTo("9".repeat(9));
-        assertThat(dto.get().beregningsAndeler().getFirst().arbeidsforhold().arbeidsgivernavn()).isEqualTo("Testbedriften");
-        assertThat(dto.get().beregningsAndeler().getFirst().fastsattPrÅr()).isEqualByComparingTo(BigDecimal.TEN);
-        assertThat(dto.get().beregningsAndeler().getFirst().inntektsKilde()).isEqualTo(FpSak.Beregningsgrunnlag.InntektsKilde.INNTEKTSMELDING);
+        assertThat(dto.get().beregningsandeler()).hasSize(1);
+        assertThat(dto.get().beregningsandeler().getFirst().arbeidsforhold().arbeidsgiverIdent()).isEqualTo("9".repeat(9));
+        assertThat(dto.get().beregningsandeler().getFirst().arbeidsforhold().arbeidsgivernavn()).isEqualTo("Testbedriften");
+        assertThat(dto.get().beregningsandeler().getFirst().fastsattPrÅr()).isEqualByComparingTo(BigDecimal.TEN);
+        assertThat(dto.get().beregningsandeler().getFirst().inntektsKilde()).isEqualTo(FpSak.Beregningsgrunnlag.InntektsKilde.INNTEKTSMELDING);
     }
 
     @Test
@@ -128,10 +152,10 @@ class BeregningOversiktDtoTjenesteTest {
         assertThat(dto).isPresent();
         assertThat(dto.get().grunnbeløp()).isEqualByComparingTo(BigDecimal.TEN);
         assertThat(dto.get().skjæringstidspunkt()).isEqualTo(LocalDate.now());
-        assertThat(dto.get().beregningsAndeler()).hasSize(2);
+        assertThat(dto.get().beregningsandeler()).hasSize(2);
 
         var frilansAndel = dto.get()
-            .beregningsAndeler()
+            .beregningsandeler()
             .stream()
             .filter(a -> a.aktivitetStatus().equals(FpSak.Beregningsgrunnlag.AktivitetStatus.FRILANSER))
             .findFirst()
@@ -140,7 +164,7 @@ class BeregningOversiktDtoTjenesteTest {
         assertThat(frilansAndel.inntektsKilde()).isEqualTo(FpSak.Beregningsgrunnlag.InntektsKilde.A_INNTEKT);
 
         var SnAndel = dto.get()
-            .beregningsAndeler()
+            .beregningsandeler()
             .stream()
             .filter(a -> a.aktivitetStatus().equals(FpSak.Beregningsgrunnlag.AktivitetStatus.SELVSTENDIG_NÆRINGSDRIVENDE))
             .findFirst()
