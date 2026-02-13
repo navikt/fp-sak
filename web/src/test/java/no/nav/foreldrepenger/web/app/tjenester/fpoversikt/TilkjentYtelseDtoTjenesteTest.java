@@ -158,12 +158,14 @@ class TilkjentYtelseDtoTjenesteTest {
         assertThat(resultat).hasSize(2);
         assertThat(resultat.get(0).fom()).isEqualTo(fom1);
         assertThat(resultat.get(0).tom()).isEqualTo(tom1);
+        assertThat(resultat.get(0).andeler().getFirst().aktivitetStatus()).isEqualTo(FpSak.AktivitetStatus.ARBEIDSTAKER);
         assertThat(resultat.get(0).andeler().getFirst().dagsats()).isEqualTo(BigDecimal.valueOf(1000));
         assertThat(resultat.get(0).andeler().getFirst().utbetalingsgrad()).isEqualTo(BigDecimal.valueOf(80));
         assertThat(resultat.get(0).andeler().getFirst().tilBruker()).isFalse();
 
         assertThat(resultat.get(1).fom()).isEqualTo(fom2);
         assertThat(resultat.get(1).tom()).isEqualTo(tom2);
+        assertThat(resultat.get(1).andeler().getFirst().aktivitetStatus()).isEqualTo(FpSak.AktivitetStatus.ARBEIDSTAKER);
         assertThat(resultat.get(1).andeler().getFirst().dagsats()).isEqualTo(BigDecimal.valueOf(1200));
         assertThat(resultat.get(1).andeler().getFirst().utbetalingsgrad()).isEqualTo(BigDecimal.valueOf(100));
     }
@@ -222,11 +224,13 @@ class TilkjentYtelseDtoTjenesteTest {
         assertThat(dto.andeler()).hasSize(2);
 
         var andel1 = dto.andeler().get(0);
+        assertThat(andel1.aktivitetStatus()).isEqualTo(FpSak.AktivitetStatus.ARBEIDSTAKER);
         assertThat(andel1.arbeidsgiverIdent()).isEqualTo("111111111");
         assertThat(andel1.arbeidsgivernavn()).isEqualTo("Bedrift En");
         assertThat(andel1.dagsats()).isEqualTo(BigDecimal.valueOf(800));
 
         var andel2 = dto.andeler().get(1);
+        assertThat(andel2.aktivitetStatus()).isEqualTo(FpSak.AktivitetStatus.ARBEIDSTAKER);
         assertThat(andel2.arbeidsgiverIdent()).isEqualTo("222222222");
         assertThat(andel2.arbeidsgivernavn()).isEqualTo("Bedrift To");
         assertThat(andel2.dagsats()).isEqualTo(BigDecimal.valueOf(700));
@@ -267,9 +271,168 @@ class TilkjentYtelseDtoTjenesteTest {
 
         assertThat(resultat.utbetalingsperioder()).hasSize(1);
         var andel = resultat.utbetalingsperioder().getFirst().andeler().getFirst();
+        assertThat(andel.aktivitetStatus()).isEqualTo(FpSak.AktivitetStatus.FRILANSER);
         assertThat(andel.arbeidsgiverIdent()).isNull();
         assertThat(andel.arbeidsgivernavn()).isNull();
         assertThat(andel.dagsats()).isEqualTo(BigDecimal.valueOf(500));
         assertThat(andel.tilBruker()).isTrue();
+    }
+
+    @Test
+    void skal_mappe_aktivitetsstatus_arbeidstaker() {
+        var arbeidsgiver = Arbeidsgiver.virksomhet("999999999");
+        var ref = BehandlingReferanse.fra(ScenarioMorSøkerForeldrepenger.forFødsel().lagMocked());
+
+        var beregningsresultatEntitet = BeregningsresultatEntitet.builder()
+            .medRegelInput("")
+            .medRegelSporing("")
+            .build();
+
+        var periode = BeregningsresultatPeriode.builder()
+            .medBeregningsresultatPeriodeFomOgTom(LocalDate.now(), LocalDate.now().plusDays(10))
+            .build(beregningsresultatEntitet);
+
+        BeregningsresultatAndel.builder()
+            .medArbeidsgiver(arbeidsgiver)
+            .medDagsats(1000)
+            .medDagsatsFraBg(1000)
+            .medBrukerErMottaker(true)
+            .medAktivitetStatus(AktivitetStatus.ARBEIDSTAKER)
+            .medInntektskategori(Inntektskategori.ARBEIDSTAKER)
+            .medStillingsprosent(BigDecimal.valueOf(100))
+            .medUtbetalingsgrad(BigDecimal.valueOf(100))
+            .build(periode);
+
+        var beregningsresultat = BehandlingBeregningsresultatBuilder.ny()
+            .medBgBeregningsresultatFP(beregningsresultatEntitet)
+            .build(ref.behandlingId());
+
+        when(beregningsresultatRepository.hentBeregningsresultatAggregat(any())).thenReturn(Optional.of(beregningsresultat));
+        when(arbeidsgiverTjeneste.hent(arbeidsgiver)).thenReturn(new ArbeidsgiverOpplysninger("999999999", "Test Bedrift AS"));
+
+        var resultat = tjeneste.lagDtoForTilkjentYtelse(ref);
+
+        var andel = resultat.utbetalingsperioder().getFirst().andeler().getFirst();
+        assertThat(andel.aktivitetStatus()).isEqualTo(FpSak.AktivitetStatus.ARBEIDSTAKER);
+    }
+
+    @Test
+    void skal_mappe_aktivitetsstatus_frilanser() {
+        var ref = BehandlingReferanse.fra(ScenarioMorSøkerForeldrepenger.forFødsel().lagMocked());
+
+        var beregningsresultatEntitet = BeregningsresultatEntitet.builder()
+            .medRegelInput("")
+            .medRegelSporing("")
+            .build();
+
+        var periode = BeregningsresultatPeriode.builder()
+            .medBeregningsresultatPeriodeFomOgTom(LocalDate.now(), LocalDate.now().plusDays(10))
+            .build(beregningsresultatEntitet);
+
+        BeregningsresultatAndel.builder()
+            .medDagsats(500)
+            .medDagsatsFraBg(500)
+            .medBrukerErMottaker(true)
+            .medAktivitetStatus(AktivitetStatus.FRILANSER)
+            .medInntektskategori(Inntektskategori.FRILANSER)
+            .medStillingsprosent(BigDecimal.valueOf(100))
+            .medUtbetalingsgrad(BigDecimal.valueOf(100))
+            .build(periode);
+
+        var beregningsresultat = BehandlingBeregningsresultatBuilder.ny()
+            .medBgBeregningsresultatFP(beregningsresultatEntitet)
+            .build(ref.behandlingId());
+
+        when(beregningsresultatRepository.hentBeregningsresultatAggregat(any())).thenReturn(Optional.of(beregningsresultat));
+
+        var resultat = tjeneste.lagDtoForTilkjentYtelse(ref);
+
+        var andel = resultat.utbetalingsperioder().getFirst().andeler().getFirst();
+        assertThat(andel.aktivitetStatus()).isEqualTo(FpSak.AktivitetStatus.FRILANSER);
+    }
+
+    @Test
+    void skal_mappe_aktivitetsstatus_selvstendig_næringsdrivende() {
+        var ref = BehandlingReferanse.fra(ScenarioMorSøkerForeldrepenger.forFødsel().lagMocked());
+
+        var beregningsresultatEntitet = BeregningsresultatEntitet.builder()
+            .medRegelInput("")
+            .medRegelSporing("")
+            .build();
+
+        var periode = BeregningsresultatPeriode.builder()
+            .medBeregningsresultatPeriodeFomOgTom(LocalDate.now(), LocalDate.now().plusDays(10))
+            .build(beregningsresultatEntitet);
+
+        BeregningsresultatAndel.builder()
+            .medDagsats(800)
+            .medDagsatsFraBg(800)
+            .medBrukerErMottaker(true)
+            .medAktivitetStatus(AktivitetStatus.SELVSTENDIG_NÆRINGSDRIVENDE)
+            .medInntektskategori(Inntektskategori.SELVSTENDIG_NÆRINGSDRIVENDE)
+            .medStillingsprosent(BigDecimal.valueOf(100))
+            .medUtbetalingsgrad(BigDecimal.valueOf(100))
+            .build(periode);
+
+        var beregningsresultat = BehandlingBeregningsresultatBuilder.ny()
+            .medBgBeregningsresultatFP(beregningsresultatEntitet)
+            .build(ref.behandlingId());
+
+        when(beregningsresultatRepository.hentBeregningsresultatAggregat(any())).thenReturn(Optional.of(beregningsresultat));
+
+        var resultat = tjeneste.lagDtoForTilkjentYtelse(ref);
+
+        var andel = resultat.utbetalingsperioder().getFirst().andeler().getFirst();
+        assertThat(andel.aktivitetStatus()).isEqualTo(FpSak.AktivitetStatus.SELVSTENDIG_NÆRINGSDRIVENDE);
+    }
+
+    @Test
+    void skal_mappe_flere_andeler_med_ulike_aktivitetsstatuser() {
+        var arbeidsgiver = Arbeidsgiver.virksomhet("123456789");
+        var ref = BehandlingReferanse.fra(ScenarioMorSøkerForeldrepenger.forFødsel().lagMocked());
+
+        var beregningsresultatEntitet = BeregningsresultatEntitet.builder()
+            .medRegelInput("")
+            .medRegelSporing("")
+            .build();
+
+        var periode = BeregningsresultatPeriode.builder()
+            .medBeregningsresultatPeriodeFomOgTom(LocalDate.now(), LocalDate.now().plusDays(10))
+            .build(beregningsresultatEntitet);
+
+        BeregningsresultatAndel.builder()
+            .medArbeidsgiver(arbeidsgiver)
+            .medDagsats(600)
+            .medDagsatsFraBg(600)
+            .medBrukerErMottaker(true)
+            .medAktivitetStatus(AktivitetStatus.ARBEIDSTAKER)
+            .medInntektskategori(Inntektskategori.ARBEIDSTAKER)
+            .medStillingsprosent(BigDecimal.valueOf(50))
+            .medUtbetalingsgrad(BigDecimal.valueOf(100))
+            .build(periode);
+
+        BeregningsresultatAndel.builder()
+            .medDagsats(400)
+            .medDagsatsFraBg(400)
+            .medBrukerErMottaker(true)
+            .medAktivitetStatus(AktivitetStatus.FRILANSER)
+            .medInntektskategori(Inntektskategori.FRILANSER)
+            .medStillingsprosent(BigDecimal.valueOf(50))
+            .medUtbetalingsgrad(BigDecimal.valueOf(100))
+            .build(periode);
+
+        var beregningsresultat = BehandlingBeregningsresultatBuilder.ny()
+            .medBgBeregningsresultatFP(beregningsresultatEntitet)
+            .build(ref.behandlingId());
+
+        when(beregningsresultatRepository.hentBeregningsresultatAggregat(any())).thenReturn(Optional.of(beregningsresultat));
+        when(arbeidsgiverTjeneste.hent(arbeidsgiver)).thenReturn(new ArbeidsgiverOpplysninger("123456789", "Arbeidsgiveren"));
+
+        var resultat = tjeneste.lagDtoForTilkjentYtelse(ref);
+
+        var andeler = resultat.utbetalingsperioder().getFirst().andeler();
+        assertThat(andeler).hasSize(2);
+        assertThat(andeler.get(0).aktivitetStatus()).isEqualTo(FpSak.AktivitetStatus.ARBEIDSTAKER);
+        assertThat(andeler.get(1).aktivitetStatus()).isEqualTo(FpSak.AktivitetStatus.FRILANSER);
     }
 }

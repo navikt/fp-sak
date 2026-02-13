@@ -157,7 +157,7 @@ class BeregningOversiktDtoTjenesteTest {
         var frilansAndel = dto.get()
             .beregningsandeler()
             .stream()
-            .filter(a -> a.aktivitetStatus().equals(FpSak.Beregningsgrunnlag.AktivitetStatus.FRILANSER))
+            .filter(a -> a.aktivitetStatus().equals(FpSak.AktivitetStatus.FRILANSER))
             .findFirst()
             .orElseThrow();
         assertThat(frilansAndel.fastsattPrÅr()).isEqualByComparingTo(BigDecimal.TEN);
@@ -166,7 +166,7 @@ class BeregningOversiktDtoTjenesteTest {
         var SnAndel = dto.get()
             .beregningsandeler()
             .stream()
-            .filter(a -> a.aktivitetStatus().equals(FpSak.Beregningsgrunnlag.AktivitetStatus.SELVSTENDIG_NÆRINGSDRIVENDE))
+            .filter(a -> a.aktivitetStatus().equals(FpSak.AktivitetStatus.SELVSTENDIG_NÆRINGSDRIVENDE))
             .findFirst()
             .orElseThrow();
         assertThat(SnAndel.fastsattPrÅr()).isEqualByComparingTo(BigDecimal.TWO);

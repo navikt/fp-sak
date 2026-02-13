@@ -32,8 +32,9 @@ import no.nav.foreldrepenger.konfig.Environment;
 
 @ApplicationScoped
 public class BeregningOversiktDtoTjeneste {
-    private static final List<AktivitetStatus> IKKE_STØTTEDE_AKTIVITET_STATUSER = List.of(AktivitetStatus.VENTELØNN_VARTPENGER, AktivitetStatus.TTLSTØTENDE_YTELSE, AktivitetStatus.ARBEIDSAVKLARINGSPENGER,
-        AktivitetStatus.DAGPENGER, AktivitetStatus.MILITÆR_ELLER_SIVIL, AktivitetStatus.BRUKERS_ANDEL);
+    private static final List<AktivitetStatus> IKKE_STØTTEDE_AKTIVITET_STATUSER = List.of(AktivitetStatus.VENTELØNN_VARTPENGER,
+        AktivitetStatus.TTLSTØTENDE_YTELSE, AktivitetStatus.ARBEIDSAVKLARINGSPENGER, AktivitetStatus.DAGPENGER, AktivitetStatus.MILITÆR_ELLER_SIVIL,
+        AktivitetStatus.BRUKERS_ANDEL);
 
     private BeregningTjeneste beregningTjeneste;
     private InntektArbeidYtelseTjeneste inntektArbeidYtelseTjeneste;
@@ -97,11 +98,13 @@ public class BeregningOversiktDtoTjeneste {
             .anyMatch(andel -> andel.getBesteberegnetPrÅr() != null);
 
         // Saker med statuser som det ikke er laget støtte for å vise i innsyn enda
-        var harIkkeStøttetStatus = beregningsgrunnlag.getAktivitetStatuser().stream().anyMatch(as -> IKKE_STØTTEDE_AKTIVITET_STATUSER.contains(as.getAktivitetStatus()));
+        var harIkkeStøttetStatus = beregningsgrunnlag.getAktivitetStatuser()
+            .stream()
+            .anyMatch(as -> IKKE_STØTTEDE_AKTIVITET_STATUSER.contains(as.getAktivitetStatus()));
 
         // Kan skje i et fåtall tilfeller, f.eks etterlønn / sluttpakke
-        var harArbeidsandelUtenArbeidsgiver = førsteBeregningsperiode(beregningsgrunnlag)
-            .map(BeregningsgrunnlagPeriode::getBeregningsgrunnlagPrStatusOgAndelList)
+        var harArbeidsandelUtenArbeidsgiver = førsteBeregningsperiode(beregningsgrunnlag).map(
+                BeregningsgrunnlagPeriode::getBeregningsgrunnlagPrStatusOgAndelList)
             .orElse(List.of())
             .stream()
             .anyMatch(a -> a.getAktivitetStatus().equals(AktivitetStatus.ARBEIDSTAKER) && a.getArbeidsgiver().isEmpty());
@@ -161,8 +164,8 @@ public class BeregningOversiktDtoTjeneste {
                 .reduce(Long::sum)
                 .orElse(0L);
 
-            return new FpSak.Beregningsgrunnlag.BeregningsAndel(FpSak.Beregningsgrunnlag.AktivitetStatus.ARBEIDSTAKER, fastsattPerÅr, inntektsKilde,
-                arbeidsforhold, BigDecimal.valueOf(dagsatsArbeidsgiver), BigDecimal.valueOf(dagsatsSøker));
+            return new FpSak.Beregningsgrunnlag.BeregningsAndel(FpSak.AktivitetStatus.ARBEIDSTAKER, fastsattPerÅr, inntektsKilde, arbeidsforhold,
+                BigDecimal.valueOf(dagsatsArbeidsgiver), BigDecimal.valueOf(dagsatsSøker));
         }).toList();
     }
 
@@ -171,25 +174,25 @@ public class BeregningOversiktDtoTjeneste {
         var fastsattPrÅr = erSkjønsfastsatt ? andel.getOverstyrtPrÅr() : andel.getBeregnetPrÅr();
         if (andel.getAktivitetStatus().equals(AktivitetStatus.SELVSTENDIG_NÆRINGSDRIVENDE)) {
             var inntektsKilde = erSkjønsfastsatt ? FpSak.Beregningsgrunnlag.InntektsKilde.SKJØNNSFASTSATT : FpSak.Beregningsgrunnlag.InntektsKilde.PENSJONSGIVENDE_INNTEKT;
-            return new FpSak.Beregningsgrunnlag.BeregningsAndel(mapAktivitetstatus(andel.getAktivitetStatus()), fastsattPrÅr, inntektsKilde, null,
-                BigDecimal.ZERO, mapDagsats(andel));
+            return new FpSak.Beregningsgrunnlag.BeregningsAndel(FpSak.AktivitetStatus.fraBehandlingslagerStatus(andel.getAktivitetStatus()),
+                fastsattPrÅr, inntektsKilde, null, BigDecimal.ZERO, mapDagsats(andel));
         }
         if (andel.getAktivitetStatus().equals(AktivitetStatus.FRILANSER)) {
             var inntektsKilde = erSkjønsfastsatt ? FpSak.Beregningsgrunnlag.InntektsKilde.SKJØNNSFASTSATT : FpSak.Beregningsgrunnlag.InntektsKilde.A_INNTEKT;
-            return new FpSak.Beregningsgrunnlag.BeregningsAndel(mapAktivitetstatus(andel.getAktivitetStatus()), fastsattPrÅr, inntektsKilde, null,
-                BigDecimal.ZERO, mapDagsats(andel));
+            return new FpSak.Beregningsgrunnlag.BeregningsAndel(FpSak.AktivitetStatus.fraBehandlingslagerStatus(andel.getAktivitetStatus()),
+                fastsattPrÅr, inntektsKilde, null, BigDecimal.ZERO, mapDagsats(andel));
         }
         if (andel.getAktivitetStatus().equals(AktivitetStatus.ARBEIDSAVKLARINGSPENGER)) {
-            return new FpSak.Beregningsgrunnlag.BeregningsAndel(mapAktivitetstatus(andel.getAktivitetStatus()), fastsattPrÅr,
-                FpSak.Beregningsgrunnlag.InntektsKilde.VEDTAK_ANNEN_YTELSE, null, BigDecimal.ZERO, mapDagsats(andel));
+            return new FpSak.Beregningsgrunnlag.BeregningsAndel(FpSak.AktivitetStatus.fraBehandlingslagerStatus(andel.getAktivitetStatus()),
+                fastsattPrÅr, FpSak.Beregningsgrunnlag.InntektsKilde.VEDTAK_ANNEN_YTELSE, null, BigDecimal.ZERO, mapDagsats(andel));
         }
         if (andel.getAktivitetStatus().equals(AktivitetStatus.DAGPENGER)) {
-            return new FpSak.Beregningsgrunnlag.BeregningsAndel(mapAktivitetstatus(andel.getAktivitetStatus()), fastsattPrÅr,
-                FpSak.Beregningsgrunnlag.InntektsKilde.VEDTAK_ANNEN_YTELSE, null, BigDecimal.ZERO, mapDagsats(andel));
+            return new FpSak.Beregningsgrunnlag.BeregningsAndel(FpSak.AktivitetStatus.fraBehandlingslagerStatus(andel.getAktivitetStatus()),
+                fastsattPrÅr, FpSak.Beregningsgrunnlag.InntektsKilde.VEDTAK_ANNEN_YTELSE, null, BigDecimal.ZERO, mapDagsats(andel));
         }
         if (andel.getAktivitetStatus().equals(AktivitetStatus.BRUKERS_ANDEL)) {
-            return new FpSak.Beregningsgrunnlag.BeregningsAndel(mapAktivitetstatus(andel.getAktivitetStatus()), fastsattPrÅr,
-                FpSak.Beregningsgrunnlag.InntektsKilde.SKJØNNSFASTSATT, null, BigDecimal.ZERO, mapDagsats(andel));
+            return new FpSak.Beregningsgrunnlag.BeregningsAndel(FpSak.AktivitetStatus.fraBehandlingslagerStatus(andel.getAktivitetStatus()),
+                fastsattPrÅr, FpSak.Beregningsgrunnlag.InntektsKilde.SKJØNNSFASTSATT, null, BigDecimal.ZERO, mapDagsats(andel));
         }
         if (andel.getAktivitetStatus().equals(AktivitetStatus.MILITÆR_ELLER_SIVIL)) {
             throw new IllegalStateException("Støttes ikke ennå");
@@ -204,25 +207,8 @@ public class BeregningOversiktDtoTjeneste {
         return BigDecimal.valueOf(andel.getDagsats());
     }
 
-    private FpSak.Beregningsgrunnlag.AktivitetStatus mapAktivitetstatus(AktivitetStatus aktivitetStatus) {
-        return switch (aktivitetStatus) {
-            case ARBEIDSAVKLARINGSPENGER -> FpSak.Beregningsgrunnlag.AktivitetStatus.ARBEIDSAVKLARINGSPENGER;
-            case ARBEIDSTAKER -> FpSak.Beregningsgrunnlag.AktivitetStatus.ARBEIDSTAKER;
-            case DAGPENGER -> FpSak.Beregningsgrunnlag.AktivitetStatus.DAGPENGER;
-            case FRILANSER -> FpSak.Beregningsgrunnlag.AktivitetStatus.FRILANSER;
-            case MILITÆR_ELLER_SIVIL -> FpSak.Beregningsgrunnlag.AktivitetStatus.MILITÆR_ELLER_SIVIL;
-            case SELVSTENDIG_NÆRINGSDRIVENDE -> FpSak.Beregningsgrunnlag.AktivitetStatus.SELVSTENDIG_NÆRINGSDRIVENDE;
-            case KOMBINERT_AT_FL -> FpSak.Beregningsgrunnlag.AktivitetStatus.KOMBINERT_AT_FL;
-            case KOMBINERT_AT_SN -> FpSak.Beregningsgrunnlag.AktivitetStatus.KOMBINERT_AT_SN;
-            case KOMBINERT_FL_SN -> FpSak.Beregningsgrunnlag.AktivitetStatus.KOMBINERT_FL_SN;
-            case KOMBINERT_AT_FL_SN -> FpSak.Beregningsgrunnlag.AktivitetStatus.KOMBINERT_AT_FL_SN;
-            case BRUKERS_ANDEL -> FpSak.Beregningsgrunnlag.AktivitetStatus.BRUKERS_ANDEL;
-            case KUN_YTELSE -> FpSak.Beregningsgrunnlag.AktivitetStatus.KUN_YTELSE;
-            case VENTELØNN_VARTPENGER, TTLSTØTENDE_YTELSE, UDEFINERT -> null;
-        };
-    }
-
     private FpSak.Beregningsgrunnlag.BeregningAktivitetStatus mapAktivitetStatusMedHjemmel(BeregningsgrunnlagAktivitetStatus aks) {
-        return new FpSak.Beregningsgrunnlag.BeregningAktivitetStatus(mapAktivitetstatus(aks.getAktivitetStatus()), aks.getHjemmel());
+        return new FpSak.Beregningsgrunnlag.BeregningAktivitetStatus(FpSak.AktivitetStatus.fraBehandlingslagerStatus(aks.getAktivitetStatus()),
+            aks.getHjemmel());
     }
 }
