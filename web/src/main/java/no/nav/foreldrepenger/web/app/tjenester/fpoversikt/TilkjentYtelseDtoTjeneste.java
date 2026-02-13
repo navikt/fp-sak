@@ -65,7 +65,7 @@ public class TilkjentYtelseDtoTjeneste {
         var arbeidsgiverIdent = andel.getArbeidsgiver().map(Arbeidsgiver::getIdentifikator).orElse(null);
         var arbeidsgivernavn = andel.getArbeidsgiver().map(arbeidsgiverTjeneste::hent).map(ArbeidsgiverOpplysninger::getNavn).orElse(null);
 
-        return new FpSak.TilkjentYtelsePeriode.Andel(arbeidsgiverIdent, arbeidsgivernavn, BigDecimal.valueOf(andel.getDagsats()),
-            andel.erBrukerMottaker(), andel.getUtbetalingsgrad());
+        return new FpSak.TilkjentYtelsePeriode.Andel(FpSak.AktivitetStatus.fraBehandlingslagerStatus(andel.getAktivitetStatus()), arbeidsgiverIdent,
+            arbeidsgivernavn, BigDecimal.valueOf(andel.getDagsats()), andel.erBrukerMottaker(), andel.getUtbetalingsgrad());
     }
 }
