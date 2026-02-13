@@ -1,5 +1,7 @@
 package no.nav.foreldrepenger.domene.aksjonspunkt;
 
+import java.util.List;
+
 import no.nav.foreldrepenger.behandling.aksjonspunkt.BekreftetAksjonspunktDto;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.OverstyringAksjonspunktDto;
 import no.nav.foreldrepenger.domene.rest.dto.AvklarteAktiviteterDto;
@@ -21,8 +23,6 @@ import no.nav.foreldrepenger.kalkulus.kontrakt.request.håndtering.foreslå.Fast
 import no.nav.foreldrepenger.kalkulus.kontrakt.request.håndtering.foreslå.FastsettBeregningsgrunnlagSNNyIArbeidslivetHåndteringDto;
 import no.nav.foreldrepenger.kalkulus.kontrakt.request.håndtering.foreslå.VurderVarigEndringEllerNyoppstartetSNHåndteringDto;
 import no.nav.foreldrepenger.kalkulus.kontrakt.request.håndtering.overstyring.OverstyrBeregningsgrunnlagHåndteringDto;
-
-import java.util.List;
 
 public class KalkulusAksjonspunktMapper {
 
@@ -60,8 +60,8 @@ public class KalkulusAksjonspunktMapper {
         if (dto instanceof FordelBeregningsgrunnlagDto fordelBeregningsgrunnlagDto) {
             return new FaktaOmFordelingHåndteringDto(OppdatererDtoMapper.mapFordelBeregningsgrunnlagDto(fordelBeregningsgrunnlagDto));
         }
-        if (dto instanceof VurderRefusjonBeregningsgrunnlagDto) {
-            return OppdatererDtoMapper.mapVurderRefusjonBeregningsgrunnlag((VurderRefusjonBeregningsgrunnlagDto) dto);
+        if (dto instanceof VurderRefusjonBeregningsgrunnlagDto vurderRefusjonBeregningsgrunnlagDto) {
+            return OppdatererDtoMapper.mapVurderRefusjonBeregningsgrunnlag(vurderRefusjonBeregningsgrunnlagDto);
         }
         throw new IllegalStateException("Aksjonspunkt er ikke mappet i kalkulus");
     }

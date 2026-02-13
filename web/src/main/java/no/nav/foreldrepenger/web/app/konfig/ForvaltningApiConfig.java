@@ -17,12 +17,12 @@ import io.swagger.v3.oas.models.info.Info;
 import no.nav.foreldrepenger.konfig.Environment;
 import no.nav.foreldrepenger.web.app.tjenester.RestImplementationClasses;
 
-@ApplicationPath(ForvaltningApiConfig.FORVALTNING_URI)
+@ApplicationPath(ForvaltningApiConfig.API_URI)
 public class ForvaltningApiConfig extends Application {
 
     private static final Environment ENV = Environment.current();
 
-    public static final String FORVALTNING_URI = "/forvaltning/api";
+    public static final String API_URI = "/forvaltning/api";
 
     public ForvaltningApiConfig() {
         var info = new Info()

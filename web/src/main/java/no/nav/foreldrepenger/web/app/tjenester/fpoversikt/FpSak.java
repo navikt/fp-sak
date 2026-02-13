@@ -1,5 +1,6 @@
 package no.nav.foreldrepenger.web.app.tjenester.fpoversikt;
 
+import no.nav.foreldrepenger.behandlingslager.behandling.beregning.AktivitetStatus;
 import no.nav.foreldrepenger.domene.modell.kodeverk.Hjemmel;
 
 import java.math.BigDecimal;
@@ -26,15 +27,25 @@ record FpSak(String saksnummer,
         HUNDRE
     }
 
-    record Vedtak(LocalDateTime vedtakstidspunkt, List<Uttaksperiode> uttaksperioder, Dekningsgrad dekningsgrad,
-                  List<EøsUttaksperiode> annenpartEøsUttaksperioder, Beregningsgrunnlag beregningsgrunnlag) {
+    record Vedtak(LocalDateTime vedtakstidspunkt,
+                  List<Uttaksperiode> uttaksperioder,
+                  Dekningsgrad dekningsgrad,
+                  List<EøsUttaksperiode> annenpartEøsUttaksperioder,
+                  Beregningsgrunnlag beregningsgrunnlag,
+                  TilkjentYtelse tilkjentYtelse) {
         record EøsUttaksperiode(LocalDate fom, LocalDate tom, BigDecimal trekkdager, Konto konto) {
         }
     }
 
-    record Uttaksperiode(LocalDate fom, LocalDate tom, UtsettelseÅrsak utsettelseÅrsak, OppholdÅrsak oppholdÅrsak,
-                         OverføringÅrsak overføringÅrsak, BigDecimal samtidigUttak, Boolean flerbarnsdager,
-                         MorsAktivitet morsAktivitet, Resultat resultat) {
+    record Uttaksperiode(LocalDate fom,
+                         LocalDate tom,
+                         UtsettelseÅrsak utsettelseÅrsak,
+                         OppholdÅrsak oppholdÅrsak,
+                         OverføringÅrsak overføringÅrsak,
+                         BigDecimal samtidigUttak,
+                         Boolean flerbarnsdager,
+                         MorsAktivitet morsAktivitet,
+                         Resultat resultat) {
         record Resultat(Type type, Årsak årsak, Set<UttaksperiodeAktivitet> aktiviteter, boolean trekkerMinsterett) {
 
             enum Type {
@@ -57,28 +68,78 @@ record FpSak(String saksnummer,
         }
     }
 
-    record Beregningsgrunnlag(LocalDate skjæringstidspunkt, List<BeregningsAndel> beregningsAndeler, List<BeregningAktivitetStatus> beregningAktivitetStatuser, BigDecimal grunnbeløp) {
+    record TilkjentYtelse(List<TilkjentYtelsePeriode> utbetalingsperioder, List<FeriepengeAndel> feriepenger) {
 
-        record BeregningsAndel(AktivitetStatus aktivitetStatus, BigDecimal fastsattPrÅr, InntektsKilde inntektsKilde,
-                               Arbeidsforhold arbeidsforhold, BigDecimal dagsatsArbeidsgiver, BigDecimal dagsatsSøker) {}
+    }
 
-        record Arbeidsforhold(String arbeidsgiverIdent, String arbeidsgivernavn, BigDecimal refusjonPrMnd) {}
-
-        record BeregningAktivitetStatus(AktivitetStatus aktivitetStatus, Hjemmel hjemmel) {}
-        enum AktivitetStatus {
-            ARBEIDSAVKLARINGSPENGER,
-            ARBEIDSTAKER,
-            DAGPENGER,
-            FRILANSER,
-            MILITÆR_ELLER_SIVIL,
-            SELVSTENDIG_NÆRINGSDRIVENDE,
-            KOMBINERT_AT_FL,
-            KOMBINERT_AT_SN,
-            KOMBINERT_FL_SN,
-            KOMBINERT_AT_FL_SN,
-            BRUKERS_ANDEL,
-            KUN_YTELSE,
+    record TilkjentYtelsePeriode(LocalDate fom, LocalDate tom, List<Andel> andeler) {
+        record Andel(AktivitetStatus aktivitetStatus,
+                     String arbeidsgiverIdent,
+                     String arbeidsgivernavn,
+                     BigDecimal dagsats,
+                     boolean tilBruker,
+                     BigDecimal utbetalingsgrad) {
         }
+    }
+
+    record FeriepengeAndel(LocalDate opptjeningsår, BigDecimal årsbeløp, String arbeidsgiverIdent, boolean tilBruker) {
+    }
+
+    enum AktivitetStatus {
+        ARBEIDSAVKLARINGSPENGER,
+        ARBEIDSTAKER,
+        DAGPENGER,
+        FRILANSER,
+        MILITÆR_ELLER_SIVIL,
+        SELVSTENDIG_NÆRINGSDRIVENDE,
+        KOMBINERT_AT_FL,
+        KOMBINERT_AT_SN,
+        KOMBINERT_FL_SN,
+        KOMBINERT_AT_FL_SN,
+        BRUKERS_ANDEL,
+        KUN_YTELSE;
+
+        public static AktivitetStatus fraBehandlingslagerStatus(no.nav.foreldrepenger.behandlingslager.behandling.beregning.AktivitetStatus aktivitetStatus) {
+            return switch (aktivitetStatus) {
+                case ARBEIDSAVKLARINGSPENGER -> FpSak.AktivitetStatus.ARBEIDSAVKLARINGSPENGER;
+                case ARBEIDSTAKER -> FpSak.AktivitetStatus.ARBEIDSTAKER;
+                case DAGPENGER -> FpSak.AktivitetStatus.DAGPENGER;
+                case FRILANSER -> FpSak.AktivitetStatus.FRILANSER;
+                case MILITÆR_ELLER_SIVIL -> FpSak.AktivitetStatus.MILITÆR_ELLER_SIVIL;
+                case SELVSTENDIG_NÆRINGSDRIVENDE -> FpSak.AktivitetStatus.SELVSTENDIG_NÆRINGSDRIVENDE;
+                case KOMBINERT_AT_FL -> FpSak.AktivitetStatus.KOMBINERT_AT_FL;
+                case KOMBINERT_AT_SN -> FpSak.AktivitetStatus.KOMBINERT_AT_SN;
+                case KOMBINERT_FL_SN -> FpSak.AktivitetStatus.KOMBINERT_FL_SN;
+                case KOMBINERT_AT_FL_SN -> FpSak.AktivitetStatus.KOMBINERT_AT_FL_SN;
+                case BRUKERS_ANDEL -> FpSak.AktivitetStatus.BRUKERS_ANDEL;
+                case KUN_YTELSE -> FpSak.AktivitetStatus.KUN_YTELSE;
+                case VENTELØNN_VARTPENGER, TTLSTØTENDE_YTELSE, UDEFINERT -> null;
+            };
+        }
+    }
+
+    record Beregningsgrunnlag(LocalDate skjæringstidspunkt,
+                              List<BeregningsAndel> beregningsandeler,
+                              List<BeregningAktivitetStatus> beregningAktivitetStatuser,
+                              BigDecimal grunnbeløp) {
+
+
+        record BeregningsAndel(AktivitetStatus aktivitetStatus,
+                               BigDecimal fastsattPrÅr,
+                               InntektsKilde inntektsKilde,
+                               Arbeidsforhold arbeidsforhold,
+                               BigDecimal dagsatsArbeidsgiver,
+                               BigDecimal dagsatsSøker) {
+        }
+
+        record Arbeidsforhold(String arbeidsgiverIdent, String arbeidsgivernavn, BigDecimal refusjonPrMnd) {
+        }
+
+        record BeregningAktivitetStatus(AktivitetStatus aktivitetStatus, Hjemmel hjemmel) {
+        }
+
+
+
         enum InntektsKilde {
             INNTEKTSMELDING,
             A_INNTEKT,
@@ -88,17 +149,26 @@ record FpSak(String saksnummer,
         }
     }
 
-    record Søknad(SøknadStatus status, LocalDateTime mottattTidspunkt, Set<Periode> perioder, Dekningsgrad dekningsgrad,
-                  boolean morArbeidUtenDok) {
+    record Søknad(SøknadStatus status, LocalDateTime mottattTidspunkt, Set<Periode> perioder, Dekningsgrad dekningsgrad, boolean morArbeidUtenDok) {
 
-        record Periode(LocalDate fom, LocalDate tom, Konto konto, UtsettelseÅrsak utsettelseÅrsak, OppholdÅrsak oppholdÅrsak,
-                       OverføringÅrsak overføringÅrsak, Gradering gradering, BigDecimal samtidigUttak, boolean flerbarnsdager,
+        record Periode(LocalDate fom,
+                       LocalDate tom,
+                       Konto konto,
+                       UtsettelseÅrsak utsettelseÅrsak,
+                       OppholdÅrsak oppholdÅrsak,
+                       OverføringÅrsak overføringÅrsak,
+                       Gradering gradering,
+                       BigDecimal samtidigUttak,
+                       boolean flerbarnsdager,
                        MorsAktivitet morsAktivitet) {
         }
     }
 
     enum BrukerRolle {
-        MOR, FAR, MEDMOR, UKJENT
+        MOR,
+        FAR,
+        MEDMOR,
+        UKJENT
     }
 
     record Rettigheter(boolean aleneomsorg, boolean morUføretrygd, boolean annenForelderTilsvarendeRettEØS) {
