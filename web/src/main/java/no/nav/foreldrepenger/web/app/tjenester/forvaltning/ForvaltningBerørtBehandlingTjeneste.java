@@ -36,14 +36,26 @@ public class ForvaltningBerørtBehandlingTjeneste {
     }
 
     void opprettNyBerørtBehandling(Fagsak fagsak) {
-        if (!revurderingTjeneste.kanRevurderingOpprettes(fagsak)) {
+        if (Boolean.TRUE.equals(revurderingTjeneste.kanRevurderingOpprettes(fagsak))) {
+            var behandlingÅrsakType = BehandlingÅrsakType.BERØRT_BEHANDLING;
+            var nyBehandling = revurderingTjeneste.opprettAutomatiskRevurdering(fagsak, behandlingÅrsakType,
+                behandlendeEnhetTjeneste.finnBehandlendeEnhetFor(fagsak));
+            berørtBehandlingTjeneste.opprettHistorikkinnslagOmRevurdering(nyBehandling, behandlingÅrsakType);
+            behandlingProsesseringTjeneste.opprettTasksForStartBehandling(nyBehandling);
+        } else {
             throw new ForvaltningException("Kan ikke opprette revurdering for fagsak " + fagsak.getId());
         }
+    }
 
-        var behandlingÅrsakType = BehandlingÅrsakType.BERØRT_BEHANDLING;
-        var nyBehandling = revurderingTjeneste.opprettAutomatiskRevurdering(fagsak, behandlingÅrsakType,
-            behandlendeEnhetTjeneste.finnBehandlendeEnhetFor(fagsak));
-        berørtBehandlingTjeneste.opprettHistorikkinnslagOmRevurdering(nyBehandling, behandlingÅrsakType);
-        behandlingProsesseringTjeneste.opprettTasksForStartBehandling(nyBehandling);
+    void opprettNyReberegnFeriepenger(Fagsak fagsak) {
+        if (Boolean.TRUE.equals(revurderingTjeneste.kanRevurderingOpprettes(fagsak))) {
+            var behandlingÅrsakType = BehandlingÅrsakType.REBEREGN_FERIEPENGER;
+            var nyBehandling = revurderingTjeneste.opprettAutomatiskRevurdering(fagsak, behandlingÅrsakType,
+                behandlendeEnhetTjeneste.finnBehandlendeEnhetFor(fagsak));
+            berørtBehandlingTjeneste.opprettHistorikkinnslagOmRevurdering(nyBehandling, behandlingÅrsakType);
+            behandlingProsesseringTjeneste.opprettTasksForStartBehandling(nyBehandling);
+        } else {
+            throw new ForvaltningException("Kan ikke opprette revurdering for fagsak " + fagsak.getId());
+        }
     }
 }
