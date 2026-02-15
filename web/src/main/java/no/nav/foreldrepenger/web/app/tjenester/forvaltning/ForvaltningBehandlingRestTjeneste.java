@@ -234,6 +234,28 @@ public class ForvaltningBehandlingRestTjeneste {
     }
 
     @POST
+    @Path("/startNyRevurderingReberegnFeriepenger")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    @Operation(description = "Starter ny revurdering (berørt)", tags = "FORVALTNING-behandling", responses = {
+        @ApiResponse(responseCode = "200", description = "Ny behandling er opprettet.", content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = String.class))),
+        @ApiResponse(responseCode = "400", description = "Oppgitt fagsak er ukjent, ikke under behandling, eller engangsstønad."),
+        @ApiResponse(responseCode = "500", description = "Feilet pga ukjent feil.")
+    })
+    @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.DRIFT, sporingslogg = true)
+    public Response opprettNyRevurderingReberegnFeriepenger(@TilpassetAbacAttributt(supplierClass = SaksnummerAbacSupplier.Supplier.class)
+                                                         @NotNull @QueryParam("saksnummer") @Valid SaksnummerDto saksnummerDto) {
+        var saksnummer = new Saksnummer(saksnummerDto.getVerdi());
+        var fagsak = fagsakRepository.hentSakGittSaksnummer(saksnummer).orElse(null);
+        if (fagsak == null || !FagsakYtelseType.FORELDREPENGER.equals(fagsak.getYtelseType())) {
+            LOG.info("Oppgitt fagsak {} er ukjent eller annen ytelse enn FP", saksnummer.getVerdi());
+            return Response.status(Response.Status.BAD_REQUEST).build();
+        }
+        berørtBehandlingTjeneste.opprettNyReberegnFeriepenger(fagsak);
+        return Response.ok().build();
+    }
+
+    @POST
     @Path("/fjernOverstyrtGrunnlagSvpBehandling")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
