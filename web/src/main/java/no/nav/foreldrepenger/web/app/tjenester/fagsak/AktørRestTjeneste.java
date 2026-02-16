@@ -22,7 +22,7 @@ import no.nav.foreldrepenger.web.app.exceptions.FeilDto;
 import no.nav.foreldrepenger.web.app.exceptions.FeilType;
 import no.nav.foreldrepenger.web.app.tjenester.fagsak.app.FagsakTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.AktoerIdDto;
-import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.AktoerInfoDto;
+import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.AktørInfoDto;
 import no.nav.foreldrepenger.web.server.abac.AppAbacAttributtType;
 import no.nav.vedtak.sikkerhet.abac.AbacDataAttributter;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
@@ -32,36 +32,30 @@ import no.nav.vedtak.sikkerhet.abac.beskyttet.ResourceType;
 
 @ApplicationScoped
 @Transactional
-@Path(AktoerRestTjeneste.BASE_PATH)
+@Path("/aktoer-info")
 @Produces(MediaType.APPLICATION_JSON)
-public class AktoerRestTjeneste {
-
-    static final String BASE_PATH = "/aktoer-info";
-    private static final String AKTOER_INFO_PART_PATH = "";
-    public static final String AKTOER_INFO_PATH = BASE_PATH + AKTOER_INFO_PART_PATH;
+public class AktørRestTjeneste {
 
     private FagsakTjeneste fagsakTjeneste;
 
-
-    public AktoerRestTjeneste() {
+    public AktørRestTjeneste() {
         // for CDI proxy
     }
 
     @Inject
-    public AktoerRestTjeneste(FagsakTjeneste fagsakTjeneste) {
+    public AktørRestTjeneste(FagsakTjeneste fagsakTjeneste) {
         this.fagsakTjeneste = fagsakTjeneste;
     }
 
     @GET
     @Operation(description = "Henter informasjon om en aktør", tags = "aktoer", responses = {
-            @ApiResponse(responseCode = "200", description = "Returnerer basisinformasjon om en aktør og hvilke fagsaker vedkommede har i fpsak.", content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = AktoerInfoDto.class)))
+            @ApiResponse(responseCode = "200", description = "Returnerer basisinformasjon om en aktør og hvilke fagsaker vedkommede har i fpsak.", content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = AktørInfoDto.class)))
     })
     @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK, sporingslogg = true)
-    // re-enable hvis endres til ikke-tom @Path(AKTOER_INFO_PART_PATH)
-    public Response getAktoerInfo(@TilpassetAbacAttributt(supplierClass = AbacDataSupplier.class) @NotNull @QueryParam("aktoerId") @Valid AktoerIdDto aktoerIdDto) {
-        var aktoerId = aktoerIdDto.get();
-        if (aktoerId.isPresent()) {
-            return fagsakTjeneste.lagAktoerInfoDto(aktoerId.get()).map(a -> Response.ok(a).build())
+    public Response getAktørInfo(@TilpassetAbacAttributt(supplierClass = AbacDataSupplier.class) @NotNull @QueryParam("aktoerId") @Valid AktoerIdDto aktørIdDto) {
+        var aktørId = aktørIdDto.get();
+        if (aktørId.isPresent()) {
+            return fagsakTjeneste.lagAktørInfoDto(aktørId.get()).map(a -> Response.ok(a).build())
                 .orElseGet(() -> Response.ok(new FeilDto(FeilType.TOMT_RESULTAT_FEIL, "Finner ingen aktør med denne ideen.")).status(Response.Status.NOT_FOUND).build());
         }
         var feilDto = new FeilDto(FeilType.GENERELL_FEIL, "Query parameteret 'aktoerId' mangler i forespørselen.");

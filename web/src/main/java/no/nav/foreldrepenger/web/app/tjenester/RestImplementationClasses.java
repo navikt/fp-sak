@@ -42,7 +42,7 @@ import no.nav.foreldrepenger.web.app.tjenester.behandling.verge.VergeRestTjenest
 import no.nav.foreldrepenger.web.app.tjenester.behandling.ytelsefordeling.YtelsefordelingRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.brev.BrevRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.dokument.DokumentRestTjeneste;
-import no.nav.foreldrepenger.web.app.tjenester.fagsak.AktoerRestTjeneste;
+import no.nav.foreldrepenger.web.app.tjenester.fagsak.AktørRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.fagsak.FagsakRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.familiehendelse.FamiliehendelseRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.fordeling.FordelRestTjeneste;
@@ -108,7 +108,7 @@ public class RestImplementationClasses {
         classes.add(AnkeRestTjeneste.class);
         classes.add(InnsynRestTjeneste.class);
         classes.add(TilbakekrevingRestTjeneste.class); // Brukes av Frontend/Simulering. Bør hente varseltekst til visning?
-        classes.add(AktoerRestTjeneste.class);
+        classes.add(AktørRestTjeneste.class);
         classes.add(SvangerskapspengerRestTjeneste.class);
         classes.add(VergeRestTjeneste.class);
         classes.add(BrevRestTjeneste.class);
