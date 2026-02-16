@@ -111,7 +111,7 @@ public class BrevRestTjeneste {
             .medBehandlingUuid(bestillBrevDto.behandlingUuid())
             .medSaksnummer(behandling.getSaksnummer())
             .medDokumentMal(bestillBrevDto.brevmalkode())
-            .medRevurderingÅrsak(bestillBrevDto.arsakskode())
+            .medRevurderingÅrsak(bestillBrevDto.årsakskode())
             .medFritekst(bestillBrevDto.fritekst() != null ? bestillBrevDto.fritekst() : null)
             .build();
 
@@ -207,7 +207,7 @@ public class BrevRestTjeneste {
             .medBehandlingUuid(forhåndsvisDto.behandlingUuid())
             .medSaksnummer(behandling.getSaksnummer())
             .medDokumentMal(forhåndsvisDto.dokumentMal())
-            .medRevurderingÅrsak(forhåndsvisDto.arsakskode())
+            .medRevurderingÅrsak(forhåndsvisDto.årsakskode())
             .medFritekst(forhåndsvisDto.fritekst() != null ? forhåndsvisDto.fritekst() : null)
             .medTittel(forhåndsvisDto.tittel())
             .medDokumentType(utledDokumentType(forhåndsvisDto.automatiskVedtaksbrev()))

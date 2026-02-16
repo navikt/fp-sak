@@ -4,5 +4,5 @@ import jakarta.validation.constraints.NotNull;
 
 import java.util.List;
 
-public record AktoerInfoDto(String aktørId, @NotNull PersonDto person, @NotNull List<FagsakSøkDto> fagsaker) {
+public record AktørInfoDto(String aktørId, @NotNull PersonDto person, @NotNull List<FagsakSøkDto> fagsaker) {
 }

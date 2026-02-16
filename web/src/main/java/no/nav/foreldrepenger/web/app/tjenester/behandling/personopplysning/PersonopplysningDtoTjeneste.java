@@ -71,10 +71,10 @@ public class PersonopplysningDtoTjeneste {
     }
 
     private PersonopplysningBasisDto enkelPersonMapping(PersonopplysningEntitet personopplysning, PersonopplysningerAggregat aggregat) {
-        var dto = new PersonopplysningBasisDto(personopplysning.getAktørId());
+        var dto = new PersonopplysningBasisDto();
         dto.setKjønn(personopplysning.getKjønn());
         dto.setSivilstand(personopplysning.getSivilstand());
-        dto.setAktoerId(personopplysning.getAktørId());
+        dto.setAktørId(personopplysning.getAktørId());
         dto.setFødselsdato(personopplysning.getFødselsdato());
         dto.setDødsdato(personopplysning.getDødsdato());
         dto.setAdresser(lagAddresseDto(personopplysning, aggregat));
@@ -82,7 +82,7 @@ public class PersonopplysningDtoTjeneste {
     }
 
     private PersonopplysningBasisDto enkelUtenlandskAnnenPartMapping() {
-        var dto = new PersonopplysningBasisDto(null);
+        var dto = new PersonopplysningBasisDto();
         dto.setKjønn(NavBrukerKjønn.UDEFINERT);
         dto.setNavn(UTLAND_NAVN);
         return dto;
