@@ -61,7 +61,7 @@ class BrevRestTjenesteTest {
         when(behandlingRepository.hentBehandling(behandlingUuid)).thenReturn(behandlingMock);
         var fritekst = "Dette er en fritekst";
         var dokumentMal = INNHENTE_OPPLYSNINGER;
-        var bestillBrevDto = new BestillDokumentDto(behandlingUuid, dokumentMal, fritekst, null, null);
+        var bestillBrevDto = new BestillDokumentDto(behandlingUuid, dokumentMal, fritekst, null);
 
         // Act
         brevRestTjeneste.bestillDokument(bestillBrevDto);

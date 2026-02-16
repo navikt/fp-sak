@@ -14,7 +14,6 @@ import no.nav.foreldrepenger.validering.ValidKodeverk;
 public record BestillDokumentDto(@Valid UUID behandlingUuid,
                                  @ValidKodeverk @NotNull DokumentMalType brevmalkode,
                                  @Valid @Fritekst @Size(max = 20_000) String fritekst,
-                                 @ValidKodeverk RevurderingVarslingÅrsak arsakskode,
                                  @ValidKodeverk RevurderingVarslingÅrsak årsakskode
                                  ) {
 }

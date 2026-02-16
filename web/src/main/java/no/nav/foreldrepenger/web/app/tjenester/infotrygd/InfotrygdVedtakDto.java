@@ -37,7 +37,7 @@ public record InfotrygdVedtakDto(@NotNull List<SakDto> saker, @NotNull List<Vedt
 
     public record Periode(@NotNull LocalDate fom, @NotNull LocalDate tom) { }
 
-    public record SakDto(String resultat, @NotNull LocalDate registrert, String sakId, String type, @NotNull LocalDate vedtatt, String valg, String undervalg, String nivaa, String nivå) {
+    public record SakDto(String resultat, @NotNull LocalDate registrert, String sakId, String type, @NotNull LocalDate vedtatt, String valg, String undervalg, String nivå) {
 
     }
 }
