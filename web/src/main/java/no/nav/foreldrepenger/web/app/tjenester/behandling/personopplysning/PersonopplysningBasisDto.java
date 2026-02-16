@@ -19,15 +19,9 @@ public class PersonopplysningBasisDto {
     @NotNull private LocalDate fødselsdato;
     @NotNull private List<PersonadresseDto> adresser = new ArrayList<>();
     private String fnr;
-    private String aktoerId;
     private AktørId aktørId;
     private Diskresjonskode diskresjonskode;
     private String navn;
-
-    public PersonopplysningBasisDto(AktørId aktørId) {
-        this.setAktoerId(aktørId);
-        this.setAktørId(aktørId);
-    }
 
     public NavBrukerKjønn getKjønn() {
         return kjønn;
@@ -77,26 +71,12 @@ public class PersonopplysningBasisDto {
         this.diskresjonskode = diskresjonskode;
     }
 
-    public AktørId getAktoerId() {
-        return aktoerId == null ? null : new AktørId(aktoerId);
-    }
-
-    public void setAktoerId(String aktoerId) {
-        this.aktoerId = aktoerId;
-    }
-
     public AktørId getAktørId() {
         return aktørId;
     }
 
     public void setAktørId(AktørId aktørId) {
         this.aktørId = aktørId;
-    }
-
-    void setAktoerId(AktørId aktoerId) {
-        if (aktoerId != null) {
-            this.aktoerId = aktoerId.getId();
-        }
     }
 
     public String getFnr() {

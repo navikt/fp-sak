@@ -38,7 +38,7 @@ public class PersonopplysningDtoPersonIdentTjeneste {
         // Sett fødselsnummer og diskresjonskodepå personopplysning for alle
         // behandlinger. Fødselsnummer og diskresjonskode lagres ikke i basen og må derfor hentes fra
         // PDL/IdentRepository// for å vises i GUI.
-        var aktørId = dto.getAktørId() == null ? dto.getAktoerId() : dto.getAktørId();
+        var aktørId = dto.getAktørId();
         if (aktørId != null) {
             dto.setFnr(findFnr(aktørId, piDiskresjonFinder));
             dto.setDiskresjonskode(findKode(aktørId, piDiskresjonFinder));

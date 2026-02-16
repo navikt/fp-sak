@@ -307,7 +307,7 @@ class BrevGrunnlagTjeneste {
 
     private List<BrevGrunnlagDto.Foreldrepenger.Stønadskonto> finnStønadskontoer(UttakInput input) {
         var saldo = saldoerDtoTjeneste.lagStønadskontoerDto(input);
-        return saldo.stonadskontoer().values().stream().map(k -> {
+        return saldo.stønadskonti().values().stream().map(k -> {
             var kontoUtvidelser = Optional.ofNullable(k.kontoUtvidelser())
                 .map(u -> new BrevGrunnlagDto.Foreldrepenger.KontoUtvidelser(u.prematurdager(), u.flerbarnsdager()))
                 .orElse(null);

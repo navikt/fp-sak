@@ -19,7 +19,7 @@ class BestillBrevDtoTest {
         var dokumentMal = DokumentMalType.FRITEKSTBREV;
         var årsak = RevurderingVarslingÅrsak.BARN_IKKE_REGISTRERT_FOLKEREGISTER;
 
-        var brev = new BestillDokumentDto(behandlingUuid, dokumentMal, null, årsak, årsak);
+        var brev = new BestillDokumentDto(behandlingUuid, dokumentMal, null, årsak);
 
         var json = DefaultJsonMapper.toJson(brev);
 
@@ -27,8 +27,8 @@ class BestillBrevDtoTest {
 
         assertThat(brev.brevmalkode()).isEqualTo(etterRoundtrip.brevmalkode());
         assertThat(dokumentMal).isEqualTo(brev.brevmalkode());
-        assertThat(brev.arsakskode()).isEqualTo(etterRoundtrip.arsakskode());
-        assertThat(årsak).isEqualTo(etterRoundtrip.arsakskode());
+        assertThat(brev.årsakskode()).isEqualTo(etterRoundtrip.årsakskode());
+        assertThat(årsak).isEqualTo(etterRoundtrip.årsakskode());
         assertThat(brev.fritekst()).isEqualTo(etterRoundtrip.fritekst());
         assertThat(etterRoundtrip.fritekst()).isNull();
         assertThat(brev.behandlingUuid()).isEqualTo(etterRoundtrip.behandlingUuid());

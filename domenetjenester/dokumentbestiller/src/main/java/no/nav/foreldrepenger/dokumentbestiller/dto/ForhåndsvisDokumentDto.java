@@ -15,7 +15,6 @@ import no.nav.vedtak.util.InputValideringRegex;
 
 public record ForhåndsvisDokumentDto(@Valid @NotNull UUID behandlingUuid,
                                      @ValidKodeverk DokumentMalType dokumentMal,
-                                     @ValidKodeverk RevurderingVarslingÅrsak arsakskode,
                                      @ValidKodeverk RevurderingVarslingÅrsak årsakskode,
                                      boolean automatiskVedtaksbrev,
                                      @Size(max = 200) @Pattern(regexp = InputValideringRegex.FRITEKST) String tittel,
