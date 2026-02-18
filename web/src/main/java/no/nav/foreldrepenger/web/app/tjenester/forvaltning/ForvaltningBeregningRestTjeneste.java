@@ -5,7 +5,9 @@ import java.time.Month;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -21,6 +23,12 @@ import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
+
+import no.nav.foreldrepenger.domene.iay.modell.Inntektsmelding;
+
+import no.nav.foreldrepenger.domene.iay.modell.Refusjon;
+
+import no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.RefusjonsendringDto;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -128,8 +136,9 @@ public class ForvaltningBeregningRestTjeneste {
             }
         } else {
             // Nytt innslag. Sett sluttdato på gjeldende og legg til ny
-            if (!sjekkVerdierOK(dto, gjeldende, brukTom))
+            if (!sjekkVerdierOK(dto, gjeldende, brukTom)) {
                 throw new ForvaltningException("Ulovlige verdier " + dto);
+            }
             LOG.warn("SATSJUSTERTING: sjekk med produkteier om det er ventet, noter usedId i loggen {}", dto);
             gjeldende.setTomDato(dto.getSatsFom().minusDays(1));
             satsRepository.lagreSats(gjeldende);
@@ -141,10 +150,12 @@ public class ForvaltningBeregningRestTjeneste {
     }
 
     private boolean sjekkVerdierOK(BeregningSatsDto dto, BeregningSats gjeldende, LocalDate brukTom) {
-        if (!brukTom.isAfter(dto.getSatsFom()) || !dto.getSatsFom().isAfter(gjeldende.getPeriode().getFomDato()))
+        if (!brukTom.isAfter(dto.getSatsFom()) || !dto.getSatsFom().isAfter(gjeldende.getPeriode().getFomDato())) {
             return false;
+        }
         if (BeregningSatsType.GRUNNBELØP.equals(gjeldende.getSatsType())) {
-            return gjeldende.getPeriode().getTomDato().isAfter(dto.getSatsFom()) && Month.MAY.equals(dto.getSatsFom().getMonth()) && dto.getSatsFom().getDayOfMonth() == 1;
+            return gjeldende.getPeriode().getTomDato().isAfter(dto.getSatsFom()) && Month.MAY.equals(dto.getSatsFom().getMonth())
+                && dto.getSatsFom().getDayOfMonth() == 1;
         }
         if (BeregningSatsType.ENGANG.equals(gjeldende.getSatsType())) {
             return gjeldende.getPeriode().getTomDato().isAfter(dto.getSatsFom());
@@ -164,7 +175,8 @@ public class ForvaltningBeregningRestTjeneste {
         var saksnummer = new Saksnummer(saksnummerDto.getVerdi());
         var fagsak = fagsakRepository.hentSakGittSaksnummer(saksnummer).orElseThrow();
         var åpneBehandlinger = behandlingRepository.hentÅpneYtelseBehandlingerForFagsakId(fagsak.getId())
-            .stream().anyMatch(SpesialBehandling::erIkkeSpesialBehandling);
+            .stream()
+            .anyMatch(SpesialBehandling::erIkkeSpesialBehandling);
         if (no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType.ENGANGSTØNAD.equals(fagsak.getYtelseType()) || åpneBehandlinger) {
             return Response.status(Response.Status.BAD_REQUEST).build();
         }
@@ -191,26 +203,51 @@ public class ForvaltningBeregningRestTjeneste {
             .flatMap(InntektArbeidYtelseGrunnlag::getInntektsmeldinger)
             .map(InntektsmeldingAggregat::getAlleInntektsmeldinger)
             .orElse(Collections.emptyList());
-        var matchetInntektsmelding = inntektsmeldinger.stream().filter(im -> im.getJournalpostId().getVerdi().equals(dto.getJournalpostId())).findFirst();
+        var matchetInntektsmelding = inntektsmeldinger.stream()
+            .filter(im -> im.getJournalpostId().getVerdi().equals(dto.getJournalpostId()))
+            .findFirst();
         if (matchetInntektsmelding.isEmpty()) {
             var msg = String.format("Finner ikke inntektsmelding med journalpostId %s på behandling med uuid %s ", dto.getJournalpostId(),
                 dto.getBehandlingUuid());
             return Response.ok(msg).build();
         }
-        if (dto.getRefusjonsendringer().isEmpty() && dto.getRefusjonOpphørFom() == null) {
-            return Response.ok("Det er ikke oppgitt hverken opphørsdato for refusjojn eller en liste med refusjonsendringer, ingenting å endre.").build();
+        // gjør en basisvalidering av endringene som forespørres
+        var feilmelding = validerEndringer(matchetInntektsmelding.get(), dto);
+        if (feilmelding.isPresent()) {
+            return Response.ok(feilmelding.get()).build();
         }
         var refusjonsendringer = dto.getRefusjonsendringer()
             .stream()
             .map(r -> new OverstyrInntektsmeldingTask.InntektsmeldingEndring.Refusjonsendring(r.getFom(), r.getBeløp()))
             .toList();
-        var taskParam = new OverstyrInntektsmeldingTask.InntektsmeldingEndring(dto.getJournalpostId(), behandling.getId(), dto.getRefusjonOpphørFom(), dto.getRefusjonPrMndFraStart(),
-            KontekstHolder.getKontekst().getUid(), refusjonsendringer, dto.getStartdatoPermisjon());
+        var taskParam = new OverstyrInntektsmeldingTask.InntektsmeldingEndring(dto.getJournalpostId(), behandling.getId(), dto.getRefusjonOpphørFom(),
+            dto.getRefusjonPrMndFraStart(), KontekstHolder.getKontekst().getUid(), refusjonsendringer, dto.getStartdatoPermisjon());
         var task = ProsessTaskData.forProsessTask(OverstyrInntektsmeldingTask.class);
         task.setPayload(DefaultJsonMapper.toJson(taskParam));
         task.setBehandling(behandling.getSaksnummer().getVerdi(), behandling.getFagsakId(), behandling.getId());
         taskTjeneste.lagre(task);
         return Response.ok().build();
+    }
+
+    private Optional<String> validerEndringer(Inntektsmelding inntektsmelding, EndreInntektsmeldingDto dto) {
+        LocalDate startdato = dto.getStartdatoPermisjon() == null ? inntektsmelding.getStartDatoPermisjon().orElseThrow() : dto.getStartdatoPermisjon();
+        var endringsdatoer = dto.getRefusjonsendringer().isEmpty() ? inntektsmelding.getEndringerRefusjon()
+            .stream()
+            .map(Refusjon::getFom)
+            .collect(Collectors.toSet()) : dto.getRefusjonsendringer().stream().map(RefusjonsendringDto::getFom).collect(Collectors.toSet());
+        if (dto.getRefusjonPrMndFraStart() == null && inntektsmelding.getRefusjonBeløpPerMnd() == null) {
+            return Optional.of("Det er ikke oppgitt refusjon på eksisterende inntektsmelding, og heller ikke på endring fra swagger");
+        }
+        var endringsdatoerIkkeEtterStatdato = endringsdatoer.stream().filter(d -> !d.isAfter(startdato)).collect(Collectors.toSet());
+        if (!endringsdatoerIkkeEtterStatdato.isEmpty()) {
+            return Optional.of(String.format("Følgende datoer %s er før eller på startdato %s", endringsdatoerIkkeEtterStatdato, startdato));
+        }
+        var opphørsdato = dto.getRefusjonOpphørFom() == null ? inntektsmelding.getRefusjonOpphører() : dto.getRefusjonOpphørFom();
+        var endringsdatoerIkkeFørOpphørsdato = endringsdatoer.stream().filter(d -> !d.isBefore(opphørsdato)).collect(Collectors.toSet());
+        if (!endringsdatoerIkkeFørOpphørsdato.isEmpty()) {
+            return Optional.of(String.format("Følgende datoer %s er på eller etter opphørsdato %s", endringsdatoerIkkeFørOpphørsdato, opphørsdato));
+        }
+        return Optional.empty();
     }
 
     @POST
