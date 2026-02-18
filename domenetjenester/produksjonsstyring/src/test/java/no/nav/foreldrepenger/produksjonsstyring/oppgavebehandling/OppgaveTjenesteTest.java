@@ -43,6 +43,9 @@ class OppgaveTjenesteTest {
     private static final Oppgave OPPGAVE = new Oppgave(99L, null, null, null, null,
             Tema.FOR.getOffisiellKode(), null, null, null, 1, "4806",
             LocalDate.now().plusDays(1), LocalDate.now(), Prioritet.NORM, Oppgavestatus.AAPNET, "beskrivelse", "null");
+    private static final Oppgave FERDIGSTILT_OPPGAVE = new Oppgave(101L, null, null, null, null,
+            Tema.FOR.getOffisiellKode(), null, null, null, 1, "4806",
+            LocalDate.now().plusDays(1), LocalDate.now(), Prioritet.NORM, Oppgavestatus.FERDIGSTILT, "beskrivelse", "null");
 
     @Mock
     private PersoninfoAdapter personinfoAdapter;
@@ -174,17 +177,37 @@ class OppgaveTjenesteTest {
     @Test
     void ferdigstille_oppgave_kalles_videre_til_rest_klient() {
         var tjeneste = lagTjeneste(lagScenario());
+        when(oppgaveRestKlient.hentOppgave(OPPGAVE.id().toString())).thenReturn(OPPGAVE);
         tjeneste.ferdigstillOppgave(OPPGAVE.id().toString());
-        verify(oppgaveRestKlient, times(1)).ferdigstillOppgave(OPPGAVE.id().toString());
         verify(oppgaveRestKlient, times(1)).hentOppgave(OPPGAVE.id().toString());
+        verify(oppgaveRestKlient, times(1)).ferdigstillOppgave(OPPGAVE.id().toString());
     }
 
     @Test
     void ferdigstille_oppgave_feiler_for_oppgaveId_null() {
         var tjeneste = lagTjeneste(lagScenario());
-        doThrow(new IllegalArgumentException("Feil")).when(oppgaveRestKlient).ferdigstillOppgave(null);
+        when(oppgaveRestKlient.hentOppgave(null)).thenThrow(new IllegalArgumentException("Feil"));
 
         assertThatThrownBy(() -> tjeneste.ferdigstillOppgave(null)).isInstanceOf(TekniskException.class)
+            .hasMessageContaining("Noe feilet ved henting av oppgave");
+    }
+
+    @Test
+    void ferdigstille_oppgave_feiler_for_feil_fra_rest_klient() {
+        var tjeneste = lagTjeneste(lagScenario());
+        when(oppgaveRestKlient.hentOppgave(OPPGAVE.id().toString())).thenReturn(OPPGAVE);
+        doThrow(new IllegalArgumentException("Feil")).when(oppgaveRestKlient).ferdigstillOppgave(OPPGAVE.id().toString());
+
+        assertThatThrownBy(() -> tjeneste.ferdigstillOppgave(OPPGAVE.id().toString())).isInstanceOf(TekniskException.class)
             .hasMessageContaining("Noe feilet ved ferdigstilling av oppgave");
+    }
+
+    @Test
+    void ferdigstille_oppgave_for_allerede_ferdigstilt_kaller_ikke_rest_klient() {
+        var tjeneste = lagTjeneste(lagScenario());
+        when(oppgaveRestKlient.hentOppgave(FERDIGSTILT_OPPGAVE.id().toString())).thenReturn(FERDIGSTILT_OPPGAVE);
+        tjeneste.ferdigstillOppgave(FERDIGSTILT_OPPGAVE.id().toString());
+        verify(oppgaveRestKlient, times(1)).hentOppgave(FERDIGSTILT_OPPGAVE.id().toString());
+        verify(oppgaveRestKlient, times(0)).ferdigstillOppgave(FERDIGSTILT_OPPGAVE.id().toString());
     }
 }
