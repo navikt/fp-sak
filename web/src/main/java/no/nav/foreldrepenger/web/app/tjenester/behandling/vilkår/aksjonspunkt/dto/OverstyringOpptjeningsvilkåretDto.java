@@ -3,6 +3,7 @@ package no.nav.foreldrepenger.web.app.tjenester.behandling.vilkår.aksjonspunkt.
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 
+import com.fasterxml.jackson.annotation.JsonAlias;
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeName;
@@ -22,8 +23,8 @@ public class OverstyringOpptjeningsvilkåretDto extends OverstyringAksjonspunktD
     @Pattern(regexp = InputValideringRegex.KODEVERK)
     private String avslagskode;
 
-    @JsonProperty("erVilkarOk")
-    private boolean erVilkarOk;
+    @JsonProperty("erVilkårOk") @JsonAlias("erVilkarOk")
+    private boolean erVilkårOk;
 
     @SuppressWarnings("unused")
     private OverstyringOpptjeningsvilkåretDto() {
@@ -31,9 +32,9 @@ public class OverstyringOpptjeningsvilkåretDto extends OverstyringAksjonspunktD
         // For Jackson
     }
 
-    public OverstyringOpptjeningsvilkåretDto(boolean erVilkarOk, String begrunnelse, String avslagskode) {
+    public OverstyringOpptjeningsvilkåretDto(boolean erVilkårOk, String begrunnelse, String avslagskode) {
         super(begrunnelse);
-        this.erVilkarOk = erVilkarOk;
+        this.erVilkårOk = erVilkårOk;
         this.avslagskode = avslagskode;
     }
 
@@ -43,8 +44,8 @@ public class OverstyringOpptjeningsvilkåretDto extends OverstyringAksjonspunktD
     }
 
     @Override
-    public boolean getErVilkarOk() {
-        return erVilkarOk;
+    public boolean getErVilkårOk() {
+        return erVilkårOk;
     }
 
 }

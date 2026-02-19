@@ -4,21 +4,21 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 
+import com.fasterxml.jackson.annotation.JsonAlias;
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 
 import no.nav.foreldrepenger.behandling.aksjonspunkt.OverstyringAksjonspunktDto;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktKodeDefinisjon;
-import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.Avslagsårsak;
 import no.nav.vedtak.util.InputValideringRegex;
 
 @JsonAutoDetect(getterVisibility = Visibility.NONE, setterVisibility = Visibility.NONE, fieldVisibility = Visibility.ANY)
 @JsonTypeName(AksjonspunktKodeDefinisjon.OVERSTYRING_AV_SØKNADSFRISTVILKÅRET_KODE)
 public class OverstyringSøknadsfristvilkåretDto extends OverstyringAksjonspunktDto {
 
-    @NotNull
-    private boolean erVilkarOk;
+    @NotNull @JsonAlias("erVilkarOk")
+    private boolean erVilkårOk;
 
     @Size(min = 4, max = 4)
     @Pattern(regexp = InputValideringRegex.KODEVERK)
@@ -30,9 +30,9 @@ public class OverstyringSøknadsfristvilkåretDto extends OverstyringAksjonspunk
         // For Jackson
     }
 
-    public OverstyringSøknadsfristvilkåretDto(boolean erVilkarOk, String begrunnelse, String avslagskode) {
+    public OverstyringSøknadsfristvilkåretDto(boolean erVilkårOk, String begrunnelse, String avslagskode) {
         super(begrunnelse);
-        this.erVilkarOk = erVilkarOk;
+        this.erVilkårOk = erVilkårOk;
         this.avslagskode = avslagskode;
     }
 
@@ -42,7 +42,7 @@ public class OverstyringSøknadsfristvilkåretDto extends OverstyringAksjonspunk
     }
 
     @Override
-    public boolean getErVilkarOk() {
-        return erVilkarOk;
+    public boolean getErVilkårOk() {
+        return erVilkårOk;
     }
 }

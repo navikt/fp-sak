@@ -1,5 +1,6 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.vilkår.aksjonspunkt.dto;
 
+import com.fasterxml.jackson.annotation.JsonAlias;
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -14,8 +15,8 @@ import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspun
 public class OverstyringSokersOpplysingspliktDto extends OverstyringAksjonspunktDto {
 
 
-    @JsonProperty("erVilkarOk")
-    private boolean erVilkarOk;
+    @JsonProperty("erVilkårOk") @JsonAlias("erVilkarOk")
+    private boolean erVilkårOk;
 
     @SuppressWarnings("unused")
     private OverstyringSokersOpplysingspliktDto() {
@@ -23,9 +24,9 @@ public class OverstyringSokersOpplysingspliktDto extends OverstyringAksjonspunkt
         // For Jackson
     }
 
-    public OverstyringSokersOpplysingspliktDto(boolean erVilkarOk, String begrunnelse) {
+    public OverstyringSokersOpplysingspliktDto(boolean erVilkårOk, String begrunnelse) {
         super(begrunnelse);
-        this.erVilkarOk = erVilkarOk;
+        this.erVilkårOk = erVilkårOk;
     }
 
     @JsonIgnore
@@ -35,8 +36,8 @@ public class OverstyringSokersOpplysingspliktDto extends OverstyringAksjonspunkt
     }
 
     @Override
-    public boolean getErVilkarOk() {
-        return erVilkarOk;
+    public boolean getErVilkårOk() {
+        return erVilkårOk;
     }
 
 }

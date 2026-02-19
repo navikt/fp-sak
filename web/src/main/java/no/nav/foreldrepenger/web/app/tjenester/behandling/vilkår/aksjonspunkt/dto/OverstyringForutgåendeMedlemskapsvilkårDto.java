@@ -5,6 +5,7 @@ import java.time.LocalDate;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 
+import com.fasterxml.jackson.annotation.JsonAlias;
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -24,8 +25,8 @@ public class OverstyringForutgåendeMedlemskapsvilkårDto extends OverstyringAks
     @Pattern(regexp = InputValideringRegex.KODEVERK)
     private String avslagskode;
 
-    @JsonProperty("erVilkarOk")
-    private boolean erVilkarOk;
+    @JsonProperty("erVilkårOk") @JsonAlias("erVilkarOk")
+    private boolean erVilkårOk;
 
     @JsonProperty("medlemFom")
     private LocalDate medlemFom;
@@ -42,8 +43,8 @@ public class OverstyringForutgåendeMedlemskapsvilkårDto extends OverstyringAks
     }
 
     @Override
-    public boolean getErVilkarOk() {
-        return erVilkarOk;
+    public boolean getErVilkårOk() {
+        return erVilkårOk;
     }
 
     public LocalDate getMedlemFom() {

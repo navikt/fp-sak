@@ -39,7 +39,7 @@ public class OverstyrOmsorgOgRettDto extends OverstyringAksjonspunktDto {
 
     @JsonIgnore
     @Override
-    public boolean getErVilkarOk() {
+    public boolean getErVilkårOk() {
         //Brukes ikke
         return false;
     }

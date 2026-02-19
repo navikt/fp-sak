@@ -252,8 +252,8 @@ class BeregningsresultatMedUttaksplanMapperTest {
                 .filter(a -> a.getAktivitetStatus().equals(AktivitetStatus.SELVSTENDIG_NÆRINGSDRIVENDE)).findFirst().orElse(null);
         var andel2 = andeler.stream().filter(a -> a.getAktivitetStatus().equals(AktivitetStatus.DAGPENGER)).findFirst()
                 .orElse(null);
-        assertThat(andel1.getTilSoker()).isEqualTo(1000);
-        assertThat(andel2.getTilSoker()).isEqualTo(2000);
+        assertThat(andel1.getTilSøker()).isEqualTo(1000);
+        assertThat(andel2.getTilSøker()).isEqualTo(2000);
         assertThat(andel1.getRefusjon()).isZero();
         assertThat(andel2.getRefusjon()).isZero();
     }
@@ -282,7 +282,7 @@ class BeregningsresultatMedUttaksplanMapperTest {
                 Collections.emptyMap(), Optional.empty());
 
         assertThat(andeler).hasSize(1);
-        assertThat(andeler.get(0).getTilSoker()).isEqualTo(1500);
+        assertThat(andeler.get(0).getTilSøker()).isEqualTo(1500);
         assertAndelArbeidsgiver(andeler, virksomhet.getIdentifikator(), 750);
     }
 

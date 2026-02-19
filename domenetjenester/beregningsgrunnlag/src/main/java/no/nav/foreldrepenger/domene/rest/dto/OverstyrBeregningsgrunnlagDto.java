@@ -40,7 +40,7 @@ public class OverstyrBeregningsgrunnlagDto extends OverstyringAksjonspunktDto {
 
     @JsonIgnore
     @Override
-    public boolean getErVilkarOk() {
+    public boolean getErVilkårOk() {
         return true;
     }
 

@@ -35,14 +35,14 @@ public class OverstyringAvklarStartdatoForPeriodenHåndterer implements Overstyr
 
     @Override
     public OppdateringResultat håndterOverstyring(OverstyringAvklarStartdatoForPeriodenDto dto, BehandlingReferanse ref) {
-        ytelseFordelingTjeneste.aksjonspunktAvklarStartdatoForPerioden(ref.behandlingId(), dto.getStartdatoFraSoknad());
+        ytelseFordelingTjeneste.aksjonspunktAvklarStartdatoForPerioden(ref.behandlingId(), dto.getStartdatoFraSøknad());
         return OppdateringResultat.utenTransisjon().build();
     }
 
     @Override
     public void lagHistorikkInnslag(OverstyringAvklarStartdatoForPeriodenDto dto, BehandlingReferanse ref) {
         var opprinneligDato = dto.getOpprinneligDato();
-        var startdatoFraSoknad = dto.getStartdatoFraSoknad();
+        var startdatoFraSoknad = dto.getStartdatoFraSøknad();
         if (!startdatoFraSoknad.isEqual(opprinneligDato)) {
             var historikkinnslag = new Historikkinnslag.Builder().medTittel(SkjermlenkeType.KONTROLL_AV_SAKSOPPLYSNINGER)
                 .medAktør(HistorikkAktør.SAKSBEHANDLER)

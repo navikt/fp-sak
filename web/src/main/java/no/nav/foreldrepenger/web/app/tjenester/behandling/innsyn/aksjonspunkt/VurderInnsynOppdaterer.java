@@ -57,7 +57,7 @@ public class VurderInnsynOppdaterer implements AksjonspunktOppdaterer<VurderInns
 
         innsynTjeneste.lagreVurderInnsynResultat(behandling, builder.build());
 
-        if (dto.isSattPaVent()) {
+        if (dto.isSattPåVent()) {
             behandlingProsesseringTjeneste.settBehandlingPåVent(behandling, BehandlingStegType.VURDER_INNSYN,
                 AksjonspunktDefinisjon.VENT_PÅ_SCANNING, frist(dto.getFristDato()), Venteårsak.SCANN);
         }

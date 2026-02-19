@@ -39,7 +39,7 @@ public class SøknadsfristOppdaterer implements AksjonspunktOppdaterer<Soknadsfr
     public OppdateringResultat oppdater(SoknadsfristAksjonspunktDto dto, AksjonspunktOppdaterParameter param) {
         lagreHistorikk(dto, param);
 
-        if (dto.getErVilkarOk()) {
+        if (dto.getErVilkårOk()) {
             return new OppdateringResultat.Builder().leggTilManueltOppfyltVilkår(SØKNADSFRISTVILKÅRET).build();
         }
 
@@ -54,7 +54,7 @@ public class SøknadsfristOppdaterer implements AksjonspunktOppdaterer<Soknadsfr
 
     private void lagreHistorikk(SoknadsfristAksjonspunktDto dto, AksjonspunktOppdaterParameter param) {
         var avslagsårsak = Optional.ofNullable(dto.getAvslagskode()).flatMap(Avslagsårsak::fraDefinertKode).map(Avslagsårsak::getNavn).orElse(null);
-        var utfall = dto.getErVilkarOk() ? VilkårUtfallType.OPPFYLT.getNavn() : VilkårUtfallType.IKKE_OPPFYLT.getNavn();
+        var utfall = dto.getErVilkårOk() ? VilkårUtfallType.OPPFYLT.getNavn() : VilkårUtfallType.IKKE_OPPFYLT.getNavn();
         var historikkinnslag = new Historikkinnslag.Builder().medFagsakId(param.getFagsakId())
             .medBehandlingId(param.getBehandlingId())
             .medTittel(SkjermlenkeType.SOEKNADSFRIST)

@@ -34,7 +34,7 @@ class VurdereYtelseSammeBarnSøkerOppdatererTest {
         var behandling = scenario.lagMocked();
 
         var dto = new VurdereYtelseSammeBarnSøkerAksjonspunktDto();
-        dto.setErVilkarOk(true);
+        dto.setErVilkårOk(true);
 
         utførAksjonspunktOppdaterer(behandling, dto, scenario.mockBehandlingRepositoryProvider());
 
@@ -50,7 +50,7 @@ class VurdereYtelseSammeBarnSøkerOppdatererTest {
         var behandling = scenario.lagMocked();
 
         var dto = new VurdereYtelseSammeBarnSøkerAksjonspunktDto();
-        dto.setErVilkarOk(false);
+        dto.setErVilkårOk(false);
         dto.setAvslagskode("1006");
 
         utførAksjonspunktOppdaterer(behandling, dto, scenario.mockBehandlingRepositoryProvider());

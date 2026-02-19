@@ -6,7 +6,7 @@ package no.nav.foreldrepenger.behandling.aksjonspunkt;
  */
 public interface AvslagbartAksjonspunktDto extends AksjonspunktKode {
 
-    boolean getErVilkarOk();
+    boolean getErVilkårOk();
 
     String getAvslagskode();
 

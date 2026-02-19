@@ -51,8 +51,8 @@ public class VurdereYtelseSammeBarnSøkerOppdaterer implements AksjonspunktOppda
         if (relevantVilkår.isPresent()) {
             var vilkår = relevantVilkår.get();
             historikkSammeBarnTjeneste.lagHistorikkinnslagForAksjonspunkt(ref, behandlingsresultat, dto, vilkår);
-            if (dto.getErVilkarOk()) {
-                var nyttUtfall = dto.getErVilkarOk() ? VilkårUtfallType.OPPFYLT : VilkårUtfallType.IKKE_OPPFYLT;
+            if (dto.getErVilkårOk()) {
+                var nyttUtfall = dto.getErVilkårOk() ? VilkårUtfallType.OPPFYLT : VilkårUtfallType.IKKE_OPPFYLT;
                 var totrinn = !Objects.equals(vilkår.getGjeldendeVilkårUtfall(), nyttUtfall);
                 var resultatBuilder = OppdateringResultat.utenTransisjon();
                 resultatBuilder.leggTilManueltOppfyltVilkår(vilkår.getVilkårType());

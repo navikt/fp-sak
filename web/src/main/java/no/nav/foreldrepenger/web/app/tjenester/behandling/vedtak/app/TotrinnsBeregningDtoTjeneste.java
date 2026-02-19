@@ -28,25 +28,25 @@ public class TotrinnsBeregningDtoTjeneste {
         this.beregningTjeneste = beregningTjeneste;
     }
 
-    TotrinnsBeregningDto hentBeregningDto(Totrinnsvurdering aksjonspunkt,
-                                                  Behandling behandling) {
-        var dto = new TotrinnsBeregningDto();
+    TotrinnsBeregningDto hentBeregningDto(Totrinnsvurdering aksjonspunkt, Behandling behandling) {
         var ref = BehandlingReferanse.fra(behandling);
-        if (aksjonspunkt.getAksjonspunktDefinisjon().equals(AksjonspunktDefinisjon.VURDER_VARIG_ENDRET_ELLER_NYOPPSTARTET_NÆRING_SELVSTENDIG_NÆRINGSDRIVENDE)) {
-            dto.setFastsattVarigEndringNaering(erVarigEndringFastsattForSelvstendingNæringsdrivendeGittBehandlingId(ref));
-        }
-        if (AksjonspunktDefinisjon.VURDER_FAKTA_FOR_ATFL_SN.equals(aksjonspunkt.getAksjonspunktDefinisjon())) {
-            var bg = beregningTjeneste.hent(ref).flatMap(BeregningsgrunnlagGrunnlag::getBeregningsgrunnlag);
-            var tilfeller = bg.map(Beregningsgrunnlag::getFaktaOmBeregningTilfeller).orElseGet(List::of);
-            dto.setFaktaOmBeregningTilfeller(tilfeller);
-        }
-        return dto;
+        var erVarigEndringNæring = aksjonspunkt.getAksjonspunktDefinisjon()
+            .equals(AksjonspunktDefinisjon.VURDER_VARIG_ENDRET_ELLER_NYOPPSTARTET_NÆRING_SELVSTENDIG_NÆRINGSDRIVENDE)
+            && erVarigEndringFastsattForSelvstendingNæringsdrivendeGittBehandlingId(ref);
+        var beregningTilfeller = AksjonspunktDefinisjon.VURDER_FAKTA_FOR_ATFL_SN.equals(
+            aksjonspunkt.getAksjonspunktDefinisjon()) ? beregningTjeneste.hent(ref)
+            .flatMap(BeregningsgrunnlagGrunnlag::getBeregningsgrunnlag)
+            .map(Beregningsgrunnlag::getFaktaOmBeregningTilfeller)
+            .orElseGet(List::of) : null;
+        return new TotrinnsBeregningDto(erVarigEndringNæring, erVarigEndringNæring, beregningTilfeller);
     }
 
     private boolean erVarigEndringFastsattForSelvstendingNæringsdrivendeGittBehandlingId(BehandlingReferanse ref) {
         var beregningsgrunnlag = beregningTjeneste.hent(ref).flatMap(BeregningsgrunnlagGrunnlag::getBeregningsgrunnlag);
 
-        return beregningsgrunnlag.map(Beregningsgrunnlag::getBeregningsgrunnlagPerioder).orElseGet(List::of).stream()
+        return beregningsgrunnlag.map(Beregningsgrunnlag::getBeregningsgrunnlagPerioder)
+            .orElseGet(List::of)
+            .stream()
             .flatMap(bgps -> bgps.getBeregningsgrunnlagPrStatusOgAndelList().stream())
             .filter(andel -> AktivitetStatus.SELVSTENDIG_NÆRINGSDRIVENDE.equals(andel.getAktivitetStatus()))
             .anyMatch(andel -> andel.getOverstyrtPrÅr() != null);

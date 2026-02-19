@@ -3,7 +3,7 @@ package no.nav.foreldrepenger.behandling.aksjonspunkt;
 public interface OverstyringAksjonspunkt {
     String getAvslagskode();
 
-    boolean getErVilkarOk();
+    boolean getErVilkårOk();
 
     String getBegrunnelse();
 }

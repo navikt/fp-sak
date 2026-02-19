@@ -7,6 +7,7 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
+import com.fasterxml.jackson.annotation.JsonAlias;
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -36,8 +37,8 @@ public class VurderInnsynDto extends BekreftetAksjonspunktDto {
     @Size(max = 1000)
     private List<@Valid VurderInnsynDokumentDto> innsynDokumenter;
 
-    @JsonProperty("sattPaVent")
-    private boolean sattPaVent;
+    @JsonProperty("sattPåVent") @JsonAlias("sattPaVent")
+    private boolean sattPåVent;
 
     @JsonProperty("fristDato")
     private LocalDate fristDato;
@@ -49,11 +50,11 @@ public class VurderInnsynDto extends BekreftetAksjonspunktDto {
     }
 
     public VurderInnsynDto(String begrunnelse, InnsynResultatType innsynResultatType, LocalDate mottattDato,
-                           boolean sattPaVent, List<VurderInnsynDokumentDto> innsynDokumenter, LocalDate fristDato) {
+                           boolean sattPåVent, List<VurderInnsynDokumentDto> innsynDokumenter, LocalDate fristDato) {
         super(begrunnelse);
         this.innsynResultatType = innsynResultatType;
         this.mottattDato = mottattDato;
-        this.sattPaVent = sattPaVent;
+        this.sattPåVent = sattPåVent;
         this.innsynDokumenter = innsynDokumenter;
         this.fristDato = fristDato;
     }
@@ -72,8 +73,8 @@ public class VurderInnsynDto extends BekreftetAksjonspunktDto {
         return innsynDokumenter;
     }
 
-    public boolean isSattPaVent() {
-        return sattPaVent;
+    public boolean isSattPåVent() {
+        return sattPåVent;
     }
 
     public LocalDate getFristDato() {

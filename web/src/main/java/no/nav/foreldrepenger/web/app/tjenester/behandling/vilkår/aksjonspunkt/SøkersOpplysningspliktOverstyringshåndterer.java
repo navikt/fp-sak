@@ -46,11 +46,11 @@ public class SøkersOpplysningspliktOverstyringshåndterer implements Overstyrin
     @Override
     public OppdateringResultat håndterOverstyring(OverstyringSokersOpplysingspliktDto dto, BehandlingReferanse ref) {
 
-        if (!dto.getErVilkarOk() && ref.erRevurdering()) {
+        if (!dto.getErVilkårOk() && ref.erRevurdering()) {
             throw new FunksjonellException("FP-093925", "Kan ikke avslå revurdering med opplysningsplikt.",
                 "Overstyr ett av de andre vilkårene.");
         }
-        var utfall = dto.getErVilkarOk() ? VilkårUtfallType.OPPFYLT : VilkårUtfallType.IKKE_OPPFYLT;
+        var utfall = dto.getErVilkårOk() ? VilkårUtfallType.OPPFYLT : VilkårUtfallType.IKKE_OPPFYLT;
         inngangsvilkårTjeneste.overstyrAksjonspunktForSøkersopplysningsplikt(ref.behandlingId(), utfall);
 
         var builder = OppdateringResultat.utenTransisjon();
@@ -67,7 +67,7 @@ public class SøkersOpplysningspliktOverstyringshåndterer implements Overstyrin
             .medFagsakId(fagsakId)
             .medBehandlingId(behandlingId)
             .medTittel(SkjermlenkeType.OPPLYSNINGSPLIKT)
-            .addLinje(fraTilEquals("Søkers opplysningsplikt", null, dto.getErVilkarOk() ? "oppfylt" : "ikke oppfylt"))
+            .addLinje(fraTilEquals("Søkers opplysningsplikt", null, dto.getErVilkårOk() ? "oppfylt" : "ikke oppfylt"))
             .addLinje(dto.getBegrunnelse())
             .build();
         historikkinnslagRepository.lagre(historikkinnslag);
