@@ -43,7 +43,7 @@ public class OpptjeningsvilkåretOverstyringshåndterer extends InngangsvilkårO
 
     @Override
     public void precondition(OverstyringOpptjeningsvilkåretDto dto, BehandlingReferanse ref) {
-        if (dto.getErVilkarOk()) {
+        if (dto.getErVilkårOk()) {
             var ant = opptjeningRepository.finnOpptjening(ref.behandlingId())
                 .map(Opptjening::getOpptjeningAktivitet)
                 .orElse(List.of())

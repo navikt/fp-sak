@@ -86,6 +86,7 @@ public class ArbeidOgInntektsmeldingMapper {
                 im.getJournalpostId() != null ? im.getJournalpostId().getVerdi() : null,
                 dokumentId.orElse(null),
                 im.getMottattDato(),
+                im.getMottattDato(),
                 im.getInnsendingstidspunkt(),
                 inntekstmeldingMangel.orElse(null),
                 vurderingPåInntektsmelding.map(ArbeidsforholdValg::getBegrunnelse).orElse(null),
@@ -329,7 +330,7 @@ public class ArbeidOgInntektsmeldingMapper {
     private static NaturalYtelseDto mapNaturalYtelse(NaturalYtelse naturalYtelse) {
         var periode = new NaturalYtelseDto.Periode(naturalYtelse.getPeriode().getFomDato(), naturalYtelse.getPeriode().getTomDato());
         var beløp = new NaturalYtelseDto.Beløp(naturalYtelse.getBeloepPerMnd().getVerdi());
-        return new NaturalYtelseDto(periode, beløp, naturalYtelse.getType(), naturalYtelse.getIndexKey());
+        return new NaturalYtelseDto(periode, beløp, beløp, naturalYtelse.getType(), naturalYtelse.getIndexKey());
     }
 
     private static List<RefusjonDto> mapRefusjonendringer(List<Refusjon> refusjon) {

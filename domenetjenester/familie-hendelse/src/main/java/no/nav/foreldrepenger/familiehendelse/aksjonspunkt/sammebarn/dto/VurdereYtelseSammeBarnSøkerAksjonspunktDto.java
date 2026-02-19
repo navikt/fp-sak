@@ -4,6 +4,7 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 
+import com.fasterxml.jackson.annotation.JsonAlias;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AvslagbartAksjonspunktDto;
@@ -14,9 +15,8 @@ import no.nav.vedtak.util.InputValideringRegex;
 @JsonTypeName(AksjonspunktKodeDefinisjon.AVKLAR_OM_SØKER_HAR_MOTTATT_STØTTE_KODE)
 public class VurdereYtelseSammeBarnSøkerAksjonspunktDto extends BekreftetAksjonspunktDto implements AvslagbartAksjonspunktDto {
 
-
-    @NotNull
-    private boolean erVilkarOk;
+    @NotNull @JsonAlias("erVilkarOk")
+    private boolean erVilkårOk;
 
     @Size(min = 1, max = 100)
     @Pattern(regexp = InputValideringRegex.KODEVERK)
@@ -26,18 +26,18 @@ public class VurdereYtelseSammeBarnSøkerAksjonspunktDto extends BekreftetAksjon
         // for jackson
     }
 
-    public VurdereYtelseSammeBarnSøkerAksjonspunktDto(String begrunnelse, Boolean erVilkarOk) {
+    public VurdereYtelseSammeBarnSøkerAksjonspunktDto(String begrunnelse, Boolean erVilkårOk) {
         super(begrunnelse);
-        this.erVilkarOk = erVilkarOk;
+        this.erVilkårOk = erVilkårOk;
     }
 
     @Override
-    public boolean getErVilkarOk() {
-        return erVilkarOk;
+    public boolean getErVilkårOk() {
+        return erVilkårOk;
     }
 
-    public void setErVilkarOk(Boolean erVilkarOk) {
-        this.erVilkarOk = erVilkarOk;
+    public void setErVilkårOk(Boolean erVilkårOk) {
+        this.erVilkårOk = erVilkårOk;
     }
 
     @Override

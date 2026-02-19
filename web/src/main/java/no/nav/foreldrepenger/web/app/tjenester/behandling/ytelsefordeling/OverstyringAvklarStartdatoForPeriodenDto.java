@@ -2,6 +2,7 @@ package no.nav.foreldrepenger.web.app.tjenester.behandling.ytelsefordeling;
 
 import java.time.LocalDate;
 
+import com.fasterxml.jackson.annotation.JsonAlias;
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -16,15 +17,15 @@ import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspun
 public class OverstyringAvklarStartdatoForPeriodenDto extends OverstyringAksjonspunktDto {
 
 
-    @JsonProperty("startdatoFraSoknad")
-    private LocalDate startdatoFraSoknad;
+    @JsonProperty("startdatoFraSøknad") @JsonAlias("startdatoFraSoknad")
+    private LocalDate startdatoFraSøknad;
 
     @JsonProperty("opprinneligDato")
     private LocalDate opprinneligDato;
 
-    public OverstyringAvklarStartdatoForPeriodenDto(String begrunnelse, LocalDate startdatoFraSoknad, LocalDate opprinneligDato) {
+    public OverstyringAvklarStartdatoForPeriodenDto(String begrunnelse, LocalDate startdatoFraSøknad, LocalDate opprinneligDato) {
         super(begrunnelse);
-        this.startdatoFraSoknad = startdatoFraSoknad;
+        this.startdatoFraSøknad = startdatoFraSøknad;
         this.opprinneligDato = opprinneligDato;
     }
 
@@ -34,8 +35,8 @@ public class OverstyringAvklarStartdatoForPeriodenDto extends OverstyringAksjons
         // For Jackson
     }
 
-    public LocalDate getStartdatoFraSoknad() {
-        return startdatoFraSoknad;
+    public LocalDate getStartdatoFraSøknad() {
+        return startdatoFraSøknad;
     }
 
     public LocalDate getOpprinneligDato() {
@@ -51,7 +52,7 @@ public class OverstyringAvklarStartdatoForPeriodenDto extends OverstyringAksjons
 
     @JsonIgnore
     @Override
-    public boolean getErVilkarOk() {
+    public boolean getErVilkårOk() {
         //Brukes ikke
         return false;
     }

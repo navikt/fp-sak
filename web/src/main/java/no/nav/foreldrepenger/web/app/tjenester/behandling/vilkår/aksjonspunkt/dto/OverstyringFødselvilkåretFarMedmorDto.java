@@ -3,6 +3,7 @@ package no.nav.foreldrepenger.web.app.tjenester.behandling.vilkår.aksjonspunkt.
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 
+import com.fasterxml.jackson.annotation.JsonAlias;
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeName;
@@ -21,8 +22,8 @@ public class OverstyringFødselvilkåretFarMedmorDto extends OverstyringAksjonsp
     @Pattern(regexp = InputValideringRegex.KODEVERK)
     private String avslagskode;
 
-    @JsonProperty("erVilkarOk")
-    private boolean erVilkarOk;
+    @JsonProperty("erVilkårOk") @JsonAlias("erVilkarOk")
+    private boolean erVilkårOk;
 
     @SuppressWarnings("unused")
     private OverstyringFødselvilkåretFarMedmorDto() {
@@ -30,9 +31,9 @@ public class OverstyringFødselvilkåretFarMedmorDto extends OverstyringAksjonsp
         // For Jackson
     }
 
-    public OverstyringFødselvilkåretFarMedmorDto(boolean erVilkarOk, String begrunnelse, String avslagskode) {
+    public OverstyringFødselvilkåretFarMedmorDto(boolean erVilkårOk, String begrunnelse, String avslagskode) {
         super(begrunnelse);
-        this.erVilkarOk = erVilkarOk;
+        this.erVilkårOk = erVilkårOk;
         this.avslagskode = avslagskode;
     }
     @Override
@@ -41,7 +42,7 @@ public class OverstyringFødselvilkåretFarMedmorDto extends OverstyringAksjonsp
     }
 
     @Override
-    public boolean getErVilkarOk() {
-        return erVilkarOk;
+    public boolean getErVilkårOk() {
+        return erVilkårOk;
     }
 }

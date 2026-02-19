@@ -4,13 +4,12 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonTypeName;
-
 import jakarta.validation.Valid;
-
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonTypeName;
 
 import no.nav.foreldrepenger.behandling.aksjonspunkt.OverstyringAksjonspunktDto;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktKodeDefinisjon;
@@ -53,7 +52,7 @@ public class OverstyringFaktaOmFødselDto extends OverstyringAksjonspunktDto {
 
     @Override
     @JsonIgnore
-    public boolean getErVilkarOk() {
+    public boolean getErVilkårOk() {
         return false;
     }
 

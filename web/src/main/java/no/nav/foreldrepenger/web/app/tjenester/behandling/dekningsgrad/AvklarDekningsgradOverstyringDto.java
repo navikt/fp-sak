@@ -37,7 +37,7 @@ public class AvklarDekningsgradOverstyringDto extends OverstyringAksjonspunktDto
 
     @Override
     @JsonIgnore
-    public boolean getErVilkarOk() {
+    public boolean getErVilkårOk() {
         return false;
     }
 }

@@ -74,7 +74,7 @@ public class HistorikkSammeBarnTjeneste {
     }
 
     private static VilkårUtfallType vilkårUtfallTypeFra(AvslagbartAksjonspunktDto dto) {
-        return dto.getErVilkarOk() ? VilkårUtfallType.OPPFYLT : VilkårUtfallType.IKKE_OPPFYLT;
+        return dto.getErVilkårOk() ? VilkårUtfallType.OPPFYLT : VilkårUtfallType.IKKE_OPPFYLT;
     }
 
     private static String finnTekstForFelt(Vilkår vilkår) {

@@ -12,6 +12,7 @@ public class BeregningsresultatPeriodeAndelDto {
     @NotNull private String arbeidsgiverReferanse;
     @NotNull private final Integer refusjon;
     @NotNull private final Integer tilSoker;
+    @NotNull private final Integer tilSøker;
     @NotNull private final UttakDto uttak;
     @NotNull private final BigDecimal utbetalingsgrad;
     @NotNull private final LocalDate sisteUtbetalingsdato;
@@ -26,6 +27,7 @@ public class BeregningsresultatPeriodeAndelDto {
         this.arbeidsgiverReferanse = builder.arbeidsgiverReferanse;
         this.refusjon = builder.refusjon;
         this.tilSoker = builder.tilSøker;
+        this.tilSøker = builder.tilSøker;
         this.uttak = builder.uttak;
         this.utbetalingsgrad = builder.utbetalingsgrad;
         this.sisteUtbetalingsdato = builder.sisteUtbetalingsdato;
@@ -47,6 +49,10 @@ public class BeregningsresultatPeriodeAndelDto {
 
     public Integer getTilSoker() {
         return tilSoker;
+    }
+
+    public Integer getTilSøker() {
+        return tilSøker;
     }
 
     public UttakDto getUttak() {

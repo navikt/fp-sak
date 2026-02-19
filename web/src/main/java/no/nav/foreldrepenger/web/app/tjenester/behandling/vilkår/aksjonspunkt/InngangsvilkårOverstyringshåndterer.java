@@ -39,8 +39,8 @@ public abstract class InngangsvilkårOverstyringshåndterer<T extends Overstyrin
 
     @Override
     public OppdateringResultat håndterOverstyring(T dto, BehandlingReferanse ref) {
-        var utfall = dto.getErVilkarOk() ? VilkårUtfallType.OPPFYLT : VilkårUtfallType.IKKE_OPPFYLT;
-        var avslagsårsak = dto.getErVilkarOk() ? Avslagsårsak.UDEFINERT : Avslagsårsak.fraDefinertKode(dto.getAvslagskode())
+        var utfall = dto.getErVilkårOk() ? VilkårUtfallType.OPPFYLT : VilkårUtfallType.IKKE_OPPFYLT;
+        var avslagsårsak = dto.getErVilkårOk() ? Avslagsårsak.UDEFINERT : Avslagsårsak.fraDefinertKode(dto.getAvslagskode())
             .orElseThrow(() -> new FunksjonellException("FP-MANGLER-ÅRSAK", "Ugyldig avslagsårsak", "Velg gyldig avslagsårsak"));
 
         inngangsvilkårTjeneste.overstyrAksjonspunkt(ref.behandlingId(), vilkårType, utfall, avslagsårsak);
@@ -53,7 +53,7 @@ public abstract class InngangsvilkårOverstyringshåndterer<T extends Overstyrin
     }
 
     protected void lagHistorikkInnslagForOverstyrtVilkår(BehandlingReferanse ref, T dto, SkjermlenkeType skjermlenkeType) {
-        var utfall = dto.getErVilkarOk() ? VilkårUtfallType.OPPFYLT.getNavn() : VilkårUtfallType.IKKE_OPPFYLT.getNavn();
+        var utfall = dto.getErVilkårOk() ? VilkårUtfallType.OPPFYLT.getNavn() : VilkårUtfallType.IKKE_OPPFYLT.getNavn();
         var avslagsårsak = Optional.ofNullable(dto.getAvslagskode()).flatMap(Avslagsårsak::fraDefinertKode).map(Avslagsårsak::getNavn).orElse(null);
         var historikkinnslag = new Historikkinnslag.Builder().medTittel(skjermlenkeType)
             .medAktør(HistorikkAktør.SAKSBEHANDLER)
