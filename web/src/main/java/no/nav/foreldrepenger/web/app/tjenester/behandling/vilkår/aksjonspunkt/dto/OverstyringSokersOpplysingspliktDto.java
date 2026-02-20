@@ -3,7 +3,6 @@ package no.nav.foreldrepenger.web.app.tjenester.behandling.vilkår.aksjonspunkt.
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 
 import no.nav.foreldrepenger.behandling.aksjonspunkt.OverstyringAksjonspunktDto;
@@ -13,8 +12,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspun
 @JsonTypeName(AksjonspunktKodeDefinisjon.SØKERS_OPPLYSNINGSPLIKT_OVST_KODE)
 public class OverstyringSokersOpplysingspliktDto extends OverstyringAksjonspunktDto {
 
-
-    @JsonProperty("erVilkårOk")
     private boolean erVilkårOk;
 
     @SuppressWarnings("unused")

@@ -5,7 +5,6 @@ import java.time.LocalDate;
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 
 import no.nav.foreldrepenger.behandling.aksjonspunkt.OverstyringAksjonspunktDto;
@@ -15,11 +14,8 @@ import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspun
 @JsonTypeName(AksjonspunktKodeDefinisjon.OVERSTYRING_AV_AVKLART_STARTDATO_KODE)
 public class OverstyringAvklarStartdatoForPeriodenDto extends OverstyringAksjonspunktDto {
 
-
-    @JsonProperty("startdatoFraSøknad")
     private LocalDate startdatoFraSøknad;
 
-    @JsonProperty("opprinneligDato")
     private LocalDate opprinneligDato;
 
     public OverstyringAvklarStartdatoForPeriodenDto(String begrunnelse, LocalDate startdatoFraSøknad, LocalDate opprinneligDato) {
