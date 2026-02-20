@@ -7,7 +7,6 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
-import com.fasterxml.jackson.annotation.JsonAlias;
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -37,7 +36,7 @@ public class VurderInnsynDto extends BekreftetAksjonspunktDto {
     @Size(max = 1000)
     private List<@Valid VurderInnsynDokumentDto> innsynDokumenter;
 
-    @JsonProperty("sattPåVent") @JsonAlias("sattPaVent")
+    @JsonProperty("sattPåVent")
     private boolean sattPåVent;
 
     @JsonProperty("fristDato")

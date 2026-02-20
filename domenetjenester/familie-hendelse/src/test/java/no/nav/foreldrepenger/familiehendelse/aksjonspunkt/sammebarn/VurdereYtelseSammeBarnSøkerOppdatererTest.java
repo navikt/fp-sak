@@ -20,7 +20,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallTy
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioFarSøkerEngangsstønad;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.personopplysning.Personopplysning;
 import no.nav.foreldrepenger.domene.typer.AktørId;
-import no.nav.foreldrepenger.familiehendelse.aksjonspunkt.HistorikkSammeBarnTjeneste;
 import no.nav.foreldrepenger.familiehendelse.aksjonspunkt.sammebarn.dto.VurdereYtelseSammeBarnSøkerAksjonspunktDto;
 
 class VurdereYtelseSammeBarnSøkerOppdatererTest {

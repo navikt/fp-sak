@@ -5,10 +5,8 @@ import java.time.LocalDate;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 
-import com.fasterxml.jackson.annotation.JsonAlias;
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 
 import no.nav.foreldrepenger.behandling.aksjonspunkt.OverstyringAksjonspunktDto;
@@ -19,16 +17,12 @@ import no.nav.vedtak.util.InputValideringRegex;
 @JsonTypeName(AksjonspunktKodeDefinisjon.OVERSTYRING_AV_FORUTGÅENDE_MEDLEMSKAPSVILKÅR_KODE)
 public class OverstyringForutgåendeMedlemskapsvilkårDto extends OverstyringAksjonspunktDto {
 
-
-    @JsonProperty("avslagskode")
     @Size(min = 4, max = 4)
     @Pattern(regexp = InputValideringRegex.KODEVERK)
     private String avslagskode;
 
-    @JsonProperty("erVilkårOk") @JsonAlias("erVilkarOk")
     private boolean erVilkårOk;
 
-    @JsonProperty("medlemFom")
     private LocalDate medlemFom;
 
     @SuppressWarnings("unused")

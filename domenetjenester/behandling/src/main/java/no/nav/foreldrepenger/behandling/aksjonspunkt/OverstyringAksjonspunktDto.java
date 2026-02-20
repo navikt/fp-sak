@@ -6,7 +6,6 @@ import jakarta.validation.constraints.Size;
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 
@@ -18,7 +17,6 @@ import no.nav.vedtak.util.InputValideringRegex;
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME)
 public abstract class OverstyringAksjonspunktDto implements AksjonspunktKode, OverstyringAksjonspunkt {
 
-    @JsonProperty("begrunnelse")
     @Size(max = 4000)
     @Pattern(regexp = InputValideringRegex.FRITEKST)
     private String begrunnelse;

@@ -38,7 +38,7 @@ public class TotrinnsBeregningDtoTjeneste {
             .flatMap(BeregningsgrunnlagGrunnlag::getBeregningsgrunnlag)
             .map(Beregningsgrunnlag::getFaktaOmBeregningTilfeller)
             .orElseGet(List::of) : null;
-        return new TotrinnsBeregningDto(erVarigEndringNæring, erVarigEndringNæring, beregningTilfeller);
+        return new TotrinnsBeregningDto(erVarigEndringNæring, beregningTilfeller);
     }
 
     private boolean erVarigEndringFastsattForSelvstendingNæringsdrivendeGittBehandlingId(BehandlingReferanse ref) {

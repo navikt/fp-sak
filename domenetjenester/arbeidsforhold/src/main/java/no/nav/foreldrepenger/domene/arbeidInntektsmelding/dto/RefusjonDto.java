@@ -6,8 +6,7 @@ import java.time.LocalDate;
 import jakarta.validation.constraints.NotNull;
 
 public record RefusjonDto(@NotNull LocalDate fom,
-                          Beløp refusjonsbeløpMnd,
-                          @Deprecated(forRemoval = true) Beløp refusjonsbeløp,
+                          @NotNull Beløp refusjonsbeløpMnd,
                           @NotNull String indexKey) {
     public record Beløp(@NotNull BigDecimal verdi) { }
 }

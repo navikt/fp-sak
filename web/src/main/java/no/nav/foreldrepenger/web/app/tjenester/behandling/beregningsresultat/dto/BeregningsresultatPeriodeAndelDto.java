@@ -11,7 +11,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.OpptjeningAk
 public class BeregningsresultatPeriodeAndelDto {
     @NotNull private String arbeidsgiverReferanse;
     @NotNull private final Integer refusjon;
-    @NotNull private final Integer tilSoker;
     @NotNull private final Integer tilSøker;
     @NotNull private final UttakDto uttak;
     @NotNull private final BigDecimal utbetalingsgrad;
@@ -26,7 +25,6 @@ public class BeregningsresultatPeriodeAndelDto {
     private BeregningsresultatPeriodeAndelDto(Builder builder) {
         this.arbeidsgiverReferanse = builder.arbeidsgiverReferanse;
         this.refusjon = builder.refusjon;
-        this.tilSoker = builder.tilSøker;
         this.tilSøker = builder.tilSøker;
         this.uttak = builder.uttak;
         this.utbetalingsgrad = builder.utbetalingsgrad;
@@ -47,9 +45,6 @@ public class BeregningsresultatPeriodeAndelDto {
         return refusjon;
     }
 
-    public Integer getTilSoker() {
-        return tilSoker;
-    }
 
     public Integer getTilSøker() {
         return tilSøker;
