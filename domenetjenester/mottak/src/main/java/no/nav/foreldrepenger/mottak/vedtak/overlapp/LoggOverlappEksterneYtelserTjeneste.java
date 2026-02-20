@@ -36,10 +36,10 @@ import no.nav.foreldrepenger.domene.person.PersoninfoAdapter;
 import no.nav.foreldrepenger.domene.tid.ÅpenDatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.PersonIdent;
-import no.nav.foreldrepenger.mottak.vedtak.rest.DagpengerRettighetsperioder;
 import no.nav.foreldrepenger.mottak.vedtak.rest.DpsakKlient;
 import no.nav.foreldrepenger.mottak.vedtak.rest.InfotrygdPSGrunnlag;
 import no.nav.foreldrepenger.mottak.vedtak.rest.InfotrygdSPGrunnlag;
+import no.nav.foreldrepenger.mottak.vedtak.rest.KelvinKlient;
 import no.nav.fpsak.tidsserie.LocalDateInterval;
 import no.nav.fpsak.tidsserie.LocalDateSegment;
 import no.nav.fpsak.tidsserie.LocalDateTimeline;
@@ -73,6 +73,7 @@ public class LoggOverlappEksterneYtelserTjeneste {
     private AbakusTjeneste abakusTjeneste;
     private Spøkelse spøkelse;
     private DpsakKlient dpsakKlient;
+    private KelvinKlient kelvinKlient;
     private OverlappVedtakRepository overlappRepository;
     private OverlappOppgaveTjeneste oppgaveTjeneste;
 
@@ -85,6 +86,7 @@ public class LoggOverlappEksterneYtelserTjeneste {
                                                AbakusTjeneste abakusTjeneste,
                                                Spøkelse spøkelse,
                                                DpsakKlient dpsakKlient,
+                                               KelvinKlient kelvinKlient,
                                                OverlappVedtakRepository overlappRepository,
                                                BehandlingRepository behandlingRepository,
                                                OverlappOppgaveTjeneste oppgaveTjeneste) {
@@ -97,6 +99,7 @@ public class LoggOverlappEksterneYtelserTjeneste {
         this.spøkelse = spøkelse;
         this.overlappRepository = overlappRepository;
         this.dpsakKlient = dpsakKlient;
+        this.kelvinKlient = kelvinKlient;
         this.oppgaveTjeneste = oppgaveTjeneste;
     }
 
@@ -109,6 +112,7 @@ public class LoggOverlappEksterneYtelserTjeneste {
         var tidslinjeFpsak = getTidslinjeForBehandling(ref);
         try {
             sjekkDagpenger(ref, tidslinjeFpsak);
+            sjekkAAP(ref, tidslinjeFpsak);
         } catch (Exception _) {
             // Ignorer feil til etablert at dagpenger er stabil
         }
@@ -129,20 +133,17 @@ public class LoggOverlappEksterneYtelserTjeneste {
         var ident = getFnrFraAktørId(ref.aktørId());
         var fom = perioderFpGradert.getMinLocalDate();
         var tom = perioderFpGradert.getMaxLocalDate();
-        var dagpengeTidslinje = hentRettighetsperioderFailSafe(ident, fom, tom).stream()
-            .filter(p -> DagpengerRettighetsperioder.DagpengerKilde.DP_SAK.equals(p.kilde()))
-            .map(p -> new LocalDateSegment<>(p.fraOgMedDato(), p.tilOgMedDato(), BigDecimal.ONE))
-            .collect(Collectors.collectingAndThen(Collectors.toList(), LocalDateTimeline::new));
+        var dagpengeTidslinje = hentDagpengerRettighetsperioderFailSafe(ident, fom, tom);
         if (dagpengeTidslinje.isEmpty()) {
             return;
         }
         var loggresultat = perioderTilString(dagpengeTidslinje);
         LOG.info("DP-DATADELING fant perioder {}", loggresultat);
         var overlapp = perioderFpGradert.intersection(dagpengeTidslinje)
-            .filterValue(v -> v.compareTo(BigDecimal.ONE) > 0);
+            .filterValue(v -> v.compareTo(BigDecimal.ZERO) > 0);
         if (!overlapp.isEmpty()) {
             var loggperioder = perioderTilString(overlapp);
-            LOG.warn("Sak {} har overlapp med dagpenger i DPSAK i periodene: {}", ref.saksnummer().getVerdi(), loggperioder);
+            LOG.warn("Notabene! Sak {} har overlapp med dagpenger i DPSAK i periodene: {}", ref.saksnummer().getVerdi(), loggperioder);
         }
     }
 
@@ -152,12 +153,41 @@ public class LoggOverlappEksterneYtelserTjeneste {
             .collect(Collectors.joining(", "));
     }
 
-    private List<DagpengerRettighetsperioder.Rettighetsperiode> hentRettighetsperioderFailSafe(PersonIdent personIdent, LocalDate fom, LocalDate tom) {
+    private LocalDateTimeline<BigDecimal> hentDagpengerRettighetsperioderFailSafe(PersonIdent personIdent, LocalDate fom, LocalDate tom) {
         try {
             return dpsakKlient.hentRettighetsperioder(personIdent, fom, tom);
         } catch (Exception e) {
             LOG.info("DP-DATADELING feil ", e);
-            return List.of();
+            return LocalDateTimeline.empty();
+        }
+    }
+
+    public void sjekkAAP(BehandlingReferanse ref, LocalDateTimeline<BigDecimal> perioderFpGradert) {
+        if (dpsakKlient == null || perioderFpGradert.isEmpty()) {
+            return;
+        }
+        var ident = getFnrFraAktørId(ref.aktørId());
+        var fom = perioderFpGradert.getMinLocalDate();
+        var tom = perioderFpGradert.getMaxLocalDate();
+        var aaptidslinje = hentAAPVedtaksperioderFailSafe(ident, fom, tom);
+        if (aaptidslinje.isEmpty()) {
+            return;
+        }
+        var overlapp = perioderFpGradert.intersection(aaptidslinje)
+            .filterValue(v -> v.compareTo(BigDecimal.ZERO) > 0);
+        if (!overlapp.isEmpty()) {
+            var loggperioder = perioderTilString(overlapp);
+            LOG.warn("Notabene! Sak {} har overlapp med AAP i KELVIN i periodene: {}", ref.saksnummer().getVerdi(), loggperioder);
+        }
+    }
+
+
+    private LocalDateTimeline<BigDecimal> hentAAPVedtaksperioderFailSafe(PersonIdent personIdent, LocalDate fom, LocalDate tom) {
+        try {
+            return kelvinKlient.hentAAPVedtaksTidslinje(personIdent, fom, tom);
+        } catch (Exception e) {
+            LOG.info("KELVIN overlapp feil ", e);
+            return LocalDateTimeline.empty();
         }
     }
 
