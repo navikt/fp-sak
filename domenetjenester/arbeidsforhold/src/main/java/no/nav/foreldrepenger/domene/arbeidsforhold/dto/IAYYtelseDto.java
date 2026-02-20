@@ -7,14 +7,9 @@ import jakarta.validation.constraints.NotNull;
 
 public class IAYYtelseDto {
 
-    @NotNull private List<RelaterteYtelserDto> relatertTilgrensendeYtelserForSoker = Collections.emptyList();
     @NotNull private List<RelaterteYtelserDto> relatertTilgrensendeYtelserForSøker = Collections.emptyList();
     @NotNull private List<RelaterteYtelserDto> relatertTilgrensendeYtelserForAnnenForelder = Collections.emptyList();
     @NotNull private List<RelaterteYtelserDto> innvilgetRelatertTilgrensendeYtelserForAnnenForelder = Collections.emptyList();
-
-    void setRelatertTilgrensendeYtelserForSoker(List<RelaterteYtelserDto> relatertTilgrensendeYtelserForSoker) {
-        this.relatertTilgrensendeYtelserForSoker = relatertTilgrensendeYtelserForSoker;
-    }
 
     void setRelatertTilgrensendeYtelserForSøker(List<RelaterteYtelserDto> relatertTilgrensendeYtelserForSøker) {
         this.relatertTilgrensendeYtelserForSøker = relatertTilgrensendeYtelserForSøker;
@@ -26,10 +21,6 @@ public class IAYYtelseDto {
 
     void setInnvilgetRelatertTilgrensendeYtelserForAnnenForelder(List<RelaterteYtelserDto> innvilgetRelatertTilgrensendeYtelserForAnnenForelder) {
         this.innvilgetRelatertTilgrensendeYtelserForAnnenForelder = innvilgetRelatertTilgrensendeYtelserForAnnenForelder;
-    }
-
-    public List<RelaterteYtelserDto> getRelatertTilgrensendeYtelserForSoker() {
-        return relatertTilgrensendeYtelserForSoker;
     }
 
     public List<RelaterteYtelserDto> getRelatertTilgrensendeYtelserForSøker() {

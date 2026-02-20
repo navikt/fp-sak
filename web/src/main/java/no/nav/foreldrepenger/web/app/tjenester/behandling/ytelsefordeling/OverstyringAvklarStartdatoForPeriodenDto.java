@@ -2,7 +2,6 @@ package no.nav.foreldrepenger.web.app.tjenester.behandling.ytelsefordeling;
 
 import java.time.LocalDate;
 
-import com.fasterxml.jackson.annotation.JsonAlias;
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -17,7 +16,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspun
 public class OverstyringAvklarStartdatoForPeriodenDto extends OverstyringAksjonspunktDto {
 
 
-    @JsonProperty("startdatoFraSøknad") @JsonAlias("startdatoFraSoknad")
+    @JsonProperty("startdatoFraSøknad")
     private LocalDate startdatoFraSøknad;
 
     @JsonProperty("opprinneligDato")

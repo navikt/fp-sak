@@ -5,7 +5,6 @@ import java.time.LocalDate;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 
-import com.fasterxml.jackson.annotation.JsonAlias;
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -25,7 +24,7 @@ public class OverstyringMedlemskapsvilkåretDto extends OverstyringAksjonspunktD
     @Pattern(regexp = InputValideringRegex.KODEVERK)
     private String avslagskode;
 
-    @JsonProperty("erVilkårOk") @JsonAlias("erVilkarOk")
+    @JsonProperty("erVilkårOk")
     private boolean erVilkårOk;
 
     @JsonProperty("opphørFom")

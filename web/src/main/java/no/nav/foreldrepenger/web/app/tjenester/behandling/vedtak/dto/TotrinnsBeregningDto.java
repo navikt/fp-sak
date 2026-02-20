@@ -8,6 +8,5 @@ import no.nav.foreldrepenger.domene.modell.kodeverk.FaktaOmBeregningTilfelle;
 
 
 public record TotrinnsBeregningDto(@NotNull boolean fastsattVarigEndringNæring,
-                                   @NotNull boolean fastsattVarigEndringNaering,
                                    List<FaktaOmBeregningTilfelle> faktaOmBeregningTilfeller) {
 }

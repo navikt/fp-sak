@@ -4,7 +4,6 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 
-import com.fasterxml.jackson.annotation.JsonAlias;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AvslagbartAksjonspunktDto;
@@ -15,7 +14,7 @@ import no.nav.vedtak.util.InputValideringRegex;
 @JsonTypeName(AksjonspunktKodeDefinisjon.AVKLAR_OM_SØKER_HAR_MOTTATT_STØTTE_KODE)
 public class VurdereYtelseSammeBarnSøkerAksjonspunktDto extends BekreftetAksjonspunktDto implements AvslagbartAksjonspunktDto {
 
-    @NotNull @JsonAlias("erVilkarOk")
+    @NotNull
     private boolean erVilkårOk;
 
     @Size(min = 1, max = 100)

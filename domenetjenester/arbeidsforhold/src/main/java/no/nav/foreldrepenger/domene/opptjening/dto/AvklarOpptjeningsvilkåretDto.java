@@ -3,7 +3,6 @@ package no.nav.foreldrepenger.domene.opptjening.dto;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 
-import com.fasterxml.jackson.annotation.JsonAlias;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 
@@ -19,7 +18,7 @@ public class AvklarOpptjeningsvilkåretDto extends BekreftetAksjonspunktDto {
     @Pattern(regexp = InputValideringRegex.KODEVERK)
     private String avslagskode;
 
-    @JsonProperty("erVilkårOk") @JsonAlias("erVilkarOk")
+    @JsonProperty("erVilkårOk")
     private boolean erVilkårOk;
 
     @SuppressWarnings("unused")
