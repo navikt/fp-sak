@@ -37,9 +37,7 @@ public class IayYtelseDtoMapper {
 
     private void mapRelaterteYtelser(IAYYtelseDto dto, BehandlingReferanse ref, InntektArbeidYtelseGrunnlag grunnlag,
                                      Optional<AktørId> aktørIdAnnenPart) {
-        var relatertTilgrensendeYtelserForSøker = mapTilDtoSøker(hentRelaterteYtelser(grunnlag, ref.aktørId()));
-        dto.setRelatertTilgrensendeYtelserForSoker(relatertTilgrensendeYtelserForSøker);
-        dto.setRelatertTilgrensendeYtelserForSøker(relatertTilgrensendeYtelserForSøker);
+        dto.setRelatertTilgrensendeYtelserForSøker(mapTilDtoSøker(hentRelaterteYtelser(grunnlag, ref.aktørId())));
         aktørIdAnnenPart.ifPresent(annenPartAktørId -> {
             var hentRelaterteYtelser = hentRelaterteYtelserAnnenPart(grunnlag, annenPartAktørId);
             var relaterteYtelser = mapTilDtoAnnenPart(hentRelaterteYtelser);

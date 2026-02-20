@@ -10,7 +10,6 @@ import jakarta.inject.Inject;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterParameter;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterer;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdateringTransisjon;
-import no.nav.foreldrepenger.behandling.aksjonspunkt.AvslagbartAksjonspunktDto;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.DtoTilServiceAdapter;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.OppdateringResultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
@@ -19,7 +18,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.Avslagsårsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.Vilkår;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallType;
-import no.nav.foreldrepenger.familiehendelse.aksjonspunkt.HistorikkSammeBarnTjeneste;
 import no.nav.foreldrepenger.familiehendelse.aksjonspunkt.sammebarn.dto.VurdereYtelseSammeBarnSøkerAksjonspunktDto;
 import no.nav.vedtak.exception.FunksjonellException;
 
@@ -28,13 +26,14 @@ import no.nav.vedtak.exception.FunksjonellException;
  */
 @ApplicationScoped
 @DtoTilServiceAdapter(dto = VurdereYtelseSammeBarnSøkerAksjonspunktDto.class, adapter = AksjonspunktOppdaterer.class)
-public class VurdereYtelseSammeBarnSøkerOppdaterer implements AksjonspunktOppdaterer<AvslagbartAksjonspunktDto> {
+public class VurdereYtelseSammeBarnSøkerOppdaterer implements AksjonspunktOppdaterer<VurdereYtelseSammeBarnSøkerAksjonspunktDto> {
 
     private HistorikkSammeBarnTjeneste historikkSammeBarnTjeneste;
     private BehandlingsresultatRepository behandlingsresultatRepository;
 
     @Inject
-    VurdereYtelseSammeBarnSøkerOppdaterer(HistorikkSammeBarnTjeneste historikkSammeBarnTjeneste, BehandlingsresultatRepository behandlingsresultatRepository) {
+    VurdereYtelseSammeBarnSøkerOppdaterer(HistorikkSammeBarnTjeneste historikkSammeBarnTjeneste,
+                                          BehandlingsresultatRepository behandlingsresultatRepository) {
         this.historikkSammeBarnTjeneste = historikkSammeBarnTjeneste;
         this.behandlingsresultatRepository = behandlingsresultatRepository;
     }
@@ -44,7 +43,7 @@ public class VurdereYtelseSammeBarnSøkerOppdaterer implements AksjonspunktOppda
     }
 
     @Override
-    public OppdateringResultat oppdater(AvslagbartAksjonspunktDto dto, AksjonspunktOppdaterParameter param) {
+    public OppdateringResultat oppdater(VurdereYtelseSammeBarnSøkerAksjonspunktDto dto, AksjonspunktOppdaterParameter param) {
         var ref = param.getRef();
         var behandlingsresultat = behandlingsresultatRepository.hent(ref.behandlingId());
         var relevantVilkår = finnRelevantVilkår(behandlingsresultat);

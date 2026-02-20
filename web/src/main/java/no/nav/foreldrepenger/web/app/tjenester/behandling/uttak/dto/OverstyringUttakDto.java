@@ -7,7 +7,6 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 
 import no.nav.foreldrepenger.behandling.aksjonspunkt.OverstyringAksjonspunktDto;
@@ -17,7 +16,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspun
 public class OverstyringUttakDto extends OverstyringAksjonspunktDto {
 
 
-    @JsonProperty("perioder")
     @NotNull
     @Size(min = 1, max = 1500)
     private List<@Valid UttakResultatPeriodeLagreDto> perioder;

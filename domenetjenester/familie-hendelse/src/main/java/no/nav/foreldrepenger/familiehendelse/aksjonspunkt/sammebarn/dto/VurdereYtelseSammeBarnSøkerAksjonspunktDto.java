@@ -4,18 +4,16 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 
-import com.fasterxml.jackson.annotation.JsonAlias;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 
-import no.nav.foreldrepenger.behandling.aksjonspunkt.AvslagbartAksjonspunktDto;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.BekreftetAksjonspunktDto;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktKodeDefinisjon;
 import no.nav.vedtak.util.InputValideringRegex;
 
 @JsonTypeName(AksjonspunktKodeDefinisjon.AVKLAR_OM_SØKER_HAR_MOTTATT_STØTTE_KODE)
-public class VurdereYtelseSammeBarnSøkerAksjonspunktDto extends BekreftetAksjonspunktDto implements AvslagbartAksjonspunktDto {
+public class VurdereYtelseSammeBarnSøkerAksjonspunktDto extends BekreftetAksjonspunktDto {
 
-    @NotNull @JsonAlias("erVilkarOk")
+    @NotNull
     private boolean erVilkårOk;
 
     @Size(min = 1, max = 100)
@@ -31,7 +29,6 @@ public class VurdereYtelseSammeBarnSøkerAksjonspunktDto extends BekreftetAksjon
         this.erVilkårOk = erVilkårOk;
     }
 
-    @Override
     public boolean getErVilkårOk() {
         return erVilkårOk;
     }
@@ -40,7 +37,6 @@ public class VurdereYtelseSammeBarnSøkerAksjonspunktDto extends BekreftetAksjon
         this.erVilkårOk = erVilkårOk;
     }
 
-    @Override
     public String getAvslagskode() {
         return avslagskode;
     }

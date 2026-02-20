@@ -1,4 +1,4 @@
-package no.nav.foreldrepenger.familiehendelse.aksjonspunkt;
+package no.nav.foreldrepenger.familiehendelse.aksjonspunkt.sammebarn;
 
 import static no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagLinjeBuilder.fraTilEquals;
 
@@ -11,7 +11,6 @@ import jakarta.inject.Inject;
 import org.jboss.weld.exceptions.UnsupportedOperationException;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
-import no.nav.foreldrepenger.behandling.aksjonspunkt.AvslagbartAksjonspunktDto;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
@@ -24,6 +23,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.Vilkår;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallType;
+import no.nav.foreldrepenger.familiehendelse.aksjonspunkt.sammebarn.dto.VurdereYtelseSammeBarnSøkerAksjonspunktDto;
 
 @ApplicationScoped
 public class HistorikkSammeBarnTjeneste {
@@ -40,7 +40,7 @@ public class HistorikkSammeBarnTjeneste {
 
     public void lagHistorikkinnslagForAksjonspunkt(BehandlingReferanse ref,
                                                    Behandlingsresultat behandlingsresultat,
-                                                   AvslagbartAksjonspunktDto dto,
+                                                   VurdereYtelseSammeBarnSøkerAksjonspunktDto dto,
                                                    Vilkår relevantVilkårPåBehandling) {
         var vilkårType = Optional.ofNullable(behandlingsresultat)
             .map(Behandlingsresultat::getVilkårResultat)
@@ -57,7 +57,7 @@ public class HistorikkSammeBarnTjeneste {
         historikkinnslagRepository.lagre(historikkinnslag);
     }
 
-    private static HistorikkinnslagLinjeBuilder vilkårResultatTekst(Vilkår relevantVilkårPåBehandling, AvslagbartAksjonspunktDto dto) {
+    private static HistorikkinnslagLinjeBuilder vilkårResultatTekst(Vilkår relevantVilkårPåBehandling, VurdereYtelseSammeBarnSøkerAksjonspunktDto dto) {
         var navn = finnTekstForFelt(relevantVilkårPåBehandling);
         var gjeldendeVilkårUtfall = relevantVilkårPåBehandling.getGjeldendeVilkårUtfall();
         var nyttVilkårUtfall = vilkårUtfallTypeFra(dto);
@@ -73,7 +73,7 @@ public class HistorikkSammeBarnTjeneste {
             : vilkårUtfall.getNavn();
     }
 
-    private static VilkårUtfallType vilkårUtfallTypeFra(AvslagbartAksjonspunktDto dto) {
+    private static VilkårUtfallType vilkårUtfallTypeFra(VurdereYtelseSammeBarnSøkerAksjonspunktDto dto) {
         return dto.getErVilkårOk() ? VilkårUtfallType.OPPFYLT : VilkårUtfallType.IKKE_OPPFYLT;
     }
 

@@ -8,7 +8,6 @@ import jakarta.validation.constraints.NotNull;
 import no.nav.foreldrepenger.domene.iay.modell.kodeverk.NaturalYtelseType;
 
 public record NaturalYtelseDto(@NotNull Periode periode,
-                               @NotNull Beløp beloepPerMnd,
                                @NotNull Beløp beløpPerMnd,
                                @NotNull NaturalYtelseType type,
                                @NotNull String indexKey) {
