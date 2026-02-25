@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -27,14 +28,17 @@ import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagGrunnlag;
 import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagPeriode;
 import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagPrStatusOgAndel;
 import no.nav.foreldrepenger.domene.modell.kodeverk.AndelKilde;
+import no.nav.foreldrepenger.domene.modell.kodeverk.PeriodeÅrsak;
 import no.nav.foreldrepenger.domene.prosess.BeregningTjeneste;
 import no.nav.foreldrepenger.konfig.Environment;
 
 @ApplicationScoped
 public class BeregningOversiktDtoTjeneste {
-    private static final List<AktivitetStatus> IKKE_STØTTEDE_AKTIVITET_STATUSER = List.of(AktivitetStatus.VENTELØNN_VARTPENGER,
+    private static final Set<AktivitetStatus> IKKE_STØTTEDE_AKTIVITET_STATUSER = Set.of(AktivitetStatus.VENTELØNN_VARTPENGER,
         AktivitetStatus.TTLSTØTENDE_YTELSE, AktivitetStatus.ARBEIDSAVKLARINGSPENGER, AktivitetStatus.DAGPENGER, AktivitetStatus.MILITÆR_ELLER_SIVIL,
         AktivitetStatus.BRUKERS_ANDEL);
+    private static final Set<PeriodeÅrsak> IKKE_STØTTEDE_PERIODEÅRSAKER = Set.of(PeriodeÅrsak.NATURALYTELSE_BORTFALT,
+        PeriodeÅrsak.NATURALYTELSE_TILKOMMER, PeriodeÅrsak.ARBEIDSFORHOLD_AVSLUTTET);
 
     private BeregningTjeneste beregningTjeneste;
     private InntektArbeidYtelseTjeneste inntektArbeidYtelseTjeneste;
@@ -109,7 +113,16 @@ public class BeregningOversiktDtoTjeneste {
             .stream()
             .anyMatch(a -> a.getAktivitetStatus().equals(AktivitetStatus.ARBEIDSTAKER) && a.getArbeidsgiver().isEmpty());
 
-        return harIkkeStøttetStatus || erBesteberegnet || harArbeidsandelUtenArbeidsgiver;
+        // Disse har varierende dagsats fra grunnlaget, det er ikke støtte for å vise slike saker i innsyn enda
+        var harTidsbegrensetEllerNaturalytelse = beregningsgrunnlag.getBeregningsgrunnlagPerioder()
+            .stream()
+            .anyMatch(p -> harIkkeStøttetPeriodeårsak(p.getPeriodeÅrsaker()));
+
+        return harIkkeStøttetStatus || erBesteberegnet || harArbeidsandelUtenArbeidsgiver || harTidsbegrensetEllerNaturalytelse;
+    }
+
+    private boolean harIkkeStøttetPeriodeårsak(List<PeriodeÅrsak> periodeÅrsaker) {
+        return periodeÅrsaker.stream().anyMatch(IKKE_STØTTEDE_PERIODEÅRSAKER::contains);
     }
 
     private List<FpSak.Beregningsgrunnlag.BeregningsAndel> mapAndeler(List<BeregningsgrunnlagPrStatusOgAndel> beregningsgrunnlagPrStatusOgAndelList,
