@@ -486,7 +486,7 @@
     <repositories>
         <repository>
             <id>github</id>
-            <url>https://maven.pkg.github.com/navikt/fp-felles</url>
+            <url>https://maven.pkg.github.com/navikt/fp-bom</url>
         </repository>
     </repositories>
 
