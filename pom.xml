@@ -483,4 +483,11 @@
         </repository>
     </distributionManagement>
 
+    <repositories>
+        <repository>
+            <id>github</id>
+            <url>https://maven.pkg.github.com/navikt/fp-felles</url>
+        </repository>
+    </repositories>
+
 </project>
