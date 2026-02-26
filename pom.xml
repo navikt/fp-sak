@@ -483,4 +483,10 @@
         </repository>
     </distributionManagement>
 
+    <repositories>
+        <repository>
+            <id>github</id> <!-- OBS: Brukes også av fp-gha-workflows for action/setup-java -->
+            <url>https://maven.pkg.github.com/navikt/fp-bom</url>
+        </repository>
+    </repositories>
 </project>
