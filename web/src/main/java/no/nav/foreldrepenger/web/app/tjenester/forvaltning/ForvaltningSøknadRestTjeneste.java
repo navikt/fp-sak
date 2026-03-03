@@ -1,7 +1,9 @@
 package no.nav.foreldrepenger.web.app.tjenester.forvaltning;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.Month;
 import java.util.List;
 
 import jakarta.enterprise.context.ApplicationScoped;
@@ -23,6 +25,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.MottattDokument;
 import no.nav.foreldrepenger.behandlingslager.behandling.SpesialBehandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseGrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseType;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonopplysningRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
@@ -233,6 +236,27 @@ public class ForvaltningSøknadRestTjeneste {
                 .setParameter("apid", oap.getId())
                 .setParameter("begr", dto.getBegrunnelse())
                 .executeUpdate();
+        entityManager.flush();
+
+        return Response.ok(antall).build();
+    }
+
+    @POST
+    @Path("/endreTilAdopsjon")
+    @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+    @Operation(description = "Fikse tilfelle som er feilaktig satt til omsorgsovertakelse", tags = "FORVALTNING-søknad")
+    @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.DRIFT, sporingslogg = true)
+    public Response endreTilAdopsjon() {
+        var dato = LocalDate.of(2025, Month.OCTOBER, 28).atStartOfDay();
+        var antall = entityManager.createNativeQuery("""
+                    update fh_familie_hendelse fh
+                    set fh.familie_hendelse_type = :adopsjon
+                    where nvl(fh.endret_tid, fh.opprettet_tid) > :tid
+                    and fh.id in (select familie_hendelse_id from fh_adopsjon where omsorg_vilkaar_type in ('-', 'FP_VK_4','FP_VK_16','FP_VK_16S'))
+                    """)
+            .setParameter("adopsjon", FamilieHendelseType.ADOPSJON.getKode())
+            .setParameter("tid", dato)
+            .executeUpdate();
         entityManager.flush();
 
         return Response.ok(antall).build();

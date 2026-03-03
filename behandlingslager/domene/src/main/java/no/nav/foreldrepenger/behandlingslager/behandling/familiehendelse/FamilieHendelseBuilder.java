@@ -155,12 +155,7 @@ public class FamilieHendelseBuilder {
             throw new IllegalStateException("Utviklerfeil: Kan ikke både ha terminbekreftelse og adopsjon");
         }
         if (hendelse.getAdopsjon().isPresent()) {
-            if (hendelse.getAdopsjon().get().getOmsorgovertakelseVilkår().equals(OmsorgsovertakelseVilkårType.UDEFINERT)
-                && !erSøknadEllerBekreftetVersjonOgSattTilOmsorg()) {
-                hendelse.setType(FamilieHendelseType.ADOPSJON);
-            } else {
-                hendelse.setType(FamilieHendelseType.OMSORG);
-            }
+            håndterAdopsjon(hendelse.getAdopsjon().get());
         } else if (!hendelse.getBarna().isEmpty() || erHendelsenSattTil(FamilieHendelseType.FØDSEL)) {
             hendelse.setType(FamilieHendelseType.FØDSEL);
         } else if (hendelse.getTerminbekreftelse().isPresent()) {
@@ -175,9 +170,18 @@ public class FamilieHendelseBuilder {
         return hendelse;
     }
 
-    private boolean erSøknadEllerBekreftetVersjonOgSattTilOmsorg() {
-        return (type.equals(HendelseVersjonType.SØKNAD) || type.equals(HendelseVersjonType.BEKREFTET)) && hendelse.getType() != null
-            && hendelse.getType().equals(FamilieHendelseType.OMSORG);
+    private void håndterAdopsjon(AdopsjonEntitet adopsjon) {
+        var delVilkår = adopsjon.getOmsorgovertakelseVilkår();
+        if (erHendelsenSattTil(FamilieHendelseType.OMSORG)) {
+            if (OmsorgsovertakelseVilkårType.gjelderAdopsjon(delVilkår)) {
+                throw new IllegalStateException("Utviklerfeil: Mismatch familiehendelse OMSORGO og omsorgsvilkårtype " + delVilkår);
+            }
+            hendelse.setType(FamilieHendelseType.OMSORG);
+        } else if (OmsorgsovertakelseVilkårType.gjelderOmsorg(delVilkår)) {
+            hendelse.setType(FamilieHendelseType.OMSORG);
+        } else {
+            hendelse.setType(FamilieHendelseType.ADOPSJON);
+        }
     }
 
     private boolean erHendelsenSattTil(FamilieHendelseType type) {
