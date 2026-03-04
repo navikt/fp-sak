@@ -43,9 +43,7 @@ class OppgaveTjenesteTest {
     private static final Oppgave OPPGAVE = new Oppgave(99L, null, null, null, null,
             Tema.FOR.getOffisiellKode(), null, null, null, 1, "4806",
             LocalDate.now().plusDays(1), LocalDate.now(), Prioritet.NORM, Oppgavestatus.AAPNET, "beskrivelse", "null");
-    private static final Oppgave FERDIGSTILT_OPPGAVE = new Oppgave(101L, null, null, null, null,
-            Tema.FOR.getOffisiellKode(), null, null, null, 1, "4806",
-            LocalDate.now().plusDays(1), LocalDate.now(), Prioritet.NORM, Oppgavestatus.FERDIGSTILT, "beskrivelse", "null");
+    private static final String OPPGAVE_ID = OPPGAVE.id().toString();
 
     @Mock
     private PersoninfoAdapter personinfoAdapter;
@@ -85,7 +83,7 @@ class OppgaveTjenesteTest {
         var request = captor.getValue();
         assertThat(request.saksreferanse()).isEqualTo(behandling.getSaksnummer().getVerdi());
         assertThat(request.oppgavetype()).isEqualTo(Oppgavetype.VURDER_DOKUMENT);
-        assertThat(oppgaveId).isEqualTo(OPPGAVE.id().toString());
+        assertThat(oppgaveId).isEqualTo(OPPGAVE_ID);
     }
 
     @Test
@@ -114,7 +112,7 @@ class OppgaveTjenesteTest {
         var request = captor.getValue();
         assertThat(request.saksreferanse()).isEqualTo(behandling.getSaksnummer().getVerdi());
         assertThat(request.oppgavetype()).isEqualTo(Oppgavetype.VURDER_KONSEKVENS_YTELSE);
-        assertThat(oppgaveId).isEqualTo(OPPGAVE.id().toString());
+        assertThat(oppgaveId).isEqualTo(OPPGAVE_ID);
     }
 
     @Test
@@ -138,7 +136,7 @@ class OppgaveTjenesteTest {
         assertThat(request.fristFerdigstillelse()).isEqualTo(forventetFrist);
         assertThat(request.beskrivelse())
                 .isEqualTo("Samordning arenaytelse. Vedtak foreldrepenger fra " + førsteAugust);
-        assertThat(oppgaveId).isEqualTo(OPPGAVE.id().toString());
+        assertThat(oppgaveId).isEqualTo(OPPGAVE_ID);
     }
 
     @Test
@@ -171,43 +169,22 @@ class OppgaveTjenesteTest {
         assertThat(request.fristFerdigstillelse()).isEqualTo(forventetFrist);
         assertThat(request.beskrivelse()).isEqualTo(beskrivelse);
         assertThat(request.prioritet()).isEqualTo(Prioritet.HOY);
-        assertThat(oppgaveId).isEqualTo(OPPGAVE.id().toString());
+        assertThat(oppgaveId).isEqualTo(OPPGAVE_ID);
     }
 
     @Test
     void ferdigstille_oppgave_kalles_videre_til_rest_klient() {
         var tjeneste = lagTjeneste(lagScenario());
-        when(oppgaveRestKlient.hentOppgave(OPPGAVE.id().toString())).thenReturn(OPPGAVE);
-        tjeneste.ferdigstillOppgave(OPPGAVE.id().toString());
-        verify(oppgaveRestKlient, times(1)).hentOppgave(OPPGAVE.id().toString());
-        verify(oppgaveRestKlient, times(1)).ferdigstillOppgave(OPPGAVE.id().toString());
-    }
-
-    @Test
-    void ferdigstille_oppgave_feiler_for_oppgaveId_null() {
-        var tjeneste = lagTjeneste(lagScenario());
-        when(oppgaveRestKlient.hentOppgave(null)).thenThrow(new IllegalArgumentException("Feil"));
-
-        assertThatThrownBy(() -> tjeneste.ferdigstillOppgave(null)).isInstanceOf(TekniskException.class)
-            .hasMessageContaining("Noe feilet ved henting av oppgave");
+        tjeneste.ferdigstillOppgave(OPPGAVE_ID);
+        verify(oppgaveRestKlient, times(1)).ferdigstillOppgave(OPPGAVE_ID);
     }
 
     @Test
     void ferdigstille_oppgave_feiler_for_feil_fra_rest_klient() {
         var tjeneste = lagTjeneste(lagScenario());
-        when(oppgaveRestKlient.hentOppgave(OPPGAVE.id().toString())).thenReturn(OPPGAVE);
-        doThrow(new IllegalArgumentException("Feil")).when(oppgaveRestKlient).ferdigstillOppgave(OPPGAVE.id().toString());
+        doThrow(new IllegalArgumentException("Feil")).when(oppgaveRestKlient).ferdigstillOppgave(OPPGAVE_ID);
 
-        assertThatThrownBy(() -> tjeneste.ferdigstillOppgave(OPPGAVE.id().toString())).isInstanceOf(TekniskException.class)
+        assertThatThrownBy(() -> tjeneste.ferdigstillOppgave(OPPGAVE_ID)).isInstanceOf(TekniskException.class)
             .hasMessageContaining("Noe feilet ved ferdigstilling av oppgave");
-    }
-
-    @Test
-    void ferdigstille_oppgave_for_allerede_ferdigstilt_kaller_ikke_rest_klient() {
-        var tjeneste = lagTjeneste(lagScenario());
-        when(oppgaveRestKlient.hentOppgave(FERDIGSTILT_OPPGAVE.id().toString())).thenReturn(FERDIGSTILT_OPPGAVE);
-        tjeneste.ferdigstillOppgave(FERDIGSTILT_OPPGAVE.id().toString());
-        verify(oppgaveRestKlient, times(1)).hentOppgave(FERDIGSTILT_OPPGAVE.id().toString());
-        verify(oppgaveRestKlient, times(0)).ferdigstillOppgave(FERDIGSTILT_OPPGAVE.id().toString());
     }
 }
