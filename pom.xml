@@ -465,6 +465,18 @@
                     <skip>true</skip>
                 </configuration>
             </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <configuration>
+                    <!-- Må ha @{argLine} ellers blir properties satt av jacoco-maven-plugin overkrevet -->
+                    <argLine>@{argLine} ${argLine}
+                        -javaagent:${settings.localRepository}/org/mockito/mockito-core/${mockito.version}/mockito-core-${mockito.version}.jar
+                    </argLine>
+                    <parallel>methods</parallel>
+                    <threadCount>16</threadCount>
+                </configuration>
+            </plugin>
         </plugins>
     </build>
 
