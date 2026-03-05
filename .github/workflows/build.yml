@@ -25,7 +25,7 @@ jobs:
       id-token: write
     uses: navikt/fp-gha-workflows/.github/workflows/build-app-no-db.yml@espenwaaga-patch-1
     with:
-      runs-on: 'ubuntu-latest-16-cores' # default: ubuntu-latest
+      runs-on: 'ubuntu-latest-8-cores' # default: ubuntu-latest
       t-2c: '-T 2C' # default:
       build-image: ${{ github.ref_name == 'master' }} # default: true
       push-image: ${{ github.ref_name == 'master' }} # default: false
