@@ -3,7 +3,6 @@ package no.nav.foreldrepenger.dbstoette;
 import static java.lang.Runtime.getRuntime;
 
 import java.io.File;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.naming.NamingException;
@@ -28,8 +27,7 @@ public final class TestDatabaseInit {
 
     private static final String INIT_SCRIPT_PATH = "../.oracle/oracle-init/fpsak.sql";
 
-    // Per-schema migration guard to ensure migrations only run once per schema per JVM
-    private static final ConcurrentHashMap<String, AtomicBoolean> MIGRATION_GUARDS = new ConcurrentHashMap<>();
+    private static final AtomicBoolean GUARD_UNIT_TEST_SKJEMAER = new AtomicBoolean();
 
     private static final Environment ENV = Environment.current();
 
@@ -38,8 +36,7 @@ public final class TestDatabaseInit {
     public static DataSource settOppDatasourceOgMigrer(String jdbcUrl, String username, String password, String schema) {
         var ds = createDatasource(jdbcUrl, username, password);
         // Use per-schema guard to support multiple datasources without re-running migrations
-        var schemaGuard = MIGRATION_GUARDS.computeIfAbsent(schema, k -> new AtomicBoolean(false));
-        if (schemaGuard.compareAndSet(false, true)) {
+        if (GUARD_UNIT_TEST_SKJEMAER.compareAndSet(false, true)) {
             var flyway = Flyway.configure()
                 .dataSource(ds)
                 .locations(getScriptLocation(schema))
@@ -60,6 +57,7 @@ public final class TestDatabaseInit {
                 }
             }
         }
+        GUARD_UNIT_TEST_SKJEMAER.compareAndSet(true, false);
         return ds;
     }
 
