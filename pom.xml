@@ -474,7 +474,7 @@
                         -javaagent:${settings.localRepository}/org/mockito/mockito-core/${mockito.version}/mockito-core-${mockito.version}.jar
                     </argLine>
                     <parallel>methods</parallel>
-                    <threadCount>16</threadCount>
+                    <threadCount>4</threadCount>
                 </configuration>
             </plugin>
         </plugins>
