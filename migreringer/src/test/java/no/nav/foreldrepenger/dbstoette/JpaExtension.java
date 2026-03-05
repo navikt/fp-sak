@@ -20,3 +20,4 @@ public class JpaExtension extends EntityManagerAwareExtension {
         TestDatabaseInit.settJdniOppslag(ds);
     }
 }
+
