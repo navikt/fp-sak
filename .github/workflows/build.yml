@@ -23,7 +23,7 @@ jobs:
       contents: read
       packages: write
       id-token: write
-    uses: navikt/fp-gha-workflows/.github/workflows/build-app-no-db.yml@main
+    uses: navikt/fp-gha-workflows/.github/workflows/build-app-no-db.yml@espenwaaga-patch-1
     with:
       runs-on: 'ubuntu-latest' # default: ubuntu-latest
       t-2c: '-T 2C' # default:
