@@ -22,7 +22,7 @@
   },
   "requests": {
     "cpu": "45m",
-    "mem": "1.5Gi"
+    "mem": "1536Mi"
   },
   "ingresses": [
     "https://fpsak-api.dev-fss-pub.nais.io",
