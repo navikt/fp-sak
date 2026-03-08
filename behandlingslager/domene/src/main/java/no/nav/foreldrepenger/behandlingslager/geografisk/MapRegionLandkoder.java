@@ -64,13 +64,13 @@ public class MapRegionLandkoder {
 
     public static Region mapLandkode(Landkoder landkode) {
         if (landkode == null)
-            return Region.UDEFINERT;
+            return Region.TREDJELANDS_BORGER;
         return LANDKODER_REGION_MAP.getOrDefault(landkode, Region.TREDJELANDS_BORGER);
     }
 
     public static Region mapLandkodeForDatoMedSkjæringsdato(Landkoder landkode, LocalDate mapForDato, LocalDate skjæringstidspunkt) {
         if (landkode == null)
-            return Region.UDEFINERT;
+            return Region.TREDJELANDS_BORGER;
         if (LANDKODER_OVERGANG_MAP.getOrDefault(landkode, List.of()).isEmpty()) {
             return LANDKODER_REGION_MAP.getOrDefault(landkode, Region.TREDJELANDS_BORGER);
         }

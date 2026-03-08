@@ -1,6 +1,7 @@
 package no.nav.foreldrepenger.behandlingslager.behandling;
 
 import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Stream;
 
 import com.fasterxml.jackson.annotation.JsonValue;
@@ -18,15 +19,14 @@ public enum VariantFormat implements Kodeverdi, MedOffisiellKode {
     FULLVERSJON("FULL", "Versjon med infotekster", "FULLVERSJON"),
     BREVBESTILLING("BREVB", "Brevbestilling data", "BREVBESTILLING"),
     ARKIV("ARKIV", "Arkivformat", "ARKIV"),
-    UDEFINERT(STANDARDKODE_UDEFINERT, "Ikke definert", null),
 
     ;
 
-    private String navn;
+    private final String navn;
 
-    private String offisiellKode;
+    private final String offisiellKode;
     @JsonValue
-    private String kode;
+    private final String kode;
 
     VariantFormat(String kode, String navn, String offisiellKode) {
         this.kode = kode;
@@ -49,7 +49,7 @@ public enum VariantFormat implements Kodeverdi, MedOffisiellKode {
         return offisiellKode;
     }
 
-    public static VariantFormat finnForKodeverkEiersKode(String offisiellDokumentType) {
-        return Stream.of(values()).filter(k -> Objects.equals(k.offisiellKode, offisiellDokumentType)).findFirst().orElse(UDEFINERT);
+    public static Optional<VariantFormat> finnForKodeverkEiersKode(String offisiellDokumentType) {
+        return Stream.of(values()).filter(k -> Objects.equals(k.offisiellKode, offisiellDokumentType)).findFirst();
     }
 }

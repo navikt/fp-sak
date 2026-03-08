@@ -10,7 +10,6 @@ import jakarta.inject.Inject;
 import no.nav.foreldrepenger.behandlingslager.aktør.PersoninfoArbeidsgiver;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.OrgNummer;
-import no.nav.foreldrepenger.behandlingslager.virksomhet.Organisasjonstype;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Virksomhet;
 import no.nav.foreldrepenger.domene.person.PersoninfoAdapter;
 import no.nav.vedtak.util.LRUCache;
@@ -49,14 +48,14 @@ public class ArbeidsgiverTjeneste {
         if (arbeidsgiverOpplysninger != null) {
             return arbeidsgiverOpplysninger;
         }
-        if (arbeidsgiver.getErVirksomhet() && !Organisasjonstype.erKunstig(arbeidsgiver.getOrgnr())) {
+        if (arbeidsgiver.getErVirksomhet() && !OrgNummer.erKunstig(arbeidsgiver.getOrgnr())) {
             var orgnr = arbeidsgiver.getOrgnr();
             var virksomhet = virksomhetTjeneste.hentOrganisasjon(orgnr);
             var nyOpplysninger = new ArbeidsgiverOpplysninger(orgnr, virksomhet.getNavn());
             CACHE.put(arbeidsgiver.getIdentifikator(), nyOpplysninger);
             return nyOpplysninger;
         }
-        if (arbeidsgiver.getErVirksomhet() && Organisasjonstype.erKunstig(arbeidsgiver.getOrgnr())) {
+        if (arbeidsgiver.getErVirksomhet() && OrgNummer.erKunstig(arbeidsgiver.getOrgnr())) {
             return new ArbeidsgiverOpplysninger(OrgNummer.KUNSTIG_ORG, "Kunstig(Lagt til av saksbehandling)");
         }
         if (arbeidsgiver.erAktørId()) {

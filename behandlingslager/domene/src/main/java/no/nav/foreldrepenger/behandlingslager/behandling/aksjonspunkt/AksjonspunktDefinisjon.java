@@ -509,7 +509,7 @@ public enum AksjonspunktDefinisjon implements Kodeverdi {
          */
     );
 
-    private AksjonspunktType aksjonspunktType = AksjonspunktType.UDEFINERT;
+    private AksjonspunktType aksjonspunktType;
 
     /**
      * Definerer hvorvidt Aksjonspunktet default krever totrinnsbehandling. Dvs. Beslutter må godkjenne hva Saksbehandler har utført.
@@ -567,7 +567,7 @@ public enum AksjonspunktDefinisjon implements Kodeverdi {
                            Set<FagsakYtelseType.YtelseType> ytelseTyper) {
         this.kode = Objects.requireNonNull(kode);
         this.navn = navn;
-        this.aksjonspunktType = aksjonspunktType;
+        this.aksjonspunktType = Objects.requireNonNull(aksjonspunktType);
         this.behandlingStegType = behandlingStegType;
         this.vurderingspunktType = vurderingspunktType;
         this.ytelseTyper = ytelseTyper;
@@ -593,7 +593,7 @@ public enum AksjonspunktDefinisjon implements Kodeverdi {
                            Set<FagsakYtelseType.YtelseType> ytelseTyper) {
         this.kode = Objects.requireNonNull(kode);
         this.navn = navn;
-        this.aksjonspunktType = aksjonspunktType;
+        this.aksjonspunktType = Objects.requireNonNull(aksjonspunktType);
         this.behandlingStegType = behandlingStegType;
         this.vurderingspunktType = vurderingspunktType;
         this.ytelseTyper = ytelseTyper;
@@ -616,7 +616,7 @@ public enum AksjonspunktDefinisjon implements Kodeverdi {
     }
 
     public AksjonspunktType getAksjonspunktType() {
-        return Objects.equals(AksjonspunktType.UDEFINERT, aksjonspunktType) ? null : aksjonspunktType;
+        return aksjonspunktType;
     }
 
     public boolean erAutopunkt() {

@@ -1,7 +1,5 @@
 package no.nav.foreldrepenger.dokumentarkiv;
 
-import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
-
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -32,9 +30,8 @@ public enum NAVSkjema {
     SKJEMA_TILRETTELEGGING_N("SSVPN", "AT-474N", "LIKT SOM SKJEMA_TILRETTELEGGING_B"),
 
     // ANNET
-    FORSIDE_SVP_GAMMEL("SSVPG", "AT-474B", "Tilrettelegging/omplassering pga graviditet / Søknad om svangerskapspenger til arbeidstaker"),
-
-    UDEFINERT(Kodeverdi.STANDARDKODE_UDEFINERT, null, "Ukjent type dokument");
+    FORSIDE_SVP_GAMMEL("SSVPG", "AT-474B", "Tilrettelegging/omplassering pga graviditet / Søknad om svangerskapspenger til arbeidstaker")
+    ;
 
     private static final Map<String, NAVSkjema> KODER = new LinkedHashMap<>();
     private static final Map<String, NAVSkjema> OFFISIELLE_KODER = new LinkedHashMap<>();
@@ -54,11 +51,11 @@ public enum NAVSkjema {
         }
     }
 
-    private String kode;
+    private final String kode;
 
-    private String offisiellKode;
+    private final String offisiellKode;
 
-    private String termnavn;
+    private final String termnavn;
 
     NAVSkjema(String kode, String offisiellKode, String termnavn) {
         this.kode = kode;
@@ -77,12 +74,12 @@ public enum NAVSkjema {
         return ad;
     }
 
-    public static NAVSkjema fraOffisiellKode(String kode) {
-        return Optional.ofNullable(kode).map(OFFISIELLE_KODER::get).orElse(UDEFINERT);
+    public static Optional<NAVSkjema> fraOffisiellKode(String kode) {
+        return Optional.ofNullable(kode).map(OFFISIELLE_KODER::get);
     }
 
-    public static NAVSkjema fraTermNavn(String navn) {
-        return Optional.ofNullable(navn).map(TERMNAVN_KODER::get).orElse(UDEFINERT);
+    public static Optional<NAVSkjema> fraTermNavn(String navn) {
+        return Optional.ofNullable(navn).map(TERMNAVN_KODER::get);
     }
 
     public String getKode() {

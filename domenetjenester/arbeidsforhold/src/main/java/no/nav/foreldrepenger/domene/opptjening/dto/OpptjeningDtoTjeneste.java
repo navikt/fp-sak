@@ -12,8 +12,8 @@ import jakarta.inject.Inject;
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.Opptjening;
 import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.OpptjeningAktivitetType;
+import no.nav.foreldrepenger.behandlingslager.virksomhet.OrgNummer;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.OrganisasjonsNummerValidator;
-import no.nav.foreldrepenger.behandlingslager.virksomhet.Organisasjonstype;
 import no.nav.foreldrepenger.domene.arbeidsgiver.ArbeidsgiverTjeneste;
 import no.nav.foreldrepenger.domene.iay.modell.Opptjeningsnøkkel;
 import no.nav.foreldrepenger.domene.opptjening.FerdiglignetNæring;
@@ -147,8 +147,7 @@ public class OpptjeningDtoTjeneste {
     }
 
     private boolean erKunstig(OpptjeningsperiodeForSaksbehandling oap) {
-        return oap.getArbeidsgiver() != null && oap.getArbeidsgiver().getErVirksomhet() && Organisasjonstype.erKunstig(
-            oap.getArbeidsgiver().getOrgnr());
+        return oap.getArbeidsgiver() != null && oap.getArbeidsgiver().getErVirksomhet() && OrgNummer.erKunstig(oap.getArbeidsgiver().getOrgnr());
     }
 
 }

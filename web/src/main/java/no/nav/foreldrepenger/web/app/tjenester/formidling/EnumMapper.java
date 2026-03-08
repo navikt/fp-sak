@@ -86,7 +86,6 @@ final class EnumMapper {
             case KLAGER_IKKE_PART -> KlageBehandling.KlageAvvistÅrsak.KLAGER_IKKE_PART;
             case IKKE_KONKRET -> KlageBehandling.KlageAvvistÅrsak.IKKE_KONKRET;
             case IKKE_SIGNERT -> KlageBehandling.KlageAvvistÅrsak.IKKE_SIGNERT;
-            case UDEFINERT -> KlageBehandling.KlageAvvistÅrsak.UDEFINERT;
         };
     }
 

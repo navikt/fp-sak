@@ -11,8 +11,8 @@ import java.util.stream.Collectors;
 import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
 import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.OpptjeningAktivitetType;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.ArbeidType;
+import no.nav.foreldrepenger.behandlingslager.virksomhet.OrgNummer;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.OrganisasjonsNummerValidator;
-import no.nav.foreldrepenger.behandlingslager.virksomhet.Organisasjonstype;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.iay.modell.AktivitetsAvtaleBuilder;
 import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseAggregatBuilder;
@@ -147,7 +147,7 @@ class BekreftOpptjeningPeriodeAksjonspunkt {
             var erNullProsent = filter.getAktivitetsAvtalerForArbeid(it)
                 .stream()
                 .anyMatch(aa -> aa.getProsentsats() == null || aa.getProsentsats().erNulltall());
-            var erKunstig = it.getArbeidsgiver().getErVirksomhet() && Organisasjonstype.erKunstig(it.getArbeidsgiver().getOrgnr());
+            var erKunstig = it.getArbeidsgiver().getErVirksomhet() && OrgNummer.erKunstig(it.getArbeidsgiver().getOrgnr());
             return arbeidTypes.contains(it.getArbeidType()) && it.getArbeidsgiver().getIdentifikator().equals(periode.getArbeidsgiverReferanse()) && (
                 erNullProsent || erKunstig);
         });
@@ -191,7 +191,7 @@ class BekreftOpptjeningPeriodeAksjonspunkt {
         var builder = overstyrtBuilder.getYrkesaktivitetBuilderForNøkkelAvType(opptjeningsnøkkel, arbeidType);
 
         if (!builder.getErOppdatering()) {
-            if (Organisasjonstype.erKunstig(opptjeningsnøkkel.getVerdi())) {
+            if (OrgNummer.erKunstig(opptjeningsnøkkel.getVerdi())) {
                 kopierVerdierForFiktivtArbeidsforhold(iayGrunnlag, builder);
             } else {
                 // Bør få med all informasjon om arbeidsforholdet over i overstyrt slik at ingenting blir mistet.
@@ -209,7 +209,7 @@ class BekreftOpptjeningPeriodeAksjonspunkt {
     }
 
     private static Opptjeningsnøkkel utledOpptjeningsnøkkel(String arbeidsgiverReferanse, InternArbeidsforholdRef ref) {
-        if (OrganisasjonsNummerValidator.erGyldig(arbeidsgiverReferanse) || Organisasjonstype.erKunstig(arbeidsgiverReferanse)) {
+        if (OrganisasjonsNummerValidator.erGyldig(arbeidsgiverReferanse) || OrgNummer.erKunstig(arbeidsgiverReferanse)) {
             return new Opptjeningsnøkkel(ref, arbeidsgiverReferanse, null);
         } else {
             return new Opptjeningsnøkkel(ref, null, arbeidsgiverReferanse);
