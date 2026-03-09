@@ -3,8 +3,9 @@ package no.nav.foreldrepenger.behandlingslager.økonomioppdrag;
 import java.util.Objects;
 
 import jakarta.persistence.Column;
-import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -24,7 +25,7 @@ public class OppdragKvittering extends BaseCreateableEntitet {
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "SEQ_OPPDRAG_KVITTERING")
     private Long id;
 
-    @Convert(converter = Alvorlighetsgrad.KodeverdiConverter.class)
+    @Enumerated(EnumType.STRING)
     @Column(name = "alvorlighetsgrad")
     private Alvorlighetsgrad alvorlighetsgrad;
 

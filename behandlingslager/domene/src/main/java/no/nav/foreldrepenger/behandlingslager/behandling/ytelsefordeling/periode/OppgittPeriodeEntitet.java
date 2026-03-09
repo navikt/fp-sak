@@ -9,6 +9,8 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Convert;
 import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -111,8 +113,8 @@ public class OppgittPeriodeEntitet extends BaseEntitet implements IndexKey {
     @ChangeTracked
     private SamtidigUttaksprosent samtidigUttaksprosent;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "FORDELING_PERIODE_KILDE", nullable = false, updatable = false)
-    @Convert(converter = FordelingPeriodeKilde.KodeverdiConverter.class)
     private FordelingPeriodeKilde periodeKilde = FordelingPeriodeKilde.SØKNAD;
 
     //Hvis bruker søker om en periode flere ganger så oppdateres mottattDato med ny dato, men tidligst mottatt dato settes til
@@ -122,8 +124,8 @@ public class OppgittPeriodeEntitet extends BaseEntitet implements IndexKey {
     @Column(name = "tidligst_mottatt_dato")
     private LocalDate tidligstMottattDato;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "DOKUMENTASJON_VURDERING")
-    @Convert(converter = DokumentasjonVurdering.Type.KodeverdiConverter.class)
     private DokumentasjonVurdering.Type dokumentasjonVurderingType;
 
     @ChangeTracked

@@ -3,8 +3,7 @@ package no.nav.foreldrepenger.behandlingslager.etterkontroll;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import jakarta.persistence.AttributeConverter;
-import jakarta.persistence.Converter;
+import jakarta.persistence.EnumeratedValue;
 
 import com.fasterxml.jackson.annotation.JsonValue;
 
@@ -21,6 +20,7 @@ public enum KontrollType implements Kodeverdi {
     private final String navn;
 
     @JsonValue
+    @EnumeratedValue
     private final String kode;
 
     KontrollType(String kode, String navn) {
@@ -46,28 +46,5 @@ public enum KontrollType implements Kodeverdi {
         }
     }
 
-    @Converter(autoApply = true)
-    public static class KodeverdiConverter implements AttributeConverter<KontrollType, String> {
-        @Override
-        public String convertToDatabaseColumn(KontrollType attribute) {
-            return attribute == null ? null : attribute.getKode();
-        }
-
-        @Override
-        public KontrollType convertToEntityAttribute(String dbData) {
-            return dbData == null ? null : fraKode(dbData);
-        }
-
-        private static KontrollType fraKode(String kode) {
-            if (kode == null) {
-                return null;
-            }
-            var ad = KODER.get(kode);
-            if (ad == null) {
-                throw new IllegalArgumentException("Ukjent KontrollType: " + kode);
-            }
-            return ad;
-        }
-    }
 
 }

@@ -3,8 +3,7 @@ package no.nav.foreldrepenger.behandlingslager.behandling.personopplysning;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import jakarta.persistence.AttributeConverter;
-import jakarta.persistence.Converter;
+import jakarta.persistence.EnumeratedValue;
 
 import com.fasterxml.jackson.annotation.JsonValue;
 
@@ -36,9 +35,11 @@ public enum SivilstandType implements Kodeverdi {
         }
     }
 
-    private String navn;
+    private final String navn;
+
     @JsonValue
-    private String kode;
+    @EnumeratedValue
+    private final String kode;
 
     SivilstandType(String kode, String navn) {
         this.kode = kode;
@@ -53,30 +54,6 @@ public enum SivilstandType implements Kodeverdi {
     @Override
     public String getNavn() {
         return navn;
-    }
-
-    @Converter(autoApply = true)
-    public static class KodeverdiConverter implements AttributeConverter<SivilstandType, String> {
-        @Override
-        public String convertToDatabaseColumn(SivilstandType attribute) {
-            return attribute == null ? null : attribute.getKode();
-        }
-
-        @Override
-        public SivilstandType convertToEntityAttribute(String dbData) {
-            return dbData == null ? null : fraKode(dbData);
-        }
-
-        private static SivilstandType fraKode(String kode) {
-            if (kode == null) {
-                return null;
-            }
-            var ad = KODER.get(kode);
-            if (ad == null) {
-                throw new IllegalArgumentException("Ukjent FagsakYtelseType: " + kode);
-            }
-            return ad;
-        }
     }
 
 }
