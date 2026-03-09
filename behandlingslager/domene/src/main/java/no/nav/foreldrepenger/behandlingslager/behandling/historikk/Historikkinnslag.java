@@ -5,7 +5,6 @@ import java.util.List;
 import java.util.Objects;
 
 import jakarta.persistence.Column;
-import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -38,7 +37,7 @@ public class Historikkinnslag extends BaseCreateableEntitet {
     @Column(name = "aktoer", nullable = false)
     private HistorikkAktør aktør;
 
-    @Convert(converter = SkjermlenkeType.KodeverdiConverter.class)
+    @Enumerated(EnumType.STRING)
     @Column(name = "skjermlenke")
     private SkjermlenkeType skjermlenke;
 

@@ -9,6 +9,8 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Convert;
 import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -43,7 +45,7 @@ public class PersonAdresseEntitet extends BaseEntitet implements HarAktørId, In
     private DatoIntervallEntitet periode;
 
     @ChangeTracked
-    @Convert(converter = AdresseType.KodeverdiConverter.class)
+    @Enumerated(EnumType.STRING)
     @Column(name = "adresse_type", nullable = false)
     private AdresseType adresseType;
 

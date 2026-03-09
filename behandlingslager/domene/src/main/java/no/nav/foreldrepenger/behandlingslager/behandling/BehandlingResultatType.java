@@ -4,8 +4,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
 
-import jakarta.persistence.AttributeConverter;
-import jakarta.persistence.Converter;
+import jakarta.persistence.EnumeratedValue;
 
 import com.fasterxml.jackson.annotation.JsonValue;
 
@@ -73,6 +72,7 @@ public enum BehandlingResultatType implements Kodeverdi {
 
     private final String navn;
     @JsonValue
+    @EnumeratedValue
     private final String kode;
 
     BehandlingResultatType(String kode, String navn) {
@@ -115,19 +115,6 @@ public enum BehandlingResultatType implements Kodeverdi {
 
     public boolean erHenlagt() {
         return ALLE_HENLEGGELSESKODER.contains(this);
-    }
-
-    @Converter(autoApply = true)
-    public static class KodeverdiConverter implements AttributeConverter<BehandlingResultatType, String> {
-        @Override
-        public String convertToDatabaseColumn(BehandlingResultatType attribute) {
-            return attribute == null ? null : attribute.getKode();
-        }
-
-        @Override
-        public BehandlingResultatType convertToEntityAttribute(String dbData) {
-            return dbData == null ? null : fraKode(dbData);
-        }
     }
 
 }

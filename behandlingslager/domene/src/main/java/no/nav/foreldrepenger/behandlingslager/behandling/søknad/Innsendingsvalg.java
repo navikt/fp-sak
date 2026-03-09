@@ -3,8 +3,7 @@ package no.nav.foreldrepenger.behandlingslager.behandling.søknad;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import jakarta.persistence.AttributeConverter;
-import jakarta.persistence.Converter;
+import jakarta.persistence.EnumeratedValue;
 
 import com.fasterxml.jackson.annotation.JsonValue;
 
@@ -32,6 +31,7 @@ public enum Innsendingsvalg implements Kodeverdi {
 
     private final String navn;
     @JsonValue
+    @EnumeratedValue
     private final String kode;
 
     Innsendingsvalg(String kode, String navn) {
@@ -60,16 +60,4 @@ public enum Innsendingsvalg implements Kodeverdi {
         return kode;
     }
 
-    @Converter(autoApply = true)
-    public static class KodeverdiConverter implements AttributeConverter<Innsendingsvalg, String> {
-        @Override
-        public String convertToDatabaseColumn(Innsendingsvalg attribute) {
-            return attribute == null ? null : attribute.getKode();
-        }
-
-        @Override
-        public Innsendingsvalg convertToEntityAttribute(String dbData) {
-            return dbData == null ? null : fraKode(dbData);
-        }
-    }
 }
