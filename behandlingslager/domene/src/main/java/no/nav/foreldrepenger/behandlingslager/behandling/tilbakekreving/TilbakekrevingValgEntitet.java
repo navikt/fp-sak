@@ -5,6 +5,8 @@ import java.util.Objects;
 import jakarta.persistence.Column;
 import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -45,7 +47,7 @@ class TilbakekrevingValgEntitet extends BaseEntitet {
     @Column(name = "varseltekst")
     private String varseltekst;
 
-    @Convert(converter = TilbakekrevingVidereBehandling.KodeverdiConverter.class)
+    @Enumerated(EnumType.STRING)
     @Column(name="videre_behandling")
     private TilbakekrevingVidereBehandling tilbakekrevningsVidereBehandling;
 

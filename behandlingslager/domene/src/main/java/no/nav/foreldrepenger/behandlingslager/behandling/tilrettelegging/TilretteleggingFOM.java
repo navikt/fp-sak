@@ -5,7 +5,6 @@ import java.time.LocalDate;
 import java.util.Objects;
 
 import jakarta.persistence.Column;
-import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -24,7 +23,7 @@ public class TilretteleggingFOM extends BaseEntitet {
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "SEQ_TILRETTELEGGING_FOM")
     private Long id;
 
-    @Convert(converter = TilretteleggingType.KodeverdiConverter.class)
+    @Enumerated(EnumType.STRING)
     @Column(name = "type", nullable = false)
     private TilretteleggingType type;
 
