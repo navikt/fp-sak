@@ -186,7 +186,7 @@ public class PersonopplysningGrunnlagDiff {
             .filter(stb -> stb.getPeriode().overlapper(periode))
             .map(StatsborgerskapEntitet::getStatsborgerskap)
             .map(l -> MapRegionLandkoder.mapLandkodeForDatoMedSkjæringsdato(l, periode.getFomDato(), skjæringstidspunkt))
-            .min(Comparator.comparing(Region::getRank)).orElse(Region.UDEFINERT);
+            .min(Comparator.comparing(Region::getRank)).orElse(Region.TREDJELANDS_BORGER);
     }
 
     private Set<LocalDate> hentDødsdatoer(PersonopplysningGrunnlagEntitet grunnlag, Set<AktørId> aktuelle) {

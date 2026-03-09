@@ -293,6 +293,7 @@ public class DokumentArkivTjeneste {
             .map(Dokumentvariant::getVariantformat)
             .map(Variantformat::name)
             .map(VariantFormat::finnForKodeverkEiersKode)
+            .flatMap(Optional::stream)
             .collect(Collectors.toSet());
 
         return ArkivDokument.Builder.ny()
@@ -306,14 +307,14 @@ public class DokumentArkivTjeneste {
 
     private Set<DokumentTypeId> utledDokumentType(DokumentInfo dokumentInfo) {
         Set<NAVSkjema> allebrevkoder = new HashSet<>();
-        allebrevkoder.add(NAVSkjema.fraTermNavn(dokumentInfo.getTittel()));
-        dokumentInfo.getLogiskeVedlegg().forEach(v -> allebrevkoder.add(NAVSkjema.fraTermNavn(v.getTittel())));
-        Optional.ofNullable(dokumentInfo.getBrevkode()).map(NAVSkjema::fraOffisiellKode).ifPresent(allebrevkoder::add);
+        NAVSkjema.fraTermNavn(dokumentInfo.getTittel()).ifPresent(allebrevkoder::add);
+        dokumentInfo.getLogiskeVedlegg().forEach(v -> NAVSkjema.fraTermNavn(v.getTittel()).ifPresent(allebrevkoder::add));
+        Optional.ofNullable(dokumentInfo.getBrevkode()).flatMap(NAVSkjema::fraOffisiellKode).ifPresent(allebrevkoder::add);
 
         Set<DokumentTypeId> alletyper = new HashSet<>();
         alletyper.add(DokumentTypeId.finnForKodeverkEiersNavn(dokumentInfo.getTittel()));
         dokumentInfo.getLogiskeVedlegg().forEach(v -> alletyper.add(DokumentTypeId.finnForKodeverkEiersNavn(v.getTittel())));
-        allebrevkoder.stream().filter(b -> !NAVSkjema.UDEFINERT.equals(b)).forEach(b -> alletyper.add(MapNAVSkjemaDokumentTypeId.mapBrevkode(b)));
+        allebrevkoder.forEach(b -> alletyper.add(MapNAVSkjemaDokumentTypeId.mapBrevkode(b)));
         return alletyper;
     }
 

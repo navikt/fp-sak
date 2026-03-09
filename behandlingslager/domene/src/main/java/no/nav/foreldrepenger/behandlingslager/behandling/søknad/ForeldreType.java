@@ -15,7 +15,6 @@ public enum ForeldreType implements Kodeverdi {
     FAR("FAR", "Far"),
     MEDMOR("MEDMOR", "Medmor"),
     ANDRE("ANDRE", "Andre"),
-    UDEFINERT(STANDARDKODE_UDEFINERT, "Ikke definert"),
     ;
 
     private static final Map<String, ForeldreType> KODER = new LinkedHashMap<>();

@@ -14,7 +14,6 @@ public enum AksjonspunktType implements Kodeverdi {
     MANUELL("MANU", "Manuell"),
     OVERSTYRING("OVST", "Overstyring"),
     SAKSBEHANDLEROVERSTYRING("SAOV", "Saksbehandleroverstyring"),
-    UDEFINERT(STANDARDKODE_UDEFINERT, "Ikke definert"),
     ;
 
     private static final Map<String, AksjonspunktType> KODER = new LinkedHashMap<>();
@@ -27,10 +26,10 @@ public enum AksjonspunktType implements Kodeverdi {
         }
     }
 
-    private String navn;
+    private final String navn;
 
     @JsonValue
-    private String kode;
+    private final String kode;
 
     AksjonspunktType(String kode, String navn) {
         this.kode = kode;

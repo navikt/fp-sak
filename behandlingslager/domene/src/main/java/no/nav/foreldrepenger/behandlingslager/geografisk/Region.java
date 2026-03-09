@@ -15,8 +15,7 @@ public enum Region implements Kodeverdi {
      */
     NORDEN("NORDEN", "Nordisk", 1),
     EOS("EOS", "EU/EØS", 2),
-    TREDJELANDS_BORGER("ANNET", "3.landsborger", 3),
-    UDEFINERT(STANDARDKODE_UDEFINERT, "3.landsborger", 9),
+    TREDJELANDS_BORGER("ANNET", "3.landsborger", 3)
     ;
 
     public static final Comparator<Region> COMPARATOR = Comparator.comparing(Region::getRank);
@@ -31,11 +30,11 @@ public enum Region implements Kodeverdi {
         }
     }
 
-    private String navn;
+    private final String navn;
     @JsonValue
-    private String kode;
+    private final String kode;
 
-    private int rank;
+    private final int rank;
 
     Region(String kode, String navn, int rank) {
         this.kode = kode;

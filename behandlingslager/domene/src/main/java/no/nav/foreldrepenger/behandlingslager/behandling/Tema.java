@@ -1,6 +1,7 @@
 package no.nav.foreldrepenger.behandlingslager.behandling;
 
 import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Stream;
 
 import com.fasterxml.jackson.annotation.JsonValue;
@@ -10,16 +11,14 @@ import no.nav.foreldrepenger.behandlingslager.kodeverk.MedOffisiellKode;
 
 public enum Tema implements Kodeverdi, MedOffisiellKode {
 
-    FOR("FOR", "Foreldre- og Svangerskapspenger", "FOR"),
-
-    UDEFINERT(STANDARDKODE_UDEFINERT, "Ikke definert", null)
+    FOR("FOR", "Foreldre- og Svangerskapspenger", "FOR")
     ;
 
-    private String navn;
+    private final String navn;
 
-    private String offisiellKode;
+    private final String offisiellKode;
     @JsonValue
-    private String kode;
+    private final String kode;
 
     Tema(String kode, String navn, String offisiellKode) {
         this.kode = kode;
@@ -42,8 +41,8 @@ public enum Tema implements Kodeverdi, MedOffisiellKode {
         return offisiellKode;
     }
 
-    public static Tema finnForKodeverkEiersKode(String tema) {
-        return Stream.of(values()).filter(k -> Objects.equals(k.offisiellKode, tema)).findFirst().orElse(UDEFINERT);
+    public static Optional<Tema> finnForKodeverkEiersKode(String tema) {
+        return Stream.of(values()).filter(k -> Objects.equals(k.offisiellKode, tema)).findFirst();
     }
 
 }

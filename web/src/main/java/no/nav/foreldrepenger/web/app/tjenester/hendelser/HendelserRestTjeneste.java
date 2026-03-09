@@ -117,7 +117,7 @@ public class HendelserRestTjeneste {
 
     private EnkelRespons registrerHendelse(HendelseDto hendelse, String beskrivelse) {
         var hendelsType = ForretningshendelseType.fraKode(hendelse.getHendelsetype());
-        if (ForretningshendelseType.UDEFINERT.equals(hendelsType)) {
+        if (hendelsType == null) {
             LOG.warn("Kan ikke håndtere {}", beskrivelse);
             return new EnkelRespons("Ukjent hendelse");
         }

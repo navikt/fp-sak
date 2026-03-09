@@ -9,20 +9,24 @@ import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
 
 public enum ForretningshendelseType implements Kodeverdi {
 
-    INGEN_HENDELSE("INGEN_HENDELSE", "Ingen hendelse"),
+    // Verdier i kode er gitt av no.nav.foreldrepenger.kontrakter.abonnent.v2.HendelseDto subklasser
     FØDSEL("FØDSEL", "Fødsel"),
     DØD("DØD", "Død"),
     DØDFØDSEL("DØDFØDSEL", "Dødfødsel"),
     UTFLYTTING("UTFLYTTING", "Utflytting"),
+    // Brukes kun for logging inntil videre. Bør revurdere løpende saker
+    FALSKID("FALSKID", "Falsk identitet"),
+    // Ikke tatt i bruk
+    IDENTIFIKATOR("IDENTIFIKATOR", "Folkeregisteridentifikator"),
+    ADRESSEBESKYTTELSE("ADRESSEBESKYTTELSE", "Adressebeskyttelse")
 
-    UDEFINERT(STANDARDKODE_UDEFINERT, "Ikke definert"),
     ;
 
     private static final Map<String, ForretningshendelseType> KODER = new LinkedHashMap<>();
 
-    private String navn;
+    private final String navn;
     @JsonValue
-    private String kode;
+    private final String kode;
 
     ForretningshendelseType(String kode, String navn) {
         this.kode = kode;

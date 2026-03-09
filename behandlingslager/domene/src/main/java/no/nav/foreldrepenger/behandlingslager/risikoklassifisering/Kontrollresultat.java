@@ -1,6 +1,5 @@
 package no.nav.foreldrepenger.behandlingslager.risikoklassifisering;
 
-import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -13,7 +12,6 @@ public enum Kontrollresultat implements Kodeverdi {
     HØY("HOY", "Kontrollresultatet er HØY"),
     IKKE_HØY("IKKE_HOY", "Kontrollresultatet er IKKE_HØY"),
     IKKE_KLASSIFISERT("IKKE_KLASSIFISERT", "Behandlingen er ikke blitt klassifisert"),
-    UDEFINERT(STANDARDKODE_UDEFINERT, "Udefinert"),
     ;
 
     private static final Map<String, Kontrollresultat> KODER = new LinkedHashMap<>();
