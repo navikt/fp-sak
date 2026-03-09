@@ -12,6 +12,7 @@ import jakarta.persistence.Converter;
 
 import com.fasterxml.jackson.annotation.JsonValue;
 
+import no.nav.foreldrepenger.behandlingslager.kodeverk.DatabaseKode;
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
 
 /**
@@ -20,7 +21,7 @@ import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
  * Kommer kun til anvendelse dersom det oppstår aksjonspunkter eller noe må legges på vent i et steg. Hvis ikke
  * flyter et rett igjennom til UTFØRT.
  */
-public enum BehandlingStegStatus implements Kodeverdi {
+public enum BehandlingStegStatus implements Kodeverdi, DatabaseKode {
 
     /** midlertidig intern tilstand når steget startes (etter inngang). */
     STARTET("STARTET", "Steget er startet"),

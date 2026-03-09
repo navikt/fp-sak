@@ -33,13 +33,14 @@ import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.Skjermlenke
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType.YtelseType;
+import no.nav.foreldrepenger.behandlingslager.kodeverk.DatabaseKode;
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
 
 /**
  * Definerer mulige Aksjonspunkter inkludert hvilket Vurderingspunkt de må løses i.
  * Inkluderer også konstanter for å enklere kunne referere til dem i eksisterende logikk.
  */
-public enum AksjonspunktDefinisjon implements Kodeverdi {
+public enum AksjonspunktDefinisjon implements Kodeverdi, DatabaseKode {
 
     // Gruppe : 500
 

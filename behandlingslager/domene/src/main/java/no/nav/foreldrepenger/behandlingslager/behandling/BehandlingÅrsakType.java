@@ -9,9 +9,10 @@ import jakarta.persistence.Converter;
 
 import com.fasterxml.jackson.annotation.JsonValue;
 
+import no.nav.foreldrepenger.behandlingslager.kodeverk.DatabaseKode;
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
 
-public enum BehandlingÅrsakType implements Kodeverdi {
+public enum BehandlingÅrsakType implements Kodeverdi, DatabaseKode {
 
     // MANUELL OPPRETTING - GUI-anvendelse
     RE_FEIL_I_LOVANDVENDELSE("RE-LOV", "Lovanvendelse"),

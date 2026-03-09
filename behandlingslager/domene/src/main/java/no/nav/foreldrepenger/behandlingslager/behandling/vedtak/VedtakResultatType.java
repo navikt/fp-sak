@@ -8,9 +8,10 @@ import jakarta.persistence.Converter;
 
 import com.fasterxml.jackson.annotation.JsonValue;
 
+import no.nav.foreldrepenger.behandlingslager.kodeverk.DatabaseKode;
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
 
-public enum VedtakResultatType implements Kodeverdi {
+public enum VedtakResultatType implements Kodeverdi, DatabaseKode {
 
     INNVILGET("INNVILGET", "Innvilget"),
     AVSLAG("AVSLAG", "Avslag"),

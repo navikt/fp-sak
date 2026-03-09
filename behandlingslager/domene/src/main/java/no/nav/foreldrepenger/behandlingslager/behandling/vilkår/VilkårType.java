@@ -12,9 +12,10 @@ import jakarta.persistence.Converter;
 import com.fasterxml.jackson.annotation.JsonValue;
 
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
+import no.nav.foreldrepenger.behandlingslager.kodeverk.DatabaseKode;
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
 
-public enum VilkårType implements Kodeverdi {
+public enum VilkårType implements Kodeverdi, DatabaseKode {
 
     FØDSELSVILKÅRET_MOR("FP_VK_1",
         "Fødselsvilkår Mor",

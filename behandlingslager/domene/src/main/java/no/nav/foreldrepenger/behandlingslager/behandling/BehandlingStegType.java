@@ -13,9 +13,10 @@ import com.fasterxml.jackson.annotation.JsonValue;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.VurderingspunktType;
+import no.nav.foreldrepenger.behandlingslager.kodeverk.DatabaseKode;
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
 
-public enum BehandlingStegType implements Kodeverdi {
+public enum BehandlingStegType implements Kodeverdi, DatabaseKode {
 
     // Steg koder som deles av alle ytelser
     REGISTRER_SØKNAD("REGSØK", "Registrer søknad", UTREDES),

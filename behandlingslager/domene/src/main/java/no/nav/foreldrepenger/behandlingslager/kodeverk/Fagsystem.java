@@ -8,7 +8,7 @@ import jakarta.persistence.Converter;
 
 import com.fasterxml.jackson.annotation.JsonValue;
 
-public enum Fagsystem implements Kodeverdi, MedOffisiellKode {
+public enum Fagsystem implements Kodeverdi, DatabaseKode, MedOffisiellKode {
 
     FPSAK("FPSAK", "Vedtaksløsning Foreldrepenger", "FS36"),
     TPS("TPS", "TPS", "FS03"),

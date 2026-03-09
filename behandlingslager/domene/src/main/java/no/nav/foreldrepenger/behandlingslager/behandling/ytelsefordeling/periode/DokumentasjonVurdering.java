@@ -8,6 +8,7 @@ import jakarta.persistence.EnumeratedValue;
 
 import com.fasterxml.jackson.annotation.JsonValue;
 
+import no.nav.foreldrepenger.behandlingslager.kodeverk.DatabaseKode;
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.MorsStillingsprosent;
 
@@ -28,7 +29,7 @@ public record DokumentasjonVurdering(Type type, MorsStillingsprosent morsStillin
         return type.erGodkjent();
     }
 
-    public enum Type implements Kodeverdi {
+    public enum Type implements Kodeverdi, DatabaseKode {
         ///Både utsettelse
         SYKDOM_SØKER_GODKJENT("SYKDOM_SØKER_GODKJENT", "Søker er syk", true),
         SYKDOM_SØKER_IKKE_GODKJENT("SYKDOM_SØKER_IKKE_GODKJENT", "Søker er ikke syk", false),

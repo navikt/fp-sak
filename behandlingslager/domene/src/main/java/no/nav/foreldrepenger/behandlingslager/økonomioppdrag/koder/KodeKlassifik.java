@@ -6,7 +6,9 @@ import java.util.Objects;
 
 import jakarta.persistence.EnumeratedValue;
 
-public enum KodeKlassifik {
+import no.nav.foreldrepenger.behandlingslager.kodeverk.DatabaseKode;
+
+public enum KodeKlassifik implements DatabaseKode {
 
     //Engangsstønad fødsel
     ES_FØDSEL("FPENFOD-OP"),

@@ -4,9 +4,10 @@ import jakarta.persistence.EnumeratedValue;
 
 import com.fasterxml.jackson.annotation.JsonValue;
 
+import no.nav.foreldrepenger.behandlingslager.kodeverk.DatabaseKode;
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
 
-public enum OppholdstillatelseType implements Kodeverdi {
+public enum OppholdstillatelseType implements Kodeverdi, DatabaseKode {
 
     MIDLERTIDIG("MIDLERTIDIG", "Midlertidig oppholdstillatelse"),
     PERMANENT("PERMANENT", "Permanent oppholdstillatelse"),

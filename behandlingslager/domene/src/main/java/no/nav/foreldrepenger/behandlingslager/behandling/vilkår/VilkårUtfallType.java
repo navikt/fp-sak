@@ -8,9 +8,10 @@ import jakarta.persistence.Converter;
 
 import com.fasterxml.jackson.annotation.JsonValue;
 
+import no.nav.foreldrepenger.behandlingslager.kodeverk.DatabaseKode;
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
 
-public enum VilkårUtfallType implements Kodeverdi {
+public enum VilkårUtfallType implements Kodeverdi, DatabaseKode {
     OPPFYLT("OPPFYLT", "Oppfylt"),
     IKKE_OPPFYLT("IKKE_OPPFYLT", "Ikke oppfylt"),
     IKKE_VURDERT("IKKE_VURDERT", "Ikke vurdert"),

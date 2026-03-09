@@ -9,9 +9,10 @@ import jakarta.persistence.Converter;
 
 import com.fasterxml.jackson.annotation.JsonValue;
 
+import no.nav.foreldrepenger.behandlingslager.kodeverk.DatabaseKode;
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
 
-public enum PeriodeIkkeOppfyltÅrsak implements Kodeverdi {
+public enum PeriodeIkkeOppfyltÅrsak implements Kodeverdi, DatabaseKode {
 
     INGEN(STANDARDKODE_UDEFINERT, "Ikke definert"),
 

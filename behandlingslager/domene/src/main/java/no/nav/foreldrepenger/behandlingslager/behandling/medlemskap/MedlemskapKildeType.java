@@ -8,9 +8,10 @@ import jakarta.persistence.Converter;
 
 import com.fasterxml.jackson.annotation.JsonValue;
 
+import no.nav.foreldrepenger.behandlingslager.kodeverk.DatabaseKode;
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
 
-public enum MedlemskapKildeType implements Kodeverdi {
+public enum MedlemskapKildeType implements Kodeverdi, DatabaseKode {
 
     E500("E500", "E-500"),
     INFOTR("INFOTR", "Infotrygd"),

@@ -9,9 +9,10 @@ import jakarta.persistence.Converter;
 
 import com.fasterxml.jackson.annotation.JsonValue;
 
+import no.nav.foreldrepenger.behandlingslager.kodeverk.DatabaseKode;
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
 
-public enum MorsAktivitet implements Kodeverdi {
+public enum MorsAktivitet implements Kodeverdi, DatabaseKode {
 
     UDEFINERT(STANDARDKODE_UDEFINERT, "Ikke satt eller valgt kode"),
     ARBEID("ARBEID", "Er i arbeid"),

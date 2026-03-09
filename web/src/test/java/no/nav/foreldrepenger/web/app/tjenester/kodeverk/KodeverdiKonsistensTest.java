@@ -12,13 +12,20 @@ import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import jakarta.persistence.Convert;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Enumerated;
+
 import org.junit.jupiter.api.Test;
 
+import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
+import no.nav.foreldrepenger.behandlingslager.kodeverk.DatabaseKode;
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
 import no.nav.foreldrepenger.domene.iay.modell.kodeverk.RelatertYtelseTilstand;
 import no.nav.foreldrepenger.domene.modell.kodeverk.AndelKilde;
 import no.nav.foreldrepenger.web.app.IndexClasses;
+import no.nav.vedtak.felles.jpa.converters.BooleanToStringConverter;
 
 class KodeverdiKonsistensTest {
 
@@ -54,6 +61,22 @@ class KodeverdiKonsistensTest {
             .map(k -> Map.entry(k.getSimpleName(),
                 Arrays.stream(k.getEnumConstants()).collect(Collectors.toMap(Kodeverdi::getKode, Function.identity()))))
             .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue)));
+    }
+
+    @Test
+    void sjekk_alle_kode_kolonner() throws URISyntaxException {
+        var indexClasses = IndexClasses.getIndexFor(Behandling.class.getProtectionDomain().getCodeSource().getLocation().toURI());
+        @SuppressWarnings("unchecked")
+        var entitetsklasser = indexClasses.getClasses(ci -> true, c -> c.isAnnotationPresent(Entity.class));
+        var fieldMedEnumeratedEllerConvert = entitetsklasser.stream()
+            .flatMap(k -> Arrays.stream(k.getDeclaredFields()))
+            .filter(f -> f.isAnnotationPresent(Enumerated.class) ||
+                (f.isAnnotationPresent(Convert.class) && f.getAnnotation(Convert.class).converter() != BooleanToStringConverter.class))
+            .toList();
+        var ikkeDatabaseTyper = fieldMedEnumeratedEllerConvert.stream()
+            .filter(f -> !DatabaseKode.class.isAssignableFrom(f.getType()))
+            .toList();
+        assertThat(ikkeDatabaseTyper).isEmpty();
     }
 
 }
