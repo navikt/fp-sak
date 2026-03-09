@@ -5,9 +5,10 @@ import java.util.UUID;
 
 import jakarta.persistence.AttributeOverride;
 import jakarta.persistence.Column;
-import jakarta.persistence.Convert;
 import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -30,7 +31,7 @@ public class BehandlingDokumentBestiltEntitet extends BaseEntitet {
     @JoinColumn(name = "BEHANDLING_DOKUMENT_ID", nullable = false, updatable = false)
     private BehandlingDokumentEntitet behandlingDokument;
 
-    @Convert(converter = DokumentMalType.KodeverdiConverter.class)
+    @Enumerated(EnumType.STRING)
     @Column(name = "DOKUMENT_MAL_TYPE", nullable = false)
     private DokumentMalType dokumentMalType;
 
@@ -42,7 +43,7 @@ public class BehandlingDokumentBestiltEntitet extends BaseEntitet {
     @AttributeOverride(name = "journalpostId", column = @Column(name = "JOURNALPOST_ID"))
     private JournalpostId journalpostId;
 
-    @Convert(converter = DokumentMalType.KodeverdiConverter.class)
+    @Enumerated(EnumType.STRING)
     @Column(name = "OPPRINNELIG_DOKUMENT_MAL")
     private DokumentMalType opprineligDokumentMal;
 

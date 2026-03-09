@@ -3,8 +3,9 @@ package no.nav.foreldrepenger.behandlingslager.behandling;
 import java.util.Objects;
 
 import jakarta.persistence.Column;
-import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -32,7 +33,7 @@ public class BehandlingsresultatKonsekvensForYtelsen extends BaseEntitet {
     @JoinColumn(name = "BEHANDLING_RESULTAT_ID", nullable = false, updatable = false, unique = true)
     private Behandlingsresultat behandlingsresultat;
 
-    @Convert(converter = KonsekvensForYtelsen.KodeverdiConverter.class)
+    @Enumerated(EnumType.STRING)
     @Column(name = "konsekvens_ytelse", nullable = false)
     private KonsekvensForYtelsen konsekvensForYtelsen;
 

@@ -7,8 +7,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import jakarta.persistence.AttributeConverter;
-import jakarta.persistence.Converter;
+import jakarta.persistence.EnumeratedValue;
 
 import com.fasterxml.jackson.annotation.JsonValue;
 
@@ -111,11 +110,12 @@ public enum BehandlingStegType implements Kodeverdi {
     /**
      * Definisjon av hvilken status behandlingen skal rapporteres som når dette steget er aktivt.
      */
-    private BehandlingStatus definertBehandlingStatus;
+    private final BehandlingStatus definertBehandlingStatus;
 
-    private String navn;
+    private final String navn;
 
-    private String kode;
+    @EnumeratedValue
+    private final String kode;
 
     BehandlingStegType(String kode, String navn, BehandlingStatus definertBehandlingStatus) {
         this.kode = kode;
@@ -167,17 +167,5 @@ public enum BehandlingStegType implements Kodeverdi {
         return super.toString() + "('" + getKode() + "')";
     }
 
-    @Converter(autoApply = true)
-    public static class KodeverdiConverter implements AttributeConverter<BehandlingStegType, String> {
-        @Override
-        public String convertToDatabaseColumn(BehandlingStegType attribute) {
-            return attribute == null ? null : attribute.getKode();
-        }
-
-        @Override
-        public BehandlingStegType convertToEntityAttribute(String dbData) {
-            return dbData == null ? null : BehandlingStegType.fromString(dbData);
-        }
-    }
 
 }

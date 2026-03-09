@@ -4,8 +4,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Optional;
 
-import jakarta.persistence.AttributeConverter;
-import jakarta.persistence.Converter;
+import jakarta.persistence.EnumeratedValue;
 
 import com.fasterxml.jackson.annotation.JsonValue;
 
@@ -73,6 +72,7 @@ public enum SkjermlenkeType implements Kodeverdi {
 
     private final String navn;
     @JsonValue
+    @EnumeratedValue
     private final String kode;
 
     SkjermlenkeType(String kode, String navn) {
@@ -132,19 +132,6 @@ public enum SkjermlenkeType implements Kodeverdi {
             return SkjermlenkeType.FAKTA_OM_OMSORGSOVERTAKELSE;
         }
         return SkjermlenkeType.UDEFINERT;
-    }
-
-    @Converter(autoApply = true)
-    public static class KodeverdiConverter implements AttributeConverter<SkjermlenkeType, String> {
-        @Override
-        public String convertToDatabaseColumn(SkjermlenkeType attribute) {
-            return attribute == null ? null : attribute.getKode();
-        }
-
-        @Override
-        public SkjermlenkeType convertToEntityAttribute(String dbData) {
-            return dbData == null ? null : fraKode(dbData);
-        }
     }
 
 }

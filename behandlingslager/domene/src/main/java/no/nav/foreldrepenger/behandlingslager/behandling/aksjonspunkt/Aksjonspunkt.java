@@ -37,7 +37,7 @@ public class Aksjonspunkt extends BaseEntitet {
     @Column(name = "aksjonspunkt_def", nullable = false, updatable = false)
     private AksjonspunktDefinisjon aksjonspunktDefinisjon;
 
-    @Convert(converter = BehandlingStegType.KodeverdiConverter.class)
+    @Enumerated(EnumType.STRING)
     @Column(name = "behandling_steg_funnet")
     private BehandlingStegType behandlingSteg;
 
@@ -45,7 +45,7 @@ public class Aksjonspunkt extends BaseEntitet {
     @JoinColumn(name = "behandling_id", nullable = false, updatable = false)
     private Behandling behandling;
 
-    @Convert(converter = AksjonspunktStatus.KodeverdiConverter.class)
+    @Enumerated(EnumType.STRING)
     @Column(name = "aksjonspunkt_status", nullable = false)
     private AksjonspunktStatus status;
 
