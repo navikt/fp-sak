@@ -6,7 +6,7 @@
     <parent>
         <groupId>no.nav.foreldrepenger.felles</groupId>
         <artifactId>fp-parent-app</artifactId>
-        <version>5.2.4</version>
+        <version>5.3.1</version>
     </parent>
 
     <groupId>no.nav.foreldrepenger</groupId>
@@ -37,7 +37,7 @@
         <fpkalkulus.kontrakt.version>1.0.2</fpkalkulus.kontrakt.version>
 
         <felles.version>7.6.17</felles.version>
-        <prosesstask.version>5.2.4</prosesstask.version>
+        <prosesstask.version>5.2.5</prosesstask.version>
         <openapi-spec-utils.version>2.1.0</openapi-spec-utils.version>
         <fp-kontrakter.version>9.4.29</fp-kontrakter.version>
         <abakus-kontrakt.version>2.3.8</abakus-kontrakt.version>
