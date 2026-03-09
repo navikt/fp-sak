@@ -3,8 +3,7 @@ package no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.period
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import jakarta.persistence.AttributeConverter;
-import jakarta.persistence.Converter;
+import jakarta.persistence.EnumeratedValue;
 
 import com.fasterxml.jackson.annotation.JsonValue;
 
@@ -27,9 +26,10 @@ public enum FordelingPeriodeKilde implements Kodeverdi {
         }
     }
 
-    private String navn;
+    private final String navn;
     @JsonValue
-    private String kode;
+    @EnumeratedValue
+    private final String kode;
 
     FordelingPeriodeKilde(String kode, String navn) {
         this.kode = kode;
@@ -46,27 +46,4 @@ public enum FordelingPeriodeKilde implements Kodeverdi {
         return kode;
     }
 
-    @Converter(autoApply = true)
-    public static class KodeverdiConverter implements AttributeConverter<FordelingPeriodeKilde, String> {
-        @Override
-        public String convertToDatabaseColumn(FordelingPeriodeKilde attribute) {
-            return attribute == null ? null : attribute.getKode();
-        }
-
-        @Override
-        public FordelingPeriodeKilde convertToEntityAttribute(String dbData) {
-            return dbData == null ? null : fraKode(dbData);
-        }
-
-        private static FordelingPeriodeKilde fraKode(String kode) {
-            if (kode == null) {
-                return null;
-            }
-            var ad = KODER.get(kode);
-            if (ad == null) {
-                throw new IllegalArgumentException("Ukjent FordelingPeriodeKilde: " + kode);
-            }
-            return ad;
-        }
-    }
 }

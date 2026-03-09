@@ -8,6 +8,8 @@ import java.util.Optional;
 import jakarta.persistence.Column;
 import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -57,8 +59,8 @@ public class UttakResultatPeriodeSøknadEntitet extends BaseEntitet {
     @Convert(converter = MorsAktivitet.KodeverdiConverter.class)
     private MorsAktivitet morsAktivitet = MorsAktivitet.UDEFINERT;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "DOKUMENTASJON_VURDERING")
-    @Convert(converter = DokumentasjonVurdering.Type.KodeverdiConverter.class)
     private DokumentasjonVurdering.Type dokumentasjonVurderingType;
 
     @ChangeTracked
