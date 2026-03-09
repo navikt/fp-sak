@@ -3,8 +3,7 @@ package no.nav.foreldrepenger.behandlingslager.behandling;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import jakarta.persistence.AttributeConverter;
-import jakarta.persistence.Converter;
+import jakarta.persistence.EnumeratedValue;
 
 import com.fasterxml.jackson.annotation.JsonValue;
 
@@ -21,10 +20,11 @@ public enum KonsekvensForYtelsen implements Kodeverdi{
 
     private static final Map<String, KonsekvensForYtelsen> KODER = new LinkedHashMap<>();
 
-    private String navn;
+    private final String navn;
 
     @JsonValue
-    private String kode;
+    @EnumeratedValue
+    private final String kode;
 
     KonsekvensForYtelsen(String kode, String navn) {
         this.kode = kode;
@@ -46,31 +46,6 @@ public enum KonsekvensForYtelsen implements Kodeverdi{
                 throw new IllegalArgumentException("Duplikat : " + v.kode);
             }
         }
-    }
-
-    @Converter(autoApply = true)
-    public static class KodeverdiConverter implements AttributeConverter<KonsekvensForYtelsen, String> {
-        @Override
-        public String convertToDatabaseColumn(KonsekvensForYtelsen attribute) {
-            return attribute == null ? null : attribute.getKode();
-        }
-
-        @Override
-        public KonsekvensForYtelsen convertToEntityAttribute(String dbData) {
-            return dbData == null ? null : fraKode(dbData);
-        }
-
-        private static KonsekvensForYtelsen fraKode(String kode) {
-            if (kode == null) {
-                return null;
-            }
-            var ad = KODER.get(kode);
-            if (ad == null) {
-                throw new IllegalArgumentException("Ukjent KonsekvensForYtelsen: " + kode);
-            }
-            return ad;
-        }
-
     }
 
 }

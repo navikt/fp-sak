@@ -4,8 +4,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
 
-import jakarta.persistence.AttributeConverter;
-import jakarta.persistence.Converter;
+import jakarta.persistence.EnumeratedValue;
 
 import com.fasterxml.jackson.annotation.JsonValue;
 
@@ -35,6 +34,7 @@ public enum AdresseType implements Kodeverdi {
     private final String navn;
 
     @JsonValue
+    @EnumeratedValue
     private final String kode;
 
     AdresseType(String kode, String navn) {
@@ -50,30 +50,6 @@ public enum AdresseType implements Kodeverdi {
     @Override
     public String getKode() {
         return kode;
-    }
-
-    @Converter(autoApply = true)
-    public static class KodeverdiConverter implements AttributeConverter<AdresseType, String> {
-        @Override
-        public String convertToDatabaseColumn(AdresseType attribute) {
-            return attribute == null ? null : attribute.getKode();
-        }
-
-        @Override
-        public AdresseType convertToEntityAttribute(String dbData) {
-            return dbData == null ? null : fraKode(dbData);
-        }
-
-        private static AdresseType fraKode(String kode) {
-            if (kode == null) {
-                return null;
-            }
-            var ad = KODER.get(kode);
-            if (ad == null) {
-                throw new IllegalArgumentException("Ukjent RelasjonsRolleType: " + kode);
-            }
-            return ad;
-        }
     }
 
     private static final Set<AdresseType> UTLANDSTYPER = Set.of(POSTADRESSE_UTLAND, MIDLERTIDIG_POSTADRESSE_UTLAND);
