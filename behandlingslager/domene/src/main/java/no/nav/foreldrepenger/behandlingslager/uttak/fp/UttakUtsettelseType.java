@@ -8,9 +8,10 @@ import jakarta.persistence.Converter;
 
 import com.fasterxml.jackson.annotation.JsonValue;
 
+import no.nav.foreldrepenger.behandlingslager.kodeverk.DatabaseKode;
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
 
-public enum UttakUtsettelseType implements Kodeverdi {
+public enum UttakUtsettelseType implements Kodeverdi, DatabaseKode {
 
     ARBEID("ARBEID", "Arbeid"),
     FERIE("FERIE", "Lovbestemt ferie"),

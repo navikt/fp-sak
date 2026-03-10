@@ -8,9 +8,10 @@ import jakarta.persistence.Converter;
 
 import com.fasterxml.jackson.annotation.JsonValue;
 
+import no.nav.foreldrepenger.behandlingslager.kodeverk.DatabaseKode;
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
 
-public enum VurderÅrsak implements Kodeverdi {
+public enum VurderÅrsak implements Kodeverdi, DatabaseKode {
 
     FEIL_FAKTA("FEIL_FAKTA", "Fakta"),
     FEIL_LOV("FEIL_LOV", "Regel-/lovanvendelse"),

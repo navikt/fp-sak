@@ -7,9 +7,10 @@ import jakarta.persistence.EnumeratedValue;
 
 import com.fasterxml.jackson.annotation.JsonValue;
 
+import no.nav.foreldrepenger.behandlingslager.kodeverk.DatabaseKode;
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
 
-public enum TilretteleggingType implements Kodeverdi {
+public enum TilretteleggingType implements Kodeverdi, DatabaseKode {
 
     HEL_TILRETTELEGGING("HEL_TILRETTELEGGING", "Hel tilrettelegging"),
     DELVIS_TILRETTELEGGING("DELVIS_TILRETTELEGGING", "Delvis tilrettelegging"),

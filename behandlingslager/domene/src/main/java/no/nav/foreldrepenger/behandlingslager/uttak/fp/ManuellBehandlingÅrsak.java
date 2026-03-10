@@ -8,9 +8,10 @@ import jakarta.persistence.Converter;
 
 import com.fasterxml.jackson.annotation.JsonValue;
 
+import no.nav.foreldrepenger.behandlingslager.kodeverk.DatabaseKode;
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
 
-public enum ManuellBehandlingÅrsak implements Kodeverdi {
+public enum ManuellBehandlingÅrsak implements Kodeverdi, DatabaseKode {
 
     UKJENT(STANDARDKODE_UDEFINERT, "Ikke definert"),
     STØNADSKONTO_TOM("5001", "Stønadskonto tom for stønadsdager. Vurder bruk av annen stønadskonto eller avslå perioden."),

@@ -8,9 +8,10 @@ import jakarta.persistence.Converter;
 
 import com.fasterxml.jackson.annotation.JsonValue;
 
+import no.nav.foreldrepenger.behandlingslager.kodeverk.DatabaseKode;
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
 
-public enum KlageMedholdÅrsak implements Kodeverdi {
+public enum KlageMedholdÅrsak implements Kodeverdi, DatabaseKode {
 
     NYE_OPPLYSNINGER("NYE_OPPLYSNINGER", "Nytt faktum"),
     ULIK_REGELVERKSTOLKNING("ULIK_REGELVERKSTOLKNING", "Feil lovanvendelse"),

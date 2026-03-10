@@ -16,9 +16,10 @@ import jakarta.persistence.Converter;
 import com.fasterxml.jackson.annotation.JsonValue;
 
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
+import no.nav.foreldrepenger.behandlingslager.kodeverk.DatabaseKode;
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
 
-public enum KlageHjemmel implements Kodeverdi {
+public enum KlageHjemmel implements Kodeverdi, DatabaseKode {
 
     MEDLEM("14-02", "14-2 Medlemskap", "FTRL_14_2", Set.of(ES, FP, SVP)),
     SVANGERSKAP("14-04", "14-4 Svangerskapspenger", "FTRL_14_4", Set.of(SVP)),

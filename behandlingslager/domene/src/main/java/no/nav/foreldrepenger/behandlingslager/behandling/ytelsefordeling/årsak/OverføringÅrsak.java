@@ -8,7 +8,9 @@ import jakarta.persistence.Converter;
 
 import com.fasterxml.jackson.annotation.JsonValue;
 
-public enum OverføringÅrsak implements Årsak {
+import no.nav.foreldrepenger.behandlingslager.kodeverk.DatabaseKode;
+
+public enum OverføringÅrsak implements Årsak, DatabaseKode {
 
     INSTITUSJONSOPPHOLD_ANNEN_FORELDER("INSTITUSJONSOPPHOLD_ANNEN_FORELDER", "Den andre foreldren er innlagt i helseinstitusjon"),
     SYKDOM_ANNEN_FORELDER("SYKDOM_ANNEN_FORELDER", "Den andre foreldren er pga sykdom avhengig av hjelp for å ta seg av barnet/barna"),

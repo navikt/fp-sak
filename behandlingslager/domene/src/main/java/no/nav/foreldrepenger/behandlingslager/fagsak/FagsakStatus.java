@@ -7,9 +7,10 @@ import jakarta.persistence.EnumeratedValue;
 
 import com.fasterxml.jackson.annotation.JsonValue;
 
+import no.nav.foreldrepenger.behandlingslager.kodeverk.DatabaseKode;
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
 
-public enum FagsakStatus implements Kodeverdi {
+public enum FagsakStatus implements Kodeverdi, DatabaseKode {
 
     OPPRETTET("OPPR", "Opprettet"),
     UNDER_BEHANDLING("UBEH", "Under behandling"),

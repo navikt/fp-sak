@@ -9,9 +9,10 @@ import jakarta.persistence.EnumeratedValue;
 
 import com.fasterxml.jackson.annotation.JsonValue;
 
+import no.nav.foreldrepenger.behandlingslager.kodeverk.DatabaseKode;
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
 
-public enum AksjonspunktStatus implements Kodeverdi {
+public enum AksjonspunktStatus implements Kodeverdi, DatabaseKode {
 
     AVBRUTT ("AVBR", "Avbrutt"),
     OPPRETTET("OPPR", "Opprettet"),

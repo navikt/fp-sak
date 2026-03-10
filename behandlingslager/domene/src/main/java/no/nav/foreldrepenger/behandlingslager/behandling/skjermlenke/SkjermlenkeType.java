@@ -12,9 +12,10 @@ import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
+import no.nav.foreldrepenger.behandlingslager.kodeverk.DatabaseKode;
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
 
-public enum SkjermlenkeType implements Kodeverdi {
+public enum SkjermlenkeType implements Kodeverdi, DatabaseKode {
 
     ANKE_MERKNADER("ANKE_MERKNADER", "Anke merknader"),
     ANKE_VURDERING("ANKE_VURDERING", "Anke vurdering"),

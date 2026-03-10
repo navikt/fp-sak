@@ -7,9 +7,10 @@ import jakarta.persistence.EnumeratedValue;
 
 import com.fasterxml.jackson.annotation.JsonValue;
 
+import no.nav.foreldrepenger.behandlingslager.kodeverk.DatabaseKode;
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
 
-public enum SivilstandType implements Kodeverdi {
+public enum SivilstandType implements Kodeverdi, DatabaseKode {
 
     ENKEMANN("ENKE", "Enke/-mann"),
     GIFT("GIFT", "Gift"),

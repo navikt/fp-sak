@@ -8,9 +8,10 @@ import jakarta.persistence.Converter;
 
 import com.fasterxml.jackson.annotation.JsonValue;
 
+import no.nav.foreldrepenger.behandlingslager.kodeverk.DatabaseKode;
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
 
-public enum GraderingAvslagÅrsak implements Kodeverdi {
+public enum GraderingAvslagÅrsak implements Kodeverdi, DatabaseKode {
 
     //MERK: Lovhjemler til brev hentes fra navn, se pattern i UttakHjemmelUtleder
 

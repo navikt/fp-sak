@@ -7,9 +7,10 @@ import jakarta.persistence.EnumeratedValue;
 
 import com.fasterxml.jackson.annotation.JsonValue;
 
+import no.nav.foreldrepenger.behandlingslager.kodeverk.DatabaseKode;
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
 
-public enum TilbakekrevingVidereBehandling implements Kodeverdi {
+public enum TilbakekrevingVidereBehandling implements Kodeverdi, DatabaseKode {
 
     UDEFINIERT(STANDARDKODE_UDEFINERT, "Udefinert."),
     OPPRETT_TILBAKEKREVING("TILBAKEKR_OPPRETT", "Feilutbetaling med tilbakekreving"),

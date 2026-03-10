@@ -12,9 +12,10 @@ import jakarta.persistence.Converter;
 import com.fasterxml.jackson.annotation.JsonValue;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.Avslagsårsak;
+import no.nav.foreldrepenger.behandlingslager.kodeverk.DatabaseKode;
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
 
-public enum OmsorgsovertakelseVilkårType implements Kodeverdi {
+public enum OmsorgsovertakelseVilkårType implements Kodeverdi, DatabaseKode {
 
     ES_ADOPSJONSVILKÅRET("FP_VK_4", "Adopsjon § 14-17 første ledd",
         Avslagsårsak.EKTEFELLES_SAMBOERS_BARN,

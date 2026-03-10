@@ -6,7 +6,9 @@ import java.util.Objects;
 
 import jakarta.persistence.EnumeratedValue;
 
-public enum Alvorlighetsgrad {
+import no.nav.foreldrepenger.behandlingslager.kodeverk.DatabaseKode;
+
+public enum Alvorlighetsgrad implements DatabaseKode {
     OK("00"),
     OK_MED_MERKNAD("04"),
     FEIL("08")

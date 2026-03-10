@@ -8,13 +8,14 @@ import jakarta.persistence.EnumeratedValue;
 
 import com.fasterxml.jackson.annotation.JsonValue;
 
+import no.nav.foreldrepenger.behandlingslager.kodeverk.DatabaseKode;
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
 
 /**
  * NB: Pass på! Ikke legg koder vilkårlig her
  * Denne definerer etablerte behandlingstatuser ihht. modell angitt av FFA (Forretning og Fag).
  */
-public enum BehandlingStatus implements Kodeverdi {
+public enum BehandlingStatus implements Kodeverdi, DatabaseKode {
 
     AVSLUTTET("AVSLU", "Avsluttet"),
     FATTER_VEDTAK("FVED", "Fatter vedtak"),

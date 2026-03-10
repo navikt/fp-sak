@@ -8,9 +8,10 @@ import jakarta.persistence.EnumeratedValue;
 
 import com.fasterxml.jackson.annotation.JsonValue;
 
+import no.nav.foreldrepenger.behandlingslager.kodeverk.DatabaseKode;
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
 
-public enum AdresseType implements Kodeverdi {
+public enum AdresseType implements Kodeverdi, DatabaseKode {
 
     BOSTEDSADRESSE("BOSTEDSADRESSE", "Bostedsadresse"),
     BOSTEDSADRESSE_UTLAND("BOSTEDSADRESSE_UTLAND", "Bostedsadresse utland"),

@@ -9,9 +9,10 @@ import jakarta.persistence.Converter;
 
 import com.fasterxml.jackson.annotation.JsonValue;
 
+import no.nav.foreldrepenger.behandlingslager.kodeverk.DatabaseKode;
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
 
-public enum AnkeVurdering implements Kodeverdi {
+public enum AnkeVurdering implements Kodeverdi, DatabaseKode {
 
     ANKE_STADFESTE_YTELSESVEDTAK("ANKE_STADFESTE_YTELSESVEDTAK", "Ytelsesvedtaket stadfestes"),
     ANKE_HJEMSEND_UTEN_OPPHEV("ANKE_HJEMSENDE_UTEN_OPPHEV", "Hjemsende uten å oppheve"),

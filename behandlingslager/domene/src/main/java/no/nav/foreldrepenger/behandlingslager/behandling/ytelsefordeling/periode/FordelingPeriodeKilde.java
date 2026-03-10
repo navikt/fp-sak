@@ -7,9 +7,10 @@ import jakarta.persistence.EnumeratedValue;
 
 import com.fasterxml.jackson.annotation.JsonValue;
 
+import no.nav.foreldrepenger.behandlingslager.kodeverk.DatabaseKode;
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
 
-public enum FordelingPeriodeKilde implements Kodeverdi {
+public enum FordelingPeriodeKilde implements Kodeverdi, DatabaseKode {
 
     SØKNAD("SØKNAD", "Søknad"),
     TIDLIGERE_VEDTAK("TIDLIGERE_VEDTAK", "Vedtak"),

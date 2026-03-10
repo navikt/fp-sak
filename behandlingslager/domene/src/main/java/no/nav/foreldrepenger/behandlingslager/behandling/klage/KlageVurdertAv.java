@@ -7,9 +7,10 @@ import jakarta.persistence.EnumeratedValue;
 
 import com.fasterxml.jackson.annotation.JsonValue;
 
+import no.nav.foreldrepenger.behandlingslager.kodeverk.DatabaseKode;
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
 
-public enum KlageVurdertAv implements Kodeverdi {
+public enum KlageVurdertAv implements Kodeverdi, DatabaseKode {
 
     NFP("NFP", "Nav familie- og pensjonsytelser"),
     NK("NK", "Nav klageinstans"),
