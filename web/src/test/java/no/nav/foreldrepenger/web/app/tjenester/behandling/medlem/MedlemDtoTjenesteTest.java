@@ -25,6 +25,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.beregning.SatsRepositor
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapOppgittLandOppholdEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapOppgittTilknytningEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapPerioderBuilder;
+import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapType;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.SivilstandType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultatRepository;
@@ -71,7 +72,10 @@ class MedlemDtoTjenesteTest {
         var fødselsdato = LocalDate.of(2024, 10, 15);
         var stp = fødselsdato.minusWeeks(3);
         var aktørIdAnnenPart = AktørId.dummy();
-        var registerMedlemskapsperiode = new MedlemskapPerioderBuilder().medPeriode(fødselsdato.minusYears(2), null).build();
+        var registerMedlemskapsperiode = new MedlemskapPerioderBuilder()
+            .medPeriode(fødselsdato.minusYears(2), null)
+            .medMedlemskapType(MedlemskapType.FORELOPIG)
+            .build();
         var scenario = ScenarioMorSøkerForeldrepenger.forFødsel()
             .medFødselAdopsjonsdato(fødselsdato)
             .medDefaultFordeling(stp)

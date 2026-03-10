@@ -65,20 +65,14 @@ public class HentMedlemskapFraRegister {
         return dekningType;
     }
 
+    // Denne er garantert med i responsen fra medlemskap-medl-api
     private MedlemskapType mapTilLovvalg(String lovvalg) {
-        var medlemskapType = MedlemskapType.UDEFINERT;
-        if (lovvalg != null) {
-            if (MedlemskapsperiodeKoder.Lovvalg.ENDL.name().compareTo(lovvalg) == 0) {
-                medlemskapType = MedlemskapType.ENDELIG;
-            }
-            if (MedlemskapsperiodeKoder.Lovvalg.UAVK.name().compareTo(lovvalg) == 0) {
-                medlemskapType = MedlemskapType.UNDER_AVKLARING;
-            }
-            if (MedlemskapsperiodeKoder.Lovvalg.FORL.name().compareTo(lovvalg) == 0) {
-                medlemskapType = MedlemskapType.FORELOPIG;
-            }
-        }
-        return medlemskapType;
+        var lovvalgType = MedlemskapsperiodeKoder.Lovvalg.valueOf(lovvalg);
+        return switch (lovvalgType) {
+            case ENDL -> MedlemskapType.ENDELIG;
+            case UAVK -> MedlemskapType.UNDER_AVKLARING;
+            case FORL -> MedlemskapType.FORELOPIG;
+        };
     }
 
     private MedlemskapKildeType mapTilKilde(String kilde) {

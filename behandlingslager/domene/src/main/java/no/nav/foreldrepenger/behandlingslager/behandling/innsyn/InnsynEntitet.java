@@ -8,8 +8,9 @@ import java.util.Set;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
-import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -40,9 +41,9 @@ public class InnsynEntitet extends BaseEntitet {
     @Column(name = "behandling_id", nullable = false, updatable = false)
     private Long behandlingId;
 
-    @Convert(converter = InnsynResultatType.KodeverdiConverter.class)
+    @Enumerated(EnumType.STRING)
     @Column(name = "innsyn_resultat_type", nullable = false)
-    private InnsynResultatType innsynResultatType = InnsynResultatType.UDEFINERT;
+    private InnsynResultatType innsynResultatType;
 
     @OneToMany(cascade = { CascadeType.ALL }, orphanRemoval = true, mappedBy = "innsyn")
     private Set<InnsynDokumentEntitet> innsynDokumenter = new HashSet<>(1);

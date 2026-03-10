@@ -256,7 +256,7 @@ class DokumentmottakerSøknadDefaultTest extends EntityManagerAwareTest {
                 .medBehandlingsresultat(Behandlingsresultat.builderForInngangsvilkår().medBehandlingResultatType(BehandlingResultatType.INNVILGET))
                 .lagre(repositoryProvider);
         behandling.avsluttBehandling();
-        var vedtak = DokumentmottakTestUtil.oppdaterVedtaksresultat(behandling, VedtakResultatType.UDEFINERT);
+        var vedtak = DokumentmottakTestUtil.oppdaterVedtaksresultat(behandling, VedtakResultatType.INNVILGET);
         repositoryProvider.getBehandlingRepository().lagre(behandling, repositoryProvider.getBehandlingRepository().taSkriveLås(behandling));
         repositoryProvider.getBehandlingVedtakRepository().lagre(vedtak, repositoryProvider.getBehandlingRepository().taSkriveLås(behandling));
 
@@ -427,9 +427,6 @@ class DokumentmottakerSøknadDefaultTest extends EntityManagerAwareTest {
         scenario.medBehandlingsresultat(
                 Behandlingsresultat.builderForInngangsvilkår().medBehandlingResultatType(BehandlingResultatType.HENLAGT_SØKNAD_TRUKKET));
         var behandling = scenario.lagre(repositoryProvider);
-
-        var vedtak = DokumentmottakTestUtil.oppdaterVedtaksresultat(behandling, VedtakResultatType.UDEFINERT);
-        behandlingsresultatRepository.lagre(vedtak.getBehandlingsresultat().getBehandlingId(), vedtak.getBehandlingsresultat());
 
         // simulere at den tidliggere behandligen er avsluttet
         behandling.avsluttBehandling();

@@ -96,16 +96,17 @@ public abstract class DokumentmottakerTestsupport {
         var behandlingLås = repositoryProvider.getBehandlingRepository().taSkriveLås(behandling);
         repositoryProvider.getBehandlingRepository().lagre(behandling, behandlingLås);
 
-        var originalVedtak = BehandlingVedtak.builder()
-            .medVedtakstidspunkt(vedtaksdato.atStartOfDay())
-            .medBehandlingsresultat(behandling.getBehandlingsresultat())
-            .medVedtakResultatType(vedtakResultatType)
-            .medAnsvarligSaksbehandler("fornavn etternavn")
-            .build();
-
         behandling.getFagsak().setAvsluttet();
         behandling.avsluttBehandling();
-        repositoryProvider.getBehandlingVedtakRepository().lagre(originalVedtak, behandlingLås);
+        if (vedtakResultatType != null) {
+            var originalVedtak = BehandlingVedtak.builder()
+                .medVedtakstidspunkt(vedtaksdato.atStartOfDay())
+                .medBehandlingsresultat(behandling.getBehandlingsresultat())
+                .medVedtakResultatType(vedtakResultatType)
+                .medAnsvarligSaksbehandler("fornavn etternavn")
+                .build();
+            repositoryProvider.getBehandlingVedtakRepository().lagre(originalVedtak, behandlingLås);
+        }
 
         var vilkårResultat = VilkårResultat.builder()
             .leggTilVilkårAvslått(VilkårType.SØKERSOPPLYSNINGSPLIKT, VilkårUtfallMerknad.VM_1019)
