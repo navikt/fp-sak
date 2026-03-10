@@ -8,7 +8,9 @@ import jakarta.persistence.Converter;
 
 import com.fasterxml.jackson.annotation.JsonValue;
 
-public enum OppholdÅrsak implements Årsak {
+import no.nav.foreldrepenger.behandlingslager.kodeverk.DatabaseKode;
+
+public enum OppholdÅrsak implements Årsak, DatabaseKode {
 
     UDEFINERT(STANDARDKODE_UDEFINERT, "Ikke satt eller valgt kode"),
     MØDREKVOTE_ANNEN_FORELDER("UTTAK_MØDREKVOTE_ANNEN_FORELDER", "Annen forelder har uttak av Mødrekvote"),

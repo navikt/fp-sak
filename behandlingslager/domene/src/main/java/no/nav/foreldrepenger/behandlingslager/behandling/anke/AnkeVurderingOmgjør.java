@@ -8,9 +8,10 @@ import jakarta.persistence.Converter;
 
 import com.fasterxml.jackson.annotation.JsonValue;
 
+import no.nav.foreldrepenger.behandlingslager.kodeverk.DatabaseKode;
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
 
-public enum AnkeVurderingOmgjør implements Kodeverdi {
+public enum AnkeVurderingOmgjør implements Kodeverdi, DatabaseKode {
 
     ANKE_TIL_GUNST("ANKE_TIL_GUNST", "Gunst omgjør i anke"),
     ANKE_DELVIS_OMGJOERING_TIL_GUNST("ANKE_DELVIS_OMGJOERING_TIL_GUNST", "Delvis omgjøring, til gunst i anke"),

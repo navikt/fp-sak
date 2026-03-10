@@ -7,9 +7,10 @@ import jakarta.persistence.EnumeratedValue;
 
 import com.fasterxml.jackson.annotation.JsonValue;
 
+import no.nav.foreldrepenger.behandlingslager.kodeverk.DatabaseKode;
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
 
-public enum Innsendingsvalg implements Kodeverdi {
+public enum Innsendingsvalg implements Kodeverdi, DatabaseKode {
 
     LASTET_OPP("LASTET_OPP", "Lastet opp"),
     SEND_SENERE("SEND_SENERE", "Send senere"),

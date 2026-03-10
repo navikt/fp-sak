@@ -18,9 +18,10 @@ import com.fasterxml.jackson.annotation.JsonValue;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
+import no.nav.foreldrepenger.behandlingslager.kodeverk.DatabaseKode;
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
 
-public enum StartpunktType implements Kodeverdi {
+public enum StartpunktType implements Kodeverdi, DatabaseKode {
 
     KONTROLLER_ARBEIDSFORHOLD("KONTROLLER_ARBEIDSFORHOLD", "Startpunkt kontroller arbeidsforhold", 1, BehandlingStegType.KONTROLLER_FAKTA_ARBEIDSFORHOLD_INNTEKTSMELDING, Set.of(FagsakYtelseType.ENGANGSTØNAD)),
     KONTROLLER_FAKTA("KONTROLLER_FAKTA", "Kontroller fakta", 2, BehandlingStegType.KONTROLLER_FAKTA, Set.of()),

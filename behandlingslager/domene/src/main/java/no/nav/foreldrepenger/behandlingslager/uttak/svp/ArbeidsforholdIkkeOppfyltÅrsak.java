@@ -8,9 +8,10 @@ import jakarta.persistence.Converter;
 
 import com.fasterxml.jackson.annotation.JsonValue;
 
+import no.nav.foreldrepenger.behandlingslager.kodeverk.DatabaseKode;
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
 
-public enum ArbeidsforholdIkkeOppfyltÅrsak implements Kodeverdi {
+public enum ArbeidsforholdIkkeOppfyltÅrsak implements Kodeverdi, DatabaseKode {
 
     // Se også Periode ikke oppfylt - der brukes 8304-83011 + 8313+8314
     INGEN(STANDARDKODE_UDEFINERT, "Ikke definert"),

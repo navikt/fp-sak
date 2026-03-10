@@ -10,10 +10,11 @@ import jakarta.persistence.Converter;
 
 import com.fasterxml.jackson.annotation.JsonValue;
 
+import no.nav.foreldrepenger.behandlingslager.kodeverk.DatabaseKode;
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
 import no.nav.foreldrepenger.behandlingslager.kodeverk.MedOffisiellKode;
 
-public enum DokumentKategori implements Kodeverdi, MedOffisiellKode {
+public enum DokumentKategori implements Kodeverdi, DatabaseKode, MedOffisiellKode {
 
     UDEFINERT(STANDARDKODE_UDEFINERT, "Ikke definert", null),
     KLAGE_ELLER_ANKE("KLGA", "Klage eller anke", "KA"),

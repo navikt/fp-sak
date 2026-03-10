@@ -16,6 +16,7 @@ import jakarta.persistence.Converter;
 
 import com.fasterxml.jackson.annotation.JsonValue;
 
+import no.nav.foreldrepenger.behandlingslager.kodeverk.DatabaseKode;
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
 import no.nav.foreldrepenger.behandlingslager.kodeverk.MedOffisiellKode;
 
@@ -42,7 +43,7 @@ import no.nav.foreldrepenger.behandlingslager.kodeverk.MedOffisiellKode;
  * - select skjemanummer, count(1) from SOEKNAD_VEDLEGG group by skjemanummer;
  * - select type, count(*) from MOTTATT_DOKUMENT group by type;
  */
-public enum DokumentTypeId implements Kodeverdi, MedOffisiellKode {
+public enum DokumentTypeId implements Kodeverdi, DatabaseKode, MedOffisiellKode {
 
     // Søknader
     SØKNAD_SVANGERSKAPSPENGER("SØKNAD_SVANGERSKAPSPENGER", "I000001", "Søknad om svangerskapspenger"),

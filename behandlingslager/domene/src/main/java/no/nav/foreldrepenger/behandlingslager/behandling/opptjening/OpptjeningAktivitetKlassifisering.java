@@ -8,9 +8,10 @@ import jakarta.persistence.Converter;
 
 import com.fasterxml.jackson.annotation.JsonValue;
 
+import no.nav.foreldrepenger.behandlingslager.kodeverk.DatabaseKode;
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
 
-public enum OpptjeningAktivitetKlassifisering implements Kodeverdi {
+public enum OpptjeningAktivitetKlassifisering implements Kodeverdi, DatabaseKode {
 
     BEKREFTET_GODKJENT("BEKREFTET_GODKJENT", "Bekreftet godkjent"),
     BEKREFTET_AVVIST("BEKREFTET_AVVIST", "Bekreftet avvist"),

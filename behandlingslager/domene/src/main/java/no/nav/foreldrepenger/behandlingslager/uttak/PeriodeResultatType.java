@@ -4,9 +4,10 @@ import jakarta.persistence.EnumeratedValue;
 
 import com.fasterxml.jackson.annotation.JsonValue;
 
+import no.nav.foreldrepenger.behandlingslager.kodeverk.DatabaseKode;
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
 
-public enum PeriodeResultatType implements Kodeverdi {
+public enum PeriodeResultatType implements Kodeverdi, DatabaseKode {
 
     INNVILGET("INNVILGET", "Innvilget"),
     AVSLÅTT("AVSLÅTT", "Avslått"),

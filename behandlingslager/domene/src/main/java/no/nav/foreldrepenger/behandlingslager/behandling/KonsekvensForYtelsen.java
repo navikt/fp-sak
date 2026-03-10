@@ -7,9 +7,10 @@ import jakarta.persistence.EnumeratedValue;
 
 import com.fasterxml.jackson.annotation.JsonValue;
 
+import no.nav.foreldrepenger.behandlingslager.kodeverk.DatabaseKode;
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
 
-public enum KonsekvensForYtelsen implements Kodeverdi{
+public enum KonsekvensForYtelsen implements Kodeverdi, DatabaseKode{
 
     FORELDREPENGER_OPPHØRER("FORELDREPENGER_OPPHØRER", "Foreldrepenger opphører"),
     ENDRING_I_BEREGNING("ENDRING_I_BEREGNING", "Endring i beregning"),

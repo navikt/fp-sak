@@ -8,9 +8,10 @@ import jakarta.persistence.Converter;
 
 import com.fasterxml.jackson.annotation.JsonValue;
 
+import no.nav.foreldrepenger.behandlingslager.kodeverk.DatabaseKode;
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
 
-public enum BeregningSatsType implements Kodeverdi {
+public enum BeregningSatsType implements Kodeverdi, DatabaseKode {
     ENGANG("ENGANG", "Engangsstønad"),
     GRUNNBELØP("GRUNNBELØP", "Grunnbeløp"),
     GSNITT("GSNITT", "Grunnbeløp årsgjennomsnitt"),

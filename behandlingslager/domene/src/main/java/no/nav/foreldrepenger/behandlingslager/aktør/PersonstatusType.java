@@ -8,9 +8,10 @@ import jakarta.persistence.Converter;
 
 import com.fasterxml.jackson.annotation.JsonValue;
 
+import no.nav.foreldrepenger.behandlingslager.kodeverk.DatabaseKode;
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
 
-public enum PersonstatusType implements Kodeverdi {
+public enum PersonstatusType implements Kodeverdi, DatabaseKode {
 
     ADNR("ADNR", "D-nummer"),
     BOSA("BOSA", "Bosatt (f.reg)"),

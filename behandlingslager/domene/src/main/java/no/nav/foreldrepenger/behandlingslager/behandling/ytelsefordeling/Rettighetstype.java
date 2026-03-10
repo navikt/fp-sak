@@ -1,6 +1,8 @@
 package no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling;
 
-public enum Rettighetstype {
+import no.nav.foreldrepenger.behandlingslager.kodeverk.DatabaseKode;
+
+public enum Rettighetstype implements DatabaseKode {
 
     ALENEOMSORG,
     BEGGE_RETT,

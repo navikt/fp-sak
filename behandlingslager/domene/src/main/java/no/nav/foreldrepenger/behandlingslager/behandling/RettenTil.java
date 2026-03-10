@@ -8,9 +8,10 @@ import jakarta.persistence.Converter;
 
 import com.fasterxml.jackson.annotation.JsonValue;
 
+import no.nav.foreldrepenger.behandlingslager.kodeverk.DatabaseKode;
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
 
-public enum RettenTil implements Kodeverdi {
+public enum RettenTil implements Kodeverdi, DatabaseKode {
 
     HAR_RETT_TIL_FP("HAR_RETT_TIL_FP", "Bruker har rett til foreldrepenger"),
     HAR_IKKE_RETT_TIL_FP("HAR_IKKE_RETT_TIL_FP", "Bruker har ikke rett til foreldrepenger"),

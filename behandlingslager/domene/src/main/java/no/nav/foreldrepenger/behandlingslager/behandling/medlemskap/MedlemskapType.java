@@ -8,9 +8,10 @@ import jakarta.persistence.Converter;
 
 import com.fasterxml.jackson.annotation.JsonValue;
 
+import no.nav.foreldrepenger.behandlingslager.kodeverk.DatabaseKode;
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
 
-public enum MedlemskapType implements Kodeverdi {
+public enum MedlemskapType implements Kodeverdi, DatabaseKode {
 
     ENDELIG("ENDELIG", "Endelig"),
     FORELOPIG("FORELOPIG", "Foreløpig"),

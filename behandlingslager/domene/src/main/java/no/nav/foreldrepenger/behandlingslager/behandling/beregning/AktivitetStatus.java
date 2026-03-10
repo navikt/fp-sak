@@ -16,10 +16,11 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonValue;
 
+import no.nav.foreldrepenger.behandlingslager.kodeverk.DatabaseKode;
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
 
 @JsonAutoDetect(getterVisibility = Visibility.NONE, setterVisibility = Visibility.NONE, fieldVisibility = Visibility.ANY)
-public enum AktivitetStatus implements Kodeverdi {
+public enum AktivitetStatus implements Kodeverdi, DatabaseKode {
     ARBEIDSAVKLARINGSPENGER("AAP", "Arbeidsavklaringspenger", Inntektskategori.ARBEIDSAVKLARINGSPENGER),
     ARBEIDSTAKER("AT", "Arbeidstaker", Inntektskategori.ARBEIDSTAKER),
     DAGPENGER("DP", "Dagpenger", Inntektskategori.DAGPENGER),

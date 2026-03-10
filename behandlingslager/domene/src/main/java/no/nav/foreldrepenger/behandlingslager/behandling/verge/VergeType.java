@@ -7,9 +7,10 @@ import jakarta.persistence.EnumeratedValue;
 
 import com.fasterxml.jackson.annotation.JsonValue;
 
+import no.nav.foreldrepenger.behandlingslager.kodeverk.DatabaseKode;
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
 
-public enum VergeType implements Kodeverdi {
+public enum VergeType implements Kodeverdi, DatabaseKode {
 
     BARN("BARN", "Verge for barn under 18 år"),
     FBARN("FBARN", "Verge for foreldreløst barn under 18 år"),

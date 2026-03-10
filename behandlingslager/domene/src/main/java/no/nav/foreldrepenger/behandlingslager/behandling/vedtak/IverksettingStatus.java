@@ -8,9 +8,10 @@ import jakarta.persistence.Converter;
 
 import com.fasterxml.jackson.annotation.JsonValue;
 
+import no.nav.foreldrepenger.behandlingslager.kodeverk.DatabaseKode;
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
 
-public enum IverksettingStatus implements Kodeverdi {
+public enum IverksettingStatus implements Kodeverdi, DatabaseKode {
 
     IKKE_IVERKSATT("IKKE_IVERKSATT", "Ikke iverksatt"),
     IVERKSATT("IVERKSATT", "Iverksatt"),

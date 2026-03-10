@@ -8,9 +8,10 @@ import jakarta.persistence.EnumeratedValue;
 
 import com.fasterxml.jackson.annotation.JsonValue;
 
+import no.nav.foreldrepenger.behandlingslager.kodeverk.DatabaseKode;
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
 
-public enum BehandlingResultatType implements Kodeverdi {
+public enum BehandlingResultatType implements Kodeverdi, DatabaseKode {
 
     IKKE_FASTSATT("IKKE_FASTSATT", "Ikke fastsatt"),
     INNVILGET("INNVILGET", "Innvilget"),

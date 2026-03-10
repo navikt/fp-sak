@@ -8,9 +8,10 @@ import jakarta.persistence.EnumeratedValue;
 
 import com.fasterxml.jackson.annotation.JsonValue;
 
+import no.nav.foreldrepenger.behandlingslager.kodeverk.DatabaseKode;
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
 
-public enum DokumentMalType implements Kodeverdi {
+public enum DokumentMalType implements Kodeverdi, DatabaseKode {
 
     FRITEKSTBREV("FRITEK"),
     VEDTAKSBREV_FRITEKST_HTML("FRIHTM"),

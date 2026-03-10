@@ -8,9 +8,10 @@ import jakarta.persistence.Converter;
 
 import com.fasterxml.jackson.annotation.JsonValue;
 
+import no.nav.foreldrepenger.behandlingslager.kodeverk.DatabaseKode;
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
 
-public enum Vedtaksbrev implements Kodeverdi {
+public enum Vedtaksbrev implements Kodeverdi, DatabaseKode {
 
     AUTOMATISK("AUTOMATISK", "Automatisk generert vedtaksbrev"),
     FRITEKST("FRITEKST", "Fritekstbrev"),
