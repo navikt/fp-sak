@@ -29,7 +29,7 @@ public class SvpAvklartOpphold extends BaseCreateableEntitet {
     private DatoIntervallEntitet oppholdPeriode;
 
     @Column(name = "svp_opphold_arsak", nullable = false)
-    @Enumerated(EnumType.STRING)
+    @Enumerated(EnumType.ORDINAL) // OBS - ikke endre til STRING, databasen inneholder 0/1
     private SvpOppholdÅrsak svpOppholdÅrsak;
 
     @Column(name = "svp_opphold_kilde")
