@@ -1,6 +1,8 @@
 package no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging;
 
-public enum SvpOppholdÅrsak {
+import no.nav.foreldrepenger.behandlingslager.kodeverk.DatabaseKode;
+
+public enum SvpOppholdÅrsak implements DatabaseKode {
     SYKEPENGER,
     FERIE
 }

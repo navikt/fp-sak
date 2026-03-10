@@ -25,7 +25,6 @@ import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
 import no.nav.foreldrepenger.domene.iay.modell.kodeverk.RelatertYtelseTilstand;
 import no.nav.foreldrepenger.domene.modell.kodeverk.AndelKilde;
 import no.nav.foreldrepenger.web.app.IndexClasses;
-import no.nav.vedtak.felles.jpa.converters.BooleanToStringConverter;
 
 class KodeverdiKonsistensTest {
 
@@ -64,19 +63,25 @@ class KodeverdiKonsistensTest {
     }
 
     @Test
-    void sjekk_alle_kode_kolonner() throws URISyntaxException {
+    void sjekk_alle_kode_kolonner_er_annotert_og_databasekode() throws URISyntaxException {
         var indexClasses = IndexClasses.getIndexFor(Behandling.class.getProtectionDomain().getCodeSource().getLocation().toURI());
         @SuppressWarnings("unchecked")
         var entitetsklasser = indexClasses.getClasses(ci -> true, c -> c.isAnnotationPresent(Entity.class));
-        var fieldMedEnumeratedEllerConvert = entitetsklasser.stream()
+        var enumFields = entitetsklasser.stream()
             .flatMap(k -> Arrays.stream(k.getDeclaredFields()))
-            .filter(f -> f.isAnnotationPresent(Enumerated.class) ||
-                (f.isAnnotationPresent(Convert.class) && f.getAnnotation(Convert.class).converter() != BooleanToStringConverter.class))
+            .filter(f -> f.getType().isEnum())
             .toList();
-        var ikkeDatabaseTyper = fieldMedEnumeratedEllerConvert.stream()
+        // Test om enum-attributt er annotert med @Enumerated eller @Convert
+        var ikkeAnnotert = enumFields.stream()
+            .filter(f -> !f.isAnnotationPresent(Enumerated.class) && !f.isAnnotationPresent(Convert.class))
+            .toList();
+        assertThat(ikkeAnnotert).isEmpty();
+        // Test om enum-attributt er instans av DatabaseKode
+        var ikkeDatabaseKode = enumFields.stream()
             .filter(f -> !DatabaseKode.class.isAssignableFrom(f.getType()))
             .toList();
-        assertThat(ikkeDatabaseTyper).isEmpty();
+        assertThat(ikkeDatabaseKode).isEmpty();
+
     }
 
 }

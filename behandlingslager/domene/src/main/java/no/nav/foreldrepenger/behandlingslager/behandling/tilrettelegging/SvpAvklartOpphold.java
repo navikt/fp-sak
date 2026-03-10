@@ -29,6 +29,7 @@ public class SvpAvklartOpphold extends BaseCreateableEntitet {
     private DatoIntervallEntitet oppholdPeriode;
 
     @Column(name = "svp_opphold_arsak", nullable = false)
+    @Enumerated(EnumType.STRING)
     private SvpOppholdÅrsak svpOppholdÅrsak;
 
     @Column(name = "svp_opphold_kilde")
