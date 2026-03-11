@@ -239,9 +239,10 @@ public class KodeverkTilKalkulusMapper {
             case FPSAK -> YtelseKilde.FPSAK;
             case INFOTRYGD -> YtelseKilde.INFOTRYGD;
             case ARENA -> YtelseKilde.ARENA;
-            case KELVIN ->  YtelseKilde.KELVIN;
             case K9SAK -> YtelseKilde.K9SAK;
             case VLSP -> YtelseKilde.VLSP;
+            case KELVIN ->  YtelseKilde.KELVIN;
+            case DPSAK -> YtelseKilde.DPSAK;
             case UDEFINERT -> YtelseKilde.UDEFINERT;
             case TPS, AAREGISTERET, ENHETSREGISTERET, GOSYS, MEDL, INNTEKT, JOARK -> null;
         };

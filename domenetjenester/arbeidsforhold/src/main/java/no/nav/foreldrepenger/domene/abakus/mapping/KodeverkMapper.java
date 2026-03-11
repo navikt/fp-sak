@@ -103,12 +103,15 @@ public final class KodeverkMapper {
             case INFOTRYGD -> Fagsystem.INFOTRYGD;
             case ARENA -> Fagsystem.ARENA;
             case KELVIN -> Fagsystem.KELVIN;
+            case DPSAK -> Fagsystem.DPSAK;
             case INNTEKT -> Fagsystem.INNTEKT;
             case MEDL -> Fagsystem.MEDL;
             case GOSYS -> Fagsystem.GOSYS;
             case ENHETSREGISTERET -> Fagsystem.ENHETSREGISTERET;
             case AAREGISTERET -> Fagsystem.AAREGISTERET;
-            case null, default -> Fagsystem.UDEFINERT;
+            case BISYS, BIDRAGINNKREVING, FPABAKUS, GRISEN, GSAK, HJE_HEL_ORT, PESYS, SKANNING, VENTELONN,
+                 UNNTAK, ØKONOMI, ØVRIG, UDEFINERT -> Fagsystem.UDEFINERT;
+            case null -> Fagsystem.UDEFINERT;
         };
     }
 

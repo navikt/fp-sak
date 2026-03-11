@@ -15,7 +15,6 @@ public enum Fagsystem implements Kodeverdi, DatabaseKode, MedOffisiellKode {
     JOARK("JOARK", "Joark", "AS36"),
     INFOTRYGD("INFOTRYGD", "Infotrygd", "IT01"),
     ARENA("ARENA", "Arena", "AO01"),
-    KELVIN("KELVIN", "Kelvin", "KELVIN"),
     INNTEKT("INNTEKT", "INNTEKT", "FS28"),
     MEDL("MEDL", "MEDL", "FS18"),
     GOSYS("GOSYS", "Gosys", "FS22"),
@@ -23,6 +22,8 @@ public enum Fagsystem implements Kodeverdi, DatabaseKode, MedOffisiellKode {
     AAREGISTERET("AAREGISTERET", "AAregisteret", "AR01"),
     K9SAK("K9SAK", "Vedtaksløsning Folketrygdloven Kapittel 9", "K9SAK"),
     VLSP("VLSP", "Vedtaksløsning Sykepenger", "VLSP"),
+    KELVIN("KELVIN", "Vedtaksløsning Arbeidsavklaringspenger", "KELVIN"),
+    DPSAK("DPSAK", "Vedtaksløsning Dagpenger", "DPSAK"),
 
     /**
      * Alle kodeverk må ha en verdi, det kan ikke være null i databasen. Denne koden gjør samme nytten.
