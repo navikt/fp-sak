@@ -641,7 +641,7 @@ public enum AksjonspunktDefinisjon implements Kodeverdi, DatabaseKode {
     }
 
     public VilkårType getVilkårType() {
-        return Objects.equals(VilkårType.UDEFINERT, vilkårType) ? null : vilkårType;
+        return vilkårType;
     }
 
     public Set<FagsakYtelseType> getYtelseTyper() {

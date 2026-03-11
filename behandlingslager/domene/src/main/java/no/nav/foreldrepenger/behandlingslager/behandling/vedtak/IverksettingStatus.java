@@ -3,8 +3,7 @@ package no.nav.foreldrepenger.behandlingslager.behandling.vedtak;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import jakarta.persistence.AttributeConverter;
-import jakarta.persistence.Converter;
+import jakarta.persistence.EnumeratedValue;
 
 import com.fasterxml.jackson.annotation.JsonValue;
 
@@ -15,17 +14,15 @@ public enum IverksettingStatus implements Kodeverdi, DatabaseKode {
 
     IKKE_IVERKSATT("IKKE_IVERKSATT", "Ikke iverksatt"),
     IVERKSATT("IVERKSATT", "Iverksatt"),
-
-    UDEFINERT(STANDARDKODE_UDEFINERT, "Ikke definert"),
-
     ;
 
     private static final Map<String, IverksettingStatus> KODER = new LinkedHashMap<>();
 
-    private String navn;
+    private final String navn;
 
     @JsonValue
-    private String kode;
+    @EnumeratedValue
+    private final String kode;
 
     IverksettingStatus(String kode, String navn) {
         this.kode = kode;
@@ -48,31 +45,6 @@ public enum IverksettingStatus implements Kodeverdi, DatabaseKode {
                 throw new IllegalArgumentException("Duplikat : " + v.kode);
             }
         }
-    }
-
-    @Converter(autoApply = true)
-    public static class KodeverdiConverter implements AttributeConverter<IverksettingStatus, String> {
-        @Override
-        public String convertToDatabaseColumn(IverksettingStatus attribute) {
-            return attribute == null ? null : attribute.getKode();
-        }
-
-        @Override
-        public IverksettingStatus convertToEntityAttribute(String dbData) {
-            return dbData == null ? null : fraKode(dbData);
-        }
-
-        private static IverksettingStatus fraKode(String kode) {
-            if (kode == null) {
-                return null;
-            }
-            var ad = KODER.get(kode);
-            if (ad == null) {
-                throw new IllegalArgumentException("Ukjent IverksettingStatus: " + kode);
-            }
-            return ad;
-        }
-
     }
 
 }

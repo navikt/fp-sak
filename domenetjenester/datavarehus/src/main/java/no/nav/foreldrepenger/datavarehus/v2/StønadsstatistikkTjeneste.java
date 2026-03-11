@@ -383,7 +383,7 @@ public class StønadsstatistikkTjeneste {
             case INNVILGET -> VedtakResultat.INNVILGET;
             case AVSLAG -> VedtakResultat.AVSLAG;
             case OPPHØR -> VedtakResultat.OPPHØR;
-            case VEDTAK_I_KLAGEBEHANDLING, VEDTAK_I_ANKEBEHANDLING, VEDTAK_I_INNSYNBEHANDLING, UDEFINERT ->
+            case VEDTAK_I_KLAGEBEHANDLING, VEDTAK_I_ANKEBEHANDLING, VEDTAK_I_INNSYNBEHANDLING ->
                 throw new IllegalStateException("Unexpected value: " + vedtak.getVedtakResultatType());
         };
     }

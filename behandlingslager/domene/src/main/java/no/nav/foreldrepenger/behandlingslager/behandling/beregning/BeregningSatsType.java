@@ -3,8 +3,7 @@ package no.nav.foreldrepenger.behandlingslager.behandling.beregning;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import jakarta.persistence.AttributeConverter;
-import jakarta.persistence.Converter;
+import jakarta.persistence.EnumeratedValue;
 
 import com.fasterxml.jackson.annotation.JsonValue;
 
@@ -15,7 +14,6 @@ public enum BeregningSatsType implements Kodeverdi, DatabaseKode {
     ENGANG("ENGANG", "Engangsstønad"),
     GRUNNBELØP("GRUNNBELØP", "Grunnbeløp"),
     GSNITT("GSNITT", "Grunnbeløp årsgjennomsnitt"),
-    UDEFINERT(STANDARDKODE_UDEFINERT, "Ikke definert"),
     ;
 
     private static final Map<String, BeregningSatsType> KODER = new LinkedHashMap<>();
@@ -28,10 +26,11 @@ public enum BeregningSatsType implements Kodeverdi, DatabaseKode {
         }
     }
 
-    private String navn;
+    private final String navn;
 
     @JsonValue
-    private String kode;
+    @EnumeratedValue
+    private final String kode;
 
     BeregningSatsType(String kode, String navn) {
         this.kode = kode;
@@ -48,28 +47,4 @@ public enum BeregningSatsType implements Kodeverdi, DatabaseKode {
         return kode;
     }
 
-    @Converter(autoApply = true)
-    public static class KodeverdiConverter implements AttributeConverter<BeregningSatsType, String> {
-
-        public static BeregningSatsType fraKode(String kode) {
-            if (kode == null) {
-                return null;
-            }
-            var ad = KODER.get(kode);
-            if (ad == null) {
-                throw new IllegalArgumentException("Ukjent BeregningSatsType: " + kode);
-            }
-            return ad;
-        }
-
-        @Override
-        public String convertToDatabaseColumn(BeregningSatsType attribute) {
-            return attribute == null ? null : attribute.getKode();
-        }
-
-        @Override
-        public BeregningSatsType convertToEntityAttribute(String dbData) {
-            return dbData == null ? null : fraKode(dbData);
-        }
-    }
 }
