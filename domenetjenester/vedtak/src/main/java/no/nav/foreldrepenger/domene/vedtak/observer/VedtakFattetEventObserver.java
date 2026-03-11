@@ -43,8 +43,8 @@ public class VedtakFattetEventObserver {
     }
 
     private boolean erBehandlingAvRettType(Behandling behandling, BehandlingVedtak vedtak) {
-        var resultatType = vedtak != null ? vedtak.getVedtakResultatType() : VedtakResultatType.UDEFINERT;
-        return SKAL_SENDE_HENDELSE.contains(resultatType) ||
+        var resultatType = vedtak != null ? vedtak.getVedtakResultatType() : null;
+        return (resultatType != null && SKAL_SENDE_HENDELSE.contains(resultatType)) ||
             tilbakekrevingRepository.hent(behandling.getId()).isPresent() ||
             revurderingAvslåttMedForrigeInnvilget(behandling, resultatType);
     }

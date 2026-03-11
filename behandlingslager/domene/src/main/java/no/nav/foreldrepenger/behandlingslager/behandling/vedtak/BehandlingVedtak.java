@@ -7,6 +7,8 @@ import java.util.Objects;
 import jakarta.persistence.Column;
 import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -38,9 +40,9 @@ public class BehandlingVedtak extends BaseEntitet {
     @Column(name = "ANSVARLIG_SAKSBEHANDLER", nullable = false)
     private String ansvarligSaksbehandler;
 
-    @Convert(converter = VedtakResultatType.KodeverdiConverter.class)
+    @Enumerated(EnumType.STRING)
     @Column(name = "vedtak_resultat_type", nullable = false)
-    private VedtakResultatType vedtakResultatType = VedtakResultatType.UDEFINERT;
+    private VedtakResultatType vedtakResultatType;
 
     @OneToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "BEHANDLING_RESULTAT_ID", nullable = false, updatable = false, unique = true)
@@ -56,9 +58,9 @@ public class BehandlingVedtak extends BaseEntitet {
     @Column(name = "BESLUTNING", nullable = false)
     private boolean beslutningsvedtak;
 
-    @Convert(converter = IverksettingStatus.KodeverdiConverter.class)
+    @Enumerated(EnumType.STRING)
     @Column(name = "iverksetting_status", nullable = false)
-    private IverksettingStatus iverksettingStatus = IverksettingStatus.UDEFINERT;
+    private IverksettingStatus iverksettingStatus;
 
     BehandlingVedtak() {
         // Hibernate
@@ -81,7 +83,7 @@ public class BehandlingVedtak extends BaseEntitet {
     }
 
     public VedtakResultatType getVedtakResultatType() {
-        return Objects.equals(VedtakResultatType.UDEFINERT, vedtakResultatType) ? null : vedtakResultatType;
+        return vedtakResultatType;
     }
 
     public Behandlingsresultat getBehandlingsresultat() {
@@ -119,7 +121,8 @@ public class BehandlingVedtak extends BaseEntitet {
     }
 
     public void setIverksettingStatus(IverksettingStatus iverksettingStatus) {
-        this.iverksettingStatus = iverksettingStatus == null ? IverksettingStatus.UDEFINERT : iverksettingStatus;
+        Objects.requireNonNull(iverksettingStatus);
+        this.iverksettingStatus = iverksettingStatus;
     }
 
     public static class Builder {

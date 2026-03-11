@@ -3,8 +3,7 @@ package no.nav.foreldrepenger.behandlingslager.behandling.vedtak;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import jakarta.persistence.AttributeConverter;
-import jakarta.persistence.Converter;
+import jakarta.persistence.EnumeratedValue;
 
 import com.fasterxml.jackson.annotation.JsonValue;
 
@@ -19,7 +18,6 @@ public enum VedtakResultatType implements Kodeverdi, DatabaseKode {
     VEDTAK_I_KLAGEBEHANDLING("VEDTAK_I_KLAGEBEHANDLING", "vedtak i klagebehandling"),
     VEDTAK_I_ANKEBEHANDLING("VEDTAK_I_ANKEBEHANDLING", "vedtak i ankebehandling"),
     VEDTAK_I_INNSYNBEHANDLING("VEDTAK_I_INNSYNBEHANDLING", "vedtak i innsynbehandling"),
-    UDEFINERT(STANDARDKODE_UDEFINERT, "Ikke definert"),
 
     ;
 
@@ -28,6 +26,7 @@ public enum VedtakResultatType implements Kodeverdi, DatabaseKode {
     private final String navn;
 
     @JsonValue
+    @EnumeratedValue
     private final String kode;
 
     VedtakResultatType(String kode, String navn) {
@@ -53,27 +52,4 @@ public enum VedtakResultatType implements Kodeverdi, DatabaseKode {
         }
     }
 
-    @Converter(autoApply = true)
-    public static class KodeverdiConverter implements AttributeConverter<VedtakResultatType, String> {
-        @Override
-        public String convertToDatabaseColumn(VedtakResultatType attribute) {
-            return attribute == null ? null : attribute.getKode();
-        }
-
-        @Override
-        public VedtakResultatType convertToEntityAttribute(String dbData) {
-            return dbData == null ? null : fraKode(dbData);
-        }
-
-        private static VedtakResultatType fraKode(String kode) {
-            if (kode == null) {
-                return null;
-            }
-            var ad = KODER.get(kode);
-            if (ad == null) {
-                throw new IllegalArgumentException("Ukjent VedtakResultatType: " + kode);
-            }
-            return ad;
-        }
-    }
 }

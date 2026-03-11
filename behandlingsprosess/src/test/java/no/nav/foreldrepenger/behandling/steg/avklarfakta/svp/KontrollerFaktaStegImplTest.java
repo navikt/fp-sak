@@ -26,6 +26,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapDekningType;
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapKildeType;
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapPerioderBuilder;
+import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapType;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.SivilstandType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
@@ -77,7 +78,8 @@ class KontrollerFaktaStegImplTest {
         var builder = new MedlemskapPerioderBuilder();
         builder.medPeriode(LocalDate.now().minusMonths(2), LocalDate.now().plusDays(2))
                 .medDekningType(MedlemskapDekningType.UNNTATT)
-                .medKildeType(MedlemskapKildeType.TPS);
+                .medKildeType(MedlemskapKildeType.TPS)
+                .medMedlemskapType(MedlemskapType.ENDELIG);
 
         scenario.leggTilMedlemskapPeriode(builder.build());
         behandling = lagre(scenario);
