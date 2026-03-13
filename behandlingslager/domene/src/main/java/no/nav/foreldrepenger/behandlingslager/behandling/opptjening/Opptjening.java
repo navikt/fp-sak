@@ -86,7 +86,7 @@ public class Opptjening extends BaseEntitet {
 
     }
 
-    Opptjening() {
+    protected Opptjening() {
         // for hibernate
     }
 

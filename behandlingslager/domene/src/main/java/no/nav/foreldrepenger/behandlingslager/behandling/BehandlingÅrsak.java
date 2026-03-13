@@ -48,7 +48,7 @@ public class BehandlingÅrsak extends BaseEntitet {
     @Column(name = "manuelt_opprettet", nullable = false)
     private boolean manueltOpprettet = false;
 
-    BehandlingÅrsak() {
+    protected BehandlingÅrsak() {
         // for hibernate
     }
 

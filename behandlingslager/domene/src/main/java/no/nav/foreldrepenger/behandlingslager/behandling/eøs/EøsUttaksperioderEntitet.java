@@ -24,7 +24,7 @@ public class EøsUttaksperioderEntitet extends BaseCreateableEntitet {
     @OneToMany(mappedBy = "eosUttaksperioder")
     private List<EøsUttaksperiodeEntitet> perioder = new ArrayList<>();
 
-    EøsUttaksperioderEntitet() {
+    protected EøsUttaksperioderEntitet() {
         // For Hibernate
     }
 

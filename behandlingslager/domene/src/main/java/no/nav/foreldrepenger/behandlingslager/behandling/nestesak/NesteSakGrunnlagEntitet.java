@@ -51,7 +51,7 @@ public class NesteSakGrunnlagEntitet extends BaseEntitet {
     @ChangeTracked
     private LocalDate hendelsedato;
 
-    NesteSakGrunnlagEntitet() {
+    protected NesteSakGrunnlagEntitet() {
     }
 
     NesteSakGrunnlagEntitet(NesteSakGrunnlagEntitet grunnlag) {

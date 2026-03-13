@@ -56,7 +56,7 @@ public class OpptjeningAktivitet extends BaseEntitet implements IndexKey {
     @Column(name = "klassifisering", nullable = false)
     private OpptjeningAktivitetKlassifisering klassifisering;
 
-    OpptjeningAktivitet() {
+    protected OpptjeningAktivitet() {
         // fur hibernate
     }
 

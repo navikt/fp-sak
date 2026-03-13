@@ -45,7 +45,7 @@ public class InnsynDokumentEntitet extends BaseEntitet implements IndexKey {
     private boolean fikkInnsyn;
 
     @SuppressWarnings("unused")
-    InnsynDokumentEntitet() {
+    protected InnsynDokumentEntitet() {
         // for hibernate
     }
 

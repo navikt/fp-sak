@@ -52,7 +52,7 @@ public class TerminbekreftelseEntitet extends BaseEntitet {
     @Column(name = "versjon", nullable = false)
     private long versjon;
 
-    TerminbekreftelseEntitet() {
+    protected TerminbekreftelseEntitet() {
         // hibernate
     }
 

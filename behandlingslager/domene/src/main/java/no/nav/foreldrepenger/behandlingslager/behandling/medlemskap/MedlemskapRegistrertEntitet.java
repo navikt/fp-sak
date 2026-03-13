@@ -36,7 +36,7 @@ public class MedlemskapRegistrertEntitet extends BaseEntitet {
     @ChangeTracked
     private Set<MedlemskapPerioderEntitet> medlemskapPerioder = new HashSet<>(2);
 
-    MedlemskapRegistrertEntitet() {
+    protected MedlemskapRegistrertEntitet() {
         // default tom entitet for hibernate
     }
 

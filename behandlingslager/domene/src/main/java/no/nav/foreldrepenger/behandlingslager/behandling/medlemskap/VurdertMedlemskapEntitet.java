@@ -60,7 +60,7 @@ public class VurdertMedlemskapEntitet extends BaseEntitet implements VurdertMedl
     @Column(name="medlemsperiode_manuell_vurd", nullable = false)
     private MedlemskapManuellVurderingType medlemsperiodeManuellVurdering = MedlemskapManuellVurderingType.UDEFINERT;
 
-    VurdertMedlemskapEntitet() {
+    protected VurdertMedlemskapEntitet() {
         // hibernate
     }
 

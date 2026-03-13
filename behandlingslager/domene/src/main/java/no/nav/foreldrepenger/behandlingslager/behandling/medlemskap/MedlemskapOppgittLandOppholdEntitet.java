@@ -59,7 +59,7 @@ public class MedlemskapOppgittLandOppholdEntitet extends BaseEntitet implements 
     @JoinColumn(name = "medlemskap_oppg_tilknyt_id", nullable = false, updatable = false)
     private MedlemskapOppgittTilknytningEntitet oppgittTilknytning;
 
-    MedlemskapOppgittLandOppholdEntitet() {
+    protected MedlemskapOppgittLandOppholdEntitet() {
         // Hibernate
     }
 

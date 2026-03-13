@@ -53,7 +53,7 @@ public class SøknadVedleggEntitet extends BaseEntitet {
     @JoinColumn(name = "soeknad_id", nullable = false, updatable = false)
     private SøknadEntitet søknad;
 
-    SøknadVedleggEntitet() {
+    protected SøknadVedleggEntitet() {
         // Hibernate
     }
 

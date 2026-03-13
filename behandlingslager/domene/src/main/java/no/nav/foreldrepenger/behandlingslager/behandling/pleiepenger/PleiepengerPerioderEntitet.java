@@ -28,7 +28,7 @@ public class PleiepengerPerioderEntitet extends BaseEntitet {
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "pleiepengerPerioder")
     private List<PleiepengerInnleggelseEntitet> innleggelser = new ArrayList<>();
 
-    PleiepengerPerioderEntitet() {
+    protected PleiepengerPerioderEntitet() {
     }
 
     PleiepengerPerioderEntitet(PleiepengerPerioderEntitet aggregat) {

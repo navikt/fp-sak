@@ -57,7 +57,7 @@ public class UføretrygdGrunnlagEntitet extends BaseEntitet {
 
 
 
-    UføretrygdGrunnlagEntitet() {
+    protected UføretrygdGrunnlagEntitet() {
     }
 
     UføretrygdGrunnlagEntitet(UføretrygdGrunnlagEntitet grunnlag) {

@@ -37,7 +37,7 @@ public class EøsUttakGrunnlagEntitet extends BaseEntitet {
     @JoinColumn(name = "saksbehandler_perioder_id", updatable = false)
     private EøsUttaksperioderEntitet saksbehandlerPerioder;
 
-    EøsUttakGrunnlagEntitet() {
+    protected EøsUttakGrunnlagEntitet() {
         // Hibernate
     }
 

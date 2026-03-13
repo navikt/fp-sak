@@ -36,7 +36,7 @@ public class FagsakProsessTask extends BaseEntitet {
     @Column(name = "versjon", nullable = false)
     private long versjon;
 
-    FagsakProsessTask() {
+    protected FagsakProsessTask() {
         // Hibernate trenger en
     }
 

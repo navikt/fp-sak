@@ -32,7 +32,7 @@ public class MottattVedtak extends BaseCreateableEntitet {
     @Column(name = "REFERANSE", nullable = false)
     private String referanse;
 
-    MottattVedtak() {
+    protected MottattVedtak() {
         //for hibernate
     }
 

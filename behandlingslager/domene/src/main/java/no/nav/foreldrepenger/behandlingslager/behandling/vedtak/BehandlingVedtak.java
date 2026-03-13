@@ -62,7 +62,7 @@ public class BehandlingVedtak extends BaseEntitet {
     @Column(name = "iverksetting_status", nullable = false)
     private IverksettingStatus iverksettingStatus;
 
-    BehandlingVedtak() {
+    protected BehandlingVedtak() {
         // Hibernate
     }
 

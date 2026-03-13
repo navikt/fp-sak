@@ -31,7 +31,7 @@ public class TilbakekrevingInntrekkEntitet extends BaseEntitet {
     @Column(name = "avslaatt_inntrekk", nullable = false)
     private boolean avslåttInntrekk;
 
-    TilbakekrevingInntrekkEntitet() {
+    protected TilbakekrevingInntrekkEntitet() {
         // For hibernate
     }
 

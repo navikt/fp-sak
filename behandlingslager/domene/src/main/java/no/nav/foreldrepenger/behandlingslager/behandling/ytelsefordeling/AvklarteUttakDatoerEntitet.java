@@ -37,7 +37,7 @@ public class AvklarteUttakDatoerEntitet extends BaseEntitet {
     @Column(name = "justert_endringsdato")
     private LocalDate justertEndringsdato;
 
-    AvklarteUttakDatoerEntitet() {
+    protected AvklarteUttakDatoerEntitet() {
     }
 
     public LocalDate getFørsteUttaksdato() {

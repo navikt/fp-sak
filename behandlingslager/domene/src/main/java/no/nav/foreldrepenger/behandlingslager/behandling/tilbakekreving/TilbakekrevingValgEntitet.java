@@ -51,7 +51,7 @@ class TilbakekrevingValgEntitet extends BaseEntitet {
     @Column(name="videre_behandling")
     private TilbakekrevingVidereBehandling tilbakekrevningsVidereBehandling;
 
-    TilbakekrevingValgEntitet() {
+    protected TilbakekrevingValgEntitet() {
         // For hibernate
     }
 

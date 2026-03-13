@@ -53,7 +53,7 @@ public class BehandlingBeregningsresultatEntitet extends BaseEntitet {
     @Convert(converter = BooleanToStringConverter.class)
     private Boolean skalHindreTilbaketrekk;
 
-    BehandlingBeregningsresultatEntitet() {
+    protected BehandlingBeregningsresultatEntitet() {
 
     }
 

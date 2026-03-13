@@ -42,7 +42,7 @@ public class Etterkontroll extends BaseEntitet {
     @Column(name = "behandlet", nullable = false)
     private boolean erBehandlet = false;
 
-    Etterkontroll() {
+    protected Etterkontroll() {
         // hibernarium
     }
 

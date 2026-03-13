@@ -68,7 +68,7 @@ public class Aksjonspunkt extends BaseEntitet {
     @Column(name = "TOTRINN_BEHANDLING", nullable = false)
     private boolean toTrinnsBehandling;
 
-    Aksjonspunkt() {
+    protected Aksjonspunkt() {
         // for hibernate
     }
 

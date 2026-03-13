@@ -51,7 +51,7 @@ public class VilkårMedlemskap extends BaseEntitet {
     private LocalDate medlemFom;
 
 
-    VilkårMedlemskap() {
+    protected VilkårMedlemskap() {
     }
 
     public VilkårMedlemskap(VilkårResultat vilkårResultat,
