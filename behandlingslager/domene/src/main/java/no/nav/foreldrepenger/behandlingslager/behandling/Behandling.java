@@ -162,7 +162,7 @@ public class Behandling extends BaseEntitet {
 
     // Kolonnen SIST_OPPDATERT_TIDSPUNKT aksesseres via 2 direkte queries - søk i koden etter kolonnenavn
 
-    Behandling() {
+    protected Behandling() {
         // Hibernate
     }
 

@@ -48,7 +48,7 @@ public class PersonstatusEntitet extends BaseEntitet implements HarAktørId, Ind
     @JoinColumn(name = "po_informasjon_id", nullable = false, updatable = false)
     private PersonInformasjonEntitet personopplysningInformasjon;
 
-    PersonstatusEntitet() {
+    protected PersonstatusEntitet() {
     }
 
     PersonstatusEntitet(PersonstatusEntitet personstatus) {

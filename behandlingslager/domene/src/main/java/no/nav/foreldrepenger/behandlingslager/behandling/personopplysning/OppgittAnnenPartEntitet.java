@@ -57,7 +57,7 @@ public class OppgittAnnenPartEntitet extends BaseEntitet implements HarAktørId 
     @Column(name = "type", nullable = false)
     private SøknadAnnenPartType type = SøknadAnnenPartType.UDEFINERT;
 
-    OppgittAnnenPartEntitet() {
+    protected OppgittAnnenPartEntitet() {
         // Hibernate
     }
 

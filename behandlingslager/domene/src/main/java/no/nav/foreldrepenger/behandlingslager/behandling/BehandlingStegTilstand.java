@@ -42,7 +42,7 @@ public class BehandlingStegTilstand extends BaseEntitet implements IndexKey {
     @Column(name = "versjon", nullable = false)
     private long versjon;
 
-    BehandlingStegTilstand() {
+    protected BehandlingStegTilstand() {
         // for hibernate
     }
 

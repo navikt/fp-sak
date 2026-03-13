@@ -69,7 +69,7 @@ public class FamilieHendelseEntitet extends BaseEntitet {
     @Column(name = "versjon", nullable = false)
     private long versjon;
 
-    FamilieHendelseEntitet() {
+    protected FamilieHendelseEntitet() {
     }
 
     FamilieHendelseEntitet(FamilieHendelseType type) {

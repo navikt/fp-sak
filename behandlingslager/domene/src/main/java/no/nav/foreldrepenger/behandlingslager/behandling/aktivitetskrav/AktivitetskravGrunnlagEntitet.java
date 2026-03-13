@@ -50,7 +50,7 @@ public class AktivitetskravGrunnlagEntitet extends BaseEntitet {
     @AttributeOverride(name = "tomDato", column = @Column(name = "periode_tom"))
     private DatoIntervallEntitet periode;
 
-    AktivitetskravGrunnlagEntitet() {
+    protected AktivitetskravGrunnlagEntitet() {
         //CDI
     }
 

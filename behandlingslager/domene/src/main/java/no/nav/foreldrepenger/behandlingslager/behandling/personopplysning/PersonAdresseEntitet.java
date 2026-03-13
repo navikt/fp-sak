@@ -86,7 +86,7 @@ public class PersonAdresseEntitet extends BaseEntitet implements HarAktørId, In
     @JoinColumn(name = "po_informasjon_id", nullable = false, updatable = false)
     private PersonInformasjonEntitet personopplysningInformasjon;
 
-    PersonAdresseEntitet() {
+    protected PersonAdresseEntitet() {
     }
 
     PersonAdresseEntitet(PersonAdresseEntitet adresse) {

@@ -70,7 +70,7 @@ public class Fagsak extends BaseEntitet {
     @Column(name = "versjon", nullable = false)
     private long versjon;
 
-    Fagsak() {
+    protected Fagsak() {
         // Hibernate
     }
 

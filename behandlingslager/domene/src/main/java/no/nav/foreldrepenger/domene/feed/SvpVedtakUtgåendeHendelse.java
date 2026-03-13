@@ -11,7 +11,7 @@ public class SvpVedtakUtgåendeHendelse extends UtgåendeHendelse {
     static final String FEED_NAVN_VEDTAK = "VEDTAK_SVP";
     static final String SEQ_GENERATOR_NAVN = "SEQ_" + FEED_NAVN_VEDTAK;
 
-    private SvpVedtakUtgåendeHendelse() {
+    protected SvpVedtakUtgåendeHendelse() {
         super();
     }
 

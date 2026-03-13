@@ -66,7 +66,7 @@ public class PersonopplysningEntitet extends BaseEntitet implements HarAktørId,
     @JoinColumn(name = "po_informasjon_id", nullable = false, updatable = false)
     private PersonInformasjonEntitet personopplysningInformasjon;
 
-    PersonopplysningEntitet() {
+    protected PersonopplysningEntitet() {
     }
 
     PersonopplysningEntitet(PersonopplysningEntitet personopplysning) {

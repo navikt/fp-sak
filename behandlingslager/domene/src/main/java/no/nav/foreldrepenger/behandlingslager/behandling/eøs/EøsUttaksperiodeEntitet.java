@@ -43,7 +43,7 @@ public class EøsUttaksperiodeEntitet extends BaseCreateableEntitet {
     @AttributeOverride(name = "verdi", column = @Column(name = "trekkdager"))
     private Trekkdager trekkdager;
 
-    EøsUttaksperiodeEntitet() {
+    protected EøsUttaksperiodeEntitet() {
         // For Hibernate
     }
 

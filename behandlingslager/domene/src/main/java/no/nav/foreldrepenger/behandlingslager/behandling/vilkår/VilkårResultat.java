@@ -57,7 +57,7 @@ public class VilkårResultat extends BaseEntitet {
     )
     private Behandling originalBehandling;
 
-    VilkårResultat() {
+    protected VilkårResultat() {
         // for hibernate
     }
 

@@ -84,7 +84,7 @@ public class Vilkår extends BaseEntitet implements IndexKey {
     @Column(name = "regel_versjon")
     private String regelVersjon;
 
-    Vilkår() {
+    protected Vilkår() {
         // for hibernate og builder
     }
 

@@ -70,7 +70,7 @@ public class SøknadEntitet extends BaseEntitet {
     @Column(name="bruker_rolle", nullable = false)
     private RelasjonsRolleType brukerRolle = RelasjonsRolleType.UDEFINERT;
 
-    SøknadEntitet() {
+    protected SøknadEntitet() {
         // hibernate
         this.farSøkerType = FarSøkerType.UDEFINERT;
     }

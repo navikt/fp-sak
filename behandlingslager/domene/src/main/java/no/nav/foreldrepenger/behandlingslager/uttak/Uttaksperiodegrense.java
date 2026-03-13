@@ -40,7 +40,7 @@ public class Uttaksperiodegrense extends BaseEntitet {
     @Column(name = "versjon", nullable = false)
     private long versjon;
 
-    Uttaksperiodegrense() {
+    protected Uttaksperiodegrense() {
     }
 
     public Uttaksperiodegrense(LocalDate mottattDato) {

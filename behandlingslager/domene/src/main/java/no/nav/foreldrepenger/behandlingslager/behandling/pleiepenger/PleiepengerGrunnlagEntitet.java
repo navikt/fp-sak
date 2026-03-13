@@ -37,7 +37,7 @@ public class PleiepengerGrunnlagEntitet extends BaseEntitet {
     @JoinColumn(name = "psb_perioder_id", updatable = false)
     private PleiepengerPerioderEntitet perioderMedInnleggelse;
 
-    PleiepengerGrunnlagEntitet() {
+    protected PleiepengerGrunnlagEntitet() {
     }
 
     PleiepengerGrunnlagEntitet(PleiepengerGrunnlagEntitet behandlingsgrunnlag) {

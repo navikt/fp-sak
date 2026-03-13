@@ -42,7 +42,7 @@ public class LagretKodeverdiNavn implements Serializable {
         endretTidspunkt = LocalDateTime.now();
     }
 
-    LagretKodeverdiNavn() {
+    protected LagretKodeverdiNavn() {
         // Hibernate
     }
 

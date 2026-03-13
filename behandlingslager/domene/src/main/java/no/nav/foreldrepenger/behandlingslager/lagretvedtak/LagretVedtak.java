@@ -38,7 +38,7 @@ public class LagretVedtak extends BaseEntitet {
     @Column(name = "fpsak_versjon")
     private String fpsakVersjon;
 
-    LagretVedtak() {
+    protected LagretVedtak() {
     }
 
     public Long getId() {

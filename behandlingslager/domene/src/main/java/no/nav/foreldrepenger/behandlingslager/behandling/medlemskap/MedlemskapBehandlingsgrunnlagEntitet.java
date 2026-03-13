@@ -62,7 +62,7 @@ public class MedlemskapBehandlingsgrunnlagEntitet extends BaseEntitet {
     @Column(name = "versjon", nullable = false)
     private long versjon;
 
-    MedlemskapBehandlingsgrunnlagEntitet() {
+    protected MedlemskapBehandlingsgrunnlagEntitet() {
         // default tom entitet
     }
 

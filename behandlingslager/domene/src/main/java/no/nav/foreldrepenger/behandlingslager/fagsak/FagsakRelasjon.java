@@ -59,7 +59,7 @@ public class FagsakRelasjon extends BaseEntitet {
     @Column(name = "avsluttningsdato")
     private LocalDate avsluttningsdato;
 
-    FagsakRelasjon() {
+    protected FagsakRelasjon() {
         // For Hibernate
     }
 

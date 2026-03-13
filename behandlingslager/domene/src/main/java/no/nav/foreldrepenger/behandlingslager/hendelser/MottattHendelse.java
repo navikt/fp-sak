@@ -18,7 +18,7 @@ public class MottattHendelse extends BaseEntitet {
     @Column(name = "hendelse_uid")
     private String hendelseUid;
 
-    MottattHendelse() {
+    protected MottattHendelse() {
         //for hibernate
     }
 

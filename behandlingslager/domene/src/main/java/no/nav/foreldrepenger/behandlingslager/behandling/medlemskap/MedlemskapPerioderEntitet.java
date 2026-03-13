@@ -84,7 +84,7 @@ public class MedlemskapPerioderEntitet extends BaseEntitet implements IndexKey {
     @Column(name = "medl_id")
     private Long medlId;
 
-    MedlemskapPerioderEntitet() {
+    protected MedlemskapPerioderEntitet() {
         // hibernate
     }
 

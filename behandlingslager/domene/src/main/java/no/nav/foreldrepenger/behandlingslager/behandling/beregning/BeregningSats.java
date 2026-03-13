@@ -39,7 +39,7 @@ public class BeregningSats extends BaseEntitet {
     private BeregningSatsType satsType;
 
     @SuppressWarnings("unused")
-    BeregningSats() {
+    protected BeregningSats() {
         // For hibernate
     }
 

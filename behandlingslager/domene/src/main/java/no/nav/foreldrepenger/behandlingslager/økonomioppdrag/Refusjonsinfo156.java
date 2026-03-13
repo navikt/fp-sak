@@ -37,7 +37,7 @@ public class Refusjonsinfo156 extends BaseCreateableEntitet {
     @Column(name = "dato_fom", nullable = false)
     private LocalDate datoFom;
 
-    Refusjonsinfo156() {
+    protected Refusjonsinfo156() {
     }
 
     public Long getId() {

@@ -63,7 +63,7 @@ public class PersonInformasjonEntitet extends BaseEntitet {
     @OneToMany(mappedBy = REF_NAME)
     private List<PersonRelasjonEntitet> relasjoner = new ArrayList<>();
 
-    PersonInformasjonEntitet() {
+    protected PersonInformasjonEntitet() {
     }
 
     PersonInformasjonEntitet(PersonInformasjonEntitet aggregat) {

@@ -38,7 +38,7 @@ public class Stønadskonto extends BaseEntitet implements IndexKey {
     @JoinColumn(name = "stoenadskontoberegning_id", nullable = false)
     private Stønadskontoberegning stønadskontoberegning;
 
-    Stønadskonto() {
+    protected Stønadskonto() {
         // For hibernate
     }
 
