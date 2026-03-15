@@ -54,8 +54,8 @@ class FaktaFødselTjenesteTest extends EntityManagerAwareTest {
 
         var exception = assertThrows(FunksjonellException.class,
             () -> tjeneste.overstyrFaktaOmFødsel(ref, fh, Optional.of(dto.getTermindato()), dto.getBarn(), dto.getBegrunnelse(), false));
-        assertThat(exception).extracting("kode", "msg", "løsningsforslag")
-            .containsExactly("FP-076346", "For stort avvik termin/fødsel", "Sjekk datoer eller meld sak i Porten");
+        assertThat(exception).extracting("kode", "msg")
+            .containsExactly("FP-076346", "For stort avvik termin/fødsel. Sjekk datoer eller meld sak i Porten");
     }
 
     @Test
@@ -70,8 +70,8 @@ class FaktaFødselTjenesteTest extends EntityManagerAwareTest {
         var exception = assertThrows(FunksjonellException.class,
             () -> tjeneste.overstyrFaktaOmFødsel(ref, fh, Optional.of(dto.getTermindato()), dto.getBarn(),
                 dto.getBegrunnelse(), false));
-        assertThat(exception).extracting("kode", "msg", "løsningsforslag")
-            .containsExactly("FP-076345", "Dødsdato før fødselsdato", "Se over fødsels- og dødsdato");
+        assertThat(exception).extracting("kode", "msg")
+            .containsExactly("FP-076345", "Dødsdato før fødselsdato. Se over fødsels- og dødsdato");
     }
 
     @Test

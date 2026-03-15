@@ -54,7 +54,7 @@ public class OpptjeningsvilkåretOverstyringshåndterer extends InngangsvilkårO
                 return;
             }
             throw new FunksjonellException("FP-093923",
-                "Kan ikke overstyre vilkår. Det må være minst en aktivitet for at opptjeningsvilkåret skal kunne overstyres.",
+                "Kan ikke overstyre vilkår. Det må være minst en aktivitet for at opptjeningsvilkåret skal kunne overstyres",
                 "Sett på vent til det er mulig og manuelt legge inn aktiviteter ved overstyring.");
         }
     }
