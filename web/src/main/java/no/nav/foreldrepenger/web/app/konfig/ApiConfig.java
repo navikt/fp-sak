@@ -4,7 +4,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 
 import jakarta.ws.rs.ApplicationPath;
@@ -13,9 +12,14 @@ import jakarta.ws.rs.core.Application;
 import org.glassfish.jersey.server.ServerProperties;
 
 import io.swagger.v3.jaxrs2.integration.resources.OpenApiResource;
-import io.swagger.v3.oas.models.info.Info;
 import no.nav.foreldrepenger.konfig.Environment;
+import no.nav.foreldrepenger.web.app.exceptions.ConstraintViolationMapper;
+import no.nav.foreldrepenger.web.app.exceptions.GeneralRestExceptionMapper;
+import no.nav.foreldrepenger.web.app.jackson.JacksonJsonConfig;
 import no.nav.foreldrepenger.web.app.tjenester.RestImplementationClasses;
+import no.nav.vedtak.openapi.OpenApiUtils;
+import no.nav.vedtak.server.rest.AuthenticationFilter;
+import no.nav.vedtak.server.rest.jackson.Jackson2BasicFeature;
 
 @ApplicationPath(ApiConfig.API_URI)
 public class ApiConfig extends Application {
@@ -32,17 +36,10 @@ public class ApiConfig extends Application {
     }
 
     private void registerOpenApi() {
-        var info = new Info()
-            .title("FPSAK - Foreldrepenger, engangsstønad og svangerskapspenger")
-            .version(Optional.ofNullable(ENV.imageName()).orElse("1.0"))
-            .description("REST grensesnitt for FP-frontend.");
         var contextPath = ENV.getProperty("context.path", "/fpsak");
-
-        OpenApiUtils.settOppForTypegenereringFrontend();
-
-        OpenApiUtils.openApiConfigFor(info, contextPath, this)
-            .registerClasses(RestImplementationClasses.getImplementationClasses())
-            .buildOpenApiContext();
+        LokalOpenApiUtils.settOppForTypegenereringFrontend();
+        OpenApiUtils.setupOpenApi("FPSAK - Foreldrepenger, engangsstønad og svangerskapspenger",
+            contextPath, RestImplementationClasses.getImplementationClasses(), this);
     }
 
     @Override
@@ -56,8 +53,12 @@ public class ApiConfig extends Application {
             // swagger
             classes.add(OpenApiResource.class);
         }
-        // Applikasjonsoppsett
-        classes.addAll(FellesConfigClasses.getFellesConfigClasses());
+        // Applikasjonsoppsett - her er det brutt opp pga JsonSubTypes i mapper
+        classes.add(AuthenticationFilter.class);
+        classes.add(Jackson2BasicFeature.class);
+        classes.add(JacksonJsonConfig.class);
+        classes.add(ConstraintViolationMapper.class);
+        classes.add(GeneralRestExceptionMapper.class);
 
         return Collections.unmodifiableSet(classes);
     }
