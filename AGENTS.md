@@ -42,6 +42,6 @@ Quick reference for fp-sak:
 
 ### For Full Test Catalog
 
-See `AGENTS.md` in the fp-autotest repository for:
-- Complete list of test methods with DisplayNames
-- Aksjonspunkt code → test method mapping
+See the fp-autotest repository for:
+- [AKSJONSPUNKT_MAPPING.md](https://github.com/navikt/fp-autotest/blob/master/AKSJONSPUNKT_MAPPING.md) — aksjonspunkt code → test method mapping
+- [TEST_CATALOG.md](https://github.com/navikt/fp-autotest/blob/master/TEST_CATALOG.md) — complete list of test methods with DisplayNames
