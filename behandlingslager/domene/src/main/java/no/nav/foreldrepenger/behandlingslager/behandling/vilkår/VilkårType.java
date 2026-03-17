@@ -6,15 +6,15 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
 
-import jakarta.persistence.AttributeConverter;
-import jakarta.persistence.Converter;
+import jakarta.persistence.EnumeratedValue;
 
 import com.fasterxml.jackson.annotation.JsonValue;
 
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
+import no.nav.foreldrepenger.behandlingslager.kodeverk.DatabaseKode;
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
 
-public enum VilkårType implements Kodeverdi {
+public enum VilkårType implements Kodeverdi, DatabaseKode {
 
     FØDSELSVILKÅRET_MOR("FP_VK_1",
         "Fødselsvilkår Mor",
@@ -108,11 +108,6 @@ public enum VilkårType implements Kodeverdi {
         Avslagsårsak.SN_FL_HAR_IKKE_DOKUMENTERT_RISIKOFAKTORER,
         Avslagsårsak.SN_FL_HAR_MULIGHET_TIL_Å_TILRETTELEGGE_SITT_VIRKE),
 
-    /**
-     * Brukes i stedet for null der det er optional.
-     */
-    UDEFINERT(STANDARDKODE_UDEFINERT, "Ikke definert", Map.of()),
-
     ;
 
     private static final Set<VilkårType> RELASJON_TIL_BARN = Set.of(VilkårType.FØDSELSVILKÅRET_MOR, VilkårType.FØDSELSVILKÅRET_FAR_MEDMOR,
@@ -124,12 +119,13 @@ public enum VilkårType implements Kodeverdi {
 
     private Map<FagsakYtelseType, String> lovReferanser = Map.of();
 
-    private String navn;
+    private final String navn;
 
-    private Set<Avslagsårsak> avslagsårsaker;
+    private final Set<Avslagsårsak> avslagsårsaker;
 
     @JsonValue
-    private String kode;
+    @EnumeratedValue
+    private final String kode;
 
     VilkårType(String kode,
                       String navn,
@@ -193,31 +189,8 @@ public enum VilkårType implements Kodeverdi {
     }
 
     public boolean erInngangsvilkår() {
-        return !Set.of(VilkårType.UDEFINERT, MEDLEMSKAPSVILKÅRET_LØPENDE).contains(this);
+        return !MEDLEMSKAPSVILKÅRET_LØPENDE.equals(this);
     }
 
-    @Converter(autoApply = true)
-    public static class KodeverdiConverter implements AttributeConverter<VilkårType, String> {
-        @Override
-        public String convertToDatabaseColumn(VilkårType attribute) {
-            return attribute == null ? null : attribute.getKode();
-        }
-
-        @Override
-        public VilkårType convertToEntityAttribute(String dbData) {
-            return dbData == null ? null : fraKode(dbData);
-        }
-
-        private static VilkårType fraKode(String kode) {
-            if (kode == null) {
-                return null;
-            }
-            var ad = KODER.get(kode);
-            if (ad == null) {
-                throw new IllegalArgumentException("Ukjent VilkårType: " + kode);
-            }
-            return ad;
-        }
-    }
 
 }

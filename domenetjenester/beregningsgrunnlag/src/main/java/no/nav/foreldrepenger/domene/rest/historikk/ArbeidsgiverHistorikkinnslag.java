@@ -7,12 +7,12 @@ import java.util.Optional;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
+import no.nav.foreldrepenger.behandlingslager.behandling.beregning.AktivitetStatus;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
-import no.nav.foreldrepenger.behandlingslager.virksomhet.Organisasjonstype;
+import no.nav.foreldrepenger.behandlingslager.virksomhet.OrgNummer;
 import no.nav.foreldrepenger.domene.aksjonspunkt.BeregningAktivitetNøkkel;
 import no.nav.foreldrepenger.domene.arbeidsgiver.ArbeidsgiverTjeneste;
 import no.nav.foreldrepenger.domene.iay.modell.ArbeidsforholdOverstyring;
-import no.nav.foreldrepenger.behandlingslager.behandling.beregning.AktivitetStatus;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 
 @ApplicationScoped
@@ -94,7 +94,7 @@ public class ArbeidsgiverHistorikkinnslag {
         var opplysninger = arbeidsgiverTjeneste.hent(arbeidsgiver);
         var sb = new StringBuilder();
         var arbeidsgiverNavn = opplysninger.getNavn();
-        if (arbeidsgiver.getErVirksomhet() && Organisasjonstype.erKunstig(arbeidsgiver.getOrgnr())) {
+        if (arbeidsgiver.getErVirksomhet() && OrgNummer.erKunstig(arbeidsgiver.getOrgnr())) {
             arbeidsgiverNavn = hentNavnTilManueltArbeidsforhold(arbeidsforholOverstyringer);
         }
         sb.append(arbeidsgiverNavn).append(" (").append(opplysninger.getIdentifikator()).append(")");

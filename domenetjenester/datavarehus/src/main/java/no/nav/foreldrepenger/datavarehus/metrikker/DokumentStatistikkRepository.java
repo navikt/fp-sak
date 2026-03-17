@@ -62,15 +62,7 @@ public class DokumentStatistikkRepository {
             case INNTEKTSMELDING -> Dokumenttype.INNTEKTSMELDING;
             case KLAGE_DOKUMENT, KLAGE_ETTERSENDELSE -> Dokumenttype.KLAGE_ANKE;
             // case TILBAKEKREVING_UTTALSELSE, TILBAKEBETALING_UTTALSELSE -> Dokumenttype.TILBAKE; Mottas ikke i fpsak. Vil være 0
-            case DOKUMENTASJON_AV_TERMIN_ELLER_FØDSEL, DOKUMENTASJON_AV_OMSORGSOVERTAKELSE, BEKREFTELSE_VENTET_FØDSELSDATO,
-                FØDSELSATTEST, TERMINBEKREFTELSE -> Dokumenttype.FAMHENDELSE;
-            case LEGEERKLÆRING, DOK_INNLEGGELSE, BESKRIVELSE_FUNKSJONSNEDSETTELSE, MOR_INNLAGT, MOR_SYK,
-                FAR_SYK, FAR_INNLAGT, BARN_INNLAGT-> Dokumenttype.SYKDOM;
-            case DOK_FERIE, DOK_ARBEIDSFORHOLD, BEKREFTELSE_FRA_ARBEIDSGIVER, BEKREFTELSE_FRA_STUDIESTED,
-                BEKREFTELSE_DELTAR_KVALIFISERINGSPROGRAM, DOK_HV, DOK_NAV_TILTAK, MOR_ARBEID_STUDIE, MOR_ARBEID, MOR_STUDIE,
-                MOR_KVALIFISERINGSPROGRAM, I000112-> Dokumenttype.AKTIVITETSKRAV;
-            case null -> Dokumenttype.ANNET;
-            default -> Dokumenttype.ANNET;
+            case null, default -> Dokumenttype.ANNET;
         };
 
     }
@@ -87,9 +79,6 @@ public class DokumentStatistikkRepository {
         ENDRINGSSØKNAD,
         INNTEKTSMELDING,
         KLAGE_ANKE,
-        FAMHENDELSE,
-        SYKDOM,
-        AKTIVITETSKRAV,
         ANNET
     }
 }

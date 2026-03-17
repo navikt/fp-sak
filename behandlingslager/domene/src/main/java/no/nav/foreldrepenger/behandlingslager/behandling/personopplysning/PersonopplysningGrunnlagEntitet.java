@@ -58,7 +58,7 @@ public class PersonopplysningGrunnlagEntitet extends BaseEntitet {
     @Transient
     private AktørId aktørId;
 
-    PersonopplysningGrunnlagEntitet() {
+    protected PersonopplysningGrunnlagEntitet() {
     }
 
     PersonopplysningGrunnlagEntitet(PersonopplysningGrunnlagEntitet behandlingsgrunnlag) {

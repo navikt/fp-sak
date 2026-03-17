@@ -7,9 +7,10 @@ import java.util.Optional;
 import jakarta.persistence.AttributeOverride;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
-import jakarta.persistence.Convert;
 import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -39,7 +40,7 @@ public class VergeEntitet extends BaseCreateableEntitet {
     @AttributeOverride(name = "tomDato", column = @Column(name = "gyldig_tom"))
     private DatoIntervallEntitet gyldigPeriode;
 
-    @Convert(converter = VergeType.KodeverdiConverter.class)
+    @Enumerated(EnumType.STRING)
     @Column(name = "verge_type", nullable = false)
     private VergeType vergeType;
 

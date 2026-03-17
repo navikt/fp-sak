@@ -37,7 +37,7 @@ public abstract class UtgåendeHendelse extends BaseEntitet {
     @Column(name = "KILDE_ID")
     private String kildeId;
 
-    UtgåendeHendelse() {
+    protected UtgåendeHendelse() {
         // Hibernate
     }
 

@@ -10,9 +10,10 @@ import jakarta.persistence.Converter;
 
 import com.fasterxml.jackson.annotation.JsonValue;
 
+import no.nav.foreldrepenger.behandlingslager.kodeverk.DatabaseKode;
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
 
-public enum Avslagsårsak implements Kodeverdi {
+public enum Avslagsårsak implements Kodeverdi, DatabaseKode {
 
     SØKT_FOR_TIDLIG("1001", "Søkt for tidlig"),
     SØKER_ER_MEDMOR("1002", "Søker er medmor"),

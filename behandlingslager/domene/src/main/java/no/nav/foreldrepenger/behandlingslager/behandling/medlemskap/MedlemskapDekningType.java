@@ -12,9 +12,10 @@ import jakarta.persistence.Converter;
 
 import com.fasterxml.jackson.annotation.JsonValue;
 
+import no.nav.foreldrepenger.behandlingslager.kodeverk.DatabaseKode;
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
 
-public enum MedlemskapDekningType implements Kodeverdi {
+public enum MedlemskapDekningType implements Kodeverdi, DatabaseKode {
 
     FTL_2_6("FTL_2_6", "Folketrygdloven § 2-6"),
     FTL_2_7_A("FTL_2_7_a", "Folketrygdloven § 2-7 tredje ledd bokstav a"),

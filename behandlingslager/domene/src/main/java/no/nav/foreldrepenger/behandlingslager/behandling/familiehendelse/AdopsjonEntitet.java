@@ -70,7 +70,7 @@ public class AdopsjonEntitet extends BaseEntitet {
     @Column(name = "omsorg_vilkaar_type", nullable = false)
     private OmsorgsovertakelseVilkårType omsorgsovertakelseVilkårType = OmsorgsovertakelseVilkårType.UDEFINERT;
 
-    AdopsjonEntitet() {
+    protected AdopsjonEntitet() {
         // Hibernate
     }
 

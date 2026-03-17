@@ -3,19 +3,18 @@ package no.nav.foreldrepenger.behandlingslager.behandling.medlemskap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import jakarta.persistence.AttributeConverter;
-import jakarta.persistence.Converter;
+import jakarta.persistence.EnumeratedValue;
 
 import com.fasterxml.jackson.annotation.JsonValue;
 
+import no.nav.foreldrepenger.behandlingslager.kodeverk.DatabaseKode;
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
 
-public enum MedlemskapType implements Kodeverdi {
+public enum MedlemskapType implements Kodeverdi, DatabaseKode {
 
     ENDELIG("ENDELIG", "Endelig"),
     FORELOPIG("FORELOPIG", "Foreløpig"),
     UNDER_AVKLARING("AVKLARES", "Under avklaring"),
-    UDEFINERT(STANDARDKODE_UDEFINERT, "Ikke definert"),
     ;
 
     private static final Map<String, MedlemskapType> KODER = new LinkedHashMap<>();
@@ -31,6 +30,7 @@ public enum MedlemskapType implements Kodeverdi {
     private final String navn;
 
     @JsonValue
+    @EnumeratedValue
     private final String kode;
 
     MedlemskapType(String kode, String navn) {
@@ -48,27 +48,4 @@ public enum MedlemskapType implements Kodeverdi {
         return kode;
     }
 
-    @Converter(autoApply = true)
-    public static class KodeverdiConverter implements AttributeConverter<MedlemskapType, String> {
-        @Override
-        public String convertToDatabaseColumn(MedlemskapType attribute) {
-            return attribute == null ? null : attribute.getKode();
-        }
-
-        @Override
-        public MedlemskapType convertToEntityAttribute(String dbData) {
-            return dbData == null ? null : fraKode(dbData);
-        }
-
-        private static MedlemskapType fraKode(String kode) {
-            if (kode == null) {
-                return null;
-            }
-            var ad = KODER.get(kode);
-            if (ad == null) {
-                throw new IllegalArgumentException("Ukjent MedlemskapType: " + kode);
-            }
-            return ad;
-        }
-    }
 }

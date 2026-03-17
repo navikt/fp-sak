@@ -18,12 +18,11 @@
   "minReplicas": "1",
   "maxReplicas": "3",
   "limits": {
-    "cpu": "4",
-    "mem": "3072Mi"
+    "mem": "2Gi"
   },
   "requests": {
-    "cpu": "500m",
-    "mem": "2816Mi"
+    "cpu": "45m",
+    "mem": "1536Mi"
   },
   "ingresses": [
     "https://fpsak-api.dev-fss-pub.nais.io",
@@ -61,6 +60,11 @@
       "app": "fpformidling",
       "namespace": "teamforeldrepenger",
       "cluster": "dev-fss"
+    },
+    {
+      "app": "fpformidling",
+      "namespace": "teamforeldrepenger",
+      "cluster": "dev-gcp"
     },
     {
       "app": "fplos",

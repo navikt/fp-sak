@@ -17,6 +17,8 @@ import no.nav.foreldrepenger.web.app.tjenester.behandling.aksjonspunkt.Behandlin
 import no.nav.vedtak.exception.FunksjonellException;
 import no.nav.vedtak.exception.ManglerTilgangException;
 import no.nav.vedtak.exception.TekniskException;
+import no.nav.vedtak.feil.FeilDto;
+import no.nav.vedtak.feil.FeilType;
 import no.nav.vedtak.log.util.MemoryAppender;
 
 @Execution(ExecutionMode.SAME_THREAD)
@@ -28,7 +30,7 @@ class GeneralRestExceptionMapperTest {
 
     @BeforeEach
     void setUp() {
-        logSniffer = MemoryAppender.sniff(GeneralRestExceptionMapper.class);
+        logSniffer = MemoryAppender.sniff(no.nav.vedtak.server.rest.GeneralRestExceptionMapper.class);
     }
 
     @AfterEach
@@ -47,10 +49,9 @@ class GeneralRestExceptionMapperTest {
         assertThat(response.getEntity()).isInstanceOf(FeilDto.class);
         var feilDto = (FeilDto) response.getEntity();
 
-        assertThat(feilDto.getFeilmelding())
+        assertThat(feilDto.feiltype())
             .isEqualTo("Det oppstod valideringsfeil på felt [Et feltnavn]. Vennligst kontroller at alle feltverdier er korrekte.");
-        assertThat(feilDto.getFeltFeil()).hasSize(1);
-        assertThat(feilDto.getFeltFeil().iterator().next()).isEqualTo(feltFeilDto);
+        assertThat(feilDto.feilmelding()).isEqualTo(feltFeilDto.getNavn() + ": " + feltFeilDto.getMelding());
         assertThat(logSniffer.search("feltnavn", Level.WARN)).isEmpty();
     }
 
@@ -62,8 +63,8 @@ class GeneralRestExceptionMapperTest {
         assertThat(response.getEntity()).isInstanceOf(FeilDto.class);
         var feilDto = (FeilDto) response.getEntity();
 
-        assertThat(feilDto.getType()).isEqualTo(FeilType.MANGLER_TILGANG_FEIL);
-        assertThat(feilDto.getFeilmelding()).contains("ManglerTilgangFeilmeldingKode");
+        assertThat(feilDto.feiltype()).isEqualTo(FeilType.MANGLER_TILGANG_FEIL.name());
+        assertThat(feilDto.feilmelding()).contains("ManglerTilgangFeilmeldingKode");
         assertThat(logSniffer.search("ManglerTilgangFeilmeldingKode", Level.WARN)).isEmpty();
     }
 
@@ -74,9 +75,9 @@ class GeneralRestExceptionMapperTest {
         assertThat(response.getEntity()).isInstanceOf(FeilDto.class);
         var feilDto = (FeilDto) response.getEntity();
 
-        assertThat(feilDto.getFeilmelding()).contains("FUNK_FEIL");
-        assertThat(feilDto.getFeilmelding()).contains("en funksjonell feilmelding");
-        assertThat(feilDto.getFeilmelding()).contains("et løsningsforslag");
+        assertThat(feilDto.feilmelding()).contains("FUNK_FEIL");
+        assertThat(feilDto.feilmelding()).contains("en funksjonell feilmelding");
+        assertThat(feilDto.feilmelding()).contains("et løsningsforslag");
         assertThat(logSniffer.search("en funksjonell feilmelding", Level.WARN)).hasSize(1);
     }
 
@@ -87,8 +88,8 @@ class GeneralRestExceptionMapperTest {
         assertThat(response.getEntity()).isInstanceOf(FeilDto.class);
         var feilDto = (FeilDto) response.getEntity();
 
-        assertThat(feilDto.getFeilmelding()).contains("endret av en annen saksbehandler");
-        assertThat(feilDto.getFeilmelding()).contains("Last inn behandlingen");
+        assertThat(feilDto.feilmelding()).contains("endret av en annen saksbehandler");
+        assertThat(feilDto.feilmelding()).contains("Last inn behandlingen");
         assertThat(logSniffer.search("Last inn behandlingen", Level.WARN)).isEmpty();
     }
 
@@ -99,8 +100,8 @@ class GeneralRestExceptionMapperTest {
         assertThat(response.getEntity()).isInstanceOf(FeilDto.class);
         var feilDto = (FeilDto) response.getEntity();
 
-        assertThat(feilDto.getFeilmelding()).contains("TEK_FEIL");
-        assertThat(feilDto.getFeilmelding()).contains("en teknisk feilmelding");
+        assertThat(feilDto.feilmelding()).contains("TEK_FEIL");
+        assertThat(feilDto.feilmelding()).contains("en teknisk feilmelding");
         assertThat(logSniffer.search("en teknisk feilmelding", Level.WARN)).hasSize(1);
     }
 
@@ -115,7 +116,7 @@ class GeneralRestExceptionMapperTest {
         assertThat(response.getEntity()).isInstanceOf(FeilDto.class);
         var feilDto = (FeilDto) response.getEntity();
 
-        assertThat(feilDto.getFeilmelding()).contains("TEKST");
+        assertThat(feilDto.feilmelding()).contains("TEKST");
         assertThat(logSniffer.search("TEKST", Level.WARN)).hasSize(1);
     }
 
@@ -129,7 +130,7 @@ class GeneralRestExceptionMapperTest {
         assertThat(response.getEntity()).isInstanceOf(FeilDto.class);
         var feilDto = (FeilDto) response.getEntity();
 
-        assertThat(feilDto.getFeilmelding()).contains(feilmelding);
+        assertThat(feilDto.feilmelding()).contains(feilmelding);
         assertThat(logSniffer.search(feilmelding, Level.WARN)).hasSize(1);
     }
 
@@ -144,7 +145,7 @@ class GeneralRestExceptionMapperTest {
         assertThat(response.getEntity()).isInstanceOf(FeilDto.class);
         var feilDto = (FeilDto) response.getEntity();
 
-        assertThat(feilDto.getFeilmelding()).contains(feilmelding);
+        assertThat(feilDto.feilmelding()).contains(feilmelding);
         assertThat(logSniffer.search(feilmelding, Level.WARN)).hasSize(1);
     }
 

@@ -214,7 +214,6 @@ record BrevGrunnlagDto(UUID uuid, String saksnummer, FagsakYtelseType fagsakYtel
             INNVILGET,
             DELVIS_INNVILGET,
             AVVIST,
-            UDEFINERT,
         }
 
         record InnsynDokument(String journalpostId, String dokumentId) {
@@ -264,7 +263,6 @@ record BrevGrunnlagDto(UUID uuid, String saksnummer, FagsakYtelseType fagsakYtel
             BEREGNINGSGRUNNLAGVILKÅR,
             SVANGERSKAPSPENGERVILKÅR,
             OMSORGSOVERTAKELSEVILKÅR,
-            UDEFINERT,
         }
 
         enum KonsekvensForYtelsen {

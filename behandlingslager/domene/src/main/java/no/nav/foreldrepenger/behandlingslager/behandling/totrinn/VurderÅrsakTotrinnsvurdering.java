@@ -3,8 +3,9 @@ package no.nav.foreldrepenger.behandlingslager.behandling.totrinn;
 import java.util.Objects;
 
 import jakarta.persistence.Column;
-import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -28,7 +29,7 @@ public class VurderÅrsakTotrinnsvurdering extends BaseEntitet implements IndexK
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "SEQ_VURDER_AARSAK_TTVURDERING")
     private Long id;
 
-    @Convert(converter = VurderÅrsak.KodeverdiConverter.class)
+    @Enumerated(EnumType.STRING)
     @Column(name="aarsak_type", nullable=false, updatable=false)
     private VurderÅrsak årsaksType;
 
@@ -36,7 +37,7 @@ public class VurderÅrsakTotrinnsvurdering extends BaseEntitet implements IndexK
     @JoinColumn(name = "totrinnsvurdering_id", nullable = false, updatable=false)
     private Totrinnsvurdering totrinnsvurdering;
 
-    VurderÅrsakTotrinnsvurdering() {
+    protected VurderÅrsakTotrinnsvurdering() {
         // for Hibernate
     }
 

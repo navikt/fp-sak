@@ -5,6 +5,8 @@ import java.util.Objects;
 import jakarta.persistence.Column;
 import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -24,7 +26,7 @@ public class BehandlingStegTilstand extends BaseEntitet implements IndexKey {
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "SEQ_BEHANDLING_STEG_TILSTAND")
     private Long id;
 
-    @Convert(converter = BehandlingStegType.KodeverdiConverter.class)
+    @Enumerated(EnumType.STRING)
     @Column(name = "behandling_steg", nullable = false, updatable = false)
     private BehandlingStegType behandlingSteg;
 
@@ -40,7 +42,7 @@ public class BehandlingStegTilstand extends BaseEntitet implements IndexKey {
     @Column(name = "versjon", nullable = false)
     private long versjon;
 
-    BehandlingStegTilstand() {
+    protected BehandlingStegTilstand() {
         // for hibernate
     }
 

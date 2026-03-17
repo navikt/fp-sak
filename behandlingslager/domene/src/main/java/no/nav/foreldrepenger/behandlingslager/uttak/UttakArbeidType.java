@@ -4,9 +4,10 @@ import jakarta.persistence.EnumeratedValue;
 
 import com.fasterxml.jackson.annotation.JsonValue;
 
+import no.nav.foreldrepenger.behandlingslager.kodeverk.DatabaseKode;
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
 
-public enum UttakArbeidType implements Kodeverdi {
+public enum UttakArbeidType implements Kodeverdi, DatabaseKode {
 
     ORDINÆRT_ARBEID("ORDINÆRT_ARBEID", "Ordinært arbeid"),
     SELVSTENDIG_NÆRINGSDRIVENDE("SELVSTENDIG_NÆRINGSDRIVENDE", "Selvstendig næringsdrivende"),

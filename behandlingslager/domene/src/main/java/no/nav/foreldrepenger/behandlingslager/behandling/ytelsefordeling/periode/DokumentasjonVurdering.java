@@ -4,11 +4,11 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Objects;
 
-import jakarta.persistence.AttributeConverter;
-import jakarta.persistence.Converter;
+import jakarta.persistence.EnumeratedValue;
 
 import com.fasterxml.jackson.annotation.JsonValue;
 
+import no.nav.foreldrepenger.behandlingslager.kodeverk.DatabaseKode;
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.MorsStillingsprosent;
 
@@ -29,7 +29,7 @@ public record DokumentasjonVurdering(Type type, MorsStillingsprosent morsStillin
         return type.erGodkjent();
     }
 
-    public enum Type implements Kodeverdi {
+    public enum Type implements Kodeverdi, DatabaseKode {
         ///Både utsettelse
         SYKDOM_SØKER_GODKJENT("SYKDOM_SØKER_GODKJENT", "Søker er syk", true),
         SYKDOM_SØKER_IKKE_GODKJENT("SYKDOM_SØKER_IKKE_GODKJENT", "Søker er ikke syk", false),
@@ -72,11 +72,12 @@ public record DokumentasjonVurdering(Type type, MorsStillingsprosent morsStillin
             }
         }
 
-        private String navn;
+        private final String navn;
         @JsonValue
-        private String kode;
+        @EnumeratedValue
+        private final String kode;
 
-        private boolean godkjent;
+        private final boolean godkjent;
 
         Type(String kode, String navn, boolean godkjent) {
             this.kode = kode;
@@ -96,30 +97,6 @@ public record DokumentasjonVurdering(Type type, MorsStillingsprosent morsStillin
 
         public boolean erGodkjent() {
             return godkjent;
-        }
-
-        @Converter(autoApply = true)
-        public static class KodeverdiConverter implements AttributeConverter<Type, String> {
-            @Override
-            public String convertToDatabaseColumn(Type attribute) {
-                return attribute == null ? null : attribute.getKode();
-            }
-
-            @Override
-            public Type convertToEntityAttribute(String dbData) {
-                return dbData == null ? null : fraKode(dbData);
-            }
-
-            private static Type fraKode(String kode) {
-                if (kode == null) {
-                    return null;
-                }
-                var ad = KODER.get(kode);
-                if (ad == null) {
-                    throw new IllegalArgumentException("Ukjent Dokumentasjonsvurdering: " + kode);
-                }
-                return ad;
-            }
         }
     }
 }

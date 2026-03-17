@@ -8,9 +8,10 @@ import jakarta.persistence.Converter;
 
 import com.fasterxml.jackson.annotation.JsonValue;
 
+import no.nav.foreldrepenger.behandlingslager.kodeverk.DatabaseKode;
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
 
-public enum FarSøkerType implements Kodeverdi {
+public enum FarSøkerType implements Kodeverdi, DatabaseKode {
     ADOPTERER_ALENE("ADOPTERER_ALENE", "Adopterer barnet eller barna alene"),
     ANDRE_FORELDER_DØD("ANDRE_FORELDER_DØD", "Den andre forelderen er død"),
     OVERTATT_OMSORG("OVERTATT_OMSORG", "Overtatt omsorg < 56 uker"),

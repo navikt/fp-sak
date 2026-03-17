@@ -9,6 +9,8 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Convert;
 import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -44,7 +46,7 @@ public class PersonopplysningEntitet extends BaseEntitet implements HarAktørId,
     private NavBrukerKjønn brukerKjønn = NavBrukerKjønn.UDEFINERT;
 
     @ChangeTracked
-    @Convert(converter = SivilstandType.KodeverdiConverter.class)
+    @Enumerated(EnumType.STRING)
     @Column(name = "sivilstand_type", nullable = false)
     private SivilstandType sivilstand = SivilstandType.UOPPGITT;
 
@@ -64,7 +66,7 @@ public class PersonopplysningEntitet extends BaseEntitet implements HarAktørId,
     @JoinColumn(name = "po_informasjon_id", nullable = false, updatable = false)
     private PersonInformasjonEntitet personopplysningInformasjon;
 
-    PersonopplysningEntitet() {
+    protected PersonopplysningEntitet() {
     }
 
     PersonopplysningEntitet(PersonopplysningEntitet personopplysning) {

@@ -9,9 +9,10 @@ import jakarta.persistence.Converter;
 
 import com.fasterxml.jackson.annotation.JsonValue;
 
+import no.nav.foreldrepenger.behandlingslager.kodeverk.DatabaseKode;
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
 
-public enum Inntektskategori implements Kodeverdi {
+public enum Inntektskategori implements Kodeverdi, DatabaseKode {
 
     ARBEIDSTAKER("ARBEIDSTAKER", "Arbeidstaker"),
     FRILANSER("FRILANSER", "Frilanser"),

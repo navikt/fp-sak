@@ -23,7 +23,6 @@ import no.nav.foreldrepenger.behandlingskontroll.AksjonspunktResultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.OpptjeningRepository;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.ArbeidType;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.OrgNummer;
-import no.nav.foreldrepenger.behandlingslager.virksomhet.Organisasjonstype;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.iay.modell.AktivitetsAvtale;
 import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlag;
@@ -89,7 +88,7 @@ public class AksjonspunktutlederForVurderBekreftetOpptjening {
                     .stream()
                     .anyMatch(ya -> {
                         var arbeidsgiver = ya.getArbeidsgiver();
-                        return arbeidsgiver.getErVirksomhet() && Organisasjonstype.erKunstig(arbeidsgiver.getOrgnr());
+                        return arbeidsgiver.getErVirksomhet() && OrgNummer.erKunstig(arbeidsgiver.getOrgnr());
                     })
                             ? JA
                             : NEI;
@@ -120,7 +119,7 @@ public class AksjonspunktutlederForVurderBekreftetOpptjening {
         if (filter.getAnsettelsesPerioder(yrkesaktivitet).stream().noneMatch(asp -> opptjeningPeriode.overlapper(asp.getPeriode()))) {
             return false;
         }
-        if (yrkesaktivitet.getArbeidsgiver().getErVirksomhet() && Organisasjonstype.erKunstig(yrkesaktivitet.getArbeidsgiver().getOrgnr())) {
+        if (yrkesaktivitet.getArbeidsgiver().getErVirksomhet() && OrgNummer.erKunstig(yrkesaktivitet.getArbeidsgiver().getOrgnr())) {
             return true;
         }
         return filter.getAktivitetsAvtalerForArbeid(yrkesaktivitet).stream()
@@ -146,7 +145,7 @@ public class AksjonspunktutlederForVurderBekreftetOpptjening {
         if (!opptjeningPeriode.overlapper(ansettelsesPeriode.getPeriode())) {
             return false;
         }
-        if (registerAktivitet.getArbeidsgiver().getErVirksomhet() && Organisasjonstype.erKunstig(registerAktivitet.getArbeidsgiver().getOrgnr())) {
+        if (registerAktivitet.getArbeidsgiver().getErVirksomhet() && OrgNummer.erKunstig(registerAktivitet.getArbeidsgiver().getOrgnr())) {
             return true;
         }
         return filter.getAktivitetsAvtalerForArbeid(registerAktivitet).stream()

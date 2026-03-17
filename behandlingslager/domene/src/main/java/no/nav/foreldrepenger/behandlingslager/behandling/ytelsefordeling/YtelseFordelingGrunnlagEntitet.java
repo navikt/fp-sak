@@ -92,7 +92,7 @@ public class YtelseFordelingGrunnlagEntitet extends BaseEntitet {
     @Column(name = "versjon", nullable = false)
     private long versjon;
 
-    YtelseFordelingGrunnlagEntitet() {
+    protected YtelseFordelingGrunnlagEntitet() {
     }
 
     OppgittFordelingEntitet getOppgittFordeling() {

@@ -8,9 +8,10 @@ import jakarta.persistence.Converter;
 
 import com.fasterxml.jackson.annotation.JsonValue;
 
+import no.nav.foreldrepenger.behandlingslager.kodeverk.DatabaseKode;
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
 
-public enum NavBrukerKjønn implements Kodeverdi {
+public enum NavBrukerKjønn implements Kodeverdi, DatabaseKode {
 
     KVINNE("K", "Kvinne"),
     MANN("M", "Mann"),

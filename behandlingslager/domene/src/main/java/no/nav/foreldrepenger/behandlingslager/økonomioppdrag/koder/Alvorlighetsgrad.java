@@ -4,10 +4,11 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Objects;
 
-import jakarta.persistence.AttributeConverter;
-import jakarta.persistence.Converter;
+import jakarta.persistence.EnumeratedValue;
 
-public enum Alvorlighetsgrad {
+import no.nav.foreldrepenger.behandlingslager.kodeverk.DatabaseKode;
+
+public enum Alvorlighetsgrad implements DatabaseKode {
     OK("00"),
     OK_MED_MERKNAD("04"),
     FEIL("08")
@@ -23,6 +24,7 @@ public enum Alvorlighetsgrad {
         }
     }
 
+    @EnumeratedValue
     private final String kode;
 
     Alvorlighetsgrad(String kode) {
@@ -40,18 +42,5 @@ public enum Alvorlighetsgrad {
 
     public String getKode() {
         return kode;
-    }
-
-    @Converter(autoApply = true)
-    public static class KodeverdiConverter implements AttributeConverter<Alvorlighetsgrad, String> {
-        @Override
-        public String convertToDatabaseColumn(Alvorlighetsgrad attribute) {
-            return attribute.getKode();
-        }
-
-        @Override
-        public Alvorlighetsgrad convertToEntityAttribute(String dbData) {
-            return fraKode(dbData);
-        }
     }
 }

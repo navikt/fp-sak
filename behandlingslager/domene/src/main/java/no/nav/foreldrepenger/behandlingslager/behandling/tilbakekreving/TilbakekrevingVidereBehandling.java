@@ -3,14 +3,14 @@ package no.nav.foreldrepenger.behandlingslager.behandling.tilbakekreving;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import jakarta.persistence.AttributeConverter;
-import jakarta.persistence.Converter;
+import jakarta.persistence.EnumeratedValue;
 
 import com.fasterxml.jackson.annotation.JsonValue;
 
+import no.nav.foreldrepenger.behandlingslager.kodeverk.DatabaseKode;
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
 
-public enum TilbakekrevingVidereBehandling implements Kodeverdi {
+public enum TilbakekrevingVidereBehandling implements Kodeverdi, DatabaseKode {
 
     UDEFINIERT(STANDARDKODE_UDEFINERT, "Udefinert."),
     OPPRETT_TILBAKEKREVING("TILBAKEKR_OPPRETT", "Feilutbetaling med tilbakekreving"),
@@ -32,6 +32,7 @@ public enum TilbakekrevingVidereBehandling implements Kodeverdi {
     private final String navn;
 
     @JsonValue
+    @EnumeratedValue
     private final String kode;
 
     TilbakekrevingVidereBehandling(String kode, String navn) {
@@ -49,27 +50,4 @@ public enum TilbakekrevingVidereBehandling implements Kodeverdi {
         return kode;
     }
 
-    @Converter(autoApply = true)
-    public static class KodeverdiConverter implements AttributeConverter<TilbakekrevingVidereBehandling, String> {
-        @Override
-        public String convertToDatabaseColumn(TilbakekrevingVidereBehandling attribute) {
-            return attribute == null ? null : attribute.getKode();
-        }
-
-        @Override
-        public TilbakekrevingVidereBehandling convertToEntityAttribute(String dbData) {
-            return dbData == null ? null : fraKode(dbData);
-        }
-
-        private static TilbakekrevingVidereBehandling fraKode(String kode) {
-            if (kode == null) {
-                return null;
-            }
-            var ad = KODER.get(kode);
-            if (ad == null) {
-                throw new IllegalArgumentException("Ukjent TilbakekrevingVidereBehandling: " + kode);
-            }
-            return ad;
-        }
-    }
 }

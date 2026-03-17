@@ -4,18 +4,18 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
 
-import jakarta.persistence.AttributeConverter;
-import jakarta.persistence.Converter;
+import jakarta.persistence.EnumeratedValue;
 
 import com.fasterxml.jackson.annotation.JsonValue;
 
+import no.nav.foreldrepenger.behandlingslager.kodeverk.DatabaseKode;
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
 
 /**
  * NB: Pass på! Ikke legg koder vilkårlig her
  * Denne definerer etablerte behandlingstatuser ihht. modell angitt av FFA (Forretning og Fag).
  */
-public enum BehandlingStatus implements Kodeverdi {
+public enum BehandlingStatus implements Kodeverdi, DatabaseKode {
 
     AVSLUTTET("AVSLU", "Avsluttet"),
     FATTER_VEDTAK("FVED", "Fatter vedtak"),
@@ -31,6 +31,7 @@ public enum BehandlingStatus implements Kodeverdi {
 
     private final String navn;
     @JsonValue
+    @EnumeratedValue
     private final String kode;
 
     BehandlingStatus(String kode, String navn) {
@@ -75,17 +76,4 @@ public enum BehandlingStatus implements Kodeverdi {
         }
     }
 
-    @Converter(autoApply = true)
-    public static class KodeverdiConverter implements AttributeConverter<BehandlingStatus, String> {
-        @Override
-        public String convertToDatabaseColumn(BehandlingStatus attribute) {
-            return attribute == null ? null : attribute.getKode();
-        }
-
-        @Override
-        public BehandlingStatus convertToEntityAttribute(String dbData) {
-            return dbData == null ? null : fraKode(dbData);
-        }
-
-    }
 }

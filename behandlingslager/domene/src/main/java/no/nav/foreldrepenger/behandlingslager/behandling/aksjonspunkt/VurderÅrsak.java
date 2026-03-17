@@ -3,14 +3,14 @@ package no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import jakarta.persistence.AttributeConverter;
-import jakarta.persistence.Converter;
+import jakarta.persistence.EnumeratedValue;
 
 import com.fasterxml.jackson.annotation.JsonValue;
 
+import no.nav.foreldrepenger.behandlingslager.kodeverk.DatabaseKode;
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
 
-public enum VurderÅrsak implements Kodeverdi {
+public enum VurderÅrsak implements Kodeverdi, DatabaseKode {
 
     FEIL_FAKTA("FEIL_FAKTA", "Fakta"),
     FEIL_LOV("FEIL_LOV", "Regel-/lovanvendelse"),
@@ -18,7 +18,6 @@ public enum VurderÅrsak implements Kodeverdi {
     UTREDNING("UTREDNING", "Utredning"),
     SAKSFLYT("SAKSFLYT", "Saksflyt"),
     BEGRUNNELSE("BEGRUNNELSE", "Begrunnelse"),
-    UDEFINERT(STANDARDKODE_UDEFINERT, "Ikke definert"),
 
     @Deprecated
     ANNET("ANNET", "Annet"), // UTGÅTT, beholdes pga historikk
@@ -39,6 +38,7 @@ public enum VurderÅrsak implements Kodeverdi {
     private final String navn;
 
     @JsonValue
+    @EnumeratedValue
     private final String kode;
 
     VurderÅrsak(String kode, String navn) {
@@ -65,19 +65,6 @@ public enum VurderÅrsak implements Kodeverdi {
     @Override
     public String getKode() {
         return kode;
-    }
-
-    @Converter(autoApply = true)
-    public static class KodeverdiConverter implements AttributeConverter<VurderÅrsak, String> {
-        @Override
-        public String convertToDatabaseColumn(VurderÅrsak attribute) {
-            return attribute == null ? null : attribute.getKode();
-        }
-
-        @Override
-        public VurderÅrsak convertToEntityAttribute(String dbData) {
-            return dbData == null ? null : fraKode(dbData);
-        }
     }
 
 }

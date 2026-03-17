@@ -195,7 +195,7 @@ public class KabalHendelseHåndterer implements KafkaMessageHandler.KafkaStringM
     }
 
     @Override
-    public Optional<OffsetResetStrategy> autoOffsetReset() {
-        return Optional.of(OffsetResetStrategy.EARLIEST); // For sikkerhets skyld - dersom lavt ferievolum
+    public Optional<StrategyType> autoOffsetReset() {
+        return Optional.of(StrategyType.EARLIEST); // For sikkerhets skyld - dersom lavt ferievolum
     }
 }

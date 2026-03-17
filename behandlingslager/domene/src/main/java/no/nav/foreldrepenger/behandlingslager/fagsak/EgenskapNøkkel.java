@@ -3,7 +3,9 @@ package no.nav.foreldrepenger.behandlingslager.fagsak;
 import jakarta.persistence.AttributeConverter;
 import jakarta.persistence.Converter;
 
-public enum EgenskapNøkkel {
+import no.nav.foreldrepenger.behandlingslager.kodeverk.DatabaseKode;
+
+public enum EgenskapNøkkel implements DatabaseKode {
 
     UTLAND_DOKUMENTASJON,
     FAGSAK_MARKERING;

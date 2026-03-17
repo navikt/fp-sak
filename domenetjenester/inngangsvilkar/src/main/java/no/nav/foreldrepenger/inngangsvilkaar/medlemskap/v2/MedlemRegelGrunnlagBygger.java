@@ -165,7 +165,7 @@ public class MedlemRegelGrunnlagBygger {
         return switch (region) {
             case NORDEN -> Personopplysninger.Region.NORDEN;
             case EOS -> Personopplysninger.Region.EØS;
-            case TREDJELANDS_BORGER, UDEFINERT -> Personopplysninger.Region.TREDJELAND;
+            case TREDJELANDS_BORGER -> Personopplysninger.Region.TREDJELAND;
         };
     }
 

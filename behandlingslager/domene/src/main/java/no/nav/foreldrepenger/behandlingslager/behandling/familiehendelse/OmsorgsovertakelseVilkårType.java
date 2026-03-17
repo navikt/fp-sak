@@ -12,9 +12,10 @@ import jakarta.persistence.Converter;
 import com.fasterxml.jackson.annotation.JsonValue;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.Avslagsårsak;
+import no.nav.foreldrepenger.behandlingslager.kodeverk.DatabaseKode;
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
 
-public enum OmsorgsovertakelseVilkårType implements Kodeverdi {
+public enum OmsorgsovertakelseVilkårType implements Kodeverdi, DatabaseKode {
 
     ES_ADOPSJONSVILKÅRET("FP_VK_4", "Adopsjon § 14-17 første ledd",
         Avslagsårsak.EKTEFELLES_SAMBOERS_BARN,
@@ -50,6 +51,8 @@ public enum OmsorgsovertakelseVilkårType implements Kodeverdi {
 
     private static final Map<String, OmsorgsovertakelseVilkårType> KODER = new LinkedHashMap<>();
 
+    private static final Set<OmsorgsovertakelseVilkårType> ADOPSJON = Set.of(ES_ADOPSJONSVILKÅRET, FP_ADOPSJONSVILKÅRET, FP_STEBARNSADOPSJONSVILKÅRET);
+
     private final String navn;
 
     private final Set<Avslagsårsak> avslagsårsaker;
@@ -71,6 +74,14 @@ public enum OmsorgsovertakelseVilkårType implements Kodeverdi {
     @Override
     public String getKode() {
         return kode;
+    }
+
+    public static boolean gjelderAdopsjon(OmsorgsovertakelseVilkårType type) {
+        return ADOPSJON.contains(type);
+    }
+
+    public static boolean gjelderOmsorg(OmsorgsovertakelseVilkårType type) {
+        return !ADOPSJON.contains(type) && !UDEFINERT.equals(type);
     }
 
     public List<Avslagsårsak> getAvslagsårsaker() {

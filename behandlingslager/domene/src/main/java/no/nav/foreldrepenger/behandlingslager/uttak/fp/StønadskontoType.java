@@ -8,9 +8,10 @@ import jakarta.persistence.EnumeratedValue;
 import com.fasterxml.jackson.annotation.JsonValue;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeType;
+import no.nav.foreldrepenger.behandlingslager.kodeverk.DatabaseKode;
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
 
-public enum StønadskontoType implements Kodeverdi {
+public enum StønadskontoType implements Kodeverdi, DatabaseKode {
 
     /*
      * Alle kvanta av dager som er definert i Ftl 14-9 ... 14-15 fom 1/1-2019

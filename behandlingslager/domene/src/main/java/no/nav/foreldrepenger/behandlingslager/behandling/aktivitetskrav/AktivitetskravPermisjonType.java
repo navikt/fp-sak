@@ -8,9 +8,10 @@ import jakarta.persistence.Converter;
 
 import com.fasterxml.jackson.annotation.JsonValue;
 
+import no.nav.foreldrepenger.behandlingslager.kodeverk.DatabaseKode;
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
 
-public enum AktivitetskravPermisjonType implements Kodeverdi {
+public enum AktivitetskravPermisjonType implements Kodeverdi, DatabaseKode {
 
     UDEFINERT(STANDARDKODE_UDEFINERT, "Ikke definert"),
     UTDANNING("UTDANNING", "Utdanning"),

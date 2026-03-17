@@ -6,8 +6,6 @@ import java.util.List;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
-import no.nav.vedtak.felles.integrasjon.oppgave.v1.Oppgavestatus;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -199,14 +197,11 @@ public class OppgaveTjeneste {
     }
 
     public void ferdigstillOppgave(String oppgaveId) {
-        var oppgave = hentOppgave(oppgaveId);
-        if (!oppgave.status().equals(Oppgavestatus.FEILREGISTRERT) && !oppgave.status().equals(Oppgavestatus.FERDIGSTILT)) {
-            try {
-                avslutt(oppgaveId);
-            } catch (Exception e) {
-                LOG.warn("Kunne ikke ferdigstille oppgave med id {}", oppgaveId, e);
-                throw new TekniskException("FP-395342", "Noe feilet ved ferdigstilling av oppgave", e);
-            }
+        try {
+            avslutt(oppgaveId);
+        } catch (Exception e) {
+            LOG.warn("Kunne ikke ferdigstille oppgave med id {}", oppgaveId, e);
+            throw new TekniskException("FP-395342", "Noe feilet ved ferdigstilling av oppgave", e);
         }
     }
 
@@ -219,14 +214,5 @@ public class OppgaveTjeneste {
     public void avslutt(String oppgaveId) {
         restKlient.ferdigstillOppgave(oppgaveId);
         LOG.info("FPSAK GOSYS ferdigstilte oppgave {}", oppgaveId);
-    }
-
-    private Oppgave hentOppgave(String oppgaveId) {
-        try {
-            return restKlient.hentOppgave(oppgaveId);
-        } catch (Exception e) {
-            LOG.warn("Kunne ikke hente oppgave med id {}", oppgaveId, e);
-            throw new TekniskException("FP-395343", "Noe feilet ved henting av oppgave", e);
-        }
     }
 }

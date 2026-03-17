@@ -74,7 +74,7 @@ public class VilkårBuilder {
     }
 
     Vilkår build() {
-        if (VilkårType.UDEFINERT.equals(kladd.getVilkårType()) || VilkårUtfallType.UDEFINERT.equals(kladd.getGjeldendeVilkårUtfall())) {
+        if (kladd.getVilkårType() == null || VilkårUtfallType.UDEFINERT.equals(kladd.getGjeldendeVilkårUtfall())) {
             throw new IllegalStateException("Mangler vilkårType");
         }
         return kladd;

@@ -8,9 +8,10 @@ import jakarta.persistence.Converter;
 
 import com.fasterxml.jackson.annotation.JsonValue;
 
+import no.nav.foreldrepenger.behandlingslager.kodeverk.DatabaseKode;
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
 
-public enum VilkårUtfallMerknad implements Kodeverdi {
+public enum VilkårUtfallMerknad implements Kodeverdi, DatabaseKode {
 
     VM_1001("1001", "Søknad er sendt før 26. svangerskapsuke er passert og barnet er ikke født"),
     VM_1002("1002", "Søker er medmor (forelder2) og har søkt om engangsstønad til mor"),

@@ -6,6 +6,8 @@ import java.util.Objects;
 import jakarta.persistence.Column;
 import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -32,7 +34,7 @@ public class Etterkontroll extends BaseEntitet {
     @Column(name = "kontroll_tid", nullable = false)
     private LocalDateTime kontrollTidspunkt;
 
-    @Convert(converter = KontrollType.KodeverdiConverter.class)
+    @Enumerated(EnumType.STRING)
     @Column(name = "kontroll_type", nullable = false)
     private KontrollType kontrollType;
 
@@ -40,7 +42,7 @@ public class Etterkontroll extends BaseEntitet {
     @Column(name = "behandlet", nullable = false)
     private boolean erBehandlet = false;
 
-    Etterkontroll() {
+    protected Etterkontroll() {
         // hibernarium
     }
 

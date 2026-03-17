@@ -53,7 +53,7 @@ public class OppgittRettighetEntitet extends BaseEntitet {
     @ChangeTracked
     private Boolean annenForelderRettEØS;
 
-    OppgittRettighetEntitet() {
+    protected OppgittRettighetEntitet() {
     }
 
     public OppgittRettighetEntitet(Boolean harAnnenForeldreRett,

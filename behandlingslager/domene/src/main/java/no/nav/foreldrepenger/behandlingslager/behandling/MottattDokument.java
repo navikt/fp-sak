@@ -80,7 +80,7 @@ public class MottattDokument extends BaseEntitet {
     @Column(name = "fagsak_id", nullable = false)
     private Long fagsakId;
 
-    MottattDokument() {
+    protected MottattDokument() {
         // Hibernate
     }
 

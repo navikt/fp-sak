@@ -5,14 +5,14 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import jakarta.persistence.AttributeConverter;
-import jakarta.persistence.Converter;
+import jakarta.persistence.EnumeratedValue;
 
 import com.fasterxml.jackson.annotation.JsonValue;
 
+import no.nav.foreldrepenger.behandlingslager.kodeverk.DatabaseKode;
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
 
-public enum AksjonspunktStatus implements Kodeverdi {
+public enum AksjonspunktStatus implements Kodeverdi, DatabaseKode {
 
     AVBRUTT ("AVBR", "Avbrutt"),
     OPPRETTET("OPPR", "Opprettet"),
@@ -33,6 +33,7 @@ public enum AksjonspunktStatus implements Kodeverdi {
     private final String navn;
 
     @JsonValue
+    @EnumeratedValue
     private final String kode;
 
     AksjonspunktStatus(String kode, String navn) {
@@ -56,30 +57,6 @@ public enum AksjonspunktStatus implements Kodeverdi {
 
     public static List<AksjonspunktStatus> getÅpneAksjonspunktStatuser() {
         return new ArrayList<>(ÅPNE_AKSJONSPUNKT_KODER);
-    }
-
-    @Converter(autoApply = true)
-    public static class KodeverdiConverter implements AttributeConverter<AksjonspunktStatus, String> {
-        @Override
-        public String convertToDatabaseColumn(AksjonspunktStatus attribute) {
-            return attribute == null ? null : attribute.getKode();
-        }
-
-        @Override
-        public AksjonspunktStatus convertToEntityAttribute(String dbData) {
-            return dbData == null ? null : fraKode(dbData);
-        }
-
-        private static AksjonspunktStatus fraKode(String kode) {
-            if (kode == null) {
-                return null;
-            }
-            var ad = KODER.get(kode);
-            if (ad == null) {
-                throw new IllegalArgumentException("Ukjent AksjonspunktStatus: " + kode);
-            }
-            return ad;
-        }
     }
 
 }

@@ -18,6 +18,8 @@ import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -87,7 +89,7 @@ public class Behandling extends BaseEntitet {
     @JoinColumn(name = "fagsak_id", nullable = false, updatable = false)
     private Fagsak fagsak;
 
-    @Convert(converter = BehandlingStatus.KodeverdiConverter.class)
+    @Enumerated(EnumType.STRING)
     @Column(name = "behandling_status", nullable = false)
     private BehandlingStatus status = BehandlingStatus.OPPRETTET;
 
@@ -160,7 +162,7 @@ public class Behandling extends BaseEntitet {
 
     // Kolonnen SIST_OPPDATERT_TIDSPUNKT aksesseres via 2 direkte queries - søk i koden etter kolonnenavn
 
-    Behandling() {
+    protected Behandling() {
         // Hibernate
     }
 

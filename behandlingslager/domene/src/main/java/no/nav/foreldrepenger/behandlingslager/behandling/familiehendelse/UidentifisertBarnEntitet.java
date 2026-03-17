@@ -40,7 +40,7 @@ public class UidentifisertBarnEntitet extends BaseEntitet implements Uidentifise
     @JoinColumn(name = "familie_hendelse_id", nullable = false, updatable = false)
     private FamilieHendelseEntitet familieHendelse;
 
-    UidentifisertBarnEntitet() {
+    protected UidentifisertBarnEntitet() {
         // Hibernate
     }
 

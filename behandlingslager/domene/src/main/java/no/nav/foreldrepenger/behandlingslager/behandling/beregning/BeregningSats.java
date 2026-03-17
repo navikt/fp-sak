@@ -4,9 +4,10 @@ import java.time.LocalDate;
 import java.util.Objects;
 
 import jakarta.persistence.Column;
-import jakarta.persistence.Convert;
 import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -33,12 +34,12 @@ public class BeregningSats extends BaseEntitet {
     @Embedded
     DatoIntervallEntitet periode;
 
-    @Convert(converter= BeregningSatsType.KodeverdiConverter.class)
+    @Enumerated(EnumType.STRING)
     @Column(name="sats_type", nullable = false)
-    private BeregningSatsType satsType = BeregningSatsType.UDEFINERT;
+    private BeregningSatsType satsType;
 
     @SuppressWarnings("unused")
-    BeregningSats() {
+    protected BeregningSats() {
         // For hibernate
     }
 
@@ -60,7 +61,7 @@ public class BeregningSats extends BaseEntitet {
     }
 
     public BeregningSatsType getSatsType() {
-        return Objects.equals(BeregningSatsType.UDEFINERT, satsType) ? null : satsType;
+        return satsType;
     }
 
     public void setTomDato(LocalDate tom) {
@@ -93,6 +94,7 @@ public class BeregningSats extends BaseEntitet {
     }
 
     private void setSatsType(BeregningSatsType satsType) {
-        this.satsType = satsType == null ? BeregningSatsType.UDEFINERT : satsType;
+        Objects.requireNonNull(satsType, "satsType");
+        this.satsType = satsType;
     }
 }

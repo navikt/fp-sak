@@ -8,9 +8,10 @@ import jakarta.persistence.Converter;
 
 import com.fasterxml.jackson.annotation.JsonValue;
 
+import no.nav.foreldrepenger.behandlingslager.kodeverk.DatabaseKode;
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
 
-public enum ReferanseType implements Kodeverdi {
+public enum ReferanseType implements Kodeverdi, DatabaseKode {
 
     ORG_NR("ORG_NR", "Orgnr"),
     AKTØR_ID("AKTØR_ID", "Aktør Id"),

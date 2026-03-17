@@ -74,7 +74,6 @@ final class EnumMapper {
             case INNVILGET -> InnsynBehandling.InnsynResultatType.INNVILGET;
             case DELVIS_INNVILGET -> InnsynBehandling.InnsynResultatType.DELVIS_INNVILGET;
             case AVVIST -> InnsynBehandling.InnsynResultatType.AVVIST;
-            case UDEFINERT -> InnsynBehandling.InnsynResultatType.UDEFINERT;
         };
     }
 
@@ -86,7 +85,6 @@ final class EnumMapper {
             case KLAGER_IKKE_PART -> KlageBehandling.KlageAvvistÅrsak.KLAGER_IKKE_PART;
             case IKKE_KONKRET -> KlageBehandling.KlageAvvistÅrsak.IKKE_KONKRET;
             case IKKE_SIGNERT -> KlageBehandling.KlageAvvistÅrsak.IKKE_SIGNERT;
-            case UDEFINERT -> KlageBehandling.KlageAvvistÅrsak.UDEFINERT;
         };
     }
 
@@ -176,7 +174,6 @@ final class EnumMapper {
             case OPPTJENINGSVILKÅRET -> Behandlingsresultat.VilkårType.OPPTJENINGSVILKÅRET;
             case BEREGNINGSGRUNNLAGVILKÅR -> Behandlingsresultat.VilkårType.BEREGNINGSGRUNNLAGVILKÅR;
             case SVANGERSKAPSPENGERVILKÅR -> Behandlingsresultat.VilkårType.SVANGERSKAPSPENGERVILKÅR;
-            case UDEFINERT -> Behandlingsresultat.VilkårType.UDEFINERT;
         };
     }
 

@@ -57,7 +57,7 @@ public class EngangsstønadBeregning extends BaseEntitet {
     private boolean overstyrt = false;
 
     @SuppressWarnings("unused")
-    EngangsstønadBeregning() {
+    protected EngangsstønadBeregning() {
         // for hibernate
     }
 

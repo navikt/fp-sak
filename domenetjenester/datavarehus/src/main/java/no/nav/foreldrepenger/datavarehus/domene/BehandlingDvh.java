@@ -134,7 +134,7 @@ public class BehandlingDvh implements Serializable {
     }
 
 
-    BehandlingDvh() {
+    protected BehandlingDvh() {
         // Hibernate
     }
 

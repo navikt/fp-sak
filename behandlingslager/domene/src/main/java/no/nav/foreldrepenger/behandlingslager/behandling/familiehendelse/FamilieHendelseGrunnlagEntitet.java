@@ -68,7 +68,7 @@ public class FamilieHendelseGrunnlagEntitet extends BaseEntitet {
     @Column(name = "versjon", nullable = false)
     private long versjon;
 
-    FamilieHendelseGrunnlagEntitet() {
+    protected FamilieHendelseGrunnlagEntitet() {
     }
 
     FamilieHendelseGrunnlagEntitet(FamilieHendelseGrunnlagEntitet grunnlag) {

@@ -93,8 +93,9 @@ public class HealthCheckRestService {
     @GET
     @Path("/status")
     @Produces(MediaType.APPLICATION_JSON)
-    @Operation(description = "pooles for status", tags = "nais", hidden = true)
+    @Operation(description = "polles for status", tags = "nais", hidden = true)
     public Response status() {
+        LOG.info("FPSAK-helse noen har kalt /health/status");
         return Response.ok(new StatusDto(Plattformstatus.OK, "Alt er bra", null)).build();
     }
 

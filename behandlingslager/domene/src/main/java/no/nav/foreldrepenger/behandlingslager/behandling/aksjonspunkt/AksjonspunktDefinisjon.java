@@ -33,13 +33,14 @@ import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.Skjermlenke
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType.YtelseType;
+import no.nav.foreldrepenger.behandlingslager.kodeverk.DatabaseKode;
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
 
 /**
  * Definerer mulige Aksjonspunkter inkludert hvilket Vurderingspunkt de må løses i.
  * Inkluderer også konstanter for å enklere kunne referere til dem i eksisterende logikk.
  */
-public enum AksjonspunktDefinisjon implements Kodeverdi {
+public enum AksjonspunktDefinisjon implements Kodeverdi, DatabaseKode {
 
     // Gruppe : 500
 
@@ -509,7 +510,7 @@ public enum AksjonspunktDefinisjon implements Kodeverdi {
          */
     );
 
-    private AksjonspunktType aksjonspunktType = AksjonspunktType.UDEFINERT;
+    private AksjonspunktType aksjonspunktType;
 
     /**
      * Definerer hvorvidt Aksjonspunktet default krever totrinnsbehandling. Dvs. Beslutter må godkjenne hva Saksbehandler har utført.
@@ -567,7 +568,7 @@ public enum AksjonspunktDefinisjon implements Kodeverdi {
                            Set<FagsakYtelseType.YtelseType> ytelseTyper) {
         this.kode = Objects.requireNonNull(kode);
         this.navn = navn;
-        this.aksjonspunktType = aksjonspunktType;
+        this.aksjonspunktType = Objects.requireNonNull(aksjonspunktType);
         this.behandlingStegType = behandlingStegType;
         this.vurderingspunktType = vurderingspunktType;
         this.ytelseTyper = ytelseTyper;
@@ -593,7 +594,7 @@ public enum AksjonspunktDefinisjon implements Kodeverdi {
                            Set<FagsakYtelseType.YtelseType> ytelseTyper) {
         this.kode = Objects.requireNonNull(kode);
         this.navn = navn;
-        this.aksjonspunktType = aksjonspunktType;
+        this.aksjonspunktType = Objects.requireNonNull(aksjonspunktType);
         this.behandlingStegType = behandlingStegType;
         this.vurderingspunktType = vurderingspunktType;
         this.ytelseTyper = ytelseTyper;
@@ -616,7 +617,7 @@ public enum AksjonspunktDefinisjon implements Kodeverdi {
     }
 
     public AksjonspunktType getAksjonspunktType() {
-        return Objects.equals(AksjonspunktType.UDEFINERT, aksjonspunktType) ? null : aksjonspunktType;
+        return aksjonspunktType;
     }
 
     public boolean erAutopunkt() {
@@ -640,7 +641,7 @@ public enum AksjonspunktDefinisjon implements Kodeverdi {
     }
 
     public VilkårType getVilkårType() {
-        return Objects.equals(VilkårType.UDEFINERT, vilkårType) ? null : vilkårType;
+        return vilkårType;
     }
 
     public Set<FagsakYtelseType> getYtelseTyper() {

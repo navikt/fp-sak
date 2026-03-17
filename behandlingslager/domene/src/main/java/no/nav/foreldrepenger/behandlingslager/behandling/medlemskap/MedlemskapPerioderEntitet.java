@@ -8,6 +8,8 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Convert;
 import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -65,9 +67,9 @@ public class MedlemskapPerioderEntitet extends BaseEntitet implements IndexKey {
     private Landkoder studieLand = Landkoder.UDEFINERT;
 
     @ChangeTracked
-    @Convert(converter = MedlemskapType.KodeverdiConverter.class)
+    @Enumerated(EnumType.STRING)
     @Column(name="medlemskap_type", nullable = false)
-    private MedlemskapType medlemskapType = MedlemskapType.UDEFINERT;
+    private MedlemskapType medlemskapType;
 
     @ChangeTracked
     @Convert(converter = MedlemskapDekningType.KodeverdiConverter.class)
@@ -82,7 +84,7 @@ public class MedlemskapPerioderEntitet extends BaseEntitet implements IndexKey {
     @Column(name = "medl_id")
     private Long medlId;
 
-    MedlemskapPerioderEntitet() {
+    protected MedlemskapPerioderEntitet() {
         // hibernate
     }
 
@@ -147,11 +149,12 @@ public class MedlemskapPerioderEntitet extends BaseEntitet implements IndexKey {
 
 
     public MedlemskapType getMedlemskapType() {
-        return medlemskapType == null || Objects.equals(MedlemskapType.UDEFINERT, medlemskapType) ? null : medlemskapType;
+        return medlemskapType;
     }
 
     void setMedlemskapType(MedlemskapType medlemskapType) {
-        this.medlemskapType = medlemskapType == null ? MedlemskapType.UDEFINERT : medlemskapType;
+        Objects.requireNonNull(medlemskapType);
+        this.medlemskapType = medlemskapType;
     }
 
 

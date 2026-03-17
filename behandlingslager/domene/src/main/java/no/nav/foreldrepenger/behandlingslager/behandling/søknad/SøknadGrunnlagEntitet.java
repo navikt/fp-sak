@@ -39,7 +39,7 @@ class SøknadGrunnlagEntitet extends BaseEntitet {
     @Column(name = "versjon", nullable = false)
     private long versjon;
 
-    SøknadGrunnlagEntitet() {
+    protected SøknadGrunnlagEntitet() {
     }
 
     SøknadGrunnlagEntitet(Behandling behandling, SøknadEntitet søknad) {

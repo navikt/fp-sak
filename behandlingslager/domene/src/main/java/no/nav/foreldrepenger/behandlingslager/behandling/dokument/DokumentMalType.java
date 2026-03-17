@@ -2,17 +2,16 @@ package no.nav.foreldrepenger.behandlingslager.behandling.dokument;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 
-import jakarta.persistence.AttributeConverter;
-import jakarta.persistence.Converter;
+import jakarta.persistence.EnumeratedValue;
 
 import com.fasterxml.jackson.annotation.JsonValue;
 
+import no.nav.foreldrepenger.behandlingslager.kodeverk.DatabaseKode;
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
 
-public enum DokumentMalType implements Kodeverdi {
+public enum DokumentMalType implements Kodeverdi, DatabaseKode {
 
     FRITEKSTBREV("FRITEK"),
     VEDTAKSBREV_FRITEKST_HTML("FRIHTM"),
@@ -82,7 +81,8 @@ public enum DokumentMalType implements Kodeverdi {
     }
 
     @JsonValue
-    private String kode;
+    @EnumeratedValue
+    private final String kode;
 
     DokumentMalType(String kode) {
         this.kode = kode;
@@ -160,25 +160,4 @@ public enum DokumentMalType implements Kodeverdi {
         };
     }
 
-    @Converter(autoApply = true)
-    public static class KodeverdiConverter implements AttributeConverter<DokumentMalType, String> {
-        @Override
-        public String convertToDatabaseColumn(DokumentMalType attribute) {
-            return attribute == null ? null : attribute.getKode();
-        }
-
-        @Override
-        public DokumentMalType convertToEntityAttribute(String dbData) {
-            return dbData == null ? null : fraKode(dbData);
-        }
-
-        private static DokumentMalType fraKode(String kode) {
-            var ad = Optional.ofNullable(kode).map(KODER::get);
-            if (ad.isEmpty()) {
-                throw new IllegalArgumentException("Ukjent DokumentMalType: " + kode);
-            }
-            return ad.get();
-        }
-
-    }
 }

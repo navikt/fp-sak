@@ -12,6 +12,7 @@ import jakarta.persistence.Converter;
 
 import com.fasterxml.jackson.annotation.JsonValue;
 
+import no.nav.foreldrepenger.behandlingslager.kodeverk.DatabaseKode;
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.ArbeidType;
 import no.nav.foreldrepenger.behandlingslager.ytelse.RelatertYtelseType;
@@ -24,7 +25,7 @@ import no.nav.foreldrepenger.behandlingslager.ytelse.RelatertYtelseType;
  * Senere benyttes dette i mapping til bla. Beregningsgrunnlag.
  */
 
-public enum OpptjeningAktivitetType implements Kodeverdi {
+public enum OpptjeningAktivitetType implements Kodeverdi, DatabaseKode {
 
     ARBEIDSAVKLARING("AAP", "Arbeidsavklaringspenger",
             Set.of(),

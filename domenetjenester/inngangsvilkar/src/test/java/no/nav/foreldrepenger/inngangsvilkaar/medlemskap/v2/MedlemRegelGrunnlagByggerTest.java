@@ -29,6 +29,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.beregning.SatsRepositor
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapOppgittLandOppholdEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapOppgittTilknytningEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapPerioderBuilder;
+import no.nav.foreldrepenger.behandlingslager.behandling.medlemskap.MedlemskapType;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.SivilstandType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
@@ -83,7 +84,10 @@ class MedlemRegelGrunnlagByggerTest {
     void bygger_inngangsvilkår_grunnlag() {
         var fødselsdato = LocalDate.of(2024, 10, 15);
         var stp = fødselsdato.minusWeeks(3);
-        var registerMedlemskapsperiode = new MedlemskapPerioderBuilder().medPeriode(fødselsdato.minusYears(2), null).build();
+        var registerMedlemskapsperiode = new MedlemskapPerioderBuilder()
+            .medPeriode(fødselsdato.minusYears(2), null)
+            .medMedlemskapType(MedlemskapType.ENDELIG)
+            .build();
         var scenario = ScenarioMorSøkerForeldrepenger.forFødsel()
             .medFødselAdopsjonsdato(fødselsdato)
             .medDefaultFordeling(stp)

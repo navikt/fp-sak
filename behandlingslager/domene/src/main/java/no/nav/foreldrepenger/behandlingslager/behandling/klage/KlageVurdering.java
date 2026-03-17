@@ -8,9 +8,10 @@ import jakarta.persistence.Converter;
 
 import com.fasterxml.jackson.annotation.JsonValue;
 
+import no.nav.foreldrepenger.behandlingslager.kodeverk.DatabaseKode;
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
 
-public enum KlageVurdering implements Kodeverdi {
+public enum KlageVurdering implements Kodeverdi, DatabaseKode {
 
     OPPHEVE_YTELSESVEDTAK("OPPHEVE_YTELSESVEDTAK", "Ytelsesvedtaket oppheves"),
     STADFESTE_YTELSESVEDTAK("STADFESTE_YTELSESVEDTAK", "Ytelsesvedtaket stadfestes"),

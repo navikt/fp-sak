@@ -12,8 +12,8 @@ import no.nav.foreldrepenger.behandling.aksjonspunkt.DtoTilServiceAdapter;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.OppdateringResultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagLinjeBuilder;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.SkjermlenkeType;
 import no.nav.foreldrepenger.behandlingslager.risikoklassifisering.FaresignalVurdering;
@@ -77,7 +77,7 @@ public class VurderFaresignalerOppdaterer implements AksjonspunktOppdaterer<Vurd
     }
 
     private String finnTekstForFaresignalVurdering(FaresignalVurdering faresignalVurdering) {
-        if (faresignalVurdering == null || FaresignalVurdering.UDEFINERT.equals(faresignalVurdering)) {
+        if (faresignalVurdering == null) {
             return null;
         }
         return Objects.equals(faresignalVurdering, FaresignalVurdering.INGEN_INNVIRKNING) ? "Ingen innvirkning" : "Innvirkning";

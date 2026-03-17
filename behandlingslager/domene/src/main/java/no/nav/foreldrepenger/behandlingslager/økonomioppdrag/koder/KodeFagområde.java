@@ -1,6 +1,8 @@
 package no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder;
 
-public enum KodeFagområde {
+import no.nav.foreldrepenger.behandlingslager.kodeverk.DatabaseKode;
+
+public enum KodeFagområde implements DatabaseKode {
     REFUTG, //engangsstønad
     FP, //foreldrepenger til bruker
     FPREF, //foreldrepenger til arbeidsgiver

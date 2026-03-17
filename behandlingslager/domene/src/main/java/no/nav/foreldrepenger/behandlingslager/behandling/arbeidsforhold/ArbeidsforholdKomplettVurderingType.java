@@ -8,9 +8,10 @@ import jakarta.persistence.Converter;
 
 import com.fasterxml.jackson.annotation.JsonValue;
 
+import no.nav.foreldrepenger.behandlingslager.kodeverk.DatabaseKode;
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
 
-public enum ArbeidsforholdKomplettVurderingType implements Kodeverdi {
+public enum ArbeidsforholdKomplettVurderingType implements Kodeverdi, DatabaseKode {
 
     KONTAKT_ARBEIDSGIVER_VED_MANGLENDE_INNTEKTSMELDING("KONTAKT_ARBEIDSGIVER_VED_MANGLENDE_INNTEKTSMELDING", "Saksbehandler kontakter arbeidsgiver for å avklare manglende inntektsmelding"),
     FORTSETT_UTEN_INNTEKTSMELDING("FORTSETT_UTEN_INNTEKTSMELDING", "Behandlingen kan fortsette uten inntektsmelding for dette arbeidsforholdet"),

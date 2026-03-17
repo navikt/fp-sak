@@ -33,7 +33,7 @@ public class Journalpost extends BaseEntitet {
     @JoinColumn(name = "fagsak_id", nullable = false)
     private Fagsak fagsak;
 
-    Journalpost() {
+    protected Journalpost() {
     }
 
     public Journalpost(JournalpostId journalpostId, Fagsak fagsak) {

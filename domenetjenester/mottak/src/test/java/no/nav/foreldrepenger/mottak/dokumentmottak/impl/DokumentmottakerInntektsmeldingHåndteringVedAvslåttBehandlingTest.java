@@ -109,8 +109,8 @@ class DokumentmottakerInntektsmeldingHåndteringVedAvslåttBehandlingTest extend
             BehandlingType.FØRSTEGANGSSØKNAD,
             BehandlingResultatType.HENLAGT_SØKNAD_MANGLER,
             null,
-            VedtakResultatType.UDEFINERT,
-            DATO_ETTER_INNSENDINGSFRISTEN);
+            null,
+            null);
         var inntektsmelding = dummyInntektsmeldingDokument(behandling);
         Mockito.doReturn(Boolean.TRUE).when(dokumentmottakerFellesSpied).harFagsakMottattSøknadTidligere(any());
 
