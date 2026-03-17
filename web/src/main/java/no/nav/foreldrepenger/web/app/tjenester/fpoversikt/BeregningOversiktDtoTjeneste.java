@@ -58,11 +58,6 @@ public class BeregningOversiktDtoTjeneste {
     }
 
     public Optional<FpSak.Beregningsgrunnlag> lagDtoForBehandling(BehandlingReferanse ref) {
-        // Ønsker ikke sende over saker i prod før vi er trygge på modellen
-        if (Environment.current().isProd()) {
-            return Optional.empty();
-        }
-
         var grBeregningsgrunnlag = beregningTjeneste.hent(ref);
         var inntektsmeldinger = inntektArbeidYtelseTjeneste.finnGrunnlag(ref.behandlingId())
             .flatMap(InntektArbeidYtelseGrunnlag::getInntektsmeldinger)
