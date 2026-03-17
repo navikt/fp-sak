@@ -11,6 +11,9 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
@@ -36,6 +39,7 @@ import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 
 @ApplicationScoped
 public class BeregningOversiktDtoTjeneste {
+    private static final Logger LOG = LoggerFactory.getLogger(BeregningOversiktDtoTjeneste.class);
     private static final Set<AktivitetStatus> IKKE_STØTTEDE_AKTIVITET_STATUSER = Set.of(AktivitetStatus.VENTELØNN_VARTPENGER,
         AktivitetStatus.TTLSTØTENDE_YTELSE, AktivitetStatus.ARBEIDSAVKLARINGSPENGER, AktivitetStatus.DAGPENGER, AktivitetStatus.MILITÆR_ELLER_SIVIL,
         AktivitetStatus.BRUKERS_ANDEL);
@@ -63,18 +67,18 @@ public class BeregningOversiktDtoTjeneste {
     }
 
     public Optional<FpSak.Beregningsgrunnlag> lagDtoForBehandling(BehandlingReferanse ref) {
-        // Ønsker ikke sende over saker i prod før vi er trygge på modellen
-        if (Environment.current().isProd()) {
+        try {
+            var grBeregningsgrunnlag = beregningTjeneste.hent(ref);
+            var inntektsmeldinger = inntektArbeidYtelseTjeneste.finnGrunnlag(ref.behandlingId())
+                .flatMap(InntektArbeidYtelseGrunnlag::getInntektsmeldinger)
+                .map(InntektsmeldingAggregat::getAlleInntektsmeldinger)
+                .orElse(List.of());
+        var skjæringstidspunkter = skjæringstidspunktTjeneste.getSkjæringstidspunkter(ref.behandlingId());
+            return grBeregningsgrunnlag.flatMap(BeregningsgrunnlagGrunnlag::getBeregningsgrunnlag).flatMap(bg -> mapBeregning(bg, inntektsmeldinger, skjæringstidspunkter.getFørsteUttaksdato()));
+        } catch (Exception e) {
+            LOG.info("Feil ved henting av beregningsgrunnlag for behandling {}", ref.behandlingId(), e);
             return Optional.empty();
         }
-
-        var grBeregningsgrunnlag = beregningTjeneste.hent(ref);
-        var inntektsmeldinger = inntektArbeidYtelseTjeneste.finnGrunnlag(ref.behandlingId())
-            .flatMap(InntektArbeidYtelseGrunnlag::getInntektsmeldinger)
-            .map(InntektsmeldingAggregat::getAlleInntektsmeldinger)
-            .orElse(List.of());
-        var skjæringstidspunkter = skjæringstidspunktTjeneste.getSkjæringstidspunkter(ref.behandlingId());
-        return grBeregningsgrunnlag.flatMap(BeregningsgrunnlagGrunnlag::getBeregningsgrunnlag).flatMap(bg -> mapBeregning(bg, inntektsmeldinger, skjæringstidspunkter.getFørsteUttaksdato()));
     }
 
     private Optional<FpSak.Beregningsgrunnlag> mapBeregning(Beregningsgrunnlag beregningsgrunnlag,
