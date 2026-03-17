@@ -10,6 +10,9 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
@@ -34,6 +37,7 @@ import no.nav.foreldrepenger.konfig.Environment;
 
 @ApplicationScoped
 public class BeregningOversiktDtoTjeneste {
+    private static final Logger LOG = LoggerFactory.getLogger(BeregningOversiktDtoTjeneste.class);
     private static final Set<AktivitetStatus> IKKE_STØTTEDE_AKTIVITET_STATUSER = Set.of(AktivitetStatus.VENTELØNN_VARTPENGER,
         AktivitetStatus.TTLSTØTENDE_YTELSE, AktivitetStatus.ARBEIDSAVKLARINGSPENGER, AktivitetStatus.DAGPENGER, AktivitetStatus.MILITÆR_ELLER_SIVIL,
         AktivitetStatus.BRUKERS_ANDEL);
@@ -58,13 +62,18 @@ public class BeregningOversiktDtoTjeneste {
     }
 
     public Optional<FpSak.Beregningsgrunnlag> lagDtoForBehandling(BehandlingReferanse ref) {
-        var grBeregningsgrunnlag = beregningTjeneste.hent(ref);
-        var inntektsmeldinger = inntektArbeidYtelseTjeneste.finnGrunnlag(ref.behandlingId())
-            .flatMap(InntektArbeidYtelseGrunnlag::getInntektsmeldinger)
-            .map(InntektsmeldingAggregat::getAlleInntektsmeldinger)
-            .orElse(List.of());
+        try {
+            var grBeregningsgrunnlag = beregningTjeneste.hent(ref);
+            var inntektsmeldinger = inntektArbeidYtelseTjeneste.finnGrunnlag(ref.behandlingId())
+                .flatMap(InntektArbeidYtelseGrunnlag::getInntektsmeldinger)
+                .map(InntektsmeldingAggregat::getAlleInntektsmeldinger)
+                .orElse(List.of());
 
-        return grBeregningsgrunnlag.flatMap(BeregningsgrunnlagGrunnlag::getBeregningsgrunnlag).flatMap(bg -> mapBeregning(bg, inntektsmeldinger));
+            return grBeregningsgrunnlag.flatMap(BeregningsgrunnlagGrunnlag::getBeregningsgrunnlag).flatMap(bg -> mapBeregning(bg, inntektsmeldinger));
+        } catch (Exception e) {
+            LOG.info("Feil ved henting av beregningsgrunnlag for behandling {}", ref.behandlingId(), e);
+            return Optional.empty();
+        }
     }
 
     private Optional<FpSak.Beregningsgrunnlag> mapBeregning(Beregningsgrunnlag beregningsgrunnlag, List<Inntektsmelding> inntektsmeldinger) {

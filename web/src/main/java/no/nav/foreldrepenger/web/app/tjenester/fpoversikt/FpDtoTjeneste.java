@@ -360,7 +360,7 @@ public class FpDtoTjeneste {
         var tilkjentYtelse = tilkjentYtelseDtoTjeneste.lagDtoForTilkjentYtelse(ref);
 
         return new FpSak.Vedtak(vedtak.getVedtakstidspunkt(), uttaksperioder, dekningsgrad.map(FpDtoTjeneste::tilDekningsgradDto).orElse(null),
-            annenpartEøsUttaksperioder, beregningsgrunnlag.orElse(null), tilkjentYtelse);
+            annenpartEøsUttaksperioder, beregningsgrunnlag.orElse(null), tilkjentYtelse.orElse(null));
     }
 
     private FpSak.Vedtak.EøsUttaksperiode map(EøsUttaksperiodeEntitet p) {
