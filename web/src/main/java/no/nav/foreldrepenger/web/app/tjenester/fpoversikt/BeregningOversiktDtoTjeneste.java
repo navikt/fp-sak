@@ -2,6 +2,7 @@ package no.nav.foreldrepenger.web.app.tjenester.fpoversikt;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -34,6 +35,7 @@ import no.nav.foreldrepenger.domene.modell.kodeverk.AndelKilde;
 import no.nav.foreldrepenger.domene.modell.kodeverk.PeriodeÅrsak;
 import no.nav.foreldrepenger.domene.prosess.BeregningTjeneste;
 import no.nav.foreldrepenger.konfig.Environment;
+import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 
 @ApplicationScoped
 public class BeregningOversiktDtoTjeneste {
@@ -47,14 +49,17 @@ public class BeregningOversiktDtoTjeneste {
     private BeregningTjeneste beregningTjeneste;
     private InntektArbeidYtelseTjeneste inntektArbeidYtelseTjeneste;
     private ArbeidsgiverTjeneste arbeidsgiverTjeneste;
+    private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
 
     @Inject
     public BeregningOversiktDtoTjeneste(BeregningTjeneste beregningTjeneste,
                                         InntektArbeidYtelseTjeneste inntektArbeidYtelseTjeneste,
-                                        ArbeidsgiverTjeneste arbeidsgiverTjeneste) {
+                                        ArbeidsgiverTjeneste arbeidsgiverTjeneste,
+                                        SkjæringstidspunktTjeneste skjæringstidspunktTjeneste) {
         this.beregningTjeneste = beregningTjeneste;
         this.inntektArbeidYtelseTjeneste = inntektArbeidYtelseTjeneste;
         this.arbeidsgiverTjeneste = arbeidsgiverTjeneste;
+        this.skjæringstidspunktTjeneste = skjæringstidspunktTjeneste;
     }
 
     public BeregningOversiktDtoTjeneste() {
@@ -68,21 +73,23 @@ public class BeregningOversiktDtoTjeneste {
                 .flatMap(InntektArbeidYtelseGrunnlag::getInntektsmeldinger)
                 .map(InntektsmeldingAggregat::getAlleInntektsmeldinger)
                 .orElse(List.of());
-
-            return grBeregningsgrunnlag.flatMap(BeregningsgrunnlagGrunnlag::getBeregningsgrunnlag).flatMap(bg -> mapBeregning(bg, inntektsmeldinger));
+        var skjæringstidspunkter = skjæringstidspunktTjeneste.getSkjæringstidspunkter(ref.behandlingId());
+            return grBeregningsgrunnlag.flatMap(BeregningsgrunnlagGrunnlag::getBeregningsgrunnlag).flatMap(bg -> mapBeregning(bg, inntektsmeldinger, skjæringstidspunkter.getFørsteUttaksdato()));
         } catch (Exception e) {
             LOG.info("Feil ved henting av beregningsgrunnlag for behandling {}", ref.behandlingId(), e);
             return Optional.empty();
         }
     }
 
-    private Optional<FpSak.Beregningsgrunnlag> mapBeregning(Beregningsgrunnlag beregningsgrunnlag, List<Inntektsmelding> inntektsmeldinger) {
-        if (gjelderSakInnsynIkkeStøtter(beregningsgrunnlag)) {
+    private Optional<FpSak.Beregningsgrunnlag> mapBeregning(Beregningsgrunnlag beregningsgrunnlag,
+                                                            List<Inntektsmelding> inntektsmeldinger,
+                                                            LocalDate førsteUttaksdato) {
+        if (gjelderSakInnsynIkkeStøtter(beregningsgrunnlag, førsteUttaksdato)) {
             // TODO -- implementeres senere
             return Optional.empty();
         }
         var aktivitetStatuser = beregningsgrunnlag.getAktivitetStatuser().stream().map(this::mapAktivitetStatusMedHjemmel).toList();
-        var beregningsAndeler = førsteBeregningsperiode(beregningsgrunnlag).map(
+        var beregningsAndeler = førsteBeregningsperiode(beregningsgrunnlag, førsteUttaksdato).map(
             førstePeriode -> mapAndeler(førstePeriode.getBeregningsgrunnlagPrStatusOgAndelList(), inntektsmeldinger)).orElse(List.of());
         var grunnbeløp = beregningsgrunnlag.getGrunnbeløp() == null ? null : beregningsgrunnlag.getGrunnbeløp().getVerdi();
 
@@ -91,16 +98,16 @@ public class BeregningOversiktDtoTjeneste {
     }
 
 
-    private static Optional<BeregningsgrunnlagPeriode> førsteBeregningsperiode(Beregningsgrunnlag beregningsgrunnlag) {
+    private static Optional<BeregningsgrunnlagPeriode> førsteBeregningsperiode(Beregningsgrunnlag beregningsgrunnlag, LocalDate førsteUttaksdato) {
         return beregningsgrunnlag.getBeregningsgrunnlagPerioder()
             .stream()
-            .filter(bgp -> bgp.getPeriode().getFomDato().equals(beregningsgrunnlag.getSkjæringstidspunkt()))
+            .filter(bgp -> bgp.getPeriode().inkluderer(førsteUttaksdato))
             .findFirst();
     }
 
-    private boolean gjelderSakInnsynIkkeStøtter(Beregningsgrunnlag beregningsgrunnlag) {
+    private boolean gjelderSakInnsynIkkeStøtter(Beregningsgrunnlag beregningsgrunnlag, LocalDate førsteUttaksdato) {
         // Besteberegning er ikke støttet i innsyn enda, og det må implementeres støtte for det uavhengig av statusen dagpenger
-        var erBesteberegnet = førsteBeregningsperiode(beregningsgrunnlag).map(BeregningsgrunnlagPeriode::getBeregningsgrunnlagPrStatusOgAndelList)
+        var erBesteberegnet = førsteBeregningsperiode(beregningsgrunnlag, førsteUttaksdato).map(BeregningsgrunnlagPeriode::getBeregningsgrunnlagPrStatusOgAndelList)
             .orElse(List.of())
             .stream()
             .anyMatch(andel -> andel.getBesteberegnetPrÅr() != null);
@@ -111,7 +118,7 @@ public class BeregningOversiktDtoTjeneste {
             .anyMatch(as -> IKKE_STØTTEDE_AKTIVITET_STATUSER.contains(as.getAktivitetStatus()));
 
         // Kan skje i et fåtall tilfeller, f.eks etterlønn / sluttpakke
-        var harArbeidsandelUtenArbeidsgiver = førsteBeregningsperiode(beregningsgrunnlag).map(
+        var harArbeidsandelUtenArbeidsgiver = førsteBeregningsperiode(beregningsgrunnlag, førsteUttaksdato).map(
                 BeregningsgrunnlagPeriode::getBeregningsgrunnlagPrStatusOgAndelList)
             .orElse(List.of())
             .stream()

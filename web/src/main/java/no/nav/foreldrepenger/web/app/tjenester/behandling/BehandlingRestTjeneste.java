@@ -45,8 +45,6 @@ import no.nav.foreldrepenger.behandlingsprosess.prosessering.HenleggBehandlingTj
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.produksjonsstyring.behandlinghendelse.HendelseForBehandling;
 import no.nav.foreldrepenger.produksjonsstyring.behandlinghendelse.PubliserBehandlingHendelseTask;
-import no.nav.foreldrepenger.web.app.exceptions.FeilDto;
-import no.nav.foreldrepenger.web.app.exceptions.FeilType;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.aksjonspunkt.BehandlingsoppretterTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.aksjonspunkt.BehandlingsprosessTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.aksjonspunkt.BehandlingsutredningTjeneste;
@@ -67,6 +65,8 @@ import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.SaksnummerAbacSupplier
 import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.SaksnummerDto;
 import no.nav.foreldrepenger.web.server.abac.AppAbacAttributtType;
 import no.nav.vedtak.exception.FunksjonellException;
+import no.nav.vedtak.feil.FeilDto;
+import no.nav.vedtak.feil.FeilType;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 import no.nav.vedtak.sikkerhet.abac.AbacDataAttributter;

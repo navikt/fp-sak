@@ -11,13 +11,9 @@ import org.glassfish.jersey.server.ServerProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import no.nav.foreldrepenger.web.app.exceptions.ConstraintViolationMapper;
-import no.nav.foreldrepenger.web.app.exceptions.GeneralRestExceptionMapper;
-import no.nav.foreldrepenger.web.app.exceptions.JsonMappingExceptionMapper;
-import no.nav.foreldrepenger.web.app.exceptions.JsonParseExceptionMapper;
-import no.nav.foreldrepenger.web.app.jackson.JacksonJsonConfig;
 import no.nav.foreldrepenger.web.app.tjenester.vedtak.ytelseinfo.EksternDelingYtelseInfoRestTjeneste;
 import no.nav.foreldrepenger.web.server.abac.EksternPipRestTjeneste;
+import no.nav.vedtak.server.rest.FpRestJackson2Feature;
 
 @ApplicationPath(EksternApiConfig.API_URI)
 public class EksternApiConfig extends ResourceConfig {
@@ -29,23 +25,13 @@ public class EksternApiConfig extends ResourceConfig {
         LOG.info("Initialiserer: {}", API_URI);
         setApplicationName(EksternApiConfig.class.getSimpleName());
         // Sikkerhet
-        register(AuthenticationFilter.class);
+        register(FpRestJackson2Feature.class);
 
         // REST
         registerClasses(getEksternalApplicationClasses());
 
-        registerExceptionMappers();
-        register(JacksonJsonConfig.class);
-
         setProperties(getApplicationProperties());
         LOG.info("Ferdig med initialisering av {}", API_URI);
-    }
-
-    void registerExceptionMappers() {
-        register(GeneralRestExceptionMapper.class);
-        register(ConstraintViolationMapper.class);
-        register(JsonMappingExceptionMapper.class);
-        register(JsonParseExceptionMapper.class);
     }
 
     private Set<Class<?>> getEksternalApplicationClasses() {
