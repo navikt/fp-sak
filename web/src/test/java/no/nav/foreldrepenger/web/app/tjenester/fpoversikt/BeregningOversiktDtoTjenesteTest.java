@@ -1,6 +1,7 @@
 package no.nav.foreldrepenger.web.app.tjenester.fpoversikt;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
+import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.AktivitetStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatAndel;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatEntitet;
@@ -22,6 +23,8 @@ import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagPrStatusOgAndel;
 import no.nav.foreldrepenger.domene.modell.kodeverk.AndelKilde;
 import no.nav.foreldrepenger.domene.modell.kodeverk.BeregningsgrunnlagTilstand;
 import no.nav.foreldrepenger.domene.prosess.BeregningTjeneste;
+
+import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -47,13 +50,15 @@ class BeregningOversiktDtoTjenesteTest {
     private InntektArbeidYtelseTjeneste inntektArbeidYtelseTjeneste;
     @Mock
     private BeregningTjeneste beregningTjeneste;
+    @Mock
+    private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
 
 
     private BeregningOversiktDtoTjeneste beregningOversiktDtoTjeneste;
 
     @BeforeEach
     void setUp() {
-        beregningOversiktDtoTjeneste = new BeregningOversiktDtoTjeneste(beregningTjeneste, inntektArbeidYtelseTjeneste, arbeidsgiverTjeneste);
+        beregningOversiktDtoTjeneste = new BeregningOversiktDtoTjeneste(beregningTjeneste, inntektArbeidYtelseTjeneste, arbeidsgiverTjeneste, skjæringstidspunktTjeneste);
     }
 
     @Test
@@ -103,6 +108,8 @@ class BeregningOversiktDtoTjenesteTest {
         when(inntektArbeidYtelseTjeneste.finnGrunnlag(any())).thenReturn(Optional.of(iaygr));
         when(beregningTjeneste.hent(any())).thenReturn(Optional.of(grunnlagBeregningsgrunnlag));
         when(arbeidsgiverTjeneste.hent(any())).thenReturn(new ArbeidsgiverOpplysninger("9".repeat(9), "Testbedriften"));
+        when(skjæringstidspunktTjeneste.getSkjæringstidspunkter(any())).thenReturn(Skjæringstidspunkt.builder().medFørsteUttaksdato(beregningsgrunnlag.getSkjæringstidspunkt()).build());
+
 
         var ref = BehandlingReferanse.fra(ScenarioMorSøkerForeldrepenger.forFødsel().lagMocked());
         var dto = beregningOversiktDtoTjeneste.lagDtoForBehandling(ref);
@@ -145,6 +152,7 @@ class BeregningOversiktDtoTjenesteTest {
 
         when(inntektArbeidYtelseTjeneste.finnGrunnlag(any())).thenReturn(Optional.empty());
         when(beregningTjeneste.hent(any())).thenReturn(Optional.of(grunnlagBeregningsgrunnlag));
+        when(skjæringstidspunktTjeneste.getSkjæringstidspunkter(any())).thenReturn(Skjæringstidspunkt.builder().medFørsteUttaksdato(beregningsgrunnlag.getSkjæringstidspunkt()).build());
 
         var ref = BehandlingReferanse.fra(ScenarioMorSøkerForeldrepenger.forFødsel().lagMocked());
         var dto = beregningOversiktDtoTjeneste.lagDtoForBehandling(ref);
