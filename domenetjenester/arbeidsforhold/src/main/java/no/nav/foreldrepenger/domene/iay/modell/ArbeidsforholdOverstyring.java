@@ -30,7 +30,7 @@ public class ArbeidsforholdOverstyring implements IndexKey {
     private InternArbeidsforholdRef nyArbeidsforholdRef;
 
     @ChangeTracked
-    private ArbeidsforholdHandlingType handling = ArbeidsforholdHandlingType.UDEFINERT;
+    private ArbeidsforholdHandlingType handling;
 
     private String begrunnelse;
 

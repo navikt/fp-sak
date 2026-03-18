@@ -6,61 +6,57 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonValue;
 
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
-import no.nav.foreldrepenger.behandlingslager.ytelse.RelatertYtelseType;
 
 @JsonAutoDetect(getterVisibility = Visibility.NONE, setterVisibility = Visibility.NONE, fieldVisibility = Visibility.ANY)
 public enum InntektYtelseType implements Kodeverdi {
 
     // Ytelse utbetalt til person som er arbeidstaker/frilanser/ytelsesmottaker
-    AAP("Arbeidsavklaringspenger", Kategori.YTELSE, RelatertYtelseType.ARBEIDSAVKLARINGSPENGER),
-    DAGPENGER("Dagpenger arbeid og hyre", Kategori.YTELSE, RelatertYtelseType.DAGPENGER),
-    FORELDREPENGER("Foreldrepenger", Kategori.YTELSE, RelatertYtelseType.FORELDREPENGER),
-    SVANGERSKAPSPENGER("Svangerskapspenger", Kategori.YTELSE, RelatertYtelseType.SVANGERSKAPSPENGER),
-    SYKEPENGER("Sykepenger", Kategori.YTELSE, RelatertYtelseType.SYKEPENGER),
-    OMSORGSPENGER("Omsorgspenger", Kategori.YTELSE, RelatertYtelseType.OMSORGSPENGER),
-    OPPLÆRINGSPENGER("Opplæringspenger", Kategori.YTELSE, RelatertYtelseType.OPPLÆRINGSPENGER),
-    PLEIEPENGER("Pleiepenger", Kategori.YTELSE, RelatertYtelseType.PLEIEPENGER_SYKT_BARN),
-    OVERGANGSSTØNAD_ENSLIG("Overgangsstønad til enslig mor eller far", Kategori.YTELSE, RelatertYtelseType.ENSLIG_FORSØRGER),
-    VENTELØNN("Ventelønn", Kategori.YTELSE, RelatertYtelseType.UDEFINERT),
+    AAP("Arbeidsavklaringspenger", Kategori.YTELSE),
+    DAGPENGER("Dagpenger arbeid og hyre", Kategori.YTELSE),
+    FORELDREPENGER("Foreldrepenger", Kategori.YTELSE),
+    SVANGERSKAPSPENGER("Svangerskapspenger", Kategori.YTELSE),
+    SYKEPENGER("Sykepenger", Kategori.YTELSE),
+    OMSORGSPENGER("Omsorgspenger", Kategori.YTELSE),
+    OPPLÆRINGSPENGER("Opplæringspenger", Kategori.YTELSE),
+    PLEIEPENGER("Pleiepenger", Kategori.YTELSE),
+    OVERGANGSSTØNAD_ENSLIG("Overgangsstønad til enslig mor eller far", Kategori.YTELSE),
+    VENTELØNN("Ventelønn", Kategori.YTELSE),
 
     // Feriepenger Ytelse utbetalt til person som er arbeidstaker/frilanser/ytelsesmottaker
     // TODO slå sammen til FERIEPENGER_YTELSE - eller ta de med under hver ytelse???
-    FERIEPENGER_FORELDREPENGER("Feriepenger foreldrepenger", Kategori.YTELSE, RelatertYtelseType.FORELDREPENGER),
-    FERIEPENGER_SVANGERSKAPSPENGER("Feriepenger svangerskapspenger", Kategori.YTELSE, RelatertYtelseType.SVANGERSKAPSPENGER),
-    FERIEPENGER_OMSORGSPENGER("Feriepenger omsorgspenger", Kategori.YTELSE, RelatertYtelseType.OMSORGSPENGER),
-    FERIEPENGER_OPPLÆRINGSPENGER("Feriepenger opplæringspenger", Kategori.YTELSE, RelatertYtelseType.OPPLÆRINGSPENGER),
-    FERIEPENGER_PLEIEPENGER("Feriepenger pleiepenger", Kategori.YTELSE, RelatertYtelseType.PLEIEPENGER_SYKT_BARN),
-    FERIEPENGER_SYKEPENGER("Feriepenger sykepenger", Kategori.YTELSE, RelatertYtelseType.SYKEPENGER),
-    FERIETILLEGG_DAGPENGER("Ferietillegg dagpenger ", Kategori.YTELSE, RelatertYtelseType.DAGPENGER),
+    FERIEPENGER_FORELDREPENGER("Feriepenger foreldrepenger", Kategori.YTELSE),
+    FERIEPENGER_SVANGERSKAPSPENGER("Feriepenger svangerskapspenger", Kategori.YTELSE),
+    FERIEPENGER_OMSORGSPENGER("Feriepenger omsorgspenger", Kategori.YTELSE),
+    FERIEPENGER_OPPLÆRINGSPENGER("Feriepenger opplæringspenger", Kategori.YTELSE),
+    FERIEPENGER_PLEIEPENGER("Feriepenger pleiepenger", Kategori.YTELSE),
+    FERIEPENGER_SYKEPENGER("Feriepenger sykepenger", Kategori.YTELSE),
+    FERIETILLEGG_DAGPENGER("Ferietillegg dagpenger ", Kategori.YTELSE),
 
     // Annen ytelse utbetalt til person
-    KVALIFISERINGSSTØNAD("Kvalifiseringsstønad", Kategori.TRYGD, RelatertYtelseType.UDEFINERT),
+    KVALIFISERINGSSTØNAD("Kvalifiseringsstønad", Kategori.TRYGD),
 
     // Ytelse utbetalt til person som er næringsdrivende, fisker/lott, dagmamma eller jord/skogbruker
-    FORELDREPENGER_NÆRING("Foreldrepenger næring", Kategori.NÆRING, RelatertYtelseType.FORELDREPENGER),
-    SVANGERSKAPSPENGER_NÆRING("Svangerskapspenger næring", Kategori.NÆRING, RelatertYtelseType.SVANGERSKAPSPENGER),
-    SYKEPENGER_NÆRING("Sykepenger næring", Kategori.NÆRING, RelatertYtelseType.SYKEPENGER),
-    OMSORGSPENGER_NÆRING("Omsorgspenger næring", Kategori.NÆRING, RelatertYtelseType.OMSORGSPENGER),
-    OPPLÆRINGSPENGER_NÆRING("Opplæringspenger næring", Kategori.NÆRING, RelatertYtelseType.OPPLÆRINGSPENGER),
-    PLEIEPENGER_NÆRING("Pleiepenger næring", Kategori.NÆRING, RelatertYtelseType.PLEIEPENGER_SYKT_BARN),
-    DAGPENGER_NÆRING("Dagpenger næring", Kategori.NÆRING, RelatertYtelseType.DAGPENGER),
+    FORELDREPENGER_NÆRING("Foreldrepenger næring", Kategori.NÆRING),
+    SVANGERSKAPSPENGER_NÆRING("Svangerskapspenger næring", Kategori.NÆRING),
+    SYKEPENGER_NÆRING("Sykepenger næring", Kategori.NÆRING),
+    OMSORGSPENGER_NÆRING("Omsorgspenger næring", Kategori.NÆRING),
+    OPPLÆRINGSPENGER_NÆRING("Opplæringspenger næring", Kategori.NÆRING),
+    PLEIEPENGER_NÆRING("Pleiepenger næring", Kategori.NÆRING),
+    DAGPENGER_NÆRING("Dagpenger næring", Kategori.NÆRING),
 
     // Annen ytelse utbetalt til person som er næringsdrivende
-    ANNET("Annet", Kategori.NÆRING, RelatertYtelseType.UDEFINERT),
-    VEDERLAG("Vederlag", Kategori.NÆRING, RelatertYtelseType.UDEFINERT),
-    LOTT_KUN_TRYGDEAVGIFT("Lott kun trygdeavgift", Kategori.NÆRING, RelatertYtelseType.UDEFINERT),
-    KOMPENSASJON_FOR_TAPT_PERSONINNTEKT("Kompensasjon for tapt personinntekt", Kategori.NÆRING, RelatertYtelseType.FRISINN)
+    ANNET("Annet", Kategori.NÆRING),
+    VEDERLAG("Vederlag", Kategori.NÆRING),
+    LOTT_KUN_TRYGDEAVGIFT("Lott kun trygdeavgift", Kategori.NÆRING),
+    KOMPENSASJON_FOR_TAPT_PERSONINNTEKT("Kompensasjon for tapt personinntekt", Kategori.NÆRING)
     ;
 
     @JsonIgnore
     private final String navn;
-    @JsonIgnore
-    private final RelatertYtelseType ytelseType;
 
     @SuppressWarnings("unused") // Kategori: Beholder for likhet med Abakus
-    InntektYtelseType(String navn, Kategori kategori, RelatertYtelseType ytelseType) {
+    InntektYtelseType(String navn, Kategori kategori) {
         this.navn = navn;
-        this.ytelseType = ytelseType;
     }
 
     public static InntektYtelseType fraKode(String kode) {
@@ -76,10 +72,6 @@ public enum InntektYtelseType implements Kodeverdi {
     @JsonValue
     public String getKode() {
         return name();
-    }
-
-    public RelatertYtelseType getYtelseType() {
-        return ytelseType;
     }
 
     public enum Kategori { YTELSE, NÆRING, TRYGD }

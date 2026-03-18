@@ -17,6 +17,7 @@ import no.nav.abakus.iaygrunnlag.kodeverk.YtelseType;
 import no.nav.abakus.iaygrunnlag.request.AktørDatoRequest;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
+import no.nav.foreldrepenger.domene.abakus.mapping.KodeverkMapper;
 import no.nav.foreldrepenger.domene.iay.modell.ArbeidsforholdMedPermisjon;
 import no.nav.foreldrepenger.domene.iay.modell.kodeverk.PermisjonsbeskrivelseType;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
@@ -60,7 +61,7 @@ public class ArbeidsforholdTjeneste {
     private static ArbeidsforholdMedPermisjon mapArbeidsforholdMedPermisjon(ArbeidsforholdDto dto) {
         return new ArbeidsforholdMedPermisjon(
             mapTilArbeidsgiver(dto),
-            no.nav.foreldrepenger.behandlingslager.virksomhet.ArbeidType.fraKode(dto.getType().getKode()),
+            KodeverkMapper.mapArbeidType(dto.getType()),
             dto.getArbeidsforholdId() != null ? EksternArbeidsforholdRef.ref(dto.getArbeidsforholdId().getEksternReferanse()) : EksternArbeidsforholdRef.nullRef(),
             tilAktivitetsavtale(dto.getArbeidsavtaler()),
             tilPermisjoner(dto.getPermisjoner()));
@@ -81,7 +82,8 @@ public class ArbeidsforholdTjeneste {
     }
 
     private static Permisjon mapTilPermisjon(PermisjonDto permisjonDto) {
-        return new Permisjon(DatoIntervallEntitet.fraOgMedTilOgMed(permisjonDto.getPeriode().getFom(), permisjonDto.getPeriode().getTom()), PermisjonsbeskrivelseType.fraKode(permisjonDto.getType().getKode()), permisjonDto.getProsentsats());
+        return new Permisjon(DatoIntervallEntitet.fraOgMedTilOgMed(permisjonDto.getPeriode().getFom(), permisjonDto.getPeriode().getTom()),
+            KodeverkMapper.mapPermisjonbeskrivelseTypeFraDto(permisjonDto.getType()), permisjonDto.getProsentsats());
     }
 
     private static AktivitetAvtale mapTilAktivitetsavtale(ArbeidsavtaleDto arbeidsavtaleDto) {

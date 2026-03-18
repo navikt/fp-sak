@@ -165,7 +165,6 @@ public class MorsAktivitetInnhenter {
 
     private static AktivitetskravPermisjonType map(PermisjonsbeskrivelseType type) {
         return switch (type) {
-            case UDEFINERT -> UDEFINERT;
             case PERMISJON, ANNEN_PERMISJON_LOVFESTET, ANNEN_PERMISJON_IKKE_LOVFESTET, PERMISJON_VED_MILITÆRTJENESTE, VELFERDSPERMISJON ->
                 ANNEN_PERMISJON;
             case UTDANNINGSPERMISJON, UTDANNINGSPERMISJON_LOVFESTET, UTDANNINGSPERMISJON_IKKE_LOVFESTET -> UTDANNING;

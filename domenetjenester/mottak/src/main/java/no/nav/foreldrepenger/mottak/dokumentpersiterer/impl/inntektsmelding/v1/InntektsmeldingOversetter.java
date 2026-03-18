@@ -77,7 +77,7 @@ public class InntektsmeldingOversetter implements MottattDokumentOversetter<Innt
                                        Behandling behandling,
                                        Optional<LocalDate> gjelderFra) {
         var aarsakTilInnsending = wrapper.getSkjema().getSkjemainnhold().getAarsakTilInnsending();
-        var innsendingsårsak = aarsakTilInnsending.isEmpty() ? InntektsmeldingInnsendingsårsak.UDEFINERT : INNSENDINGSÅRSAK_MAP
+        var innsendingsårsak = aarsakTilInnsending.isEmpty() ? InntektsmeldingInnsendingsårsak.NY : INNSENDINGSÅRSAK_MAP
             .get(ÅrsakInnsendingKodeliste.fromValue(aarsakTilInnsending));
 
         var builder = InntektsmeldingBuilder.builder();

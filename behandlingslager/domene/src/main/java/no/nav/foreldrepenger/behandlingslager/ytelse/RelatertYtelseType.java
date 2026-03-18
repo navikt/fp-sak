@@ -12,7 +12,6 @@ import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
 
 public enum RelatertYtelseType implements Kodeverdi {
 
-    ENSLIG_FORSØRGER("EF", "Enslig forsørger"),
     SYKEPENGER("SP", "Sykepenger"),
     SVANGERSKAPSPENGER("SVP", "Svangerskapspenger"),
     FORELDREPENGER("FP", "Foreldrepenger"),
@@ -24,7 +23,6 @@ public enum RelatertYtelseType implements Kodeverdi {
     OPPLÆRINGSPENGER("OLP", "Opplæringspenger"),
     ARBEIDSAVKLARINGSPENGER("AAP", "Arbeidsavklaringspenger"),
     DAGPENGER("DAG", "Dagpenger"),
-    UDEFINERT(STANDARDKODE_UDEFINERT, "Ikke definert"),
     ;
 
     public static final Set<RelatertYtelseType> PLEIEPENGER = Set.of(PLEIEPENGER_SYKT_BARN, PLEIEPENGER_NÆRSTÅENDE, OPPLÆRINGSPENGER);
@@ -33,7 +31,7 @@ public enum RelatertYtelseType implements Kodeverdi {
         PLEIEPENGER_SYKT_BARN, PLEIEPENGER_NÆRSTÅENDE, OMSORGSPENGER, OPPLÆRINGSPENGER, FRISINN, DAGPENGER);
 
     private static final Map<FagsakYtelseType, Set<RelatertYtelseType>> OPPTJENING_RELATERTYTELSE_CONFIG = Map.of(
-        FagsakYtelseType.FORELDREPENGER, Set.of(ENSLIG_FORSØRGER, ARBEIDSAVKLARINGSPENGER),
+        FagsakYtelseType.FORELDREPENGER, Set.of(ARBEIDSAVKLARINGSPENGER),
         FagsakYtelseType.SVANGERSKAPSPENGER, Collections.emptySet());
 
     private static final Map<String, RelatertYtelseType> KODER = new LinkedHashMap<>();

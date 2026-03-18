@@ -177,7 +177,7 @@ public class ArbeidOgInntektsmeldingMapper {
 
     private static ArbeidsforholdKomplettVurderingType mapHandlingTilVurdering(ArbeidsforholdHandlingType handling) {
         return switch(handling) {
-            case UDEFINERT -> ArbeidsforholdKomplettVurderingType.UDEFINERT;
+            case null -> null;
             case LAGT_TIL_AV_SAKSBEHANDLER -> ArbeidsforholdKomplettVurderingType.MANUELT_OPPRETTET_AV_SAKSBEHANDLER;
             case BASERT_PÅ_INNTEKTSMELDING -> ArbeidsforholdKomplettVurderingType.OPPRETT_BASERT_PÅ_INNTEKTSMELDING;
             case BRUK_UTEN_INNTEKTSMELDING -> ArbeidsforholdKomplettVurderingType.FORTSETT_UTEN_INNTEKTSMELDING;
@@ -244,7 +244,7 @@ public class ArbeidOgInntektsmeldingMapper {
                                                                                  LocalDate stp,
                                                                                  Optional<ArbeidsforholdOverstyring> arbeidsforholdOverstyring) {
         var oversyrtePerioder = arbeidsforholdOverstyring
-            .filter(os -> os.getHandling().equals(ArbeidsforholdHandlingType.BRUK_MED_OVERSTYRT_PERIODE))
+            .filter(os -> ArbeidsforholdHandlingType.BRUK_MED_OVERSTYRT_PERIODE.equals(os.getHandling()))
             .map(ArbeidsforholdOverstyring::getArbeidsforholdOverstyrtePerioder)
             .orElse(Collections.emptyList());
         if (!oversyrtePerioder.isEmpty()) {

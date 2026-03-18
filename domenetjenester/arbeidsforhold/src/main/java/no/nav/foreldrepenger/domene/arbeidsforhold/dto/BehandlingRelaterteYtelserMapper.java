@@ -46,7 +46,7 @@ public class BehandlingRelaterteYtelserMapper {
     }
 
     public static RelatertYtelseType mapFraFagsakYtelseTypeTilRelatertYtelseType(FagsakYtelseType type) {
-        return YTELSE_TYPE_MAP.getOrDefault(type, RelatertYtelseType.UDEFINERT);
+        return YTELSE_TYPE_MAP.get(type);
     }
 
     private static TilgrensendeYtelser lagTilgrensendeYtelse(Ytelse ytelse) {
@@ -54,7 +54,7 @@ public class BehandlingRelaterteYtelserMapper {
     }
 
     public static TilgrensendeYtelser mapFraFagsak(Fagsak fagsak, LocalDate periodeDato) {
-        var relatertYtelseType = YTELSE_TYPE_MAP.getOrDefault(fagsak.getYtelseType(), RelatertYtelseType.UDEFINERT);
+        var relatertYtelseType = YTELSE_TYPE_MAP.get(fagsak.getYtelseType());
         return new TilgrensendeYtelser(relatertYtelseType, periodeDato, endreTomDatoHvisLøpende(periodeDato), fagsak.getStatus().getNavn(), fagsak.getSaksnummer());
     }
 

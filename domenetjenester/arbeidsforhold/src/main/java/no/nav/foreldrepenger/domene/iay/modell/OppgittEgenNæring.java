@@ -19,7 +19,7 @@ public class OppgittEgenNæring implements IndexKey {
     private OrgNummer virksomhetOrgnr;
 
     @ChangeTracked
-    private VirksomhetType virksomhetType = VirksomhetType.UDEFINERT;
+    private VirksomhetType virksomhetType;
 
     private String regnskapsførerNavn;
 

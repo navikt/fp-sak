@@ -31,7 +31,7 @@ public class YtelseAnvistAndel implements IndexKey {
     private Stillingsprosent refusjonsgradProsent;
 
     @ChangeTracked
-    private Inntektskategori inntektskategori = Inntektskategori.UDEFINERT;
+    private Inntektskategori inntektskategori ;
 
     public YtelseAnvistAndel() {
         // hibernate

@@ -165,7 +165,7 @@ class ArbeidsforholdOverstyringTest {
     void krever_ikke_inntektsmelding_skal_returne_false_hvis_handling_er_lik_UDEFINERT() {
         // Arrange
         var overstyring = new ArbeidsforholdOverstyring();
-        overstyring.setHandling(ArbeidsforholdHandlingType.UDEFINERT);
+        overstyring.setHandling(ArbeidsforholdHandlingType.IKKE_BRUK);
         // Act
         var kreverIkkeInntektsmelding = overstyring.kreverIkkeInntektsmelding();
         // Assert

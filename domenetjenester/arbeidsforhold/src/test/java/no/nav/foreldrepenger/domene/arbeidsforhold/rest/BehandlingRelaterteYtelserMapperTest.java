@@ -67,7 +67,7 @@ class BehandlingRelaterteYtelserMapperTest {
                         I_DAG.plusDays(200)),
                 opprettBuilderForBehandlingRelaterteYtelser(RelatertYtelseType.FORELDREPENGER, RelatertYtelseTilstand.LØPENDE, I_DAG.minusDays(5),
                         null),
-                opprettBuilderForBehandlingRelaterteYtelser(RelatertYtelseType.ENSLIG_FORSØRGER, RelatertYtelseTilstand.ÅPEN, I_DAG.minusDays(5),
+                opprettBuilderForBehandlingRelaterteYtelser(RelatertYtelseType.DAGPENGER, RelatertYtelseTilstand.ÅPEN, I_DAG.minusDays(5),
                         null));
 
         var resultatListe = BehandlingRelaterteYtelserMapper.mapFraBehandlingRelaterteYtelser(ytelser);

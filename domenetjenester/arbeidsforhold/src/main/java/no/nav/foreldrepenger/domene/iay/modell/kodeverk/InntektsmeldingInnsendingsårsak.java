@@ -11,7 +11,6 @@ public enum InntektsmeldingInnsendingsårsak implements Kodeverdi {
 
     NY("NY", "NY"),
     ENDRING("ENDRING", "ENDRING"),
-    UDEFINERT(STANDARDKODE_UDEFINERT, "UDEFINERT"),
     ;
 
     private static final Map<String, InntektsmeldingInnsendingsårsak> KODER = new LinkedHashMap<>();
