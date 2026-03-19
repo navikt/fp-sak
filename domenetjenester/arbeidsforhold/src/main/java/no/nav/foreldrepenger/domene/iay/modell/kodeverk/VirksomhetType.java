@@ -18,10 +18,8 @@ public enum VirksomhetType implements Kodeverdi {
 
     DAGMAMMA("DAGMAMMA", "Dagmamma i eget hjem/familiebarnehage", Inntektskategori.DAGMAMMA),
     FISKE("FISKE", "Fiske", Inntektskategori.FISKER),
-    FRILANSER("FRILANSER", "Frilanser", Inntektskategori.FRILANSER),
     JORDBRUK_SKOGBRUK("JORDBRUK_SKOGBRUK", "Jordbruk", Inntektskategori.JORDBRUKER),
     ANNEN("ANNEN", "Annen næringsvirksomhet", Inntektskategori.UDEFINERT),
-    UDEFINERT(STANDARDKODE_UDEFINERT, "Ikke definert", Inntektskategori.UDEFINERT),
     ;
 
     private static final Map<String, VirksomhetType> KODER = new LinkedHashMap<>();
@@ -35,11 +33,11 @@ public enum VirksomhetType implements Kodeverdi {
     }
 
     @JsonIgnore
-    private String navn;
+    private final String navn;
     @JsonIgnore
-    private Inntektskategori inntektskategori;
+    private final Inntektskategori inntektskategori;
     @JsonValue
-    private String kode;
+    private final String kode;
 
     VirksomhetType(String kode, String navn, Inntektskategori inntektskategori) {
         this.kode = kode;

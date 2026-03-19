@@ -9,7 +9,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import no.nav.foreldrepenger.behandlingslager.BaseEntitet;
 import no.nav.foreldrepenger.behandlingslager.diff.ChangeTracked;
 import no.nav.foreldrepenger.behandlingslager.diff.IndexKey;
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Fagsystem;
@@ -18,11 +17,11 @@ import no.nav.foreldrepenger.domene.iay.modell.kodeverk.RelatertYtelseTilstand;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 
-public class Ytelse extends BaseEntitet implements IndexKey {
+public class Ytelse implements IndexKey {
 
     private YtelseGrunnlag ytelseGrunnlag;
 
-    private RelatertYtelseType relatertYtelseType = RelatertYtelseType.UDEFINERT;
+    private RelatertYtelseType relatertYtelseType;
 
     @ChangeTracked
     private DatoIntervallEntitet periode;

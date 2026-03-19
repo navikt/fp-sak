@@ -92,7 +92,6 @@ public class KodeverkTilKalkulusMapper {
             case SELVSTENDIG_NÆRINGSDRIVENDE -> ArbeidType.NÆRING;
             case UTENLANDSK_ARBEIDSFORHOLD -> ArbeidType.UTENLANDSK_ARBEIDSFORHOLD;
             case VENTELØNN_VARTPENGER -> ArbeidType.VENTELØNN_VARTPENGER;
-            case VANLIG -> ArbeidType.VANLIG;
         };
     }
 
@@ -100,16 +99,13 @@ public class KodeverkTilKalkulusMapper {
         return switch (virksomhetType) {
             case DAGMAMMA -> VirksomhetType.DAGMAMMA;
             case FISKE -> VirksomhetType.FISKE;
-            case FRILANSER -> VirksomhetType.FRILANSER;
             case JORDBRUK_SKOGBRUK -> VirksomhetType.JORDBRUK_SKOGBRUK;
             case ANNEN -> VirksomhetType.ANNEN;
-            case UDEFINERT -> VirksomhetType.UDEFINERT;
         };
     }
 
     public static ArbeidsforholdHandlingType mapArbeidsforholdHandling(no.nav.foreldrepenger.domene.iay.modell.kodeverk.ArbeidsforholdHandlingType handling) {
         return switch (handling) {
-            case UDEFINERT -> ArbeidsforholdHandlingType.UDEFINERT;
             case BRUK -> ArbeidsforholdHandlingType.BRUK;
             case NYTT_ARBEIDSFORHOLD -> ArbeidsforholdHandlingType.NYTT_ARBEIDSFORHOLD;
             case BRUK_UTEN_INNTEKTSMELDING -> ArbeidsforholdHandlingType.BRUK_UTEN_INNTEKTSMELDING;
@@ -143,27 +139,22 @@ public class KodeverkTilKalkulusMapper {
             case YRKEBIL_TJENESTLIGBEHOV_KILOMETER -> NaturalYtelseType.YRKESBIL_KILOMETER;
             case YRKEBIL_TJENESTLIGBEHOV_LISTEPRIS -> NaturalYtelseType.YRKESBIL_LISTEPRIS;
             case INNBETALING_TIL_UTENLANDSK_PENSJONSORDNING -> NaturalYtelseType.UTENLANDSK_PENSJONSORDNING;
-            case UDEFINERT -> NaturalYtelseType.UDEFINERT;
         };
     }
 
     public static InntektskildeType mapInntektskilde(InntektsKilde inntektsKilde) {
         return switch (inntektsKilde) {
-            case UDEFINERT -> InntektskildeType.UDEFINERT;
             case INNTEKT_OPPTJENING -> InntektskildeType.INNTEKT_OPPTJENING;
             case INNTEKT_BEREGNING -> InntektskildeType.INNTEKT_BEREGNING;
             case INNTEKT_SAMMENLIGNING -> InntektskildeType.INNTEKT_SAMMENLIGNING;
             case SIGRUN -> InntektskildeType.SIGRUN;
-            case VANLIG -> InntektskildeType.VANLIG;
         };
     }
 
     public static InntektspostType mapInntektspostType(no.nav.foreldrepenger.domene.iay.modell.kodeverk.InntektspostType type) {
         return switch (type) {
-            case UDEFINERT -> InntektspostType.UDEFINERT;
             case LØNN -> InntektspostType.LØNN;
             case YTELSE -> InntektspostType.YTELSE;
-            case VANLIG -> InntektspostType.VANLIG;
             case SELVSTENDIG_NÆRINGSDRIVENDE -> InntektspostType.SELVSTENDIG_NÆRINGSDRIVENDE;
             case NÆRING_FISKE_FANGST_FAMBARNEHAGE -> InntektspostType.NÆRING_FISKE_FANGST_FAMBARNEHAGE;
             case null -> null;
@@ -218,7 +209,7 @@ public class KodeverkTilKalkulusMapper {
 
     public static YtelseType mapYtelsetype(RelatertYtelseType relatertYtelseType) {
         return switch (relatertYtelseType) {
-            case ENSLIG_FORSØRGER -> YtelseType.ENSLIG_FORSØRGER;
+            case null -> null;
             case SYKEPENGER -> YtelseType.SYKEPENGER;
             case SVANGERSKAPSPENGER -> YtelseType.SVANGERSKAPSPENGER;
             case FORELDREPENGER -> YtelseType.FORELDREPENGER;
@@ -230,7 +221,6 @@ public class KodeverkTilKalkulusMapper {
             case OPPLÆRINGSPENGER -> YtelseType.OPPLÆRINGSPENGER;
             case ARBEIDSAVKLARINGSPENGER -> YtelseType.ARBEIDSAVKLARINGSPENGER;
             case DAGPENGER -> YtelseType.DAGPENGER;
-            case UDEFINERT -> YtelseType.UDEFINERT;
         };
     }
 
@@ -250,7 +240,6 @@ public class KodeverkTilKalkulusMapper {
 
     public static PermisjonsbeskrivelseType mapPermisjonbeskrivelsetype(no.nav.foreldrepenger.domene.iay.modell.kodeverk.PermisjonsbeskrivelseType permisjonsbeskrivelseType) {
         return switch (permisjonsbeskrivelseType) {
-            case UDEFINERT -> PermisjonsbeskrivelseType.UDEFINERT;
             case PERMISJON -> PermisjonsbeskrivelseType.PERMISJON;
             case UTDANNINGSPERMISJON -> PermisjonsbeskrivelseType.UTDANNINGSPERMISJON;
             case UTDANNINGSPERMISJON_IKKE_LOVFESTET -> PermisjonsbeskrivelseType.UTDANNINGSPERMISJON_IKKE_LOVFESTET;

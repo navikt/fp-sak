@@ -9,12 +9,10 @@ import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
 
 public enum InntektsKilde implements Kodeverdi {
 
-    UDEFINERT(STANDARDKODE_UDEFINERT, "Ikke definert"),
     INNTEKT_OPPTJENING("INNTEKT_OPPTJENING", "INNTEKT_OPPTJENING"),
     INNTEKT_BEREGNING("INNTEKT_BEREGNING", "INNTEKT_BEREGNING"),
     INNTEKT_SAMMENLIGNING("INNTEKT_SAMMENLIGNING", "INNTEKT_SAMMENLIGNING"),
     SIGRUN("SIGRUN", "Sigrun"),
-    VANLIG("VANLIG", "Vanlig"),
     ;
 
     private static final Map<String, InntektsKilde> KODER = new LinkedHashMap<>();

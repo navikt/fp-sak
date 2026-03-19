@@ -132,7 +132,6 @@ public class MapTilYtelsegrunnlagDto {
             case DAGPENGER -> AktivitetStatus.DAGPENGER;
             case ARBEIDSAVKLARINGSPENGER -> AktivitetStatus.ARBEIDSAVKLARINGSPENGER;
             case ARBEIDSTAKER, ARBEIDSTAKER_UTEN_FERIEPENGER, SJØMANN, FISKER -> AktivitetStatus.ARBEIDSTAKER;
-            case UDEFINERT -> AktivitetStatus.UDEFINERT;
         };
     }
 
@@ -151,7 +150,6 @@ public class MapTilYtelsegrunnlagDto {
             case JORDBRUKER -> Inntektskategori.JORDBRUKER;
             case FISKER -> Inntektskategori.FISKER;
             case ARBEIDSTAKER_UTEN_FERIEPENGER -> Inntektskategori.ARBEIDSTAKER_UTEN_FERIEPENGER;
-            case UDEFINERT -> Inntektskategori.UDEFINERT;
         };
     }
 

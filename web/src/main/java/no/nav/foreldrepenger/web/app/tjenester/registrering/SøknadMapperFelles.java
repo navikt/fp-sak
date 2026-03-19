@@ -424,9 +424,7 @@ public class SøknadMapperFelles {
                 virksomhetstyper.add(virksomhetstype);
             }
         } else {
-            var virksomhetstype = new Virksomhetstyper();
-            virksomhetstype.setKode(VirksomhetType.UDEFINERT.getKode());
-            virksomhetstyper.add(virksomhetstype);
+            throw new IllegalArgumentException("Må ha en type virksomhet for å kunne mappe til egen næring");
         }
     }
 

@@ -44,7 +44,6 @@ public enum ArbeidType implements Kodeverdi, DatabaseKode, MedOffisiellKode {
     SELVSTENDIG_NÆRINGSDRIVENDE("NÆRING", "Selvstendig næringsdrivende"),
     UTENLANDSK_ARBEIDSFORHOLD("UTENLANDSK_ARBEIDSFORHOLD", "Arbeid i utlandet"),
     VENTELØNN_VARTPENGER("VENTELØNN_VARTPENGER", "Ventelønn eller vartpenger"),
-    VANLIG("VANLIG", "Vanlig", "VANLIG"),
     ;
 
     private static final Set<ArbeidType> ANNEN_OPPTJENING = Set.of(

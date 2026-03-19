@@ -262,7 +262,7 @@ public class YrkesaktivitetFilter {
         var handling = overstyring.getHandling();
 
         var overstyrtePerioder = overstyring.getArbeidsforholdOverstyrtePerioder();
-        if (handling.erPeriodeOverstyrt() && !overstyrtePerioder.isEmpty()) {
+        if (handling != null && handling.erPeriodeOverstyrt() && !overstyrtePerioder.isEmpty()) {
             Set<AktivitetsAvtale> avtaler = new LinkedHashSet<>();
             overstyrtePerioder.forEach(overstyrtPeriode -> yaAvtaler.stream()
                     .filter(AktivitetsAvtale::erAnsettelsesPeriode)

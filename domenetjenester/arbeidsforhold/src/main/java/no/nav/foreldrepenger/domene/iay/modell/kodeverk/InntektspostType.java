@@ -9,10 +9,8 @@ import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
 
 public enum InntektspostType implements Kodeverdi {
 
-    UDEFINERT(STANDARDKODE_UDEFINERT, "Ikke definert"),
     LØNN("LØNN", "Lønn"),
     YTELSE("YTELSE", "Ytelse"),
-    VANLIG("VANLIG", "Vanlig"),
     SELVSTENDIG_NÆRINGSDRIVENDE("SELVSTENDIG_NÆRINGSDRIVENDE", "Selvstendig næringsdrivende"),
     NÆRING_FISKE_FANGST_FAMBARNEHAGE("NÆRING_FISKE_FANGST_FAMBARNEHAGE", "Jordbruk/Skogbruk/Fiske/FamilieBarnehage"),
     ;

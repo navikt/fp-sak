@@ -20,7 +20,7 @@ public class NaturalYtelse implements IndexKey {
     @ChangeTracked @NotNull
     private Beløp beloepPerMnd;
 
-    @NotNull private NaturalYtelseType type = NaturalYtelseType.UDEFINERT;
+    @NotNull private NaturalYtelseType type;
 
     NaturalYtelse() {
     }

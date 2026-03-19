@@ -71,7 +71,7 @@ public class Inntektsmelding implements IndexKey {
     private List<Refusjon> endringerRefusjon = new ArrayList<>();
 
     @ChangeTracked
-    private InntektsmeldingInnsendingsårsak innsendingsårsak = InntektsmeldingInnsendingsårsak.UDEFINERT;
+        private InntektsmeldingInnsendingsårsak innsendingsårsak;
 
     Inntektsmelding() {
     }

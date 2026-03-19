@@ -1,5 +1,7 @@
 package no.nav.foreldrepenger.web.app.tjenester.fpoversikt;
 
+import static no.nav.vedtak.konfig.Tid.TIDENES_ENDE;
+
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -31,8 +33,6 @@ import no.nav.foreldrepenger.domene.iay.modell.Yrkesaktivitet;
 import no.nav.foreldrepenger.domene.iay.modell.kodeverk.NaturalYtelseType;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.domene.typer.Stillingsprosent;
-
-import static no.nav.vedtak.konfig.Tid.TIDENES_ENDE;
 
 @ApplicationScoped
 class InntektsmeldingDtoTjeneste {
@@ -192,7 +192,6 @@ class InntektsmeldingDtoTjeneste {
             case YRKEBIL_TJENESTLIGBEHOV_KILOMETER -> FpSakInntektsmeldingDto.NaturalytelseType.YRKEBIL_TJENESTLIGBEHOV_KILOMETER;
             case YRKEBIL_TJENESTLIGBEHOV_LISTEPRIS -> FpSakInntektsmeldingDto.NaturalytelseType.YRKEBIL_TJENESTLIGBEHOV_LISTEPRIS;
             case INNBETALING_TIL_UTENLANDSK_PENSJONSORDNING -> FpSakInntektsmeldingDto.NaturalytelseType.INNBETALING_TIL_UTENLANDSK_PENSJONSORDNING;
-            case UDEFINERT -> throw new IllegalStateException("Kunne ikke mappe NaturalytelseType til FpSakInntektsmeldingDto.NaturalytelseType: " + naturalytelseType);
         };
     }
 }

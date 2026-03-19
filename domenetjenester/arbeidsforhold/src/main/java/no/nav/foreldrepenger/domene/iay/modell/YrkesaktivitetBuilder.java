@@ -164,8 +164,4 @@ public class YrkesaktivitetBuilder {
         return resultat;
     }
 
-    public YrkesaktivitetBuilder medArbeidType(String kode) {
-        return medArbeidType(ArbeidType.fraKode(kode));
-    }
-
 }
