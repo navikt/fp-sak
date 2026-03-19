@@ -4,6 +4,9 @@ import jakarta.enterprise.context.ApplicationScoped;
 
 import jakarta.inject.Inject;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatAndel;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatFeriepengerPrÅr;
@@ -15,9 +18,12 @@ import no.nav.foreldrepenger.domene.arbeidsgiver.ArbeidsgiverTjeneste;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Optional;
 
 @ApplicationScoped
 public class TilkjentYtelseDtoTjeneste {
+
+    private static final Logger LOG = LoggerFactory.getLogger(TilkjentYtelseDtoTjeneste.class);
 
     private BeregningsresultatRepository beregningsresultatRepository;
     private ArbeidsgiverTjeneste arbeidsgiverTjeneste;
@@ -33,23 +39,28 @@ public class TilkjentYtelseDtoTjeneste {
     }
 
 
-    public FpSak.TilkjentYtelse lagDtoForTilkjentYtelse(BehandlingReferanse ref) {
-        var beregningsresultatEntitet = beregningsresultatRepository.hentBeregningsresultatAggregat(ref.behandlingId());
+    public Optional<FpSak.TilkjentYtelse> lagDtoForTilkjentYtelse(BehandlingReferanse ref) {
+        try {
+            var beregningsresultatEntitet = beregningsresultatRepository.hentBeregningsresultatAggregat(ref.behandlingId());
 
-        if (beregningsresultatEntitet.isEmpty()) {
-            return new FpSak.TilkjentYtelse(List.of(), List.of());
+            if (beregningsresultatEntitet.isEmpty()) {
+                return Optional.of(new FpSak.TilkjentYtelse(List.of(), List.of()));
+            }
+
+            var perioder = beregningsresultatEntitet.get()
+                .getBgBeregningsresultatFP()
+                .getBeregningsresultatPerioder()
+                .stream()
+                .map(this::mapTilkjentYtelsePeriode)
+                .toList();
+
+            var feriepenger = beregningsresultatEntitet.get().getGjeldendeFeriepenger().stream().map(this::mapFeriepengeAndel).toList();
+
+            return Optional.of(new FpSak.TilkjentYtelse(perioder, feriepenger));
+        } catch (Exception e) {
+            LOG.info("Feil ved henting av tilkjent ytelse for behandling {}", ref.behandlingId(), e);
+            return Optional.empty();
         }
-
-        var perioder = beregningsresultatEntitet.get()
-            .getBgBeregningsresultatFP()
-            .getBeregningsresultatPerioder()
-            .stream()
-            .map(this::mapTilkjentYtelsePeriode)
-            .toList();
-
-        var feriepenger = beregningsresultatEntitet.get().getGjeldendeFeriepenger().stream().map(this::mapFeriepengeAndel).toList();
-
-        return new FpSak.TilkjentYtelse(perioder, feriepenger);
     }
 
     private FpSak.FeriepengeAndel mapFeriepengeAndel(BeregningsresultatFeriepengerPrÅr r) {

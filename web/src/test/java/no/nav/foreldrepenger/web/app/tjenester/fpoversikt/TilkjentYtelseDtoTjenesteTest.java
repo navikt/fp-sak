@@ -49,7 +49,8 @@ class TilkjentYtelseDtoTjenesteTest {
 
         var resultat = tjeneste.lagDtoForTilkjentYtelse(ref);
 
-        assertThat(resultat.utbetalingsperioder()).isEmpty();
+        assertThat(resultat).isPresent();
+        assertThat(resultat.get().utbetalingsperioder()).isEmpty();
     }
 
     @Test
@@ -86,7 +87,7 @@ class TilkjentYtelseDtoTjenesteTest {
         when(beregningsresultatRepository.hentBeregningsresultatAggregat(any())).thenReturn(Optional.of(beregningsresultat));
         when(arbeidsgiverTjeneste.hent(arbeidsgiver)).thenReturn(new ArbeidsgiverOpplysninger("999999999", "Test Bedrift AS"));
 
-        var resultat = tjeneste.lagDtoForTilkjentYtelse(ref).utbetalingsperioder();
+        var resultat = tjeneste.lagDtoForTilkjentYtelse(ref).orElseThrow().utbetalingsperioder();
 
         assertThat(resultat).hasSize(1);
         var dto = resultat.getFirst();
@@ -153,7 +154,7 @@ class TilkjentYtelseDtoTjenesteTest {
         when(beregningsresultatRepository.hentBeregningsresultatAggregat(any())).thenReturn(Optional.of(beregningsresultat));
         when(arbeidsgiverTjeneste.hent(arbeidsgiver)).thenReturn(new ArbeidsgiverOpplysninger("888888888", "Annen Bedrift"));
 
-        var resultat = tjeneste.lagDtoForTilkjentYtelse(ref).utbetalingsperioder();
+        var resultat = tjeneste.lagDtoForTilkjentYtelse(ref).orElseThrow().utbetalingsperioder();
 
         assertThat(resultat).hasSize(2);
         assertThat(resultat.get(0).fom()).isEqualTo(fom1);
@@ -217,7 +218,7 @@ class TilkjentYtelseDtoTjenesteTest {
         when(arbeidsgiverTjeneste.hent(arbeidsgiver1)).thenReturn(new ArbeidsgiverOpplysninger("111111111", "Bedrift En"));
         when(arbeidsgiverTjeneste.hent(arbeidsgiver2)).thenReturn(new ArbeidsgiverOpplysninger("222222222", "Bedrift To"));
 
-        var resultat = tjeneste.lagDtoForTilkjentYtelse(ref).utbetalingsperioder();
+        var resultat = tjeneste.lagDtoForTilkjentYtelse(ref).orElseThrow().utbetalingsperioder();
 
         assertThat(resultat).hasSize(1);
         var dto = resultat.getFirst();
@@ -267,7 +268,7 @@ class TilkjentYtelseDtoTjenesteTest {
 
         when(beregningsresultatRepository.hentBeregningsresultatAggregat(any())).thenReturn(Optional.of(beregningsresultat));
 
-        var resultat = tjeneste.lagDtoForTilkjentYtelse(ref);
+        var resultat = tjeneste.lagDtoForTilkjentYtelse(ref).orElseThrow();
 
         assertThat(resultat.utbetalingsperioder()).hasSize(1);
         var andel = resultat.utbetalingsperioder().getFirst().andeler().getFirst();
