@@ -1,0 +1,102 @@
+{
+  "language": "nb",
+  "data": {
+    "data": {
+      "jegVilSvareSaGodtJegKanPaSporsmaleneISoknaden2": true,
+      "dineOpplysninger1": {
+        "fornavn": "Bob",
+        "etternavn": "Kåre",
+        "identitet": {
+          "harDuFodselsnummer": "ja",
+          "identitetsnummer": "21831999753"
+        }
+      },
+      "hvemErDu": "mor",
+      "hvaSokerDuOm": {
+        "periodeMedForeldrepenger": true,
+        "periodeUtenForeldrepenger": false,
+        "utsettelseForste6UkeneEtterFodsel": true
+      },
+      "erDuAleneOmOmsorgenAvBarnet": "nei",
+      "jegBekrefterAtjegSkalHaOmsorgenForBarnetIPeriodeneJegSokerForeldrepenger": true,
+      "mor": {
+        "hvilkenPeriodeSkalDuTaUtMor": {
+          "foreldrepengerForFodsel": true,
+          "modrekvote": false,
+          "fellesperiode": true,
+          "overforingAvAnnenForeldersKvote": false
+        }
+      },
+      "harDenAndreForelderenRettTilForeldrepenger": "ja",
+      "harDuOrientertDenAndreForelderenOmSoknadenDin": "ja",
+      "perioderMedUtsettelseForste6UkerEtterFodsel": [
+        {
+          "datoFraOgMedDdMmAaaa1": "2026-03-10",
+          "datoTilOgMedDdMmAaaa": "2026-03-27",
+          "hvorforSkalDuUtsetteForeldrepenger": "jegErForSykTilATaMegAvBarnet"
+        }
+      ],
+      "foreldrepengerForFodsel": [
+        {
+          "foreldrepengerFraOgMedDatoDdMmAaaa": "2026-03-03",
+          "foreldrepengerTilOgMedDatoDdMmAaaa": "2026-03-26"
+        }
+      ],
+      "fellesperiodeMor": [
+        {
+          "fellesperiodeFraOgMedDdMmAaaa": "2026-03-21",
+          "fellesperiodeTilOgMedDdMmAaaa": "2026-03-31",
+          "skalDenAndreForelderenHaForeldrepengerISammePeriode1": "nei",
+          "skalDuKombinereForeldrepengeneMedDelvisArbeid": "ja",
+          "oppgiStillingsprosentenDuSkalJobbe": 55,
+          "hvorSkalDuJobbe": {
+            "hosArbeidsgiver": true,
+            "frilanser": false,
+            "selvstendigNaeringsdrivende": false
+          },
+          "navnPaArbeidsgiver": "yhjkl"
+        }
+      ]
+    },
+    "attachments": [
+      {
+        "attachmentId": "personal-id",
+        "navId": "personal-id",
+        "type": "personal-id",
+        "value": "norwegianPassport",
+        "title": "Norsk pass",
+        "files": [
+          {
+            "fileId": "c7223081-1f91-46ad-8b64-55eefcb4d5e6",
+            "attachmentId": "personal-id",
+            "innsendingId": "ac078fdd-58a6-4d89-923d-dd3fd87a12d1",
+            "fileName": "delme-4 (1).pdf",
+            "size": 1170049
+          }
+        ]
+      },
+      {
+        "attachmentId": "eth835u",
+        "navId": "eth835u",
+        "type": "default",
+        "value": "leggerVedNaa",
+        "files": [
+          {
+            "fileId": "e6b00dea-366a-4c92-abbe-e0129297d533",
+            "attachmentId": "eth835u",
+            "innsendingId": "ac078fdd-58a6-4d89-923d-dd3fd87a12d1",
+            "fileName": "delme-3 (1).pdf",
+            "size": 385544
+          }
+        ]
+      },
+      {
+        "attachmentId": "epye1yw",
+        "navId": "epye1yw",
+        "type": "other",
+        "value": "nei",
+        "files": []
+      }
+    ]
+  }
+}
