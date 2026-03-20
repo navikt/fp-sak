@@ -1,0 +1,85 @@
+{
+  "language": "nb",
+  "data": {
+    "data": {
+      "dineOpplysninger1": {
+        "fornavn": "hjk",
+        "etternavn": "Kåre",
+        "identitet": {
+          "harDuFodselsnummer": "ja",
+          "identitetsnummer": "21831999753"
+        }
+      },
+      "hvorSkalDuSokeOmSvangerskapspengerFra": {
+        "selvstendigNaeringsdrivende": false,
+        "frilanser": true
+      },
+      "harDuBoddINorgeDeSiste12Manedene": "jegHarKunBoddINorge",
+      "hvorSkalDuBoDeNeste12Manedene": "jegSkalKunBoINorge",
+      "harDuJobbetOgHattInntektSomFrilanserDeSiste10Manedene": "nei",
+      "harDuJobbetOgHattInntektSomSelvstendigNaeringsdrivendeDeSiste10Manedene": "nei",
+      "harDuHattJobbIEuEosLandDeSiste10Manedene": "ja",
+      "hvilketLandJobbetDuI": "estland",
+      "oppgiNavnetPaArbeidsgiveren": "fghjk",
+      "fraHvilkenDatoHarDuHattJobbIEuEosLandDdMmAaaa": "2026-03-04",
+      "erDetEnJobbDuHarPerIDag": "nei",
+      "tilHvilkenDatoHarDuHattJobbIEuEosLandDdMmAaaa": "2026-03-19",
+      "narHarDuTermindatoDdMmAaaa": "2026-03-26",
+      "erBarnetFodt": "ja",
+      "narBleBarnetFodtDdMmAaaa": "2026-03-17",
+      "beskrivSaNoyaktigSomMuligDeForholdVedArbeidssituasjonenSomDuMenerKanInnebaereRisikoForFosteret": "dfghj",
+      "fraHvilkenDatoHarDuBehovForSvangerskapspengerDdMmAaaa": "2026-03-10",
+      "hvordanKanDuJobbeIPeriodenDuHarBehovForSvangerskapspenger": {
+        "jegKanFortsetteMedSammeStillingsprosent": true,
+        "jegKanFortsetteMedRedusertArbeidstid": false,
+        "jegKanIkkeFortsetteAJobbe": false
+      },
+      "redusertArbeid1": [
+        {
+          "fraHvilkenDatoKanDuJobbeRedusertDdMmAaaa": "2026-03-04",
+          "fraHvilkenDatoKanDuJobbeRedusertDdMmAaaa1": "2026-03-19"
+        }
+      ]
+    },
+    "attachments": [
+      {
+        "attachmentId": "personal-id",
+        "navId": "personal-id",
+        "type": "personal-id",
+        "value": "norwegianPassport",
+        "title": "Norsk pass",
+        "files": [
+          {
+            "fileId": "734b40b6-65ad-477a-b77b-beca31bc8c38",
+            "attachmentId": "personal-id",
+            "innsendingId": "0fe47150-7ba4-430e-ab93-cde0e6383b74",
+            "fileName": "delme-4 (1).pdf",
+            "size": 1170049
+          }
+        ]
+      },
+      {
+        "attachmentId": "e0uo1vb",
+        "navId": "e0uo1vb",
+        "type": "default",
+        "value": "leggerVedNaa",
+        "files": [
+          {
+            "fileId": "324d133e-dd2f-4b18-a9af-21c502e3a294",
+            "attachmentId": "e0uo1vb",
+            "innsendingId": "0fe47150-7ba4-430e-ab93-cde0e6383b74",
+            "fileName": "delme-3 (1).pdf",
+            "size": 385544
+          }
+        ]
+      },
+      {
+        "attachmentId": "efikxy4",
+        "navId": "efikxy4",
+        "type": "other",
+        "value": "nei",
+        "files": []
+      }
+    ]
+  }
+}

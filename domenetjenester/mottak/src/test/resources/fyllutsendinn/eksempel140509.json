@@ -1,0 +1,82 @@
+{
+  "language": "nb",
+  "data": {
+    "data": {
+      "jegBekrefterAtJegHarLestOgForstattMinePlikter": true,
+      "jegVilSvareSaGodtJegKanPaSporsmaleneISoknaden": true,
+      "dineOpplysninger1": {
+        "fornavn": "Bob",
+        "etternavn": "Kåre",
+        "identitet": {
+          "harDuFodselsnummer": "ja",
+          "identitetsnummer": "21831999753"
+        }
+      },
+      "andreInntektskilder": {
+        "harDuHattAndreInntektskilderDeSiste10Manedene": "nei"
+      },
+      "hvemErDu": "far",
+      "hvorLangPeriodeMedForeldrepengerOnskerDu": "100ProsentForeldrepenger",
+      "erBarnetFodt": "ja",
+      "barnetErFodt": {
+        "hvorMangeBarnFikkDu": 2,
+        "narBleDetEldsteBarnetFodtDdMmAaaa1": "2026-03-02",
+        "narVarTermindatoDdMmAaaa": "2026-03-02",
+        "bleBarnaFodtINorge": "ja"
+      },
+      "kanDuGiOssNavnetPaDenAndreForelderen": "nei",
+      "periodeMedforeldrepengerVedAleneomsorgFarMedmor": [
+        {
+          "datoFraOgMedDdMmAaaa": "2026-03-02",
+          "datoTilOgMedDdMmAaaa": "2026-03-13",
+          "skalDuKombinereForeldrepengeneMedDelvisArbeid": "nei"
+        }
+      ],
+      "hvorSkalDuBoDeNeste12Manedene": "kunBoINorge",
+      "hvorHarDuBoddDeSiste12Manedene": "kunBoddINorge",
+      "harDuArbeidsforholdINorge": "nei",
+      "harDuJobbetOgHattInntektSomFrilanserDeSiste10Manedene": "nei",
+      "harDuJobbetOgHattInntektSomSelvstendigNaeringsdrivendeDeSiste10Manedene": "nei"
+   },
+    "attachments": [
+      {
+        "attachmentId": "personal-id",
+        "navId": "personal-id",
+        "type": "personal-id",
+        "value": "norwegianPassport",
+        "title": "Norsk pass",
+        "files": [
+          {
+            "fileId": "0ee37278-d6fa-4da2-b322-cb3b977cbefb",
+            "attachmentId": "personal-id",
+            "innsendingId": "78fb7325-d25a-43c4-8afa-9166cb4ac573",
+            "fileName": "delme-3 (1).pdf",
+            "size": 385544
+          }
+        ]
+      },
+      {
+        "attachmentId": "em0l4tj",
+        "navId": "em0l4tj",
+        "type": "default",
+        "value": "leggerVedNaa",
+        "files": [
+          {
+            "fileId": "e8861acf-50b7-496f-988f-404835eec312",
+            "attachmentId": "em0l4tj",
+            "innsendingId": "78fb7325-d25a-43c4-8afa-9166cb4ac573",
+            "fileName": "delme-2 (1).pdf",
+            "size": 973966
+          }
+        ]
+      },
+      {
+        "attachmentId": "etx8m0m",
+        "navId": "etx8m0m",
+        "type": "other",
+        "value": "nei",
+        "files": []
+      }
+    ]
+  }
+}
