@@ -46,7 +46,7 @@ public class Totrinnsvurdering extends BaseEntitet {
 
     @Convert(converter = BooleanToStringConverter.class)
     @Column(name = "godkjent", nullable = false)
-    private Boolean godkjent;
+    private boolean godkjent;
 
     @Column(name = "begrunnelse")
     private String begrunnelse;
@@ -65,7 +65,7 @@ public class Totrinnsvurdering extends BaseEntitet {
         return vurderPåNyttÅrsaker;
     }
 
-    public Boolean isGodkjent() {
+    public boolean isGodkjent() {
         return godkjent;
     }
 

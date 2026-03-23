@@ -33,7 +33,7 @@ public class Ompostering116 extends BaseCreateableEntitet {
 
     @Convert(converter = BooleanToStringConverter.class)
     @Column(name = "om_postering", nullable = false)
-    private Boolean omPostering;
+    private boolean omPostering;
 
     @Column(name = "dato_omposter_fom")
     private LocalDate datoOmposterFom;
@@ -45,7 +45,7 @@ public class Ompostering116 extends BaseCreateableEntitet {
         // For hibernate
     }
 
-    public Boolean getOmPostering() {
+    public boolean getOmPostering() {
         return omPostering;
     }
 
@@ -68,7 +68,7 @@ public class Ompostering116 extends BaseCreateableEntitet {
     public static class Builder {
         Ompostering116 kladd = new Ompostering116();
 
-        public Builder medOmPostering(Boolean ompostering) {
+        public Builder medOmPostering(boolean ompostering) {
             kladd.omPostering = ompostering;
             return this;
         }
@@ -89,7 +89,6 @@ public class Ompostering116 extends BaseCreateableEntitet {
         }
 
         private void verifiser() {
-            Objects.requireNonNull(kladd.omPostering);
             Objects.requireNonNull(kladd.tidspktReg);
         }
     }

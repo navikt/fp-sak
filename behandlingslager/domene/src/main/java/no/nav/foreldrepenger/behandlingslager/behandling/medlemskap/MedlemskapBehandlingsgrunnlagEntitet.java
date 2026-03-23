@@ -32,7 +32,7 @@ public class MedlemskapBehandlingsgrunnlagEntitet extends BaseEntitet {
 
     @Convert(converter = BooleanToStringConverter.class)
     @Column(name = "aktiv", nullable = false)
-    private Boolean aktiv = true;
+    private boolean aktiv = true;
 
     @Column(name = "behandling_id", updatable = false, nullable = false)
     private Long behandlingId;

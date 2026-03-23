@@ -172,7 +172,7 @@ class FaktaUttakFellesTjeneste {
     private static OppgittPeriodeEntitet map(FaktaUttakPeriodeDto dto, List<OppgittPeriodeEntitet> gjeldende) {
         var periodeIntervall = DatoIntervallEntitet.fraOgMedTilOgMed(dto.fom(), dto.tom());
         var gjeldendeSomOmslutter = gjeldendeSomOmslutter(periodeIntervall, gjeldende);
-        var periodeKilde = dto.periodeKilde() == null ? FordelingPeriodeKilde.SAKSBEHANDLER : dto.periodeKilde();
+        var periodeKilde = dto.periodeKilde();
         //legacy begrunnelse fjernes hvis saksbehandler endrer noe
         var begrunnelse = periodeKilde == FordelingPeriodeKilde.SAKSBEHANDLER || gjeldendeSomOmslutter.isEmpty() ? null : gjeldendeSomOmslutter.get()
             .getBegrunnelse()

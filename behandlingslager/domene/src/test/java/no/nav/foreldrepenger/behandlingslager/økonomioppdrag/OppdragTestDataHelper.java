@@ -77,7 +77,7 @@ public class OppdragTestDataHelper {
         return oppdrkontrollBuilder
             .medBehandlingId(behandlingId)
             .medSaksnummer(saksnummer)
-            .medVenterKvittering(Boolean.TRUE)
+            .medVenterKvittering(true)
             .medProsessTaskId(prosessTaskId)
             .build();
     }

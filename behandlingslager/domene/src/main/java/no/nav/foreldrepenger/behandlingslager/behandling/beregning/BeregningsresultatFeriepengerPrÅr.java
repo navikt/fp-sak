@@ -48,7 +48,7 @@ public class BeregningsresultatFeriepengerPrÅr extends BaseEntitet {
 
     @Convert(converter = BooleanToStringConverter.class)
     @Column(name = "bruker_er_mottaker", nullable = false)
-    private Boolean brukerErMottaker;
+    private boolean brukerErMottaker;
 
     @Embedded
     private Arbeidsgiver arbeidsgiver;
@@ -64,7 +64,8 @@ public class BeregningsresultatFeriepengerPrÅr extends BaseEntitet {
     @ChangeTracked
     private Beløp årsbeløp;
 
-    public BeregningsresultatFeriepengerPrÅr() {
+    protected BeregningsresultatFeriepengerPrÅr() {
+        // Hibernate
     }
 
     public Long getId() {
@@ -154,7 +155,7 @@ public class BeregningsresultatFeriepengerPrÅr extends BaseEntitet {
     }
 
     public static class Builder {
-        private BeregningsresultatFeriepengerPrÅr beregningsresultatFeriepengerPrÅrMal;
+        private final BeregningsresultatFeriepengerPrÅr beregningsresultatFeriepengerPrÅrMal;
 
         public Builder() {
             beregningsresultatFeriepengerPrÅrMal = new BeregningsresultatFeriepengerPrÅr();
@@ -210,7 +211,6 @@ public class BeregningsresultatFeriepengerPrÅr extends BaseEntitet {
         public void verifyStateForBuild() {
             Objects.requireNonNull(beregningsresultatFeriepengerPrÅrMal.beregningsresultatFeriepenger, "beregningsresultatFeriepenger");
             Objects.requireNonNull(beregningsresultatFeriepengerPrÅrMal.aktivitetStatus, "aktivitetStatus");
-            Objects.requireNonNull(beregningsresultatFeriepengerPrÅrMal.brukerErMottaker, "brukerErMottaker");
             Objects.requireNonNull(beregningsresultatFeriepengerPrÅrMal.opptjeningsår, "opptjeningsår");
             Objects.requireNonNull(beregningsresultatFeriepengerPrÅrMal.årsbeløp, "årsbeløp");
         }

@@ -17,8 +17,8 @@ import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseGrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagLinjeBuilder;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.SkjermlenkeType;
 import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.SvpAvklartOpphold;
 import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.SvpOppholdKilde;
@@ -107,8 +107,9 @@ public class BekreftSvangerskapspengerHistorikkinnslagTjeneste {
     }
 
     public String lagTekstForArbeidsgiver(SvpTilretteleggingEntitet tilretteleggingEntitet) {
-        if (tilretteleggingEntitet.getArbeidsgiver().isPresent()) {
-            var opplysninger = arbeidsgiverTjeneste.hent(tilretteleggingEntitet.getArbeidsgiver().get());
+        var arbeidsgiver = tilretteleggingEntitet.getArbeidsgiver();
+        if (arbeidsgiver.isPresent()) {
+            var opplysninger = arbeidsgiverTjeneste.hent(arbeidsgiver.get());
             return opplysninger.getNavn() + " (" + opplysninger.getIdentifikator() + ")";
         } else {
             return tilretteleggingEntitet.getArbeidType().getNavn();
