@@ -24,7 +24,6 @@ import org.slf4j.LoggerFactory;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
-import no.nav.folketrygdloven.kalkulus.annoteringer.Fritekst;
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Venteårsak;
@@ -53,6 +52,7 @@ import no.nav.vedtak.sikkerhet.abac.StandardAbacAttributtType;
 import no.nav.vedtak.sikkerhet.abac.TilpassetAbacAttributt;
 import no.nav.vedtak.sikkerhet.abac.beskyttet.ActionType;
 import no.nav.vedtak.sikkerhet.abac.beskyttet.ResourceType;
+import no.nav.vedtak.util.Fritekst;
 
 @Path(BrevRestTjeneste.BASE_PATH)
 @ApplicationScoped
@@ -137,7 +137,7 @@ public class BrevRestTjeneste {
     }
 
     private static String utledBegrunnelse(DokumentMalType dokumentMal, DokumentMalType journalførSom) {
-        if (DokumentMalType.FRITEKSTBREV.equals(dokumentMal) || DokumentMalType.VEDTAKSBREV_FRITEKST_HTML.equals(dokumentMal)) {
+        if (DokumentMalType.FRITEKSTBREV.equals(dokumentMal) || DokumentMalType.FRITEKST_HTML.equals(dokumentMal)) {
             Objects.requireNonNull(journalførSom, "journalførSom må være satt om FRITEKST brev brukes.");
             return journalførSom.getNavn() + " (" + dokumentMal.getNavn() + ")";
         }
@@ -158,16 +158,26 @@ public class BrevRestTjeneste {
     @GET
     @Path(BREV_HENT_OVERSTYRING_PART_PATH)
     @Produces(MediaType.APPLICATION_JSON)
-    @Operation(description = "Henter html representasjon av brevet som brukes i overstyring av vedtaksbrev med mellomlagret overstyring", tags = "brev")
+    @Operation(description = "Henter html representasjon av brevet som brukes i overstyring av vedtaksbrev med mellomlagret overstyring. Valgfri dokumentMal for å generere HTML for andre brevmaler.", tags = "brev")
     @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK, sporingslogg = true)
-    public Response hentOverstyringAvBrevMedOrginaltBrevPåHtmlFormat(@TilpassetAbacAttributt(supplierClass = BehandlingAbacSuppliers.UuidAbacDataSupplier.class) @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
+    public Response hentOverstyringAvBrevMedOrginaltBrevPåHtmlFormat(
+            @TilpassetAbacAttributt(supplierClass = BehandlingAbacSuppliers.UuidAbacDataSupplier.class) @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto,
+            @QueryParam("dokumentMal") @Parameter(description = "Brevmaltype for HTML-generering, f.eks. VARREV for varsel om revurdering") String dokumentMal) {
         var behandling = behandlingRepository.hentBehandling(uuidDto.getBehandlingUuid());
-        var dokument = dokumentForhåndsvisningTjeneste.genererHtml(behandling);
+
+        String dokument;
+        if (dokumentMal != null) {
+            dokument = dokumentForhåndsvisningTjeneste.genererHtml(behandling, DokumentMalType.fromString(dokumentMal));
+        } else {
+            dokument = dokumentForhåndsvisningTjeneste.genererHtml(behandling);
+        }
         if (dokument == null || dokument.isEmpty()) {
             return Response.serverError().build();
         }
 
-        var eksiterendeOverstyring = dokumentBehandlingTjeneste.hentMellomlagretOverstyring(behandling.getId());
+        var eksiterendeOverstyring = dokumentMal == null
+            ? dokumentBehandlingTjeneste.hentMellomlagretOverstyring(behandling.getId())
+            : dokumentBehandlingTjeneste.hentMellomlagretBrev(behandling.getId(), DokumentMalType.fromString(dokumentMal));
         var overstyrtBrev = new OverstyrtDokumentDto(dokument, eksiterendeOverstyring.orElse(null));
         return Response.ok(overstyrtBrev)
             .type(MediaType.APPLICATION_JSON_TYPE)
@@ -184,15 +194,26 @@ public class BrevRestTjeneste {
     @BeskyttetRessurs(actionType = ActionType.UPDATE, resourceType = ResourceType.FAGSAK, sporingslogg = true)
     public Response mellomlagringAvOverstyring(@TilpassetAbacAttributt(supplierClass = MellomlagringHtmlSupplier.class) @Valid @NotNull MellomlagreHtmlDto mellomlagring) {
         var behandling = behandlingRepository.hentBehandling(mellomlagring.behandlingUuid());
-        if (mellomlagring.redigertInnhold() == null) {
-            dokumentBehandlingTjeneste.fjernOverstyringAvBrev(behandling);
+        if (mellomlagring.dokumentMal() != null) {
+            var dokumentMalType = DokumentMalType.fromString(mellomlagring.dokumentMal());
+            if (mellomlagring.redigertInnhold() == null) {
+                dokumentBehandlingTjeneste.fjernMellomlagretBrev(behandling.getId(), dokumentMalType);
+            } else {
+                dokumentBehandlingTjeneste.lagreMellomlagretBrev(behandling.getId(), dokumentMalType, mellomlagring.redigertInnhold());
+            }
         } else {
-            dokumentBehandlingTjeneste.lagreOverstyrtBrev(behandling, mellomlagring.redigertInnhold());
+            if (mellomlagring.redigertInnhold() == null) {
+                dokumentBehandlingTjeneste.fjernOverstyringAvBrev(behandling);
+            } else {
+                dokumentBehandlingTjeneste.lagreOverstyrtBrev(behandling, mellomlagring.redigertInnhold());
+            }
         }
         return Response.ok().build();
     }
 
-    public record MellomlagreHtmlDto(@Valid @NotNull UUID behandlingUuid, @Valid @Fritekst @Size(max = 20_000) String redigertInnhold) {
+    public record MellomlagreHtmlDto(@Valid @NotNull UUID behandlingUuid,
+                                     @Valid @Fritekst @Size(max = 20_000) String redigertInnhold,
+                                     String dokumentMal) {
     }
 
     @POST

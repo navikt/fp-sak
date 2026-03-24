@@ -1,11 +1,11 @@
 package no.nav.foreldrepenger.web.app.tjenester.brev;
 
 import static no.nav.foreldrepenger.behandlingslager.behandling.dokument.DokumentMalType.INNHENTE_OPPLYSNINGER;
+import static no.nav.foreldrepenger.behandlingslager.behandling.dokument.DokumentMalType.VARSEL_OM_REVURDERING;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -93,7 +93,7 @@ class BrevRestTjenesteTest {
         when(dokumentBehandlingTjenesteMock.hentMellomlagretOverstyring(behandling.getId())).thenReturn(Optional.empty());
 
         // Act
-        var respons = brevRestTjeneste.hentOverstyringAvBrevMedOrginaltBrevPåHtmlFormat(new UuidDto(UUID.randomUUID()));
+        var respons = brevRestTjeneste.hentOverstyringAvBrevMedOrginaltBrevPåHtmlFormat(new UuidDto(UUID.randomUUID()), null);
 
         // Assert
         var overstyrtDokumentDto = (BrevRestTjeneste.OverstyrtDokumentDto) respons.getEntity();
@@ -113,7 +113,7 @@ class BrevRestTjenesteTest {
         when(dokumentBehandlingTjenesteMock.hentMellomlagretOverstyring(behandling.getId())).thenReturn(Optional.of(overstyryBrev));
 
         // Act
-        var respons = brevRestTjeneste.hentOverstyringAvBrevMedOrginaltBrevPåHtmlFormat(new UuidDto(UUID.randomUUID()));
+        var respons = brevRestTjeneste.hentOverstyringAvBrevMedOrginaltBrevPåHtmlFormat(new UuidDto(UUID.randomUUID()), null);
 
         // Assert
         var overstyrtDokumentDto = (BrevRestTjeneste.OverstyrtDokumentDto) respons.getEntity();
@@ -133,7 +133,7 @@ class BrevRestTjenesteTest {
         when(dokumentBehandlingTjenesteMock.hentMellomlagretOverstyring(behandling.getId())).thenReturn(Optional.of(overstyryBrev));
 
         // Act
-        var respons = brevRestTjeneste.hentOverstyringAvBrevMedOrginaltBrevPåHtmlFormat(new UuidDto(UUID.randomUUID()));
+        var respons = brevRestTjeneste.hentOverstyringAvBrevMedOrginaltBrevPåHtmlFormat(new UuidDto(UUID.randomUUID()), null);
         assertThat(respons.getStatus()).isEqualTo(500);
     }
 
@@ -144,7 +144,7 @@ class BrevRestTjenesteTest {
         when(behandlingRepository.hentBehandling(any(UUID.class))).thenReturn(behandling);
 
         // Act
-        brevRestTjeneste.mellomlagringAvOverstyring(new BrevRestTjeneste.MellomlagreHtmlDto(behandling.getUuid(), "HTML"));
+        brevRestTjeneste.mellomlagringAvOverstyring(new BrevRestTjeneste.MellomlagreHtmlDto(behandling.getUuid(), "HTML", null));
 
         var captorHtml = ArgumentCaptor.forClass(String.class);
 
@@ -155,15 +155,51 @@ class BrevRestTjenesteTest {
     }
 
     @Test
-    void mellomlagring_av_overstyring_brev_skal_fjerne_innhold_hvis_null() {
+    void mellomlagring_med_dokumentMal_skal_lagre_per_brevtype() {
         var scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
         var behandling = scenario.lagMocked();
         when(behandlingRepository.hentBehandling(any(UUID.class))).thenReturn(behandling);
 
         // Act
-        brevRestTjeneste.mellomlagringAvOverstyring(new BrevRestTjeneste.MellomlagreHtmlDto(behandling.getUuid(), null));
+        brevRestTjeneste.mellomlagringAvOverstyring(
+            new BrevRestTjeneste.MellomlagreHtmlDto(behandling.getUuid(), "HTML", VARSEL_OM_REVURDERING.getKode()));
 
         // Assert
-        verify(dokumentBehandlingTjenesteMock,  times(1)).fjernOverstyringAvBrev(any());
+        verify(dokumentBehandlingTjenesteMock).lagreMellomlagretBrev(behandling.getId(), VARSEL_OM_REVURDERING, "HTML");
+    }
+
+    @Test
+    void mellomlagring_med_dokumentMal_null_innhold_skal_fjerne() {
+        var scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
+        var behandling = scenario.lagMocked();
+        when(behandlingRepository.hentBehandling(any(UUID.class))).thenReturn(behandling);
+
+        // Act
+        brevRestTjeneste.mellomlagringAvOverstyring(
+            new BrevRestTjeneste.MellomlagreHtmlDto(behandling.getUuid(), null, VARSEL_OM_REVURDERING.getKode()));
+
+        // Assert
+        verify(dokumentBehandlingTjenesteMock).fjernMellomlagretBrev(behandling.getId(), VARSEL_OM_REVURDERING);
+    }
+
+    @Test
+    void hent_overstyring_med_dokumentMal_returnerer_mellomlagret_for_brevtype() {
+        var brevProdusertAvFpdokgen = "html";
+        var mellomlagretHtml = "mellomlagret varsel";
+        var scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
+        var behandling = scenario.lagMocked();
+        when(behandlingRepository.hentBehandling(any(UUID.class))).thenReturn(behandling);
+        when(dokumentForhåndsvisningTjenesteMock.genererHtml(behandling, VARSEL_OM_REVURDERING)).thenReturn(brevProdusertAvFpdokgen);
+        when(dokumentBehandlingTjenesteMock.hentMellomlagretBrev(behandling.getId(), VARSEL_OM_REVURDERING))
+            .thenReturn(Optional.of(mellomlagretHtml));
+
+        // Act
+        var respons = brevRestTjeneste.hentOverstyringAvBrevMedOrginaltBrevPåHtmlFormat(
+            new UuidDto(UUID.randomUUID()), VARSEL_OM_REVURDERING.getKode());
+
+        // Assert
+        var dto = (BrevRestTjeneste.OverstyrtDokumentDto) respons.getEntity();
+        assertThat(dto.opprinneligHtml()).isEqualTo(brevProdusertAvFpdokgen);
+        assertThat(dto.redigertHtml()).isEqualTo(mellomlagretHtml);
     }
 }

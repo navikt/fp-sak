@@ -55,4 +55,40 @@ public class BehandlingDokumentRepository {
         }
         entityManager.flush();
     }
+
+    public Optional<BehandlingBrevMellomlagringEntitet> hentMellomlagretBrev(Long behandlingId, DokumentMalType dokumentMalType) {
+        var query = entityManager.createQuery(
+            "from BehandlingBrevMellomlagring m where m.behandlingDokument.behandlingId = :behandlingId and m.dokumentMalType = :dokumentMalType",
+            BehandlingBrevMellomlagringEntitet.class);
+        query.setParameter("behandlingId", behandlingId);
+        query.setParameter("dokumentMalType", dokumentMalType);
+        return HibernateVerktøy.hentUniktResultat(query);
+    }
+
+    public void lagreOgFlush(BehandlingBrevMellomlagringEntitet mellomlagring) {
+        Objects.requireNonNull(mellomlagring, "mellomlagring");
+        if (mellomlagring.getId() == null) {
+            entityManager.persist(mellomlagring);
+        } else {
+            entityManager.merge(mellomlagring);
+        }
+        entityManager.flush();
+    }
+
+    public void fjernMellomlagretBrev(Long behandlingId, DokumentMalType dokumentMalType) {
+        entityManager.createQuery(
+                "delete from BehandlingBrevMellomlagring m where m.behandlingDokument.behandlingId = :behandlingId and m.dokumentMalType = :dokumentMalType")
+            .setParameter("behandlingId", behandlingId)
+            .setParameter("dokumentMalType", dokumentMalType)
+            .executeUpdate();
+        entityManager.flush();
+    }
+
+    public void fjernAlleMellomlagredeBrev(Long behandlingId) {
+        entityManager.createQuery(
+                "delete from BehandlingBrevMellomlagring m where m.behandlingDokument.behandlingId = :behandlingId")
+            .setParameter("behandlingId", behandlingId)
+            .executeUpdate();
+        entityManager.flush();
+    }
 }

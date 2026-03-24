@@ -19,6 +19,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Venteårsak;
+import no.nav.foreldrepenger.behandlingslager.behandling.dokument.BehandlingBrevMellomlagringEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.dokument.BehandlingDokumentBestiltEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.dokument.BehandlingDokumentEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.dokument.BehandlingDokumentRepository;
@@ -160,7 +161,7 @@ public class DokumentBehandlingTjeneste {
     }
 
     private DokumentMalType utledMalBrukt(DokumentMalType dokumentMalType, DokumentMalType opprineligDokumentMal) {
-        if ((DokumentMalType.FRITEKSTBREV.equals(dokumentMalType) || DokumentMalType.VEDTAKSBREV_FRITEKST_HTML.equals(dokumentMalType)) && opprineligDokumentMal != null) {
+        if ((DokumentMalType.FRITEKSTBREV.equals(dokumentMalType) || DokumentMalType.FRITEKST_HTML.equals(dokumentMalType)) && opprineligDokumentMal != null) {
             return opprineligDokumentMal;
         }
         return dokumentMalType;
@@ -185,6 +186,44 @@ public class DokumentBehandlingTjeneste {
     public Optional<String> hentMellomlagretOverstyring(Long behandlingId) {
         return behandlingDokumentRepository.hentHvisEksisterer(behandlingId)
             .map(BehandlingDokumentEntitet::getOverstyrtBrevFritekstHtml);
+    }
+
+    public Optional<String> hentMellomlagretBrev(Long behandlingId, DokumentMalType dokumentMalType) {
+        return behandlingDokumentRepository.hentMellomlagretBrev(behandlingId, dokumentMalType)
+            .map(BehandlingBrevMellomlagringEntitet::getFritekstHtml);
+    }
+
+    public void lagreMellomlagretBrev(Long behandlingId, DokumentMalType dokumentMalType, String html) {
+        LOG.info("Lagrer mellomlagret brev for behandlingId: {}, dokumentMalType: {}.", behandlingId, dokumentMalType);
+        var behandlingDokument = behandlingDokumentRepository.hentHvisEksisterer(behandlingId)
+            .orElseGet(() -> {
+                var ny = BehandlingDokumentEntitet.Builder.ny().medBehandling(behandlingId).build();
+                behandlingDokumentRepository.lagreOgFlush(ny);
+                return ny;
+            });
+
+        var eksisterende = behandlingDokumentRepository.hentMellomlagretBrev(behandlingId, dokumentMalType);
+        if (eksisterende.isPresent()) {
+            eksisterende.get().setFritekstHtml(html);
+            behandlingDokumentRepository.lagreOgFlush(eksisterende.get());
+        } else {
+            var mellomlagring = BehandlingBrevMellomlagringEntitet.Builder.ny()
+                .medBehandlingDokument(behandlingDokument)
+                .medDokumentMalType(dokumentMalType)
+                .medFritekstHtml(html)
+                .build();
+            behandlingDokumentRepository.lagreOgFlush(mellomlagring);
+        }
+    }
+
+    public void fjernMellomlagretBrev(Long behandlingId, DokumentMalType dokumentMalType) {
+        LOG.info("Fjerner mellomlagret brev for behandlingId: {}, dokumentMalType: {}.", behandlingId, dokumentMalType);
+        behandlingDokumentRepository.fjernMellomlagretBrev(behandlingId, dokumentMalType);
+    }
+
+    public void fjernAlleMellomlagredeBrev(Long behandlingId) {
+        LOG.info("Fjerner alle mellomlagrede brev for behandlingId: {}.", behandlingId);
+        behandlingDokumentRepository.fjernAlleMellomlagredeBrev(behandlingId);
     }
 
     public void lagreOverstyrtBrev(Behandling behandling, String html) {

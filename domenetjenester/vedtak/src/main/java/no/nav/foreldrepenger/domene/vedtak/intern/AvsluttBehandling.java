@@ -17,6 +17,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.IverksettingStat
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakEgenskapRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.egenskaper.FagsakMarkering;
 import no.nav.foreldrepenger.behandlingsprosess.prosessering.BehandlingProsesseringTjeneste;
+import no.nav.foreldrepenger.dokumentbestiller.DokumentBehandlingTjeneste;
 import no.nav.foreldrepenger.domene.vedtak.impl.VurderBehandlingerUnderIverksettelse;
 
 @ApplicationScoped
@@ -32,6 +33,7 @@ public class AvsluttBehandling {
     private VurderBehandlingerUnderIverksettelse vurderBehandlingerUnderIverksettelse;
     private OppdatereFagsakRelasjonVedVedtak oppdatereFagsakRelasjonVedVedtak;
     private FagsakEgenskapRepository fagsakEgenskapRepository;
+    private DokumentBehandlingTjeneste dokumentBehandlingTjeneste;
 
     public AvsluttBehandling() {
         // CDI
@@ -44,7 +46,8 @@ public class AvsluttBehandling {
                              VurderBehandlingerUnderIverksettelse vurderBehandlingerUnderIverksettelse,
                              BehandlingProsesseringTjeneste behandlingProsesseringTjeneste,
                              OppdatereFagsakRelasjonVedVedtak oppdatereFagsakRelasjonVedVedtak,
-                             FagsakEgenskapRepository fagsakEgenskapRepository) {
+                             FagsakEgenskapRepository fagsakEgenskapRepository,
+                             DokumentBehandlingTjeneste dokumentBehandlingTjeneste) {
         this.behandlingRepository = repositoryProvider.getBehandlingRepository();
         this.behandlingskontrollTjeneste = behandlingskontrollTjeneste;
         this.behandlingVedtakRepository = repositoryProvider.getBehandlingVedtakRepository();
@@ -53,6 +56,7 @@ public class AvsluttBehandling {
         this.behandlingProsesseringTjeneste = behandlingProsesseringTjeneste;
         this.oppdatereFagsakRelasjonVedVedtak = oppdatereFagsakRelasjonVedVedtak;
         this.fagsakEgenskapRepository = fagsakEgenskapRepository;
+        this.dokumentBehandlingTjeneste = dokumentBehandlingTjeneste;
     }
 
     void avsluttBehandling(Long behandlingId) {
@@ -61,6 +65,7 @@ public class AvsluttBehandling {
         var behandling = behandlingRepository.hentBehandling(behandlingId);
         var kontekst = behandlingskontrollTjeneste.initBehandlingskontroll(behandling, lås);
 
+        dokumentBehandlingTjeneste.fjernAlleMellomlagredeBrev(behandlingId);
         oppdatereFagsakRelasjonVedVedtak.oppdaterRelasjonVedVedtattBehandling(behandling);
 
         var vedtak = behandlingVedtakRepository.hentForBehandling(behandling.getId());

@@ -63,6 +63,104 @@ class BehandlingDokumentRepositoryTest extends EntityManagerAwareTest {
         assertThat(oppdatertBestilling.get().getJournalpostId().getVerdi()).isEqualTo(journalpostId);
     }
 
+    @Test
+    void mellomlagretBrev_lagre_og_hent() {
+        var behandling = opprettBehandling();
+        var behandlingDokument = lagreBehandlingDokumentFor(behandling);
+
+        var mellomlagring = BehandlingBrevMellomlagringEntitet.Builder.ny()
+            .medBehandlingDokument(behandlingDokument)
+            .medDokumentMalType(DokumentMalType.VARSEL_OM_REVURDERING)
+            .medFritekstHtml("<p>Hei</p>")
+            .build();
+        behandlingDokumentRepository.lagreOgFlush(mellomlagring);
+
+        var funnet = behandlingDokumentRepository.hentMellomlagretBrev(behandling.getId(), DokumentMalType.VARSEL_OM_REVURDERING);
+        assertThat(funnet).isPresent();
+        assertThat(funnet.get().getFritekstHtml()).isEqualTo("<p>Hei</p>");
+    }
+
+    @Test
+    void mellomlagretBrev_hent_returnerer_empty_for_ukjent_mal() {
+        var behandling = opprettBehandling();
+        lagreBehandlingDokumentFor(behandling);
+
+        var funnet = behandlingDokumentRepository.hentMellomlagretBrev(behandling.getId(), DokumentMalType.VARSEL_OM_REVURDERING);
+        assertThat(funnet).isEmpty();
+    }
+
+    @Test
+    void mellomlagretBrev_fjern_én_type() {
+        var behandling = opprettBehandling();
+        var behandlingDokument = lagreBehandlingDokumentFor(behandling);
+
+        behandlingDokumentRepository.lagreOgFlush(BehandlingBrevMellomlagringEntitet.Builder.ny()
+            .medBehandlingDokument(behandlingDokument)
+            .medDokumentMalType(DokumentMalType.VARSEL_OM_REVURDERING)
+            .medFritekstHtml("<p>Varsel</p>")
+            .build());
+        behandlingDokumentRepository.lagreOgFlush(BehandlingBrevMellomlagringEntitet.Builder.ny()
+            .medBehandlingDokument(behandlingDokument)
+            .medDokumentMalType(DokumentMalType.INNHENTE_OPPLYSNINGER)
+            .medFritekstHtml("<p>Innhent</p>")
+            .build());
+
+        behandlingDokumentRepository.fjernMellomlagretBrev(behandling.getId(), DokumentMalType.VARSEL_OM_REVURDERING);
+
+        assertThat(behandlingDokumentRepository.hentMellomlagretBrev(behandling.getId(), DokumentMalType.VARSEL_OM_REVURDERING)).isEmpty();
+        assertThat(behandlingDokumentRepository.hentMellomlagretBrev(behandling.getId(), DokumentMalType.INNHENTE_OPPLYSNINGER)).isPresent();
+    }
+
+    @Test
+    void mellomlagretBrev_fjern_alle() {
+        var behandling = opprettBehandling();
+        var behandlingDokument = lagreBehandlingDokumentFor(behandling);
+
+        behandlingDokumentRepository.lagreOgFlush(BehandlingBrevMellomlagringEntitet.Builder.ny()
+            .medBehandlingDokument(behandlingDokument)
+            .medDokumentMalType(DokumentMalType.VARSEL_OM_REVURDERING)
+            .medFritekstHtml("<p>Varsel</p>")
+            .build());
+        behandlingDokumentRepository.lagreOgFlush(BehandlingBrevMellomlagringEntitet.Builder.ny()
+            .medBehandlingDokument(behandlingDokument)
+            .medDokumentMalType(DokumentMalType.INNHENTE_OPPLYSNINGER)
+            .medFritekstHtml("<p>Innhent</p>")
+            .build());
+
+        behandlingDokumentRepository.fjernAlleMellomlagredeBrev(behandling.getId());
+
+        assertThat(behandlingDokumentRepository.hentMellomlagretBrev(behandling.getId(), DokumentMalType.VARSEL_OM_REVURDERING)).isEmpty();
+        assertThat(behandlingDokumentRepository.hentMellomlagretBrev(behandling.getId(), DokumentMalType.INNHENTE_OPPLYSNINGER)).isEmpty();
+    }
+
+    @Test
+    void mellomlagretBrev_oppdaterer_eksisterende_ved_lagre() {
+        var behandling = opprettBehandling();
+        var behandlingDokument = lagreBehandlingDokumentFor(behandling);
+
+        var mellomlagring = BehandlingBrevMellomlagringEntitet.Builder.ny()
+            .medBehandlingDokument(behandlingDokument)
+            .medDokumentMalType(DokumentMalType.VARSEL_OM_REVURDERING)
+            .medFritekstHtml("<p>Opprinnelig</p>")
+            .build();
+        behandlingDokumentRepository.lagreOgFlush(mellomlagring);
+
+        mellomlagring.setFritekstHtml("<p>Oppdatert</p>");
+        behandlingDokumentRepository.lagreOgFlush(mellomlagring);
+
+        var funnet = behandlingDokumentRepository.hentMellomlagretBrev(behandling.getId(), DokumentMalType.VARSEL_OM_REVURDERING);
+        assertThat(funnet).isPresent();
+        assertThat(funnet.get().getFritekstHtml()).isEqualTo("<p>Oppdatert</p>");
+    }
+
+    private BehandlingDokumentEntitet lagreBehandlingDokumentFor(Behandling behandling) {
+        var dokument = BehandlingDokumentEntitet.Builder.ny()
+            .medBehandling(behandling.getId())
+            .build();
+        behandlingDokumentRepository.lagreOgFlush(dokument);
+        return dokument;
+    }
+
     private void lagreDokumentBestillingFor(Behandling behandling, UUID bestillingUuid) {
         var dokumenter = BehandlingDokumentEntitet.Builder.ny()
             .medBehandling(behandling.getId())

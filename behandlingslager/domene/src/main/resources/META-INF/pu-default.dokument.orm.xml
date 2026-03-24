@@ -7,8 +7,10 @@
 
     <sequence-generator name="SEQ_BEHANDLING_DOKUMENT" allocation-size="50" sequence-name="SEQ_BEHANDLING_DOKUMENT" />
     <sequence-generator name="SEQ_BEHANDLING_DOK_BESTILT" allocation-size="50" sequence-name="SEQ_BEHANDLING_DOK_BESTILT" />
+    <sequence-generator name="SEQ_BREV_MELLOMLAGRING" allocation-size="50" sequence-name="SEQ_BREV_MELLOMLAGRING" />
 
     <entity class="no.nav.foreldrepenger.behandlingslager.behandling.dokument.BehandlingDokumentEntitet" />
     <entity class="no.nav.foreldrepenger.behandlingslager.behandling.dokument.BehandlingDokumentBestiltEntitet" />
+    <entity class="no.nav.foreldrepenger.behandlingslager.behandling.dokument.BehandlingBrevMellomlagringEntitet" />
 
 </entity-mappings>

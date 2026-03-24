@@ -80,12 +80,11 @@ public record DokumentForhandsvisning(UUID behandlingUuid,
             if (DokumentMalType.FRITEKSTBREV.equals(dokumentMal)) {
                 Objects.requireNonNull(fritekst, "Fritekst må være satt for fritekstbrev");
                 Objects.requireNonNull(tittel, "Tittel må være satt for fritekstbrev.");
-            } else if (DokumentMalType.VEDTAKSBREV_FRITEKST_HTML.equals(dokumentMal)) {
+            } else if (DokumentMalType.FRITEKST_HTML.equals(dokumentMal)) {
                 Objects.requireNonNull(fritekst, "Fritekst må være satt for fritekstbrev");
             } else if (DokumentMalType.INNHENTE_OPPLYSNINGER.equals(dokumentMal)) {
                 Objects.requireNonNull(fritekst, "Fritekst må være satt for revurdering årsak Annet.");
             } else if (DokumentMalType.VARSEL_OM_REVURDERING.equals(dokumentMal)) {
-                Objects.requireNonNull(revurderingÅrsak, "Revurdering årsak må være satt.");
                 if (RevurderingVarslingÅrsak.ANNET.equals(revurderingÅrsak)) {
                     Objects.requireNonNull(fritekst, "Fritekst må være satt for revurdering årsak Annet.");
                 }

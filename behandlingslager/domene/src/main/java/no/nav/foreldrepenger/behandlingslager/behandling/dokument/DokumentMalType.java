@@ -14,7 +14,7 @@ import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
 public enum DokumentMalType implements Kodeverdi, DatabaseKode {
 
     FRITEKSTBREV("FRITEK"),
-    VEDTAKSBREV_FRITEKST_HTML("FRIHTM"),
+    FRITEKST_HTML("FRIHTM"),
     ENGANGSSTØNAD_INNVILGELSE("INNVES"),
     ENGANGSSTØNAD_AVSLAG("AVSLES"),
     FORELDREPENGER_INNVILGELSE("INVFOR"),
@@ -61,7 +61,7 @@ public enum DokumentMalType implements Kodeverdi, DatabaseKode {
     @Deprecated KLAGE_STADFESTET("KGESTA"),
     @Deprecated KLAGE_HJEMSENDT("KGEHJE");
 
-    public static final Set<DokumentMalType> VEDTAK_FRITEKTBREV_TYPER = Set.of(FRITEKSTBREV, VEDTAKSBREV_FRITEKST_HTML);
+    public static final Set<DokumentMalType> VEDTAK_FRITEKTBREV_TYPER = Set.of(FRITEKSTBREV, FRITEKST_HTML);
 
     public static final Set<DokumentMalType> VEDTAKSBREV = Set.of(ENGANGSSTØNAD_INNVILGELSE, ENGANGSSTØNAD_AVSLAG, FORELDREPENGER_INNVILGELSE,
         FORELDREPENGER_AVSLAG, FORELDREPENGER_OPPHØR, FORELDREPENGER_ANNULLERT, SVANGERSKAPSPENGER_INNVILGELSE, SVANGERSKAPSPENGER_AVSLAG,
@@ -103,6 +103,14 @@ public enum DokumentMalType implements Kodeverdi, DatabaseKode {
         return utledDokumentTittel(this);
     }
 
+    public static DokumentMalType fromString(String kode) {
+        var type = KODER.get(kode);
+        if (type == null) {
+            throw new IllegalArgumentException("Ukjent DokumentMalType kode: " + kode);
+        }
+        return type;
+    }
+
     public static boolean erVedtakFritektsBrev(DokumentMalType brev) {
         return VEDTAK_FRITEKTBREV_TYPER.contains(brev);
     }
@@ -117,7 +125,7 @@ public enum DokumentMalType implements Kodeverdi, DatabaseKode {
 
     private static String utledDokumentTittel(DokumentMalType mal) {
         return switch (mal) {
-            case FRITEKSTBREV, VEDTAKSBREV_FRITEKST_HTML -> "Fritekstbrev";
+            case FRITEKSTBREV, FRITEKST_HTML -> "Fritekstbrev";
             case ENGANGSSTØNAD_INNVILGELSE -> "Innvilget engangsstønad";
             case ENGANGSSTØNAD_AVSLAG -> "Avslag engangsstønad";
             case FORELDREPENGER_INNVILGELSE -> "Innvilgelsesbrev foreldrepenger";

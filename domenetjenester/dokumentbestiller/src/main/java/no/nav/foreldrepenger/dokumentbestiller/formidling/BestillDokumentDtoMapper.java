@@ -13,7 +13,7 @@ public class BestillDokumentDtoMapper {
     public static DokumentMal mapDokumentMal(DokumentMalType bestillingDokumentMal) {
         return switch (bestillingDokumentMal) {
             case FRITEKSTBREV -> DokumentMal.FRITEKSTBREV;
-            case VEDTAKSBREV_FRITEKST_HTML -> DokumentMal.FRITEKSTBREV_HTML;
+            case FRITEKST_HTML -> DokumentMal.FRITEKSTBREV_HTML;
             case ENGANGSSTØNAD_INNVILGELSE -> DokumentMal.ENGANGSSTØNAD_INNVILGELSE;
             case ENGANGSSTØNAD_AVSLAG -> DokumentMal.ENGANGSSTØNAD_AVSLAG;
             case FORELDREPENGER_INNVILGELSE -> DokumentMal.FORELDREPENGER_INNVILGELSE;

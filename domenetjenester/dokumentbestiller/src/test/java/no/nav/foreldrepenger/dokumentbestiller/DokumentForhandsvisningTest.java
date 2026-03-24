@@ -47,29 +47,27 @@ class DokumentForhandsvisningTest {
     }
 
     @Test
-    void should_fail_when_revurderingAarsak_is_not_set_and_dokumentMal_is_VARSEL_OM_REVURDERING() {
-        var expectedFritekst = "fritekst";
+    void should_allow_varsel_om_revurdering_without_revurderingAarsak() {
         var expectedDokumentMal = DokumentMalType.VARSEL_OM_REVURDERING;
         var expectedBehandlignUuid = UUID.randomUUID();
         var expectedSaksnummer = "123";
-        var expectedTittel = "tittel";
         var expectedDokumentType = DokumentForhandsvisning.DokumentType.AUTOMATISK;
 
-        assertThatThrownBy(() -> DokumentForhandsvisning.builder()
+        var dokumentForhandsvisning = DokumentForhandsvisning.builder()
             .medBehandlingUuid(expectedBehandlignUuid)
             .medDokumentMal(expectedDokumentMal)
-            .medFritekst(expectedFritekst)
             .medSaksnummer(new Saksnummer(expectedSaksnummer))
-            .medTittel(expectedTittel)
             .medDokumentType(expectedDokumentType)
-            .build()).isInstanceOf(NullPointerException.class).hasMessageContaining("Revurdering årsak må være satt.");
+            .build();
+        assertThat(dokumentForhandsvisning.dokumentMal()).isEqualTo(expectedDokumentMal);
+        assertThat(dokumentForhandsvisning.revurderingÅrsak()).isNull();
     }
 
     @Test
     void skal_hive_exception_hvis_fritekstbrev_mangler_fritekst() {
         assertThatThrownBy(() -> DokumentForhandsvisning.builder()
             .medBehandlingUuid(UUID.randomUUID())
-            .medDokumentMal(DokumentMalType.VEDTAKSBREV_FRITEKST_HTML)
+            .medDokumentMal(DokumentMalType.FRITEKST_HTML)
             //.medFritekst()
             .medSaksnummer(new Saksnummer("123"))
             .medDokumentType(DokumentForhandsvisning.DokumentType.OVERSTYRT)
@@ -80,7 +78,7 @@ class DokumentForhandsvisningTest {
     void skal_ikke_hive_exception_hvis_fritekstbrev_har_innhold_i_fritekst() {
         var dokumentForhandsvisning = DokumentForhandsvisning.builder()
             .medBehandlingUuid(UUID.randomUUID())
-            .medDokumentMal(DokumentMalType.VEDTAKSBREV_FRITEKST_HTML)
+            .medDokumentMal(DokumentMalType.FRITEKST_HTML)
             .medFritekst("Fritekst")
             .medSaksnummer(new Saksnummer("123"))
             .medDokumentType(DokumentForhandsvisning.DokumentType.OVERSTYRT)

@@ -71,7 +71,10 @@ public class DokumentForhåndsvisningTjeneste extends AbstractDokumentBestillerT
             LOG.info("Genererer annuleringsbrev som utgangspunkt for overstyring av foreldrepenger som med tomt uttak: {}", behandling.getFagsak().getSaksnummer());
             dokumentMalType = DokumentMalType.FORELDREPENGER_ANNULLERT;
         }
+        return genererHtml(behandling, dokumentMalType);
+    }
 
+    public String genererHtml(Behandling behandling, DokumentMalType dokumentMalType) {
         var dokumentBestillingHtmlDto = new DokumentBestillingHtmlDto(
             behandling.getUuid(),
             new Saksnummer(behandling.getSaksnummer().getVerdi()),
@@ -111,7 +114,7 @@ public class DokumentForhåndsvisningTjeneste extends AbstractDokumentBestillerT
         // (gjelderAutomatiskBrev == null || Boolean.FALSE.equals(gjelderAutomatiskBrev))
         if (DokumentForhandsvisning.DokumentType.OVERSTYRT.equals(brevType) && Vedtaksbrev.FRITEKST.equals(resultatBrev)) {
             var fritekstMal = dokumentBehandlingTjeneste.hentMellomlagretOverstyring(behandlingId).isPresent()
-                ? DokumentMalType.VEDTAKSBREV_FRITEKST_HTML
+                ? DokumentMalType.FRITEKST_HTML
                 : DokumentMalType.FRITEKSTBREV;
 
             LOG.info("Utledere maltype for fritekst: {}", fritekstMal);

@@ -345,8 +345,10 @@ public class BehandlingDtoTjeneste {
 
         if (harAksjonspunktIForslåVedtakSomErOpprettetEllerUtført(behandling) && vedtaksbrevStatusUtleder.statusVedtaksbrev(behandling.getId()).vedtaksbrevSkalProduseres()) {
             dto.leggTil(get(BrevRestTjeneste.BREV_HENT_OVERSTYRING_PATH, "hent-brev-overstyring", uuidDto));
-            dto.leggTil(post(BrevRestTjeneste.BREV_MELLOMLAGRE_OVERSTYRING_PATH, "mellomlagre-brev-overstyring"));
         }
+
+        dto.leggTil(post(BrevRestTjeneste.BREV_MELLOMLAGRE_OVERSTYRING_PATH, "mellomlagre-brev-overstyring"));
+        dto.leggTil(get(BrevRestTjeneste.BREV_HENT_OVERSTYRING_PATH, "hent-brev-html", uuidDto));
 
         dto.leggTil(get(FamiliehendelseRestTjeneste.FAMILIEHENDELSE_V3_PATH, "familiehendelse-v3", uuidDto));
 
@@ -546,4 +548,5 @@ public class BehandlingDtoTjeneste {
             dto.leggTil(get(VergeRestTjeneste.BASE_PATH, "soeker-verge", uuidDto));
         }
     }
+
 }

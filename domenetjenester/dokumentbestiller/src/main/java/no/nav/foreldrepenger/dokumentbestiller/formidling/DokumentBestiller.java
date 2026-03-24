@@ -36,6 +36,7 @@ public class DokumentBestiller {
         var behandling = behandlingRepository.hentBehandling(bestillBrevDto.behandlingUuid());
         opprettBestillBrevTask(behandling, bestillBrevDto);
         dokumentBehandlingTjeneste.lagreDokumentBestilt(behandling, bestillBrevDto);
+        dokumentBehandlingTjeneste.fjernMellomlagretBrev(behandling.getId(), bestillBrevDto.dokumentMal());
     }
 
     private void opprettBestillBrevTask(Behandling behandling, DokumentBestilling bestilling) {
