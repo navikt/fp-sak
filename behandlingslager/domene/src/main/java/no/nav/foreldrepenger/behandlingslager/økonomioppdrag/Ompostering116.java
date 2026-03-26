@@ -67,9 +67,11 @@ public class Ompostering116 extends BaseCreateableEntitet {
 
     public static class Builder {
         Ompostering116 kladd = new Ompostering116();
+        private boolean harValgtOmpostering = false;
 
         public Builder medOmPostering(boolean ompostering) {
             kladd.omPostering = ompostering;
+            this.harValgtOmpostering = true;
             return this;
         }
 
@@ -89,6 +91,9 @@ public class Ompostering116 extends BaseCreateableEntitet {
         }
 
         private void verifiser() {
+            if (!harValgtOmpostering) {
+                throw new IllegalStateException("Utviklerfeil: Må velge om bruker er mottaker");
+            }
             Objects.requireNonNull(kladd.tidspktReg);
         }
     }

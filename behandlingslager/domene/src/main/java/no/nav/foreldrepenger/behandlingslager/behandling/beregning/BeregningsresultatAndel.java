@@ -211,6 +211,7 @@ public class BeregningsresultatAndel extends BaseEntitet {
     public static class Builder {
 
         private final BeregningsresultatAndel beregningsresultatAndelMal;
+        private boolean harValgtMottaker = false;
 
         public Builder() {
             beregningsresultatAndelMal = new BeregningsresultatAndel();
@@ -223,6 +224,7 @@ public class BeregningsresultatAndel extends BaseEntitet {
 
         public Builder medBrukerErMottaker(boolean brukerErMottaker) {
             beregningsresultatAndelMal.brukerErMottaker = brukerErMottaker;
+            this.harValgtMottaker = true;
             return this;
         }
 
@@ -279,6 +281,9 @@ public class BeregningsresultatAndel extends BaseEntitet {
         }
 
         public void verifyStateForBuild() {
+            if (!harValgtMottaker) {
+                throw new IllegalStateException("Utviklerfeil: Må velge om bruker er mottaker");
+            }
             Objects.requireNonNull(beregningsresultatAndelMal.aktivitetStatus, "aktivitetStatus");
             Objects.requireNonNull(beregningsresultatAndelMal.beregningsresultatPeriode, "beregningsresultatPeriode");
             Objects.requireNonNull(beregningsresultatAndelMal.stillingsprosent, "stillingsprosent");
