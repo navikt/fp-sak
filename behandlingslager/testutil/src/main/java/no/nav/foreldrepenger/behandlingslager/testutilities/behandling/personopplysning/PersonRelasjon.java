@@ -6,10 +6,10 @@ import no.nav.foreldrepenger.domene.typer.HarAktørId;
 
 public final class PersonRelasjon implements HarAktørId {
 
-    private AktørId fraAktørId;
-    private AktørId tilAktørId;
-    private RelasjonsRolleType relasjonsrolle;
-    private Boolean harSammeBosted;
+    private final AktørId fraAktørId;
+    private final AktørId tilAktørId;
+    private final RelasjonsRolleType relasjonsrolle;
+    private final Boolean harSammeBosted;
 
     @Override
     public AktørId getAktørId() {

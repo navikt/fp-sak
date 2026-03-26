@@ -79,8 +79,6 @@ class InntektsmeldingTjenesteTest {
     private final Skjæringstidspunkt skjæringstidspunkt = Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(I_DAG).build();
     private final AtomicLong journalpostIdInc = new AtomicLong(123);
 
-    private final
-
     @BeforeEach
     void setUp(EntityManager entityManager) {
         behandlingRepository = new BehandlingRepository(entityManager);
@@ -104,7 +102,7 @@ class InntektsmeldingTjenesteTest {
         // Arrange
         var arbId1Intern = ARBEIDSFORHOLD_ID;
 
-        var ARBEIDSFORHOLD_ID_2 = InternArbeidsforholdRef.ref("a6ea6724-868f-11e9-bc42-526af7764f64");
+        var arbeidsforholdId2 = InternArbeidsforholdRef.ref("a6ea6724-868f-11e9-bc42-526af7764f64");
 
         var virksomhet1 = lagVirksomhet();
 
@@ -118,7 +116,7 @@ class InntektsmeldingTjenesteTest {
                 DatoIntervallEntitet.fraOgMedTilOgMed(ARBEIDSFORHOLD_FRA, ARBEIDSFORHOLD_TIL),
                 arbId1Intern, ArbeidType.ORDINÆRT_ARBEIDSFORHOLD, BigDecimal.TEN);
         opprettInntektArbeidYtelseAggregatForYrkesaktivitet(behandling, AKTØRID,
-                DatoIntervallEntitet.fraOgMedTilOgMed(ARBEIDSFORHOLD_FRA, ARBEIDSFORHOLD_TIL), ARBEIDSFORHOLD_ID_2, ArbeidType.ORDINÆRT_ARBEIDSFORHOLD, BigDecimal.TEN);
+                DatoIntervallEntitet.fraOgMedTilOgMed(ARBEIDSFORHOLD_FRA, ARBEIDSFORHOLD_TIL), arbeidsforholdId2, ArbeidType.ORDINÆRT_ARBEIDSFORHOLD, BigDecimal.TEN);
 
         var behandlingReferanse = lagReferanse(behandling);
 

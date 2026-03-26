@@ -322,7 +322,7 @@ public class NyOppdragskontrollTjenesteOPPHTest extends NyOppdragskontrollTjenes
         var stønadsdatoFom = LocalDate.now().plusDays(3);
         var stønadsdatoTom = stønadsdatoFom.plusDays(10);
 
-        var originaltOppdrag = Oppdragskontroll.builder().medBehandlingId(BEHANDLING_ID).medSaksnummer(SAKSNUMMER).medProsessTaskId(PROSESS_TASK_ID).medVenterKvittering(Boolean.FALSE).build();
+        var originaltOppdrag = Oppdragskontroll.builder().medBehandlingId(BEHANDLING_ID).medSaksnummer(SAKSNUMMER).medProsessTaskId(PROSESS_TASK_ID).medVenterKvittering(false).build();
         var oppdragAg = Oppdrag110.builder()
             .medKodeEndring(KodeEndring.NY)
             .medKodeFagomrade(KodeFagområde.FPREF)

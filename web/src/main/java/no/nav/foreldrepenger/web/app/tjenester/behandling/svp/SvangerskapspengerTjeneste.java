@@ -377,7 +377,7 @@ public class SvangerskapspengerTjeneste {
             .filter(opprFom -> opprFom.equals(eksFom))
             .findFirst();
 
-        if (Boolean.TRUE.equals(svpTilrettelegging.getKopiertFraTidligereBehandling())) {
+        if (svpTilrettelegging.getKopiertFraTidligereBehandling()) {
             if (behandling.erRevurdering() && eksFomFinnesIOpprinneligGrunnlag.isPresent() && behandling.getOpprettetDato()
                 .toLocalDate()
                 .equals(eksFomFinnesIOpprinneligGrunnlag.get().getTidligstMotattDato())) {

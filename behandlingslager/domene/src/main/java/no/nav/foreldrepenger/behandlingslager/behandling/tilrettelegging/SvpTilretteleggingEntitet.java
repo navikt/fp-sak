@@ -70,7 +70,7 @@ public class SvpTilretteleggingEntitet extends BaseEntitet {
 
     @Convert(converter = BooleanToStringConverter.class)
     @Column(name = "KOPIERT_FRA_TDLG_BEH", nullable = false)
-    private Boolean kopiertFraTidligereBehandling;
+    private boolean kopiertFraTidligereBehandling;
 
     @Column(name = "MOTTATT_TIDSPUNKT", nullable = false)
     private LocalDateTime mottattTidspunkt;
@@ -170,7 +170,7 @@ public class SvpTilretteleggingEntitet extends BaseEntitet {
         return Optional.ofNullable(opplysningerOmTilretteleggingstiltak);
     }
 
-    public Boolean getKopiertFraTidligereBehandling() {
+    public boolean getKopiertFraTidligereBehandling() {
         return kopiertFraTidligereBehandling;
     }
 

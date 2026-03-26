@@ -19,6 +19,7 @@ class HistorikkinnslagTest {
             .addLinje("test")
             .build();
 
+        assertThat(historikkinnslag.getLinjer()).isNotEmpty();
         assertThat(historikkinnslag.getLinjer()).allMatch(l -> l.getType() == HistorikkinnslagLinjeType.TEKST);
     }
 
@@ -33,6 +34,7 @@ class HistorikkinnslagTest {
             .addLinje(HistorikkinnslagLinjeBuilder.LINJESKIFT)
             .build();
 
+        assertThat(historikkinnslag.getLinjer()).isNotEmpty();
         assertThat(historikkinnslag.getLinjer()).allMatch(l -> l.getType() == HistorikkinnslagLinjeType.TEKST);
     }
 
