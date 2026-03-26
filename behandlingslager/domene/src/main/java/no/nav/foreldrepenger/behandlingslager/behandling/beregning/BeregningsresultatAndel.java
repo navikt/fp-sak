@@ -281,9 +281,6 @@ public class BeregningsresultatAndel extends BaseEntitet {
         }
 
         public void verifyStateForBuild() {
-            if (!harValgtMottaker) {
-                throw new IllegalStateException("Utviklerfeil: Må velge om bruker er mottaker");
-            }
             Objects.requireNonNull(beregningsresultatAndelMal.aktivitetStatus, "aktivitetStatus");
             Objects.requireNonNull(beregningsresultatAndelMal.beregningsresultatPeriode, "beregningsresultatPeriode");
             Objects.requireNonNull(beregningsresultatAndelMal.stillingsprosent, "stillingsprosent");
@@ -291,6 +288,9 @@ public class BeregningsresultatAndel extends BaseEntitet {
             Objects.requireNonNull(beregningsresultatAndelMal.inntektskategori, "inntektskategori");
             Objects.requireNonNull(beregningsresultatAndelMal.dagsatsFraBg, "dagsatsFraBg");
             Objects.requireNonNull(beregningsresultatAndelMal.dagsats, "dagsats");
+            if (!harValgtMottaker) {
+                throw new IllegalStateException("Utviklerfeil: Må velge om bruker er mottaker");
+            }
             if (!beregningsresultatAndelMal.brukerErMottaker) {
                 Objects.requireNonNull(beregningsresultatAndelMal.arbeidsgiver, "virksomhet");
             }
