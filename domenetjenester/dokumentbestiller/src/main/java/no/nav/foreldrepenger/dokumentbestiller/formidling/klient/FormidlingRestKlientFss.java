@@ -9,10 +9,10 @@ import no.nav.vedtak.felles.integrasjon.rest.RestConfig;
 import no.nav.vedtak.felles.integrasjon.rest.TokenFlow;
 
 @ApplicationScoped
-@RestClientConfig(tokenConfig = TokenFlow.ADAPTIVE, application = FpApplication.FPFORMIDLINGGCP)
-public class FormidlingRestKlientGcp extends FormidlingRestKlient {
+@RestClientConfig(tokenConfig = TokenFlow.ADAPTIVE, application = FpApplication.FPFORMIDLING)
+public class FormidlingRestKlientFss extends FormidlingRestKlient {
 
-    public FormidlingRestKlientGcp() {
-        super(RestClient.client(), RestConfig.forClient(FormidlingRestKlientGcp.class));
+    public FormidlingRestKlientFss() {
+        super(RestClient.client(), RestConfig.forClient(FormidlingRestKlientFss.class));
     }
 }
