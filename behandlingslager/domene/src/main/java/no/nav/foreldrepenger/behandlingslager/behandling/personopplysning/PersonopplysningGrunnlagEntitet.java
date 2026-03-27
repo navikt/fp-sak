@@ -39,7 +39,7 @@ public class PersonopplysningGrunnlagEntitet extends BaseEntitet {
 
     @Convert(converter = BooleanToStringConverter.class)
     @Column(name = "aktiv", nullable = false)
-    private Boolean aktiv = true;
+    private boolean aktiv = true;
 
     @ChangeTracked
     @ManyToOne

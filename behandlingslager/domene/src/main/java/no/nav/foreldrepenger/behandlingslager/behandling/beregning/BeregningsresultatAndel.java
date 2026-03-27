@@ -46,7 +46,7 @@ public class BeregningsresultatAndel extends BaseEntitet {
 
     @Convert(converter = BooleanToStringConverter.class)
     @Column(name = "bruker_er_mottaker", nullable = false)
-    private Boolean brukerErMottaker;
+    private boolean brukerErMottaker;
 
     @Embedded
     private Arbeidsgiver arbeidsgiver;
@@ -78,7 +78,8 @@ public class BeregningsresultatAndel extends BaseEntitet {
     @Column(name="inntektskategori", nullable = false)
     private Inntektskategori inntektskategori;
 
-    public BeregningsresultatAndel() {
+    protected BeregningsresultatAndel() {
+        // Hibernate
     }
 
     public Long getId() {
@@ -209,7 +210,8 @@ public class BeregningsresultatAndel extends BaseEntitet {
 
     public static class Builder {
 
-        private BeregningsresultatAndel beregningsresultatAndelMal;
+        private final BeregningsresultatAndel beregningsresultatAndelMal;
+        private boolean harValgtMottaker = false;
 
         public Builder() {
             beregningsresultatAndelMal = new BeregningsresultatAndel();
@@ -222,6 +224,7 @@ public class BeregningsresultatAndel extends BaseEntitet {
 
         public Builder medBrukerErMottaker(boolean brukerErMottaker) {
             beregningsresultatAndelMal.brukerErMottaker = brukerErMottaker;
+            this.harValgtMottaker = true;
             return this;
         }
 
@@ -280,12 +283,14 @@ public class BeregningsresultatAndel extends BaseEntitet {
         public void verifyStateForBuild() {
             Objects.requireNonNull(beregningsresultatAndelMal.aktivitetStatus, "aktivitetStatus");
             Objects.requireNonNull(beregningsresultatAndelMal.beregningsresultatPeriode, "beregningsresultatPeriode");
-            Objects.requireNonNull(beregningsresultatAndelMal.brukerErMottaker, "brukerErMottaker");
             Objects.requireNonNull(beregningsresultatAndelMal.stillingsprosent, "stillingsprosent");
             verifyUtbetalingsgrad(beregningsresultatAndelMal.utbetalingsgrad);
             Objects.requireNonNull(beregningsresultatAndelMal.inntektskategori, "inntektskategori");
             Objects.requireNonNull(beregningsresultatAndelMal.dagsatsFraBg, "dagsatsFraBg");
             Objects.requireNonNull(beregningsresultatAndelMal.dagsats, "dagsats");
+            if (!harValgtMottaker) {
+                throw new IllegalStateException("Utviklerfeil: Må velge om bruker er mottaker");
+            }
             if (!beregningsresultatAndelMal.brukerErMottaker) {
                 Objects.requireNonNull(beregningsresultatAndelMal.arbeidsgiver, "virksomhet");
             }

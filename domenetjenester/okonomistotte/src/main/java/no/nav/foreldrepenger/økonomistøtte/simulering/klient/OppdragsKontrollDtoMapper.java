@@ -115,6 +115,6 @@ public class OppdragsKontrollDtoMapper {
     }
 
     public static <T> Stream<T> safeStream(List<T> list) {
-        return ((List)Optional.ofNullable(list).orElseGet(List::of)).stream();
+        return Optional.ofNullable(list).orElseGet(List::of).stream();
     }
 }

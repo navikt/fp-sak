@@ -16,8 +16,8 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingsresultatRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagLinjeBuilder;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.SkjermlenkeType;
@@ -85,7 +85,7 @@ public class VedtakTjeneste {
     }
 
     private boolean sendesTilbakeTilSaksbehandler(Collection<Totrinnsvurdering> medTotrinnskontroll) {
-        return medTotrinnskontroll.stream().anyMatch(a -> !Boolean.TRUE.equals(a.isGodkjent()));
+        return medTotrinnskontroll.stream().anyMatch(a -> !a.isGodkjent());
     }
 
     private void lagHistorikkInnslagVedtakFattet(Behandling behandling) {
@@ -126,7 +126,7 @@ public class VedtakTjeneste {
 
     private static List<HistorikkinnslagLinjeBuilder> tilHistorikkinnslagTekst(Totrinnsvurdering ttv) {
         var aksjonspunktNavn = ttv.getAksjonspunktDefinisjon().getNavn();
-        if (Boolean.TRUE.equals(ttv.isGodkjent())) {
+        if (ttv.isGodkjent()) {
             return List.of(new HistorikkinnslagLinjeBuilder().bold(aksjonspunktNavn).bold("er godkjent"));
         }
         var linjer = new ArrayList<HistorikkinnslagLinjeBuilder>();

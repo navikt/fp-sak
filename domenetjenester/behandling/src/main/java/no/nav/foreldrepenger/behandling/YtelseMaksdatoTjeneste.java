@@ -54,7 +54,7 @@ public class YtelseMaksdatoTjeneste {
 
         var apBehandling = annenpartsGjeldendeVedtatteBehandling(saksnummer);
         var uttakResultat = apBehandling.flatMap(this::annenpartsUttak);
-        if (uttakResultat.isPresent()) {
+        if (apBehandling.isPresent() && uttakResultat.isPresent()) {
             var gjeldenePerioder = uttakResultat.get().getGjeldendePerioder();
 
             var perArbeidsforhold = finnPerioderPerArbeidsforhold(
@@ -159,6 +159,6 @@ public class YtelseMaksdatoTjeneste {
 
         var uker = paddedVirkedager / virkedagerPrUke;
         var dager = paddedVirkedager % virkedagerPrUke;
-        return justertDatoForHelg.plusDays(((long) uker * dagerPrUke + dager) - (long) padBefore);
+        return justertDatoForHelg.plusDays(((long) uker * dagerPrUke + dager) - padBefore);
     }
 }

@@ -5,9 +5,9 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import no.nav.foreldrepenger.behandlingslager.behandling.beregning.AktivitetStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.OpptjeningAktivitetType;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
-import no.nav.foreldrepenger.behandlingslager.behandling.beregning.AktivitetStatus;
 import no.nav.foreldrepenger.domene.mappers.fra_kalkulus.KodeverkFraKalkulusMapper;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.typer.AktørId;
@@ -63,8 +63,8 @@ public class MapEndringsresultat {
     }
 
     private static List<RefusjonoverstyringPeriodeEndring> mapRefusjonOverstyringPerioder(List<no.nav.foreldrepenger.kalkulus.kontrakt.response.håndtering.RefusjonoverstyringPeriodeEndring> refusjonperiodeEndringer) {
-        if (refusjonperiodeEndringer == null) {
-            return null;
+        if (refusjonperiodeEndringer == null || refusjonperiodeEndringer.isEmpty()) {
+            throw new IllegalArgumentException("RefusjonoverstyringEndring må inneholde minst en endring");
         }
         return refusjonperiodeEndringer.stream().map(MapEndringsresultat::mapRefusjonPeriodeEndring).toList();
     }

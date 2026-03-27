@@ -1,7 +1,5 @@
 package no.nav.foreldrepenger.behandling.steg.vedtak;
 
-import static java.lang.Boolean.TRUE;
-
 import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
@@ -94,7 +92,7 @@ public class FatteVedtakTjeneste {
             var totrinnaksjonspunktvurderinger = totrinnTjeneste.hentTotrinnaksjonspunktvurderinger(behandling.getId());
             if (sendesTilbakeTilSaksbehandler(totrinnaksjonspunktvurderinger)) {
                 var aksjonspunktDefinisjoner = totrinnaksjonspunktvurderinger.stream()
-                        .filter(a -> !TRUE.equals(a.isGodkjent()))
+                        .filter(a -> !a.isGodkjent())
                         .map(Totrinnsvurdering::getAksjonspunktDefinisjon).toList();
                 return BehandleStegResultat.tilbakeførtMedAksjonspunkter(aksjonspunktDefinisjoner);
             }
@@ -112,7 +110,7 @@ public class FatteVedtakTjeneste {
 
     private boolean sendesTilbakeTilSaksbehandler(Collection<Totrinnsvurdering> medTotrinnskontroll) {
         return medTotrinnskontroll.stream()
-                .anyMatch(a -> !TRUE.equals(a.isGodkjent()));
+                .anyMatch(a -> !a.isGodkjent());
     }
 
     private void verifiserBehandlingsresultat(Behandling behandling) {
