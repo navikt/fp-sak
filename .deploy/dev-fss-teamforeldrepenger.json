@@ -72,6 +72,11 @@
       "cluster": "dev-fss"
     },
     {
+      "app": "fplos",
+      "namespace": "teamforeldrepenger",
+      "cluster": "dev-gcp"
+    },
+    {
       "app": "fptilbake",
       "namespace": "teamforeldrepenger",
       "cluster": "dev-fss"
