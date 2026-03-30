@@ -64,7 +64,7 @@ class OppdragskontrollEntityTest {
         }
 
         // mangler taskId
-        oppdragskontrollBuilder.medVenterKvittering(Boolean.TRUE);
+        oppdragskontrollBuilder.medVenterKvittering(true);
         try {
             oppdragskontrollBuilder.build();
             fail(FORVENTET_EXCEPTION);
@@ -92,7 +92,7 @@ class OppdragskontrollEntityTest {
         assertThat(oppdragskontroll).isEqualTo(oppdragskontroll_2);
         assertThat(oppdragskontroll_2).isEqualTo(oppdragskontroll);
 
-        oppdragskontroll_2 = oppdragskontrollBuilder.medVenterKvittering(Boolean.FALSE).build();
+        oppdragskontroll_2 = oppdragskontrollBuilder.medVenterKvittering(false).build();
         assertThat(oppdragskontroll).isNotEqualTo(oppdragskontroll_2);
         assertThat(oppdragskontroll_2).isNotEqualTo(oppdragskontroll);
     }
@@ -113,7 +113,7 @@ class OppdragskontrollEntityTest {
     void skal_bruke_VenterKvittering_i_equalsOgHashCode() {
         oppdragskontrollBuilder = lagBuilderMedPaakrevdeFelter();
         oppdragskontroll = oppdragskontrollBuilder.build();
-        oppdragskontrollBuilder.medVenterKvittering(Boolean.FALSE);
+        oppdragskontrollBuilder.medVenterKvittering(false);
         oppdragskontroll_2 = oppdragskontrollBuilder.build();
 
         assertThat(oppdragskontroll).isNotEqualTo(oppdragskontroll_2);

@@ -9,14 +9,14 @@ class LagOppdragskontrollTjeneste {
 
     static Oppdragskontroll hentEllerOpprettOppdragskontroll(OppdragInput input, Oppdragskontroll oppdragskontrollFraFør) {
         if (oppdragskontrollFraFør != null) {
-            oppdragskontrollFraFør.setVenterKvittering(Boolean.TRUE);
+            oppdragskontrollFraFør.setVenterKvittering(true);
             oppdragskontrollFraFør.setProsessTaskId(input.getProsessTaskId());
             return oppdragskontrollFraFør;
         }
         return Oppdragskontroll.builder()
             .medSaksnummer(input.getSaksnummer())
             .medBehandlingId(input.getBehandlingId())
-            .medVenterKvittering(Boolean.TRUE)
+            .medVenterKvittering(true)
             .medProsessTaskId(input.getProsessTaskId())
             .build();
     }

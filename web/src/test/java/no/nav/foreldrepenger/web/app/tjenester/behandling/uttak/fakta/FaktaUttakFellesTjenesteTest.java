@@ -91,7 +91,7 @@ class FaktaUttakFellesTjenesteTest {
         var overføringDto = new FaktaUttakPeriodeDto(oppholdDto.tom().plusDays(1), oppholdDto.tom().plusWeeks(1), FEDREKVOTE,
             null, OverføringÅrsak.SYKDOM_ANNEN_FORELDER, null, null, null, null, false, null, ANDRE_NAV_VEDTAK, null);
         var samtidigUttak = new FaktaUttakPeriodeDto(overføringDto.tom().plusDays(1), overføringDto.tom().plusWeeks(1), FELLESPERIODE,
-            null, null, null, null, null, SamtidigUttaksprosent.TEN, true, null, null, null);
+            null, null, null, null, null, SamtidigUttaksprosent.TEN, true, null, SAKSBEHANDLER, null);
         var resultat = kjørOppdaterer(behandling, List.of(mødrekvoteFørOpprinnelig, mødrekvoteDto, utsettelseDto,
             oppholdDto, overføringDto, samtidigUttak));
         var yfa = ytelseFordelingTjeneste.hentAggregat(behandling.getId());

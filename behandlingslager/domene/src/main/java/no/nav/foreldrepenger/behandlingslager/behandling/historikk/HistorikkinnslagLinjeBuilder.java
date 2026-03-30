@@ -76,7 +76,7 @@ public class HistorikkinnslagLinjeBuilder {
         return fraTil(hva, format(fra), format(til));
     }
 
-    public HistorikkinnslagLinjeBuilder fraTil(String hva, Boolean fra, boolean til) {
+    public HistorikkinnslagLinjeBuilder fraTil(String hva, Boolean fra, Boolean til) {
         return fraTil(hva, format(fra), format(til));
     }
 
@@ -116,7 +116,7 @@ public class HistorikkinnslagLinjeBuilder {
         return fraTil(hva, null, til);
     }
 
-    public HistorikkinnslagLinjeBuilder til(String hva, boolean til) {
+    public HistorikkinnslagLinjeBuilder til(String hva, Boolean til) {
         return fraTil(hva, null, til);
     }
 
@@ -146,7 +146,7 @@ public class HistorikkinnslagLinjeBuilder {
         return fraTilEquals(hva, format(fra), format(til));
     }
 
-    public static HistorikkinnslagLinjeBuilder fraTilEquals(String hva, Boolean fra, boolean til) {
+    public static HistorikkinnslagLinjeBuilder fraTilEquals(String hva, Boolean fra, Boolean til) {
         return fraTilEquals(hva, format(fra), format(til));
     }
 
@@ -177,7 +177,7 @@ public class HistorikkinnslagLinjeBuilder {
             case HistorikkBeløp beløp -> beløp.toString();
             case BigDecimal bd -> bd.toString();
             case Number n -> n.toString();
-            case Boolean b -> b ? "Ja" : "Nei";
+            case Boolean b -> Objects.equals(b, Boolean.TRUE) ? "Ja" : "Nei";
             case Kodeverdi k -> k.getNavn();
             default -> throw new IllegalStateException("Ikke støttet historikkformatering for " + verdi);
         };

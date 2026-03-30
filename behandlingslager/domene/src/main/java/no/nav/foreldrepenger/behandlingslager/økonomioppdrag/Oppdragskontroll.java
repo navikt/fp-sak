@@ -44,7 +44,7 @@ public class Oppdragskontroll extends BaseEntitet {
 
     @Convert(converter = BooleanToStringConverter.class)
     @Column(name = "venter_kvittering", nullable = false)
-    private Boolean venterKvittering = Boolean.TRUE;
+    private boolean venterKvittering = true;
 
     @Column(name = "prosess_task_id", nullable = false)
     private Long prosessTaskId;
@@ -72,11 +72,11 @@ public class Oppdragskontroll extends BaseEntitet {
         return saksnummer;
     }
 
-    public Boolean getVenterKvittering() {
+    public boolean getVenterKvittering() {
         return venterKvittering;
     }
 
-    public void setVenterKvittering(Boolean venterKvittering) {
+    public void setVenterKvittering(boolean venterKvittering) {
         this.venterKvittering = venterKvittering;
     }
 
@@ -139,7 +139,7 @@ public class Oppdragskontroll extends BaseEntitet {
             return this;
         }
 
-        public Builder medVenterKvittering(Boolean venterKvittering) {
+        public Builder medVenterKvittering(boolean venterKvittering) {
             this.venterKvittering = venterKvittering;
             return this;
         }
