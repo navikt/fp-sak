@@ -62,11 +62,6 @@
       "cluster": "prod-fss"
     },
     {
-      "app": "fpformidling",
-      "namespace": "teamforeldrepenger",
-      "cluster": "prod-gcp"
-    },
-    {
       "app": "fplos",
       "namespace": "teamforeldrepenger",
       "cluster": "prod-fss"
