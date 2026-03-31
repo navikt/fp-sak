@@ -16,13 +16,13 @@
     }
   },
   "minReplicas": "3",
-  "maxReplicas": "9",
+  "maxReplicas": "7",
   "limits": {
-    "mem": "2560Mi"
+    "mem": "2600Mi"
   },
   "requests": {
-    "cpu": "150m",
-    "mem": "2Gi"
+    "cpu": "160m",
+    "mem": "2100Mi"
   },
   "ingresses": [
     "https://fpsak-api.intern.nav.no",
