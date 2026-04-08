@@ -6,7 +6,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.Set;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.MorsAktivitet;
@@ -119,7 +118,8 @@ public class ForeldrepengerUttakOversetter  {
                                                         Boolean ønskerJustertVedFødsel) {
 
         var oppgittPerioder = perioder.stream()
-             .map(p ->oversettPeriode(behandling, p))
+            .filter(this::positiveDager)
+            .map(this::oversettPeriode)
             .filter(this::inneholderVirkedager)
             .toList();
         var filtrertPerioder = søknadDataFraTidligereVedtakTjeneste.filtrerVekkPerioderSomErLikeInnvilgetUttak(behandling, oppgittPerioder);
@@ -139,6 +139,10 @@ public class ForeldrepengerUttakOversetter  {
         return Virkedager.beregnAntallVirkedager(periode.getFom(), periode.getTom()) > 0;
     }
 
+    private boolean positiveDager(LukketPeriodeMedVedlegg periode) {
+        return periode.getFom().isBefore(periode.getTom()) || periode.getFom().isEqual(periode.getTom());
+    }
+
     private Dekningsgrad oversettDekningsgrad(Foreldrepenger omYtelse) {
         var dekingsgrad = omYtelse.getDekningsgrad().getDekningsgrad();
         if (Integer.toString(Dekningsgrad._80.getVerdi()).equalsIgnoreCase(dekingsgrad.getKode())) {
@@ -150,26 +154,20 @@ public class ForeldrepengerUttakOversetter  {
         throw new IllegalArgumentException("Ukjent dekningsgrad " + dekingsgrad.getKode());
     }
 
-    private OppgittPeriodeEntitet oversettPeriode(Behandling behandling, LukketPeriodeMedVedlegg lukketPeriode) {
-        // TODO fjern når søknad fikset - midlertidig kompensere for feilende søknad med negativ utsettelse i helg
-        var brukTom = lukketPeriode.getTom();
-        if (lukketPeriode instanceof Utsettelsesperiode && lukketPeriode.getFom().isAfter(brukTom) &&
-            Set.of(2285187, 2329813).contains(behandling.getFagsak().getId())) {
-            brukTom = lukketPeriode.getFom().plusDays(1);
-        }
-        var oppgittPeriodeBuilder = OppgittPeriodeBuilder.ny().medPeriode(lukketPeriode.getFom(), brukTom);
-        if (lukketPeriode instanceof final Uttaksperiode periode) {
-            oversettUttakperiode(oppgittPeriodeBuilder, periode);
-        } else if (lukketPeriode instanceof Oppholdsperiode oppholdsperiode) {
-            oppgittPeriodeBuilder.medÅrsak(OppholdÅrsak.fraKode(oppholdsperiode.getAarsak().getKode()));
-            oppgittPeriodeBuilder.medPeriodeType(UttakPeriodeType.UDEFINERT);
-        } else if (lukketPeriode instanceof Overfoeringsperiode overfoeringsperiode) {
-            oppgittPeriodeBuilder.medÅrsak(OverføringÅrsak.fraKode(overfoeringsperiode.getAarsak().getKode()));
-            oppgittPeriodeBuilder.medPeriodeType(UttakPeriodeType.fraKode(overfoeringsperiode.getOverfoeringAv().getKode()));
-        } else if (lukketPeriode instanceof Utsettelsesperiode utsettelsesperiode) {
-            oversettUtsettelsesperiode(oppgittPeriodeBuilder, utsettelsesperiode);
-        } else {
-            throw new IllegalStateException("Ukjent periodetype.");
+    private OppgittPeriodeEntitet oversettPeriode(LukketPeriodeMedVedlegg lukketPeriode) {
+        var oppgittPeriodeBuilder = OppgittPeriodeBuilder.ny().medPeriode(lukketPeriode.getFom(), lukketPeriode.getTom());
+        switch (lukketPeriode) {
+            case Uttaksperiode periode -> oversettUttakperiode(oppgittPeriodeBuilder, periode);
+            case Oppholdsperiode oppholdsperiode -> oppgittPeriodeBuilder
+                .medÅrsak(OppholdÅrsak.fraKode(oppholdsperiode.getAarsak().getKode()))
+                .medPeriodeType(UttakPeriodeType.UDEFINERT);
+            case Overfoeringsperiode overfoeringsperiode -> oppgittPeriodeBuilder
+                .medÅrsak(OverføringÅrsak.fraKode(overfoeringsperiode.getAarsak().getKode()))
+                .medPeriodeType(UttakPeriodeType.fraKode(overfoeringsperiode.getOverfoeringAv().getKode()));
+
+            case Utsettelsesperiode utsettelsesperiode -> oversettUtsettelsesperiode(oppgittPeriodeBuilder, utsettelsesperiode);
+            default -> throw new IllegalStateException("Ukjent periodetype.");
+
         }
         return oppgittPeriodeBuilder.build();
     }
