@@ -16,13 +16,13 @@
     }
   },
   "minReplicas": "1",
-  "maxReplicas": "2",
+  "maxReplicas": "1",
   "limits": {
-    "mem": "2Gi"
+    "mem": "1500Mi"
   },
   "requests": {
     "cpu": "50m",
-    "mem": "1600Mi"
+    "mem": "1200Mi"
   },
   "ingresses": [
     "https://fpsak-api.dev-fss-pub.nais.io",

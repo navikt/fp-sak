@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.MorsAktivitet;
@@ -118,7 +119,7 @@ public class ForeldrepengerUttakOversetter  {
                                                         Boolean ønskerJustertVedFødsel) {
 
         var oppgittPerioder = perioder.stream()
-            .map(this::oversettPeriode)
+             .map(p ->oversettPeriode(behandling, p))
             .filter(this::inneholderVirkedager)
             .toList();
         var filtrertPerioder = søknadDataFraTidligereVedtakTjeneste.filtrerVekkPerioderSomErLikeInnvilgetUttak(behandling, oppgittPerioder);
@@ -149,8 +150,14 @@ public class ForeldrepengerUttakOversetter  {
         throw new IllegalArgumentException("Ukjent dekningsgrad " + dekingsgrad.getKode());
     }
 
-    private OppgittPeriodeEntitet oversettPeriode(LukketPeriodeMedVedlegg lukketPeriode) {
-        var oppgittPeriodeBuilder = OppgittPeriodeBuilder.ny().medPeriode(lukketPeriode.getFom(), lukketPeriode.getTom());
+    private OppgittPeriodeEntitet oversettPeriode(Behandling behandling, LukketPeriodeMedVedlegg lukketPeriode) {
+        // TODO fjern når søknad fikset - midlertidig kompensere for feilende søknad med negativ utsettelse i helg
+        var brukTom = lukketPeriode.getTom();
+        if (lukketPeriode instanceof Utsettelsesperiode && lukketPeriode.getFom().isAfter(brukTom) &&
+            Set.of(2285187, 2329813).contains(behandling.getFagsak().getId())) {
+            brukTom = lukketPeriode.getFom().plusDays(1);
+        }
+        var oppgittPeriodeBuilder = OppgittPeriodeBuilder.ny().medPeriode(lukketPeriode.getFom(), brukTom);
         if (lukketPeriode instanceof final Uttaksperiode periode) {
             oversettUttakperiode(oppgittPeriodeBuilder, periode);
         } else if (lukketPeriode instanceof Oppholdsperiode oppholdsperiode) {
