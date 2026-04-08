@@ -176,34 +176,33 @@ public class TilretteleggingOversetter {
     }
 
     private void oversettArbeidsforhold(SvpTilretteleggingEntitet.Builder builder, Arbeidsforhold arbeidsforhold) {
-        if (arbeidsforhold instanceof no.nav.vedtak.felles.xml.soeknad.svangerskapspenger.v1.Arbeidsgiver arbeidsgiverType) {
-            builder.medArbeidType(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD);
-            Arbeidsgiver arbeidsgiver;
-            if (arbeidsforhold instanceof no.nav.vedtak.felles.xml.soeknad.svangerskapspenger.v1.Virksomhet virksomhetType) {
-                var orgnr = virksomhetType.getIdentifikator();
-                virksomhetTjeneste.hentOrganisasjon(orgnr);
-                arbeidsgiver = Arbeidsgiver.virksomhet(orgnr);
-            } else {
-                var arbeidsgiverIdent = new PersonIdent(arbeidsgiverType.getIdentifikator());
-                var aktørIdArbeidsgiver = personinfoAdapter.hentAktørForFnr(arbeidsgiverIdent);
-                if (aktørIdArbeidsgiver.isEmpty()) {
-                    throw new TekniskException("FP-545381",
-                        "Fant ikke personident for arbeidsgiver som er privatperson i PDL");
+        switch (arbeidsforhold) {
+            case no.nav.vedtak.felles.xml.soeknad.svangerskapspenger.v1.Arbeidsgiver arbeidsgiverType -> {
+                builder.medArbeidType(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD);
+                Arbeidsgiver arbeidsgiver;
+                if (arbeidsforhold instanceof no.nav.vedtak.felles.xml.soeknad.svangerskapspenger.v1.Virksomhet virksomhetType) {
+                    var orgnr = virksomhetType.getIdentifikator();
+                    virksomhetTjeneste.hentOrganisasjon(orgnr);
+                    arbeidsgiver = Arbeidsgiver.virksomhet(orgnr);
+                } else {
+                    var arbeidsgiverIdent = new PersonIdent(arbeidsgiverType.getIdentifikator());
+                    var aktørIdArbeidsgiver = personinfoAdapter.hentAktørForFnr(arbeidsgiverIdent);
+                    if (aktørIdArbeidsgiver.isEmpty()) {
+                        throw new TekniskException("FP-545381", "Fant ikke personident for arbeidsgiver som er privatperson i PDL");
+                    }
+                    arbeidsgiver = Arbeidsgiver.person(aktørIdArbeidsgiver.get());
                 }
-                arbeidsgiver = Arbeidsgiver.person(aktørIdArbeidsgiver.get());
+                builder.medArbeidsgiver(arbeidsgiver);
             }
-            builder.medArbeidsgiver(arbeidsgiver);
-        } else if (arbeidsforhold instanceof Frilanser frilanser) {
-            builder.medArbeidType(ArbeidType.FRILANSER);
-            builder.medOpplysningerOmRisikofaktorer(frilanser.getOpplysningerOmRisikofaktorer());
-            builder.medOpplysningerOmTilretteleggingstiltak(
-                ((Frilanser) arbeidsforhold).getOpplysningerOmTilretteleggingstiltak());
-        } else if (arbeidsforhold instanceof SelvstendigNæringsdrivende selvstendig) {
-            builder.medArbeidType(ArbeidType.SELVSTENDIG_NÆRINGSDRIVENDE);
-            builder.medOpplysningerOmTilretteleggingstiltak(selvstendig.getOpplysningerOmTilretteleggingstiltak());
-            builder.medOpplysningerOmRisikofaktorer(selvstendig.getOpplysningerOmRisikofaktorer());
-        } else {
-            throw new TekniskException("FP-187531", "Ukjent type arbeidsforhold i svangerskapspengesøknad");
+            case Frilanser frilanser -> builder.medArbeidType(ArbeidType.FRILANSER)
+                    .medOpplysningerOmRisikofaktorer(frilanser.getOpplysningerOmRisikofaktorer())
+                    .medOpplysningerOmTilretteleggingstiltak(frilanser.getOpplysningerOmTilretteleggingstiltak());
+
+            case SelvstendigNæringsdrivende selvstendig -> builder.medArbeidType(ArbeidType.SELVSTENDIG_NÆRINGSDRIVENDE)
+                    .medOpplysningerOmTilretteleggingstiltak(selvstendig.getOpplysningerOmTilretteleggingstiltak())
+                    .medOpplysningerOmRisikofaktorer(selvstendig.getOpplysningerOmRisikofaktorer());
+            default -> throw new TekniskException("FP-187531", "Ukjent type arbeidsforhold i svangerskapspengesøknad");
+
         }
     }
 
