@@ -59,11 +59,6 @@
     {
       "app": "fpformidling",
       "namespace": "teamforeldrepenger",
-      "cluster": "dev-fss"
-    },
-    {
-      "app": "fpformidling",
-      "namespace": "teamforeldrepenger",
       "cluster": "dev-gcp"
     },
     {
