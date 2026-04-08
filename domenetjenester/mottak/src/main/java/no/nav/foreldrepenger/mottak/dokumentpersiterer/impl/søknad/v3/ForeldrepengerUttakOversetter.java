@@ -119,7 +119,7 @@ public class ForeldrepengerUttakOversetter  {
                                                         Boolean ønskerJustertVedFødsel) {
 
         var oppgittPerioder = perioder.stream()
-            .map(this::oversettPeriode)
+             .map(p ->oversettPeriode(behandling, p))
             .filter(this::inneholderVirkedager)
             .toList();
         var filtrertPerioder = søknadDataFraTidligereVedtakTjeneste.filtrerVekkPerioderSomErLikeInnvilgetUttak(behandling, oppgittPerioder);
