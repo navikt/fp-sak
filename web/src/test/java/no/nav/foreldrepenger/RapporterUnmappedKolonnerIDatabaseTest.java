@@ -41,7 +41,7 @@ class RapporterUnmappedKolonnerIDatabaseTest {
     private static final Logger LOG = LoggerFactory.getLogger(RapporterUnmappedKolonnerIDatabaseTest.class);
 
     private static final String HTE_PREFIX = "HTE_";
-    private static final Set<String> UNNTA_TABELLER = Set.of("SCHEMA_VERSION", "STARTUPDATA");
+    private static final Set<String> UNNTA_TABELLER = Set.of("SCHEMA_VERSION", "STARTUPDATA", "FLYWAY_SCHEMA_HISTORY");
     private static final Map<String, Set<String>> UNNTA_KOLONNER = Map.of(
         "BEHANDLING", Set.of("SIST_OPPDATERT_TIDSPUNKT"),
         "PROSESS_TASK", Set.of("SISTE_KJOERING_PLUKK_TS", "SISTE_KJOERING_SLUTT_TS")
@@ -111,14 +111,17 @@ class RapporterUnmappedKolonnerIDatabaseTest {
             var namespaceName = getSchemaName(namespace);
             var dbColumns = getColumns(namespaceName);
             for (var table : namespace.getTables()) {
-                var columnNames = table.getColumns().stream().map(c -> c.getName().toUpperCase()).collect(Collectors.toCollection(TreeSet::new));
                 var tableName = table.getName().toUpperCase();
+                if (UNNTA_TABELLER.contains(tableName)) {
+                    continue;
+                }
+                var columnNames = table.getColumns().stream().map(c -> c.getName().toUpperCase()).collect(Collectors.toCollection(TreeSet::new));
                 if (dbColumns.containsKey(tableName)) {
                     var unmapped = new TreeSet<>(dbColumns.get(tableName));
                     unmapped.removeAll(columnNames);
                     unmapped.removeAll(UNNTA_KOLONNER.getOrDefault(tableName, Set.of()));
                     if (!unmapped.isEmpty()) {
-                        LOG.error("Table {} has unmapped columns: {}", table.getName(), unmapped);
+                        LOG.error("Table {} has unmapped columns: {}", tableName, unmapped);
                     }
                 } else {
                     LOG.error("Table {} not in database schema {}", tableName, namespaceName);
