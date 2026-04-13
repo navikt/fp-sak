@@ -16,13 +16,13 @@
     }
   },
   "minReplicas": "3",
-  "maxReplicas": "9",
+  "maxReplicas": "6",
   "limits": {
-    "mem": "2560Mi"
+    "mem": "2000Mi"
   },
   "requests": {
     "cpu": "150m",
-    "mem": "2Gi"
+    "mem": "1600Mi"
   },
   "ingresses": [
     "https://fpsak-api.intern.nav.no",
@@ -55,11 +55,6 @@
       "app": "fp-frontend",
       "namespace": "teamforeldrepenger",
       "cluster": "prod-gcp"
-    },
-    {
-      "app": "fpformidling",
-      "namespace": "teamforeldrepenger",
-      "cluster": "prod-fss"
     },
     {
       "app": "fpformidling",

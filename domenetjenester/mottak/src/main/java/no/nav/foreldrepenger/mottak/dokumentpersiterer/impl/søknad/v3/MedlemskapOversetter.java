@@ -22,21 +22,17 @@ public class MedlemskapOversetter {
     }
 
     void byggMedlemskap(SøknadWrapper skjema, Long behandlingId, LocalDate forsendelseMottatt) {
-        Medlemskap medlemskap;
         var omYtelse = skjema.getOmYtelse();
         var mottattDato = skjema.getSkjema().getMottattDato();
         var oppgittTilknytningBuilder = new MedlemskapOppgittTilknytningEntitet.Builder().medOppholdNå(true)
             .medOppgittDato(forsendelseMottatt);
 
-        if (omYtelse instanceof Engangsstønad engangsstønad) {
-            medlemskap = engangsstønad.getMedlemskap();
-        } else if (omYtelse instanceof Foreldrepenger foreldrepenger) {
-            medlemskap = foreldrepenger.getMedlemskap();
-        } else if (omYtelse instanceof Svangerskapspenger svangerskapspenger) {
-            medlemskap = svangerskapspenger.getMedlemskap();
-        } else {
-            throw new IllegalStateException("Ytelsestype er ikke støttet");
-        }
+        var medlemskap = switch (omYtelse) {
+            case Engangsstønad engangsstønad ->  engangsstønad.getMedlemskap();
+            case Foreldrepenger foreldrepenger -> foreldrepenger.getMedlemskap();
+            case Svangerskapspenger svangerskapspenger -> svangerskapspenger.getMedlemskap();
+            default -> throw new IllegalStateException("Ytelsestype er ikke støttet");
+        };
         Boolean iNorgeVedFoedselstidspunkt = medlemskap.isINorgeVedFoedselstidspunkt();
         oppgittTilknytningBuilder.medOppholdNå(Boolean.TRUE.equals(iNorgeVedFoedselstidspunkt));
 

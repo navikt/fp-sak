@@ -68,10 +68,10 @@ public class AnnenPartOversetter {
 
     private static Optional<AnnenForelder> extractAnnenForelder(SøknadWrapper søknad) {
         AnnenForelder annenForelder = null;
-        if (søknad.getOmYtelse() instanceof Foreldrepenger) {
-            annenForelder = ((Foreldrepenger) søknad.getOmYtelse()).getAnnenForelder();
-        } else if (søknad.getOmYtelse() instanceof Engangsstønad) {
-            annenForelder = ((Engangsstønad) søknad.getOmYtelse()).getAnnenForelder();
+        if (søknad.getOmYtelse() instanceof Foreldrepenger foreldrepenger) {
+            annenForelder = foreldrepenger.getAnnenForelder();
+        } else if (søknad.getOmYtelse() instanceof Engangsstønad engangsstønad) {
+            annenForelder = engangsstønad.getAnnenForelder();
         }
         //Håndterer UkjentForelder på lik måte som om forelder ikke var oppgitt
         if (annenForelder instanceof UkjentForelder) {
