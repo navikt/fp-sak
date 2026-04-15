@@ -39,7 +39,8 @@ record SvpSak(String saksnummer,
             INNTEKTSMELDING
         }
     }
-    public record Vedtak(LocalDateTime vedtakstidspunkt, Set<ArbeidsforholdUttak> arbeidsforhold, AvslagÅrsak avslagÅrsak) {
+    public record Vedtak(LocalDateTime vedtakstidspunkt, Set<ArbeidsforholdUttak> arbeidsforhold, AvslagÅrsak avslagÅrsak,
+                         OversiktBeregningsgrunnlag beregningsgrunnlag, OversiktTilkjentYtelse tilkjentYtelse) {
 
 
 

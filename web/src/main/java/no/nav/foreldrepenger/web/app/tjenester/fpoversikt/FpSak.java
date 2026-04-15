@@ -1,8 +1,5 @@
 package no.nav.foreldrepenger.web.app.tjenester.fpoversikt;
 
-import no.nav.foreldrepenger.behandlingslager.behandling.beregning.AktivitetStatus;
-import no.nav.foreldrepenger.domene.modell.kodeverk.Hjemmel;
-
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -31,8 +28,8 @@ record FpSak(String saksnummer,
                   List<Uttaksperiode> uttaksperioder,
                   Dekningsgrad dekningsgrad,
                   List<EøsUttaksperiode> annenpartEøsUttaksperioder,
-                  Beregningsgrunnlag beregningsgrunnlag,
-                  TilkjentYtelse tilkjentYtelse) {
+                  OversiktBeregningsgrunnlag beregningsgrunnlag,
+                  OversiktTilkjentYtelse tilkjentYtelse) {
         record EøsUttaksperiode(LocalDate fom, LocalDate tom, BigDecimal trekkdager, Konto konto) {
         }
     }
@@ -65,87 +62,6 @@ record FpSak(String saksnummer,
 
         record UttaksperiodeAktivitet(UttakAktivitet aktivitet, Konto konto, BigDecimal trekkdager, BigDecimal arbeidstidsprosent) {
 
-        }
-    }
-
-    record TilkjentYtelse(List<TilkjentYtelsePeriode> utbetalingsperioder, List<FeriepengeAndel> feriepenger) {
-
-    }
-
-    record TilkjentYtelsePeriode(LocalDate fom, LocalDate tom, List<Andel> andeler) {
-        record Andel(AktivitetStatus aktivitetStatus,
-                     String arbeidsgiverIdent,
-                     String arbeidsgivernavn,
-                     BigDecimal dagsats,
-                     boolean tilBruker,
-                     BigDecimal utbetalingsgrad) {
-        }
-    }
-
-    record FeriepengeAndel(LocalDate opptjeningsår, BigDecimal årsbeløp, String arbeidsgiverIdent, boolean tilBruker) {
-    }
-
-    enum AktivitetStatus {
-        ARBEIDSAVKLARINGSPENGER,
-        ARBEIDSTAKER,
-        DAGPENGER,
-        FRILANSER,
-        MILITÆR_ELLER_SIVIL,
-        SELVSTENDIG_NÆRINGSDRIVENDE,
-        KOMBINERT_AT_FL,
-        KOMBINERT_AT_SN,
-        KOMBINERT_FL_SN,
-        KOMBINERT_AT_FL_SN,
-        BRUKERS_ANDEL,
-        KUN_YTELSE;
-
-        public static AktivitetStatus fraBehandlingslagerStatus(no.nav.foreldrepenger.behandlingslager.behandling.beregning.AktivitetStatus aktivitetStatus) {
-            return switch (aktivitetStatus) {
-                case ARBEIDSAVKLARINGSPENGER -> FpSak.AktivitetStatus.ARBEIDSAVKLARINGSPENGER;
-                case ARBEIDSTAKER -> FpSak.AktivitetStatus.ARBEIDSTAKER;
-                case DAGPENGER -> FpSak.AktivitetStatus.DAGPENGER;
-                case FRILANSER -> FpSak.AktivitetStatus.FRILANSER;
-                case MILITÆR_ELLER_SIVIL -> FpSak.AktivitetStatus.MILITÆR_ELLER_SIVIL;
-                case SELVSTENDIG_NÆRINGSDRIVENDE -> FpSak.AktivitetStatus.SELVSTENDIG_NÆRINGSDRIVENDE;
-                case KOMBINERT_AT_FL -> FpSak.AktivitetStatus.KOMBINERT_AT_FL;
-                case KOMBINERT_AT_SN -> FpSak.AktivitetStatus.KOMBINERT_AT_SN;
-                case KOMBINERT_FL_SN -> FpSak.AktivitetStatus.KOMBINERT_FL_SN;
-                case KOMBINERT_AT_FL_SN -> FpSak.AktivitetStatus.KOMBINERT_AT_FL_SN;
-                case BRUKERS_ANDEL -> FpSak.AktivitetStatus.BRUKERS_ANDEL;
-                case KUN_YTELSE -> FpSak.AktivitetStatus.KUN_YTELSE;
-                case VENTELØNN_VARTPENGER, TTLSTØTENDE_YTELSE, UDEFINERT -> null;
-            };
-        }
-    }
-
-    record Beregningsgrunnlag(LocalDate skjæringstidspunkt,
-                              List<BeregningsAndel> beregningsandeler,
-                              List<BeregningAktivitetStatus> beregningAktivitetStatuser,
-                              BigDecimal grunnbeløp) {
-
-
-        record BeregningsAndel(AktivitetStatus aktivitetStatus,
-                               BigDecimal fastsattPrÅr,
-                               InntektsKilde inntektsKilde,
-                               Arbeidsforhold arbeidsforhold,
-                               BigDecimal dagsatsArbeidsgiver,
-                               BigDecimal dagsatsSøker) {
-        }
-
-        record Arbeidsforhold(String arbeidsgiverIdent, String arbeidsgivernavn, BigDecimal refusjonPrMnd) {
-        }
-
-        record BeregningAktivitetStatus(AktivitetStatus aktivitetStatus, Hjemmel hjemmel) {
-        }
-
-
-
-        enum InntektsKilde {
-            INNTEKTSMELDING,
-            A_INNTEKT,
-            VEDTAK_ANNEN_YTELSE,
-            SKJØNNSFASTSATT,
-            PENSJONSGIVENDE_INNTEKT,
         }
     }
 
