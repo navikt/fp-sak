@@ -40,10 +40,13 @@ import no.nav.foreldrepenger.domene.arbeidsgiver.ArbeidsgiverOpplysninger;
 import no.nav.foreldrepenger.domene.arbeidsgiver.ArbeidsgiverTjeneste;
 import no.nav.foreldrepenger.domene.iay.modell.Inntektsmelding;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
+import no.nav.foreldrepenger.konfig.Environment;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 
 @ApplicationScoped
 public class SvpDtoTjeneste {
+
+    private static final Environment ENV = Environment.current();
 
     private static final String UNEXPECTED_VALUE = "Unexpected value: ";
     private ArbeidsgiverTjeneste arbeidsgiverTjeneste;
@@ -52,6 +55,8 @@ public class SvpDtoTjeneste {
     private DtoTjenesteFelles felles;
     private InntektsmeldingTjeneste inntektsmeldingTjeneste;
     private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
+    private BeregningOversiktDtoTjeneste beregningOversiktDtoTjeneste;
+    private TilkjentYtelseDtoTjeneste tilkjentYtelseDtoTjeneste;
 
     @Inject
     public SvpDtoTjeneste(ArbeidsgiverTjeneste arbeidsgiverTjeneste,
@@ -59,13 +64,17 @@ public class SvpDtoTjeneste {
                           SvangerskapspengerUttakResultatRepository svangerskapspengerUttakResultatRepository,
                           DtoTjenesteFelles felles,
                           InntektsmeldingTjeneste inntektsmeldingTjeneste,
-                          @FagsakYtelseTypeRef(FagsakYtelseType.SVANGERSKAPSPENGER) SkjæringstidspunktTjeneste skjæringstidspunktTjeneste) {
+                          @FagsakYtelseTypeRef(FagsakYtelseType.SVANGERSKAPSPENGER) SkjæringstidspunktTjeneste skjæringstidspunktTjeneste,
+                          BeregningOversiktDtoTjeneste beregningOversiktDtoTjeneste,
+                          TilkjentYtelseDtoTjeneste tilkjentYtelseDtoTjeneste) {
         this.arbeidsgiverTjeneste = arbeidsgiverTjeneste;
         this.svangerskapspengerRepository = svangerskapspengerRepository;
         this.svangerskapspengerUttakResultatRepository = svangerskapspengerUttakResultatRepository;
         this.felles = felles;
         this.inntektsmeldingTjeneste = inntektsmeldingTjeneste;
         this.skjæringstidspunktTjeneste = skjæringstidspunktTjeneste;
+        this.beregningOversiktDtoTjeneste = beregningOversiktDtoTjeneste;
+        this.tilkjentYtelseDtoTjeneste = tilkjentYtelseDtoTjeneste;
     }
 
     SvpDtoTjeneste() {
@@ -96,7 +105,12 @@ public class SvpDtoTjeneste {
             var arbeidsforhold = finnArbeidsforhold(v);
             var vedtakstidspunkt = v.getVedtakstidspunkt();
             var avslagÅrsak = finnAvslagÅrsak(v);
-            return new SvpSak.Vedtak(vedtakstidspunkt, arbeidsforhold, avslagÅrsak);
+            var behandlingId = v.getBehandlingsresultat().getBehandlingId();
+            var behandling = felles.finnBehandling(behandlingId);
+            var ref = BehandlingReferanse.fra(behandling);
+            var beregningsgrunnlag = ENV.isProd() ? Optional.<OversiktBeregningsgrunnlag>empty() : beregningOversiktDtoTjeneste.lagDtoForBehandling(ref);
+            var tilkjentYtelse = ENV.isProd() ? Optional.<OversiktTilkjentYtelse>empty() : tilkjentYtelseDtoTjeneste.lagDtoForTilkjentYtelse(ref);
+            return new SvpSak.Vedtak(vedtakstidspunkt, arbeidsforhold, avslagÅrsak, beregningsgrunnlag.orElse(null), tilkjentYtelse.orElse(null));
         }).collect(Collectors.toSet());
     }
 

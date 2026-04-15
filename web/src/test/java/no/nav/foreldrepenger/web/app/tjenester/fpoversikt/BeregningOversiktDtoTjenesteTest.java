@@ -121,7 +121,7 @@ class BeregningOversiktDtoTjenesteTest {
         assertThat(dto.get().beregningsandeler().getFirst().arbeidsforhold().arbeidsgiverIdent()).isEqualTo("9".repeat(9));
         assertThat(dto.get().beregningsandeler().getFirst().arbeidsforhold().arbeidsgivernavn()).isEqualTo("Testbedriften");
         assertThat(dto.get().beregningsandeler().getFirst().fastsattPrÅr()).isEqualByComparingTo(BigDecimal.TEN);
-        assertThat(dto.get().beregningsandeler().getFirst().inntektsKilde()).isEqualTo(FpSak.Beregningsgrunnlag.InntektsKilde.INNTEKTSMELDING);
+        assertThat(dto.get().beregningsandeler().getFirst().inntektsKilde()).isEqualTo(OversiktBeregningsgrunnlag.InntektsKilde.INNTEKTSMELDING);
     }
 
     @Test
@@ -165,20 +165,20 @@ class BeregningOversiktDtoTjenesteTest {
         var frilansAndel = dto.get()
             .beregningsandeler()
             .stream()
-            .filter(a -> a.aktivitetStatus().equals(FpSak.AktivitetStatus.FRILANSER))
+            .filter(a -> a.aktivitetStatus().equals(OversiktAktivitetStatus.FRILANSER))
             .findFirst()
             .orElseThrow();
         assertThat(frilansAndel.fastsattPrÅr()).isEqualByComparingTo(BigDecimal.TEN);
-        assertThat(frilansAndel.inntektsKilde()).isEqualTo(FpSak.Beregningsgrunnlag.InntektsKilde.A_INNTEKT);
+        assertThat(frilansAndel.inntektsKilde()).isEqualTo(OversiktBeregningsgrunnlag.InntektsKilde.A_INNTEKT);
 
         var SnAndel = dto.get()
             .beregningsandeler()
             .stream()
-            .filter(a -> a.aktivitetStatus().equals(FpSak.AktivitetStatus.SELVSTENDIG_NÆRINGSDRIVENDE))
+            .filter(a -> a.aktivitetStatus().equals(OversiktAktivitetStatus.SELVSTENDIG_NÆRINGSDRIVENDE))
             .findFirst()
             .orElseThrow();
         assertThat(SnAndel.fastsattPrÅr()).isEqualByComparingTo(BigDecimal.TWO);
-        assertThat(SnAndel.inntektsKilde()).isEqualTo(FpSak.Beregningsgrunnlag.InntektsKilde.PENSJONSGIVENDE_INNTEKT);
+        assertThat(SnAndel.inntektsKilde()).isEqualTo(OversiktBeregningsgrunnlag.InntektsKilde.PENSJONSGIVENDE_INNTEKT);
     }
 
 

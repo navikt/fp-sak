@@ -62,6 +62,10 @@ class SvpDtoTjenesteTest extends EntityManagerAwareTest {
     private InntektsmeldingTjeneste inntektsmeldingTjeneste;
     @Mock
     private ArbeidsgiverTjeneste arbeidsgiverTjeneste;
+    @Mock
+    private BeregningOversiktDtoTjeneste beregningOversiktDtoTjeneste;
+    @Mock
+    private TilkjentYtelseDtoTjeneste tilkjentYtelseDtoTjeneste;
     @Inject
     private DtoTjenesteFelles felles;
     @Inject
@@ -77,7 +81,7 @@ class SvpDtoTjenesteTest extends EntityManagerAwareTest {
         repositoryProvider = new BehandlingRepositoryProvider(entityManager);
         behandlingRepository = repositoryProvider.getBehandlingRepository();
         tjeneste = new SvpDtoTjeneste(arbeidsgiverTjeneste, svangerskapspengerRepository, repositoryProvider.getSvangerskapspengerUttakResultatRepository(), felles,
-            inntektsmeldingTjeneste, skjæringstidspunktTjeneste);
+            inntektsmeldingTjeneste, skjæringstidspunktTjeneste, beregningOversiktDtoTjeneste, tilkjentYtelseDtoTjeneste);
     }
 
     @Test
