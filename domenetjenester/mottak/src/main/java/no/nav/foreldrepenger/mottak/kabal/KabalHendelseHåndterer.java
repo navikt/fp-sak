@@ -10,7 +10,6 @@ import jakarta.enterprise.context.control.ActivateRequestContext;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 
-import org.apache.kafka.clients.consumer.OffsetResetStrategy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -45,6 +44,8 @@ public class KabalHendelseHåndterer implements KafkaMessageHandler.KafkaStringM
     private static final String KABAL = "KABAL";
     private static final String VKY_DELVIS_TEKST = "Vedtaket er delvis omgjort i ankebehandling og sendt Trygderetten. Opprett en ny behandling for det som allerede er omgjort.";
     private static final String VKY_OMGJØRINGSKRAV_TEKST = "Vedtaket er omgjort av Nav klageinstans etter Fvl 35. Opprett en ny behandling.";
+
+
 
     private String topicName;
     private ProsessTaskTjeneste taskTjeneste;
@@ -145,10 +146,10 @@ public class KabalHendelseHåndterer implements KafkaMessageHandler.KafkaStringM
             LOG.warn("KABAL mottatt hendelse med ukjent referanse hendelse={}", mottattHendelse);
             return null;
         }
-        // Henlagt omgjøringskrav har ingen behandling hos oss, de andre variantene skal ha en klage eller anke
+        // Henlagt omgjøringskrav/begjæring har ingen behandling hos oss, de andre variantene skal ha en klage eller anke
         if (KabalHendelse.BehandlingEventType.BEHANDLING_FEILREGISTRERT.equals(mottattHendelse.type())
-            && KabalHendelse.BehandlingType.OMGJOERINGSKRAV.equals(mottattHendelse.detaljer().behandlingFeilregistrert().type())) {
-            LOG.info("KABAL henlagt omgjøringskrav hendelse={}", mottattHendelse);
+            && KabalHendelse.ikkeRelevantBehandling(mottattHendelse.detaljer().behandlingFeilregistrert().type())) {
+            LOG.info("KABAL henlagt omgjøringskrav/begjæring hendelse={}", mottattHendelse);
             return null;
         }
         // Sjekk om finnes matchende klage eller anke - evt ugyldig kildereferanse
