@@ -35,7 +35,8 @@ public record KabalHendelse(UUID eventId,
     public record BehandlingFeilregistrertDetaljer(LocalDateTime feilregistrert, BehandlingType type, String navIdent, String reason) {}
 
     public enum BehandlingType {
-        KLAGE, ANKE, ANKE_I_TRYGDERETTEN, BEHANDLING_ETTER_TRYGDERETTEN_OPPHEVET, OMGJOERINGSKRAV
+        KLAGE, ANKE, ANKE_I_TRYGDERETTEN, BEHANDLING_ETTER_TRYGDERETTEN_OPPHEVET,
+        OMGJOERINGSKRAV, BEGJAERING_OM_GJENOPPTAK, BEGJAERING_OM_GJENOPPTAK_I_TRYGDERETTEN
     }
 }
 
