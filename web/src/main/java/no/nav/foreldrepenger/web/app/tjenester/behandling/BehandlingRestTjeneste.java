@@ -65,10 +65,10 @@ import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.SaksnummerAbacSupplier
 import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.SaksnummerDto;
 import no.nav.foreldrepenger.web.server.abac.AppAbacAttributtType;
 import no.nav.vedtak.exception.FunksjonellException;
-import no.nav.vedtak.feil.FeilDto;
-import no.nav.vedtak.feil.FeilType;
+import no.nav.vedtak.feil.Feilkode;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
+import no.nav.vedtak.server.rest.FeilUtils;
 import no.nav.vedtak.sikkerhet.abac.AbacDataAttributter;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
 import no.nav.vedtak.sikkerhet.abac.TilpassetAbacAttributt;
@@ -359,10 +359,7 @@ public class BehandlingRestTjeneste {
     }
 
     private Response notFound(Saksnummer saksnummer) {
-        return Response.status(Response.Status.NOT_FOUND)
-            .entity(new FeilDto(FeilType.TOMT_RESULTAT_FEIL, "Fant ikke fagsak med saksnummer " + saksnummer))
-            .type(MediaType.APPLICATION_JSON)
-            .build();
+        return FeilUtils.responseFra(Response.Status.NOT_FOUND, Feilkode.IKKE_FUNNET, "Fant ikke fagsak med saksnummer " + saksnummer);
     }
 
     private static BehandlingResultatType tilHenleggBehandlingResultatType(String årsak) {
