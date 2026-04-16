@@ -13,12 +13,12 @@ import org.glassfish.jersey.server.ServerProperties;
 
 import io.swagger.v3.jaxrs2.integration.resources.OpenApiResource;
 import no.nav.foreldrepenger.konfig.Environment;
-import no.nav.foreldrepenger.web.app.exceptions.ConstraintViolationMapper;
-import no.nav.foreldrepenger.web.app.exceptions.GeneralRestExceptionMapper;
 import no.nav.foreldrepenger.web.app.jackson.JacksonJsonConfig;
 import no.nav.foreldrepenger.web.app.tjenester.RestImplementationClasses;
 import no.nav.vedtak.openapi.OpenApiUtils;
 import no.nav.vedtak.server.rest.AuthenticationFilter;
+import no.nav.vedtak.server.rest.GeneralRestExceptionMapper;
+import no.nav.vedtak.server.rest.ValidationExceptionMapper;
 import no.nav.vedtak.server.rest.jackson.Jackson2BasicFeature;
 
 @ApplicationPath(ApiConfig.API_URI)
@@ -30,6 +30,7 @@ public class ApiConfig extends Application {
     public static final String API_URI = "/api";
 
     public ApiConfig() {
+        GeneralRestExceptionMapper.setLegacyFrontendInternFeil(true);
         if (!ER_PROD) {
             registerOpenApi();
         }
@@ -57,7 +58,7 @@ public class ApiConfig extends Application {
         classes.add(AuthenticationFilter.class);
         classes.add(Jackson2BasicFeature.class);
         classes.add(JacksonJsonConfig.class);
-        classes.add(ConstraintViolationMapper.class);
+        classes.add(ValidationExceptionMapper.class);
         classes.add(GeneralRestExceptionMapper.class);
 
         return Collections.unmodifiableSet(classes);
