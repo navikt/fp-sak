@@ -4,6 +4,7 @@ import static no.nav.foreldrepenger.behandlingslager.kodeverk.Fagsystem.K9SAK;
 import static no.nav.foreldrepenger.domene.uttak.uttaksgrunnlag.fp.OppgittPeriodeUtil.finnesOverlapp;
 import static no.nav.foreldrepenger.domene.uttak.uttaksgrunnlag.fp.OppgittPeriodeUtil.slåSammenLikePerioder;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Comparator;
 import java.util.List;
@@ -36,7 +37,8 @@ final class PleiepengerJustering {
 
     static List<OppgittPeriodeEntitet> juster(AktørId aktørId,
                                               InntektArbeidYtelseGrunnlag inntektArbeidYtelseGrunnlag,
-                                              List<OppgittPeriodeEntitet> oppgittePerioder) {
+                                              List<OppgittPeriodeEntitet> oppgittePerioder,
+                                              LocalDate familieHendelseDato) {
         if (oppgittePerioder.isEmpty()) {
             LOG.info("Oppgitte perioder er empty. Justerer ikke for pleiepenger");
             return oppgittePerioder;
@@ -56,7 +58,7 @@ final class PleiepengerJustering {
             LOG.info("Behandlingen har vedtak om pleiepenger. Oppretter utsettelser");
         }
 
-        return combine(pleiepengerUtsettelser, oppgittePerioder);
+        return combine(pleiepengerUtsettelser, oppgittePerioder, familieHendelseDato);
     }
 
     static List<LocalDateSegment<PleiepengerUtsettelse>> pleiepengerUtsettelser(AktørId aktørId, InntektArbeidYtelseGrunnlag inntektArbeidYtelseGrunnlag) {
@@ -71,17 +73,19 @@ final class PleiepengerJustering {
     }
 
     static List<OppgittPeriodeEntitet> combine(List<LocalDateSegment<PleiepengerUtsettelse>> pleiepengerUtsettelser,
-                                               List<OppgittPeriodeEntitet> foreldrepenger) {
+                                               List<OppgittPeriodeEntitet> foreldrepenger,
+                                               LocalDate familieHendelseDato) {
         var foreldrepengerTimeline = oppgittPeriodeTimeline(foreldrepenger);
         var pleiepengerTimeline = new LocalDateTimeline<>(pleiepengerUtsettelser, PleiepengerJustering::slåSammenOverlappendePleiepenger);
         var førsteSøkteDag = foreldrepengerTimeline.getMinLocalDate();
         var sisteSøkteDag = foreldrepengerTimeline.getMaxLocalDate();
+        var startdato = familieHendelseDato.isBefore(førsteSøkteDag) ? familieHendelseDato : førsteSøkteDag;
         var fellesTimeline = foreldrepengerTimeline.union(pleiepengerTimeline,
             (interval, fp, pp) -> {
                 if (pp == null) {
                     return copy(interval, fp.getValue());
                 }
-                if (interval.getTomDato().isBefore(førsteSøkteDag) || interval.getFomDato().isAfter(sisteSøkteDag)) {
+                if (interval.getTomDato().isBefore(startdato) || interval.getFomDato().isAfter(sisteSøkteDag)) {
                     return null;
                 }
                 if (fp != null) {
