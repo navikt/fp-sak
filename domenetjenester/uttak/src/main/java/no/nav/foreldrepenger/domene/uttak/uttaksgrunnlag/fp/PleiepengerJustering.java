@@ -38,7 +38,8 @@ final class PleiepengerJustering {
     static List<OppgittPeriodeEntitet> juster(AktørId aktørId,
                                               InntektArbeidYtelseGrunnlag inntektArbeidYtelseGrunnlag,
                                               List<OppgittPeriodeEntitet> oppgittePerioder,
-                                              LocalDate familieHendelseDato) {
+                                              LocalDate familieHendelseDato,
+                                              LocalDate endringsdatoRevurdering) {
         if (oppgittePerioder.isEmpty()) {
             LOG.info("Oppgitte perioder er empty. Justerer ikke for pleiepenger");
             return oppgittePerioder;
@@ -58,7 +59,7 @@ final class PleiepengerJustering {
             LOG.info("Behandlingen har vedtak om pleiepenger. Oppretter utsettelser");
         }
 
-        return combine(pleiepengerUtsettelser, oppgittePerioder, familieHendelseDato);
+        return combine(pleiepengerUtsettelser, oppgittePerioder, familieHendelseDato, endringsdatoRevurdering);
     }
 
     static List<LocalDateSegment<PleiepengerUtsettelse>> pleiepengerUtsettelser(AktørId aktørId, InntektArbeidYtelseGrunnlag inntektArbeidYtelseGrunnlag) {
@@ -74,12 +75,16 @@ final class PleiepengerJustering {
 
     static List<OppgittPeriodeEntitet> combine(List<LocalDateSegment<PleiepengerUtsettelse>> pleiepengerUtsettelser,
                                                List<OppgittPeriodeEntitet> foreldrepenger,
-                                               LocalDate familieHendelseDato) {
+                                               LocalDate familieHendelseDato,
+                                               LocalDate endringsdatoRevurdering) {
         var foreldrepengerTimeline = oppgittPeriodeTimeline(foreldrepenger);
         var pleiepengerTimeline = new LocalDateTimeline<>(pleiepengerUtsettelser, PleiepengerJustering::slåSammenOverlappendePleiepenger);
         var førsteSøkteDag = foreldrepengerTimeline.getMinLocalDate();
         var sisteSøkteDag = foreldrepengerTimeline.getMaxLocalDate();
-        var startdato = familieHendelseDato.isBefore(førsteSøkteDag) ? familieHendelseDato : førsteSøkteDag;
+        var tidligsteStartdato = familieHendelseDato.isBefore(førsteSøkteDag) ? familieHendelseDato : førsteSøkteDag;
+        // Ved revurdering: perioder før endringsdato håndteres av prepend fra original behandling
+        var startdato = endringsdatoRevurdering != null && endringsdatoRevurdering.isAfter(tidligsteStartdato)
+            ? endringsdatoRevurdering : tidligsteStartdato;
         var fellesTimeline = foreldrepengerTimeline.union(pleiepengerTimeline,
             (interval, fp, pp) -> {
                 if (pp == null) {

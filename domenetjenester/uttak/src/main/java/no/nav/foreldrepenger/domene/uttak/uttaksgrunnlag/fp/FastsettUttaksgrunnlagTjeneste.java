@@ -101,7 +101,7 @@ public class FastsettUttaksgrunnlagTjeneste {
         }
         justertePerioder = slåSammenLikePerioder(justertePerioder);
         justertePerioder = fjernOppholdsperioderTilSluttForSammenhengendeUttak(justertePerioder);
-        justertePerioder = leggTilUtsettelserForPleiepenger(input, justertePerioder);
+        justertePerioder = leggTilUtsettelserForPleiepenger(input, justertePerioder, endringsdatoRevurdering);
         return new OppgittFordelingEntitet(kopier(justertePerioder), fordeling.getErAnnenForelderInformert(), fordeling.ønskerJustertVedFødsel());
     }
 
@@ -122,10 +122,10 @@ public class FastsettUttaksgrunnlagTjeneste {
         return fpGrunnlag.getFamilieHendelser().gjelderTerminFødsel();
     }
 
-    private List<OppgittPeriodeEntitet> leggTilUtsettelserForPleiepenger(UttakInput input, List<OppgittPeriodeEntitet> perioder) {
+    private List<OppgittPeriodeEntitet> leggTilUtsettelserForPleiepenger(UttakInput input, List<OppgittPeriodeEntitet> perioder, LocalDate endringsdatoRevurdering) {
         var fpGrunnlag = (ForeldrepengerGrunnlag) input.getYtelsespesifiktGrunnlag();
         var familieHendelseDato = fpGrunnlag.getFamilieHendelser().getGjeldendeFamilieHendelse().getFamilieHendelseDato();
-        return PleiepengerJustering.juster(input.getBehandlingReferanse().aktørId(), input.getIayGrunnlag(), perioder, familieHendelseDato);
+        return PleiepengerJustering.juster(input.getBehandlingReferanse().aktørId(), input.getIayGrunnlag(), perioder, familieHendelseDato, endringsdatoRevurdering);
     }
 
     private List<OppgittPeriodeEntitet> fjernOppholdsperioderTilSluttForSammenhengendeUttak(List<OppgittPeriodeEntitet> perioder) {
