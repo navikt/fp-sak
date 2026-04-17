@@ -24,6 +24,7 @@ public class BeregningTjenesteInMemory implements BeregningTjeneste {
     private final Map<UUID, BeregningsgrunnlagGrunnlag> inMemoryBeregningsgrunlagLagring = new LinkedHashMap<>();
 
     public BeregningTjenesteInMemory() {
+        // Plattform trenger tom Ctor (Hibernate, CDI, etc)
     }
 
 

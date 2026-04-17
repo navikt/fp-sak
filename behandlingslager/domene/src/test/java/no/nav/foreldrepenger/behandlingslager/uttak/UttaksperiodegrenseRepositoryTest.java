@@ -19,7 +19,7 @@ class UttaksperiodegrenseRepositoryTest extends EntityManagerAwareTest {
     private UttaksperiodegrenseRepository uttaksperiodegrenseRepository;
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         var entityManager = getEntityManager();
         uttaksperiodegrenseRepository = new UttaksperiodegrenseRepository(entityManager);
     }

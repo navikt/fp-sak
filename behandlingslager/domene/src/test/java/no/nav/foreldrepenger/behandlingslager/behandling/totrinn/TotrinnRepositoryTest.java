@@ -29,7 +29,7 @@ class TotrinnRepositoryTest extends EntityManagerAwareTest {
     private EntityManager entityManager;
 
     @BeforeEach
-    public void setup() {
+    void setup() {
         entityManager = getEntityManager();
         fagsakRepository = new FagsakRepository(entityManager);
         behandlingRepository = new BehandlingRepository(entityManager);

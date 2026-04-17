@@ -45,7 +45,7 @@ class RegistrerSøknadStegTest extends EntityManagerAwareTest {
     private RegistrerSøknadSteg steg;
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         behandlingRepository = new BehandlingRepository(getEntityManager());
         fagsakRepository = new FagsakRepository(getEntityManager());
         mottatteDokumentRepository = new MottatteDokumentRepository(getEntityManager());

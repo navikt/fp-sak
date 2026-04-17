@@ -32,7 +32,7 @@ class FpUttakRepositoryTest extends EntityManagerAwareTest {
     private FpUttakRepository fpUttakRepository;
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         fpUttakRepository = new FpUttakRepository(getEntityManager());
     }
 

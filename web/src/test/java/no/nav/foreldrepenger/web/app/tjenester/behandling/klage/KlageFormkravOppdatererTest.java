@@ -66,7 +66,7 @@ class KlageFormkravOppdatererTest extends EntityManagerAwareTest {
     private HistorikkinnslagRepository historikkinnslagRepository;
 
     @BeforeEach
-    public void setup() {
+    void setup() {
         repositoryProvider = new BehandlingRepositoryProvider(getEntityManager());
         BehandlingRepository behandlingRepository = repositoryProvider.getBehandlingRepository();
         klageRepository = new KlageRepository(getEntityManager());

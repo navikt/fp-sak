@@ -2,7 +2,6 @@ package no.nav.foreldrepenger.web.app.tjenester.behandling.vedtak.aksjonspunkt;
 
 import java.util.Set;
 
-import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;

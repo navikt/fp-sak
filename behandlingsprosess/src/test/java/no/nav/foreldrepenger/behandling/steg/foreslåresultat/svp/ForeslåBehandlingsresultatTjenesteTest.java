@@ -67,7 +67,7 @@ class ForeslåBehandlingsresultatTjenesteTest extends EntityManagerAwareTest {
     private BehandlingVedtakRepository behandlingVedtakRepository;
 
     @BeforeEach
-    public void setup() {
+    void setup() {
         var entityManager = getEntityManager();
         repositoryProvider = new BehandlingRepositoryProvider(entityManager);
         var grunnlagRepositoryProvider = new BehandlingGrunnlagRepositoryProvider(entityManager);

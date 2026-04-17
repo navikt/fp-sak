@@ -41,7 +41,7 @@ class VurderSøknadsfristStegTest extends EntityManagerAwareTest {
     private FamilieHendelseRepository familieHendelseRepository;
 
     @BeforeEach
-    public void setup() {
+    void setup() {
         var entityManager = getEntityManager();
         behandlingRepositoryProvider = new BehandlingRepositoryProvider(entityManager);
         behandlingRepository = new BehandlingRepository(entityManager);

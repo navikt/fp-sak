@@ -67,7 +67,7 @@ class ForeslåBehandlingsresultatTjenesteTest extends EntityManagerAwareTest {
     private final BeregningTjeneste beregningTjeneste = mock(BeregningTjeneste.class);
 
     @BeforeEach
-    public void setup() {
+    void setup() {
         when(beregningTjeneste.hent(any())).thenReturn(Optional.empty());
         var entityManager = getEntityManager();
         repositoryProvider = new BehandlingRepositoryProvider(entityManager);

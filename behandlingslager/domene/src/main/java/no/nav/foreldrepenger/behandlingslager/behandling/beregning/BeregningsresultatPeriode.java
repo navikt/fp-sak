@@ -59,6 +59,7 @@ public class BeregningsresultatPeriode extends BaseEntitet {
     private DatoIntervallEntitet periode;
 
     public BeregningsresultatPeriode() {
+        // For Hibernate
     }
 
     public Long getId() {

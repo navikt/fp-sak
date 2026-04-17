@@ -28,11 +28,10 @@ class SvangerskapspengerUttakResultatRepositoryTest extends EntityManagerAwareTe
     private SvangerskapspengerUttakResultatRepository svangerskapspengerUttakResultatRepository;
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         var entityManager = getEntityManager();
         behandlingsresultatRepository = new BehandlingsresultatRepository(entityManager);
         svangerskapspengerUttakResultatRepository = new SvangerskapspengerUttakResultatRepository(entityManager);
-
     }
 
     @Test

@@ -4,7 +4,6 @@ package no.nav.foreldrepenger.domene.rest.dto.fordeling;
 import java.time.LocalDate;
 import java.util.UUID;
 
-import jakarta.validation.Valid;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;

@@ -87,7 +87,7 @@ class VedtaksHendelseHåndtererTest extends EntityManagerAwareTest {
     private static final int DAGSATS = 442;
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         repositoryProvider = new BehandlingRepositoryProvider(getEntityManager());
         beregningsresultatRepository = new BeregningsresultatRepository(getEntityManager());
         overlappInfotrygdRepository = new OverlappVedtakRepository(getEntityManager());

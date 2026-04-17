@@ -17,7 +17,7 @@ import no.nav.foreldrepenger.familiehendelse.FamilieHendelseTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.fødsel.dto.FødselDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.fødsel.dto.Kilde;
 
-public class FaktaFødselTjenesteTest extends EntityManagerAwareTest {
+class FaktaFødselTjenesteTest extends EntityManagerAwareTest {
     private static final LocalDate FØDSELSDATO = LocalDate.now();
     private static final LocalDate TERMINDATO = LocalDate.now();
     private static final LocalDate UTSTEDTDATO = LocalDate.now().minusMonths(1);

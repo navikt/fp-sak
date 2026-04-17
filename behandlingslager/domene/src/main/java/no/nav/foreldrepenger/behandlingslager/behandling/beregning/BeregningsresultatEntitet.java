@@ -47,6 +47,7 @@ public class BeregningsresultatEntitet extends BaseEntitet {
     private String regelVersjon;
 
     public BeregningsresultatEntitet() {
+        // For Hibernate
     }
 
     public Long getId() {

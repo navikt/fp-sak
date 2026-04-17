@@ -13,13 +13,13 @@ import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.Skjermlenke
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
 
-public class HistorikkinnslagRepositoryTest extends EntityManagerAwareTest {
+class HistorikkinnslagRepositoryTest extends EntityManagerAwareTest {
     private BasicBehandlingBuilder basicBehandlingBuilder;
     private HistorikkinnslagRepository repository;
     private Historikkinnslag historikkinnslag;
 
     @BeforeEach
-    public void setup() {
+    void setup() {
         var entityManager = getEntityManager();
         basicBehandlingBuilder = new BasicBehandlingBuilder(entityManager);
         repository = new HistorikkinnslagRepository(entityManager);

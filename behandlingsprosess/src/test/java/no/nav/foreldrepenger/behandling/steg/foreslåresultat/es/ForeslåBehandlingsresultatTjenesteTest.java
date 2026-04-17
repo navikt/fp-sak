@@ -34,7 +34,7 @@ class ForeslåBehandlingsresultatTjenesteTest extends EntityManagerAwareTest {
     private ForeslåBehandlingsresultatTjenesteES foreslåVedtaTjenesteES;
 
     @BeforeEach
-    public void setup() {
+    void setup() {
         repositoryProvider = new BehandlingRepositoryProvider(getEntityManager());
         doReturn(false).when(revurderingEndring).erRevurderingMedUendretUtfall(any(), any());
         behandlingRepository = repositoryProvider.getBehandlingRepository();
