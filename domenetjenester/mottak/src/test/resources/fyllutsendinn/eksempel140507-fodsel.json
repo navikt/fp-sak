@@ -1,0 +1,56 @@
+{
+  "language": "nb",
+  "data": {
+    "data": {
+      "jegHarLestOgForstattDetSomStarPaNavNoRettogplikt": true,
+      "deOpplysningerJegHarOppgittErRiktigeOgJegHarIkkeHoldtTilbakeOpplysningerSomHarBetydningForMinRettTilEngangsstonad": true,
+      "fornavnSoker": "Tørr",
+      "etternavnSoker": "Telegram",
+      "fodselsnummerDNummerSoker": "04410577041",
+      "hvaSokerDuOm": "engangsstonadVedFodsel",
+      "narErBarnetFodt": "tilbakeITid",
+      "leggTilBarnetEllerBarnasFodselsdato": [
+        {
+          "fodselsdatoDdMmAaaa": "2026-04-01"
+        }
+      ],
+      "antallBarn": 2,
+      "planleggerDuAVaereINorgePaFodselstidspunktet1": "ja",
+      "hvorSkalDuBoDeNeste12Manedene": "kunBoINorge",
+      "hvorHarDuBoddDeSiste12Manedene": "boddIUtlandetHeltEllerDelvis",
+      "utenlandsopphold1": [
+        {
+          "fraDatoDdMmAaaa": "2025-12-01",
+          "hvilketLandBoddeDuI": "SE",
+          "tilDatoDdMmAaaa": "2025-12-31"
+        }
+      ],
+      "harDuTilleggsopplysningerSomErRelevantForSoknaden": "nei"
+    },
+    "attachments": [
+      {
+        "attachmentId": "personal-id",
+        "navId": "personal-id",
+        "type": "personal-id",
+        "value": "nationalIdEU",
+        "title": "Nasjonalt ID-kort fra EU/EØS-land og Sveits",
+        "files": [
+          {
+            "fileId": "3320d5d9-5816-4169-acb5-1d8fe0b14820",
+            "attachmentId": "personal-id",
+            "innsendingId": "f35a8e43-994b-4e95-9368-d8354a1a6d86",
+            "fileName": "Screenshot 2025-10-31 at 11.24.04.png",
+            "size": 73409
+          }
+        ]
+      },
+      {
+        "attachmentId": "es3i5y9h",
+        "navId": "es3i5y9h",
+        "type": "other",
+        "value": "nei",
+        "files": []
+      }
+    ]
+  }
+}

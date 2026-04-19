@@ -1,0 +1,60 @@
+{
+  "language": "nb",
+  "data": {
+    "data": {
+      "jegHarLestOgForstattDetSomStarPaNavNoRettogplikt": true,
+      "deOpplysningerJegHarOppgittErRiktigeOgJegHarIkkeHoldtTilbakeOpplysningerSomHarBetydningForMinRettTilEngangsstonad": true,
+      "fornavnSoker": "Iherdig",
+      "etternavnSoker": "Hestedrosje",
+      "fodselsnummerDNummerSoker": "08480594097",
+      "hvaSokerDuOm": "engangsstonadVedFodsel",
+      "narErBarnetFodt": "fremITid",
+      "antallBarn": 1,
+      "termindatoDdMmAaaa": "2026-05-17",
+      "planleggerDuAVaereINorgePaFodselstidspunktet1": "ja",
+      "hvorSkalDuBoDeNeste12Manedene": "kunBoINorge",
+      "hvorHarDuBoddDeSiste12Manedene": "kunBoddINorge",
+      "harDuTilleggsopplysningerSomErRelevantForSoknaden": "nei"
+    },
+    "attachments": [
+      {
+        "attachmentId": "personal-id",
+        "navId": "personal-id",
+        "type": "personal-id",
+        "value": "driversLicense",
+        "title": "Norsk førerkort utstedt fra og med 01.01.1998",
+        "files": [
+          {
+            "fileId": "c2275d71-53ed-4466-b391-36f1c9456f40",
+            "attachmentId": "personal-id",
+            "innsendingId": "c2aecbfd-e1e9-40cb-a2b5-27e496949425",
+            "fileName": "microsystems.png",
+            "size": 29263
+          }
+        ]
+      },
+      {
+        "attachmentId": "ev6045b",
+        "navId": "ev6045b",
+        "type": "default",
+        "value": "leggerVedNaa",
+        "files": [
+          {
+            "fileId": "746cb5f9-7faa-48ac-8ce3-e00ea7e360e1",
+            "attachmentId": "ev6045b",
+            "innsendingId": "c2aecbfd-e1e9-40cb-a2b5-27e496949425",
+            "fileName": "Screenshot 2025-10-31 at 11.27.58.png",
+            "size": 89099
+          }
+        ]
+      },
+      {
+        "attachmentId": "es3i5y9h",
+        "navId": "es3i5y9h",
+        "type": "other",
+        "value": "nei",
+        "files": []
+      }
+    ]
+  }
+}
