@@ -2,16 +2,7 @@ package no.nav.foreldrepenger.mottak.fyllutsendinn;
 
 import java.util.List;
 
-public class SubmissionData<T> {
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
 
-    private T data;
-    private List<Attachment> attachments;
-
-    public SubmissionData() {}
-
-    public T getData() { return data; }
-    public void setData(T data) { this.data = data; }
-
-    public List<Attachment> getAttachments() { return attachments; }
-    public void setAttachments(List<Attachment> attachments) { this.attachments = attachments; }
-}
+public record SubmissionData<T>(@Valid @NotNull T data, List<@Valid Attachment> attachments) {}
