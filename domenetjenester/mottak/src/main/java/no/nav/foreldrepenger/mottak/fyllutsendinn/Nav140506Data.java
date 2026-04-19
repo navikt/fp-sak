@@ -10,7 +10,6 @@ import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
-import com.fasterxml.jackson.annotation.JsonEnumDefaultValue;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 
@@ -20,30 +19,30 @@ public record Nav140506Data(
     DineOpplysninger1 dineOpplysninger1,
     @NotNull HvemErDu hvemErDu,
     @NotNull HvorLangPeriodeMedForeldrepengerOnskerDu hvorLangPeriodeMedForeldrepengerOnskerDu,
-    @NotNull JaNei gjelderSoknadenDinStebarnsadopsjon,
+    JaNei gjelderSoknadenDinStebarnsadopsjon,
     LocalDate oppgiDatoenForStebarnsadopsjonDdMmAaaa,
     LocalDate narOvertarDuOmsorgenDdMmAaaa,
     LocalDate datoForOmsorgsovertakelseDdMmAaaa,
     @NotNull @Min(1) @Max(9) Integer hvorMangeBarnSkalDuAdoptere,
     Integer hvorMangeBarnOvertarDuOmsorgenFor,
     @NotNull LocalDate narBleDetEldsteBarnetFodtDdMmAaaa,
-    @NotNull LocalDate narBleDetEldsteBarnetFodtDdMmAaaa1,
+    LocalDate narBleDetEldsteBarnetFodtDdMmAaaa1,
     @NotNull JaNei kanDuGiOssNavnetPaDenAndreForelderen,
-    @NotNull String fornavn,
-    @NotNull String etternavn,
-    @NotNull JaNei harDenAndreForelderenNorskFodselsnummerEllerDNummer,
+    String fornavn,
+    String etternavn,
+    JaNei harDenAndreForelderenNorskFodselsnummerEllerDNummer,
     String hvaErDenAndreForelderensFodselsnummerEllerDNummer,
     String hvaErDenAndreForelderensUtenlandskeFodselsnummer,
     String hvorBorDenAndreForelderen,
-    @NotNull JaNei erDuAleneOmOmsorgenAvBarnet,
+    JaNei erDuAleneOmOmsorgenAvBarnet,
     JaNei harDenAndreForelderenRettTilForeldrepenger,
     JaNei harDenAndreForelderenOppholdtSegFastIEtAnnetEosLandEnnNorgeEttArForBarnetBleFodt,
     JaNei harDenAndreForelderenArbeidetEllerMottattPengestotteIEtEosLandIMinstSeksAvDeSisteTiManedeneForBarnetBleFodt,
-    @NotNull JaNei harDenAndreForelderenUforetrygd,
+    JaNei harDenAndreForelderenUforetrygd,
     JaNei harDuOrientertDenAndreForelderenOmSoknadenDin,
     @Valid Mor mor,
-    @Valid @NotNull HvilkenPeriodeSkalDuTaUtFar hvilkenPeriodeSkalDuTaUtFar,
-    @Valid @NotNull HvilkenPeriodeSkalDuTaUtMedmor hvilkenPeriodeSkalDuTaUtMedmor,
+    @Valid HvilkenPeriodeSkalDuTaUtFar hvilkenPeriodeSkalDuTaUtFar,
+    @Valid HvilkenPeriodeSkalDuTaUtMedmor hvilkenPeriodeSkalDuTaUtMedmor,
     List<@Valid ModrekvoteRow> modrekvote,
     List<@Valid FedrekvoteRow> fedrekvote,
     List<@Valid MedmorkvoteRow> medmorkvote,
@@ -59,24 +58,24 @@ public record Nav140506Data(
     List<@Valid LeggTilUtenlandsoppholdForDeNeste12ManedeneRow> leggTilUtenlandsoppholdForDeNeste12Manedene,
     @NotNull HvorHarDuBoddDeSiste12Manedene hvorHarDuBoddDeSiste12Manedene,
     List<@Valid LeggTilUtenlandsoppholdForDeSiste12ManedeneRow> leggTilUtenlandsoppholdForDeSiste12Manedene,
-    @NotNull JaNei harDuArbeidsforholdINorge,
+    JaNei harDuArbeidsforholdINorge,
     @NotNull JaNei harDuJobbetOgHattInntektSomFrilanserDeSiste10Manedene,
     @Valid Frilanser frilanser,
     @NotNull JaNei harDuJobbetOgHattInntektSomSelvstendigNaeringsdrivendeDeSiste10Manedene,
-    @NotNull HvilkenTypeVirksomhetDriverDu hvilkenTypeVirksomhetDriverDu,
-    @NotNull String hvaHeterVirksomhetenDin,
-    @NotNull LocalDate narStartetDuVirksomhetenDdMmAaaa,
-    @NotNull JaNei erVirksomhetenDinRegistrertINorge,
+    HvilkenTypeVirksomhetDriverDu hvilkenTypeVirksomhetDriverDu,
+    String hvaHeterVirksomhetenDin,
+    LocalDate narStartetDuVirksomhetenDdMmAaaa,
+    JaNei erVirksomhetenDinRegistrertINorge,
     String virksomhetensOrganisasjonsnummer1,
     String hvilketLandErVirksomhetenRegistrertI,
-    @NotNull JaNei erDuFremdelesSelvstendigNaeringsdrivende,
+    JaNei erDuFremdelesSelvstendigNaeringsdrivende,
     LocalDate datoForAvsluttetNaeringsdriftDdMmAaaa,
-    @NotNull HvorLengeHarDuVaertSelvstendigNaeringsdrivende hvorLengeHarDuVaertSelvstendigNaeringsdrivende,
+    HvorLengeHarDuVaertSelvstendigNaeringsdrivende hvorLengeHarDuVaertSelvstendigNaeringsdrivende,
     BigDecimal hvaHarDuHattINaeringsresultatForSkattFraDuStartetOppVirksomheten,
     BigDecimal hvaHarDuHattINaeringsresultatForSkattDeSiste12Manedene,
     JaNei harDuBlittYrkesaktivILopetAvDetSisteAret,
     JaNei harDuBlittYrkesaktivILopetAvDe3SisteFerdiglignedeArene,
-    @NotNull LocalDate narBleDuYrkesaktivDdMmAaaa,
+    LocalDate narBleDuYrkesaktivDdMmAaaa,
     JaNei harDuHattEnVarigEndringIArbeidsforholdetDitt,
     @Valid VarigEndring varigEndring,
     @Valid AndreInntektskilder andreInntektskilder
@@ -90,18 +89,14 @@ public record Nav140506Data(
         @JsonProperty("medmor")
         MEDMOR,
         @JsonProperty("jegHarOvertattForeldreansvaret")
-        JEG_HAR_OVERTATT_FORELDREANSVARET,
-        @JsonEnumDefaultValue
-        UDEFINERT;
+        JEG_HAR_OVERTATT_FORELDREANSVARET;
     }
 
     public enum HvorLangPeriodeMedForeldrepengerOnskerDu {
         @JsonProperty("100ProsentForeldrepenger")
         _100_PROSENT_FORELDREPENGER,
         @JsonProperty("80ProsentForeldrepenger")
-        _80_PROSENT_FORELDREPENGER,
-        @JsonEnumDefaultValue
-        UDEFINERT;
+        _80_PROSENT_FORELDREPENGER;
     }
 
     public enum HvaSkalMorGjoreIDennePerioden {
@@ -120,18 +115,14 @@ public record Nav140506Data(
         @JsonProperty("innlagtPaHelseinstitusjon")
         INNLAGT_PA_HELSEINSTITUSJON,
         @JsonProperty("brukerDagerFraFlerbarnsukene")
-        BRUKER_DAGER_FRA_FLERBARNSUKENE,
-        @JsonEnumDefaultValue
-        UDEFINERT;
+        BRUKER_DAGER_FRA_FLERBARNSUKENE;
     }
 
     public enum SkalDuTaUtForeldrepenger {
         @JsonProperty("ja")
         JA,
         @JsonProperty("neiJegSkalHaOppholdIForeldrepengeneMine")
-        NEI_JEG_SKAL_HA_OPPHOLD_I_FORELDREPENGENE_MINE,
-        @JsonEnumDefaultValue
-        UDEFINERT;
+        NEI_JEG_SKAL_HA_OPPHOLD_I_FORELDREPENGENE_MINE;
     }
 
     public enum HvaSkalMorGjoreIDennePeriodenOpphold {
@@ -148,36 +139,28 @@ public record Nav140506Data(
         @JsonProperty("forSykTilATaSegAvBarnet")
         FOR_SYK_TIL_A_TA_SEG_AV_BARNET,
         @JsonProperty("innlagtPaHelseinstitusjon")
-        INNLAGT_PA_HELSEINSTITUSJON,
-        @JsonEnumDefaultValue
-        UDEFINERT;
+        INNLAGT_PA_HELSEINSTITUSJON;
     }
 
     public enum HvorforSkalDuOvertaKvoten {
         @JsonProperty("denAndreForelderenErForSykTilATaSegAvBarnet")
         DEN_ANDRE_FORELDEREN_ER_FOR_SYK_TIL_A_TA_SEG_AV_BARNET,
         @JsonProperty("denAndreForelderenErInnlagtPaHelseinstitusjon")
-        DEN_ANDRE_FORELDEREN_ER_INNLAGT_PA_HELSEINSTITUSJON,
-        @JsonEnumDefaultValue
-        UDEFINERT;
+        DEN_ANDRE_FORELDEREN_ER_INNLAGT_PA_HELSEINSTITUSJON;
     }
 
     public enum HvorSkalDuBoDeNeste12Manedene {
         @JsonProperty("kunBoINorge")
         KUN_BO_I_NORGE,
         @JsonProperty("boIUtlandetHeltEllerDelvis")
-        BO_I_UTLANDET_HELT_ELLER_DELVIS,
-        @JsonEnumDefaultValue
-        UDEFINERT;
+        BO_I_UTLANDET_HELT_ELLER_DELVIS;
     }
 
     public enum HvorHarDuBoddDeSiste12Manedene {
         @JsonProperty("kunBoddINorge")
         KUN_BODD_I_NORGE,
         @JsonProperty("boddIUtlandetHeltEllerDelvis")
-        BODD_I_UTLANDET_HELT_ELLER_DELVIS,
-        @JsonEnumDefaultValue
-        UDEFINERT;
+        BODD_I_UTLANDET_HELT_ELLER_DELVIS;
     }
 
     public enum HvilkenTypeVirksomhetDriverDu {
@@ -188,9 +171,7 @@ public record Nav140506Data(
         @JsonProperty("dagmammaEllerFamiliebarnehageIEgetHjem")
         DAGMAMMA_ELLER_FAMILIEBARNEHAGE_I_EGET_HJEM,
         @JsonProperty("annenTypeVirksomhet")
-        ANNEN_TYPE_VIRKSOMHET,
-        @JsonEnumDefaultValue
-        UDEFINERT;
+        ANNEN_TYPE_VIRKSOMHET;
     }
 
     public enum HvorLengeHarDuVaertSelvstendigNaeringsdrivende {
@@ -199,9 +180,7 @@ public record Nav140506Data(
         @JsonProperty("mellom1Og4Ar")
         MELLOM_1_OG_4_AR,
         @JsonProperty("merEnn4Ar")
-        MER_ENN_4_AR,
-        @JsonEnumDefaultValue
-        UDEFINERT;
+        MER_ENN_4_AR;
     }
 
     public enum VelgInntektstype {
@@ -210,9 +189,7 @@ public record Nav140506Data(
         @JsonProperty("sluttvederlagSluttpakkeEllerEtterlonn")
         SLUTTVEDERLAG_SLUTTPAKKE_ELLER_ETTERLONN,
         @JsonProperty("forstegangstjenesteIForsvaretEllerSivilforsvaret")
-        FORSTEGANGSTJENESTE_I_FORSVARET_ELLER_SIVILFORSVARET,
-        @JsonEnumDefaultValue
-        UDEFINERT;
+        FORSTEGANGSTJENESTE_I_FORSVARET_ELLER_SIVILFORSVARET;
     }
 
     public record Mor(
