@@ -8,7 +8,6 @@ import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 
-import com.fasterxml.jackson.annotation.JsonEnumDefaultValue;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 
@@ -38,36 +37,28 @@ public record Nav140507Data(
         @JsonProperty("engangsstonadVedFodsel")
         ENGANGSSTONAD_VED_FODSEL,
         @JsonProperty("engangsstonadVedOvertakelseAvForeldreansvaretEllerOmsorgen")
-        ENGANGSSTONAD_VED_OVERTAKELSE_AV_FORELDREANSVARET_ELLER_OMSORGEN,
-        @JsonEnumDefaultValue
-        UDEFINERT;
+        ENGANGSSTONAD_VED_OVERTAKELSE_AV_FORELDREANSVARET_ELLER_OMSORGEN;
     }
 
     public enum NarErBarnetFodt {
         @JsonProperty("tilbakeITid")
         TILBAKE_I_TID,
         @JsonProperty("fremITid")
-        FREM_I_TID,
-        @JsonEnumDefaultValue
-        UDEFINERT;
+        FREM_I_TID;
     }
 
     public enum HvorSkalDuBoDeNeste12Manedene {
         @JsonProperty("boIUtlandetHeltEllerDelvis")
         BO_I_UTLANDET_HELT_ELLER_DELVIS,
         @JsonProperty("kunBoINorge")
-        KUN_BO_I_NORGE,
-        @JsonEnumDefaultValue
-        UDEFINERT;
+        KUN_BO_I_NORGE;
     }
 
     public enum HvorHarDuBoddDeSiste12Manedene {
         @JsonProperty("boddIUtlandetHeltEllerDelvis")
         BODD_I_UTLANDET_HELT_ELLER_DELVIS,
         @JsonProperty("kunBoddINorge")
-        KUN_BODD_I_NORGE,
-        @JsonEnumDefaultValue
-        UDEFINERT;
+        KUN_BODD_I_NORGE;
     }
 
     public record LeggTilBarnetEllerBarnasFodselsdatoRow(LocalDate fodselsdatoDdMmAaaa) {

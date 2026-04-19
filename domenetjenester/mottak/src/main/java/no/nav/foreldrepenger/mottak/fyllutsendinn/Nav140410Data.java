@@ -6,7 +6,6 @@ import java.util.List;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 
-import com.fasterxml.jackson.annotation.JsonEnumDefaultValue;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 
@@ -18,19 +17,19 @@ public record Nav140410Data(
     @NotNull HvorSkalDuBoDeNeste12Manedene hvorSkalDuBoDeNeste12Manedene,
     @Valid Utenlandsopphold1 utenlandsopphold1,
     @NotNull JaNei harDuJobbetOgHattInntektSomFrilanserDeSiste10Manedene,
-    @NotNull LocalDate narStartetDuSomFrilanserDdMmAaaa,
-    @NotNull JaNei jobberDuFortsattSomFrilanser,
+    LocalDate narStartetDuSomFrilanserDdMmAaaa,
+    JaNei jobberDuFortsattSomFrilanser,
     LocalDate narSluttetDuSomFrilanserDdMmAaaa,
     @NotNull JaNei harDuJobbetOgHattInntektSomSelvstendigNaeringsdrivendeDeSiste10Manedene,
-    @NotNull HvilkenTypeVirksomhetDriverDu hvilkenTypeVirksomhetDriverDu,
-    @NotNull String hvaHeterVirksomhetenDin,
-    @NotNull LocalDate narStartetDuNaeringenDdMmAaaa,
-    @NotNull JaNei erTestRegistrertINorge,
+    HvilkenTypeVirksomhetDriverDu hvilkenTypeVirksomhetDriverDu,
+    String hvaHeterVirksomhetenDin,
+    LocalDate narStartetDuNaeringenDdMmAaaa,
+    JaNei erTestRegistrertINorge,
     String virksomhetensOrganisasjonsnummer,
     String landvelger,
-    @NotNull JaNei erDetteEnVirksomhetDuDriverNa,
+    JaNei erDetteEnVirksomhetDuDriverNa,
     LocalDate oppgiSluttdatoForNaeringenDdMmAaaa,
-    @NotNull HvorLengeHarDuHattDenneVirksomheten hvorLengeHarDuHattDenneVirksomheten,
+    HvorLengeHarDuHattDenneVirksomheten hvorLengeHarDuHattDenneVirksomheten,
     Integer hvaHarDuHattINaeringsresultatForSkattDeSiste12Manedene,
     JaNei harDuBlittYrkesaktivILopetAvDe3SisteFerdigliknendeArene,
     LocalDate narBleDuYrkesaktivDdMmAaaa,
@@ -39,11 +38,11 @@ public record Nav140410Data(
     Integer oppgiNaeringsinntektenDinEtterEndringen,
     String herKanDuSkriveKortOmHvaSomHarEndretSegIArbeidsforholdetDittVirksomhetenEllerArbeidssituasjonenDin,
     @NotNull JaNei harDuHattJobbIEuEosLandDeSiste10Manedene,
-    @NotNull LocalDate fraHvilkenDatoHarDuHattJobbIEuEosLandDdMmAaaa,
-    @NotNull JaNei erDetEnJobbDuHarPerIDag,
+    LocalDate fraHvilkenDatoHarDuHattJobbIEuEosLandDdMmAaaa,
+    JaNei erDetEnJobbDuHarPerIDag,
     LocalDate tilHvilkenDatoHarDuHattJobbIEuEosLandDdMmAaaa,
-    @NotNull HvilketLandJobbetDuI hvilketLandJobbetDuI,
-    @NotNull String oppgiNavnetPaArbeidsgiveren,
+    HvilketLandJobbetDuI hvilketLandJobbetDuI,
+    String oppgiNavnetPaArbeidsgiveren,
     @Valid @NotNull HvorSkalDuSokeOmSvangerskapspengerFra hvorSkalDuSokeOmSvangerskapspengerFra,
     @NotNull LocalDate narHarDuTermindatoDdMmAaaa,
     @NotNull JaNei erBarnetFodt,
@@ -60,18 +59,14 @@ public record Nav140410Data(
         @JsonProperty("jegHarKunBoddINorge")
         JEG_HAR_KUN_BODD_I_NORGE,
         @JsonProperty("jegHarBoddIUtlandetHeltEllerDelvis")
-        JEG_HAR_BODD_I_UTLANDET_HELT_ELLER_DELVIS,
-        @JsonEnumDefaultValue
-        UDEFINERT;
+        JEG_HAR_BODD_I_UTLANDET_HELT_ELLER_DELVIS;
     }
 
     public enum HvorSkalDuBoDeNeste12Manedene {
         @JsonProperty("jegSkalKunBoINorge")
         JEG_SKAL_KUN_BO_I_NORGE,
         @JsonProperty("jegSkalBoIUtlandetHeltEllerDelvis")
-        JEG_SKAL_BO_I_UTLANDET_HELT_ELLER_DELVIS,
-        @JsonEnumDefaultValue
-        UDEFINERT;
+        JEG_SKAL_BO_I_UTLANDET_HELT_ELLER_DELVIS;
     }
 
     public enum HvilkenTypeVirksomhetDriverDu {
@@ -82,18 +77,14 @@ public record Nav140410Data(
         @JsonProperty("dagmammaEllerFamiliebarnehageIEgetHjem")
         DAGMAMMA_ELLER_FAMILIEBARNEHAGE_I_EGET_HJEM,
         @JsonProperty("annenTypeVirksomhet")
-        ANNEN_TYPE_VIRKSOMHET,
-        @JsonEnumDefaultValue
-        UDEFINERT;
+        ANNEN_TYPE_VIRKSOMHET;
     }
 
     public enum HvorLengeHarDuHattDenneVirksomheten {
         @JsonProperty("under4Ar")
         UNDER_4_AR,
         @JsonProperty("4ArEllerMer")
-        _4_AR_ELLER_MER,
-        @JsonEnumDefaultValue
-        UDEFINERT;
+        _4_AR_ELLER_MER;
     }
 
     public enum HvilketLandJobbetDuI {
@@ -158,9 +149,7 @@ public record Nav140410Data(
         @JsonProperty("ungarn")
         UNGARN,
         @JsonProperty("osterrike")
-        OSTERRIKE,
-        @JsonEnumDefaultValue
-        UDEFINERT;
+        OSTERRIKE;
     }
 
     public record Utenlandsopphold(

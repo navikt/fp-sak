@@ -4,6 +4,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.LocalDate;
 
+import jakarta.validation.Validation;
+import jakarta.validation.Validator;
+
 import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -11,6 +14,14 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import no.nav.vedtak.mapper.json.DefaultJsonMapper;
 
 class LesJournalførtFyllUtTest {
+
+    private static final Validator VALIDATOR;
+
+    static {
+        try (var factory = Validation.buildDefaultValidatorFactory()) {
+            VALIDATOR = factory.getValidator();
+        }
+    }
 
     @Test
     void les_engangsstonad_fodsel_eksempel140507_termin() throws Exception {
@@ -20,11 +31,11 @@ class LesJournalførtFyllUtTest {
                 .readerFor(new TypeReference<FormSubmission<Nav140507Data>>() {})
                 .readValue(inputStream);
 
-            // Verify top-level structure
             assertThat(submission).isNotNull();
             assertThat(submission.language()).isEqualTo("nb");
             assertThat(submission.data()).isNotNull();
-            assertThat(submission.data().data()).isNotNull();
+
+            assertThat(VALIDATOR.validate(submission.data().data())).isEmpty();
 
             // Verify data is correct type
             var data = submission.data().data();
@@ -57,7 +68,6 @@ class LesJournalførtFyllUtTest {
             assertThat(data.harDuTilleggsopplysningerSomErRelevantForSoknaden()).isEqualTo(JaNei.NEI);
 
             // Verify attachments
-            assertThat(submission.data().attachments()).isNotNull();
             assertThat(submission.data().attachments()).hasSize(3);
 
             var personalIdAttachment = submission.data().attachments().getFirst();
@@ -96,11 +106,11 @@ class LesJournalførtFyllUtTest {
                 .readerFor(new TypeReference<FormSubmission<Nav140507Data>>() {})
                 .readValue(inputStream);
 
-            // Verify top-level structure
             assertThat(submission).isNotNull();
             assertThat(submission.language()).isEqualTo("nb");
             assertThat(submission.data()).isNotNull();
-            assertThat(submission.data().data()).isNotNull();
+
+            assertThat(VALIDATOR.validate(submission.data().data())).isEmpty();
 
             // Verify data is correct type
             var data = submission.data().data();
@@ -136,11 +146,12 @@ class LesJournalførtFyllUtTest {
             var utenlandsopphold = data.utenlandsopphold1().getFirst();
             assertThat(utenlandsopphold.fraDatoDdMmAaaa()).isEqualTo(LocalDate.of(2025, 12, 1));
             assertThat(utenlandsopphold.tilDatoDdMmAaaa()).isEqualTo(LocalDate.of(2025, 12, 31));
+            // TODO - avsjekk med FUtSInn om landvelger - kan være et objekt med value / label
+            assertThat(utenlandsopphold.hvilketLandBoddeDuI()).isEqualTo("SE");
 
             assertThat(data.harDuTilleggsopplysningerSomErRelevantForSoknaden()).isEqualTo(JaNei.NEI);
 
             // Verify attachments
-            assertThat(submission.data().attachments()).isNotNull();
             assertThat(submission.data().attachments()).hasSize(2);
 
             var personalIdAttachment = submission.data().attachments().getFirst();
@@ -168,17 +179,17 @@ class LesJournalførtFyllUtTest {
                 .readerFor(new TypeReference<FormSubmission<Nav140410Data>>() {})
                 .readValue(inputStream);
 
-            // Verify top-level structure
             assertThat(submission).isNotNull();
             assertThat(submission.language()).isEqualTo("nb");
             assertThat(submission.data()).isNotNull();
-            assertThat(submission.data().data()).isNotNull();
+
+            assertThat(VALIDATOR.validate(submission.data().data())).isEmpty();
 
             // Verify data is correct type
             var data = submission.data().data();
             assertThat(data).isInstanceOf(Nav140410Data.class);
 
-            // Verify personal information
+            // Verify personal information (dineOpplysninger1 is not @NotNull)
             assertThat(data.dineOpplysninger1()).isNotNull();
             assertThat(data.dineOpplysninger1().fornavn()).isEqualTo("hjk");
             assertThat(data.dineOpplysninger1().etternavn()).isEqualTo("Kåre");
@@ -204,14 +215,12 @@ class LesJournalførtFyllUtTest {
             assertThat(data.erDetEnJobbDuHarPerIDag()).isEqualTo(JaNei.NEI);
             assertThat(data.tilHvilkenDatoHarDuHattJobbIEuEosLandDdMmAaaa()).isEqualTo(LocalDate.of(2026, 3, 19));
 
-            // Verify work situation
-            assertThat(data.hvordanKanDuJobbeIPeriodenDuHarBehovForSvangerskapspenger()).isNotNull();
+            // Verify work situation (@Valid @NotNull - covered by validator)
             assertThat(data.hvordanKanDuJobbeIPeriodenDuHarBehovForSvangerskapspenger().jegKanFortsetteMedSammeStillingsprosent()).isTrue();
             assertThat(data.hvordanKanDuJobbeIPeriodenDuHarBehovForSvangerskapspenger().jegKanFortsetteMedRedusertArbeidstid()).isFalse();
             assertThat(data.hvordanKanDuJobbeIPeriodenDuHarBehovForSvangerskapspenger().jegKanIkkeFortsetteAJobbe()).isFalse();
 
             // Verify attachments
-            assertThat(submission.data().attachments()).isNotNull();
             assertThat(submission.data().attachments()).hasSize(3);
 
             var personalIdAttachment = submission.data().attachments().getFirst();
@@ -232,11 +241,10 @@ class LesJournalførtFyllUtTest {
                 .readerFor(new TypeReference<FormSubmission<Nav140509Data>>() {})
                 .readValue(inputStream);
 
-            // Verify top-level structure
             assertThat(submission).isNotNull();
             assertThat(submission.language()).isEqualTo("nb");
             assertThat(submission.data()).isNotNull();
-            assertThat(submission.data().data()).isNotNull();
+            assertThat(VALIDATOR.validate(submission.data().data())).isEmpty();
 
             // Verify data is correct type
             var data = submission.data().data();
@@ -244,9 +252,8 @@ class LesJournalførtFyllUtTest {
 
             // Verify confirmations
             assertThat(data.jegVilSvareSaGodtJegKanPaSporsmaleneISoknaden()).isTrue();
-            assertThat(data.jegVilSvareSaGodtJegKanPaSporsmaleneISoknaden()).isTrue();
 
-            // Verify personal information
+            // Verify personal information (dineOpplysninger1 is not @NotNull)
             assertThat(data.dineOpplysninger1()).isNotNull();
             assertThat(data.dineOpplysninger1().fornavn()).isEqualTo("Bob");
             assertThat(data.dineOpplysninger1().etternavn()).isEqualTo("Kåre");
@@ -258,7 +265,7 @@ class LesJournalførtFyllUtTest {
             assertThat(data.hvemErDu()).isEqualTo(Nav140509Data.HvemErDu.FAR);
             assertThat(data.hvorLangPeriodeMedForeldrepengerOnskerDu()).isEqualTo(Nav140509Data.HvorLangPeriodeMedForeldrepengerOnskerDu._100_PROSENT_FORELDREPENGER);
 
-            // Verify birth information
+            // Verify birth information (barnetErFodt is not @NotNull)
             assertThat(data.erBarnetFodt()).isEqualTo(JaNei.JA);
             assertThat(data.barnetErFodt()).isNotNull();
             assertThat(data.barnetErFodt().hvorMangeBarnFikkDu()).isEqualTo(2);
@@ -286,7 +293,6 @@ class LesJournalførtFyllUtTest {
             assertThat(data.harDuJobbetOgHattInntektSomSelvstendigNaeringsdrivendeDeSiste10Manedene()).isEqualTo(JaNei.NEI);
 
             // Verify attachments
-            assertThat(submission.data().attachments()).isNotNull();
             assertThat(submission.data().attachments()).hasSize(3);
 
             var firstAttachment = submission.data().attachments().getFirst();
@@ -306,11 +312,11 @@ class LesJournalførtFyllUtTest {
                 .readerFor(new TypeReference<FormSubmission<Nav141605Data>>() {})
                 .readValue(inputStream);
 
-            // Verify top-level structure
             assertThat(submission).isNotNull();
             assertThat(submission.language()).isEqualTo("nb");
             assertThat(submission.data()).isNotNull();
-            assertThat(submission.data().data()).isNotNull();
+
+            assertThat(VALIDATOR.validate(submission.data().data())).isEmpty();
 
             // Verify data is correct type
             var data = submission.data().data();
@@ -320,7 +326,7 @@ class LesJournalførtFyllUtTest {
             assertThat(data.jegVilSvareSaGodtJegKanPaSporsmaleneISoknaden2()).isTrue();
             assertThat(data.jegBekrefterAtjegSkalHaOmsorgenForBarnetIPeriodeneJegSokerForeldrepenger()).isTrue();
 
-            // Verify personal information
+            // Verify personal information (dineOpplysninger1 is not @NotNull)
             assertThat(data.dineOpplysninger1()).isNotNull();
             assertThat(data.dineOpplysninger1().fornavn()).isEqualTo("Bob");
             assertThat(data.dineOpplysninger1().etternavn()).isEqualTo("Kåre");
@@ -332,13 +338,13 @@ class LesJournalførtFyllUtTest {
             assertThat(data.hvemErDu()).isEqualTo(Nav141605Data.HvemErDu.MOR);
             assertThat(data.erDuAleneOmOmsorgenAvBarnet()).isEqualTo(JaNei.NEI);
 
-            // Verify what is being applied for
+            // Verify what is being applied for (hvaSokerDuOm is not @NotNull)
             assertThat(data.hvaSokerDuOm()).isNotNull();
             assertThat(data.hvaSokerDuOm().periodeMedForeldrepenger()).isTrue();
             assertThat(data.hvaSokerDuOm().periodeUtenForeldrepenger()).isFalse();
             assertThat(data.hvaSokerDuOm().utsettelseForste6UkeneEtterFodsel()).isTrue();
 
-            // Verify benefit periods for mor
+            // Verify benefit periods for mor (mor is not @NotNull)
             assertThat(data.mor()).isNotNull();
             assertThat(data.mor().hvilkenPeriodeSkalDuTaUtMor()).isNotNull();
             var hvilkenPeriode = data.mor().hvilkenPeriodeSkalDuTaUtMor();
@@ -373,6 +379,7 @@ class LesJournalførtFyllUtTest {
             assertThat(fellesperiode.skalDuKombinereForeldrepengeneMedDelvisArbeid()).isEqualTo(JaNei.JA);
             assertThat(fellesperiode.oppgiStillingsprosentenDuSkalJobbe()).isEqualTo(55);
 
+            // hvorSkalDuJobbe is not @NotNull
             assertThat(fellesperiode.hvorSkalDuJobbe()).isNotNull();
             assertThat(fellesperiode.hvorSkalDuJobbe().hosArbeidsgiver()).isTrue();
             assertThat(fellesperiode.hvorSkalDuJobbe().frilanser()).isFalse();
@@ -380,7 +387,6 @@ class LesJournalførtFyllUtTest {
             assertThat(fellesperiode.navnPaArbeidsgiver()).isEqualTo("yhjkl");
 
             // Verify attachments
-            assertThat(submission.data().attachments()).isNotNull();
             assertThat(submission.data().attachments()).hasSize(3);
 
             var personalIdAttachment = submission.data().attachments().getFirst();

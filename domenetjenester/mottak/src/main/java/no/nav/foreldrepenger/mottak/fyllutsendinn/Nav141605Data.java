@@ -8,7 +8,6 @@ import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 
-import com.fasterxml.jackson.annotation.JsonEnumDefaultValue;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 
@@ -22,12 +21,12 @@ public record Nav141605Data(
     JaNei harDenAndreForelderenRettTilForeldrepenger,
     JaNei harDuOrientertDenAndreForelderenOmSoknadenDin,
     @Valid HvaSokerDuOm hvaSokerDuOm,
-    @Valid @NotNull HvaSokerDuOmIkkeMor hvaSokerDuOmIkkeMor,
+    @Valid HvaSokerDuOmIkkeMor hvaSokerDuOmIkkeMor,
     Boolean jegBekrefterAtjegSkalHaOmsorgenForBarnetIPeriodeneJegSokerForeldrepenger,
     Boolean jegBekrefterAtjegSkalHaOmsorgenForBarnetIPeriodeneJegSokerForeldrepenger1,
     @Valid Mor mor,
-    @Valid @NotNull HvilkenPeriodeSkalDuTaUtFar hvilkenPeriodeSkalDuTaUtFar,
-    @Valid @NotNull HvilkenPeriodeSkalDuTaUtMedmor hvilkenPeriodeSkalDuTaUtMedmor,
+    @Valid HvilkenPeriodeSkalDuTaUtFar hvilkenPeriodeSkalDuTaUtFar,
+    @Valid HvilkenPeriodeSkalDuTaUtMedmor hvilkenPeriodeSkalDuTaUtMedmor,
     List<@Valid ForeldrepengerForFodselRow> foreldrepengerForFodsel,
     List<@Valid ModrekvoteRow> modrekvote,
     List<@Valid FedrekvoteRow> fedrekvote,
@@ -41,8 +40,8 @@ public record Nav141605Data(
     List<@Valid PeriodeMedforeldrepengerVedAleneomsorgFarMedmorRow> periodeMedforeldrepengerVedAleneomsorgFarMedmor,
     List<@Valid PeriodeMedforeldrepengerRow> periodeMedforeldrepenger,
     List<@Valid JegSokerOmAOvertaKvotenTilDenAndreForelderenRow> jegSokerOmAOvertaKvotenTilDenAndreForelderen,
-    @NotNull List<@Valid HvilkenPeriodeSkalDuIkkeAllikevelTaUtRow> hvilkenPeriodeSkalDuIkkeAllikevelTaUt,
-    @NotNull List<@Valid PerioderMedUtsettelseForste6UkerEtterFodselRow> perioderMedUtsettelseForste6UkerEtterFodsel
+    List<@Valid HvilkenPeriodeSkalDuIkkeAllikevelTaUtRow> hvilkenPeriodeSkalDuIkkeAllikevelTaUt,
+    List<@Valid PerioderMedUtsettelseForste6UkerEtterFodselRow> perioderMedUtsettelseForste6UkerEtterFodsel
 ) {
 
     public enum HvemErDu {
@@ -53,18 +52,14 @@ public record Nav141605Data(
         @JsonProperty("medmor")
         MEDMOR,
         @JsonProperty("jegHarOvertattForeldreansvaret")
-        JEG_HAR_OVERTATT_FORELDREANSVARET,
-        @JsonEnumDefaultValue
-        UDEFINERT;
+        JEG_HAR_OVERTATT_FORELDREANSVARET;
     }
 
     public enum BleDuAleneOmOmsorgenForEllerEtterOppstartAvForeldrepengene {
         @JsonProperty("jegVarAleneOmOmsorgenForJegFikkForeldrepenger")
         JEG_VAR_ALENE_OM_OMSORGEN_FOR_JEG_FIKK_FORELDREPENGER,
         @JsonProperty("jegHarBlittAleneOmOmsorgenEtterAtJegHarFattForeldrepenger")
-        JEG_HAR_BLITT_ALENE_OM_OMSORGEN_ETTER_AT_JEG_HAR_FATT_FORELDREPENGER,
-        @JsonEnumDefaultValue
-        UDEFINERT;
+        JEG_HAR_BLITT_ALENE_OM_OMSORGEN_ETTER_AT_JEG_HAR_FATT_FORELDREPENGER;
     }
 
     public enum HvaSkalMorGjoreIDennePerioden {
@@ -83,18 +78,14 @@ public record Nav141605Data(
         @JsonProperty("innlagtPaHelseinstitusjon")
         INNLAGT_PA_HELSEINSTITUSJON,
         @JsonProperty("brukerDagerFraFlerbarnsukene")
-        BRUKER_DAGER_FRA_FLERBARNSUKENE,
-        @JsonEnumDefaultValue
-        UDEFINERT;
+        BRUKER_DAGER_FRA_FLERBARNSUKENE;
     }
 
     public enum SkalDuTaUtForeldrepenger {
         @JsonProperty("ja")
         JA,
         @JsonProperty("neiJegSkalHaOppholdIForeldrepengeneMine")
-        NEI_JEG_SKAL_HA_OPPHOLD_I_FORELDREPENGENE_MINE,
-        @JsonEnumDefaultValue
-        UDEFINERT;
+        NEI_JEG_SKAL_HA_OPPHOLD_I_FORELDREPENGENE_MINE;
     }
 
     public enum HvaSkalMorGjoreIDennePeriodenOpphold {
@@ -111,9 +102,7 @@ public record Nav141605Data(
         @JsonProperty("forSykTilATaSegAvBarnet")
         FOR_SYK_TIL_A_TA_SEG_AV_BARNET,
         @JsonProperty("innlagtPaHelseinstitusjon")
-        INNLAGT_PA_HELSEINSTITUSJON,
-        @JsonEnumDefaultValue
-        UDEFINERT;
+        INNLAGT_PA_HELSEINSTITUSJON;
     }
 
     public enum HvorforSkalDuOvertaKvoten {
@@ -124,9 +113,7 @@ public record Nav141605Data(
         @JsonProperty("jegHarBlittAleneOmOmsorgenForBarnet")
         JEG_HAR_BLITT_ALENE_OM_OMSORGEN_FOR_BARNET,
         @JsonProperty("denAndreForelderenHarIkkeRett")
-        DEN_ANDRE_FORELDEREN_HAR_IKKE_RETT,
-        @JsonEnumDefaultValue
-        UDEFINERT;
+        DEN_ANDRE_FORELDEREN_HAR_IKKE_RETT;
     }
 
     public enum HvorforSkalDuOvertaKvoten1 {
@@ -135,9 +122,7 @@ public record Nav141605Data(
         @JsonProperty("denAndreForelderenErInnlagtPaHelseinstitusjon")
         DEN_ANDRE_FORELDEREN_ER_INNLAGT_PA_HELSEINSTITUSJON,
         @JsonProperty("jegHarBlittAleneOmOmsorgenForBarnet")
-        JEG_HAR_BLITT_ALENE_OM_OMSORGEN_FOR_BARNET,
-        @JsonEnumDefaultValue
-        UDEFINERT;
+        JEG_HAR_BLITT_ALENE_OM_OMSORGEN_FOR_BARNET;
     }
 
     public enum HvorforSkalDuUtsetteForeldrepenger {
@@ -146,9 +131,7 @@ public record Nav141605Data(
         @JsonProperty("jegErInnlagtIHelseinstitusjon")
         JEG_ER_INNLAGT_I_HELSEINSTITUSJON,
         @JsonProperty("barnetErInnlagtIHelseinstitusjon")
-        BARNET_ER_INNLAGT_I_HELSEINSTITUSJON,
-        @JsonEnumDefaultValue
-        UDEFINERT;
+        BARNET_ER_INNLAGT_I_HELSEINSTITUSJON;
     }
 
     public record HvaSokerDuOm(
