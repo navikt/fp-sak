@@ -11,7 +11,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 /** NAV 14-04.10 – Søknad om svangerskapspenger til selvstendig næringsdrivende og frilanser */
 public record Nav140410Data(
-    DineOpplysninger1 dineOpplysninger1,
+    @Valid DineOpplysninger1 dineOpplysninger1,
     @NotNull HarDuBoddINorgeDeSiste12Manedene harDuBoddINorgeDeSiste12Manedene,
     @Valid Utenlandsopphold utenlandsopphold,
     @NotNull HvorSkalDuBoDeNeste12Manedene hvorSkalDuBoDeNeste12Manedene,
@@ -26,7 +26,7 @@ public record Nav140410Data(
     LocalDate narStartetDuNaeringenDdMmAaaa,
     JaNei erTestRegistrertINorge,
     String virksomhetensOrganisasjonsnummer,
-    String landvelger,
+    @Valid Landvalg landvelger,
     JaNei erDetteEnVirksomhetDuDriverNa,
     LocalDate oppgiSluttdatoForNaeringenDdMmAaaa,
     HvorLengeHarDuHattDenneVirksomheten hvorLengeHarDuHattDenneVirksomheten,
@@ -153,14 +153,14 @@ public record Nav140410Data(
     }
 
     public record Utenlandsopphold(
-        @NotNull String hvilketLandBoddeDuI,
+        @Valid @NotNull Landvalg hvilketLandBoddeDuI,
         @NotNull LocalDate fraOgMedDatoDdMmAaaa,
         @NotNull LocalDate tilOgMedDatoDdMmAaaa
     ) {
     }
 
     public record Utenlandsopphold1(
-        @NotNull String hvilketLandSkalDuBoI,
+        @Valid @NotNull Landvalg hvilketLandSkalDuBoI,
         @NotNull LocalDate fraOgMedDatoDdMmAaaa,
         @NotNull LocalDate fraOgMedDatoDdMmAaaa1
     ) {
@@ -190,4 +190,3 @@ public record Nav140410Data(
     ) {
     }
 }
-

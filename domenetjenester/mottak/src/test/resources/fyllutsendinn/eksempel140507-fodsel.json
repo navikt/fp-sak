@@ -21,7 +21,10 @@
       "utenlandsopphold1": [
         {
           "fraDatoDdMmAaaa": "2025-12-01",
-          "hvilketLandBoddeDuI": "SE",
+          "hvilketLandBoddeDuI": {
+            "value": "SE",
+            "label": "Sverige"
+          },
           "tilDatoDdMmAaaa": "2025-12-31"
         }
       ],

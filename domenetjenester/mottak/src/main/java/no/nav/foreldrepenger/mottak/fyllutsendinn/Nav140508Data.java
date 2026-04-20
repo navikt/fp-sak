@@ -57,14 +57,14 @@ public record Nav140508Data(
     public record LeggTilNyttUtenlandsoppholdDeNeste12ManedeneRow(
         @NotNull LocalDate fraDatoDdMmAaaa,
         @NotNull LocalDate tilDatoDdMmAaaa,
-        @NotNull String hvilketLandSkalDuBoI
+        @Valid @NotNull Landvalg hvilketLandSkalDuBoI
     ) {
     }
 
     public record LeggTilNyttUtenlandsoppholdRow(
         @NotNull LocalDate fraDatoDdMmAaaa,
         @NotNull LocalDate tilDatoDdMmAaaa,
-        @NotNull String hvilketLandBoddeDuI
+        @Valid @NotNull Landvalg hvilketLandBoddeDuI
     ) {
     }
 }

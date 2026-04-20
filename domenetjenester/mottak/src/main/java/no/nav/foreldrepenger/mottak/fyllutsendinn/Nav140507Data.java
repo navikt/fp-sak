@@ -67,14 +67,14 @@ public record Nav140507Data(
     public record UtenlandsoppholdRow(
         @NotNull LocalDate fraDatoDdMmAaaa,
         @NotNull LocalDate tilDatoDdMmAaaa,
-        @NotNull String hvilketLandSkalDuBoI
+        @Valid @NotNull Landvalg hvilketLandSkalDuBoI
     ) {
     }
 
     public record Utenlandsopphold1Row(
         @NotNull LocalDate fraDatoDdMmAaaa,
         @NotNull LocalDate tilDatoDdMmAaaa,
-        @NotNull String hvilketLandBoddeDuI
+        @Valid @NotNull Landvalg hvilketLandBoddeDuI
     ) {
     }
 }

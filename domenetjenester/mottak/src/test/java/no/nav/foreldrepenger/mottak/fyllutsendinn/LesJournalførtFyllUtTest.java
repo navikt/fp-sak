@@ -36,6 +36,7 @@ class LesJournalførtFyllUtTest {
             assertThat(submission.data()).isNotNull();
 
             assertThat(VALIDATOR.validate(submission.data().data())).isEmpty();
+            assertThat(VALIDATOR.validate(submission.data().attachments())).isEmpty();
 
             // Verify data is correct type
             var data = submission.data().data();
@@ -95,9 +96,6 @@ class LesJournalførtFyllUtTest {
         }
     }
 
-    // TODO - avsjekk med FUtSInn om landvelger - alle er "string", men det blir generert objekt
-    //           "hvilketLandBoddeDuI": { "value": "SE", "label": "Sverige" },
-    // Hvis object isf string - Endre i 07-fodsel: "hvilketLandBoddeDuI": "SE",
     @Test
     void les_engangsstonad_fodsel_eksempel140507_fodsel() throws Exception {
         // eksempel140507-fodsel.json - Engangsstønad ved fødsel (allerede født, utenlandsopphold)
@@ -111,6 +109,7 @@ class LesJournalførtFyllUtTest {
             assertThat(submission.data()).isNotNull();
 
             assertThat(VALIDATOR.validate(submission.data().data())).isEmpty();
+            assertThat(VALIDATOR.validate(submission.data().attachments())).isEmpty();
 
             // Verify data is correct type
             var data = submission.data().data();
@@ -146,8 +145,8 @@ class LesJournalførtFyllUtTest {
             var utenlandsopphold = data.utenlandsopphold1().getFirst();
             assertThat(utenlandsopphold.fraDatoDdMmAaaa()).isEqualTo(LocalDate.of(2025, 12, 1));
             assertThat(utenlandsopphold.tilDatoDdMmAaaa()).isEqualTo(LocalDate.of(2025, 12, 31));
-            // TODO - avsjekk med FUtSInn om landvelger - kan være et objekt med value / label
-            assertThat(utenlandsopphold.hvilketLandBoddeDuI()).isEqualTo("SE");
+            assertThat(utenlandsopphold.hvilketLandBoddeDuI()).isNotNull();
+            assertThat(utenlandsopphold.hvilketLandBoddeDuI().value()).isEqualTo("SE");
 
             assertThat(data.harDuTilleggsopplysningerSomErRelevantForSoknaden()).isEqualTo(JaNei.NEI);
 
@@ -184,6 +183,7 @@ class LesJournalførtFyllUtTest {
             assertThat(submission.data()).isNotNull();
 
             assertThat(VALIDATOR.validate(submission.data().data())).isEmpty();
+            assertThat(VALIDATOR.validate(submission.data().attachments())).isEmpty();
 
             // Verify data is correct type
             var data = submission.data().data();
@@ -245,6 +245,7 @@ class LesJournalførtFyllUtTest {
             assertThat(submission.language()).isEqualTo("nb");
             assertThat(submission.data()).isNotNull();
             assertThat(VALIDATOR.validate(submission.data().data())).isEmpty();
+            assertThat(VALIDATOR.validate(submission.data().attachments())).isEmpty();
 
             // Verify data is correct type
             var data = submission.data().data();
@@ -317,6 +318,7 @@ class LesJournalførtFyllUtTest {
             assertThat(submission.data()).isNotNull();
 
             assertThat(VALIDATOR.validate(submission.data().data())).isEmpty();
+            assertThat(VALIDATOR.validate(submission.data().attachments())).isEmpty();
 
             // Verify data is correct type
             var data = submission.data().data();
