@@ -14,9 +14,9 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 /** NAV 14-16.05 – Søknad om endring eller nytt uttak av foreldrepenger */
 public record Nav141605Data(
     @NotNull Boolean jegVilSvareSaGodtJegKanPaSporsmaleneISoknaden2,
-    DineOpplysninger1 dineOpplysninger1,
+    @Valid DineOpplysninger1 dineOpplysninger1,
     @NotNull HvemErDu hvemErDu,
-    @NotNull JaNei erDuAleneOmOmsorgenAvBarnet,
+    JaNei erDuAleneOmOmsorgenAvBarnet,
     BleDuAleneOmOmsorgenForEllerEtterOppstartAvForeldrepengene bleDuAleneOmOmsorgenForEllerEtterOppstartAvForeldrepengene,
     JaNei harDenAndreForelderenRettTilForeldrepenger,
     JaNei harDuOrientertDenAndreForelderenOmSoknadenDin,
@@ -147,7 +147,7 @@ public record Nav141605Data(
     public record Mor(
         @Valid HvilkenPeriodeSkalDuTaUtAleneMor hvilkenPeriodeSkalDuTaUtAleneMor,
         @Valid HvilkenPeriodeSkalDuTaUtKunMorRett hvilkenPeriodeSkalDuTaUtKunMorRett,
-        @Valid @NotNull HvilkenPeriodeSkalDuTaUtMor hvilkenPeriodeSkalDuTaUtMor
+        @Valid HvilkenPeriodeSkalDuTaUtMor hvilkenPeriodeSkalDuTaUtMor
     ) {
 
         public record HvilkenPeriodeSkalDuTaUtAleneMor(Boolean foreldrepengerForFodsel, Boolean foreldrepengerVedAleneomsorg) {

@@ -1,6 +1,5 @@
 package no.nav.foreldrepenger.mottak.fyllutsendinn;
 
-import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -8,7 +7,6 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
@@ -17,7 +15,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 public record Nav140509Data(
     @NotNull Boolean jegBekrefterAtJegHarLestOgForstattMinePlikter,
     @NotNull Boolean jegVilSvareSaGodtJegKanPaSporsmaleneISoknaden,
-    DineOpplysninger1 dineOpplysninger1,
+    @Valid DineOpplysninger1 dineOpplysninger1,
     @NotNull HvemErDu hvemErDu,
     @NotNull HvorLangPeriodeMedForeldrepengerOnskerDu hvorLangPeriodeMedForeldrepengerOnskerDu,
     @NotNull JaNei erBarnetFodt,
@@ -29,7 +27,7 @@ public record Nav140509Data(
     JaNei harDenAndreForelderenNorskFodselsnummerEllerDNummer,
     String hvaErDenAndreForelderensFodselsnummerEllerDNummer,
     String hvaErDenAndreForelderensUtenlandskeFodselsnummer,
-    String hvorBorDenAndreForelderen,
+    @Valid Landvalg hvorBorDenAndreForelderen,
     JaNei erDuAleneOmOmsorgenAvBarnet,
     JaNei harDenAndreForelderenRettTilForeldrepenger,
     JaNei harDenAndreForelderenOppholdtSegFastIEtAnnetEosLandEnnNorgeEttArForBarnetBleFodt,
@@ -64,12 +62,12 @@ public record Nav140509Data(
     LocalDate narStartetDuVirksomhetenDdMmAaaa,
     JaNei erVirksomhetenDinRegistrertINorge,
     String virksomhetensOrganisasjonsnummer1,
-    String hvilketLandErVirksomhetenRegistrertI,
+    @Valid Landvalg hvilketLandErVirksomhetenRegistrertI,
     JaNei erDuFremdelesSelvstendigNaeringsdrivende,
     LocalDate datoForAvsluttetNaeringsdriftDdMmAaaa,
     HvorLengeHarDuVaertSelvstendigNaeringsdrivende hvorLengeHarDuVaertSelvstendigNaeringsdrivende,
-    BigDecimal hvaHarDuHattINaeringsresultatForSkattFraDuStartetOppVirksomheten,
-    BigDecimal hvaHarDuHattINaeringsresultatForSkattDeSiste12Manedene,
+    String hvaHarDuHattINaeringsresultatForSkattFraDuStartetOppVirksomheten,
+    String hvaHarDuHattINaeringsresultatForSkattDeSiste12Manedene,
     JaNei harDuBlittYrkesaktivILopetAvDetSisteAret,
     JaNei harDuBlittYrkesaktivILopetAvDe3SisteFerdiglignedeArene,
     LocalDate narBleDuYrkesaktivDdMmAaaa,
@@ -190,10 +188,10 @@ public record Nav140509Data(
     public record BarnetErFodt(
         @NotNull @Min(1) @Max(9) Integer hvorMangeBarnFikkDu,
         LocalDate narBleDetEldsteBarnetFodtDdMmAaaa,
-        @NotNull LocalDate narBleDetEldsteBarnetFodtDdMmAaaa1,
+        LocalDate narBleDetEldsteBarnetFodtDdMmAaaa1,
         @NotNull LocalDate narVarTermindatoDdMmAaaa,
         JaNei bleBarnetFodtINorge,
-        @NotNull JaNei bleBarnaFodtINorge,
+        JaNei bleBarnaFodtINorge,
         JaNei erBarnetRegistrertIDetNorskeFolkeregisteret,
         JaNei erBarnaRegistrertIDetNorskeFolkeregisteret
     ) {
@@ -203,9 +201,9 @@ public record Nav140509Data(
     }
 
     public record Mor(
-        @Valid @NotNull HvilkenPeriodeSkalDuTaUtAleneMor hvilkenPeriodeSkalDuTaUtAleneMor,
-        @Valid @NotNull HvilkenPeriodeSkalDuTaUtKunMorRett hvilkenPeriodeSkalDuTaUtKunMorRett,
-        @Valid @NotNull HvilkenPeriodeSkalDuTaUtMor hvilkenPeriodeSkalDuTaUtMor
+        @Valid HvilkenPeriodeSkalDuTaUtAleneMor hvilkenPeriodeSkalDuTaUtAleneMor,
+        @Valid HvilkenPeriodeSkalDuTaUtKunMorRett hvilkenPeriodeSkalDuTaUtKunMorRett,
+        @Valid HvilkenPeriodeSkalDuTaUtMor hvilkenPeriodeSkalDuTaUtMor
     ) {
 
         public record HvilkenPeriodeSkalDuTaUtAleneMor(Boolean foreldrepengerForFodsel, Boolean foreldrepengerVedAleneomsorg) {
@@ -448,14 +446,14 @@ public record Nav140509Data(
     public record LeggTilUtenlandsoppholdForDeNeste12ManedeneRow(
         @NotNull LocalDate fraOgMedDdMmAaaa,
         @NotNull LocalDate tilOgMedDdMmAaaa,
-        @NotNull String hvilketLandSkalDuBoI
+        @Valid @NotNull Landvalg hvilketLandSkalDuBoI
     ) {
     }
 
     public record LeggTilUtenlandsoppholdForDeSiste12ManedeneRow(
         @NotNull LocalDate fraOgMedDdMmAaaa,
         @NotNull LocalDate tilOgMedDdMmAaaa,
-        @NotNull String hvilketLandBoddeDuI
+        @Valid @NotNull Landvalg hvilketLandBoddeDuI
     ) {
     }
 
@@ -468,8 +466,8 @@ public record Nav140509Data(
 
     public record VarigEndring(
         @NotNull LocalDate datoForEndringenDdMmAaaa,
-        @NotNull BigDecimal naeringsinntektenDinEtterEndringen,
-        @NotNull @Size(max = 200) String skrivKortHvaSomHarEndretSegIArbeidsforholdetDittVirksomhetenEllerArbeidssituasjonenDin
+        @NotNull String naeringsinntektenDinEtterEndringen,
+        @NotNull String skrivKortHvaSomHarEndretSegIArbeidsforholdetDittVirksomhetenEllerArbeidssituasjonenDin
     ) {
     }
 
