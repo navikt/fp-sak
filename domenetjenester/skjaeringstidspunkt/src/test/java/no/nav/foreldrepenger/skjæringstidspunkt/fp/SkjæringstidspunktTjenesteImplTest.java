@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.Month;
 import java.time.YearMonth;
 import java.util.List;
 
@@ -38,6 +39,7 @@ import no.nav.foreldrepenger.domene.tid.VirkedagUtil;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 import no.nav.foreldrepenger.skjæringstidspunkt.overganger.MinsterettBehandling2022;
+import no.nav.fpsak.tidsserie.LocalDateInterval;
 
 class SkjæringstidspunktTjenesteImplTest extends EntityManagerAwareTest {
 
@@ -319,6 +321,30 @@ class SkjæringstidspunktTjenesteImplTest extends EntityManagerAwareTest {
         assertThat(stp.getFørsteUttaksdatoGrunnbeløp()).isEqualTo(VirkedagUtil.fomVirkedag(skjæringstidspunktOriginal.plusWeeks(2)));
         assertThat(stp.getUtledetSkjæringstidspunkt()).isEqualTo(skjæringstidspunktOriginal.plusWeeks(2));
     }
+
+    @Test
+    void spesialtilfelle_uttak_starter_etter_maxdato_uttaksintervall_1dag() {
+        var skjæringstidspunkt = LocalDate.of(2026, Month.MAY, 1);
+        var fødselsdato = LocalDate.of(2022, Month.OCTOBER, 19);
+        var oppgittPeriodeBuilder = OppgittPeriodeBuilder.ny()
+            .medPeriode(skjæringstidspunkt, skjæringstidspunkt.plusWeeks(8).minusDays(1))
+            .medPeriodeType(UttakPeriodeType.FORELDREPENGER);
+        var scenario = ScenarioFarSøkerForeldrepenger.forFødsel()
+            .medFordeling(new OppgittFordelingEntitet(List.of(oppgittPeriodeBuilder.build()), true));
+        scenario.medSøknadHendelse().medFødselsDato(fødselsdato, 1)
+            .medTerminbekreftelse(scenario.medSøknadHendelse().getTerminbekreftelseBuilder().medTermindato(fødselsdato));
+        scenario.medBekreftetHendelse().medFødselsDato(fødselsdato, 1)
+            .medTerminbekreftelse(scenario.medBekreftetHendelse().getTerminbekreftelseBuilder().medTermindato(fødselsdato));
+        var behandling = scenario.lagre(repositoryProvider);
+
+        var stp = skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandling.getId());
+        assertThat(stp.getFørsteUttaksdato()).isEqualTo(skjæringstidspunkt);
+        assertThat(stp.getUtledetSkjæringstidspunkt()).isEqualTo(skjæringstidspunkt);
+        var ustp = stp.getUtledetSkjæringstidspunkt();
+        var intervall = new LocalDateInterval(ustp, stp.getUttaksintervall().map(LocalDateInterval::getTomDato).orElse(ustp));
+        assertThat(intervall).isEqualTo(new LocalDateInterval(skjæringstidspunkt, skjæringstidspunkt));
+    }
+
 
 
 }
