@@ -137,12 +137,12 @@ public class BekreftSvangerskapspengerOppdaterer implements AksjonspunktOppdater
         }
     }
 
-    private boolean harGjortPermisjonsvalg(SvpArbeidsforholdDto aktivitet) {
+    private boolean harGjortPermisjonsvalg(BekreftTilrettelegging aktivitet) {
         return aktivitet.getVelferdspermisjoner().stream()
             .anyMatch(p -> PermisjonsbeskrivelseType.VELFERDSPERMISJONER.contains(p.getType()) && p.getErGyldig() != null);
     }
 
-    private List<ArbeidsforholdOverstyringBuilder> lagPermisjonsoppdatering(SvpArbeidsforholdDto aktivitet,
+    private List<ArbeidsforholdOverstyringBuilder> lagPermisjonsoppdatering(BekreftTilrettelegging aktivitet,
                                                                             ArbeidsforholdInformasjonBuilder infoBuilder,
                                                                             YrkesaktivitetFilter yrkesfilter) {
         var yrkesaktiviteter = yrkesfilter.getYrkesaktiviteter()
@@ -235,9 +235,9 @@ public class BekreftSvangerskapspengerOppdaterer implements AksjonspunktOppdater
         return List.of();
     }
 
-    private boolean endretFørsteBehovFra(List<SvpArbeidsforholdDto> bekreftedeArbeidsforholdDtoer, List<SvpTilretteleggingEntitet> tilretteleggingerUfiltrert) {
+    private boolean endretFørsteBehovFra(List<BekreftTilrettelegging> bekreftedeArbeidsforholdDtoer, List<SvpTilretteleggingEntitet> tilretteleggingerUfiltrert) {
         var førsteBehovFraDatoNy = bekreftedeArbeidsforholdDtoer.stream()
-            .map(SvpArbeidsforholdDto::getTilretteleggingBehovFom)
+            .map(BekreftTilrettelegging::getTilretteleggingBehovFom)
             .min(Comparator.naturalOrder()).orElse(Tid.TIDENES_ENDE);
         var førsteBehovFraDatoGammel = tilretteleggingerUfiltrert.stream()
             .map(SvpTilretteleggingEntitet::getBehovForTilretteleggingFom)
@@ -246,7 +246,7 @@ public class BekreftSvangerskapspengerOppdaterer implements AksjonspunktOppdater
         return !førsteBehovFraDatoGammel.isEqual(førsteBehovFraDatoNy);
     }
 
-    private boolean tilretteleggingErEndret(SvpArbeidsforholdDto arbeidsforholdDto,
+    private boolean tilretteleggingErEndret(BekreftTilrettelegging arbeidsforholdDto,
                                             List<SvpTilretteleggingEntitet> eksisterendeTilrettelegingerListe) {
         var eksisterendeTilrettelegging = hentEksisterendeTilrettelegging(eksisterendeTilrettelegingerListe, arbeidsforholdDto.getTilretteleggingId());
         var nyTilrettelegging = mapNyTilrettelegging(arbeidsforholdDto, eksisterendeTilrettelegging);
@@ -278,7 +278,7 @@ public class BekreftSvangerskapspengerOppdaterer implements AksjonspunktOppdater
             .toList();
     }
 
-    private SvpTilretteleggingEntitet mapTilrettelegging(SvpArbeidsforholdDto arbeidsforholdDto, List<SvpTilretteleggingEntitet> eksisterendeTilrettelegingerListe) {
+    private SvpTilretteleggingEntitet mapTilrettelegging(BekreftTilrettelegging arbeidsforholdDto, List<SvpTilretteleggingEntitet> eksisterendeTilrettelegingerListe) {
         var eksisterendeTilrettelegging = hentEksisterendeTilrettelegging(eksisterendeTilrettelegingerListe, arbeidsforholdDto.getTilretteleggingId());
         var nyTilrettelegging = mapNyTilrettelegging(arbeidsforholdDto, eksisterendeTilrettelegging);
 
@@ -318,7 +318,7 @@ public class BekreftSvangerskapspengerOppdaterer implements AksjonspunktOppdater
                     + tilretteleggingId));
     }
 
-    private SvpTilretteleggingEntitet mapNyTilrettelegging(SvpArbeidsforholdDto arbeidsforholdDto, SvpTilretteleggingEntitet eksisterendeTilrettelegging) {
+    private SvpTilretteleggingEntitet mapNyTilrettelegging(BekreftTilrettelegging arbeidsforholdDto, SvpTilretteleggingEntitet eksisterendeTilrettelegging) {
         var nyTilretteleggingEntitetBuilder = new SvpTilretteleggingEntitet.Builder()
             .medBehovForTilretteleggingFom(arbeidsforholdDto.getTilretteleggingBehovFom())
             .medArbeidType(eksisterendeTilrettelegging.getArbeidType())
