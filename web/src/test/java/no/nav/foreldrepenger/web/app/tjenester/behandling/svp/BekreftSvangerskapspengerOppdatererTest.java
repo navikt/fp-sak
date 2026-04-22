@@ -403,7 +403,7 @@ class BekreftSvangerskapspengerOppdatererTest {
         var dto = new BekreftSvangerskapspengerDto("Velbegrunnet begrunnelse");
         dto.setTermindato(termindato);
 
-        var arbeidsforholdDto = new SvpArbeidsforholdDto();
+        var arbeidsforholdDto = new BekreftTilrettelegging();
         arbeidsforholdDto.setTilretteleggingBehovFom(behovDato);
 
         arbeidsforholdDto.setTilretteleggingDatoer(tilretteleggingDatoer);

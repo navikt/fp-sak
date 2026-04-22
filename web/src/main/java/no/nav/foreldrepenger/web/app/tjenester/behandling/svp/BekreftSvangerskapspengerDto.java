@@ -20,7 +20,7 @@ public class BekreftSvangerskapspengerDto extends BekreftetAksjonspunktDto {
 
     private LocalDate fødselsdato;
     @Size(min = 1, max = 1000)
-    private List<@Valid SvpArbeidsforholdDto> bekreftetSvpArbeidsforholdList;
+    private List<@Valid BekreftTilrettelegging> bekreftetSvpArbeidsforholdList;
 
     public BekreftSvangerskapspengerDto() {
         //For Jackson
@@ -28,7 +28,6 @@ public class BekreftSvangerskapspengerDto extends BekreftetAksjonspunktDto {
 
     public BekreftSvangerskapspengerDto(String begrunnelse) {
         super(begrunnelse);
-
     }
 
 
@@ -48,14 +47,14 @@ public class BekreftSvangerskapspengerDto extends BekreftetAksjonspunktDto {
         this.fødselsdato = fødselsdato;
     }
 
-    public List<SvpArbeidsforholdDto> getBekreftetSvpArbeidsforholdList() {
+    public List<BekreftTilrettelegging> getBekreftetSvpArbeidsforholdList() {
         if (bekreftetSvpArbeidsforholdList == null) {
             return Collections.emptyList();
         }
         return bekreftetSvpArbeidsforholdList;
     }
 
-    public void setBekreftetSvpArbeidsforholdList(List<SvpArbeidsforholdDto> bekreftetSvpArbeidsforholdList) {
+    public void setBekreftetSvpArbeidsforholdList(List<BekreftTilrettelegging> bekreftetSvpArbeidsforholdList) {
         this.bekreftetSvpArbeidsforholdList = bekreftetSvpArbeidsforholdList;
     }
 }
