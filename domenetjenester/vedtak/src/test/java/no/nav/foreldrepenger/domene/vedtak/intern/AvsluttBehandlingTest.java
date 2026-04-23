@@ -41,6 +41,7 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakEgenskapRepository;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerEngangsstønad;
 import no.nav.foreldrepenger.behandlingsprosess.prosessering.BehandlingProsesseringTjeneste;
+import no.nav.foreldrepenger.behandlingslager.behandling.dokument.MellomlagringRepository;
 import no.nav.foreldrepenger.domene.vedtak.impl.VurderBehandlingerUnderIverksettelse;
 
 @ExtendWith(MockitoExtension.class)
@@ -59,6 +60,8 @@ class AvsluttBehandlingTest {
     private OppdatereFagsakRelasjonVedVedtak oppdatereFagsakRelasjonVedVedtak;
     @Mock
     private FagsakEgenskapRepository fagsakEgenskapRepository;
+    @Mock
+    private MellomlagringRepository mellomlagringRepository;
 
     private AvsluttBehandling avsluttBehandling;
     private Behandling behandling;
@@ -77,7 +80,8 @@ class AvsluttBehandlingTest {
                 repositoryProvider);
 
         avsluttBehandling = new AvsluttBehandling(repositoryProvider, behandlingskontrollTjeneste, behandlingVedtakEventPubliserer,
-            vurderBehandlingerUnderIverksettelse, behandlingProsesseringTjeneste, oppdatereFagsakRelasjonVedVedtak, fagsakEgenskapRepository);
+            vurderBehandlingerUnderIverksettelse, behandlingProsesseringTjeneste, oppdatereFagsakRelasjonVedVedtak, fagsakEgenskapRepository,
+            mellomlagringRepository);
 
         when(behandlingskontrollTjeneste.initBehandlingskontroll(Mockito.any(Behandling.class), Mockito.any(BehandlingLås.class)))
             .thenAnswer(invocation -> {

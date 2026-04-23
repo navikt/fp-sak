@@ -160,7 +160,7 @@ public class DokumentBehandlingTjeneste {
     }
 
     private DokumentMalType utledMalBrukt(DokumentMalType dokumentMalType, DokumentMalType opprineligDokumentMal) {
-        if ((DokumentMalType.FRITEKSTBREV.equals(dokumentMalType) || DokumentMalType.VEDTAKSBREV_FRITEKST_HTML.equals(dokumentMalType)) && opprineligDokumentMal != null) {
+        if ((DokumentMalType.FRITEKSTBREV.equals(dokumentMalType) || DokumentMalType.FRITEKST_HTML.equals(dokumentMalType)) && opprineligDokumentMal != null) {
             return opprineligDokumentMal;
         }
         return dokumentMalType;

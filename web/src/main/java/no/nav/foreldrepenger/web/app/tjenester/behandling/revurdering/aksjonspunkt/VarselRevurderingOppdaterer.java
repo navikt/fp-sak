@@ -41,8 +41,8 @@ public class VarselRevurderingOppdaterer implements AksjonspunktOppdaterer<Varse
     public OppdateringResultat oppdater(VarselRevurderingDto dto, AksjonspunktOppdaterParameter param) {
         var behandlingRef = param.getRef();
         if (dto.isSendVarsel() && !harSendtVarselOmRevurdering(behandlingRef)) {
-            var adapter = new VarselRevurderingAksjonspunktDto(dto.getFritekst(), dto.getBegrunnelse(), dto.getFrist(), dto.getVentearsak().getKode());
-            dokumentTjeneste.håndterVarselRevurdering(behandlingRef, adapter);
+            var adapter = new VarselRevurderingAksjonspunktDto(dto.getBegrunnelse(), dto.getFrist(), dto.getVentearsak().getKode());
+            dokumentTjeneste.bestillVarselRevurdering(behandlingRef, adapter);
         } else if (!dto.isSendVarsel()) {
             opprettHistorikkinnslagOmIkkeSendtVarselOmRevurdering(behandlingRef, dto);
         }

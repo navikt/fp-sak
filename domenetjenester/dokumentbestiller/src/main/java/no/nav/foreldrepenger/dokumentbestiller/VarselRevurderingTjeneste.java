@@ -12,6 +12,8 @@ import no.nav.foreldrepenger.behandlingslager.behandling.RevurderingVarslingÅrs
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Venteårsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.dokument.DokumentMalType;
+import no.nav.foreldrepenger.behandlingslager.behandling.dokument.MellomlagringRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.dokument.MellomlagringType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingsprosess.prosessering.BehandlingProsesseringTjeneste;
 import no.nav.foreldrepenger.konfig.KonfigVerdi;
@@ -23,32 +25,41 @@ public class VarselRevurderingTjeneste {
     private BehandlingProsesseringTjeneste behandlingProsesseringTjeneste;
     private DokumentBestillerTjeneste dokumentBestillerTjeneste;
     private BehandlingRepository behandlingRepository;
+    private MellomlagringRepository mellomlagringRepository;
 
     @Inject
     public VarselRevurderingTjeneste(@KonfigVerdi(value = "behandling.default.ventefrist.periode", defaultVerdi = "P4W") Period defaultVenteFrist,
                                      BehandlingProsesseringTjeneste behandlingProsesseringTjeneste,
                                      DokumentBestillerTjeneste dokumentBestillerTjeneste,
-                                     BehandlingRepository behandlingRepository) {
+                                     BehandlingRepository behandlingRepository,
+                                     MellomlagringRepository mellomlagringRepository) {
         this.defaultVenteFrist = defaultVenteFrist;
         this.behandlingProsesseringTjeneste = behandlingProsesseringTjeneste;
         this.dokumentBestillerTjeneste = dokumentBestillerTjeneste;
         this.behandlingRepository = behandlingRepository;
+        this.mellomlagringRepository = mellomlagringRepository;
     }
 
     VarselRevurderingTjeneste() {
         // CDI
     }
 
-    public void håndterVarselRevurdering(BehandlingReferanse ref, VarselRevurderingAksjonspunktDto adapter) {
+    public void bestillVarselRevurdering(BehandlingReferanse ref, VarselRevurderingAksjonspunktDto adapter) {
+        var mellomlagretHtml = mellomlagringRepository.hentMellomlagring(ref.behandlingId(), MellomlagringType.VARSEL_REVURDERING)
+            .map(m -> m.getInnhold())
+            .orElse(null);
+        var dokumentMal = mellomlagretHtml == null ? DokumentMalType.VARSEL_OM_REVURDERING : DokumentMalType.FRITEKST_HTML;
+        var journalførSom = mellomlagretHtml == null ? null : DokumentMalType.VARSEL_OM_REVURDERING;
         var dokumentBestilling = DokumentBestilling.builder()
             .medBehandlingUuid(ref.behandlingUuid())
             .medSaksnummer(ref.saksnummer())
-            .medDokumentMal(DokumentMalType.VARSEL_OM_REVURDERING)
+            .medDokumentMal(dokumentMal)
+            .medJournalførSom(journalførSom)
             .medRevurderingÅrsak(RevurderingVarslingÅrsak.ANNET)
-            .medFritekst(adapter.getFritekst())
+            .medFritekst(mellomlagretHtml)
             .build();
         dokumentBestillerTjeneste.bestillDokument(dokumentBestilling);
-        settBehandlingPaVent(ref, adapter.getFrist(), fraDto(adapter.getVenteÅrsakKode()));
+        settBehandlingPaVent(ref, adapter.frist(), fraDto(adapter.venteÅrsakKode()));
     }
 
     private void settBehandlingPaVent(BehandlingReferanse ref, LocalDate frist, Venteårsak venteårsak) {
@@ -59,9 +70,7 @@ public class VarselRevurderingTjeneste {
     }
 
     private LocalDateTime bestemFristForBehandlingVent(LocalDate frist) {
-        return frist != null
-            ? LocalDateTime.of(frist, LocalDateTime.now().toLocalTime())
-            : LocalDateTime.now().plus(defaultVenteFrist);
+        return frist != null ? LocalDateTime.of(frist, LocalDateTime.now().toLocalTime()) : LocalDateTime.now().plus(defaultVenteFrist);
     }
 
     private Venteårsak fraDto(String kode) {

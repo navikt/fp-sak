@@ -51,6 +51,7 @@ import no.nav.foreldrepenger.web.app.tjenester.behandling.vedtak.dto.Totrinnskon
 import no.nav.foreldrepenger.web.app.tjenester.behandling.vilkår.VilkårDto;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.vilkår.VilkårDtoMapper;
 import no.nav.foreldrepenger.web.app.tjenester.brev.BrevRestTjeneste;
+import no.nav.foreldrepenger.web.app.tjenester.mellomlagring.MellomlagringRestTjeneste;
 
 /**
  * Bygger et sammensatt resultat av FagsakBehandlingDto ved å samle data fra ulike tjenester, for å kunne levere dette ut på en REST tjeneste.
@@ -161,6 +162,9 @@ public class FagsakBehandlingDtoTjeneste {
         }
         links.add(post(BrevRestTjeneste.BREV_BESTILL_PATH, "brev-bestill"));
         links.add(post(BrevRestTjeneste.BREV_VIS_PATH, "brev-vis"));
+        links.add(get(BrevRestTjeneste.BREV_HTML_PATH, "hent-brev-html", uuidDto));
+        links.add(post(MellomlagringRestTjeneste.MELLOMLAGRING_PATH, "mellomlagring"));
+        links.add(get(MellomlagringRestTjeneste.MELLOMLAGRING_PATH, "hent-mellomlagring", uuidDto));
         return links;
     }
 

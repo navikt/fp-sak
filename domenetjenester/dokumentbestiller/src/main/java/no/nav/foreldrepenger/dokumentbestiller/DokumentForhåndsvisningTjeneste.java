@@ -19,6 +19,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingsresultatRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.KonsekvensForYtelsen;
+import no.nav.foreldrepenger.behandlingslager.behandling.RevurderingVarslingÅrsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.dokument.DokumentMalType;
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
@@ -71,11 +72,19 @@ public class DokumentForhåndsvisningTjeneste extends AbstractDokumentBestillerT
             LOG.info("Genererer annuleringsbrev som utgangspunkt for overstyring av foreldrepenger som med tomt uttak: {}", behandling.getFagsak().getSaksnummer());
             dokumentMalType = DokumentMalType.FORELDREPENGER_ANNULLERT;
         }
+        return genererHtml(behandling, dokumentMalType);
+    }
 
+    public String genererHtml(Behandling behandling, DokumentMalType dokumentMalType) {
+        return genererHtml(behandling, dokumentMalType, null);
+    }
+
+    public String genererHtml(Behandling behandling, DokumentMalType dokumentMalType, RevurderingVarslingÅrsak årsak) {
         var dokumentBestillingHtmlDto = new DokumentBestillingHtmlDto(
             behandling.getUuid(),
             new Saksnummer(behandling.getSaksnummer().getVerdi()),
-            mapDokumentMal(dokumentMalType)
+            mapDokumentMal(dokumentMalType),
+            mapRevurderignÅrsak(årsak)
         );
 
         LOG.info("Genererer HTML for brev med mal {} for behandling {}", dokumentBestillingHtmlDto.dokumentMal(), behandling.getUuid());
@@ -111,7 +120,7 @@ public class DokumentForhåndsvisningTjeneste extends AbstractDokumentBestillerT
         // (gjelderAutomatiskBrev == null || Boolean.FALSE.equals(gjelderAutomatiskBrev))
         if (DokumentForhandsvisning.DokumentType.OVERSTYRT.equals(brevType) && Vedtaksbrev.FRITEKST.equals(resultatBrev)) {
             var fritekstMal = dokumentBehandlingTjeneste.hentMellomlagretOverstyring(behandlingId).isPresent()
-                ? DokumentMalType.VEDTAKSBREV_FRITEKST_HTML
+                ? DokumentMalType.FRITEKST_HTML
                 : DokumentMalType.FRITEKSTBREV;
 
             LOG.info("Utledere maltype for fritekst: {}", fritekstMal);

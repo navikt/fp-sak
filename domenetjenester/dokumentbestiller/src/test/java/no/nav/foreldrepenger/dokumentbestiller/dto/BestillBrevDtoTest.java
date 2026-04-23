@@ -19,7 +19,7 @@ class BestillBrevDtoTest {
         var dokumentMal = DokumentMalType.FRITEKSTBREV;
         var årsak = RevurderingVarslingÅrsak.BARN_IKKE_REGISTRERT_FOLKEREGISTER;
 
-        var brev = new BestillDokumentDto(behandlingUuid, dokumentMal, null, årsak);
+        var brev = new BestillDokumentDto(behandlingUuid, dokumentMal, null, årsak, false);
 
         var json = DefaultJsonMapper.toJson(brev);
 

@@ -9,6 +9,8 @@ import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentBehandlingTjeneste;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentBestilling;
+import no.nav.foreldrepenger.behandlingslager.behandling.dokument.MellomlagringRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.dokument.MellomlagringType;
 import no.nav.vedtak.felles.prosesstask.api.CommonTaskProperties;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
@@ -18,6 +20,7 @@ public class DokumentBestiller {
     private BehandlingRepository behandlingRepository;
     private ProsessTaskTjeneste taskTjeneste;
     private DokumentBehandlingTjeneste dokumentBehandlingTjeneste;
+    private MellomlagringRepository mellomlagringRepository;
 
     public DokumentBestiller() {
         // CDI
@@ -26,16 +29,23 @@ public class DokumentBestiller {
     @Inject
     public DokumentBestiller(BehandlingRepository behandlingRepository,
                              ProsessTaskTjeneste taskTjeneste,
-                             DokumentBehandlingTjeneste dokumentBehandlingTjeneste) {
+                             DokumentBehandlingTjeneste dokumentBehandlingTjeneste,
+                             MellomlagringRepository mellomlagringRepository) {
         this.behandlingRepository = behandlingRepository;
         this.taskTjeneste = taskTjeneste;
         this.dokumentBehandlingTjeneste = dokumentBehandlingTjeneste;
+        this.mellomlagringRepository = mellomlagringRepository;
     }
 
     public void bestillDokument(DokumentBestilling bestillBrevDto) {
         var behandling = behandlingRepository.hentBehandling(bestillBrevDto.behandlingUuid());
         opprettBestillBrevTask(behandling, bestillBrevDto);
         dokumentBehandlingTjeneste.lagreDokumentBestilt(behandling, bestillBrevDto);
+        var malÅSlette = bestillBrevDto.journalførSom() != null ? bestillBrevDto.journalførSom() : bestillBrevDto.dokumentMal();
+        var mellomlagringType = MellomlagringType.fraDokumentMalType(malÅSlette);
+        if (mellomlagringType != null) {
+            mellomlagringRepository.fjernMellomlagring(behandling.getId(), mellomlagringType);
+        }
     }
 
     private void opprettBestillBrevTask(Behandling behandling, DokumentBestilling bestilling) {
