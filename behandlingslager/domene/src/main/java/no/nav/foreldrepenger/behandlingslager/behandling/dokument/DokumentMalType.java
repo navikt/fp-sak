@@ -61,9 +61,7 @@ public enum DokumentMalType implements Kodeverdi, DatabaseKode {
     @Deprecated KLAGE_STADFESTET("KGESTA"),
     @Deprecated KLAGE_HJEMSENDT("KGEHJE");
 
-    public static final Set<DokumentMalType> VEDTAK_FRITEKTBREV_TYPER = Set.of(FRITEKSTBREV, FRITEKST_HTML);
-
-    public static final Set<DokumentMalType> VEDTAKSBREV = Set.of(ENGANGSSTØNAD_INNVILGELSE, ENGANGSSTØNAD_AVSLAG, FORELDREPENGER_INNVILGELSE,
+        public static final Set<DokumentMalType> VEDTAKSBREV = Set.of(ENGANGSSTØNAD_INNVILGELSE, ENGANGSSTØNAD_AVSLAG, FORELDREPENGER_INNVILGELSE,
         FORELDREPENGER_AVSLAG, FORELDREPENGER_OPPHØR, FORELDREPENGER_ANNULLERT, SVANGERSKAPSPENGER_INNVILGELSE, SVANGERSKAPSPENGER_AVSLAG,
         SVANGERSKAPSPENGER_OPPHØR);
 
@@ -109,10 +107,6 @@ public enum DokumentMalType implements Kodeverdi, DatabaseKode {
             throw new IllegalArgumentException("Ukjent DokumentMalType kode: " + kode);
         }
         return type;
-    }
-
-    public static boolean erVedtakFritektsBrev(DokumentMalType brev) {
-        return VEDTAK_FRITEKTBREV_TYPER.contains(brev);
     }
 
     public static boolean erVedtaksBrev(DokumentMalType brev) {

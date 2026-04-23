@@ -81,7 +81,7 @@ public class DokumentBehandlingTjeneste {
             .orElse(List.of())
             .stream()
             .anyMatch(dok -> dok.getDokumentMalType().equals(dokumentMalTypeKode)
-                || dokumentMalTypeKode.equals(dok.getOpprineligDokumentMal()));
+                || dokumentMalTypeKode.equals(dok.getOpprinneligDokumentMal()));
     }
 
     public Optional<LocalDateTime> dokumentSistBestiltTidspunkt(Long behandlingId, DokumentMalType dokumentMalTypeKode) {
@@ -90,7 +90,7 @@ public class DokumentBehandlingTjeneste {
             .orElse(List.of())
             .stream()
             .filter(dok -> dok.getDokumentMalType().equals(dokumentMalTypeKode)
-                || dokumentMalTypeKode.equals(dok.getOpprineligDokumentMal()))
+                || dokumentMalTypeKode.equals(dok.getOpprinneligDokumentMal()))
             .map(BaseCreateableEntitet::getOpprettetTidspunkt)
             .max(Comparator.naturalOrder());
     }
@@ -146,7 +146,7 @@ public class DokumentBehandlingTjeneste {
                 LOG.trace("JournalpostId: {}.", journalpostId);
                 behandlingDokumentRepository.lagreOgFlush(bestilling);
             }
-            var dokumentMal = utledMalBrukt(bestilling.getDokumentMalType(), bestilling.getOpprineligDokumentMal());
+            var dokumentMal = utledMalBrukt(bestilling.getDokumentMalType(), bestilling.getOpprinneligDokumentMal());
             lagreHistorikk(behandling, dokumentMal, journalpostId, kvittering.dokumentId());
         } else {
             LOG.warn("Fant ikke dokument bestilling for bestillingUuid: {}.", bestillingUuid);
