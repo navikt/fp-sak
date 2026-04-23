@@ -11,6 +11,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Lob;
 import jakarta.persistence.Table;
+import jakarta.persistence.Version;
 
 import no.nav.foreldrepenger.behandlingslager.BaseEntitet;
 
@@ -32,6 +33,10 @@ public class MellomlagringEntitet extends BaseEntitet {
     @Lob
     @Column(name = "INNHOLD", nullable = false)
     private String innhold;
+
+    @Version
+    @Column(name = "versjon", nullable = false)
+    private Long versjon;
 
     protected MellomlagringEntitet() {
         // for hibernate
