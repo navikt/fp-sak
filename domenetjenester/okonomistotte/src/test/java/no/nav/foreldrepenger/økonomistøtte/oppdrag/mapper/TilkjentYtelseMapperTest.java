@@ -42,7 +42,7 @@ class TilkjentYtelseMapperTest {
 
     private static final Arbeidsgiver ARBEIDSGIVER_1 = Arbeidsgiver.virksomhet("111111111");
 
-    private static final BeregningsresultatEntitet ENTITET = new BeregningsresultatEntitet();
+    private static final BeregningsresultatEntitet ENTITET = BeregningsresultatEntitet.builder().build();
 
     @Test
     void skal_mappe_en_periode_med_en_andel_til_en_kjede_med_en_periode() {
