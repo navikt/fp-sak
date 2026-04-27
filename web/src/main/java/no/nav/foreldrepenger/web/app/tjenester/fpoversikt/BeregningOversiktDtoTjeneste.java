@@ -61,7 +61,7 @@ public class BeregningOversiktDtoTjeneste {
         this.skjæringstidspunktTjeneste = skjæringstidspunktTjeneste;
     }
 
-    public BeregningOversiktDtoTjeneste() {
+    protected BeregningOversiktDtoTjeneste() {
         // CDI
     }
 

@@ -58,7 +58,7 @@ public class BeregningsresultatPeriode extends BaseEntitet {
     @AttributeOverride(name = "tomDato", column = @Column(name = "br_periode_tom"))
     private DatoIntervallEntitet periode;
 
-    public BeregningsresultatPeriode() {
+    protected BeregningsresultatPeriode() {
         // For Hibernate
     }
 

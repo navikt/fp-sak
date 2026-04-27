@@ -46,7 +46,7 @@ public class BeregningsresultatEntitet extends BaseEntitet {
     @Column(name = "regel_versjon")
     private String regelVersjon;
 
-    public BeregningsresultatEntitet() {
+    protected BeregningsresultatEntitet() {
         // For Hibernate
     }
 
