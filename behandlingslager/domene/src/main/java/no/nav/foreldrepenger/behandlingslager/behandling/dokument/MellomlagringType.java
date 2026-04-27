@@ -1,6 +1,8 @@
 package no.nav.foreldrepenger.behandlingslager.behandling.dokument;
 
-public enum MellomlagringType {
+import no.nav.foreldrepenger.behandlingslager.kodeverk.DatabaseKode;
+
+public enum MellomlagringType implements DatabaseKode {
     VARSEL_REVURDERING,
     INNHENT_OPPLYSNINGER,
     VEDTAKSBREV,

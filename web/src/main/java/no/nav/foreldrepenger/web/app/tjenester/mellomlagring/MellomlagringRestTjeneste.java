@@ -8,6 +8,7 @@ import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.GET;
@@ -120,8 +121,8 @@ public class MellomlagringRestTjeneste {
 
     public record MellomlagringDto(
         @Valid @NotNull UUID behandlingUuid,
-        MellomlagringType type,
-        String dokumentMal,
+        @Valid MellomlagringType type,
+        @Pattern(regexp = "^[A-Z_]*$") @Size(max = 50) String dokumentMal,
         @Fritekst @Size(max = 200_000) String innhold
     ) {}
 

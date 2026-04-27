@@ -26,6 +26,7 @@ public record DokumentBestilling(UUID behandlingUuid,
         private RevurderingVarslingÅrsak revurderingÅrsak;
         private String fritekst;
         private DokumentMalType journalførSom;
+        private UUID bestillingUuid;
 
         public Builder medBehandlingUuid(UUID behandlingUuid) {
             this.behandlingUuid = behandlingUuid;
@@ -57,9 +58,15 @@ public record DokumentBestilling(UUID behandlingUuid,
             return this;
         }
 
+        public Builder medBestillingUuid(UUID bestillingUuid) {
+            this.bestillingUuid = bestillingUuid;
+            return this;
+        }
+
         public DokumentBestilling build() {
             valider();
-            return new DokumentBestilling(behandlingUuid, saksnummer, dokumentMal, fritekst, revurderingÅrsak, journalførSom, UUID.randomUUID());
+            return new DokumentBestilling(behandlingUuid, saksnummer, dokumentMal, fritekst, revurderingÅrsak, journalførSom,
+                bestillingUuid != null ? bestillingUuid : UUID.randomUUID());
         }
 
         private void valider() {
@@ -70,15 +77,7 @@ public record DokumentBestilling(UUID behandlingUuid,
             if (DokumentMalType.FRITEKSTBREV.equals(dokumentMal) || DokumentMalType.FRITEKST_HTML.equals(dokumentMal)) {
                 Objects.requireNonNull(journalførSom, "journalførSom dokument mal må være satt for fritekst vedtak er valgt.");
             }
-            if (DokumentMalType.INNHENTE_OPPLYSNINGER.equals(dokumentMal)) {
-                Objects.requireNonNull(fritekst, "Fritekst må være satt for revurdering årsak Annet.");
-            } else if (DokumentMalType.VARSEL_OM_REVURDERING.equals(dokumentMal)) {
-                Objects.requireNonNull(revurderingÅrsak, "Revurdering årsak må være satt.");
 
-                if (RevurderingVarslingÅrsak.ANNET.equals(revurderingÅrsak)) {
-                    Objects.requireNonNull(fritekst, "Fritekst må være satt for revurdering årsak Annet.");
-                }
-            }
         }
     }
 }

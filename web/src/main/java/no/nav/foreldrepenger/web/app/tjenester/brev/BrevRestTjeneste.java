@@ -1,6 +1,7 @@
 package no.nav.foreldrepenger.web.app.tjenester.brev;
 
 import java.util.Objects;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Function;
 
@@ -119,10 +120,9 @@ public class BrevRestTjeneste {
         var dokumentBestilling = DokumentBestilling.builder()
             .medBehandlingUuid(bestillBrevDto.behandlingUuid())
             .medSaksnummer(behandling.getSaksnummer())
-            .medDokumentMal(bestillBrevDto.htmlFritekst() ? DokumentMalType.FRITEKST_HTML : bestillBrevDto.brevmalkode())
-            .medJournalførSom(bestillBrevDto.htmlFritekst() ? bestillBrevDto.brevmalkode() : null)
+            .medDokumentMal(bestillBrevDto.brevmalkode())
             .medRevurderingÅrsak(bestillBrevDto.årsakskode())
-            .medFritekst(bestillBrevDto.fritekst() != null ? bestillBrevDto.fritekst() : null)
+            .medFritekst(bestillBrevDto.fritekst())
             .build();
 
         if (DokumentMalType.ETTERLYS_INNTEKTSMELDING.equals(bestillBrevDto.brevmalkode())) {
@@ -232,7 +232,7 @@ public class BrevRestTjeneste {
     }
 
     public record MellomlagreHtmlDto(@Valid @NotNull UUID behandlingUuid,
-                                     @Valid @Fritekst @Size(max = 20_000) String redigertInnhold) {
+                                     @Fritekst @Size(max = 20_000) String redigertInnhold) {
     }
 
     @POST
@@ -243,12 +243,21 @@ public class BrevRestTjeneste {
     @SuppressWarnings("findsecbugs:JAXRS_ENDPOINT")
     public Response forhåndsvisDokument(@Parameter(description = "Inneholder kode til brevmal og bestillingsdetaljer.") @TilpassetAbacAttributt(supplierClass = ForhåndsvisSupplier.class) @Valid ForhåndsvisDokumentDto forhåndsvisDto) { // NOSONAR
         var behandling = behandlingRepository.hentBehandling(forhåndsvisDto.behandlingUuid());
+
+        var brevmalkode = forhåndsvisDto.dokumentMal();
+        var mellomlagringType = MellomlagringType.fraDokumentMalType(brevmalkode);
+        var mellomlagring = mellomlagringType != null
+            ? mellomlagringRepository.hentMellomlagring(behandling.getId(), mellomlagringType)
+            : Optional.<MellomlagringEntitet>empty();
+        var dokumentMal = mellomlagring.isPresent() ? DokumentMalType.FRITEKST_HTML : brevmalkode;
+        var fritekst = mellomlagring.map(MellomlagringEntitet::getInnhold).orElse(forhåndsvisDto.fritekst());
+
         var bestilling = DokumentForhandsvisning.builder()
             .medBehandlingUuid(forhåndsvisDto.behandlingUuid())
             .medSaksnummer(behandling.getSaksnummer())
-            .medDokumentMal(forhåndsvisDto.dokumentMal())
+            .medDokumentMal(dokumentMal)
             .medRevurderingÅrsak(forhåndsvisDto.årsakskode())
-            .medFritekst(forhåndsvisDto.fritekst() != null ? forhåndsvisDto.fritekst() : null)
+            .medFritekst(fritekst)
             .medTittel(forhåndsvisDto.tittel())
             .medDokumentType(utledDokumentType(forhåndsvisDto.automatiskVedtaksbrev()))
             .build();
