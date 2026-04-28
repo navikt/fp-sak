@@ -43,7 +43,7 @@ class VedtaksHendelseObserverTest extends EntityManagerAwareTest {
     private BehandlingRepositoryProvider repositoryProvider;
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         repositoryProvider = new BehandlingRepositoryProvider(getEntityManager());
         behandlingVedtakRepository = new BehandlingVedtakRepository(getEntityManager());
         vedtaksHendelseObserver = new VedtaksHendelseObserver(taskTjeneste);

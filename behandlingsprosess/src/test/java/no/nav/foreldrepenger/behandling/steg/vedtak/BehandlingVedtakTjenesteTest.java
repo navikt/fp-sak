@@ -2,7 +2,6 @@ package no.nav.foreldrepenger.behandling.steg.vedtak;
 
 import static no.nav.foreldrepenger.behandlingslager.behandling.InternalManipulerBehandling.forceOppdaterBehandlingSteg;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
 
 import java.time.LocalDate;
 
@@ -45,7 +44,7 @@ class BehandlingVedtakTjenesteTest extends EntityManagerAwareTest {
     private BehandlingVedtakRepository behandlingVedtakRepository;
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         var entityManager = getEntityManager();
         repositoryProvider = new BehandlingRepositoryProvider(entityManager);
         behandlingVedtakTjeneste = new BehandlingVedtakTjeneste(BehandlingEventPubliserer.NULL_EVENT_PUB, repositoryProvider);

@@ -22,7 +22,7 @@ class BehandlingKandidaterRepositoryTest extends EntityManagerAwareTest {
     private BehandlingRepository behandlingRepository;
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         var entityManager = getEntityManager();
         behandlingKandidaterRepository = new BehandlingKandidaterRepository(entityManager);
         behandlingRepository = new BehandlingRepository(entityManager);

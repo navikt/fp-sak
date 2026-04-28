@@ -3,7 +3,6 @@ package no.nav.foreldrepenger.domene.aksjonspunkt;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
 
 public class OppdaterBeregningsgrunnlagResultat {
 

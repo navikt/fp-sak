@@ -75,7 +75,7 @@ class SvpDtoTjenesteTest extends EntityManagerAwareTest {
     private final Arbeidsgiver ARBEIDSGIVER = Arbeidsgiver.virksomhet("123456789");
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         var entityManager = getEntityManager();
         svangerskapspengerRepository = new SvangerskapspengerRepository(entityManager);
         repositoryProvider = new BehandlingRepositoryProvider(entityManager);

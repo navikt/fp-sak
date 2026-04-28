@@ -5,8 +5,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.List;
 
-import no.nav.foreldrepenger.behandlingslager.virksomhet.ArbeidType;
-
 import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.SvpTilretteleggingEntitet;

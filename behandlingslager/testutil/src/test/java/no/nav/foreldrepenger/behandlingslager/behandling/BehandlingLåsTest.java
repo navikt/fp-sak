@@ -18,7 +18,7 @@ class BehandlingLåsTest extends EntityManagerAwareTest {
     private EntityManager entityManager;
 
     @BeforeEach
-    public void setup() {
+    void setup() {
         entityManager = getEntityManager();
         behandlingRepository = new BehandlingRepository(getEntityManager());
     }

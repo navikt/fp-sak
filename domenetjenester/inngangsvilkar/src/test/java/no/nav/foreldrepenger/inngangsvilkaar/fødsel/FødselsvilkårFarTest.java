@@ -58,7 +58,7 @@ class FødselsvilkårFarTest extends EntityManagerAwareTest {
     }
 
     @Test // FP_VK 11.2 Vilkårsutfall oppfylt
-    public void skal_vurdere_vilkår_som_oppfylt_når_søker_er_far_og_fødsel_bekreftet() {
+    void skal_vurdere_vilkår_som_oppfylt_når_søker_er_far_og_fødsel_bekreftet() {
         // Arrange
         var behandling = lagBehandlingMedFarEllerMedmor(RelasjonsRolleType.FARA, NavBrukerKjønn.MANN, true, false, true);
 
@@ -80,7 +80,7 @@ class FødselsvilkårFarTest extends EntityManagerAwareTest {
     }
 
     @Test // FP_VK 11.2 Vilkårsutfall oppfylt
-    public void skal_vurdere_vilkår_som_oppfylt_når_søker_er_medmor_og_fødsel_bekreftet() {
+    void skal_vurdere_vilkår_som_oppfylt_når_søker_er_medmor_og_fødsel_bekreftet() {
         // Arrange
         var behandling = lagBehandlingMedFarEllerMedmor(RelasjonsRolleType.MORA, NavBrukerKjønn.KVINNE, true, false, true);
 
@@ -113,7 +113,7 @@ class FødselsvilkårFarTest extends EntityManagerAwareTest {
     }
 
     @Test // FP_VK 11.4 Vilkårsutfall ikke oppfylt
-    public void skal_vurdere_vilkår_som_oppfylt_når_søker_er_medmor_og_fødsel_ikke_bekreftet_og_søkt_om_termin_uansett_mors_helse() {
+    void skal_vurdere_vilkår_som_oppfylt_når_søker_er_medmor_og_fødsel_ikke_bekreftet_og_søkt_om_termin_uansett_mors_helse() {
         // Arrange
         var behandling = lagBehandlingMedFarEllerMedmor(RelasjonsRolleType.MORA, NavBrukerKjønn.KVINNE, false, false, false);
         when(mockMinsterett.utenMinsterett(any())).thenReturn(false);

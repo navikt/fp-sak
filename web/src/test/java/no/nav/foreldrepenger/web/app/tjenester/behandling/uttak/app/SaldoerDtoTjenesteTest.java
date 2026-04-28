@@ -95,7 +95,7 @@ class SaldoerDtoTjenesteTest extends EntityManagerAwareTest {
     private BehandlingsresultatRepository behandlingsresultatRepository;
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         var entityManager = getEntityManager();
         repositoryProvider = new BehandlingRepositoryProvider(entityManager);
         behandlingRepository = new BehandlingRepository(entityManager);

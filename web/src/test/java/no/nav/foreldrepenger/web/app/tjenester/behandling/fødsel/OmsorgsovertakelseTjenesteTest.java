@@ -24,7 +24,7 @@ import no.nav.foreldrepenger.familiehendelse.aksjonspunkt.omsorgsovertakelse.Oms
 import no.nav.foreldrepenger.familiehendelse.kontrollerfakta.sammebarn.YtelserSammeBarnTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.fødsel.dto.Kilde;
 
-public class OmsorgsovertakelseTjenesteTest extends EntityManagerAwareTest {
+class OmsorgsovertakelseTjenesteTest extends EntityManagerAwareTest {
     private static final LocalDate OMSORGSOVERTAGELSEDATO = LocalDate.now();
     private static final LocalDate FØDSELSDATO = LocalDate.now().minusMonths(10);
 

@@ -12,7 +12,6 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskGruppe;
 
 import org.hibernate.jpa.HibernateHints;
 
-import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakProsesstaskRekkefølge;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;

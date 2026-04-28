@@ -3,7 +3,6 @@ package no.nav.foreldrepenger.web.app.tjenester.registrering.fp;
 import static no.nav.foreldrepenger.web.app.tjenester.registrering.SøknadMapperUtil.oppdaterDtoForFødsel;
 import static no.nav.foreldrepenger.web.app.tjenester.registrering.SøknadMapperUtil.opprettBruker;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.Mockito.mock;
 
 import java.time.LocalDate;
 import java.util.Optional;

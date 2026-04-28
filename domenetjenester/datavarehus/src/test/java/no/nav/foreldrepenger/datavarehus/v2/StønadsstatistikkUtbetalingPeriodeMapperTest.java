@@ -22,7 +22,7 @@ class StønadsstatistikkUtbetalingPeriodeMapperTest {
     void mapper_tilkjent_henter_dagsats_fra_andel_med_dagsats() {
         var beregningsresultatPeriode = new BeregningsresultatPeriode.Builder()
             .medBeregningsresultatPeriodeFomOgTom(LocalDate.of(2023, 12, 9), LocalDate.of(2023, 12, 20))
-            .build(new BeregningsresultatEntitet());
+            .build(BeregningsresultatEntitet.builder().medRegelInput("input").medRegelSporing("sporing").build());
         var orgnr = "123";
         new BeregningsresultatAndel.Builder().medInntektskategori(Inntektskategori.ARBEIDSTAKER)
             .medAktivitetStatus(AktivitetStatus.ARBEIDSTAKER)
@@ -63,7 +63,7 @@ class StønadsstatistikkUtbetalingPeriodeMapperTest {
     void mapper_slår_sammen_like_perioder_gjennom_helg() {
         var beregningsresultatPeriode1 = new BeregningsresultatPeriode.Builder()
             .medBeregningsresultatPeriodeFomOgTom(LocalDate.of(2023, 12, 9), LocalDate.of(2023, 12, 15))
-            .build(new BeregningsresultatEntitet());
+            .build(BeregningsresultatEntitet.builder().medRegelInput("input").medRegelSporing("sporing").build());
         var orgnr = "123";
         new BeregningsresultatAndel.Builder().medInntektskategori(Inntektskategori.ARBEIDSTAKER)
             .medAktivitetStatus(AktivitetStatus.ARBEIDSTAKER)
@@ -77,7 +77,7 @@ class StønadsstatistikkUtbetalingPeriodeMapperTest {
             .build(beregningsresultatPeriode1);
         var beregningsresultatPeriode2 = new BeregningsresultatPeriode.Builder()
             .medBeregningsresultatPeriodeFomOgTom(LocalDate.of(2023, 12, 18), LocalDate.of(2023, 12, 22))
-            .build(new BeregningsresultatEntitet());
+            .build(BeregningsresultatEntitet.builder().medRegelInput("input").medRegelSporing("sporing").build());
         var andel2 = new BeregningsresultatAndel.Builder().medInntektskategori(Inntektskategori.ARBEIDSTAKER)
             .medAktivitetStatus(AktivitetStatus.ARBEIDSTAKER)
             .medArbeidsgiver(Arbeidsgiver.virksomhet(orgnr))

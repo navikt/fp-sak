@@ -88,7 +88,7 @@ class VergeTjenesteTest extends EntityManagerAwareTest {
     private Behandling behandling;
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         var entityManager = getEntityManager();
         behandlingRepository = new BehandlingRepository(entityManager);
         var fagsakRepository = new FagsakRepository(entityManager);

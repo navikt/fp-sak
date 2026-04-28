@@ -23,7 +23,7 @@ class EøsUttakRepositoryTest {
     private EøsUttakRepository repository;
 
     @BeforeEach
-    public void setup(EntityManager em) {
+    void setup(EntityManager em) {
         this.repository = new EøsUttakRepository(em);
     }
 

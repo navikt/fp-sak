@@ -60,7 +60,6 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.hendelser.StartpunktType;
 import no.nav.foreldrepenger.domene.modell.Beregningsgrunnlag;
 import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagGrunnlag;
-import no.nav.foreldrepenger.domene.modell.kodeverk.BeregningsgrunnlagTilstand;
 import no.nav.foreldrepenger.domene.prosess.BeregningTjeneste;
 import no.nav.foreldrepenger.domene.registerinnhenting.BehandlingÅrsakTjeneste;
 import no.nav.foreldrepenger.domene.registerinnhenting.StartpunktTjeneste;

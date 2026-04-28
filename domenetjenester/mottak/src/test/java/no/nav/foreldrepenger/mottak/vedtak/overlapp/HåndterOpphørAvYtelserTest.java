@@ -84,7 +84,7 @@ class HåndterOpphørAvYtelserTest extends EntityManagerAwareTest {
     private BehandlingProsesseringTjeneste behandlingProsesseringTjenesteMock;
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         var entityManager = getEntityManager();
         lenient().when(behandlendeEnhetTjeneste.finnBehandlendeEnhetFor(any())).thenReturn(ENHET);
         lenient().when(behandlendeEnhetTjeneste.finnBehandlendeEnhetFor(any(), any(String.class))).thenReturn(ENHET);

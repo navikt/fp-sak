@@ -61,7 +61,7 @@ class InntektsmeldingOversetterTest extends EntityManagerAwareTest {
     private BehandlingEventPubliserer behandlingEventPubliserer;
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         when(virksomhetTjeneste.finnOrganisasjon(any())).thenReturn(Optional.of(Virksomhet.getBuilder()
             .medOrgnr(KUNSTIG_ORG)
             .medNavn("Ukjent Firma")
