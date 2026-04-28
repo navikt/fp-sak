@@ -244,9 +244,10 @@ public class SkjæringstidspunktTjenesteImpl implements SkjæringstidspunktTjene
     }
 
     private LocalDateInterval utledYtelseintervall(Behandling behandling, LocalDateInterval maxstønadsperiode) {
+        // Normalt fra STP til MaxUttak (barn 3år). Dersom siste søkte dato er seneres, så avkortes til MaxUttak
+        // Spesialtifeller: Søknads eller overstyring til uttak etter barnet 3år - tom stp > MaxUttak.
         var sistedato = sisteØnskedeUttaksdag(behandling, hentYtelseFordelingAggregatFor(behandling.getId()), maxstønadsperiode.getFomDato());
-        var bruktomdato = sistedato.isAfter(maxstønadsperiode.getTomDato().minusDays(1)) ?
-            maxstønadsperiode.getTomDato().minusDays(1) : sistedato;
+        var bruktomdato = sistedato.isAfter(maxstønadsperiode.getTomDato()) ? maxstønadsperiode.getTomDato() : sistedato;
         return new LocalDateInterval(maxstønadsperiode.getFomDato(), bruktomdato.isAfter(maxstønadsperiode.getFomDato()) ? bruktomdato : maxstønadsperiode.getFomDato());
     }
 
@@ -259,6 +260,7 @@ public class SkjæringstidspunktTjenesteImpl implements SkjæringstidspunktTjene
     }
 
     private LocalDateInterval maxstønadsperiode(LocalDate skjæringstidspunkt, Optional<FamilieHendelseGrunnlagEntitet> familieHendelseGrunnlag) {
+        // Normalt fra STP til barnet er 3 år (MaxUttak). Dersom STP > MaxUttak: fra MaxUttak til STP.
         var max = familieHendelseGrunnlag.map(FamilieHendelseGrunnlagEntitet::getGjeldendeVersjon)
             .map(FamilieHendelseEntitet::getSkjæringstidspunkt)
             .orElse(skjæringstidspunkt)
