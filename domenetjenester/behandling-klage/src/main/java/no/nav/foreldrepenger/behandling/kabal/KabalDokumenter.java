@@ -33,6 +33,8 @@ import no.nav.foreldrepenger.domene.typer.Saksnummer;
 @ApplicationScoped
 public class KabalDokumenter {
 
+    private static final Set<DokumentMalType> FRITEKSTBREV = Set.of(DokumentMalType.FRITEKSTBREV, DokumentMalType.FRITEKST_HTML);
+
     private DokumentArkivTjeneste dokumentArkivTjeneste;
     private MottatteDokumentRepository mottatteDokumentRepository;
     private BehandlingDokumentRepository behandlingDokumentRepository;
@@ -156,7 +158,7 @@ public class KabalDokumenter {
     }
 
     private static boolean erOverstyrtVedtaksbrev(BehandlingDokumentBestiltEntitet d) {
-        return Set.of(DokumentMalType.FRITEKSTBREV, DokumentMalType.FRITEKST_HTML).contains(d.getDokumentMalType())
+        return FRITEKSTBREV.contains(d.getDokumentMalType())
             && d.getOpprinneligDokumentMal() != null && DokumentMalType.erVedtaksBrev(d.getOpprinneligDokumentMal());
     }
 

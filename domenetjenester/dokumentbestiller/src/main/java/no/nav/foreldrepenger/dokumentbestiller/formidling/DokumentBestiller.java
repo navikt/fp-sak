@@ -69,7 +69,6 @@ public class DokumentBestiller {
         var prosessTaskData = ProsessTaskData.forProsessTask(BestillDokumentTask.class);
 
         prosessTaskData.setProperty(CommonTaskProperties.BEHANDLING_UUID, String.valueOf(behandling.getUuid()));
-        prosessTaskData.setProperty(CommonTaskProperties.BEHANDLING_ID, String.valueOf(behandling.getId()));
         prosessTaskData.setProperty(BestillDokumentTask.BESTILLING_UUID, String.valueOf(bestilling.bestillingUuid()));
 
         // Optionals
