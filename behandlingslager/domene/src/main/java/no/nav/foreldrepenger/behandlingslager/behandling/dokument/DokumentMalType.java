@@ -101,7 +101,7 @@ public enum DokumentMalType implements Kodeverdi, DatabaseKode {
         return utledDokumentTittel(this);
     }
 
-    public static DokumentMalType fromString(String kode) {
+    public static DokumentMalType fraKode(String kode) {
         var type = KODER.get(kode);
         if (type == null) {
             throw new IllegalArgumentException("Ukjent DokumentMalType kode: " + kode);

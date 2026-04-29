@@ -108,7 +108,7 @@ public class MellomlagringRestTjeneste {
             return type;
         }
         if (dokumentMal != null && !dokumentMal.isEmpty()) {
-            var dokumentMalType = DokumentMalType.fromString(dokumentMal);
+            var dokumentMalType = DokumentMalType.fraKode(dokumentMal);
             var resolved = MellomlagringType.fraDokumentMalType(dokumentMalType);
             if (resolved == null) {
                 throw new IllegalArgumentException("Ukjent dokumentMal for mellomlagring: " + dokumentMal);

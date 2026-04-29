@@ -50,7 +50,7 @@ public enum RevurderingVarslingÅrsak implements Kodeverdi {
         return kode;
     }
 
-    public static RevurderingVarslingÅrsak fromString(String kode) {
+    public static RevurderingVarslingÅrsak fraKode(String kode) {
         if (kode == null) {
             return null;
         }

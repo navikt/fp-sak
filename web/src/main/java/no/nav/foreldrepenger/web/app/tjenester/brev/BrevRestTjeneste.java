@@ -193,7 +193,7 @@ public class BrevRestTjeneste {
     public Response hentBrevHtml(
             @TilpassetAbacAttributt(supplierClass = BehandlingAbacSuppliers.UuidAbacDataSupplier.class) @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto,
             @QueryParam("dokumentMal") @Parameter(description = "Brevmaltype for HTML-generering, f.eks. VARREV for varsel om revurdering. Utelates for vedtaksbrev.") String dokumentMal,
-            @QueryParam("revurderingÅrsak") @Parameter(description = "Årsak for revurdering, brukes kun ved VARREV") RevurderingVarslingÅrsak revurderingÅrsak) {
+            @QueryParam("revurderingÅrsak") @Parameter(description = "Årsak for revurdering, brukes kun ved VARREV") String revurderingÅrsak) {
         var behandling = behandlingRepository.hentBehandling(uuidDto.getBehandlingUuid());
         String dokument;
         String redigertHtml;
@@ -202,8 +202,8 @@ public class BrevRestTjeneste {
             dokument = dokumentForhåndsvisningTjeneste.genererHtml(behandling);
             redigertHtml = dokumentBehandlingTjeneste.hentMellomlagretOverstyring(behandling.getId()).orElse(null);
         } else {
-            var dokumentMalType = DokumentMalType.fromString(dokumentMal);
-            dokument = dokumentForhåndsvisningTjeneste.genererHtml(behandling, dokumentMalType, revurderingÅrsak);
+            var dokumentMalType = DokumentMalType.fraKode(dokumentMal);
+            dokument = dokumentForhåndsvisningTjeneste.genererHtml(behandling, dokumentMalType, RevurderingVarslingÅrsak.fraKode(revurderingÅrsak));
             var mellomlagringType = MellomlagringType.fraDokumentMalType(dokumentMalType);
             redigertHtml = mellomlagringType != null
                 ? mellomlagringRepository.hentMellomlagring(behandling.getId(), mellomlagringType)
