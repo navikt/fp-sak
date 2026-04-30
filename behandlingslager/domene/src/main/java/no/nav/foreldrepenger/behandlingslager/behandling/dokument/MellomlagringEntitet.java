@@ -3,6 +3,7 @@ package no.nav.foreldrepenger.behandlingslager.behandling.dokument;
 import java.util.Objects;
 
 import jakarta.persistence.Column;
+import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -14,6 +15,7 @@ import jakarta.persistence.Table;
 import jakarta.persistence.Version;
 
 import no.nav.foreldrepenger.behandlingslager.BaseEntitet;
+import no.nav.vedtak.felles.jpa.converters.BooleanToStringConverter;
 
 @Entity(name = "BehandlingMellomlagring")
 @Table(name = "BEHANDLING_MELLOMLAGRING")
@@ -33,6 +35,10 @@ public class MellomlagringEntitet extends BaseEntitet {
     @Lob
     @Column(name = "INNHOLD", nullable = false)
     private String innhold;
+
+    @Convert(converter = BooleanToStringConverter.class)
+    @Column(name = "BESTILLING_LAAS", nullable = false)
+    private boolean bestillingLåst;
 
     @Version
     @Column(name = "versjon", nullable = false)
@@ -60,6 +66,14 @@ public class MellomlagringEntitet extends BaseEntitet {
 
     public void setInnhold(String innhold) {
         this.innhold = innhold;
+    }
+
+    public boolean isBestillingLåst() {
+        return bestillingLåst;
+    }
+
+    public void setBestillingLåst(boolean bestillingLåst) {
+        this.bestillingLåst = bestillingLåst;
     }
 
     @Override

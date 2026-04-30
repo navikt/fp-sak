@@ -177,8 +177,8 @@ public class BrevRestTjeneste {
         if (dokument == null || dokument.isEmpty()) {
             return Response.serverError().build();
         }
-        var eksiterendeOverstyring = dokumentBehandlingTjeneste.hentMellomlagretOverstyring(behandling.getId());
-        var overstyrtBrev = new OverstyrtDokumentDto(dokument, eksiterendeOverstyring.orElse(null));
+        var eksisterendeOverstyring = dokumentBehandlingTjeneste.hentMellomlagretOverstyring(behandling.getId());
+        var overstyrtBrev = new OverstyrtDokumentDto(dokument, eksisterendeOverstyring.orElse(null));
         return Response.ok(overstyrtBrev).build();
     }
 

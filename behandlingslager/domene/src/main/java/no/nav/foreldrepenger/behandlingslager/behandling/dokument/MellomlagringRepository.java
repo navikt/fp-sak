@@ -45,8 +45,12 @@ public class MellomlagringRepository {
     public void lagreEllerOppdater(Long behandlingId, MellomlagringType type, String innhold) {
         var eksisterende = hentMellomlagring(behandlingId, type);
         if (eksisterende.isPresent()) {
-            eksisterende.get().setInnhold(innhold);
-            lagreOgFlush(eksisterende.get());
+            var entitet = eksisterende.get();
+            if (entitet.isBestillingLåst()) {
+                throw new IllegalStateException("Mellomlagring er låst for endring mens bestilling pågår. BehandlingId: " + behandlingId + ", type: " + type);
+            }
+            entitet.setInnhold(innhold);
+            lagreOgFlush(entitet);
         } else {
             var mellomlagring = MellomlagringEntitet.Builder.ny()
                 .medBehandlingId(behandlingId)
@@ -72,5 +76,12 @@ public class MellomlagringRepository {
             .setParameter("behandlingId", behandlingId)
             .executeUpdate();
         entityManager.flush();
+    }
+
+    public void låsMellomlagring(Long behandlingId, MellomlagringType type) {
+        hentMellomlagring(behandlingId, type).ifPresent(entitet -> {
+            entitet.setBestillingLåst(true);
+            lagreOgFlush(entitet);
+        });
     }
 }

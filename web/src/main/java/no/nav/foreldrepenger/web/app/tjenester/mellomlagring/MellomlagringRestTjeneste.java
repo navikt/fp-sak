@@ -94,6 +94,7 @@ public class MellomlagringRestTjeneste {
                 dokumentBehandlingTjeneste.lagreOverstyrtBrev(behandling, dto.innhold());
             }
         } else {
+            validerIkkeLåst(behandling.getId(), resolvedType);
             if (dto.innhold() == null) {
                 mellomlagringRepository.fjernMellomlagring(behandling.getId(), resolvedType);
             } else {
@@ -101,6 +102,14 @@ public class MellomlagringRestTjeneste {
             }
         }
         return Response.ok().build();
+    }
+
+    private void validerIkkeLåst(Long behandlingId, MellomlagringType type) {
+        mellomlagringRepository.hentMellomlagring(behandlingId, type)
+            .filter(MellomlagringEntitet::isBestillingLåst)
+            .ifPresent(m -> {
+                throw new IllegalStateException("Mellomlagring er låst for endring mens bestilling pågår. BehandlingId: " + behandlingId + ", type: " + type);
+            });
     }
 
     private static MellomlagringType resolveType(MellomlagringType type, String dokumentMal) {

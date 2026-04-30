@@ -4,7 +4,6 @@ import static no.nav.foreldrepenger.behandlingslager.behandling.dokument.Melloml
 import static no.nav.foreldrepenger.behandlingslager.behandling.dokument.MellomlagringType.VARSEL_REVURDERING;
 import static no.nav.foreldrepenger.behandlingslager.behandling.dokument.MellomlagringType.VEDTAKSBREV;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.verify;
 
 import jakarta.inject.Inject;

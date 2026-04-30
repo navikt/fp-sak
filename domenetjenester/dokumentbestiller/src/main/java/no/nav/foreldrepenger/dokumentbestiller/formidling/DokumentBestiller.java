@@ -43,6 +43,16 @@ public class DokumentBestiller {
         var resolved = resolveMellomlagring(behandling, bestilling);
         dokumentBehandlingTjeneste.lagreDokumentBestilt(behandling, resolved);
         opprettBestillBrevTask(behandling, resolved);
+        låsMellomlagringHvisHtmlBrev(behandling, resolved);
+    }
+
+    private void låsMellomlagringHvisHtmlBrev(Behandling behandling, DokumentBestilling bestilling) {
+        if (DokumentMalType.FRITEKST_HTML.equals(bestilling.dokumentMal()) && bestilling.journalførSom() != null) {
+            var mellomlagringType = MellomlagringType.fraDokumentMalType(bestilling.journalførSom());
+            if (mellomlagringType != null) {
+                mellomlagringRepository.låsMellomlagring(behandling.getId(), mellomlagringType);
+            }
+        }
     }
 
     private DokumentBestilling resolveMellomlagring(Behandling behandling, DokumentBestilling bestilling) {
