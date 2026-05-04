@@ -13,13 +13,13 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
+import no.nav.foreldrepenger.behandlingslager.behandling.dokument.DokumentMalType;
 import no.nav.foreldrepenger.behandlingslager.behandling.dokument.MellomlagringRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
 import no.nav.foreldrepenger.dbstoette.CdiDbAwareTest;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentBehandlingTjeneste;
-import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.UuidDto;
 
 @CdiDbAwareTest
 class MellomlagringRestTjenesteTest {
@@ -42,13 +42,13 @@ class MellomlagringRestTjenesteTest {
         tjeneste = new MellomlagringRestTjeneste(mellomlagringRepository, behandlingRepository, dokumentBehandlingTjeneste);
     }
 
-    // --- GET: hentMellomlagring ---
+    // --- POST: hentMellomlagring ---
 
     @Test
     void hent_returnerer_innhold_når_det_finnes() {
         mellomlagringRepository.lagreEllerOppdater(behandling.getId(), VARSEL_REVURDERING, "<p>Mellomlagret varsel</p>");
 
-        var respons = tjeneste.hentMellomlagring(new UuidDto(behandling.getUuid()), VARSEL_REVURDERING, null);
+        var respons = tjeneste.hentMellomlagring(new MellomlagringRestTjeneste.HentMellomlagringDto(behandling.getUuid(), VARSEL_REVURDERING, null));
 
         assertThat(respons.getStatus()).isEqualTo(200);
         var dto = (MellomlagringRestTjeneste.MellomlagringResultatDto) respons.getEntity();
@@ -57,7 +57,7 @@ class MellomlagringRestTjenesteTest {
 
     @Test
     void hent_returnerer_204_når_innhold_ikke_finnes() {
-        var respons = tjeneste.hentMellomlagring(new UuidDto(behandling.getUuid()), VARSEL_REVURDERING, null);
+        var respons = tjeneste.hentMellomlagring(new MellomlagringRestTjeneste.HentMellomlagringDto(behandling.getUuid(), VARSEL_REVURDERING, null));
 
         assertThat(respons.getStatus()).isEqualTo(204);
         assertThat(respons.getEntity()).isNull();
@@ -67,7 +67,8 @@ class MellomlagringRestTjenesteTest {
     void hent_med_dokumentMal_resolver_type() {
         mellomlagringRepository.lagreEllerOppdater(behandling.getId(), INNHENT_OPPLYSNINGER, "<p>Innhent opplysninger</p>");
 
-        var respons = tjeneste.hentMellomlagring(new UuidDto(behandling.getUuid()), null, "INNOPP");
+        var respons = tjeneste.hentMellomlagring(new MellomlagringRestTjeneste.HentMellomlagringDto(behandling.getUuid(), null,
+            DokumentMalType.INNHENTE_OPPLYSNINGER));
 
         assertThat(respons.getStatus()).isEqualTo(200);
         var dto = (MellomlagringRestTjeneste.MellomlagringResultatDto) respons.getEntity();
@@ -78,7 +79,7 @@ class MellomlagringRestTjenesteTest {
     void hent_uten_type_og_dokumentMal_gir_vedtaksbrev() {
         mellomlagringRepository.lagreEllerOppdater(behandling.getId(), VEDTAKSBREV, "<p>Vedtaksbrev</p>");
 
-        var respons = tjeneste.hentMellomlagring(new UuidDto(behandling.getUuid()), null, null);
+        var respons = tjeneste.hentMellomlagring(new MellomlagringRestTjeneste.HentMellomlagringDto(behandling.getUuid(), null, null));
 
         assertThat(respons.getStatus()).isEqualTo(200);
         var dto = (MellomlagringRestTjeneste.MellomlagringResultatDto) respons.getEntity();
@@ -123,7 +124,8 @@ class MellomlagringRestTjenesteTest {
 
     @Test
     void lagre_med_dokumentMal_VARREV_resolver_til_VARSEL_REVURDERING() {
-        var dto = new MellomlagringRestTjeneste.MellomlagringDto(behandling.getUuid(), null, "VARREV", "<p>Varsel</p>");
+        var dto = new MellomlagringRestTjeneste.MellomlagringDto(behandling.getUuid(), null,
+            DokumentMalType.VARSEL_OM_REVURDERING, "<p>Varsel</p>");
 
         tjeneste.lagreMellomlagring(dto);
 
@@ -134,7 +136,8 @@ class MellomlagringRestTjenesteTest {
 
     @Test
     void lagre_med_dokumentMal_INNOPP_resolver_til_INNHENT_OPPLYSNINGER() {
-        var dto = new MellomlagringRestTjeneste.MellomlagringDto(behandling.getUuid(), null, "INNOPP", "<p>Innhent</p>");
+        var dto = new MellomlagringRestTjeneste.MellomlagringDto(behandling.getUuid(), null,
+            DokumentMalType.INNHENTE_OPPLYSNINGER, "<p>Innhent</p>");
 
         tjeneste.lagreMellomlagring(dto);
 
@@ -165,7 +168,8 @@ class MellomlagringRestTjenesteTest {
 
     @Test
     void type_parameter_har_prioritet_over_dokumentMal() {
-        var dto = new MellomlagringRestTjeneste.MellomlagringDto(behandling.getUuid(), VARSEL_REVURDERING, "INNOPP", "<p>Innhold</p>");
+        var dto = new MellomlagringRestTjeneste.MellomlagringDto(behandling.getUuid(), VARSEL_REVURDERING, DokumentMalType.INNHENTE_OPPLYSNINGER,
+            "<p>Innhold</p>");
 
         tjeneste.lagreMellomlagring(dto);
 

@@ -25,12 +25,13 @@ import org.slf4j.LoggerFactory;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import no.nav.folketrygdloven.kalkulus.annoteringer.Fritekst;
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.RevurderingVarslingÅrsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Venteårsak;
-import no.nav.foreldrepenger.behandlingslager.behandling.dokument.MellomlagringEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.dokument.DokumentMalType;
+import no.nav.foreldrepenger.behandlingslager.behandling.dokument.MellomlagringEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.dokument.MellomlagringRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.dokument.MellomlagringType;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
@@ -48,6 +49,7 @@ import no.nav.foreldrepenger.dokumentbestiller.dto.ForhåndsvisDokumentDto;
 import no.nav.foreldrepenger.domene.arbeidInntektsmelding.ArbeidsforholdInntektsmeldingMangelTjeneste;
 import no.nav.foreldrepenger.domene.arbeidInntektsmelding.ArbeidsforholdInntektsmeldingStatus;
 import no.nav.foreldrepenger.kontrakter.formidling.v3.DokumentKvitteringDto;
+import no.nav.foreldrepenger.validering.ValidKodeverk;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.BehandlingAbacSuppliers;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.UuidDto;
 import no.nav.foreldrepenger.web.server.abac.AppAbacAttributtType;
@@ -57,7 +59,6 @@ import no.nav.vedtak.sikkerhet.abac.StandardAbacAttributtType;
 import no.nav.vedtak.sikkerhet.abac.TilpassetAbacAttributt;
 import no.nav.vedtak.sikkerhet.abac.beskyttet.ActionType;
 import no.nav.vedtak.sikkerhet.abac.beskyttet.ResourceType;
-import no.nav.vedtak.util.Fritekst;
 
 @Path(BrevRestTjeneste.BASE_PATH)
 @ApplicationScoped
@@ -185,25 +186,24 @@ public class BrevRestTjeneste {
     public record OverstyrtDokumentDto(String opprinneligHtml, String redigertHtml) {
     }
 
-    @GET
+    @POST
     @Path(BREV_HTML_PART_PATH)
+    @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     @Operation(description = "Genererer brev-HTML for en gitt dokumentmal og inkluderer eventuell redigert versjon fra mellomlagring.", tags = "brev")
     @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK, sporingslogg = true)
-    public Response hentBrevHtml(
-            @TilpassetAbacAttributt(supplierClass = BehandlingAbacSuppliers.UuidAbacDataSupplier.class) @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto,
-            @QueryParam("dokumentMal") @Parameter(description = "Brevmaltype for HTML-generering, f.eks. VARREV for varsel om revurdering. Utelates for vedtaksbrev.") String dokumentMal,
-            @QueryParam("revurderingÅrsak") @Parameter(description = "Årsak for revurdering, brukes kun ved VARREV") String revurderingÅrsak) {
-        var behandling = behandlingRepository.hentBehandling(uuidDto.getBehandlingUuid());
+    public Response hentBrevHtml(@TilpassetAbacAttributt(supplierClass = BrevHtmlAbacSupplier.class) @Valid @NotNull BrevHtmlDto dto) {
+        var behandling = behandlingRepository.hentBehandling(dto.behandlingUuid());
+        var dokumentMalType = dto.dokumentMal();
+        var revurderingÅrsak = dto.revurderingÅrsak();
         String dokument;
         String redigertHtml;
-        if (dokumentMal == null || dokumentMal.isEmpty()) {
+        if (dokumentMalType == null) {
             // Vedtaksbrev — bruk genererHtml uten mal og hent overstyring fra gammel tabell
             dokument = dokumentForhåndsvisningTjeneste.genererHtml(behandling);
             redigertHtml = dokumentBehandlingTjeneste.hentMellomlagretOverstyring(behandling.getId()).orElse(null);
         } else {
-            var dokumentMalType = DokumentMalType.fraKode(dokumentMal);
-            dokument = dokumentForhåndsvisningTjeneste.genererHtml(behandling, dokumentMalType, RevurderingVarslingÅrsak.fraKode(revurderingÅrsak));
+            dokument = dokumentForhåndsvisningTjeneste.genererHtml(behandling, dokumentMalType, revurderingÅrsak);
             var mellomlagringType = MellomlagringType.fraDokumentMalType(dokumentMalType);
             redigertHtml = mellomlagringType != null
                 ? mellomlagringRepository.hentMellomlagring(behandling.getId(), mellomlagringType)
@@ -232,7 +232,7 @@ public class BrevRestTjeneste {
     }
 
     public record MellomlagreHtmlDto(@Valid @NotNull UUID behandlingUuid,
-                                     @Fritekst @Size(max = 20_000) String redigertInnhold) {
+                                     @Valid @Fritekst @Size(max = 20_000) String redigertInnhold) {
     }
 
     @POST
@@ -336,6 +336,20 @@ public class BrevRestTjeneste {
         @Override
         public AbacDataAttributter apply(Object obj) {
             var req = (MellomlagreHtmlDto) obj;
+            return AbacDataAttributter.opprett().leggTil(StandardAbacAttributtType.BEHANDLING_UUID, req.behandlingUuid);
+        }
+    }
+
+    public record BrevHtmlDto( //TODO palfi bruk kodeverk
+                               @Valid @NotNull UUID behandlingUuid,
+                               @ValidKodeverk DokumentMalType dokumentMal,
+                               @ValidKodeverk RevurderingVarslingÅrsak revurderingÅrsak) {
+    }
+
+    public static class BrevHtmlAbacSupplier implements Function<Object, AbacDataAttributter> {
+        @Override
+        public AbacDataAttributter apply(Object obj) {
+            var req = (BrevHtmlDto) obj;
             return AbacDataAttributter.opprett().leggTil(StandardAbacAttributtType.BEHANDLING_UUID, req.behandlingUuid);
         }
     }

@@ -50,15 +50,4 @@ public enum RevurderingVarslingÅrsak implements Kodeverdi {
         return kode;
     }
 
-    public static RevurderingVarslingÅrsak fraKode(String kode) {
-        if (kode == null) {
-            return null;
-        }
-        var årsak = KODER.get(kode);
-        if (årsak == null) {
-            throw new IllegalArgumentException("Ukjent RevurderingVarslingÅrsak: " + kode);
-        }
-        return årsak;
-    }
-
 }

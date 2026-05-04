@@ -8,34 +8,29 @@ import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import jakarta.ws.rs.Consumes;
-import jakarta.ws.rs.GET;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
-import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
-import no.nav.foreldrepenger.behandlingslager.behandling.dokument.MellomlagringEntitet;
+import no.nav.folketrygdloven.kalkulus.annoteringer.Fritekst;
 import no.nav.foreldrepenger.behandlingslager.behandling.dokument.DokumentMalType;
+import no.nav.foreldrepenger.behandlingslager.behandling.dokument.MellomlagringEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.dokument.MellomlagringRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.dokument.MellomlagringType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentBehandlingTjeneste;
-import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.BehandlingAbacSuppliers;
-import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.UuidDto;
+import no.nav.foreldrepenger.validering.ValidKodeverk;
 import no.nav.vedtak.sikkerhet.abac.AbacDataAttributter;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
 import no.nav.vedtak.sikkerhet.abac.StandardAbacAttributtType;
 import no.nav.vedtak.sikkerhet.abac.TilpassetAbacAttributt;
 import no.nav.vedtak.sikkerhet.abac.beskyttet.ActionType;
 import no.nav.vedtak.sikkerhet.abac.beskyttet.ResourceType;
-import no.nav.vedtak.util.Fritekst;
 
 @Path(MellomlagringRestTjeneste.BASE_PATH)
 @ApplicationScoped
@@ -43,7 +38,9 @@ import no.nav.vedtak.util.Fritekst;
 public class MellomlagringRestTjeneste {
 
     static final String BASE_PATH = "/mellomlagring";
+    private static final String HENT_PART_PATH = "/hent";
     public static final String MELLOMLAGRING_PATH = BASE_PATH;
+    public static final String HENT_MELLOMLAGRING_PATH = BASE_PATH + HENT_PART_PATH;
 
     private MellomlagringRepository mellomlagringRepository;
     private BehandlingRepository behandlingRepository;
@@ -62,16 +59,15 @@ public class MellomlagringRestTjeneste {
         this.dokumentBehandlingTjeneste = dokumentBehandlingTjeneste;
     }
 
-    @GET
+    @POST
+    @Path("/hent")
+    @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     @Operation(description = "Henter mellomlagret innhold for en behandling. Bruk enten 'type' eller 'dokumentMal' for å identifisere hva som hentes.", tags = "mellomlagring")
     @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK, sporingslogg = true)
-    public Response hentMellomlagring(
-            @TilpassetAbacAttributt(supplierClass = BehandlingAbacSuppliers.UuidAbacDataSupplier.class) @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto,
-            @QueryParam("type") @Parameter(description = "Type mellomlagring (f.eks. VARSEL_REVURDERING). Alternativ til dokumentMal.") MellomlagringType type,
-            @QueryParam("dokumentMal") @Parameter(description = "Dokumentmal (f.eks. VARREV). Backend utleder mellomlagringstype. Utelates for vedtaksbrev.") String dokumentMal) {
-        var behandling = behandlingRepository.hentBehandling(uuidDto.getBehandlingUuid());
-        var resolvedType = resolveType(type, dokumentMal);
+    public Response hentMellomlagring(@TilpassetAbacAttributt(supplierClass = HentMellomlagringAbacSupplier.class) @Valid @NotNull HentMellomlagringDto dto) {
+        var behandling = behandlingRepository.hentBehandling(dto.behandlingUuid());
+        var resolvedType = resolveType(dto.type(), dto.dokumentMal());
         var innhold = mellomlagringRepository.hentMellomlagring(behandling.getId(), resolvedType)
             .map(MellomlagringEntitet::getInnhold);
         if (innhold.isPresent()) {
@@ -112,15 +108,14 @@ public class MellomlagringRestTjeneste {
             });
     }
 
-    private static MellomlagringType resolveType(MellomlagringType type, String dokumentMal) {
+    private static MellomlagringType resolveType(MellomlagringType type, DokumentMalType dokumentMalType) {
         if (type != null) {
             return type;
         }
-        if (dokumentMal != null && !dokumentMal.isEmpty()) {
-            var dokumentMalType = DokumentMalType.fraKode(dokumentMal);
+        if (dokumentMalType != null) {
             var resolved = MellomlagringType.fraDokumentMalType(dokumentMalType);
             if (resolved == null) {
-                throw new IllegalArgumentException("Ukjent dokumentMal for mellomlagring: " + dokumentMal);
+                throw new IllegalArgumentException("Ukjent dokumentMal for mellomlagring: " + dokumentMalType);
             }
             return resolved;
         }
@@ -131,7 +126,7 @@ public class MellomlagringRestTjeneste {
     public record MellomlagringDto(
         @Valid @NotNull UUID behandlingUuid,
         @Valid MellomlagringType type,
-        @Pattern(regexp = "^[A-Z_]*$") @Size(max = 50) String dokumentMal,
+        @ValidKodeverk DokumentMalType dokumentMal,
         @Fritekst @Size(max = 200_000) String innhold
     ) {}
 
@@ -141,6 +136,20 @@ public class MellomlagringRestTjeneste {
         @Override
         public AbacDataAttributter apply(Object obj) {
             var req = (MellomlagringDto) obj;
+            return AbacDataAttributter.opprett().leggTil(StandardAbacAttributtType.BEHANDLING_UUID, req.behandlingUuid);
+        }
+    }
+
+    public record HentMellomlagringDto(
+        @Valid @NotNull UUID behandlingUuid,
+        @Valid MellomlagringType type,
+        @ValidKodeverk DokumentMalType dokumentMal
+    ) {}
+
+    public static class HentMellomlagringAbacSupplier implements Function<Object, AbacDataAttributter> {
+        @Override
+        public AbacDataAttributter apply(Object obj) {
+            var req = (HentMellomlagringDto) obj;
             return AbacDataAttributter.opprett().leggTil(StandardAbacAttributtType.BEHANDLING_UUID, req.behandlingUuid);
         }
     }

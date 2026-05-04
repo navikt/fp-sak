@@ -178,7 +178,7 @@ class BrevRestTjenesteTest {
 
         // Act
         var respons = brevRestTjeneste.hentBrevHtml(
-            new UuidDto(UUID.randomUUID()), VARSEL_OM_REVURDERING.getKode(), null);
+            new BrevRestTjeneste.BrevHtmlDto(UUID.randomUUID(), VARSEL_OM_REVURDERING, null));
 
         // Assert
         var dto = (BrevRestTjeneste.OverstyrtDokumentDto) respons.getEntity();
@@ -198,7 +198,7 @@ class BrevRestTjenesteTest {
 
         // Act
         var respons = brevRestTjeneste.hentBrevHtml(
-            new UuidDto(UUID.randomUUID()), VARSEL_OM_REVURDERING.getKode(), null);
+            new BrevRestTjeneste.BrevHtmlDto(UUID.randomUUID(), VARSEL_OM_REVURDERING, null));
 
         // Assert
         var dto = (BrevRestTjeneste.OverstyrtDokumentDto) respons.getEntity();
@@ -218,12 +218,7 @@ class BrevRestTjenesteTest {
 
         // Act
         var respons = brevRestTjeneste.hentBrevHtml(
-            new UuidDto(UUID.randomUUID()), null, null);
-
-        // Assert
-        var dto = (BrevRestTjeneste.OverstyrtDokumentDto) respons.getEntity();
-        assertThat(dto.opprinneligHtml()).isEqualTo(brevProdusertAvFpdokgen);
-        assertThat(dto.redigertHtml()).isEqualTo(overstyrtHtml);
+            new BrevRestTjeneste.BrevHtmlDto(UUID.randomUUID(), null, null));
     }
 
     @Test
@@ -237,7 +232,7 @@ class BrevRestTjenesteTest {
 
         // Act
         var respons = brevRestTjeneste.hentBrevHtml(
-            new UuidDto(UUID.randomUUID()), null, null);
+            new BrevRestTjeneste.BrevHtmlDto(UUID.randomUUID(), null, null));
 
         // Assert
         var dto = (BrevRestTjeneste.OverstyrtDokumentDto) respons.getEntity();

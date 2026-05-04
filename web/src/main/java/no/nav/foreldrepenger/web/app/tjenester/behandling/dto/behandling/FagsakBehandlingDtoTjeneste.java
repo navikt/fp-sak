@@ -162,9 +162,9 @@ public class FagsakBehandlingDtoTjeneste {
         }
         links.add(post(BrevRestTjeneste.BREV_BESTILL_PATH, "brev-bestill"));
         links.add(post(BrevRestTjeneste.BREV_VIS_PATH, "brev-vis"));
-        links.add(get(BrevRestTjeneste.BREV_HTML_PATH, "hent-brev-html", uuidDto));
+        links.add(post(BrevRestTjeneste.BREV_HTML_PATH, "hent-brev-html"));
         links.add(post(MellomlagringRestTjeneste.MELLOMLAGRING_PATH, "mellomlagring"));
-        links.add(get(MellomlagringRestTjeneste.MELLOMLAGRING_PATH, "hent-mellomlagring", uuidDto));
+        links.add(post(MellomlagringRestTjeneste.HENT_MELLOMLAGRING_PATH, "hent-mellomlagring"));
         return links;
     }
 
