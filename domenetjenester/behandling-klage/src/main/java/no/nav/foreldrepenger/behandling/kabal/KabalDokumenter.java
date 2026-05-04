@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 
@@ -31,6 +32,8 @@ import no.nav.foreldrepenger.domene.typer.Saksnummer;
 
 @ApplicationScoped
 public class KabalDokumenter {
+
+    private static final Set<DokumentMalType> FRITEKSTBREV = Set.of(DokumentMalType.FRITEKSTBREV, DokumentMalType.FRITEKST_HTML);
 
     private DokumentArkivTjeneste dokumentArkivTjeneste;
     private MottatteDokumentRepository mottatteDokumentRepository;
@@ -155,8 +158,8 @@ public class KabalDokumenter {
     }
 
     private static boolean erOverstyrtVedtaksbrev(BehandlingDokumentBestiltEntitet d) {
-        return DokumentMalType.erVedtakFritektsBrev(d.getDokumentMalType()) && d.getOpprineligDokumentMal() != null
-            && DokumentMalType.erVedtaksBrev(d.getOpprineligDokumentMal());
+        return FRITEKSTBREV.contains(d.getDokumentMalType())
+            && d.getOpprinneligDokumentMal() != null && DokumentMalType.erVedtaksBrev(d.getOpprinneligDokumentMal());
     }
 
     private Predicate<BehandlingDokumentBestiltEntitet> erKlageAvvist() {

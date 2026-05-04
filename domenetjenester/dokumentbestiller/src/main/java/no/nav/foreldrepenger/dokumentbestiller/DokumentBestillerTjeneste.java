@@ -54,7 +54,7 @@ public class DokumentBestillerTjeneste extends AbstractDokumentBestillerTjeneste
                 ? DokumentMalType.ENDRING_UTBETALING
                 : dokumentMal;
             dokumentMal = dokumentBehandlingTjeneste.hentMellomlagretOverstyring(behandling.getId()).isPresent()
-                ? DokumentMalType.VEDTAKSBREV_FRITEKST_HTML
+                ? DokumentMalType.FRITEKST_HTML
                 : DokumentMalType.FRITEKSTBREV;
         }
 

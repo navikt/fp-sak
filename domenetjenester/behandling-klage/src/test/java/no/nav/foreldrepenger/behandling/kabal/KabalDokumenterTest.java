@@ -107,7 +107,7 @@ class KabalDokumenterTest {
         var journalpost2 = new JournalpostId("67890");
         var behandlingDokument = BehandlingDokumentEntitet.Builder.ny().medBehandling(behandlingId).build();
         var dokumentBestilt = new BehandlingDokumentBestiltEntitet.Builder()
-            .medDokumentMalType(DokumentMalType.VEDTAKSBREV_FRITEKST_HTML)
+            .medDokumentMalType(DokumentMalType.FRITEKST_HTML)
             .medOpprinneligDokumentMal(DokumentMalType.FORELDREPENGER_INNVILGELSE)
             .medBehandlingDokument(behandlingDokument)
             .medBestillingUuid(UUID.randomUUID())

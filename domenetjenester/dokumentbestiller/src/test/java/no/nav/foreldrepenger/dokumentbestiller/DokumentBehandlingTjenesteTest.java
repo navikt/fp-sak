@@ -17,6 +17,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.dokument.BehandlingDokumentEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.dokument.BehandlingDokumentRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.dokument.DokumentMalType;
+import no.nav.foreldrepenger.behandlingslager.behandling.dokument.MellomlagringRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.AbstractTestScenario;
@@ -44,7 +45,8 @@ class DokumentBehandlingTjenesteTest {
     void setUp() {
         behandlingRepository = repositoryProvider.getBehandlingRepository();
         behandlingDokumentRepository = new BehandlingDokumentRepository(repositoryProvider.getEntityManager());
-        dokumentBehandlingTjeneste = new DokumentBehandlingTjeneste(repositoryProvider, behandlingProsesseringTjeneste, behandlingDokumentRepository);
+        dokumentBehandlingTjeneste = new DokumentBehandlingTjeneste(repositoryProvider, behandlingProsesseringTjeneste, behandlingDokumentRepository,
+            new MellomlagringRepository(repositoryProvider.getEntityManager()));
         this.scenario = ScenarioMorSøkerEngangsstønad
                 .forFødsel()
                 .medFødselAdopsjonsdato(Collections.singletonList(LocalDate.now().minusDays(3)));

@@ -102,7 +102,7 @@ class DokumentBestillingTest {
     @Test
     void exception_builder_friteksthtml_uten_journalfør_som_satt() {
         var behandlingUuid = UUID.randomUUID();
-        var dokumentMal = DokumentMalType.VEDTAKSBREV_FRITEKST_HTML;
+        var dokumentMal = DokumentMalType.FRITEKST_HTML;
 
         var bestillingBuilder = DokumentBestilling.builder()
             .medBehandlingUuid(behandlingUuid)
@@ -116,7 +116,7 @@ class DokumentBestillingTest {
     @Test
     void ok_builder_friteksthtml_med_journalfør_som() {
         var behandlingUuid = UUID.randomUUID();
-        var dokumentMal = DokumentMalType.VEDTAKSBREV_FRITEKST_HTML;
+        var dokumentMal = DokumentMalType.FRITEKST_HTML;
         var journalførSom = DokumentMalType.FORELDREPENGER_INNVILGELSE;
 
         var bestilling = DokumentBestilling.builder()
@@ -135,17 +135,19 @@ class DokumentBestillingTest {
     }
 
     @Test
-    void exception_builder_innhent_opplysninger_mangler_fritekst() {
+    void ok_builder_innhent_opplysninger_uten_fritekst() {
         var behandlingUuid = UUID.randomUUID();
         var dokumentMal = DokumentMalType.INNHENTE_OPPLYSNINGER;
 
-        var bestillingBuilder = DokumentBestilling.builder()
+        var bestilling = DokumentBestilling.builder()
             .medBehandlingUuid(behandlingUuid)
             .medSaksnummer(SAKSNUMMER)
-            .medDokumentMal(dokumentMal);
+            .medDokumentMal(dokumentMal)
+            .build();
 
-        var ex = assertThrows(NullPointerException.class, bestillingBuilder::build);
-        assertThat(ex.getMessage()).contains("Fritekst må være satt");
+        assertThat(bestilling.behandlingUuid()).isNotNull().isEqualTo(behandlingUuid);
+        assertThat(bestilling.dokumentMal()).isNotNull().isEqualTo(dokumentMal);
+        assertThat(bestilling.fritekst()).isNull();
     }
 
     @Test
@@ -169,32 +171,36 @@ class DokumentBestillingTest {
     }
 
     @Test
-    void exception_builder_varsel_mangler_årsak() {
+    void ok_builder_varsel_uten_årsak() {
         var behandlingUuid = UUID.randomUUID();
         var dokumentMal = DokumentMalType.VARSEL_OM_REVURDERING;
 
-        var bestillingBuilder = DokumentBestilling.builder()
-            .medBehandlingUuid(behandlingUuid)
-            .medSaksnummer(SAKSNUMMER)
-            .medDokumentMal(dokumentMal);
-
-        var ex = assertThrows(NullPointerException.class, bestillingBuilder::build);
-        assertThat(ex.getMessage()).contains("Revurdering årsak må være satt.");
-    }
-
-    @Test
-    void exception_builder_varsel_med_årsak_annet_mangler_fritekst() {
-        var behandlingUuid = UUID.randomUUID();
-        var dokumentMal = DokumentMalType.VARSEL_OM_REVURDERING;
-
-        var bestillingBuilder = DokumentBestilling.builder()
+        var bestilling = DokumentBestilling.builder()
             .medBehandlingUuid(behandlingUuid)
             .medSaksnummer(SAKSNUMMER)
             .medDokumentMal(dokumentMal)
-            .medRevurderingÅrsak(RevurderingVarslingÅrsak.ANNET);
+            .build();
 
-        var ex = assertThrows(NullPointerException.class, bestillingBuilder::build);
-        assertThat(ex.getMessage()).contains("Fritekst må være satt for revurdering årsak Annet");
+        assertThat(bestilling.behandlingUuid()).isNotNull().isEqualTo(behandlingUuid);
+        assertThat(bestilling.dokumentMal()).isNotNull().isEqualTo(dokumentMal);
+        assertThat(bestilling.revurderingÅrsak()).isNull();
+    }
+
+    @Test
+    void ok_builder_varsel_med_årsak_annet_uten_fritekst() {
+        var behandlingUuid = UUID.randomUUID();
+        var dokumentMal = DokumentMalType.VARSEL_OM_REVURDERING;
+
+        var bestilling = DokumentBestilling.builder()
+            .medBehandlingUuid(behandlingUuid)
+            .medSaksnummer(SAKSNUMMER)
+            .medDokumentMal(dokumentMal)
+            .medRevurderingÅrsak(RevurderingVarslingÅrsak.ANNET)
+            .build();
+
+        assertThat(bestilling.behandlingUuid()).isNotNull().isEqualTo(behandlingUuid);
+        assertThat(bestilling.dokumentMal()).isNotNull().isEqualTo(dokumentMal);
+        assertThat(bestilling.fritekst()).isNull();
     }
 
     @Test

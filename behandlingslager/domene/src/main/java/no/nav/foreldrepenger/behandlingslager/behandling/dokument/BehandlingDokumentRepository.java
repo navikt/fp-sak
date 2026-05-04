@@ -55,4 +55,5 @@ public class BehandlingDokumentRepository {
         }
         entityManager.flush();
     }
+
 }

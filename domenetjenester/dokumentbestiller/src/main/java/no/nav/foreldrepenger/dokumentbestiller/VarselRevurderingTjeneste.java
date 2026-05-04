@@ -8,7 +8,6 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
-import no.nav.foreldrepenger.behandlingslager.behandling.RevurderingVarslingÅrsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Venteårsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.dokument.DokumentMalType;
@@ -39,16 +38,14 @@ public class VarselRevurderingTjeneste {
         // CDI
     }
 
-    public void håndterVarselRevurdering(BehandlingReferanse ref, VarselRevurderingAksjonspunktDto adapter) {
+    public void bestillVarselRevurdering(BehandlingReferanse ref, VarselRevurderingAksjonspunktDto adapter) {
         var dokumentBestilling = DokumentBestilling.builder()
             .medBehandlingUuid(ref.behandlingUuid())
             .medSaksnummer(ref.saksnummer())
             .medDokumentMal(DokumentMalType.VARSEL_OM_REVURDERING)
-            .medRevurderingÅrsak(RevurderingVarslingÅrsak.ANNET)
-            .medFritekst(adapter.getFritekst())
             .build();
         dokumentBestillerTjeneste.bestillDokument(dokumentBestilling);
-        settBehandlingPaVent(ref, adapter.getFrist(), fraDto(adapter.getVenteÅrsakKode()));
+        settBehandlingPaVent(ref, adapter.frist(), fraDto(adapter.venteÅrsakKode()));
     }
 
     private void settBehandlingPaVent(BehandlingReferanse ref, LocalDate frist, Venteårsak venteårsak) {
@@ -59,9 +56,7 @@ public class VarselRevurderingTjeneste {
     }
 
     private LocalDateTime bestemFristForBehandlingVent(LocalDate frist) {
-        return frist != null
-            ? LocalDateTime.of(frist, LocalDateTime.now().toLocalTime())
-            : LocalDateTime.now().plus(defaultVenteFrist);
+        return frist != null ? LocalDateTime.of(frist, LocalDateTime.now().toLocalTime()) : LocalDateTime.now().plus(defaultVenteFrist);
     }
 
     private Venteårsak fraDto(String kode) {

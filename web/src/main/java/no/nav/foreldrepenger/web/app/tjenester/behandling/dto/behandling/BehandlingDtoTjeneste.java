@@ -91,6 +91,7 @@ import no.nav.foreldrepenger.web.app.tjenester.behandling.verge.VergeRestTjenest
 import no.nav.foreldrepenger.web.app.tjenester.behandling.vilkår.VilkårDtoMapper;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.ytelsefordeling.YtelsefordelingRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.brev.BrevRestTjeneste;
+import no.nav.foreldrepenger.web.app.tjenester.mellomlagring.MellomlagringRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.dokument.DokumentRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.SaksnummerDto;
 import no.nav.foreldrepenger.web.app.tjenester.familiehendelse.FamiliehendelseRestTjeneste;
@@ -348,6 +349,10 @@ public class BehandlingDtoTjeneste {
             dto.leggTil(post(BrevRestTjeneste.BREV_MELLOMLAGRE_OVERSTYRING_PATH, "mellomlagre-brev-overstyring"));
         }
 
+        dto.leggTil(post(BrevRestTjeneste.BREV_HTML_PATH, "hent-brev-html"));
+        dto.leggTil(post(MellomlagringRestTjeneste.MELLOMLAGRING_PATH, "mellomlagring"));
+        dto.leggTil(post(MellomlagringRestTjeneste.HENT_MELLOMLAGRING_PATH, "hent-mellomlagring"));
+
         dto.leggTil(get(FamiliehendelseRestTjeneste.FAMILIEHENDELSE_V3_PATH, "familiehendelse-v3", uuidDto));
 
         familieHendelseRepository.hentAggregatHvisEksisterer(behandling.getId()).ifPresent(f -> {
@@ -546,4 +551,5 @@ public class BehandlingDtoTjeneste {
             dto.leggTil(get(VergeRestTjeneste.BASE_PATH, "soeker-verge", uuidDto));
         }
     }
+
 }

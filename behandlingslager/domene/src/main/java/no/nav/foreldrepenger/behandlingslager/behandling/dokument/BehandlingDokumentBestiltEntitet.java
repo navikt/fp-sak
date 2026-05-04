@@ -71,7 +71,7 @@ public class BehandlingDokumentBestiltEntitet extends BaseEntitet {
         return journalpostId;
     }
 
-    public DokumentMalType getOpprineligDokumentMal() {
+    public DokumentMalType getOpprinneligDokumentMal() {
         return opprineligDokumentMal;
     }
 

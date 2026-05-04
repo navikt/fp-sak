@@ -6,6 +6,9 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
+import no.nav.foreldrepenger.behandlingslager.behandling.dokument.DokumentMalType;
+import no.nav.foreldrepenger.behandlingslager.behandling.dokument.MellomlagringRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.dokument.MellomlagringType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentBehandlingTjeneste;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentBestilling;
@@ -18,6 +21,7 @@ public class DokumentBestiller {
     private BehandlingRepository behandlingRepository;
     private ProsessTaskTjeneste taskTjeneste;
     private DokumentBehandlingTjeneste dokumentBehandlingTjeneste;
+    private MellomlagringRepository mellomlagringRepository;
 
     public DokumentBestiller() {
         // CDI
@@ -26,28 +30,58 @@ public class DokumentBestiller {
     @Inject
     public DokumentBestiller(BehandlingRepository behandlingRepository,
                              ProsessTaskTjeneste taskTjeneste,
-                             DokumentBehandlingTjeneste dokumentBehandlingTjeneste) {
+                             DokumentBehandlingTjeneste dokumentBehandlingTjeneste,
+                             MellomlagringRepository mellomlagringRepository) {
         this.behandlingRepository = behandlingRepository;
         this.taskTjeneste = taskTjeneste;
         this.dokumentBehandlingTjeneste = dokumentBehandlingTjeneste;
+        this.mellomlagringRepository = mellomlagringRepository;
     }
 
-    public void bestillDokument(DokumentBestilling bestillBrevDto) {
-        var behandling = behandlingRepository.hentBehandling(bestillBrevDto.behandlingUuid());
-        opprettBestillBrevTask(behandling, bestillBrevDto);
-        dokumentBehandlingTjeneste.lagreDokumentBestilt(behandling, bestillBrevDto);
+    public void bestillDokument(DokumentBestilling bestilling) {
+        var behandling = behandlingRepository.hentBehandling(bestilling.behandlingUuid());
+        var resolved = resolveMellomlagring(behandling, bestilling);
+        dokumentBehandlingTjeneste.lagreDokumentBestilt(behandling, resolved);
+        opprettBestillBrevTask(behandling, resolved);
+        låsMellomlagringHvisHtmlBrev(behandling, resolved);
+    }
+
+    private void låsMellomlagringHvisHtmlBrev(Behandling behandling, DokumentBestilling bestilling) {
+        if (DokumentMalType.FRITEKST_HTML.equals(bestilling.dokumentMal()) && bestilling.journalførSom() != null) {
+            var mellomlagringType = MellomlagringType.fraDokumentMalType(bestilling.journalførSom());
+            if (mellomlagringType != null) {
+                mellomlagringRepository.låsMellomlagring(behandling.getId(), mellomlagringType);
+            }
+        }
+    }
+
+    private DokumentBestilling resolveMellomlagring(Behandling behandling, DokumentBestilling bestilling) {
+        var mellomlagringType = MellomlagringType.fraDokumentMalType(bestilling.dokumentMal());
+        if (mellomlagringType == null) {
+            return bestilling;
+        }
+        var mellomlagring = mellomlagringRepository.hentMellomlagring(behandling.getId(), mellomlagringType);
+        if (mellomlagring.isEmpty()) {
+            return bestilling;
+        }
+
+        return DokumentBestilling.builder()
+            .medBehandlingUuid(bestilling.behandlingUuid())
+            .medSaksnummer(bestilling.saksnummer())
+            .medDokumentMal(DokumentMalType.FRITEKST_HTML)
+            .medJournalførSom(bestilling.dokumentMal())
+            .medRevurderingÅrsak(bestilling.revurderingÅrsak())
+            .medBestillingUuid(bestilling.bestillingUuid())
+            .build();
     }
 
     private void opprettBestillBrevTask(Behandling behandling, DokumentBestilling bestilling) {
         var prosessTaskData = ProsessTaskData.forProsessTask(BestillDokumentTask.class);
 
-        // Obligatorisk
         prosessTaskData.setProperty(CommonTaskProperties.BEHANDLING_UUID, String.valueOf(behandling.getUuid()));
         prosessTaskData.setProperty(BestillDokumentTask.BESTILLING_UUID, String.valueOf(bestilling.bestillingUuid()));
-        prosessTaskData.setProperty(BestillDokumentTask.DOKUMENT_MAL, bestilling.dokumentMal().name());
 
         // Optionals
-        Optional.ofNullable(bestilling.journalførSom()).ifPresent(a -> prosessTaskData.setProperty(BestillDokumentTask.JOURNALFOER_SOM_DOKUMENT, a.name()));
         Optional.ofNullable(bestilling.revurderingÅrsak()).ifPresent(a -> prosessTaskData.setProperty(BestillDokumentTask.REVURDERING_ÅRSAK, a.name()));
         prosessTaskData.setPayload(bestilling.fritekst());
 

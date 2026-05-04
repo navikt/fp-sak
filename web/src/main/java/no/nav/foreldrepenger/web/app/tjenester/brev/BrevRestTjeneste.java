@@ -1,6 +1,7 @@
 package no.nav.foreldrepenger.web.app.tjenester.brev;
 
 import java.util.Objects;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Function;
 
@@ -27,8 +28,12 @@ import io.swagger.v3.oas.annotations.Parameter;
 import no.nav.folketrygdloven.kalkulus.annoteringer.Fritekst;
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
+import no.nav.foreldrepenger.behandlingslager.behandling.RevurderingVarslingÅrsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Venteårsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.dokument.DokumentMalType;
+import no.nav.foreldrepenger.behandlingslager.behandling.dokument.MellomlagringEntitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.dokument.MellomlagringRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.dokument.MellomlagringType;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagRepository;
@@ -44,6 +49,7 @@ import no.nav.foreldrepenger.dokumentbestiller.dto.ForhåndsvisDokumentDto;
 import no.nav.foreldrepenger.domene.arbeidInntektsmelding.ArbeidsforholdInntektsmeldingMangelTjeneste;
 import no.nav.foreldrepenger.domene.arbeidInntektsmelding.ArbeidsforholdInntektsmeldingStatus;
 import no.nav.foreldrepenger.kontrakter.formidling.v3.DokumentKvitteringDto;
+import no.nav.foreldrepenger.validering.ValidKodeverk;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.BehandlingAbacSuppliers;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.UuidDto;
 import no.nav.foreldrepenger.web.server.abac.AppAbacAttributtType;
@@ -70,6 +76,8 @@ public class BrevRestTjeneste {
     public static final String BREV_HENT_OVERSTYRING_PATH = BASE_PATH + BREV_HENT_OVERSTYRING_PART_PATH;
     private static final String BREV_MELLOMLAGRE_OVERSTYRING_PART_PATH = "/overstyring/mellomlagring";
     public static final String BREV_MELLOMLAGRE_OVERSTYRING_PATH = BASE_PATH + BREV_MELLOMLAGRE_OVERSTYRING_PART_PATH;
+    private static final String BREV_HTML_PART_PATH = "/html";
+    public static final String BREV_HTML_PATH = BASE_PATH + BREV_HTML_PART_PATH;
 
     private DokumentForhåndsvisningTjeneste dokumentForhåndsvisningTjeneste;
     private DokumentBestillerTjeneste dokumentBestillerTjeneste;
@@ -77,6 +85,7 @@ public class BrevRestTjeneste {
     private BehandlingRepository behandlingRepository;
     private ArbeidsforholdInntektsmeldingMangelTjeneste arbeidsforholdInntektsmeldingMangelTjeneste;
     private HistorikkinnslagRepository historikkinnslagRepository;
+    private MellomlagringRepository mellomlagringRepository;
 
     public BrevRestTjeneste() {
         // For Rest-CDI
@@ -88,13 +97,15 @@ public class BrevRestTjeneste {
                             DokumentBehandlingTjeneste dokumentBehandlingTjeneste,
                             BehandlingRepository behandlingRepository,
                             ArbeidsforholdInntektsmeldingMangelTjeneste arbeidsforholdInntektsmeldingMangelTjeneste,
-                            HistorikkinnslagRepository historikkinnslagRepository) {
+                            HistorikkinnslagRepository historikkinnslagRepository,
+                            MellomlagringRepository mellomlagringRepository) {
         this.dokumentForhåndsvisningTjeneste = dokumentForhåndsvisningTjeneste;
         this.dokumentBestillerTjeneste = dokumentBestillerTjeneste;
         this.dokumentBehandlingTjeneste = dokumentBehandlingTjeneste;
         this.behandlingRepository = behandlingRepository;
         this.arbeidsforholdInntektsmeldingMangelTjeneste = arbeidsforholdInntektsmeldingMangelTjeneste;
         this.historikkinnslagRepository = historikkinnslagRepository;
+        this.mellomlagringRepository = mellomlagringRepository;
     }
 
     @POST
@@ -112,7 +123,7 @@ public class BrevRestTjeneste {
             .medSaksnummer(behandling.getSaksnummer())
             .medDokumentMal(bestillBrevDto.brevmalkode())
             .medRevurderingÅrsak(bestillBrevDto.årsakskode())
-            .medFritekst(bestillBrevDto.fritekst() != null ? bestillBrevDto.fritekst() : null)
+            .medFritekst(bestillBrevDto.fritekst())
             .build();
 
         if (DokumentMalType.ETTERLYS_INNTEKTSMELDING.equals(bestillBrevDto.brevmalkode())) {
@@ -137,7 +148,7 @@ public class BrevRestTjeneste {
     }
 
     private static String utledBegrunnelse(DokumentMalType dokumentMal, DokumentMalType journalførSom) {
-        if (DokumentMalType.FRITEKSTBREV.equals(dokumentMal) || DokumentMalType.VEDTAKSBREV_FRITEKST_HTML.equals(dokumentMal)) {
+        if (DokumentMalType.FRITEKSTBREV.equals(dokumentMal) || DokumentMalType.FRITEKST_HTML.equals(dokumentMal)) {
             Objects.requireNonNull(journalførSom, "journalførSom må være satt om FRITEKST brev brukes.");
             return journalførSom.getNavn() + " (" + dokumentMal.getNavn() + ")";
         }
@@ -158,23 +169,51 @@ public class BrevRestTjeneste {
     @GET
     @Path(BREV_HENT_OVERSTYRING_PART_PATH)
     @Produces(MediaType.APPLICATION_JSON)
-    @Operation(description = "Henter html representasjon av brevet som brukes i overstyring av vedtaksbrev med mellomlagret overstyring", tags = "brev")
+    @Operation(description = "Henter html representasjon av brevet som brukes i overstyring av vedtaksbrev med mellomlagret overstyring.", tags = "brev")
     @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK, sporingslogg = true)
-    public Response hentOverstyringAvBrevMedOrginaltBrevPåHtmlFormat(@TilpassetAbacAttributt(supplierClass = BehandlingAbacSuppliers.UuidAbacDataSupplier.class) @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
+    public Response hentOverstyringAvBrevMedOrginaltBrevPåHtmlFormat(
+            @TilpassetAbacAttributt(supplierClass = BehandlingAbacSuppliers.UuidAbacDataSupplier.class) @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
         var behandling = behandlingRepository.hentBehandling(uuidDto.getBehandlingUuid());
         var dokument = dokumentForhåndsvisningTjeneste.genererHtml(behandling);
         if (dokument == null || dokument.isEmpty()) {
             return Response.serverError().build();
         }
-
-        var eksiterendeOverstyring = dokumentBehandlingTjeneste.hentMellomlagretOverstyring(behandling.getId());
-        var overstyrtBrev = new OverstyrtDokumentDto(dokument, eksiterendeOverstyring.orElse(null));
-        return Response.ok(overstyrtBrev)
-            .type(MediaType.APPLICATION_JSON_TYPE)
-            .build();
+        var eksisterendeOverstyring = dokumentBehandlingTjeneste.hentMellomlagretOverstyring(behandling.getId());
+        var overstyrtBrev = new OverstyrtDokumentDto(dokument, eksisterendeOverstyring.orElse(null));
+        return Response.ok(overstyrtBrev).build();
     }
 
     public record OverstyrtDokumentDto(String opprinneligHtml, String redigertHtml) {
+    }
+
+    @POST
+    @Path(BREV_HTML_PART_PATH)
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    @Operation(description = "Genererer brev-HTML for en gitt dokumentmal og inkluderer eventuell redigert versjon fra mellomlagring.", tags = "brev")
+    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK, sporingslogg = true)
+    public Response hentBrevHtml(@TilpassetAbacAttributt(supplierClass = BrevHtmlAbacSupplier.class) @Valid @NotNull BrevHtmlDto dto) {
+        var behandling = behandlingRepository.hentBehandling(dto.behandlingUuid());
+        var dokumentMalType = dto.dokumentMal();
+        var revurderingÅrsak = dto.revurderingÅrsak();
+        String dokument;
+        String redigertHtml;
+        if (dokumentMalType == null) {
+            // Vedtaksbrev — bruk genererHtml uten mal og hent overstyring fra gammel tabell
+            dokument = dokumentForhåndsvisningTjeneste.genererHtml(behandling);
+            redigertHtml = dokumentBehandlingTjeneste.hentMellomlagretOverstyring(behandling.getId()).orElse(null);
+        } else {
+            dokument = dokumentForhåndsvisningTjeneste.genererHtml(behandling, dokumentMalType, revurderingÅrsak);
+            var mellomlagringType = MellomlagringType.fraDokumentMalType(dokumentMalType);
+            redigertHtml = mellomlagringType != null
+                ? mellomlagringRepository.hentMellomlagring(behandling.getId(), mellomlagringType)
+                    .map(MellomlagringEntitet::getInnhold).orElse(null)
+                : null;
+        }
+        if (dokument == null || dokument.isEmpty()) {
+            return Response.serverError().build();
+        }
+        return Response.ok(new OverstyrtDokumentDto(dokument, redigertHtml)).build();
     }
 
     @POST
@@ -192,7 +231,8 @@ public class BrevRestTjeneste {
         return Response.ok().build();
     }
 
-    public record MellomlagreHtmlDto(@Valid @NotNull UUID behandlingUuid, @Valid @Fritekst @Size(max = 20_000) String redigertInnhold) {
+    public record MellomlagreHtmlDto(@Valid @NotNull UUID behandlingUuid,
+                                     @Valid @Fritekst @Size(max = 20_000) String redigertInnhold) {
     }
 
     @POST
@@ -203,12 +243,21 @@ public class BrevRestTjeneste {
     @SuppressWarnings("findsecbugs:JAXRS_ENDPOINT")
     public Response forhåndsvisDokument(@Parameter(description = "Inneholder kode til brevmal og bestillingsdetaljer.") @TilpassetAbacAttributt(supplierClass = ForhåndsvisSupplier.class) @Valid ForhåndsvisDokumentDto forhåndsvisDto) { // NOSONAR
         var behandling = behandlingRepository.hentBehandling(forhåndsvisDto.behandlingUuid());
+
+        var brevmalkode = forhåndsvisDto.dokumentMal();
+        var mellomlagringType = MellomlagringType.fraDokumentMalType(brevmalkode);
+        var mellomlagring = mellomlagringType != null
+            ? mellomlagringRepository.hentMellomlagring(behandling.getId(), mellomlagringType)
+            : Optional.<MellomlagringEntitet>empty();
+        var dokumentMal = mellomlagring.isPresent() ? DokumentMalType.FRITEKST_HTML : brevmalkode;
+        var fritekst = mellomlagring.map(MellomlagringEntitet::getInnhold).orElse(forhåndsvisDto.fritekst());
+
         var bestilling = DokumentForhandsvisning.builder()
             .medBehandlingUuid(forhåndsvisDto.behandlingUuid())
             .medSaksnummer(behandling.getSaksnummer())
-            .medDokumentMal(forhåndsvisDto.dokumentMal())
+            .medDokumentMal(dokumentMal)
             .medRevurderingÅrsak(forhåndsvisDto.årsakskode())
-            .medFritekst(forhåndsvisDto.fritekst() != null ? forhåndsvisDto.fritekst() : null)
+            .medFritekst(fritekst)
             .medTittel(forhåndsvisDto.tittel())
             .medDokumentType(utledDokumentType(forhåndsvisDto.automatiskVedtaksbrev()))
             .build();
@@ -287,6 +336,20 @@ public class BrevRestTjeneste {
         @Override
         public AbacDataAttributter apply(Object obj) {
             var req = (MellomlagreHtmlDto) obj;
+            return AbacDataAttributter.opprett().leggTil(StandardAbacAttributtType.BEHANDLING_UUID, req.behandlingUuid);
+        }
+    }
+
+    public record BrevHtmlDto( //TODO palfi bruk kodeverk
+                               @Valid @NotNull UUID behandlingUuid,
+                               @ValidKodeverk DokumentMalType dokumentMal,
+                               @ValidKodeverk RevurderingVarslingÅrsak revurderingÅrsak) {
+    }
+
+    public static class BrevHtmlAbacSupplier implements Function<Object, AbacDataAttributter> {
+        @Override
+        public AbacDataAttributter apply(Object obj) {
+            var req = (BrevHtmlDto) obj;
             return AbacDataAttributter.opprett().leggTil(StandardAbacAttributtType.BEHANDLING_UUID, req.behandlingUuid);
         }
     }

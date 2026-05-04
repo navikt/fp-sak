@@ -23,6 +23,8 @@ import no.nav.foreldrepenger.behandlingslager.behandling.dokument.BehandlingDoku
 import no.nav.foreldrepenger.behandlingslager.behandling.dokument.BehandlingDokumentEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.dokument.BehandlingDokumentRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.dokument.DokumentMalType;
+import no.nav.foreldrepenger.behandlingslager.behandling.dokument.MellomlagringRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.dokument.MellomlagringType;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseGrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseRepository;
@@ -44,6 +46,7 @@ public class DokumentBehandlingTjeneste {
     private FamilieHendelseRepository familieHendelseRepository;
     private BehandlingDokumentRepository behandlingDokumentRepository;
     private HistorikkinnslagRepository historikkinnslagRepository;
+    private MellomlagringRepository mellomlagringRepository;
 
     DokumentBehandlingTjeneste() {
         // for cdi proxy
@@ -52,13 +55,15 @@ public class DokumentBehandlingTjeneste {
     @Inject
     public DokumentBehandlingTjeneste(BehandlingRepositoryProvider repositoryProvider,
                                       BehandlingProsesseringTjeneste behandlingProsesseringTjeneste,
-                                      BehandlingDokumentRepository behandlingDokumentRepository) {
+                                      BehandlingDokumentRepository behandlingDokumentRepository,
+                                      MellomlagringRepository mellomlagringRepository) {
         Objects.requireNonNull(repositoryProvider, "repositoryProvider");
         this.behandlingRepository = repositoryProvider.getBehandlingRepository();
         this.familieHendelseRepository = repositoryProvider.getFamilieHendelseRepository();
         this.behandlingProsesseringTjeneste = behandlingProsesseringTjeneste;
         this.behandlingDokumentRepository = behandlingDokumentRepository;
         this.historikkinnslagRepository = repositoryProvider.getHistorikkinnslagRepository();
+        this.mellomlagringRepository = mellomlagringRepository;
     }
 
     public void lagreDokumentBestilt(Behandling behandling, DokumentBestilling bestilling) {
@@ -81,7 +86,7 @@ public class DokumentBehandlingTjeneste {
             .orElse(List.of())
             .stream()
             .anyMatch(dok -> dok.getDokumentMalType().equals(dokumentMalTypeKode)
-                || dokumentMalTypeKode.equals(dok.getOpprineligDokumentMal()));
+                || dokumentMalTypeKode.equals(dok.getOpprinneligDokumentMal()));
     }
 
     public Optional<LocalDateTime> dokumentSistBestiltTidspunkt(Long behandlingId, DokumentMalType dokumentMalTypeKode) {
@@ -90,7 +95,7 @@ public class DokumentBehandlingTjeneste {
             .orElse(List.of())
             .stream()
             .filter(dok -> dok.getDokumentMalType().equals(dokumentMalTypeKode)
-                || dokumentMalTypeKode.equals(dok.getOpprineligDokumentMal()))
+                || dokumentMalTypeKode.equals(dok.getOpprinneligDokumentMal()))
             .map(BaseCreateableEntitet::getOpprettetTidspunkt)
             .max(Comparator.naturalOrder());
     }
@@ -146,10 +151,20 @@ public class DokumentBehandlingTjeneste {
                 LOG.trace("JournalpostId: {}.", journalpostId);
                 behandlingDokumentRepository.lagreOgFlush(bestilling);
             }
-            var dokumentMal = utledMalBrukt(bestilling.getDokumentMalType(), bestilling.getOpprineligDokumentMal());
+            var dokumentMal = utledMalBrukt(bestilling.getDokumentMalType(), bestilling.getOpprinneligDokumentMal());
             lagreHistorikk(behandling, dokumentMal, journalpostId, kvittering.dokumentId());
+            fjernMellomlagringHvisHtmlBrev(behandling.getId(), bestilling);
         } else {
             LOG.warn("Fant ikke dokument bestilling for bestillingUuid: {}.", bestillingUuid);
+        }
+    }
+
+    private void fjernMellomlagringHvisHtmlBrev(Long behandlingId, BehandlingDokumentBestiltEntitet bestilling) {
+        if (bestilling.getOpprinneligDokumentMal() != null) {
+            var mellomlagringType = MellomlagringType.fraDokumentMalType(bestilling.getOpprinneligDokumentMal());
+            if (mellomlagringType != null) {
+                mellomlagringRepository.fjernMellomlagring(behandlingId, mellomlagringType);
+            }
         }
     }
 
@@ -160,7 +175,7 @@ public class DokumentBehandlingTjeneste {
     }
 
     private DokumentMalType utledMalBrukt(DokumentMalType dokumentMalType, DokumentMalType opprineligDokumentMal) {
-        if ((DokumentMalType.FRITEKSTBREV.equals(dokumentMalType) || DokumentMalType.VEDTAKSBREV_FRITEKST_HTML.equals(dokumentMalType)) && opprineligDokumentMal != null) {
+        if ((DokumentMalType.FRITEKSTBREV.equals(dokumentMalType) || DokumentMalType.FRITEKST_HTML.equals(dokumentMalType)) && opprineligDokumentMal != null) {
             return opprineligDokumentMal;
         }
         return dokumentMalType;

@@ -68,6 +68,7 @@ import no.nav.foreldrepenger.web.app.tjenester.hendelser.HendelserRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.infotrygd.InfotrygdOppslagRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.kodeverk.KodeverkRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.los.LosRestTjeneste;
+import no.nav.foreldrepenger.web.app.tjenester.mellomlagring.MellomlagringRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.register.RedirectToRegisterRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.saksbehandler.InitielleLinksRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.tilbake.TilbakeRestTjeneste;
@@ -115,6 +116,7 @@ public class RestImplementationClasses {
         classes.add(RedirectToRegisterRestTjeneste.class);
         classes.add(OppgaverRestTjeneste.class);
         classes.add(FødselOmsorgsovertakelseRestTjeneste.class);
+        classes.add(MellomlagringRestTjeneste.class);
 
         // Søk infotrygd
         classes.add(InfotrygdOppslagRestTjeneste.class);

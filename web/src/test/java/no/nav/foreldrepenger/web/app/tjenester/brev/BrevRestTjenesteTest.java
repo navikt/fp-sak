@@ -1,11 +1,12 @@
 package no.nav.foreldrepenger.web.app.tjenester.brev;
 
 import static no.nav.foreldrepenger.behandlingslager.behandling.dokument.DokumentMalType.INNHENTE_OPPLYSNINGER;
+import static no.nav.foreldrepenger.behandlingslager.behandling.dokument.DokumentMalType.VARSEL_OM_REVURDERING;
+import static no.nav.foreldrepenger.behandlingslager.behandling.dokument.MellomlagringType.VARSEL_REVURDERING;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -17,6 +18,8 @@ import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
+import no.nav.foreldrepenger.behandlingslager.behandling.dokument.MellomlagringEntitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.dokument.MellomlagringRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
@@ -37,6 +40,7 @@ class BrevRestTjenesteTest {
     private DokumentBehandlingTjeneste dokumentBehandlingTjenesteMock;
     private BehandlingRepository behandlingRepository;
     private ArbeidsforholdInntektsmeldingMangelTjeneste arbeidsforholdInntektsmeldingMangelTjeneste;
+    private MellomlagringRepository mellomlagringRepositoryMock;
 
     @BeforeEach
     void setUp() {
@@ -45,11 +49,13 @@ class BrevRestTjenesteTest {
         dokumentBehandlingTjenesteMock = mock(DokumentBehandlingTjeneste.class);
         behandlingRepository = mock(BehandlingRepository.class);
         arbeidsforholdInntektsmeldingMangelTjeneste = mock(ArbeidsforholdInntektsmeldingMangelTjeneste.class);
+        mellomlagringRepositoryMock = mock(MellomlagringRepository.class);
 
         when(behandlingRepository.hentBehandling(anyLong())).thenReturn(mock(Behandling.class));
 
         brevRestTjeneste = new BrevRestTjeneste(dokumentForhåndsvisningTjenesteMock, dokumentBestillerTjenesteMock,
-            dokumentBehandlingTjenesteMock, behandlingRepository, arbeidsforholdInntektsmeldingMangelTjeneste, mock(HistorikkinnslagRepository.class));
+            dokumentBehandlingTjenesteMock, behandlingRepository, arbeidsforholdInntektsmeldingMangelTjeneste,
+            mock(HistorikkinnslagRepository.class), mellomlagringRepositoryMock);
     }
 
     @Test
@@ -155,15 +161,82 @@ class BrevRestTjenesteTest {
     }
 
     @Test
-    void mellomlagring_av_overstyring_brev_skal_fjerne_innhold_hvis_null() {
+    void hent_brev_html_returnerer_opprinnelig_og_mellomlagret() {
+        var brevProdusertAvFpdokgen = "html";
+        var mellomlagretHtml = "mellomlagret varsel";
         var scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
         var behandling = scenario.lagMocked();
         when(behandlingRepository.hentBehandling(any(UUID.class))).thenReturn(behandling);
+        when(dokumentForhåndsvisningTjenesteMock.genererHtml(behandling, VARSEL_OM_REVURDERING, null)).thenReturn(brevProdusertAvFpdokgen);
+        var mellomlagringEntitet = MellomlagringEntitet.Builder.ny()
+            .medBehandlingId(behandling.getId())
+            .medType(VARSEL_REVURDERING)
+            .medInnhold(mellomlagretHtml)
+            .build();
+        when(mellomlagringRepositoryMock.hentMellomlagring(behandling.getId(), VARSEL_REVURDERING))
+            .thenReturn(Optional.of(mellomlagringEntitet));
 
         // Act
-        brevRestTjeneste.mellomlagringAvOverstyring(new BrevRestTjeneste.MellomlagreHtmlDto(behandling.getUuid(), null));
+        var respons = brevRestTjeneste.hentBrevHtml(
+            new BrevRestTjeneste.BrevHtmlDto(UUID.randomUUID(), VARSEL_OM_REVURDERING, null));
 
         // Assert
-        verify(dokumentBehandlingTjenesteMock,  times(1)).fjernOverstyringAvBrev(any());
+        var dto = (BrevRestTjeneste.OverstyrtDokumentDto) respons.getEntity();
+        assertThat(dto.opprinneligHtml()).isEqualTo(brevProdusertAvFpdokgen);
+        assertThat(dto.redigertHtml()).isEqualTo(mellomlagretHtml);
+    }
+
+    @Test
+    void hent_brev_html_uten_mellomlagret_innhold_gir_null_redigert() {
+        var brevProdusertAvFpdokgen = "html";
+        var scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
+        var behandling = scenario.lagMocked();
+        when(behandlingRepository.hentBehandling(any(UUID.class))).thenReturn(behandling);
+        when(dokumentForhåndsvisningTjenesteMock.genererHtml(behandling, VARSEL_OM_REVURDERING, null)).thenReturn(brevProdusertAvFpdokgen);
+        when(mellomlagringRepositoryMock.hentMellomlagring(behandling.getId(), VARSEL_REVURDERING))
+            .thenReturn(Optional.empty());
+
+        // Act
+        var respons = brevRestTjeneste.hentBrevHtml(
+            new BrevRestTjeneste.BrevHtmlDto(UUID.randomUUID(), VARSEL_OM_REVURDERING, null));
+
+        // Assert
+        var dto = (BrevRestTjeneste.OverstyrtDokumentDto) respons.getEntity();
+        assertThat(dto.opprinneligHtml()).isEqualTo(brevProdusertAvFpdokgen);
+        assertThat(dto.redigertHtml()).isNull();
+    }
+
+    @Test
+    void hent_brev_html_for_vedtaksbrev_bruker_gammel_overstyring() {
+        var brevProdusertAvFpdokgen = "vedtaksbrev html";
+        var overstyrtHtml = "redigert vedtaksbrev";
+        var scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
+        var behandling = scenario.lagMocked();
+        when(behandlingRepository.hentBehandling(any(UUID.class))).thenReturn(behandling);
+        when(dokumentForhåndsvisningTjenesteMock.genererHtml(behandling)).thenReturn(brevProdusertAvFpdokgen);
+        when(dokumentBehandlingTjenesteMock.hentMellomlagretOverstyring(behandling.getId())).thenReturn(Optional.of(overstyrtHtml));
+
+        // Act
+        var respons = brevRestTjeneste.hentBrevHtml(
+            new BrevRestTjeneste.BrevHtmlDto(UUID.randomUUID(), null, null));
+    }
+
+    @Test
+    void hent_brev_html_for_vedtaksbrev_uten_overstyring() {
+        var brevProdusertAvFpdokgen = "vedtaksbrev html";
+        var scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
+        var behandling = scenario.lagMocked();
+        when(behandlingRepository.hentBehandling(any(UUID.class))).thenReturn(behandling);
+        when(dokumentForhåndsvisningTjenesteMock.genererHtml(behandling)).thenReturn(brevProdusertAvFpdokgen);
+        when(dokumentBehandlingTjenesteMock.hentMellomlagretOverstyring(behandling.getId())).thenReturn(Optional.empty());
+
+        // Act
+        var respons = brevRestTjeneste.hentBrevHtml(
+            new BrevRestTjeneste.BrevHtmlDto(UUID.randomUUID(), null, null));
+
+        // Assert
+        var dto = (BrevRestTjeneste.OverstyrtDokumentDto) respons.getEntity();
+        assertThat(dto.opprinneligHtml()).isEqualTo(brevProdusertAvFpdokgen);
+        assertThat(dto.redigertHtml()).isNull();
     }
 }
