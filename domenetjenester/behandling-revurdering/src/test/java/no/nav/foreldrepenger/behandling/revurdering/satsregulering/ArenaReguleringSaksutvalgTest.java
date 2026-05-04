@@ -9,6 +9,7 @@ import static org.mockito.Mockito.verifyNoInteractions;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.Month;
 
 import jakarta.persistence.EntityManager;
 
@@ -43,7 +44,7 @@ import no.nav.vedtak.felles.prosesstask.api.TaskType;
 class ArenaReguleringSaksutvalgTest {
 
     private long gammelSats;
-    private final LocalDate arenaDato = LocalDate.of(LocalDate.now().getYear(), 5, 1);
+    private LocalDate arenaDato;
     private LocalDate cutoff;
     private GrunnbeløpFinnSakerTask task;
     @Mock
@@ -52,9 +53,10 @@ class ArenaReguleringSaksutvalgTest {
     @BeforeEach
     void setUp(EntityManager entityManager) {
         var satsRepo = new SatsRepository(entityManager);
-        cutoff = arenaDato.isAfter(LocalDate.now()) ? arenaDato : LocalDate.now();
         var cutoffsats = satsRepo.finnEksaktSats(BeregningSatsType.GRUNNBELØP, LocalDate.now()).getPeriode().getFomDato();
         gammelSats = satsRepo.finnEksaktSats(BeregningSatsType.GRUNNBELØP, cutoffsats.minusDays(1)).getVerdi();
+        arenaDato = cutoffsats.with(Month.MAY).withDayOfMonth(1);
+        cutoff = arenaDato.isAfter(LocalDate.now()) ? arenaDato : LocalDate.now();
         var satsReguleringRepository = new SatsReguleringRepository(entityManager);
         task = new GrunnbeløpFinnSakerTask(satsReguleringRepository, taskTjeneste, satsRepo);
     }
