@@ -16,6 +16,9 @@ import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import io.swagger.v3.oas.annotations.Operation;
 import no.nav.folketrygdloven.kalkulus.annoteringer.Fritekst;
 import no.nav.foreldrepenger.behandlingslager.behandling.dokument.DokumentMalType;
@@ -36,6 +39,8 @@ import no.nav.vedtak.sikkerhet.abac.beskyttet.ResourceType;
 @ApplicationScoped
 @Transactional
 public class MellomlagringRestTjeneste {
+
+    private static final Logger LOG = LoggerFactory.getLogger(MellomlagringRestTjeneste.class);
 
     static final String BASE_PATH = "/mellomlagring";
     private static final String HENT_PART_PATH = "/hent";
@@ -70,6 +75,7 @@ public class MellomlagringRestTjeneste {
         var resolvedType = resolveType(dto.type(), dto.dokumentMal());
         var innhold = mellomlagringRepository.hentMellomlagring(behandling.getId(), resolvedType)
             .map(MellomlagringEntitet::getInnhold);
+        LOG.info("Mellomlagring hent, type {} - funnet={}", resolvedType, innhold.isPresent());
         if (innhold.isPresent()) {
             return Response.ok(new MellomlagringResultatDto(innhold.get())).build();
         }
@@ -83,6 +89,8 @@ public class MellomlagringRestTjeneste {
     public Response lagreMellomlagring(@TilpassetAbacAttributt(supplierClass = MellomlagringDtoAbacSupplier.class) @Valid @NotNull MellomlagringDto dto) {
         var behandling = behandlingRepository.hentBehandling(dto.behandlingUuid());
         var resolvedType = resolveType(dto.type(), dto.dokumentMal());
+        var erSletting = dto.innhold() == null;
+        LOG.info("Mellomlagring mottatt, type {} - operasjon={}", resolvedType, erSletting ? "slett" : "lagre");
         if (resolvedType == MellomlagringType.VEDTAKSBREV) {
             if (dto.innhold() == null) {
                 dokumentBehandlingTjeneste.fjernOverstyringAvBrev(behandling);
@@ -104,7 +112,7 @@ public class MellomlagringRestTjeneste {
         mellomlagringRepository.hentMellomlagring(behandlingId, type)
             .filter(MellomlagringEntitet::isBestillingLåst)
             .ifPresent(m -> {
-                throw new IllegalStateException("Mellomlagring er låst for endring mens bestilling pågår. BehandlingId: " + behandlingId + ", type: " + type);
+                throw new IllegalStateException("Mellomlagring er låst for endring mens bestilling pågår, type: " + type);
             });
     }
 
