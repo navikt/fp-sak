@@ -204,6 +204,10 @@ public enum AksjonspunktDefinisjon implements Kodeverdi, DatabaseKode {
         AksjonspunktKodeDefinisjon.MANUELL_KONTROLL_AV_BESTEBEREGNING_KODE, AksjonspunktType.MANUELL, "Kontroller den automatiske besteberegningen",
         BehandlingStegType.FORESLÅ_BESTEBEREGNING, VurderingspunktType.UT, VilkårType.BEREGNINGSGRUNNLAGVILKÅR, SkjermlenkeType.BESTEBEREGNING,
         ENTRINN, EnumSet.of(FP)),
+    MANUELL_KONTROLL_AAP_KOMBINERT_ATFL(
+        AksjonspunktKodeDefinisjon.MANUELL_KONTROLL_AAP_KOMBINERT_ATFL_KODE, AksjonspunktType.MANUELL, "Manuell kontroll av beregning for AAP kombinert med AT/FL",
+        BehandlingStegType.VURDER_VILKAR_BERGRUNN, VurderingspunktType.UT, VilkårType.BEREGNINGSGRUNNLAGVILKÅR, SkjermlenkeType.BEREGNING_FORELDREPENGER,
+        ENTRINN, EnumSet.of(FP)),
     VURDER_SVP_TILRETTELEGGING(
             AksjonspunktKodeDefinisjon.VURDER_SVP_TILRETTELEGGING_KODE, AksjonspunktType.MANUELL, "Vurder tilrettelegging svangerskapspenger",
             BehandlingStegType.VURDER_SVANGERSKAPSPENGERVILKÅR, VurderingspunktType.INN, UTEN_VILKÅR, SkjermlenkeType.PUNKT_FOR_SVP_INNGANG, ENTRINN, EnumSet.of(ES, FP, SVP)),
