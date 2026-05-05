@@ -2,6 +2,9 @@ package no.nav.foreldrepenger.dokumentbestiller.formidling;
 
 import java.util.Optional;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
@@ -18,6 +21,9 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 
 @ApplicationScoped
 public class DokumentBestiller {
+
+    private static final Logger LOG = LoggerFactory.getLogger(DokumentBestiller.class);
+
     private BehandlingRepository behandlingRepository;
     private ProsessTaskTjeneste taskTjeneste;
     private DokumentBehandlingTjeneste dokumentBehandlingTjeneste;
@@ -50,6 +56,7 @@ public class DokumentBestiller {
         if (DokumentMalType.FRITEKST_HTML.equals(bestilling.dokumentMal()) && bestilling.journalførSom() != null) {
             var mellomlagringType = MellomlagringType.fraDokumentMalType(bestilling.journalførSom());
             if (mellomlagringType != null) {
+                LOG.info("Låser mellomlagring, type {} ved bestilling", mellomlagringType);
                 mellomlagringRepository.låsMellomlagring(behandling.getId(), mellomlagringType);
             }
         }

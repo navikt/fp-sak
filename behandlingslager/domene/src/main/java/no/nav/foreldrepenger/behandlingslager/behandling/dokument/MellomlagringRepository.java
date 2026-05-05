@@ -3,6 +3,9 @@ package no.nav.foreldrepenger.behandlingslager.behandling.dokument;
 import java.util.Objects;
 import java.util.Optional;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.persistence.EntityManager;
@@ -11,6 +14,8 @@ import no.nav.vedtak.felles.jpa.HibernateVerktøy;
 
 @ApplicationScoped
 public class MellomlagringRepository {
+
+    private static final Logger LOG = LoggerFactory.getLogger(MellomlagringRepository.class);
 
     private EntityManager entityManager;
 
@@ -47,10 +52,12 @@ public class MellomlagringRepository {
         if (eksisterende.isPresent()) {
             var entitet = eksisterende.get();
             if (entitet.isBestillingLåst()) {
+                LOG.info("Mellomlagring oppdatering avvist - låst, type {}", type);
                 throw new IllegalStateException("Mellomlagring er låst for endring mens bestilling pågår. BehandlingId: " + behandlingId + ", type: " + type);
             }
             entitet.setInnhold(innhold);
             lagreOgFlush(entitet);
+            LOG.info("Mellomlagring oppdatert, type {}", type);
         } else {
             var mellomlagring = MellomlagringEntitet.Builder.ny()
                 .medBehandlingId(behandlingId)
@@ -58,10 +65,12 @@ public class MellomlagringRepository {
                 .medInnhold(innhold)
                 .build();
             lagreOgFlush(mellomlagring);
+            LOG.info("Mellomlagring opprettet, type {}", type);
         }
     }
 
     public void fjernMellomlagring(Long behandlingId, MellomlagringType type) {
+        LOG.info("Mellomlagring slettet, type {}", type);
         entityManager.createQuery(
                 "delete from BehandlingMellomlagring m where m.behandlingId = :behandlingId and m.type = :type")
             .setParameter("behandlingId", behandlingId)
@@ -71,6 +80,7 @@ public class MellomlagringRepository {
     }
 
     public void fjernAlleMellomlagringer(Long behandlingId) {
+        LOG.info("Alle mellomlagringer slettet");
         entityManager.createQuery(
                 "delete from BehandlingMellomlagring m where m.behandlingId = :behandlingId")
             .setParameter("behandlingId", behandlingId)
@@ -82,6 +92,7 @@ public class MellomlagringRepository {
         hentMellomlagring(behandlingId, type).ifPresent(entitet -> {
             entitet.setBestillingLåst(true);
             lagreOgFlush(entitet);
+            LOG.info("Mellomlagring låst, type {}", type);
         });
     }
 }
