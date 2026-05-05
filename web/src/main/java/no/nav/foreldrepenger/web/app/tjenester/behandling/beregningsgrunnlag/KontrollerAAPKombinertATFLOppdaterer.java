@@ -13,7 +13,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinns
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.SkjermlenkeType;
 import no.nav.foreldrepenger.domene.rest.dto.KontrollerAAPKombinertATFLDto;
-import no.nav.vedtak.exception.TekniskException;
 
 @ApplicationScoped
 @DtoTilServiceAdapter(dto = KontrollerAAPKombinertATFLDto.class, adapter = AksjonspunktOppdaterer.class)
@@ -33,7 +32,7 @@ public class KontrollerAAPKombinertATFLOppdaterer implements AksjonspunktOppdate
     @Override
     public OppdateringResultat oppdater(KontrollerAAPKombinertATFLDto dto, AksjonspunktOppdaterParameter param) {
         if (dto.getErBeregningenKorrekt() == null || !dto.getErBeregningenKorrekt()) {
-            throw new TekniskException("FP-837491", "Aksjonspunktet for AAP kombinert med AT/FL ble bekreftet uten at beregningen er godkjent, ugyldig tilstand");
+            throw new IllegalStateException("Aksjonspunktet for AAP kombinert med AT/FL ble bekreftet uten at beregningen er godkjent, ugyldig tilstand");
         }
         lagHistorikk(param.getRef(), dto);
         return OppdateringResultat.utenTransisjon().build();

@@ -18,7 +18,6 @@ import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
 import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.OpptjeningAktivitetType;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
-import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerSvangerskapspenger;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.OrgNummer;
 import no.nav.foreldrepenger.domene.abakus.AbakusInMemoryInntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseAggregatBuilder;
@@ -53,6 +52,7 @@ class AAPKombinertMedATFLTjenesteTest {
         inntektArbeidYtelseTjeneste.lagreIayAggregat(behandlingReferanse.behandlingId(),
             InntektArbeidYtelseAggregatBuilder.oppdatere(Optional.empty(), VersjonType.REGISTER));
         tjeneste = new AAPKombinertMedATFLTjeneste(inntektArbeidYtelseTjeneste, opptjeningForBeregningTjeneste, beregningTjeneste);
+        when(beregningTjeneste.hent(any())).thenReturn(Optional.empty());
     }
 
     @Test
