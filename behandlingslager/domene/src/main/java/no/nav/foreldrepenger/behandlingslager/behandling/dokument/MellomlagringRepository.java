@@ -57,7 +57,6 @@ public class MellomlagringRepository {
             }
             entitet.setInnhold(innhold);
             lagreOgFlush(entitet);
-            LOG.info("Mellomlagring oppdatert, type {}", type);
         } else {
             var mellomlagring = MellomlagringEntitet.Builder.ny()
                 .medBehandlingId(behandlingId)

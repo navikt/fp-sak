@@ -75,7 +75,6 @@ public class MellomlagringRestTjeneste {
         var resolvedType = resolveType(dto.type(), dto.dokumentMal());
         var innhold = mellomlagringRepository.hentMellomlagring(behandling.getId(), resolvedType)
             .map(MellomlagringEntitet::getInnhold);
-        LOG.info("Mellomlagring hent, type {} - funnet={}", resolvedType, innhold.isPresent());
         if (innhold.isPresent()) {
             return Response.ok(new MellomlagringResultatDto(innhold.get())).build();
         }
@@ -89,8 +88,9 @@ public class MellomlagringRestTjeneste {
     public Response lagreMellomlagring(@TilpassetAbacAttributt(supplierClass = MellomlagringDtoAbacSupplier.class) @Valid @NotNull MellomlagringDto dto) {
         var behandling = behandlingRepository.hentBehandling(dto.behandlingUuid());
         var resolvedType = resolveType(dto.type(), dto.dokumentMal());
-        var erSletting = dto.innhold() == null;
-        LOG.info("Mellomlagring mottatt, type {} - operasjon={}", resolvedType, erSletting ? "slett" : "lagre");
+        if (dto.innhold() == null) {
+            LOG.info("Mellomlagring slett mottatt, type {}", resolvedType);
+        }
         if (resolvedType == MellomlagringType.VEDTAKSBREV) {
             if (dto.innhold() == null) {
                 dokumentBehandlingTjeneste.fjernOverstyringAvBrev(behandling);
@@ -98,10 +98,14 @@ public class MellomlagringRestTjeneste {
                 dokumentBehandlingTjeneste.lagreOverstyrtBrev(behandling, dto.innhold());
             }
         } else {
-            validerIkkeLåst(behandling.getId(), resolvedType);
             if (dto.innhold() == null) {
+                if (erLåst(behandling.getId(), resolvedType)) {
+                    LOG.info("Ignorerer slett av mellomlagring, type {} - bestilling pågår", resolvedType);
+                    return Response.ok().build();
+                }
                 mellomlagringRepository.fjernMellomlagring(behandling.getId(), resolvedType);
             } else {
+                validerIkkeLåst(behandling.getId(), resolvedType);
                 mellomlagringRepository.lagreEllerOppdater(behandling.getId(), resolvedType, dto.innhold());
             }
         }
@@ -109,11 +113,15 @@ public class MellomlagringRestTjeneste {
     }
 
     private void validerIkkeLåst(Long behandlingId, MellomlagringType type) {
-        mellomlagringRepository.hentMellomlagring(behandlingId, type)
+        if (erLåst(behandlingId, type)) {
+            throw new IllegalStateException("Mellomlagring er låst for endring mens bestilling pågår, type: " + type);
+        }
+    }
+
+    private boolean erLåst(Long behandlingId, MellomlagringType type) {
+        return mellomlagringRepository.hentMellomlagring(behandlingId, type)
             .filter(MellomlagringEntitet::isBestillingLåst)
-            .ifPresent(m -> {
-                throw new IllegalStateException("Mellomlagring er låst for endring mens bestilling pågår, type: " + type);
-            });
+            .isPresent();
     }
 
     private static MellomlagringType resolveType(MellomlagringType type, DokumentMalType dokumentMalType) {
