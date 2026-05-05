@@ -129,6 +129,9 @@ public class AksjonspunktKodeDefinisjon {
     public static final String AVKLAR_UTTAK_I_EØS_FOR_ANNENPART_KODE = "5103";
     public static final String OVERSTYRING_UTTAK_I_EØS_FOR_ANNENPART_KODE = "6103";
 
+    // TODO: Sjekk at aksjonspunktkode 5104 er ok å bruke (at det er et logisk tall for dette aksjonspunktet)
+    public static final String MANUELL_KONTROLL_AAP_KOMBINERT_ATFL_KODE = "5104";
+
     // Andre koder
     public static final SkjermlenkeType UTEN_SKJERMLENKE = null;
     public static final VilkårType UTEN_VILKÅR = null;
