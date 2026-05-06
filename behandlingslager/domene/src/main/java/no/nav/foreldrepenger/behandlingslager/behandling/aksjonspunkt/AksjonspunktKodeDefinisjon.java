@@ -89,6 +89,7 @@ public class AksjonspunktKodeDefinisjon {
     public static final String AVKLAR_LØPENDE_OMSORG = "5061";
 
     public static final String MANUELL_KONTROLL_AV_BESTEBEREGNING_KODE = "5062";
+    public static final String MANUELL_KONTROLL_AAP_KOMBINERT_ATFL_KODE = "5104";
 
     public static final String OVERSTYRING_AV_AVKLART_STARTDATO_KODE = "6045";
     public static final String OVERSTYRING_FAKTA_UTTAK_KODE = "6065";
@@ -128,9 +129,6 @@ public class AksjonspunktKodeDefinisjon {
     public static final String VURDER_FORUTGÅENDE_MEDLEMSKAPSVILKÅR = "5102";
     public static final String AVKLAR_UTTAK_I_EØS_FOR_ANNENPART_KODE = "5103";
     public static final String OVERSTYRING_UTTAK_I_EØS_FOR_ANNENPART_KODE = "6103";
-
-    // TODO: Sjekk at aksjonspunktkode 5104 er ok å bruke (at det er et logisk tall for dette aksjonspunktet)
-    public static final String MANUELL_KONTROLL_AAP_KOMBINERT_ATFL_KODE = "5104";
 
     // Andre koder
     public static final SkjermlenkeType UTEN_SKJERMLENKE = null;
