@@ -31,9 +31,6 @@ public class KontrollerAAPKombinertATFLOppdaterer implements AksjonspunktOppdate
 
     @Override
     public OppdateringResultat oppdater(KontrollerAAPKombinertATFLDto dto, AksjonspunktOppdaterParameter param) {
-        if (dto.getErBeregningenKorrekt() == null || !dto.getErBeregningenKorrekt()) {
-            throw new IllegalStateException("Aksjonspunktet for AAP kombinert med AT/FL ble bekreftet uten at beregningen er godkjent, ugyldig tilstand");
-        }
         lagHistorikk(param.getRef(), dto);
         return OppdateringResultat.utenTransisjon().build();
     }

@@ -2,6 +2,7 @@ package no.nav.foreldrepenger.domene.fp;
 
 import java.time.LocalDate;
 import java.util.Collections;
+import java.util.List;
 import java.util.Set;
 
 import jakarta.enterprise.context.ApplicationScoped;
@@ -65,13 +66,13 @@ public class AAPKombinertMedATFLTjeneste {
             .orElse(false);
     }
 
-    private boolean harAAPPåSkjæringstidspunkt(java.util.List<OpptjeningAktiviteter.OpptjeningPeriode> perioder, LocalDate stp) {
+    private boolean harAAPPåSkjæringstidspunkt(List<OpptjeningAktiviteter.OpptjeningPeriode> perioder, LocalDate stp) {
         return perioder.stream()
             .filter(p -> OpptjeningAktivitetType.ARBEIDSAVKLARING.equals(p.opptjeningAktivitetType()))
             .anyMatch(p -> !p.periode().getFom().isAfter(stp) && (p.periode().getTom() == null || !p.periode().getTom().isBefore(stp)));
     }
 
-    private boolean harATFLSisteTreMåneder(java.util.List<OpptjeningAktiviteter.OpptjeningPeriode> perioder, LocalDate stp) {
+    private boolean harATFLSisteTreMåneder(List<OpptjeningAktiviteter.OpptjeningPeriode> perioder, LocalDate stp) {
         var treMånederFørStp = stp.minusMonths(3);
         return perioder.stream()
             .filter(p -> ATFL_TYPER.contains(p.opptjeningAktivitetType()))
