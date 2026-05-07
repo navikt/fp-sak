@@ -14,6 +14,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.pleiepenger.Pleiepenger
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.DokumentasjonVurdering;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeEntitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeType;
 import no.nav.foreldrepenger.domene.uttak.input.ForeldrepengerGrunnlag;
 import no.nav.foreldrepenger.domene.uttak.input.UttakInput;
 import no.nav.foreldrepenger.domene.ytelsefordeling.YtelseFordelingTjeneste;
@@ -114,6 +115,10 @@ public class VurderUttakDokumentasjonAksjonspunktUtleder {
                                                       AktivitetskravGrunnlagEntitet aktivitetskravGrunnlag) {
         if (oppgittPeriode.isUtsettelse()) {
             return aktivitetskravGrunnlag.mor1ProsentStillingOgIngenPermisjoner(oppgittPeriode.getTidsperiode())
+                ? RegisterVurdering.MORS_AKTIVITET_GODKJENT : RegisterVurdering.MORS_AKTIVITET_IKKE_GODKJENT;
+        } else if (UttakPeriodeType.FELLESPERIODE.equals(oppgittPeriode.getPeriodeType())) {
+            // Begge foreldre har rett - permisjon er uten betydning, vurder kun stillingsprosent
+            return aktivitetskravGrunnlag.mor75ProsentStilling(oppgittPeriode.getTidsperiode())
                 ? RegisterVurdering.MORS_AKTIVITET_GODKJENT : RegisterVurdering.MORS_AKTIVITET_IKKE_GODKJENT;
         } else {
             return aktivitetskravGrunnlag.mor75ProsentStillingOgIngenPermisjoner(oppgittPeriode.getTidsperiode())
