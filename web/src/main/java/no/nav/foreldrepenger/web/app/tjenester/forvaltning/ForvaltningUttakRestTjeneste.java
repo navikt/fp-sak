@@ -1,10 +1,12 @@
 package no.nav.foreldrepenger.web.app.tjenester.forvaltning;
 
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Objects;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+import jakarta.persistence.EntityManager;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
@@ -17,8 +19,14 @@ import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
+import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
+import no.nav.foreldrepenger.behandlingsprosess.prosessering.BehandlingProsesseringTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.ForvaltningBehandlingIdDto;
 import no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.InputValideringRegexDato;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
@@ -30,11 +38,22 @@ import no.nav.vedtak.sikkerhet.abac.beskyttet.ResourceType;
 @Transactional
 public class ForvaltningUttakRestTjeneste {
 
+    private static final Logger LOG = LoggerFactory.getLogger(ForvaltningUttakRestTjeneste.class);
+
     private ForvaltningUttakTjeneste forvaltningUttakTjeneste;
+    private EntityManager entityManager;
+    private BehandlingRepository behandlingRepository;
+    private BehandlingProsesseringTjeneste behandlingProsesseringTjeneste;
 
     @Inject
-    public ForvaltningUttakRestTjeneste(ForvaltningUttakTjeneste forvaltningUttakTjeneste) {
+    public ForvaltningUttakRestTjeneste(ForvaltningUttakTjeneste forvaltningUttakTjeneste,
+                                        EntityManager entityManager,
+                                        BehandlingRepository behandlingRepository,
+                                        BehandlingProsesseringTjeneste behandlingProsesseringTjeneste) {
         this.forvaltningUttakTjeneste = forvaltningUttakTjeneste;
+        this.entityManager = entityManager;
+        this.behandlingRepository = behandlingRepository;
+        this.behandlingProsesseringTjeneste = behandlingProsesseringTjeneste;
     }
 
     public ForvaltningUttakRestTjeneste() {
@@ -74,5 +93,68 @@ public class ForvaltningUttakRestTjeneste {
         public String getStartdato() {
             return startdato;
         }
+    }
+
+    @POST
+    @Path("/revurderAktivitetskravPermisjon")
+    @Produces(MediaType.APPLICATION_JSON)
+    @Operation(description = "Hopper tilbake behandlinger med åpent AP 5074 (aktivitetskrav) der far søker fellesperiode og mor har permisjon. Ny logikk vil auto-godkjenne disse.", tags = "FORVALTNING-uttak")
+    @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.DRIFT, sporingslogg = true)
+    public Response revurderAktivitetskravPermisjon() {
+        var behandlingIder = finnBehandlingerMedAktivitetskravPermisjon();
+        LOG.info("Fant {} behandlinger med aktivitetskrav-permisjon som skal hoppes tilbake", behandlingIder.size());
+
+        var antallHoppet = 0;
+        for (var behandlingId : behandlingIder) {
+            try {
+                hoppTilbakeTilFaktaUttakDokumentasjon(behandlingId);
+                antallHoppet++;
+            } catch (Exception e) {
+                LOG.warn("Kunne ikke hoppe tilbake behandling {}", behandlingId, e);
+            }
+        }
+
+        LOG.info("Hoppet tilbake {} av {} behandlinger til FAKTA_UTTAK_DOKUMENTASJON", antallHoppet, behandlingIder.size());
+        return Response.ok().build();
+    }
+
+    @SuppressWarnings("unchecked")
+    private List<Long> finnBehandlingerMedAktivitetskravPermisjon() {
+        var sql = """
+            SELECT DISTINCT b.id
+            FROM fagsak f
+            JOIN behandling b ON b.fagsak_id = f.id
+            JOIN aksjonspunkt ap ON ap.behandling_id = b.id
+            JOIN gr_ytelses_fordeling gyf ON gyf.behandling_id = b.id AND gyf.aktiv = 'J'
+            JOIN yf_fordeling_periode yfp ON yfp.fordeling_id = nvl(gyf.overstyrt_fordeling_id, gyf.justert_fordeling_id)
+            WHERE f.ytelse_type = 'FP'
+              AND b.behandling_status IN ('UTRED')
+              AND ap.aksjonspunkt_def = '5074'
+              AND ap.aksjonspunkt_status = 'OPPR'
+              AND yfp.periode_type = 'FELLESPERIODE'
+              AND yfp.mors_aktivitet = 'ARBEID'
+              AND NOT EXISTS (
+                  SELECT 1 FROM aksjonspunkt vent
+                  WHERE vent.behandling_id = b.id
+                    AND vent.aksjonspunkt_status = 'OPPR'
+                    AND vent.aksjonspunkt_def LIKE '7%'
+              )
+              AND EXISTS (
+                  SELECT 1
+                  FROM gr_aktivitetskrav_arbeid gak
+                  JOIN aktivitetskrav_arbeid_periode akp ON akp.aktivitetskrav_arbeid_perioder_id = gak.aktivitetskrav_arbeid_perioder_id
+                  WHERE gak.behandling_id = b.id
+                    AND gak.aktiv = 'J'
+                    AND akp.sum_permisjonsprosent > 0
+              )
+            """;
+        return entityManager.createNativeQuery(sql).getResultList();
+    }
+
+    private void hoppTilbakeTilFaktaUttakDokumentasjon(Long behandlingId) {
+        var behandling = behandlingRepository.hentBehandling(behandlingId);
+        var lås = behandlingRepository.taSkriveLås(behandlingId);
+        behandlingProsesseringTjeneste.reposisjonerBehandlingTilbakeTil(behandling, lås, BehandlingStegType.FAKTA_UTTAK_DOKUMENTASJON);
+        behandlingProsesseringTjeneste.opprettTasksForFortsettBehandling(behandling);
     }
 }

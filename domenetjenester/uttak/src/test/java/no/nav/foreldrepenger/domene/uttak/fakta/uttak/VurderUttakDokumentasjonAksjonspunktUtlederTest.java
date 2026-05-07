@@ -209,7 +209,7 @@ class VurderUttakDokumentasjonAksjonspunktUtlederTest {
     }
 
     @Test
-    void utleder_ap_hvis_bare_far_rett_foreldrenger_og_mor_er_i_arbeid_med_permisjon() {
+    void utleder_ap_hvis_bare_far_rett_foreldrepenger_og_mor_er_i_arbeid_med_permisjon() {
         var fødselsdato = LocalDate.of(2025, 3, 14);
 
         var foreldrepengerMedArbeid = OppgittPeriodeBuilder.ny()
@@ -400,9 +400,10 @@ class VurderUttakDokumentasjonAksjonspunktUtlederTest {
 
     @Test
     void skal_ikke_finne_over_75_annen_permisjon_ett_arbeid() {
+        var now = LocalDate.now();
         var aaPerioder = new AktivitetskravArbeidPerioderEntitet.Builder()
             .leggTil(new AktivitetskravArbeidPeriodeEntitet.Builder()
-                .medPeriode(LocalDate.now(), LocalDate.now().plusWeeks(1))
+                .medPeriode(now, now.plusWeeks(1))
                 .medOrgNummer(OrgNummer.KUNSTIG_ORG)
                 .medSumStillingsprosent(BigDecimal.valueOf(100))
                 .medPermisjon(BigDecimal.valueOf(50), AktivitetskravPermisjonType.ANNEN_PERMISJON))
@@ -410,7 +411,7 @@ class VurderUttakDokumentasjonAksjonspunktUtlederTest {
         var aaGrunnlag = AktivitetskravGrunnlagEntitet.Builder.oppdatere(Optional.empty())
             .medPerioderMedAktivitetskravArbeid(aaPerioder)
             .build();
-        assertThat(aaGrunnlag.mor75ProsentStillingOgIngenPermisjoner(DatoIntervallEntitet.fraOgMedTilOgMed(LocalDate.now(), LocalDate.now()))).isFalse();
+        assertThat(aaGrunnlag.mor75ProsentStillingOgIngenPermisjoner(DatoIntervallEntitet.fraOgMedTilOgMed(now, now))).isFalse();
     }
 
     @Test
