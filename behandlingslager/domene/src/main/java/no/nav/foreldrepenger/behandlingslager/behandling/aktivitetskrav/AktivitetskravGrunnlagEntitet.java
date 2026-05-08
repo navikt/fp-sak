@@ -109,13 +109,25 @@ public class AktivitetskravGrunnlagEntitet extends BaseEntitet {
             .orElse(false);
     }
 
+    // Benyttes der begge foreldre har rett - permisjon er uten betydning for vurderingen
+    public boolean mor75ProsentStilling(DatoIntervallEntitet tidsperiode) {
+        return getAktivitetskravPerioderMedArbeidEntitet()
+            .map(per -> arbeidsperiodeStillingMinst(per, tidsperiode, new Stillingsprosent(75)))
+            .orElse(false);
+    }
+
     private boolean arbeidsperiodeUtenPermisjonStillingMinst(AktivitetskravArbeidPerioderEntitet perioder,
                                                              DatoIntervallEntitet tidsperiode,
                                                              Stillingsprosent minsteStillingsprosent) {
         if (harPermisjoner(tidsperiode, perioder)) {
             return false;
         }
+        return arbeidsperiodeStillingMinst(perioder, tidsperiode, minsteStillingsprosent);
+    }
 
+    private boolean arbeidsperiodeStillingMinst(AktivitetskravArbeidPerioderEntitet perioder,
+                                                DatoIntervallEntitet tidsperiode,
+                                                Stillingsprosent minsteStillingsprosent) {
         var morsArbeidsprosent = perioder.getAktivitetskravArbeidPeriodeListe().stream()
             .filter(p -> tidsperiode.erOmsluttetAv(p.getPeriode()))
             .map(AktivitetskravArbeidPeriodeEntitet::getSumStillingsprosent)
