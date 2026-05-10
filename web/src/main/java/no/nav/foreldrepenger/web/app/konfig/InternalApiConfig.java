@@ -8,7 +8,7 @@ import jakarta.ws.rs.core.Application;
 
 import no.nav.foreldrepenger.web.app.healthchecks.HealthCheckRestService;
 import no.nav.foreldrepenger.web.app.metrics.PrometheusRestService;
-import no.nav.vedtak.server.rest.jackson.Jackson2MapperFeature;
+import no.nav.vedtak.server.rest.jackson.Jackson2RestFeature;
 
 /**
  * Konfigurer Prometheus og Healthchecks
@@ -20,6 +20,6 @@ public class InternalApiConfig extends Application {
 
     @Override
     public Set<Class<?>> getClasses() {
-        return Set.of(HealthCheckRestService.class, PrometheusRestService.class, Jackson2MapperFeature.class);
+        return Set.of(HealthCheckRestService.class, PrometheusRestService.class, Jackson2RestFeature.class);
     }
 }
