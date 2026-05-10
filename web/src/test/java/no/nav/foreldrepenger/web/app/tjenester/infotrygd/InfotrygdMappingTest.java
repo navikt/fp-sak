@@ -29,13 +29,13 @@ class InfotrygdMappingTest {
 
     private List<Grunnlag> getResponse() throws IOException {
         var file = new File(getClass().getClassLoader().getResource("infotrygdresponse.json").getFile());
-        var svar = DefaultJsonMapper.getObjectMapper().readValue(file, Grunnlag[].class);
+        var svar = DefaultJsonMapper.getJsonMapper().readValue(file, Grunnlag[].class);
         return svar != null && svar.length > 0 ? Arrays.asList(svar) : List.of();
     }
 
     private List<InfotrygdSak> getSakResponse() throws IOException {
         var file = new File(getClass().getClassLoader().getResource("infotrygdresponsesak.json").getFile());
-        var svar = DefaultJsonMapper.getObjectMapper().readValue(file, InfotrygdSak[].class);
+        var svar = DefaultJsonMapper.getJsonMapper().readValue(file, InfotrygdSak[].class);
         return svar != null && svar.length > 0 ? Arrays.asList(svar) : List.of();
     }
 
