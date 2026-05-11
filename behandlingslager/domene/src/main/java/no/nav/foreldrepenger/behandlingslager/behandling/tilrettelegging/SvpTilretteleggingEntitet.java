@@ -23,6 +23,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
+import jakarta.persistence.Transient;
 
 import org.hibernate.annotations.BatchSize;
 
@@ -85,6 +86,10 @@ public class SvpTilretteleggingEntitet extends BaseEntitet {
     @OneToMany(cascade = CascadeType.ALL)
     @JoinColumn(name = "SVP_TILRETTELEGGING_ID")
     private List<SvpAvklartOpphold> avklarteOpphold = new ArrayList<>();
+
+    // TODO: lag database kolonne
+    @Transient
+    private boolean representererFAISU = false;
 
     public SvpTilretteleggingEntitet() {
         //jaja
@@ -192,6 +197,10 @@ public class SvpTilretteleggingEntitet extends BaseEntitet {
 
     public List<SvpAvklartOpphold> getAvklarteOpphold() {
         return avklarteOpphold;
+    }
+
+    public boolean getRepresentererFAISU() {
+        return false;
     }
 
     public static class Builder {
@@ -334,6 +343,11 @@ public class SvpTilretteleggingEntitet extends BaseEntitet {
         public Builder medAvklarteOpphold(List<SvpAvklartOpphold> avklarteOpphold) {
             this.mal.avklarteOpphold.clear();
             avklarteOpphold.forEach(this::medAvklartOpphold);
+            return this;
+        }
+
+        public Builder medRepresentererFAISU(boolean representererFAISU) {
+            this.mal.representererFAISU = representererFAISU;
             return this;
         }
 

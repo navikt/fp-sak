@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -33,6 +34,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.SvpOpph
 import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.SvpTilretteleggingEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.TilretteleggingFOM;
 import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.TilretteleggingType;
+import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsforhold.impl.ArbeidsforholdAdministrasjonTjeneste;
 import no.nav.foreldrepenger.domene.iay.modell.ArbeidsforholdInformasjonBuilder;
@@ -95,9 +97,9 @@ public class BekreftSvangerskapspengerOppdaterer implements AksjonspunktOppdater
         var familieHendelseGrunnlag = familieHendelseRepository.hentAggregat(ref.behandlingId());
         var forrigeFikspunkt = opplysningsPeriodeTjeneste.utledFikspunktForRegisterInnhenting(behandling.getId(), ref.fagsakYtelseType());
         var termindatoEndret = oppdaterFamiliehendelse(ref, dto, familieHendelseGrunnlag);
-        var endredeTilrettelegginger = oppdaterTilrettelegging(dto, behandling);
+        var endredeTilrettelegginger = oppdaterTilrettelegging(dto, behandling, eksisterendeTilretteleginger);
         oppdaterPermisjonVedBehov(dto, param);
-
+        // TODO: lagre ned ny arbeidsforhold, og lagre endringer på eksisterende
         if (termindatoEndret || !endredeTilrettelegginger.isEmpty()) {
             bekreftSvangerskapspengerHistorikkinnslagTjeneste.lagHistorikkinnslagVedEndring(ref, dto, familieHendelseGrunnlag,
                 endredeTilrettelegginger, eksisterendeTilretteleginger);
@@ -211,15 +213,15 @@ public class BekreftSvangerskapspengerOppdaterer implements AksjonspunktOppdater
         }
     }
 
-    List<SvpTilretteleggingEntitet> oppdaterTilrettelegging(BekreftSvangerskapspengerDto dto, Behandling behandling) {
+    List<SvpTilretteleggingEntitet> oppdaterTilrettelegging(BekreftSvangerskapspengerDto dto, Behandling behandling, List<SvpTilretteleggingEntitet> eksisterendeTilrettelegginger) {
         var bekreftedeArbeidsforholdDtoer = dto.getBekreftetSvpArbeidsforholdList();
-        var eksisterendeTilrettelegginger = hentGjeldendeTilrettelegginger(behandling);
 
         var harSaksbehandlerGjortEndringer = bekreftedeArbeidsforholdDtoer.stream()
-            .anyMatch(svpArbeidsforholdDto -> tilretteleggingErEndret(svpArbeidsforholdDto, eksisterendeTilrettelegginger));
+            .anyMatch(tilrettelegging -> tilretteleggingErEndret(tilrettelegging, eksisterendeTilrettelegginger));
+
         if (harSaksbehandlerGjortEndringer) {
             var nyeTilrettelegginger = bekreftedeArbeidsforholdDtoer.stream()
-                .map(svpArbeidsforholdDto -> mapTilrettelegging(svpArbeidsforholdDto, eksisterendeTilrettelegginger))
+                .map(tilrettelegging -> mapTilrettelegging(tilrettelegging, eksisterendeTilrettelegginger))
                 .toList();
 
             if (nyeTilrettelegginger.size() != eksisterendeTilrettelegginger.size()) {
@@ -257,6 +259,18 @@ public class BekreftSvangerskapspengerOppdaterer implements AksjonspunktOppdater
 
     private boolean tilretteleggingErEndret(BekreftTilrettelegging arbeidsforholdDto,
                                             List<SvpTilretteleggingEntitet> eksisterendeTilrettelegingerListe) {
+
+        if (arbeidsforholdDto.getRepresentererFAISU()) {
+            // TODO: sjekk om denne matchingen gjøres andre steder, eller kan forenkles
+            var harEksisterendeFAISU = eksisterendeTilrettelegingerListe.stream()
+                .anyMatch(ste -> Objects.equals(ste.getArbeidsgiver().map(Arbeidsgiver::getIdentifikator).orElse(null),
+                    arbeidsforholdDto.getArbeidsgiverReferanse()) && ste.getRepresentererFAISU());
+
+            if (!harEksisterendeFAISU) {
+                return true;
+            }
+        }
+
         var eksisterendeTilrettelegging = hentEksisterendeTilrettelegging(eksisterendeTilrettelegingerListe,
             arbeidsforholdDto.getTilretteleggingId());
         var nyTilrettelegging = mapNyTilrettelegging(arbeidsforholdDto, eksisterendeTilrettelegging);
@@ -285,8 +299,15 @@ public class BekreftSvangerskapspengerOppdaterer implements AksjonspunktOppdater
 
     private SvpTilretteleggingEntitet mapTilrettelegging(BekreftTilrettelegging arbeidsforholdDto,
                                                          List<SvpTilretteleggingEntitet> eksisterendeTilrettelegingerListe) {
-        var eksisterendeTilrettelegging = hentEksisterendeTilrettelegging(eksisterendeTilrettelegingerListe,
-            arbeidsforholdDto.getTilretteleggingId());
+        SvpTilretteleggingEntitet eksisterendeTilrettelegging;
+        if (arbeidsforholdDto.getRepresentererFAISU() && arbeidsforholdDto.getTilretteleggingId() == null) {
+            eksisterendeTilrettelegging = hentEksisterendeTilretteleggingForFAISU(eksisterendeTilrettelegingerListe,
+                arbeidsforholdDto.getArbeidsgiverReferanse());
+        } else {
+            eksisterendeTilrettelegging = hentEksisterendeTilrettelegging(eksisterendeTilrettelegingerListe,
+                arbeidsforholdDto.getTilretteleggingId());
+        }
+
         var nyTilrettelegging = mapNyTilrettelegging(arbeidsforholdDto, eksisterendeTilrettelegging);
 
         if (erTilretteleggingEndret(eksisterendeTilrettelegging, nyTilrettelegging)) {
@@ -326,6 +347,16 @@ public class BekreftSvangerskapspengerOppdaterer implements AksjonspunktOppdater
                 "Finner ikke eksisterende tilrettelegging på svangerskapspengergrunnlag med identifikator: " + tilretteleggingId));
     }
 
+    private SvpTilretteleggingEntitet hentEksisterendeTilretteleggingForFAISU(List<SvpTilretteleggingEntitet> eksisterendeTilrettelegingerListe,
+                                                                              String arbeidsgiverReferanse) {
+        var arbeidsgiver = Arbeidsgiver.virksomhet(arbeidsgiverReferanse);
+        return eksisterendeTilrettelegingerListe.stream()
+            .filter(svpTilretteleggingEntitet -> svpTilretteleggingEntitet.getArbeidsgiver().map(ag -> ag.equals(arbeidsgiver)).orElse(false))
+            .findFirst()
+            .orElseThrow(() -> new TekniskException("FP-572362",
+                "Finner ikke matchende tilrettelegging for FAISU på svangerskapspengergrunnlag med identifikator: " + arbeidsgiver));
+    }
+
     private SvpTilretteleggingEntitet mapNyTilrettelegging(BekreftTilrettelegging arbeidsforholdDto,
                                                            SvpTilretteleggingEntitet eksisterendeTilrettelegging) {
         var nyTilretteleggingEntitetBuilder = new SvpTilretteleggingEntitet.Builder().medBehovForTilretteleggingFom(
@@ -338,9 +369,10 @@ public class BekreftSvangerskapspengerOppdaterer implements AksjonspunktOppdater
             .medKopiertFraTidligereBehandling(eksisterendeTilrettelegging.getKopiertFraTidligereBehandling())
             .medMottattTidspunkt(eksisterendeTilrettelegging.getMottattTidspunkt())
             .medInternArbeidsforholdRef(eksisterendeTilrettelegging.getInternArbeidsforholdRef().orElse(null))
-            .medSkalBrukes(arbeidsforholdDto.getSkalBrukes());
+            .medSkalBrukes(arbeidsforholdDto.getSkalBrukes())
+            .medRepresentererFAISU(arbeidsforholdDto.getRepresentererFAISU());
 
-        //nye tilrettelegging-fra-datoer per arbeidsforhold
+        // nye tilrettelegging-fra-datoer per arbeidsforhold
         for (var datoDto : arbeidsforholdDto.getTilretteleggingDatoer()) {
             if (arbeidsforholdDto.getSkalBrukes() && delvisTilretteleggingUtenStillingsprosentOgIkkeOverstyrt(datoDto)) {
                 throw new FunksjonellException("FP-128763", "Verken arbeidsprosent eller overstyrt utbetalingsgrad opgitt ved delvis tilrettelegging",

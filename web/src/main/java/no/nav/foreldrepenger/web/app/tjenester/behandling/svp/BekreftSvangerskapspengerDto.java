@@ -5,6 +5,7 @@ import java.util.Collections;
 import java.util.List;
 
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
 import com.fasterxml.jackson.annotation.JsonTypeName;
@@ -15,7 +16,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspun
 @JsonTypeName(AksjonspunktKodeDefinisjon.VURDER_SVP_TILRETTELEGGING_KODE)
 public class BekreftSvangerskapspengerDto extends BekreftetAksjonspunktDto {
 
-
+    @NotNull
     private LocalDate termindato;
 
     private LocalDate fødselsdato;

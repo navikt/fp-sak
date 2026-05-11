@@ -49,6 +49,10 @@ public class SvpArbeidsforholdDto {
     @NotNull
     private List<@Valid SvpAvklartOppholdPeriodeDto> avklarteOppholdPerioder = new ArrayList<>();
 
+    private boolean harFlereArbeidsforholdUnderSammeVirksomhet;
+
+    private boolean representererFAISU = false;
+
     @Size(max = 4000)
     @Pattern(regexp = InputValideringRegex.FRITEKST)
     private String begrunnelse;
@@ -159,5 +163,21 @@ public class SvpArbeidsforholdDto {
 
     public void setStillingsprosentStartTilrettelegging(BigDecimal stillingsprosentStartTilrettelegging) {
         this.stillingsprosentStartTilrettelegging = stillingsprosentStartTilrettelegging;
+    }
+
+    public boolean getHarFlereArbeidsforholdUnderSammeVirksomhet() {
+        return harFlereArbeidsforholdUnderSammeVirksomhet;
+    }
+
+    public void setHarFlereArbeidsforholdUnderSammeVirksomhet(boolean harFlereArbeidsforholdUnderSammeVirksomhet) {
+        this.harFlereArbeidsforholdUnderSammeVirksomhet = harFlereArbeidsforholdUnderSammeVirksomhet;
+    }
+
+    public boolean getRepresentererFAISU() {
+        return representererFAISU;
+    }
+
+    public void setRepresentererFAISU(boolean representererFAISU) {
+        this.representererFAISU = representererFAISU;
     }
 }
