@@ -73,7 +73,7 @@ public class AAPKombinertMedATFLTjeneste {
     }
 
     private boolean harATFLSisteTreMåneder(List<OpptjeningAktiviteter.OpptjeningPeriode> perioder, LocalDate stp) {
-        var treMånederFørStp = stp.minusMonths(3);
+        var treMånederFørStp = stp.minusMonths(3).withDayOfMonth(1);
         return perioder.stream()
             .filter(p -> ATFL_TYPER.contains(p.opptjeningAktivitetType()))
             .anyMatch(p -> !p.periode().getFom().isAfter(stp) && (p.periode().getTom() == null || !p.periode().getTom().isBefore(treMånederFørStp)));

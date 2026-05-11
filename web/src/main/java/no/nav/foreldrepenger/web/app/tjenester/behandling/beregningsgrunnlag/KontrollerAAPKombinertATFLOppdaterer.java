@@ -39,7 +39,7 @@ public class KontrollerAAPKombinertATFLOppdaterer implements AksjonspunktOppdate
         var historikkinnslag = new Historikkinnslag.Builder().medAktør(HistorikkAktør.SAKSBEHANDLER)
             .medFagsakId(ref.fagsakId())
             .medBehandlingId(ref.behandlingId())
-            .medTittel(SkjermlenkeType.BEREGNING_FORELDREPENGER)
+            .medTittel(SkjermlenkeType.AAP_KOMBINERT_ATFL)
             .addLinje("Beregning for AAP kombinert med AT/FL er godkjent")
             .addLinje(dto.getBegrunnelse())
             .build();

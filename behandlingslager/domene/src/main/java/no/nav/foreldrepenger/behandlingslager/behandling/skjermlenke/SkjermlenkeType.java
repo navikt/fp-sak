@@ -22,6 +22,7 @@ public enum SkjermlenkeType implements Kodeverdi, DatabaseKode {
     BEREGNING_ENGANGSSTOENAD("BEREGNING_ENGANGSSTOENAD", "Beregning"),
     BEREGNING_FORELDREPENGER("BEREGNING_FORELDREPENGER", "Beregning"),
     BESTEBEREGNING("BESTEBEREGNING", "Besteberegning"),
+    AAP_KOMBINERT_ATFL("AAP_KOMBINERT_ATFL", "AAP kombinert med AT/FL"),
     FAKTA_FOR_OMSORG("FAKTA_FOR_OMSORG", "Fakta om omsorg"),
     FAKTA_FOR_OPPTJENING("FAKTA_FOR_OPPTJENING", "Fakta om opptjening"),
     FAKTA_OM_ARBEIDSFORHOLD("FAKTA_OM_ARBEIDSFORHOLD", "Fakta om arbeidsforhold"),
