@@ -53,7 +53,7 @@ import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.SaksnummerDto;
 import no.nav.foreldrepenger.web.server.abac.AppAbacAttributtType;
 import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.feil.Feilkode;
-import no.nav.vedtak.server.rest.FeilUtils;
+import no.nav.vedtak.server.rest.RestServerFeilUtils;
 import no.nav.vedtak.sikkerhet.abac.AbacDataAttributter;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
 import no.nav.vedtak.sikkerhet.abac.TilpassetAbacAttributt;
@@ -174,7 +174,7 @@ public class DokumentRestTjeneste {
     }
 
     private Response notFound(String feilmelding) {
-        return FeilUtils.responseFra(Response.Status.NOT_FOUND, Feilkode.IKKE_FUNNET, feilmelding);
+        return RestServerFeilUtils.responseFra(Response.Status.NOT_FOUND, Feilkode.IKKE_FUNNET, feilmelding);
     }
 
     private List<DokumentDto> mapFraArkivJournalPost(ArkivJournalPost arkivJournalPost, Map<JournalpostId, List<MottattDokument>> mottatteIMDokument,
