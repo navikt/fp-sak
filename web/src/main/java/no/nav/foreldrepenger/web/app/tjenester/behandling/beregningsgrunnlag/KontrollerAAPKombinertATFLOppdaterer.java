@@ -40,7 +40,7 @@ public class KontrollerAAPKombinertATFLOppdaterer implements AksjonspunktOppdate
             .medFagsakId(ref.fagsakId())
             .medBehandlingId(ref.behandlingId())
             .medTittel(SkjermlenkeType.AAP_KOMBINERT_ATFL)
-            .addLinje("Beregning for AAP kombinert med AT/FL er godkjent")
+            .addLinje("Beregning for AAP kombinert med arbeidstaker og/eller frilans er godkjent")
             .addLinje(dto.getBegrunnelse())
             .build();
         historikkinnslagRepository.lagre(historikkinnslag);
