@@ -31,7 +31,7 @@ class GeneralRestExceptionMapperTest {
 
     @BeforeEach
     void setUp() {
-        logSniffer = MemoryAppender.sniff(no.nav.vedtak.server.rest.FeilUtils.class);
+        logSniffer = MemoryAppender.sniff(no.nav.vedtak.server.rest.RestServerFeilUtils.class);
     }
 
     @AfterEach
