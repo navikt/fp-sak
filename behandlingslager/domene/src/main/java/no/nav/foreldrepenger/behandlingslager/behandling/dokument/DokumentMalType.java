@@ -40,9 +40,9 @@ public enum DokumentMalType implements Kodeverdi, DatabaseKode {
     KLAGE_OVERSENDT("KGEOVE"),
     ETTERLYS_INNTEKTSMELDING("ELYSIM"),
     ENDRING_UTBETALING("ENDUTB"), // Brukes som journalførSom når saksbehandler overstyrer vedtaksbrev ved endring i fordeling av ytelsen
-    FORELDREPENGER_FEIL_PRAKSIS_UTSETTELSE_INFOBREV("INFOPU"),
-    FORELDREPENGER_FEIL_PRAKSIS_UTSETTELSE_FORLENGET_SAKSBEHANDLINGSTID("FORPUS"),
 
+    @Deprecated FORELDREPENGER_FEIL_PRAKSIS_UTSETTELSE_INFOBREV("INFOPU"),
+    @Deprecated FORELDREPENGER_FEIL_PRAKSIS_UTSETTELSE_FORLENGET_SAKSBEHANDLINGSTID("FORPUS"),
     // Må gjeninnføre for å flytte anker
     @Deprecated KLAGE_AVVIST_DOK("KLAGAV"),
     @Deprecated KLAGE_AVVIST_FRITEKST("KAVVIS"),
@@ -143,11 +143,11 @@ public enum DokumentMalType implements Kodeverdi, DatabaseKode {
             case KLAGE_HJEMSENDT, KLAGE_HJEMSENDT_DOK, KLAGE_HJEMSENDT_FRITEKST,
                  KLAGE_STADFESTET, KLAGE_STADFESTET_DOK, KLAGE_STADFESTET_FRITEKST,
                  ANKE_OMGJORT, ANKE_OMGJORT_FRITEKST,
-                 ANKE_OPPHEVET, ANKE_OPPHEVET_FRITEKST ->
+                 ANKE_OPPHEVET, ANKE_OPPHEVET_FRITEKST,
+                 FORELDREPENGER_FEIL_PRAKSIS_UTSETTELSE_INFOBREV,
+                 FORELDREPENGER_FEIL_PRAKSIS_UTSETTELSE_FORLENGET_SAKSBEHANDLINGSTID ->
                 throw new IllegalStateException("Utgått dokumentmal skal ikke være i bruk: " + mal);
             case ENDRING_UTBETALING -> "Endring i fordeling av ytelsen";
-            case FORELDREPENGER_FEIL_PRAKSIS_UTSETTELSE_INFOBREV -> "Melding om ny vurdering av tidligere avslag";
-            case FORELDREPENGER_FEIL_PRAKSIS_UTSETTELSE_FORLENGET_SAKSBEHANDLINGSTID -> "Forlenget saksbehandlingstid - Fedrekvotesaken";
         };
     }
 
