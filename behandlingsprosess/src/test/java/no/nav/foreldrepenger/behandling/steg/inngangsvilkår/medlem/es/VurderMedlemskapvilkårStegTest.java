@@ -37,7 +37,6 @@ import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioM
 import no.nav.foreldrepenger.dbstoette.CdiDbAwareTest;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.medlem.MedlemTjeneste;
-import no.nav.foreldrepenger.domene.medlem.MedlemskapVurderingPeriodeTjeneste;
 import no.nav.foreldrepenger.domene.person.PersoninfoAdapter;
 import no.nav.foreldrepenger.domene.personopplysning.PersonopplysningTjeneste;
 import no.nav.foreldrepenger.domene.typer.PersonIdent;
@@ -64,8 +63,6 @@ class VurderMedlemskapvilkårStegTest {
     private MedlemTjeneste medlemTjeneste;
     @Inject
     private PersonopplysningTjeneste personopplysningTjeneste;
-    @Inject
-    private MedlemskapVurderingPeriodeTjeneste medlemskapVurderingPeriodeTjeneste;
     @Inject
     private SatsRepository satsRepo;
     @Inject
@@ -154,8 +151,7 @@ class VurderMedlemskapvilkårStegTest {
     }
 
     private InngangsvilkårFellesTjeneste forutgåendeTjeneste() {
-        var medlemRegelGrunnlagBygger = new MedlemRegelGrunnlagBygger(medlemTjeneste, personopplysningTjeneste, medlemskapVurderingPeriodeTjeneste,
-            inntektArbeidYtelseTjeneste, satsRepo, stpTjeneste, personinfoAdapter);
+        var medlemRegelGrunnlagBygger = new MedlemRegelGrunnlagBygger(medlemTjeneste, personopplysningTjeneste, inntektArbeidYtelseTjeneste, satsRepo, stpTjeneste, personinfoAdapter);
         when(personinfoAdapter.hentFnr(any())).thenReturn(Optional.of(PersonIdent.randomMor()));
         var inngangsvilkårMedlemskap = new InngangsvilkårMedlemskapForutgående(new AvklarMedlemskapUtleder(medlemRegelGrunnlagBygger));
         var inngangsvilkårFellesTjeneste = new InngangsvilkårFellesTjeneste(new RegelOrkestrerer(new InngangsvilkårTjeneste(
@@ -179,8 +175,7 @@ class VurderMedlemskapvilkårStegTest {
         // Act - vurder vilkåret
         var vilkårutleder = new Medlemsvilkårutleder(repositoryProvider);
 
-        var medlemRegelGrunnlagBygger = new MedlemRegelGrunnlagBygger(medlemTjeneste, personopplysningTjeneste, medlemskapVurderingPeriodeTjeneste,
-            inntektArbeidYtelseTjeneste, satsRepo, stpTjeneste, personinfoAdapter);
+        var medlemRegelGrunnlagBygger = new MedlemRegelGrunnlagBygger(medlemTjeneste, personopplysningTjeneste, inntektArbeidYtelseTjeneste, satsRepo, stpTjeneste, personinfoAdapter);
         when(personinfoAdapter.hentFnr(any())).thenReturn(Optional.of(PersonIdent.randomMor()));
         var inngangsvilkårMedlemskap = new InngangsvilkårMedlemskap(new AvklarMedlemskapUtleder(medlemRegelGrunnlagBygger));
         var inngangsvilkårFellesTjeneste = new InngangsvilkårFellesTjeneste(new RegelOrkestrerer(new InngangsvilkårTjeneste(

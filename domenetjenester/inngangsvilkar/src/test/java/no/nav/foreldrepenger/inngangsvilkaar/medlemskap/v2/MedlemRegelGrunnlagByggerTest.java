@@ -45,7 +45,6 @@ import no.nav.foreldrepenger.domene.iay.modell.VersjonType;
 import no.nav.foreldrepenger.domene.iay.modell.YrkesaktivitetBuilder;
 import no.nav.foreldrepenger.domene.iay.modell.kodeverk.InntektsKilde;
 import no.nav.foreldrepenger.domene.medlem.MedlemTjeneste;
-import no.nav.foreldrepenger.domene.medlem.MedlemskapVurderingPeriodeTjeneste;
 import no.nav.foreldrepenger.domene.person.PersoninfoAdapter;
 import no.nav.foreldrepenger.domene.personopplysning.PersonopplysningTjeneste;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
@@ -73,8 +72,6 @@ class MedlemRegelGrunnlagByggerTest {
     private MedlemTjeneste medlemTjeneste;
     @Inject
     private PersonopplysningTjeneste personopplysningTjeneste;
-    @Inject
-    private MedlemskapVurderingPeriodeTjeneste medlemskapVurderingPeriodeTjeneste;
     @Inject
     private SatsRepository satsRepo;
     @Inject
@@ -135,8 +132,8 @@ class MedlemRegelGrunnlagByggerTest {
                         .leggTilAktivitetsAvtale(nyAktivitetsAvtaleBuilder().medPeriode(yrkesAktivitetPeriode))))
                 .leggTilAktørInntekt(aktørInntektBuilder));
 
-        var regelGrunnlagBygger = new MedlemRegelGrunnlagBygger(medlemTjeneste, personopplysningTjeneste, medlemskapVurderingPeriodeTjeneste,
-            inntektArbeidYtelseTjeneste, satsRepo, stpTjeneste, personinfoAdapter);
+        var regelGrunnlagBygger = new MedlemRegelGrunnlagBygger(medlemTjeneste, personopplysningTjeneste,
+                inntektArbeidYtelseTjeneste, satsRepo, stpTjeneste, personinfoAdapter);
 
         var resultat = regelGrunnlagBygger.lagRegelGrunnlag(BehandlingReferanse.fra(behandling));
 

@@ -41,9 +41,9 @@ class MedlemskapVurderingPeriodeTjenesteTest {
             .build();
 
         // Act/Assert
-        assertThat(new MedlemskapVurderingPeriodeTjeneste().bosattVurderingsintervall(ref, stp))
+        assertThat(MedlemskapVurderingPeriodeTjeneste.bosattVurderingsintervall(ref, stp))
             .isEqualTo(new LocalDateInterval(termindato.minus(BOSATT_TILBAKE), termindato));
-        assertThat(new MedlemskapVurderingPeriodeTjeneste().lovligOppholdVurderingsintervall(ref, stp))
+        assertThat(MedlemskapVurderingPeriodeTjeneste.lovligOppholdVurderingsintervall(ref, stp))
             .isEqualTo(new LocalDateInterval(termindato, termindato));
     }
 
@@ -64,9 +64,9 @@ class MedlemskapVurderingPeriodeTjenesteTest {
             .build();
 
         // Act/Assert
-        assertThat(new MedlemskapVurderingPeriodeTjeneste().bosattVurderingsintervall(ref, stp))
+        assertThat(MedlemskapVurderingPeriodeTjeneste.bosattVurderingsintervall(ref, stp))
             .isEqualTo(new LocalDateInterval(fødselsdato.minus(BOSATT_TILBAKE), fødselsdato));
-        assertThat(new MedlemskapVurderingPeriodeTjeneste().lovligOppholdVurderingsintervall(ref, stp))
+        assertThat(MedlemskapVurderingPeriodeTjeneste.lovligOppholdVurderingsintervall(ref, stp))
             .isEqualTo(new LocalDateInterval(fødselsdato, fødselsdato));
     }
 
@@ -86,9 +86,9 @@ class MedlemskapVurderingPeriodeTjenesteTest {
             .build();
 
         // Act/Assert
-        assertThat(new MedlemskapVurderingPeriodeTjeneste().bosattVurderingsintervall(ref, stp))
+        assertThat(MedlemskapVurderingPeriodeTjeneste.bosattVurderingsintervall(ref, stp))
             .isEqualTo(new LocalDateInterval(fødselsdato.minus(BOSATT_TILBAKE), fødselsdato));
-        assertThat(new MedlemskapVurderingPeriodeTjeneste().lovligOppholdVurderingsintervall(ref, stp))
+        assertThat(MedlemskapVurderingPeriodeTjeneste.lovligOppholdVurderingsintervall(ref, stp))
             .isEqualTo(new LocalDateInterval(fødselsdato, fødselsdato));
     }
 
@@ -108,9 +108,9 @@ class MedlemskapVurderingPeriodeTjenesteTest {
             .build();
 
         // Act/Assert
-        assertThat(new MedlemskapVurderingPeriodeTjeneste().bosattVurderingsintervall(ref, stp))
+        assertThat(MedlemskapVurderingPeriodeTjeneste.bosattVurderingsintervall(ref, stp))
             .isEqualTo(new LocalDateInterval(omsorgsdato.minus(BOSATT_TILBAKE), omsorgsdato));
-        assertThat(new MedlemskapVurderingPeriodeTjeneste().lovligOppholdVurderingsintervall(ref, stp))
+        assertThat(MedlemskapVurderingPeriodeTjeneste.lovligOppholdVurderingsintervall(ref, stp))
             .isEqualTo(new LocalDateInterval(omsorgsdato, omsorgsdato));
     }
 
@@ -131,9 +131,9 @@ class MedlemskapVurderingPeriodeTjenesteTest {
             .build();
 
         // Act/Assert
-        assertThat(new MedlemskapVurderingPeriodeTjeneste().bosattVurderingsintervall(ref, stp))
+        assertThat(MedlemskapVurderingPeriodeTjeneste.bosattVurderingsintervall(ref, stp))
             .isEqualTo(new LocalDateInterval(termindato.minus(ES_MEDLEMSKAP), termindato));
-        assertThat(new MedlemskapVurderingPeriodeTjeneste().lovligOppholdVurderingsintervall(ref, stp))
+        assertThat(MedlemskapVurderingPeriodeTjeneste.lovligOppholdVurderingsintervall(ref, stp))
             .isEqualTo(new LocalDateInterval(termindato.minus(ES_MEDLEMSKAP), termindato));
     }
 
@@ -154,9 +154,9 @@ class MedlemskapVurderingPeriodeTjenesteTest {
             .build();
 
         // Act/Assert
-        assertThat(new MedlemskapVurderingPeriodeTjeneste().bosattVurderingsintervall(ref, stp))
+        assertThat(MedlemskapVurderingPeriodeTjeneste.bosattVurderingsintervall(ref, stp))
             .isEqualTo(new LocalDateInterval(termindato.minus(ES_MEDLEMSKAP), termindato));
-        assertThat(new MedlemskapVurderingPeriodeTjeneste().lovligOppholdVurderingsintervall(ref, stp))
+        assertThat(MedlemskapVurderingPeriodeTjeneste.lovligOppholdVurderingsintervall(ref, stp))
             .isEqualTo(new LocalDateInterval(termindato.minus(ES_MEDLEMSKAP), termindato));
     }
 
@@ -176,9 +176,9 @@ class MedlemskapVurderingPeriodeTjenesteTest {
             .build();
 
         // Act/Assert
-        assertThat(new MedlemskapVurderingPeriodeTjeneste().bosattVurderingsintervall(ref, stp))
+        assertThat(MedlemskapVurderingPeriodeTjeneste.bosattVurderingsintervall(ref, stp))
             .isEqualTo(new LocalDateInterval(fødselsdato.minus(ES_MEDLEMSKAP), fødselsdato));
-        assertThat(new MedlemskapVurderingPeriodeTjeneste().lovligOppholdVurderingsintervall(ref, stp))
+        assertThat(MedlemskapVurderingPeriodeTjeneste.lovligOppholdVurderingsintervall(ref, stp))
             .isEqualTo(new LocalDateInterval(fødselsdato.minus(ES_MEDLEMSKAP), fødselsdato));
     }
 
@@ -198,9 +198,9 @@ class MedlemskapVurderingPeriodeTjenesteTest {
             .build();
 
         // Act/Assert
-        assertThat(new MedlemskapVurderingPeriodeTjeneste().bosattVurderingsintervall(ref, stp))
+        assertThat(MedlemskapVurderingPeriodeTjeneste.bosattVurderingsintervall(ref, stp))
             .isEqualTo(new LocalDateInterval(omsorgsdato.minus(ES_MEDLEMSKAP), omsorgsdato));
-        assertThat(new MedlemskapVurderingPeriodeTjeneste().lovligOppholdVurderingsintervall(ref, stp))
+        assertThat(MedlemskapVurderingPeriodeTjeneste.lovligOppholdVurderingsintervall(ref, stp))
             .isEqualTo(new LocalDateInterval(omsorgsdato.minus(ES_MEDLEMSKAP), omsorgsdato));
     }
 
@@ -222,9 +222,9 @@ class MedlemskapVurderingPeriodeTjenesteTest {
             .build();
 
         // Act/Assert
-        assertThat(new MedlemskapVurderingPeriodeTjeneste().bosattVurderingsintervall(ref, stp))
+        assertThat(MedlemskapVurderingPeriodeTjeneste.bosattVurderingsintervall(ref, stp))
             .isEqualTo(new LocalDateInterval(LocalDate.now().minus(BOSATT_TILBAKE), maxdato));
-        assertThat(new MedlemskapVurderingPeriodeTjeneste().lovligOppholdVurderingsintervall(ref, stp))
+        assertThat(MedlemskapVurderingPeriodeTjeneste.lovligOppholdVurderingsintervall(ref, stp))
             .isEqualTo(new LocalDateInterval(skjæringstidspunkt, maxdato));
     }
 
@@ -245,9 +245,9 @@ class MedlemskapVurderingPeriodeTjenesteTest {
             .build();
 
         // Act/Assert
-        assertThat(new MedlemskapVurderingPeriodeTjeneste().bosattVurderingsintervall(ref, stp))
+        assertThat(MedlemskapVurderingPeriodeTjeneste.bosattVurderingsintervall(ref, stp))
             .isEqualTo(new LocalDateInterval(omsorgsdato.minus(BOSATT_TILBAKE), maxdato));
-        assertThat(new MedlemskapVurderingPeriodeTjeneste().lovligOppholdVurderingsintervall(ref, stp))
+        assertThat(MedlemskapVurderingPeriodeTjeneste.lovligOppholdVurderingsintervall(ref, stp))
             .isEqualTo(new LocalDateInterval(omsorgsdato, maxdato));
     }
 
@@ -269,9 +269,9 @@ class MedlemskapVurderingPeriodeTjenesteTest {
             .build();
 
         // Act/Assert
-        assertThat(new MedlemskapVurderingPeriodeTjeneste().bosattVurderingsintervall(ref, stp))
+        assertThat(MedlemskapVurderingPeriodeTjeneste.bosattVurderingsintervall(ref, stp))
             .isEqualTo(new LocalDateInterval(skjæringstidspunkt.minus(BOSATT_TILBAKE), maxdato));
-        assertThat(new MedlemskapVurderingPeriodeTjeneste().lovligOppholdVurderingsintervall(ref, stp))
+        assertThat(MedlemskapVurderingPeriodeTjeneste.lovligOppholdVurderingsintervall(ref, stp))
             .isEqualTo(new LocalDateInterval(skjæringstidspunkt, maxdato));
     }
 

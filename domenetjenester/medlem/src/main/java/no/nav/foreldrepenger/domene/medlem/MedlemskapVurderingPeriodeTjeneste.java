@@ -3,9 +3,6 @@ package no.nav.foreldrepenger.domene.medlem;
 import java.time.LocalDate;
 import java.time.Period;
 
-import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.inject.Inject;
-
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.FamilieHendelseDato;
 import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
@@ -13,19 +10,17 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.skjæringstidspunkt.es.BotidCore2024;
 import no.nav.fpsak.tidsserie.LocalDateInterval;
 
-@ApplicationScoped
 public class MedlemskapVurderingPeriodeTjeneste {
 
     private static final Period BOSATT_TILBAKE_TID = Period.ofMonths(12);
     private static final Period MEDLEMSKAP_ES = BotidCore2024.FORUTGÅENDE_MEDLEMSKAP_TIDSPERIODE;
     private static final String MANGLER_YTELSE = "Mangler ytelse";
 
-    @Inject
-    public MedlemskapVurderingPeriodeTjeneste() {
+    private MedlemskapVurderingPeriodeTjeneste() {
     }
 
 
-    public LocalDateInterval bosattVurderingsintervall(BehandlingReferanse ref, Skjæringstidspunkt stp) {
+    public static LocalDateInterval bosattVurderingsintervall(BehandlingReferanse ref, Skjæringstidspunkt stp) {
         var referansedato = getReferansedato(ref, stp);
         var intervallSluttdato = switch (ref.fagsakYtelseType()) {
             case ENGANGSTØNAD -> referansedato;
@@ -37,7 +32,7 @@ public class MedlemskapVurderingPeriodeTjeneste {
         return new LocalDateInterval(intervallStartdato, intervallSluttdato);
     }
 
-    public LocalDateInterval lovligOppholdVurderingsintervall(BehandlingReferanse ref, Skjæringstidspunkt stp) {
+    public static LocalDateInterval lovligOppholdVurderingsintervall(BehandlingReferanse ref, Skjæringstidspunkt stp) {
         var referansedato = getReferansedato(ref, stp);
         var intervallSluttdato = switch (ref.fagsakYtelseType()) {
             case ENGANGSTØNAD -> referansedato;
@@ -48,7 +43,7 @@ public class MedlemskapVurderingPeriodeTjeneste {
         return new LocalDateInterval(intervallStartdato, intervallSluttdato);
     }
 
-    private LocalDate getReferansedato(BehandlingReferanse ref, Skjæringstidspunkt stp) {
+    private static LocalDate getReferansedato(BehandlingReferanse ref, Skjæringstidspunkt stp) {
         return switch (ref.fagsakYtelseType()) {
             case ENGANGSTØNAD -> referansedatoES(stp);
             case FORELDREPENGER, SVANGERSKAPSPENGER -> stp.getUtledetSkjæringstidspunkt();
@@ -56,7 +51,7 @@ public class MedlemskapVurderingPeriodeTjeneste {
         };
     }
 
-    private LocalDate referansedatoES(Skjæringstidspunkt stp) {
+    private static LocalDate referansedatoES(Skjæringstidspunkt stp) {
         if (BotidCore2024.ikkeBotidskrav(stp.getFamilieHendelseDato().orElse(null))) {
             return stp.getUtledetSkjæringstidspunkt();
         } else { // Default etter overgansperiode (8/2-25)
@@ -65,7 +60,7 @@ public class MedlemskapVurderingPeriodeTjeneste {
         }
     }
 
-    private LocalDate startBosatt(FagsakYtelseType ytelseType, Skjæringstidspunkt stp, LocalDate referansedato) {
+    private static LocalDate startBosatt(FagsakYtelseType ytelseType, Skjæringstidspunkt stp, LocalDate referansedato) {
         if (!FagsakYtelseType.ENGANGSTØNAD.equals(ytelseType)) {
             return referansedato.minus(BOSATT_TILBAKE_TID);
         } else if (BotidCore2024.ikkeBotidskrav(stp.getFamilieHendelseDato().orElse(null))) {
@@ -75,7 +70,7 @@ public class MedlemskapVurderingPeriodeTjeneste {
         }
     }
 
-    private LocalDate startLovligOpphold(FagsakYtelseType ytelseType, Skjæringstidspunkt stp, LocalDate referansedato) {
+    private static LocalDate startLovligOpphold(FagsakYtelseType ytelseType, Skjæringstidspunkt stp, LocalDate referansedato) {
         if (!FagsakYtelseType.ENGANGSTØNAD.equals(ytelseType)) {
             return referansedato;
         } else if (BotidCore2024.ikkeBotidskrav(stp.getFamilieHendelseDato().orElse(null))) {
@@ -85,7 +80,7 @@ public class MedlemskapVurderingPeriodeTjeneste {
         }
     }
 
-    private LocalDate minDato(LocalDate dato1, LocalDate dato2) {
+    private static LocalDate minDato(LocalDate dato1, LocalDate dato2) {
         if (dato1 != null && dato2 != null) {
             return dato1.isBefore(dato2) ? dato1 : dato2;
         } else {
@@ -93,7 +88,7 @@ public class MedlemskapVurderingPeriodeTjeneste {
         }
     }
 
-    private LocalDate datoMinusLengstePeriode(LocalDate dato, Period p1, Period p2) {
+    private static LocalDate datoMinusLengstePeriode(LocalDate dato, Period p1, Period p2) {
         var d1 = dato.minus(p1);
         var d2 = dato.minus(p2);
         return d1.isBefore(d2) ? d1 : d2;
