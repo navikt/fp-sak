@@ -29,25 +29,20 @@ public class Medlemsvilkårutleder {
     private BehandlingsresultatRepository behandlingsresultatRepository;
     private FamilieHendelseRepository familieHendelseRepository;
 
-    private BotidCore2024 botidCore2024;
-
-
     Medlemsvilkårutleder() {
         // CDI
     }
 
     @Inject
-    public Medlemsvilkårutleder(BehandlingRepositoryProvider repositoryProvider,
-                                BotidCore2024 botidCore2024) {
+    public Medlemsvilkårutleder(BehandlingRepositoryProvider repositoryProvider) {
         this.behandlingRepository = repositoryProvider.getBehandlingRepository();
         this.behandlingsresultatRepository = repositoryProvider.getBehandlingsresultatRepository();
         this.familieHendelseRepository = repositoryProvider.getFamilieHendelseRepository();
-        this.botidCore2024 = botidCore2024;
     }
 
     public BehandleStegResultat opprettVilkårForBehandling(BehandlingskontrollKontekst kontekst, Behandling behandling) {
         var familieHendelseGrunnlag = familieHendelseRepository.hentAggregatHvisEksisterer(behandling.getId()).orElse(null);
-        var utledetVilkår = botidCore2024.ikkeBotidskrav(familieHendelseGrunnlag) ? VilkårType.MEDLEMSKAPSVILKÅRET : VilkårType.MEDLEMSKAPSVILKÅRET_FORUTGÅENDE;
+        var utledetVilkår = BotidCore2024.ikkeBotidskrav(familieHendelseGrunnlag) ? VilkårType.MEDLEMSKAPSVILKÅRET : VilkårType.MEDLEMSKAPSVILKÅRET_FORUTGÅENDE;
         var fjernVilkår = VilkårType.MEDLEMSKAPSVILKÅRET.equals(utledetVilkår) ? VilkårType.MEDLEMSKAPSVILKÅRET_FORUTGÅENDE : VilkårType.MEDLEMSKAPSVILKÅRET;
         opprettVilkårVedBehov(utledetVilkår, fjernVilkår, behandling, kontekst.getSkriveLås());
         return BehandleStegResultat.utførtUtenAksjonspunkter();

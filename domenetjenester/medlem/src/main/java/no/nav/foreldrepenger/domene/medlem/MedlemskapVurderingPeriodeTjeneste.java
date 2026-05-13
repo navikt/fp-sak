@@ -20,15 +20,8 @@ public class MedlemskapVurderingPeriodeTjeneste {
     private static final Period MEDLEMSKAP_ES = BotidCore2024.FORUTGÅENDE_MEDLEMSKAP_TIDSPERIODE;
     private static final String MANGLER_YTELSE = "Mangler ytelse";
 
-    private BotidCore2024 botidCore2024;
-
-    MedlemskapVurderingPeriodeTjeneste() {
-        // CDI
-    }
-
     @Inject
-    public MedlemskapVurderingPeriodeTjeneste(BotidCore2024 botidCore2024) {
-        this.botidCore2024 = botidCore2024;
+    public MedlemskapVurderingPeriodeTjeneste() {
     }
 
 
@@ -64,7 +57,7 @@ public class MedlemskapVurderingPeriodeTjeneste {
     }
 
     private LocalDate referansedatoES(Skjæringstidspunkt stp) {
-        if (botidCore2024.ikkeBotidskrav(stp.getFamilieHendelseDato().orElse(null))) {
+        if (BotidCore2024.ikkeBotidskrav(stp.getFamilieHendelseDato().orElse(null))) {
             return stp.getUtledetSkjæringstidspunkt();
         } else { // Default etter overgansperiode (8/2-25)
             return stp.getFamilieHendelseDato().map(FamilieHendelseDato::termindato)
@@ -75,7 +68,7 @@ public class MedlemskapVurderingPeriodeTjeneste {
     private LocalDate startBosatt(FagsakYtelseType ytelseType, Skjæringstidspunkt stp, LocalDate referansedato) {
         if (!FagsakYtelseType.ENGANGSTØNAD.equals(ytelseType)) {
             return referansedato.minus(BOSATT_TILBAKE_TID);
-        } else if (botidCore2024.ikkeBotidskrav(stp.getFamilieHendelseDato().orElse(null))) {
+        } else if (BotidCore2024.ikkeBotidskrav(stp.getFamilieHendelseDato().orElse(null))) {
             return referansedato.minus(BOSATT_TILBAKE_TID);
         } else { // Default etter overgansperiode (8/2-25)
             return datoMinusLengstePeriode(referansedato, BOSATT_TILBAKE_TID, MEDLEMSKAP_ES);
@@ -85,7 +78,7 @@ public class MedlemskapVurderingPeriodeTjeneste {
     private LocalDate startLovligOpphold(FagsakYtelseType ytelseType, Skjæringstidspunkt stp, LocalDate referansedato) {
         if (!FagsakYtelseType.ENGANGSTØNAD.equals(ytelseType)) {
             return referansedato;
-        } else if (botidCore2024.ikkeBotidskrav(stp.getFamilieHendelseDato().orElse(null))) {
+        } else if (BotidCore2024.ikkeBotidskrav(stp.getFamilieHendelseDato().orElse(null))) {
             return referansedato;
         } else { // Default etter overgansperiode (8/2-25)
             return minDato(referansedato, LocalDate.now()).minus(MEDLEMSKAP_ES);

@@ -39,7 +39,6 @@ import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakTjeneste;
 import no.nav.foreldrepenger.domene.uttak.UttakRepositoryProvider;
 import no.nav.foreldrepenger.domene.uttak.beregnkontoer.BeregnStønadskontoerTjeneste;
 import no.nav.foreldrepenger.domene.uttak.beregnkontoer.StønadskontoRegelAdapter;
-import no.nav.foreldrepenger.domene.uttak.beregnkontoer.UttakCore2024;
 import no.nav.foreldrepenger.domene.uttak.input.Annenpart;
 import no.nav.foreldrepenger.domene.uttak.input.FamilieHendelse;
 import no.nav.foreldrepenger.domene.uttak.input.FamilieHendelser;
@@ -60,7 +59,7 @@ class UttakStegBeregnStønadskontoTjenesteTest extends EntityManagerAwareTest {
         var uttakTjeneste = new ForeldrepengerUttakTjeneste(uttakRepositoryProvider.getFpUttakRepository());
         var dekningsgradTjeneste = new DekningsgradTjeneste(repositoryProvider.getYtelsesFordelingRepository());
         var beregnStønadskontoerTjeneste = new BeregnStønadskontoerTjeneste(uttakRepositoryProvider, fagsakRelasjonTjeneste, uttakTjeneste,
-            dekningsgradTjeneste, new StønadskontoRegelAdapter(new UttakCore2024(null, null)));
+            dekningsgradTjeneste, new StønadskontoRegelAdapter());
         tjeneste = new UttakStegBeregnStønadskontoTjeneste(beregnStønadskontoerTjeneste, dekningsgradTjeneste, fagsakRelasjonTjeneste,
             repositoryProvider.getBehandlingRepository());
     }

@@ -21,7 +21,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.beregning.SatsRepositor
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
-import no.nav.foreldrepenger.konfig.KonfigVerdi;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 
 /** Steg for å beregne tilkjent ytelse (for Engangsstønad). */
@@ -30,8 +29,6 @@ import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 @FagsakYtelseTypeRef(FagsakYtelseType.ENGANGSTØNAD)
 @ApplicationScoped
 public class BeregneYtelseEngangsstønadStegImpl implements BeregneYtelseSteg {
-
-    private int maksStønadsalderAdopsjon;
 
     private EngangsstønadBeregningRepository beregningRepository;
     private SatsRepository satsRepository;
@@ -44,16 +41,14 @@ public class BeregneYtelseEngangsstønadStegImpl implements BeregneYtelseSteg {
     }
 
     /**
-     * @param maksStønadsalder - Maks stønadsalder ved adopsjon
+     *
      */
     @Inject
     BeregneYtelseEngangsstønadStegImpl(BehandlingRepositoryProvider repositoryProvider,
                                        EngangsstønadBeregningRepository beregningRepository,
-                                       @KonfigVerdi(value = "es.maks.stønadsalder.adopsjon", defaultVerdi = "15") int maksStønadsalder,
                                        SatsRepository satsRepository,
                                        SkjæringstidspunktTjeneste skjæringstidspunktTjeneste) {
         this.beregningRepository = beregningRepository;
-        this.maksStønadsalderAdopsjon = maksStønadsalder;
         this.satsRepository = satsRepository;
         this.skjæringstidspunktTjeneste = skjæringstidspunktTjeneste;
         this.familieHendelseRepository = repositoryProvider.getFamilieHendelseRepository();
@@ -66,7 +61,7 @@ public class BeregneYtelseEngangsstønadStegImpl implements BeregneYtelseSteg {
         var sisteBeregning = finnSisteBeregning(behandlingId);
         if (sisteBeregning == null || !sisteBeregning.isOverstyrt()) {
             var barnFinner = new BarnFinner(familieHendelseRepository);
-            long antallBarn = barnFinner.finnAntallBarn(behandlingId, maksStønadsalderAdopsjon);
+            long antallBarn = barnFinner.finnAntallBarn(behandlingId);
             var satsDato = getSatsDato(behandlingId);
             var sats = satsRepository.finnEksaktSats(BeregningSatsType.ENGANG, satsDato);
             var beregnetYtelse = sats.getVerdi() * antallBarn;

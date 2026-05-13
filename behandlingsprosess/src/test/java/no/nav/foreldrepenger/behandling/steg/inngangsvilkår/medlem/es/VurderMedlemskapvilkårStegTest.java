@@ -48,7 +48,6 @@ import no.nav.foreldrepenger.inngangsvilkaar.medlemskap.InngangsvilkårMedlemska
 import no.nav.foreldrepenger.inngangsvilkaar.medlemskap.v2.AvklarMedlemskapUtleder;
 import no.nav.foreldrepenger.inngangsvilkaar.medlemskap.v2.MedlemRegelGrunnlagBygger;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
-import no.nav.foreldrepenger.skjæringstidspunkt.es.BotidCore2024;
 import no.nav.vedtak.felles.testutilities.cdi.UnitTestLookupInstanceImpl;
 
 @CdiDbAwareTest
@@ -89,8 +88,7 @@ class VurderMedlemskapvilkårStegTest {
             repositoryProvider.getBehandlingLåsRepository().taLås(behandling.getId()));
 
         // Act - vurder vilkåret
-        var vilkårutleder = new Medlemsvilkårutleder(repositoryProvider,
-            new BotidCore2024(null, null));
+        var vilkårutleder = new Medlemsvilkårutleder(repositoryProvider);
 
         var inngangsvilkårFellesTjeneste = forutgåendeTjeneste();
 
@@ -116,8 +114,7 @@ class VurderMedlemskapvilkårStegTest {
             repositoryProvider.getBehandlingLåsRepository().taLås(behandling.getId()));
 
         // Act - vurder vilkåret
-        var vilkårutleder = new Medlemsvilkårutleder(repositoryProvider,
-            new BotidCore2024(null, null));
+        var vilkårutleder = new Medlemsvilkårutleder(repositoryProvider);
 
         var inngangsvilkårFellesTjeneste = forutgåendeTjeneste();
 
@@ -143,8 +140,7 @@ class VurderMedlemskapvilkårStegTest {
                 repositoryProvider.getBehandlingLåsRepository().taLås(behandling.getId()));
 
         // Act - vurder vilkåret
-        var vilkårutleder = new Medlemsvilkårutleder(repositoryProvider,
-            new BotidCore2024(null, null));
+        var vilkårutleder = new Medlemsvilkårutleder(repositoryProvider);
 
         var inngangsvilkårFellesTjeneste = forutgåendeTjeneste();
 
@@ -181,8 +177,7 @@ class VurderMedlemskapvilkårStegTest {
             repositoryProvider.getBehandlingLåsRepository().taLås(behandling.getId()));
 
         // Act - vurder vilkåret
-        var vilkårutleder = new Medlemsvilkårutleder(repositoryProvider,
-            new BotidCore2024(null, null));
+        var vilkårutleder = new Medlemsvilkårutleder(repositoryProvider);
 
         var medlemRegelGrunnlagBygger = new MedlemRegelGrunnlagBygger(medlemTjeneste, personopplysningTjeneste, medlemskapVurderingPeriodeTjeneste,
             inntektArbeidYtelseTjeneste, satsRepo, stpTjeneste, personinfoAdapter);

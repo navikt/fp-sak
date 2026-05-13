@@ -27,7 +27,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadEntitet;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.testutilities.fagsak.FagsakBuilder;
 import no.nav.foreldrepenger.dbstoette.CdiDbAwareTest;
-import no.nav.foreldrepenger.konfig.KonfigVerdi;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 import no.nav.foreldrepenger.skjæringstidspunkt.es.SkjæringstidspunktTjenesteImpl;
 
@@ -41,9 +40,6 @@ class BeregneYtelseStegImplTest {
     @Inject
     private BehandlingskontrollTjeneste behandlingskontrollTjeneste;
     private EntityManager entityManager;
-    @Inject
-    @KonfigVerdi(value = "es.maks.stønadsalder.adopsjon", defaultVerdi = "15")
-    private int maksStønadsalder = 15;
     private EngangsstønadBeregningRepository beregningRepository;
     private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
 
@@ -68,7 +64,7 @@ class BeregneYtelseStegImplTest {
 
         sats2017 = satsRepository.finnEksaktSats(BeregningSatsType.ENGANG, LocalDate.of(2017, 10, 1));
 
-        beregneYtelseSteg = new BeregneYtelseEngangsstønadStegImpl(repositoryProvider, beregningRepository, maksStønadsalder, satsRepository,
+        beregneYtelseSteg = new BeregneYtelseEngangsstønadStegImpl(repositoryProvider, beregningRepository, satsRepository,
                 skjæringstidspunktTjeneste);
     }
 

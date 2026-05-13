@@ -37,7 +37,7 @@ class FødselsvilkårOversetterTest {
 
     @BeforeEach
     void oppsett() {
-        fødselsoversetter = new FødselsvilkårOversetter(repositoryProvider, personopplysningTjeneste, null);
+        fødselsoversetter = new FødselsvilkårOversetter(repositoryProvider, personopplysningTjeneste);
     }
 
     private Behandling lagre(AbstractTestScenario<?> scenario) {

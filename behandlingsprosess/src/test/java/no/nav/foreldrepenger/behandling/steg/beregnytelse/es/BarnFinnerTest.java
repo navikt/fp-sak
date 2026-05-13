@@ -30,7 +30,7 @@ class BarnFinnerTest {
 
         // Act
         var barnFinner = new BarnFinner(scenario.mockBehandlingRepositoryProvider().getFamilieHendelseRepository());
-        var funnetAntallBarn = barnFinner.finnAntallBarn(behandling.getId(), maksStønadsalder);
+        var funnetAntallBarn = barnFinner.finnAntallBarn(behandling.getId());
 
         // Assert
         assertThat(antallBarnPåFødsel).isEqualTo(funnetAntallBarn);
@@ -45,7 +45,7 @@ class BarnFinnerTest {
 
         // Act
         var barnFinner = new BarnFinner(scenario.mockBehandlingRepositoryProvider().getFamilieHendelseRepository());
-        var funnetAntallBarn = barnFinner.finnAntallBarn(behandling.getId(), maksStønadsalder);
+        var funnetAntallBarn = barnFinner.finnAntallBarn(behandling.getId());
 
         // Assert
         assertThat(antallBarnPåTerminBekreftelse).isEqualTo(funnetAntallBarn);
@@ -66,7 +66,7 @@ class BarnFinnerTest {
 
         // Act
         var barnFinner = new BarnFinner(scenario.mockBehandlingRepositoryProvider().getFamilieHendelseRepository());
-        var funnetAntallBarn = barnFinner.finnAntallBarn(behandling.getId(), maksStønadsalder);
+        var funnetAntallBarn = barnFinner.finnAntallBarn(behandling.getId());
 
         // Assert
         assertThat(funnetAntallBarn).isEqualTo(2);
@@ -80,7 +80,7 @@ class BarnFinnerTest {
 
         // Act
         var barnFinner = new BarnFinner(scenario.mockBehandlingRepositoryProvider().getFamilieHendelseRepository());
-        var funnetAntallBarn = barnFinner.finnAntallBarn(behandling.getId(), maksStønadsalder);
+        var funnetAntallBarn = barnFinner.finnAntallBarn(behandling.getId());
 
         // Assert
         assertThat(funnetAntallBarn).isEqualTo(2);
@@ -95,7 +95,7 @@ class BarnFinnerTest {
         // Act
         var barnFinner = new BarnFinner(scenario.mockBehandlingRepositoryProvider().getFamilieHendelseRepository());
         var behandlingId = behandling.getId();
-        assertThrows(FunksjonellException.class, () -> barnFinner.finnAntallBarn(behandlingId, maksStønadsalder));
+        assertThrows(FunksjonellException.class, () -> barnFinner.finnAntallBarn(behandlingId));
     }
 
     private ScenarioMorSøkerEngangsstønad byggBehandlingsgrunnlagForFødsel(int antallBarn) {

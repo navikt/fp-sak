@@ -27,11 +27,9 @@ public class StønadskontoRegelAdapter {
 
     private static final StønadskontoRegelOrkestrering STØNADSKONTO_REGEL = new StønadskontoRegelOrkestrering();
 
-    private final UttakCore2024 uttakCore2024;
-
     @Inject
-    public StønadskontoRegelAdapter(UttakCore2024 uttakCore2024) {
-        this.uttakCore2024 = uttakCore2024;
+    public StønadskontoRegelAdapter() {
+        // CDI
     }
 
     public Optional<Stønadskontoberegning> beregnKontoerSjekkDiff(BehandlingReferanse ref,
@@ -54,7 +52,7 @@ public class StønadskontoRegelAdapter {
                                                          ForeldrepengerGrunnlag ytelsespesifiktGrunnlag,
                                                          Map<StønadskontoType, Integer> tidligereUtregning) {
         var grunnlag = StønadskontoRegelOversetter.tilRegelmodell(ytelseFordelingAggregat, skjæringstidspunkt,
-            dekningsgrad, annenpartsGjeldendeUttaksplan, ytelsespesifiktGrunnlag, ref, tidligereUtregning, uttakCore2024);
+            dekningsgrad, annenpartsGjeldendeUttaksplan, ytelsespesifiktGrunnlag, ref, tidligereUtregning);
 
         return STØNADSKONTO_REGEL.beregnKontoer(grunnlag);
     }

@@ -8,6 +8,7 @@ import java.util.Objects;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseGrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseType;
+import no.nav.foreldrepenger.skjæringstidspunkt.FamilieHendelseKonstanter;
 import no.nav.vedtak.exception.FunksjonellException;
 
 class BarnFinner {
@@ -18,17 +19,17 @@ class BarnFinner {
         this.familieGrunnlagRepository = familieGrunnlagRepository;
     }
 
-    int finnAntallBarn(Long behandlingId, int maksStønadsalderAdopsjon) {
+    int finnAntallBarn(Long behandlingId) {
 
         var grunnlag = familieGrunnlagRepository.hentAggregat(behandlingId);
         var barnSøktFor = getBarnInfoer(grunnlag);
-        return finnAntallBarn(maksStønadsalderAdopsjon, grunnlag, barnSøktFor);
+        return finnAntallBarn(grunnlag, barnSøktFor);
     }
 
-    private int finnAntallBarn(int maksStønadsalderAdopsjon, final FamilieHendelseGrunnlagEntitet grunnlag,
-            List<BarnInfo> barnSøktFor) {
+    private int finnAntallBarn(final FamilieHendelseGrunnlagEntitet grunnlag,
+                               List<BarnInfo> barnSøktFor) {
         var barnKvalifisertForYtelse = Objects.equals(FamilieHendelseType.ADOPSJON, grunnlag.getGjeldendeVersjon().getType())
-                ? barnKvalifisertForAdopsjon(maksStønadsalderAdopsjon, grunnlag, barnSøktFor)
+                ? barnKvalifisertForAdopsjon(grunnlag, barnSøktFor)
                 : barnSøktFor;
 
         if (barnKvalifisertForYtelse.isEmpty()) {
@@ -39,8 +40,8 @@ class BarnFinner {
         return barnKvalifisertForYtelse.size();
     }
 
-    private List<BarnInfo> barnKvalifisertForAdopsjon(int maksStønadsalderAdopsjon, final FamilieHendelseGrunnlagEntitet grunnlag,
-            List<BarnInfo> barnSøktFor) {
+    private List<BarnInfo> barnKvalifisertForAdopsjon(final FamilieHendelseGrunnlagEntitet grunnlag,
+                                                      List<BarnInfo> barnSøktFor) {
         var gjeldendeAdopsjon = grunnlag.getGjeldendeAdopsjon();
         if (gjeldendeAdopsjon.isEmpty()) {
             // skal aldri kunne skje, men logikken for å sjekke ifPresent er basert på
@@ -50,7 +51,7 @@ class BarnFinner {
         }
 
         var adopsjon = gjeldendeAdopsjon.get();
-        var eldsteFristForOmsorgsovertakelse = adopsjon.getOmsorgsovertakelseDato().minusYears(maksStønadsalderAdopsjon);
+        var eldsteFristForOmsorgsovertakelse = adopsjon.getOmsorgsovertakelseDato().minusYears(FamilieHendelseKonstanter.ADOPSJON_ALDERSGRENSE);
 
         return barnSøktFor.stream()
                 .filter(barn -> {

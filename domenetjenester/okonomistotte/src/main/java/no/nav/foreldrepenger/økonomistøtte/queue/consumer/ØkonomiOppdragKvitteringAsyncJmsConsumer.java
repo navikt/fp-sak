@@ -10,8 +10,6 @@ import jakarta.jms.TextMessage;
 import jakarta.xml.bind.JAXBException;
 import jakarta.xml.bind.UnmarshalException;
 
-import no.nav.vedtak.server.Controllable;
-
 import org.xml.sax.SAXException;
 
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.Alvorlighetsgrad;
@@ -22,9 +20,11 @@ import no.nav.foreldrepenger.integrasjon.økonomistøtte.oppdrag.Oppdrag;
 import no.nav.foreldrepenger.integrasjon.økonomistøtte.oppdrag.OppdragSkjemaConstants;
 import no.nav.foreldrepenger.xmlutils.JaxbHelper;
 import no.nav.foreldrepenger.økonomistøtte.BehandleØkonomioppdragKvittering;
+import no.nav.foreldrepenger.økonomistøtte.queue.FellesJmsToggle;
 import no.nav.foreldrepenger.økonomistøtte.queue.config.DatabasePreconditionChecker;
 import no.nav.foreldrepenger.økonomistøtte.ØkonomiKvittering;
 import no.nav.vedtak.exception.TekniskException;
+import no.nav.vedtak.server.Controllable;
 
 @ApplicationScoped
 public class ØkonomiOppdragKvitteringAsyncJmsConsumer extends QueueConsumer implements Controllable {

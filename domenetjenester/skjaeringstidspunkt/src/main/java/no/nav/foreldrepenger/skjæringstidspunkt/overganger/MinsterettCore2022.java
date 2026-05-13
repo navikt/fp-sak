@@ -20,28 +20,20 @@ public class MinsterettCore2022 {
 
     private static final Period FAR_TIDLIGSTE_UTTAK_FØR_TERMIN = Period.ofWeeks(2); // Vi har ikke uttak-konfig tilgjengelig her.
 
-    private final LocalDate ikrafttredelseDato;
-
-    public MinsterettCore2022() {
-        this(IKRAFT_FRA_DATO);
+    private MinsterettCore2022() {
     }
 
-    MinsterettCore2022(LocalDate ikrafttredelseDato) {
-        this.ikrafttredelseDato = ikrafttredelseDato;
-    }
-
-
-    public boolean utenMinsterett(FamilieHendelseGrunnlagEntitet familieHendelseGrunnlag) {
+    public static boolean utenMinsterett(FamilieHendelseGrunnlagEntitet familieHendelseGrunnlag) {
         if (familieHendelseGrunnlag == null) return true;
         var bekreftetFamilieHendelse = familieHendelseGrunnlag.getGjeldendeBekreftetVersjon()
             .filter(fh -> !FamilieHendelseType.TERMIN.equals(fh.getType()));
         if (bekreftetFamilieHendelse.map(FamilieHendelseEntitet::getSkjæringstidspunkt).isPresent()) {
-            return bekreftetFamilieHendelse.map(FamilieHendelseEntitet::getSkjæringstidspunkt).filter(hendelse -> hendelse.isBefore(ikrafttredelseDato)).isPresent();
+            return bekreftetFamilieHendelse.map(FamilieHendelseEntitet::getSkjæringstidspunkt).filter(hendelse -> hendelse.isBefore(IKRAFT_FRA_DATO)).isPresent();
         }
         var gjeldendeFH = familieHendelseGrunnlag.getGjeldendeVersjon();
         if (gjeldendeFH == null || gjeldendeFH.getSkjæringstidspunkt() == null) return true;
-        if (gjeldendeFH.getSkjæringstidspunkt().isBefore(ikrafttredelseDato)) return true;
-        return LocalDate.now().isBefore(ikrafttredelseDato);
+        if (gjeldendeFH.getSkjæringstidspunkt().isBefore(IKRAFT_FRA_DATO)) return true;
+        return LocalDate.now().isBefore(IKRAFT_FRA_DATO);
     }
 
     public static LocalDate førsteUttaksDatoForBeregning(RelasjonsRolleType rolle, FamilieHendelseGrunnlagEntitet familieHendelseGrunnlag,
