@@ -1,11 +1,7 @@
 package no.nav.foreldrepenger.dokumentbestiller;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
-import java.util.Optional;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -81,8 +77,7 @@ class DokumentForhåndsvisningTjenesteTest extends EntityManagerAwareTest {
         var bestilling = DokumentForhandsvisning.builder()
             .medBehandlingUuid(behandling.getUuid())
             .medSaksnummer(behandling.getSaksnummer())
-            .medDokumentMal(DokumentMalType.FRITEKSTBREV)
-            .medTittel("test")
+            .medDokumentMal(DokumentMalType.FRITEKST_HTML)
             .medFritekst("fritekst")
             .medDokumentType(DokumentForhandsvisning.DokumentType.OVERSTYRT)
             .build();
@@ -94,7 +89,7 @@ class DokumentForhåndsvisningTjenesteTest extends EntityManagerAwareTest {
         verify(brevTjeneste).forhåndsvis(bestillingCaptor.capture());
 
         var bestillingValue = bestillingCaptor.getValue();
-        assertThat(bestillingValue.dokumentMal()).isEqualTo(DokumentMal.FRITEKSTBREV);
+        assertThat(bestillingValue.dokumentMal()).isEqualTo(DokumentMal.FRITEKSTBREV_HTML);
     }
 
     @Test
@@ -132,30 +127,6 @@ class DokumentForhåndsvisningTjenesteTest extends EntityManagerAwareTest {
             .medSaksnummer(behandling.getSaksnummer())
             .medDokumentType(DokumentForhandsvisning.DokumentType.OVERSTYRT)
             .build();
-
-        tjeneste.forhåndsvisDokument(behandling.getId(), bestilling);
-
-        var bestillingCaptor = ArgumentCaptor.forClass(DokumentForhåndsvisDto.class);
-
-        verify(brevTjeneste).forhåndsvis(bestillingCaptor.capture());
-
-        var bestillingValue = bestillingCaptor.getValue();
-        assertThat(bestillingValue.dokumentMal()).isEqualTo(DokumentMal.FRITEKSTBREV);
-    }
-
-    @Test
-    void skal_utlede_fritekstbrev_html_som_ble_valgt_av_saksbehanlder() {
-        // Arrange
-        AbstractTestScenario<?> scenario = ScenarioMorSøkerEngangsstønad.forFødsel();
-        settOpp(scenario, Vedtaksbrev.FRITEKST);
-
-        var bestilling = DokumentForhandsvisning.builder()
-            .medBehandlingUuid(behandling.getUuid())
-            .medSaksnummer(behandling.getSaksnummer())
-            .medDokumentType(DokumentForhandsvisning.DokumentType.OVERSTYRT)
-            .build();
-
-        when(dokumentBehandlingTjeneste.hentMellomlagretOverstyring(any())).thenReturn(Optional.of("OVERSTYRT BREV HER"));
 
         tjeneste.forhåndsvisDokument(behandling.getId(), bestilling);
 

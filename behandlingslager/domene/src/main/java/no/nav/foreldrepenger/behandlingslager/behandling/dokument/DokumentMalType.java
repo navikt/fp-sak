@@ -13,7 +13,6 @@ import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
 
 public enum DokumentMalType implements Kodeverdi, DatabaseKode {
 
-    FRITEKSTBREV("FRITEK"),
     FRITEKST_HTML("FRIHTM"),
     ENGANGSSTØNAD_INNVILGELSE("INNVES"),
     ENGANGSSTØNAD_AVSLAG("AVSLES"),
@@ -39,8 +38,9 @@ public enum DokumentMalType implements Kodeverdi, DatabaseKode {
     KLAGE_OMGJORT("KGEOMG"),
     KLAGE_OVERSENDT("KGEOVE"),
     ETTERLYS_INNTEKTSMELDING("ELYSIM"),
-    ENDRING_UTBETALING("ENDUTB"), // Brukes som journalførSom når saksbehandler overstyrer vedtaksbrev ved endring i fordeling av ytelsen
+    ENDRING_UTBETALING("ENDUTB"), // Brukes som journalførSom når saksbehandler overstyrer vedtaksbrev ved endring i fordeling av ytelsen,
 
+    @Deprecated FRITEKSTBREV("FRITEK"),
     @Deprecated FORELDREPENGER_FEIL_PRAKSIS_UTSETTELSE_INFOBREV("INFOPU"),
     @Deprecated FORELDREPENGER_FEIL_PRAKSIS_UTSETTELSE_FORLENGET_SAKSBEHANDLINGSTID("FORPUS"),
     // Må gjeninnføre for å flytte anker
@@ -133,21 +133,24 @@ public enum DokumentMalType implements Kodeverdi, DatabaseKode {
             case FORLENGET_SAKSBEHANDLINGSTID_MEDL_FORUTGÅENDE -> "Forlenget saksbehandlingstid - forutgående medlemskap";
             case FORLENGET_SAKSBEHANDLINGSTID_TIDLIG -> "Forlenget saksbehandlingstid - tidlig søknad";
             case KLAGE_AVVIST, KLAGE_AVVIST_DOK, KLAGE_AVVIST_FRITEKST -> "Vedtak om avvist klage";
+            case KLAGE_HJEMSENDT -> "Klage hjemsendt/opphevet";
             case KLAGE_OMGJORT -> "Vedtak om omgjøring av klage";
             case KLAGE_OVERSENDT -> "Klage oversendt til klageinstans";
             case ETTERLYS_INNTEKTSMELDING -> "Etterlys inntektsmelding";
+            case KLAGE_HJEMSENDT_DOK -> "Vedtak opphevet, sendt til ny behandling";
+            case KLAGE_HJEMSENDT_FRITEKST -> "Klage hjemsendt/opphevet";
             case KLAGE_OMGJORT_DOK -> "Vedtak om medhold";
             case KLAGE_OMGJORT_FRITEKST -> "Vedtak om omgjøring av klage";
             case KLAGE_OVERSENDT_DOK -> "Overføring til Nav klageinstans";
             case KLAGE_OVERSENDT_FRITEKST -> "Klage oversendt til klageinstans";
-            case KLAGE_HJEMSENDT, KLAGE_HJEMSENDT_DOK, KLAGE_HJEMSENDT_FRITEKST,
-                 KLAGE_STADFESTET, KLAGE_STADFESTET_DOK, KLAGE_STADFESTET_FRITEKST,
-                 ANKE_OMGJORT, ANKE_OMGJORT_FRITEKST,
-                 ANKE_OPPHEVET, ANKE_OPPHEVET_FRITEKST,
-                 FORELDREPENGER_FEIL_PRAKSIS_UTSETTELSE_INFOBREV,
-                 FORELDREPENGER_FEIL_PRAKSIS_UTSETTELSE_FORLENGET_SAKSBEHANDLINGSTID ->
-                throw new IllegalStateException("Utgått dokumentmal skal ikke være i bruk: " + mal);
+            case KLAGE_STADFESTET, KLAGE_STADFESTET_DOK, KLAGE_STADFESTET_FRITEKST -> "Vedtak om stadfestelse";
+            case ANKE_OMGJORT_FRITEKST -> "Vedtak om omgjøring i ankesak";
+            case ANKE_OPPHEVET_FRITEKST -> "Ankebrev om beslutning om oppheving";
+            case ANKE_OMGJORT -> "Vedtak om omgjøring i ankesak";
+            case ANKE_OPPHEVET -> "Ankebrev om beslutning om oppheving";
             case ENDRING_UTBETALING -> "Endring i fordeling av ytelsen";
+            case FORELDREPENGER_FEIL_PRAKSIS_UTSETTELSE_INFOBREV -> "Melding om ny vurdering av tidligere avslag";
+            case FORELDREPENGER_FEIL_PRAKSIS_UTSETTELSE_FORLENGET_SAKSBEHANDLINGSTID -> "Forlenget saksbehandlingstid - Fedrekvotesaken";
         };
     }
 

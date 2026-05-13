@@ -119,12 +119,8 @@ public class DokumentForhåndsvisningTjeneste extends AbstractDokumentBestillerT
         LOG.info("brevType: {}, Vedtaksbrev: {}", brevType, resultatBrev);
         // (gjelderAutomatiskBrev == null || Boolean.FALSE.equals(gjelderAutomatiskBrev))
         if (DokumentForhandsvisning.DokumentType.OVERSTYRT.equals(brevType) && Vedtaksbrev.FRITEKST.equals(resultatBrev)) {
-            var fritekstMal = dokumentBehandlingTjeneste.hentMellomlagretOverstyring(behandlingId).isPresent()
-                ? DokumentMalType.FRITEKST_HTML
-                : DokumentMalType.FRITEKSTBREV;
-
-            LOG.info("Utledere maltype for fritekst: {}", fritekstMal);
-            return fritekstMal;
+            LOG.info("Utledere maltype for fritekst: {}", DokumentMalType.FRITEKST_HTML);
+            return DokumentMalType.FRITEKST_HTML;
         } else {
             LOG.info("Utleder Automatisk mal");
             var revurderingMedUendretUtfall = erRevurderingMedUendretUtfall(behandling);

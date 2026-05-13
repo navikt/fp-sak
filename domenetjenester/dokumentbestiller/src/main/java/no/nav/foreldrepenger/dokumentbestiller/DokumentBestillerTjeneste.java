@@ -20,7 +20,6 @@ import no.nav.foreldrepenger.dokumentbestiller.formidling.DokumentBestiller;
 public class DokumentBestillerTjeneste extends AbstractDokumentBestillerTjeneste {
 
     private BehandlingRepository behandlingRepository;
-    private DokumentBehandlingTjeneste dokumentBehandlingTjeneste;
     private DokumentBestiller dokumentBestiller;
 
     DokumentBestillerTjeneste() {
@@ -30,11 +29,9 @@ public class DokumentBestillerTjeneste extends AbstractDokumentBestillerTjeneste
     @Inject
     public DokumentBestillerTjeneste(BehandlingRepository behandlingRepository,
                                      KlageRepository klageRepository,
-                                     DokumentBehandlingTjeneste dokumentBehandlingTjeneste,
                                      DokumentBestiller dokumentBestiller) {
         super(klageRepository);
         this.behandlingRepository = behandlingRepository;
-        this.dokumentBehandlingTjeneste = dokumentBehandlingTjeneste;
         this.dokumentBestiller = dokumentBestiller;
     }
 
@@ -53,9 +50,7 @@ public class DokumentBestillerTjeneste extends AbstractDokumentBestillerTjeneste
             journalførSom = endretVedtakOgKunEndringIFordeling(behandlingResultatType, behandlingResultat.getKonsekvenserForYtelsen())
                 ? DokumentMalType.ENDRING_UTBETALING
                 : dokumentMal;
-            dokumentMal = dokumentBehandlingTjeneste.hentMellomlagretOverstyring(behandling.getId()).isPresent()
-                ? DokumentMalType.FRITEKST_HTML
-                : DokumentMalType.FRITEKSTBREV;
+            dokumentMal = DokumentMalType.FRITEKST_HTML;
         }
 
         bestillDokument(DokumentBestilling.builder()
