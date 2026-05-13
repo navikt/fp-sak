@@ -1,12 +1,10 @@
 package no.nav.foreldrepenger.dokumentbestiller;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.List;
-import java.util.Optional;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -35,14 +33,13 @@ class DokumentBestillerTjenesteTest {
     private BehandlingRepositoryProvider repositoryProvider;
     private DokumentBestillerTjeneste tjeneste;
     @Mock private DokumentBestiller dokumentBestiller;
-    @Mock private DokumentBehandlingTjeneste dokumentBehandlingTjeneste;
     @Mock private BehandlingVedtak behandlingVedtakMock;
     @Mock private Behandlingsresultat behandlingResultatMock;
 
     private void settOpp(AbstractTestScenario<?> scenario) {
         this.behandling = scenario.lagMocked();
         this.repositoryProvider = scenario.mockBehandlingRepositoryProvider();
-        tjeneste = new DokumentBestillerTjeneste(repositoryProvider.getBehandlingRepository(), null, dokumentBehandlingTjeneste, dokumentBestiller);
+        tjeneste = new DokumentBestillerTjeneste(repositoryProvider.getBehandlingRepository(), null, dokumentBestiller);
     }
 
     @Test
@@ -77,8 +74,6 @@ class DokumentBestillerTjenesteTest {
         when(behandlingResultatMock.getVedtaksbrev()).thenReturn(Vedtaksbrev.FRITEKST);
         when(behandlingResultatMock.getKonsekvenserForYtelsen()).thenReturn(List.of(KonsekvensForYtelsen.ENDRING_I_BEREGNING));
 
-        when(dokumentBehandlingTjeneste.hentMellomlagretOverstyring(anyLong())).thenReturn(Optional.empty());
-
         when(behandlingVedtakMock.getBehandlingsresultat()).thenReturn(behandlingResultatMock);
         when(behandlingVedtakMock.getVedtakResultatType()).thenReturn(VedtakResultatType.INNVILGET);
         when(behandlingVedtakMock.isBeslutningsvedtak()).thenReturn(false);
@@ -94,7 +89,7 @@ class DokumentBestillerTjenesteTest {
         var bestilling = bestillingCaptor.getValue();
 
         assertThat(bestilling.behandlingUuid()).isEqualTo(behandling.getUuid());
-        assertThat(bestilling.dokumentMal()).isEqualTo(DokumentMalType.FRITEKSTBREV);
+        assertThat(bestilling.dokumentMal()).isEqualTo(DokumentMalType.FRITEKST_HTML);
         assertThat(bestilling.bestillingUuid()).isNotNull();
         assertThat(bestilling.journalførSom()).isEqualTo(DokumentMalType.FORELDREPENGER_INNVILGELSE);
     }
@@ -109,7 +104,6 @@ class DokumentBestillerTjenesteTest {
         when(behandlingResultatMock.getBehandlingResultatType()).thenReturn(BehandlingResultatType.FORELDREPENGER_ENDRET);
         when(behandlingResultatMock.getVedtaksbrev()).thenReturn(Vedtaksbrev.FRITEKST);
         when(behandlingResultatMock.getKonsekvenserForYtelsen()).thenReturn(List.of(KonsekvensForYtelsen.ENDRING_I_FORDELING_AV_YTELSEN));
-        when(dokumentBehandlingTjeneste.hentMellomlagretOverstyring(anyLong())).thenReturn(Optional.empty());
 
         when(behandlingVedtakMock.getBehandlingsresultat()).thenReturn(behandlingResultatMock);
         when(behandlingVedtakMock.getVedtakResultatType()).thenReturn(VedtakResultatType.INNVILGET);
@@ -125,7 +119,7 @@ class DokumentBestillerTjenesteTest {
         var bestilling = bestillingCaptor.getValue();
 
         assertThat(bestilling.behandlingUuid()).isEqualTo(behandling.getUuid());
-        assertThat(bestilling.dokumentMal()).isEqualTo(DokumentMalType.FRITEKSTBREV);
+        assertThat(bestilling.dokumentMal()).isEqualTo(DokumentMalType.FRITEKST_HTML);
         assertThat(bestilling.bestillingUuid()).isNotNull();
         assertThat(bestilling.journalførSom()).isEqualTo(DokumentMalType.ENDRING_UTBETALING);
     }

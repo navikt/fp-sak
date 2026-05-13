@@ -14,7 +14,7 @@ class BrevForhåndsvisningTest {
 
     @Test
     void positiv() {
-        var dokumentMal = DokumentMalType.FRITEKSTBREV;
+        var dokumentMal = DokumentMalType.FRITEKST_HTML;
         var fritekst = "fritekst";
         var tittel = "tittel";
         var revurderingÅrsak = RevurderingVarslingÅrsak.ANNET;
