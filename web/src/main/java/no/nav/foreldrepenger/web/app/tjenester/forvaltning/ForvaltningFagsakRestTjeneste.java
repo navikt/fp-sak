@@ -5,6 +5,7 @@ import static jakarta.ws.rs.core.MediaType.APPLICATION_JSON;
 import java.net.HttpURLConnection;
 import java.net.SocketTimeoutException;
 import java.util.List;
+import java.util.Set;
 import java.util.function.Function;
 
 import jakarta.enterprise.context.ApplicationScoped;
@@ -33,10 +34,14 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import no.nav.foreldrepenger.behandling.FagsakRelasjonTjeneste;
+import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingsresultatRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.SpesialBehandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonopplysningRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
+import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårResultat;
+import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjon;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
@@ -89,6 +94,7 @@ public class ForvaltningFagsakRestTjeneste {
     private NavBrukerTjeneste brukerTjeneste;
     private Persondata pdlKlient;
     private BehandlingRepository behandlingRepository;
+    private BehandlingsresultatRepository behandlingsresultatRepository;
     private InvaliderSakPersonCacheKlient invaliderSakPersonCacheKlient;
 
     public ForvaltningFagsakRestTjeneste() {
@@ -112,6 +118,7 @@ public class ForvaltningFagsakRestTjeneste {
         this.brukerTjeneste = brukerTjeneste;
         this.pdlKlient = pdlKlient;
         this.behandlingRepository = repositoryProvider.getBehandlingRepository();
+        this.behandlingsresultatRepository = repositoryProvider.getBehandlingsresultatRepository();
         this.invaliderSakPersonCacheKlient = invaliderSakPersonCacheKlient;
     }
 
@@ -268,6 +275,23 @@ public class ForvaltningFagsakRestTjeneste {
             responstekst = responstekst + " Åpen behandling - hopp tilbake til KOARB pga STP";
         }  else {
             responstekst = responstekst + " Opprett revurdering fra meny.";
+        }
+        if (!åpnebehandlinger.isEmpty()) {
+            var vilkårFjernes = nyRolle.erFarEllerMedMor() ? VilkårType.FØDSELSVILKÅRET_MOR : VilkårType.FØDSELSVILKÅRET_FAR_MEDMOR;
+            var behandlingerSomMåFjerneVilkår = åpnebehandlinger.stream()
+                .filter(b -> behandlingsresultatRepository.hentHvisEksisterer(b.getId())
+                    .map(Behandlingsresultat::getVilkårResultat)
+                    .map(VilkårResultat::getVilkårTyper).orElse(Set.of()).contains(vilkårFjernes))
+                .toList();
+            for (var b : behandlingerSomMåFjerneVilkår) {
+                // Bør virke pga (Orphanremoval + cascade/all). Ellers må lagre-metoden oppdateres
+                var lås = behandlingRepository.taSkriveLås(b.getId());
+                var br = behandlingsresultatRepository.hent(b.getId());
+                var vilkårBuilder = VilkårResultat.builderFraEksisterende(br.getVilkårResultat());
+                vilkårBuilder.fjernVilkår(vilkårFjernes);
+                var vilkårsResultat = vilkårBuilder.buildFor(b);
+                behandlingRepository.lagre(vilkårsResultat, lås);
+            }
         }
         fagsakRepository.oppdaterRelasjonsRolle(fagsak.getId(), nyRolle);
         LOG.info("Brukerrolle sak {} oppdatert til {}", saksnummer.getVerdi(), nyRolle);
