@@ -74,7 +74,7 @@ public record DokumentBestilling(UUID behandlingUuid,
             Objects.requireNonNull(saksnummer, "Saksnummer må være satt");
             Objects.requireNonNull(dokumentMal, "Dokument mal må være satt");
 
-            if (DokumentMalType.FRITEKSTBREV.equals(dokumentMal) || DokumentMalType.FRITEKST_HTML.equals(dokumentMal)) {
+            if (DokumentMalType.FRITEKST_HTML.equals(dokumentMal)) {
                 Objects.requireNonNull(journalførSom, "journalførSom dokument mal må være satt for fritekst vedtak er valgt.");
             }
 

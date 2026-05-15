@@ -3,8 +3,6 @@ package no.nav.foreldrepenger.dokumentbestiller.autopunkt;
 import static no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType.INFOBREV_OPPHOLD;
 import static no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType.INFOBREV_PÅMINNELSE;
 
-import java.util.Set;
-
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
@@ -43,12 +41,6 @@ public class SendBrevForAutopunkt {
         if (behandling.harBehandlingÅrsak(BehandlingÅrsakType.INFOBREV_BEHANDLING)
             || behandling.harBehandlingÅrsak(INFOBREV_OPPHOLD) || behandling.harBehandlingÅrsak(INFOBREV_PÅMINNELSE)) {
             dokumentMal = DokumentMalType.FORELDREPENGER_INFO_TIL_ANNEN_FORELDER;
-        } else if (behandling.harNoenBehandlingÅrsaker(Set.of(BehandlingÅrsakType.FEIL_PRAKSIS_UTSETTELSE, BehandlingÅrsakType.FEIL_PRAKSIS_IVERKS_UTSET))) {
-            dokumentMal = DokumentMalType.FORELDREPENGER_FEIL_PRAKSIS_UTSETTELSE_INFOBREV;
-            // Akkurat denne skal ikke sendes flere ganger for en sak.
-            if (dokumentBehandlingTjeneste.erDokumentBestiltForFagsak(behandling.getFagsakId(), dokumentMal)) {
-                return;
-            }
         }
         if (harIkkeSendtBrevForMal(behandling.getId(), dokumentMal)) {
             var dokumentBestilling = getBuilder(behandling, dokumentMal).build();

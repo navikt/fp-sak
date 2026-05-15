@@ -68,7 +68,7 @@ import no.nav.vedtak.exception.FunksjonellException;
 import no.nav.vedtak.feil.Feilkode;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
-import no.nav.vedtak.server.rest.FeilUtils;
+import no.nav.vedtak.server.rest.RestServerFeilUtils;
 import no.nav.vedtak.sikkerhet.abac.AbacDataAttributter;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
 import no.nav.vedtak.sikkerhet.abac.TilpassetAbacAttributt;
@@ -359,7 +359,7 @@ public class BehandlingRestTjeneste {
     }
 
     private Response notFound(Saksnummer saksnummer) {
-        return FeilUtils.responseFra(Response.Status.NOT_FOUND, Feilkode.IKKE_FUNNET, "Fant ikke fagsak med saksnummer " + saksnummer);
+        return RestServerFeilUtils.responseFra(Response.Status.NOT_FOUND, Feilkode.IKKE_FUNNET, "Fant ikke fagsak med saksnummer " + saksnummer);
     }
 
     private static BehandlingResultatType tilHenleggBehandlingResultatType(String årsak) {

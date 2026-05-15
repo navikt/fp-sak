@@ -12,7 +12,6 @@ public class BestillDokumentDtoMapper {
 
     public static DokumentMal mapDokumentMal(DokumentMalType bestillingDokumentMal) {
         return switch (bestillingDokumentMal) {
-            case FRITEKSTBREV -> DokumentMal.FRITEKSTBREV;
             case FRITEKST_HTML -> DokumentMal.FRITEKSTBREV_HTML;
             case ENGANGSSTØNAD_INNVILGELSE -> DokumentMal.ENGANGSSTØNAD_INNVILGELSE;
             case ENGANGSSTØNAD_AVSLAG -> DokumentMal.ENGANGSSTØNAD_AVSLAG;
@@ -39,9 +38,10 @@ public class BestillDokumentDtoMapper {
             case KLAGE_OVERSENDT -> DokumentMal.KLAGE_OVERSENDT;
             case ETTERLYS_INNTEKTSMELDING -> DokumentMal.ETTERLYS_INNTEKTSMELDING;
             case ENDRING_UTBETALING -> DokumentMal.ENDRING_UTBETALING;
-            case FORELDREPENGER_FEIL_PRAKSIS_UTSETTELSE_INFOBREV -> DokumentMal.FORELDREPENGER_FEIL_PRAKSIS_UTSETTELSE_INFOBREV;
-            case FORELDREPENGER_FEIL_PRAKSIS_UTSETTELSE_FORLENGET_SAKSBEHANDLINGSTID -> DokumentMal.FORELDREPENGER_FEIL_PRAKSIS_UTSETTELSE_FORLENGET_SAKSBEHANDLINGSTID;
-            case KLAGE_AVVIST_DOK,
+            case FORELDREPENGER_FEIL_PRAKSIS_UTSETTELSE_INFOBREV,
+                 FORELDREPENGER_FEIL_PRAKSIS_UTSETTELSE_FORLENGET_SAKSBEHANDLINGSTID,
+                 FRITEKSTBREV,
+                 KLAGE_AVVIST_DOK,
                  KLAGE_AVVIST_FRITEKST,
                  KLAGE_HJEMSENDT_DOK,
                  KLAGE_HJEMSENDT_FRITEKST,

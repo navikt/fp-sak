@@ -13,7 +13,6 @@ import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
 
 public enum DokumentMalType implements Kodeverdi, DatabaseKode {
 
-    FRITEKSTBREV("FRITEK"),
     FRITEKST_HTML("FRIHTM"),
     ENGANGSSTØNAD_INNVILGELSE("INNVES"),
     ENGANGSSTØNAD_AVSLAG("AVSLES"),
@@ -39,10 +38,11 @@ public enum DokumentMalType implements Kodeverdi, DatabaseKode {
     KLAGE_OMGJORT("KGEOMG"),
     KLAGE_OVERSENDT("KGEOVE"),
     ETTERLYS_INNTEKTSMELDING("ELYSIM"),
-    ENDRING_UTBETALING("ENDUTB"), // Denne brukes kun for å utlede tittel når overstyrer vedtaksbrev pga fordeling av ytelsen
-    FORELDREPENGER_FEIL_PRAKSIS_UTSETTELSE_INFOBREV("INFOPU"),
-    FORELDREPENGER_FEIL_PRAKSIS_UTSETTELSE_FORLENGET_SAKSBEHANDLINGSTID("FORPUS"),
+    ENDRING_UTBETALING("ENDUTB"), // Brukes som journalførSom når saksbehandler overstyrer vedtaksbrev ved endring i fordeling av ytelsen,
 
+    @Deprecated FRITEKSTBREV("FRITEK"),
+    @Deprecated FORELDREPENGER_FEIL_PRAKSIS_UTSETTELSE_INFOBREV("INFOPU"),
+    @Deprecated FORELDREPENGER_FEIL_PRAKSIS_UTSETTELSE_FORLENGET_SAKSBEHANDLINGSTID("FORPUS"),
     // Må gjeninnføre for å flytte anker
     @Deprecated KLAGE_AVVIST_DOK("KLAGAV"),
     @Deprecated KLAGE_AVVIST_FRITEKST("KAVVIS"),
