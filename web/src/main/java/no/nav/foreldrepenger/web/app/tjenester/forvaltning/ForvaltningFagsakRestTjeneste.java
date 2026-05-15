@@ -268,7 +268,7 @@ public class ForvaltningFagsakRestTjeneste {
             case MEDMOR -> no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType.MEDMOR;
         };
         var fagsak = fagsakRepository.hentSakGittSaksnummer(saksnummer).orElseThrow();
-        var åpnebehandlinger = behandlingRepository.hentÅpneYtelseBehandlingerForFagsakId(fagsak.getId());
+        var åpnebehandlinger = behandlingRepository.hentÅpneYtelseBehandlingerForFagsakIdForUpdate(fagsak.getId());
         if (åpnebehandlinger.stream().anyMatch(SpesialBehandling::erSpesialBehandling)) {
             return Response.status(Response.Status.BAD_REQUEST.getStatusCode(), "Åpen berørt behandling").build();
         } else if (!åpnebehandlinger.isEmpty()) {
