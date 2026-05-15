@@ -83,8 +83,7 @@ public class BeregningOversiktDtoTjeneste {
     private Optional<OversiktBeregningsgrunnlag> mapBeregning(Beregningsgrunnlag beregningsgrunnlag,
                                                             List<Inntektsmelding> inntektsmeldinger,
                                                             LocalDate førsteUttaksdato) {
-        if (gjelderSakInnsynIkkeStøtter(beregningsgrunnlag, førsteUttaksdato)) {
-            // TODO -- implementeres senere
+        if (gjelderSakDerInnsynHellerViserTilBrev(beregningsgrunnlag, førsteUttaksdato)) {
             return Optional.empty();
         }
         var aktivitetStatuser = beregningsgrunnlag.getAktivitetStatuser().stream().map(this::mapAktivitetStatusMedHjemmel).toList();
@@ -104,7 +103,7 @@ public class BeregningOversiktDtoTjeneste {
             .findFirst();
     }
 
-    private boolean gjelderSakInnsynIkkeStøtter(Beregningsgrunnlag beregningsgrunnlag, LocalDate førsteUttaksdato) {
+    private boolean gjelderSakDerInnsynHellerViserTilBrev(Beregningsgrunnlag beregningsgrunnlag, LocalDate førsteUttaksdato) {
         // Besteberegning er ikke støttet i innsyn enda, og det må implementeres støtte for det uavhengig av statusen dagpenger
         var erBesteberegnet = førsteBeregningsperiode(beregningsgrunnlag, førsteUttaksdato).map(BeregningsgrunnlagPeriode::getBeregningsgrunnlagPrStatusOgAndelList)
             .orElse(List.of())
