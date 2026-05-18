@@ -37,7 +37,6 @@ import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioM
 import no.nav.foreldrepenger.dbstoette.CdiDbAwareTest;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.medlem.MedlemTjeneste;
-import no.nav.foreldrepenger.domene.medlem.MedlemskapVurderingPeriodeTjeneste;
 import no.nav.foreldrepenger.domene.person.PersoninfoAdapter;
 import no.nav.foreldrepenger.domene.personopplysning.PersonopplysningTjeneste;
 import no.nav.foreldrepenger.domene.typer.PersonIdent;
@@ -48,7 +47,6 @@ import no.nav.foreldrepenger.inngangsvilkaar.medlemskap.InngangsvilkårMedlemska
 import no.nav.foreldrepenger.inngangsvilkaar.medlemskap.v2.AvklarMedlemskapUtleder;
 import no.nav.foreldrepenger.inngangsvilkaar.medlemskap.v2.MedlemRegelGrunnlagBygger;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
-import no.nav.foreldrepenger.skjæringstidspunkt.es.BotidCore2024;
 import no.nav.vedtak.felles.testutilities.cdi.UnitTestLookupInstanceImpl;
 
 @CdiDbAwareTest
@@ -65,8 +63,6 @@ class VurderMedlemskapvilkårStegTest {
     private MedlemTjeneste medlemTjeneste;
     @Inject
     private PersonopplysningTjeneste personopplysningTjeneste;
-    @Inject
-    private MedlemskapVurderingPeriodeTjeneste medlemskapVurderingPeriodeTjeneste;
     @Inject
     private SatsRepository satsRepo;
     @Inject
@@ -89,8 +85,7 @@ class VurderMedlemskapvilkårStegTest {
             repositoryProvider.getBehandlingLåsRepository().taLås(behandling.getId()));
 
         // Act - vurder vilkåret
-        var vilkårutleder = new Medlemsvilkårutleder(repositoryProvider,
-            new BotidCore2024(null, null));
+        var vilkårutleder = new Medlemsvilkårutleder(repositoryProvider);
 
         var inngangsvilkårFellesTjeneste = forutgåendeTjeneste();
 
@@ -116,8 +111,7 @@ class VurderMedlemskapvilkårStegTest {
             repositoryProvider.getBehandlingLåsRepository().taLås(behandling.getId()));
 
         // Act - vurder vilkåret
-        var vilkårutleder = new Medlemsvilkårutleder(repositoryProvider,
-            new BotidCore2024(null, null));
+        var vilkårutleder = new Medlemsvilkårutleder(repositoryProvider);
 
         var inngangsvilkårFellesTjeneste = forutgåendeTjeneste();
 
@@ -143,8 +137,7 @@ class VurderMedlemskapvilkårStegTest {
                 repositoryProvider.getBehandlingLåsRepository().taLås(behandling.getId()));
 
         // Act - vurder vilkåret
-        var vilkårutleder = new Medlemsvilkårutleder(repositoryProvider,
-            new BotidCore2024(null, null));
+        var vilkårutleder = new Medlemsvilkårutleder(repositoryProvider);
 
         var inngangsvilkårFellesTjeneste = forutgåendeTjeneste();
 
@@ -158,8 +151,7 @@ class VurderMedlemskapvilkårStegTest {
     }
 
     private InngangsvilkårFellesTjeneste forutgåendeTjeneste() {
-        var medlemRegelGrunnlagBygger = new MedlemRegelGrunnlagBygger(medlemTjeneste, personopplysningTjeneste, medlemskapVurderingPeriodeTjeneste,
-            inntektArbeidYtelseTjeneste, satsRepo, stpTjeneste, personinfoAdapter);
+        var medlemRegelGrunnlagBygger = new MedlemRegelGrunnlagBygger(medlemTjeneste, personopplysningTjeneste, inntektArbeidYtelseTjeneste, satsRepo, stpTjeneste, personinfoAdapter);
         when(personinfoAdapter.hentFnr(any())).thenReturn(Optional.of(PersonIdent.randomMor()));
         var inngangsvilkårMedlemskap = new InngangsvilkårMedlemskapForutgående(new AvklarMedlemskapUtleder(medlemRegelGrunnlagBygger));
         var inngangsvilkårFellesTjeneste = new InngangsvilkårFellesTjeneste(new RegelOrkestrerer(new InngangsvilkårTjeneste(
@@ -181,11 +173,9 @@ class VurderMedlemskapvilkårStegTest {
             repositoryProvider.getBehandlingLåsRepository().taLås(behandling.getId()));
 
         // Act - vurder vilkåret
-        var vilkårutleder = new Medlemsvilkårutleder(repositoryProvider,
-            new BotidCore2024(null, null));
+        var vilkårutleder = new Medlemsvilkårutleder(repositoryProvider);
 
-        var medlemRegelGrunnlagBygger = new MedlemRegelGrunnlagBygger(medlemTjeneste, personopplysningTjeneste, medlemskapVurderingPeriodeTjeneste,
-            inntektArbeidYtelseTjeneste, satsRepo, stpTjeneste, personinfoAdapter);
+        var medlemRegelGrunnlagBygger = new MedlemRegelGrunnlagBygger(medlemTjeneste, personopplysningTjeneste, inntektArbeidYtelseTjeneste, satsRepo, stpTjeneste, personinfoAdapter);
         when(personinfoAdapter.hentFnr(any())).thenReturn(Optional.of(PersonIdent.randomMor()));
         var inngangsvilkårMedlemskap = new InngangsvilkårMedlemskap(new AvklarMedlemskapUtleder(medlemRegelGrunnlagBygger));
         var inngangsvilkårFellesTjeneste = new InngangsvilkårFellesTjeneste(new RegelOrkestrerer(new InngangsvilkårTjeneste(

@@ -1,7 +1,6 @@
 package no.nav.foreldrepenger.inngangsvilkaar.fødsel;
 
 import java.time.LocalDate;
-import java.time.Period;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -25,7 +24,7 @@ import no.nav.foreldrepenger.familiehendelse.FamilieHendelseTjeneste;
 import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.RegelKjønn;
 import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.RegelSøkerRolle;
 import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.fødsel.FødselsvilkårGrunnlag;
-import no.nav.foreldrepenger.konfig.KonfigVerdi;
+import no.nav.foreldrepenger.skjæringstidspunkt.FamilieHendelseKonstanter;
 
 @ApplicationScoped
 public class FødselsvilkårOversetter {
@@ -44,22 +43,18 @@ public class FødselsvilkårOversetter {
     private FamilieHendelseRepository familieGrunnlagRepository;
     private PersonopplysningTjeneste personopplysningTjeneste;
 
-    private Period tidligstUtstedelseFørTermin;
-
     FødselsvilkårOversetter() {
         // for CDI proxy
     }
 
     /**
-     * @param tidligsteUtstedelseAvTerminBekreftelse - Periode for tidligst utstedelse av terminbekreftelse før termindato
+     *
      */
     @Inject
     public FødselsvilkårOversetter(BehandlingRepositoryProvider repositoryProvider,
-                                   PersonopplysningTjeneste personopplysningTjeneste,
-                                   @KonfigVerdi(value = "terminbekreftelse.tidligst.utstedelse.før.termin", defaultVerdi = "P18W3D") Period tidligsteUtstedelseAvTerminBekreftelse) {
+                                   PersonopplysningTjeneste personopplysningTjeneste) {
         this.familieGrunnlagRepository = repositoryProvider.getFamilieHendelseRepository();
         this.personopplysningTjeneste = personopplysningTjeneste;
-        this.tidligstUtstedelseFørTermin = tidligsteUtstedelseAvTerminBekreftelse;
     }
 
     public FødselsvilkårGrunnlag oversettTilRegelModellFødsel(BehandlingReferanse ref, boolean utenMinsterett) {
@@ -96,7 +91,7 @@ public class FødselsvilkårOversetter {
         if (termindato == null || utstedtDato == null) {
             return true;
         }
-        var tidligstedatoMinusDag = termindato.minus(tidligstUtstedelseFørTermin).minusDays(1);
+        var tidligstedatoMinusDag = termindato.minus(FamilieHendelseKonstanter.TERMINBEKREFTELSE_TIDLIGST_UTSTEDT).minusDays(1);
         return utstedtDato.isAfter(tidligstedatoMinusDag);
     }
 
@@ -104,7 +99,7 @@ public class FødselsvilkårOversetter {
         if (termindato == null) {
             return true;
         }
-        var tidligstedatoMinusDag = termindato.minus(tidligstUtstedelseFørTermin).minusDays(1);
+        var tidligstedatoMinusDag = termindato.minus(FamilieHendelseKonstanter.TERMINBEKREFTELSE_TIDLIGST_UTSTEDT).minusDays(1);
         return LocalDate.now().isAfter(tidligstedatoMinusDag);
     }
 

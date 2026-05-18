@@ -32,14 +32,13 @@ public class StønadskontoRegelOversetter {
                                                        Optional<ForeldrepengerUttak> annenpartsGjeldendeUttaksplan,
                                                        ForeldrepengerGrunnlag fpGrunnlag,
                                                        BehandlingReferanse ref,
-                                                       Map<StønadskontoType, Integer> tidligereUtregning,
-                                                       UttakCore2024 uttakCore2024) {
+                                                       Map<StønadskontoType, Integer> tidligereUtregning) {
 
         var familieHendelse = fpGrunnlag.getFamilieHendelser().getGjeldendeFamilieHendelse();
         var annenForeldreHarRett = ytelseFordelingAggregat.harAnnenForelderRett(annenpartsGjeldendeUttaksplan.filter(ForeldrepengerUttak::harUtbetaling).isPresent());
 
         var grunnlagBuilder = BeregnKontoerGrunnlag.builder()
-            .regelvalgsdato(uttakCore2024.utledRegelvalgsdato(familieHendelse))
+            .regelvalgsdato(null) // Denne var midlertidig i bruk ifm ikraftrredelsesmekanismene for uttak 2024.
             .antallBarn(familieHendelse.getAntallBarn())
             .dekningsgrad(map(dekningsgrad))
             .brukerRolle(UttakEnumMapper.mapTilBeregning(ref.relasjonRolle()))

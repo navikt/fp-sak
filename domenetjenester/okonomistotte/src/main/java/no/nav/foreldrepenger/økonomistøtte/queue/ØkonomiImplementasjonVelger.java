@@ -4,11 +4,7 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.inject.Produces;
 import jakarta.inject.Inject;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import no.nav.foreldrepenger.konfig.Environment;
-import no.nav.foreldrepenger.konfig.KonfigVerdi;
 import no.nav.foreldrepenger.økonomistøtte.queue.producer.ØkonomioppdragJmsProducer;
 
 
@@ -16,13 +12,10 @@ import no.nav.foreldrepenger.økonomistøtte.queue.producer.ØkonomioppdragJmsPr
  * Denne klassen bytter mellom følgende implementasjoner for grensesnitt mot Oppdragsystemet:
  *
  * <li>MQ-integrasjon mot Oppdragssytemet (brukes i miljøer+prod). Denne er standard.</li>
- * <li>mock-implementasjon av grensesnittet. Denne velges ved å sette konfigurasjonsverdien test.only.disable.mq=true.
- * Denne implementasjonen finnes for å støtte verdikjedetest</li>
+ * <li>mock-implementasjon av grensesnittet. Denne implementasjonen finnes for å støtte verdikjedetest</li>
  */
 @ApplicationScoped
 public class ØkonomiImplementasjonVelger {
-
-    private static final Logger LOG = LoggerFactory.getLogger(ØkonomiImplementasjonVelger.class);
 
     private ØkonomioppdragJmsProducer økonomioppdragJmsProducer;
 
@@ -31,13 +24,12 @@ public class ØkonomiImplementasjonVelger {
     }
 
     @Inject
-    public ØkonomiImplementasjonVelger(@KonfigVerdi(value = "test.only.disable.mq", defaultVerdi = "false") Boolean disableMq,
-                                       @Mq ØkonomioppdragJmsProducer mqØkonomiProducer, @TestOnlyMqDisabled ØkonomioppdragJmsProducer vtpØkonomiProducer) {
-        if (disableMq) {
+    public ØkonomiImplementasjonVelger(@Mq ØkonomioppdragJmsProducer mqØkonomiProducer, @TestOnlyMqDisabled ØkonomioppdragJmsProducer vtpØkonomiProducer) {
+        var miljøToggle = new FellesJmsToggle();
+        if (miljøToggle.isDisabled()) {
             if (Environment.current().isProd()) {
-                throw new IllegalStateException("Skal ikke bruke test.only.disable.mq i produksjon. MQ er påkrevet i miljøet.");
+                throw new IllegalStateException("Skal bruke normal MQ-producer i produksjon.");
             }
-            LOG.warn("Bruker mock-implementasjon for integrasjon mot MQ siden flagget test.only.disable.mq er satt");
             økonomioppdragJmsProducer = vtpØkonomiProducer;
         } else {
             økonomioppdragJmsProducer = mqØkonomiProducer;

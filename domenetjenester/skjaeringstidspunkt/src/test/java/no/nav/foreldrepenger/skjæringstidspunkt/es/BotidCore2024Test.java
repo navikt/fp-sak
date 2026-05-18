@@ -3,7 +3,6 @@ package no.nav.foreldrepenger.skjæringstidspunkt.es;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.LocalDate;
-import java.time.Month;
 import java.time.Period;
 
 import org.junit.jupiter.api.Test;
@@ -13,7 +12,7 @@ import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioM
 
 class BotidCore2024Test {
 
-    private static final LocalDate IKRAFT = LocalDate.of(2024, Month.AUGUST, 1);
+    private static final LocalDate IKRAFT = BotidCore2024.IKRAFT_FRA_DATO;
     private static final Period OVERGANG = Period.parse("P18W3D");
 
     @Test
@@ -33,7 +32,7 @@ class BotidCore2024Test {
 
         // Act/Assert
         var fhg = mockprovider.getFamilieHendelseRepository().hentAggregat(behandling.getId());
-        assertThat(new BotidCore2024(IKRAFT, OVERGANG).ikkeBotidskrav(fhg)).isTrue();
+        assertThat(BotidCore2024.ikkeBotidskrav(fhg)).isTrue();
     }
 
     @Test
@@ -54,7 +53,7 @@ class BotidCore2024Test {
 
         // Act/Assert
         var fhg = mockprovider.getFamilieHendelseRepository().hentAggregat(behandling.getId());
-        assertThat(new BotidCore2024(IKRAFT, OVERGANG).ikkeBotidskrav(fhg)).isTrue();
+        assertThat(BotidCore2024.ikkeBotidskrav(fhg)).isTrue();
     }
 
     @Test
@@ -70,7 +69,7 @@ class BotidCore2024Test {
 
         // Act/Assert
         var fhg = mockprovider.getFamilieHendelseRepository().hentAggregat(behandling.getId());
-        assertThat(new BotidCore2024(IKRAFT, OVERGANG).ikkeBotidskrav(fhg)).isTrue();
+        assertThat(BotidCore2024.ikkeBotidskrav(fhg)).isTrue();
     }
 
     @Test
@@ -90,7 +89,7 @@ class BotidCore2024Test {
 
         // Act/Assert
         var fhg = mockprovider.getFamilieHendelseRepository().hentAggregat(behandling.getId());
-        assertThat(new BotidCore2024(IKRAFT, OVERGANG).ikkeBotidskrav(fhg)).isTrue();
+        assertThat(BotidCore2024.ikkeBotidskrav(fhg)).isTrue();
     }
 
     @Test
@@ -110,7 +109,7 @@ class BotidCore2024Test {
 
         // Act/Assert
         var fhg = mockprovider.getFamilieHendelseRepository().hentAggregat(behandling.getId());
-        assertThat(new BotidCore2024(IKRAFT, OVERGANG).ikkeBotidskrav(fhg)).isFalse();
+        assertThat(BotidCore2024.ikkeBotidskrav(fhg)).isFalse();
     }
 
     @Test
@@ -131,7 +130,7 @@ class BotidCore2024Test {
 
         // Act/Assert
         var fhg = mockprovider.getFamilieHendelseRepository().hentAggregat(behandling.getId());
-        assertThat(new BotidCore2024(IKRAFT, OVERGANG).ikkeBotidskrav(fhg)).isFalse();
+        assertThat(BotidCore2024.ikkeBotidskrav(fhg)).isFalse();
     }
 
     @Test
@@ -152,7 +151,7 @@ class BotidCore2024Test {
 
         // Act/Assert
         var fhg = mockprovider.getFamilieHendelseRepository().hentAggregat(behandling.getId());
-        assertThat(new BotidCore2024(IKRAFT, OVERGANG).ikkeBotidskrav(fhg)).isFalse();
+        assertThat(BotidCore2024.ikkeBotidskrav(fhg)).isFalse();
     }
 
     @Test
@@ -168,7 +167,7 @@ class BotidCore2024Test {
 
         // Act/Assert
         var fhg = mockprovider.getFamilieHendelseRepository().hentAggregat(behandling.getId());
-        assertThat(new BotidCore2024(IKRAFT, OVERGANG).ikkeBotidskrav(fhg)).isFalse();
+        assertThat(BotidCore2024.ikkeBotidskrav(fhg)).isFalse();
     }
 
     @Test
@@ -188,7 +187,7 @@ class BotidCore2024Test {
 
         // Act/Assert
         var fhg = mockprovider.getFamilieHendelseRepository().hentAggregat(behandling.getId());
-        assertThat(new BotidCore2024(IKRAFT, OVERGANG).ikkeBotidskrav(fhg)).isFalse();
+        assertThat(BotidCore2024.ikkeBotidskrav(fhg)).isFalse();
     }
 
     // Søknadshendelse
@@ -209,7 +208,7 @@ class BotidCore2024Test {
 
         // Act/Assert
         var fhg = mockprovider.getFamilieHendelseRepository().hentAggregat(behandling.getId());
-        assertThat(new BotidCore2024(IKRAFT, OVERGANG).ikkeBotidskrav(fhg)).isTrue();
+        assertThat(BotidCore2024.ikkeBotidskrav(fhg)).isTrue();
     }
 
     @Test
@@ -230,7 +229,7 @@ class BotidCore2024Test {
 
         // Act/Assert
         var fhg = mockprovider.getFamilieHendelseRepository().hentAggregat(behandling.getId());
-        assertThat(new BotidCore2024(IKRAFT, OVERGANG).ikkeBotidskrav(fhg)).isTrue();
+        assertThat(BotidCore2024.ikkeBotidskrav(fhg)).isTrue();
     }
 
     @Test
@@ -246,7 +245,7 @@ class BotidCore2024Test {
 
         // Act/Assert
         var fhg = mockprovider.getFamilieHendelseRepository().hentAggregat(behandling.getId());
-        assertThat(new BotidCore2024(IKRAFT, OVERGANG).ikkeBotidskrav(fhg)).isTrue();
+        assertThat(BotidCore2024.ikkeBotidskrav(fhg)).isTrue();
     }
 
     @Test
@@ -266,7 +265,7 @@ class BotidCore2024Test {
 
         // Act/Assert
         var fhg = mockprovider.getFamilieHendelseRepository().hentAggregat(behandling.getId());
-        assertThat(new BotidCore2024(IKRAFT, OVERGANG).ikkeBotidskrav(fhg)).isTrue();
+        assertThat(BotidCore2024.ikkeBotidskrav(fhg)).isTrue();
     }
 
     @Test
@@ -286,7 +285,7 @@ class BotidCore2024Test {
 
         // Act/Assert
         var fhg = mockprovider.getFamilieHendelseRepository().hentAggregat(behandling.getId());
-        assertThat(new BotidCore2024(IKRAFT, OVERGANG).ikkeBotidskrav(fhg)).isFalse();
+        assertThat(BotidCore2024.ikkeBotidskrav(fhg)).isFalse();
     }
 
     @Test
@@ -307,7 +306,7 @@ class BotidCore2024Test {
 
         // Act/Assert
         var fhg = mockprovider.getFamilieHendelseRepository().hentAggregat(behandling.getId());
-        assertThat(new BotidCore2024(IKRAFT, OVERGANG).ikkeBotidskrav(fhg)).isFalse();
+        assertThat(BotidCore2024.ikkeBotidskrav(fhg)).isFalse();
     }
 
     @Test
@@ -328,7 +327,7 @@ class BotidCore2024Test {
 
         // Act/Assert
         var fhg = mockprovider.getFamilieHendelseRepository().hentAggregat(behandling.getId());
-        assertThat(new BotidCore2024(IKRAFT, OVERGANG).ikkeBotidskrav(fhg)).isFalse();
+        assertThat(BotidCore2024.ikkeBotidskrav(fhg)).isFalse();
     }
 
     @Test
@@ -344,7 +343,7 @@ class BotidCore2024Test {
 
         // Act/Assert
         var fhg = mockprovider.getFamilieHendelseRepository().hentAggregat(behandling.getId());
-        assertThat(new BotidCore2024(IKRAFT, OVERGANG).ikkeBotidskrav(fhg)).isFalse();
+        assertThat(BotidCore2024.ikkeBotidskrav(fhg)).isFalse();
     }
 
     @Test
@@ -364,7 +363,7 @@ class BotidCore2024Test {
 
         // Act/Assert
         var fhg = mockprovider.getFamilieHendelseRepository().hentAggregat(behandling.getId());
-        assertThat(new BotidCore2024(IKRAFT, OVERGANG).ikkeBotidskrav(fhg)).isFalse();
+        assertThat(BotidCore2024.ikkeBotidskrav(fhg)).isFalse();
     }
 
 

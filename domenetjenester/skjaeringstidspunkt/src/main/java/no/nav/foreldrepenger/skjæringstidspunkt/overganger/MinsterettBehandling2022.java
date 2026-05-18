@@ -19,7 +19,6 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 @ApplicationScoped
 public class MinsterettBehandling2022 {
 
-    private final MinsterettCore2022 minsterettCore2022 = new MinsterettCore2022();
     private BehandlingRepository behandlingRepository;
     private FagsakRelasjonTjeneste fagsakRelasjonTjeneste;
     private FamilieHendelseRepository familieHendelseRepository;
@@ -39,14 +38,14 @@ public class MinsterettBehandling2022 {
     public boolean utenMinsterett(Behandling behandling) {
         return familieHendelseRepository.hentAggregatHvisEksisterer(behandling.getId())
             .or(() -> vedtattFamilieHendelseRelatertFagsak(behandling))
-            .map(minsterettCore2022::utenMinsterett)
+            .map(MinsterettCore2022::utenMinsterett)
             .orElse(MinsterettCore2022.DEFAULT_SAK_UTEN_MINSTERETT);
     }
 
     boolean utenMinsterett(Long behandlingId) {
         return familieHendelseRepository.hentAggregatHvisEksisterer(behandlingId)
             .or(() -> vedtattFamilieHendelseRelatertFagsak(behandlingRepository.hentBehandling(behandlingId)))
-            .map(minsterettCore2022::utenMinsterett)
+            .map(MinsterettCore2022::utenMinsterett)
             .orElse(MinsterettCore2022.DEFAULT_SAK_UTEN_MINSTERETT);
     }
 

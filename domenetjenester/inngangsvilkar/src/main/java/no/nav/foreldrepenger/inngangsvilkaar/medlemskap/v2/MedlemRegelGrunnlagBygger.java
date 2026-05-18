@@ -41,7 +41,6 @@ public class MedlemRegelGrunnlagBygger {
 
     private MedlemTjeneste medlemTjeneste;
     private PersonopplysningTjeneste personopplysningTjeneste;
-    private MedlemskapVurderingPeriodeTjeneste vurderingPeriodeTjeneste;
     private InntektArbeidYtelseTjeneste inntektArbeidYtelseTjeneste;
     private SatsRepository satsRepository;
     private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
@@ -49,15 +48,13 @@ public class MedlemRegelGrunnlagBygger {
 
     @Inject
     public MedlemRegelGrunnlagBygger(MedlemTjeneste medlemTjeneste,
-                              PersonopplysningTjeneste personopplysningTjeneste,
-                              MedlemskapVurderingPeriodeTjeneste vurderingPeriodeTjeneste,
-                              InntektArbeidYtelseTjeneste inntektArbeidYtelseTjeneste,
-                              SatsRepository satsRepository,
-                              SkjæringstidspunktTjeneste skjæringstidspunktTjeneste,
-                              PersoninfoAdapter personinfoAdapter) {
+                                     PersonopplysningTjeneste personopplysningTjeneste,
+                                     InntektArbeidYtelseTjeneste inntektArbeidYtelseTjeneste,
+                                     SatsRepository satsRepository,
+                                     SkjæringstidspunktTjeneste skjæringstidspunktTjeneste,
+                                     PersoninfoAdapter personinfoAdapter) {
         this.medlemTjeneste = medlemTjeneste;
         this.personopplysningTjeneste = personopplysningTjeneste;
-        this.vurderingPeriodeTjeneste = vurderingPeriodeTjeneste;
         this.inntektArbeidYtelseTjeneste = inntektArbeidYtelseTjeneste;
         this.satsRepository = satsRepository;
         this.skjæringstidspunktTjeneste = skjæringstidspunktTjeneste;
@@ -70,8 +67,8 @@ public class MedlemRegelGrunnlagBygger {
 
     MedlemskapsvilkårGrunnlag lagRegelGrunnlag(BehandlingReferanse behandlingRef) {
         var skjæringstidspunkt = skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandlingRef.behandlingId());
-        var vurderingsperiodeBosatt = vurderingPeriodeTjeneste.bosattVurderingsintervall(behandlingRef, skjæringstidspunkt);
-        var vurderingsperiodeLovligOpphold = vurderingPeriodeTjeneste.lovligOppholdVurderingsintervall(behandlingRef, skjæringstidspunkt);
+        var vurderingsperiodeBosatt = MedlemskapVurderingPeriodeTjeneste.bosattVurderingsintervall(behandlingRef, skjæringstidspunkt);
+        var vurderingsperiodeLovligOpphold = MedlemskapVurderingPeriodeTjeneste.lovligOppholdVurderingsintervall(behandlingRef, skjæringstidspunkt);
         var registrertMedlemskapPerioder = hentMedlemskapPerioder(behandlingRef);
         var opplysningsperiode = SimpleLocalDateInterval.fraOgMedTomNotNull(
             LocalDateInterval.min(vurderingsperiodeBosatt.getFomDato(), vurderingsperiodeLovligOpphold.getFomDato()),

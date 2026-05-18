@@ -3,7 +3,6 @@ package no.nav.foreldrepenger.inngangsvilkaar.fødsel;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.LocalDate;
-import java.time.Period;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -36,7 +35,7 @@ class FødselsvilkårMorTest extends EntityManagerAwareTest {
     void setUp() {
         repositoryProvider = new BehandlingRepositoryProvider(getEntityManager());
         var personopplysningTjeneste = new PersonopplysningTjeneste(repositoryProvider.getPersonopplysningRepository(), BehandlingEventPubliserer.NULL_EVENT_PUB);
-        oversetter = new FødselsvilkårOversetter(repositoryProvider, personopplysningTjeneste, Period.parse("P18W3D"));
+        oversetter = new FødselsvilkårOversetter(repositoryProvider, personopplysningTjeneste);
     }
 
     @Test

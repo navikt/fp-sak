@@ -2,8 +2,6 @@ package no.nav.foreldrepenger.skjæringstidspunkt.overganger;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import java.time.LocalDate;
-
 import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
@@ -14,7 +12,7 @@ class Minsterett2022CoreTest {
     @Test
     void skal_returnere_uten_minsterett_hvis_bekreftet_hendelse_før_dato() {
         // Arrange
-        var ikraftredelse = LocalDate.of(2022, 8, 2);
+        var ikraftredelse = MinsterettCore2022.IKRAFT_FRA_DATO;
         var skjæringsdato = ikraftredelse.minusWeeks(4);
         var bekreftetfødselsdato = skjæringsdato.plusWeeks(3);
 
@@ -26,13 +24,13 @@ class Minsterett2022CoreTest {
 
         // Act/Assert
         var fhg = mockprovider.getFamilieHendelseRepository().hentAggregat(behandling.getId());
-        assertThat(new MinsterettCore2022(ikraftredelse).utenMinsterett(fhg)).isTrue();
+        assertThat(MinsterettCore2022.utenMinsterett(fhg)).isTrue();
     }
 
     @Test
     void skal_returnere_med_minsterett_hvis_bekreftet_hendelse_etter_dato() {
         // Arrange
-        var ikraftredelse = LocalDate.of(2022, 8, 2);
+        var ikraftredelse = MinsterettCore2022.IKRAFT_FRA_DATO;
         var bekreftetfødselsdato = ikraftredelse.plusWeeks(3);
 
         var førstegangScenario = ScenarioMorSøkerForeldrepenger.forAdopsjon()
@@ -44,13 +42,13 @@ class Minsterett2022CoreTest {
 
         // Act/Assert
         var fhg = mockprovider.getFamilieHendelseRepository().hentAggregat(behandling.getId());
-        assertThat(new MinsterettCore2022(ikraftredelse).utenMinsterett(fhg)).isFalse();
+        assertThat(MinsterettCore2022.utenMinsterett(fhg)).isFalse();
     }
 
     @Test
     void skal_returnere_med_minsterett_hvis_bekreftet_termin_20_dager_etter() {
         // Arrange
-        var ikraftredelse = LocalDate.now().minusDays(20);
+        var ikraftredelse = MinsterettCore2022.IKRAFT_FRA_DATO;
         var bekreftetfødselsdato = ikraftredelse.plusWeeks(3);
 
         var førstegangScenario = ScenarioMorSøkerForeldrepenger.forFødsel()
@@ -63,13 +61,13 @@ class Minsterett2022CoreTest {
 
         // Act/Assert
         var fhg = mockprovider.getFamilieHendelseRepository().hentAggregat(behandling.getId());
-        assertThat(new MinsterettCore2022(ikraftredelse).utenMinsterett(fhg)).isFalse();
+        assertThat(MinsterettCore2022.utenMinsterett(fhg)).isFalse();
     }
 
     @Test
     void skal_returnere_med_minsterett_hvis_bekreftet_termin_2_dager_etter() {
         // Arrange
-        var ikraftredelse = LocalDate.now().minusDays(2);
+        var ikraftredelse = MinsterettCore2022.IKRAFT_FRA_DATO;
         var bekreftetfødselsdato = ikraftredelse.plusWeeks(3);
 
         var førstegangScenario = ScenarioMorSøkerForeldrepenger.forFødsel()
@@ -82,13 +80,13 @@ class Minsterett2022CoreTest {
 
         // Act/Assert
         var fhg = mockprovider.getFamilieHendelseRepository().hentAggregat(behandling.getId());
-        assertThat(new MinsterettCore2022(ikraftredelse).utenMinsterett(fhg)).isFalse();
+        assertThat(MinsterettCore2022.utenMinsterett(fhg)).isFalse();
     }
 
     @Test
     void skal_returnere_med_minsterett_hvis_søkt_adopsjon_2_dager_etter() {
         // Arrange
-        var ikraftredelse = LocalDate.now().minusDays(2);
+        var ikraftredelse = MinsterettCore2022.IKRAFT_FRA_DATO;
         var bekreftetfødselsdato = ikraftredelse.plusWeeks(3);
 
         var førstegangScenario = ScenarioMorSøkerForeldrepenger.forAdopsjon()
@@ -101,13 +99,13 @@ class Minsterett2022CoreTest {
 
         // Act/Assert
         var fhg = mockprovider.getFamilieHendelseRepository().hentAggregat(behandling.getId());
-        assertThat(new MinsterettCore2022(ikraftredelse).utenMinsterett(fhg)).isFalse();
+        assertThat(MinsterettCore2022.utenMinsterett(fhg)).isFalse();
     }
 
     @Test
     void skal_returnere_med_minsterett_hvis_søkt_fødsel_10_dager_etter() {
         // Arrange
-        var ikraftredelse = LocalDate.now().minusDays(10);
+        var ikraftredelse = MinsterettCore2022.IKRAFT_FRA_DATO;
         var bekreftetfødselsdato = ikraftredelse.plusWeeks(3);
 
         var førstegangScenario = ScenarioMorSøkerForeldrepenger.forFødsel()
@@ -119,13 +117,13 @@ class Minsterett2022CoreTest {
 
         // Act/Assert
         var fhg = mockprovider.getFamilieHendelseRepository().hentAggregat(behandling.getId());
-        assertThat(new MinsterettCore2022(ikraftredelse).utenMinsterett(fhg)).isFalse();
+        assertThat(MinsterettCore2022.utenMinsterett(fhg)).isFalse();
     }
 
     @Test
     void skal_returnere_med_minsterett_hvis_søkt_termin_30_dager_etter() {
         // Arrange
-        var ikraftredelse = LocalDate.now().minusDays(30);
+        var ikraftredelse = MinsterettCore2022.IKRAFT_FRA_DATO;
         var bekreftetfødselsdato = ikraftredelse.plusWeeks(3);
 
         var førstegangScenario = ScenarioMorSøkerForeldrepenger.forFødsel()
@@ -137,7 +135,7 @@ class Minsterett2022CoreTest {
         var behandling = førstegangScenario.lagMocked();
         // Act/Assert
         var fhg = mockprovider.getFamilieHendelseRepository().hentAggregat(behandling.getId());
-        assertThat(new MinsterettCore2022(ikraftredelse).utenMinsterett(fhg)).isFalse();
+        assertThat(MinsterettCore2022.utenMinsterett(fhg)).isFalse();
     }
 
 }

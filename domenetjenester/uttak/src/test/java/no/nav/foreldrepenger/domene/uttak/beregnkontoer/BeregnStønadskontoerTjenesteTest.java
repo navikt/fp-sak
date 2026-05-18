@@ -10,7 +10,6 @@ import static no.nav.foreldrepenger.behandlingslager.uttak.fp.StønadskontoType.
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.LocalDate;
-import java.time.Month;
 import java.util.List;
 
 import org.junit.jupiter.api.Test;
@@ -36,8 +35,7 @@ import no.nav.foreldrepenger.domene.uttak.testutilities.behandling.UttakReposito
 
 class BeregnStønadskontoerTjenesteTest {
 
-    private static final LocalDate IVERKSATT = LocalDate.of(2024, Month.JANUARY,1);
-    private static final UttakCore2024 UTTAK_CORE_2024 = new UttakCore2024(IVERKSATT, IVERKSATT);
+    private static final LocalDate IVERKSATT = UttakCore2024.FELLES_80P_IKRAFT_FRA_DATO;
 
     private final UttakRepositoryProvider repositoryProvider = new UttakRepositoryStubProvider();
     private final YtelsesFordelingRepository ytelsesFordelingRepository = repositoryProvider.getYtelsesFordelingRepository();
@@ -65,7 +63,7 @@ class BeregnStønadskontoerTjenesteTest {
 
         // Act
         var beregnStønadskontoerTjeneste = new BeregnStønadskontoerTjeneste(repositoryProvider, fagsakRelasjonTjeneste, uttakTjeneste,
-            dekningsgradTjeneste, new StønadskontoRegelAdapter(UTTAK_CORE_2024));
+            dekningsgradTjeneste, new StønadskontoRegelAdapter());
         var input = input(behandling, fpGrunnlag(familieHendelser));
         beregnStønadskontoerTjeneste.opprettStønadskontoer(input);
 
@@ -107,7 +105,7 @@ class BeregnStønadskontoerTjenesteTest {
 
         // Act
         var beregnStønadskontoerTjeneste = new BeregnStønadskontoerTjeneste(repositoryProvider, fagsakRelasjonTjeneste, uttakTjeneste,
-            dekningsgradTjeneste, new StønadskontoRegelAdapter(UTTAK_CORE_2024));
+            dekningsgradTjeneste, new StønadskontoRegelAdapter());
         var input = input(behandling, fpGrunnlag(familieHendelser));
         beregnStønadskontoerTjeneste.opprettStønadskontoer(input);
 
@@ -146,7 +144,7 @@ class BeregnStønadskontoerTjenesteTest {
 
         // Act
         var beregnStønadskontoerTjeneste = new BeregnStønadskontoerTjeneste(repositoryProvider, fagsakRelasjonTjeneste, uttakTjeneste,
-            dekningsgradTjeneste, new StønadskontoRegelAdapter(UTTAK_CORE_2024));
+            dekningsgradTjeneste, new StønadskontoRegelAdapter());
         var input = input(behandling, fpGrunnlag(familieHendelser));
         beregnStønadskontoerTjeneste.opprettStønadskontoer(input);
 
@@ -182,7 +180,7 @@ class BeregnStønadskontoerTjenesteTest {
 
         // Act
         var beregnStønadskontoerTjeneste = new BeregnStønadskontoerTjeneste(repositoryProvider, fagsakRelasjonTjeneste, uttakTjeneste,
-            dekningsgradTjeneste, new StønadskontoRegelAdapter(UTTAK_CORE_2024));
+            dekningsgradTjeneste, new StønadskontoRegelAdapter());
         var input = input(behandling, fpGrunnlag(familieHendelser));
         beregnStønadskontoerTjeneste.opprettStønadskontoer(input);
 
@@ -218,7 +216,7 @@ class BeregnStønadskontoerTjenesteTest {
 
         // Act
         var beregnStønadskontoerTjeneste = new BeregnStønadskontoerTjeneste(repositoryProvider, fagsakRelasjonTjeneste, uttakTjeneste,
-            dekningsgradTjeneste, new StønadskontoRegelAdapter(UTTAK_CORE_2024));
+            dekningsgradTjeneste, new StønadskontoRegelAdapter());
         var input = input(behandling, fpGrunnlag(familieHendelser));
         beregnStønadskontoerTjeneste.opprettStønadskontoer(input);
 
@@ -255,7 +253,7 @@ class BeregnStønadskontoerTjenesteTest {
 
         // Act
         var beregnStønadskontoerTjeneste = new BeregnStønadskontoerTjeneste(repositoryProvider, fagsakRelasjonTjeneste, uttakTjeneste,
-            dekningsgradTjeneste, new StønadskontoRegelAdapter(UTTAK_CORE_2024));
+            dekningsgradTjeneste, new StønadskontoRegelAdapter());
         var input = input(behandling, fpGrunnlag(familieHendelser));
         beregnStønadskontoerTjeneste.opprettStønadskontoer(input);
 

@@ -36,7 +36,6 @@ import no.nav.foreldrepenger.behandlingsprosess.prosessering.BehandlingProsesser
 import no.nav.foreldrepenger.dbstoette.CdiDbAwareTest;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.medlem.MedlemTjeneste;
-import no.nav.foreldrepenger.domene.medlem.MedlemskapVurderingPeriodeTjeneste;
 import no.nav.foreldrepenger.domene.person.PersoninfoAdapter;
 import no.nav.foreldrepenger.domene.personopplysning.PersonopplysningTjeneste;
 import no.nav.foreldrepenger.domene.typer.AktørId;
@@ -60,8 +59,6 @@ class MedlemDtoTjenesteTest {
     private PersonopplysningTjeneste poTjeneste;
     @Inject
     private BehandlingProsesseringTjeneste behandlingProsesseringTjeneste;
-    @Inject
-    private MedlemskapVurderingPeriodeTjeneste medlemVurderingPeriodeTjeneste;
     @Inject
     private InntektArbeidYtelseTjeneste iayTjeneste;
     @Inject
@@ -188,8 +185,8 @@ class MedlemDtoTjenesteTest {
     private MedlemDtoTjeneste dtoTjeneste(AktørId aktørId) {
         var personinfoAdapter = mock(PersoninfoAdapter.class);
         when(personinfoAdapter.hentFnr(aktørId)).thenReturn(Optional.of(PersonIdent.randomMor()));
-        var utleder = new AvklarMedlemskapUtleder(new MedlemRegelGrunnlagBygger(medlemTjeneste, poTjeneste, medlemVurderingPeriodeTjeneste,
-            iayTjeneste, satsRepository, stpTjeneste, personinfoAdapter));
+        var utleder = new AvklarMedlemskapUtleder(new MedlemRegelGrunnlagBygger(medlemTjeneste, poTjeneste,
+                iayTjeneste, satsRepository, stpTjeneste, personinfoAdapter));
         return new MedlemDtoTjeneste(repositoryProvider, stpTjeneste, medlemTjeneste, poTjeneste, utleder,
             new VilkårResultatRepository(repositoryProvider.getEntityManager()), behandlingProsesseringTjeneste);
     }
