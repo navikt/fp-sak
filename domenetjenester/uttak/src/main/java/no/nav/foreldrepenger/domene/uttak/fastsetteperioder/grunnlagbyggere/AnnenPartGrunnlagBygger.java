@@ -14,6 +14,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.eøs.EøsUttakGrunnlagE
 import no.nav.foreldrepenger.behandlingslager.behandling.eøs.EøsUttaksperioderEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.PeriodeResultatType;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.FpUttakRepository;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.PeriodeResultatÅrsak;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPeriodeEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPeriodeSøknadEntitet;
@@ -25,6 +26,7 @@ import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.Aktivitetskr
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.AnnenPart;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.AnnenpartUttakPeriode;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.AnnenpartUttakPeriodeAktivitet;
+import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.AnnenpartUttakPeriodeAvslagsårsak;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.Utbetalingsgrad;
 
 @ApplicationScoped
@@ -118,7 +120,7 @@ public class AnnenPartGrunnlagBygger {
     public static AnnenpartUttakPeriode map(UttakResultatPeriodeEntitet periode) {
         var builder = utledBuilder(periode).samtidigUttak(periode.isSamtidigUttak())
             .flerbarnsdager(periode.isFlerbarnsdager())
-            .innvilget(PeriodeResultatType.INNVILGET.equals(periode.getResultatType()))
+            .avslagsårsak(mapAvslagsårsak(periode.getResultatType(), periode.getResultatÅrsak()))
             .senestMottattDato(periode.getPeriodeSøknad().map(UttakResultatPeriodeSøknadEntitet::getMottattDato).orElse(null));
 
         for (var aktivitet : periode.getAktiviteter()) {
@@ -152,6 +154,16 @@ public class AnnenPartGrunnlagBygger {
 
     private static AnnenpartUttakPeriode.Builder utsettelseBuilder(UttakResultatPeriodeEntitet periode) {
         return AnnenpartUttakPeriode.Builder.utsettelse(periode.getFom(), periode.getTom());
+    }
+
+    private static AnnenpartUttakPeriodeAvslagsårsak mapAvslagsårsak(PeriodeResultatType resultatType, PeriodeResultatÅrsak årsak) {
+        if (PeriodeResultatType.INNVILGET.equals(resultatType)) {
+            return null;
+        }
+        if (PeriodeResultatÅrsak.FRATREKK_PLEIEPENGER.equals(årsak)) {
+            return AnnenpartUttakPeriodeAvslagsårsak.FRATREKK_PLEIEPENGER;
+        }
+        return AnnenpartUttakPeriodeAvslagsårsak.ANNET;
     }
 
     private boolean erInnvilgetPeriodeEllerHarTrekkdager(UttakResultatPeriodeEntitet p) {
