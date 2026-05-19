@@ -339,10 +339,10 @@ public class BehandlingDtoTjeneste {
         var harSakenSøknad = søknadRepository.hentSøknadHvisEksisterer(behandling.getId()).isPresent();
         dto.setHarSøknad(harSakenSøknad);
         dto.leggTil(get(SøknadRestTjeneste.SØKNAD_PATH, "søknad", uuidDto));
+        dto.leggTil(post(MellomlagringRestTjeneste.MELLOMLAGRING_PATH, "mellomlagring"));
+        dto.leggTil(post(MellomlagringRestTjeneste.HENT_MELLOMLAGRING_PATH, "hent-mellomlagring"));
 
         if (dto.isAktivPapirsøknad()) {
-            dto.leggTil(post(MellomlagringRestTjeneste.MELLOMLAGRING_PATH, "mellomlagring"));
-            dto.leggTil(post(MellomlagringRestTjeneste.HENT_MELLOMLAGRING_PATH, "hent-mellomlagring"));
             return dto;
         }
 
@@ -352,8 +352,6 @@ public class BehandlingDtoTjeneste {
         }
 
         dto.leggTil(post(BrevRestTjeneste.BREV_HTML_PATH, "hent-brev-html"));
-        dto.leggTil(post(MellomlagringRestTjeneste.MELLOMLAGRING_PATH, "mellomlagring"));
-        dto.leggTil(post(MellomlagringRestTjeneste.HENT_MELLOMLAGRING_PATH, "hent-mellomlagring"));
 
         dto.leggTil(get(FamiliehendelseRestTjeneste.FAMILIEHENDELSE_V3_PATH, "familiehendelse-v3", uuidDto));
 
