@@ -1,6 +1,7 @@
 package no.nav.foreldrepenger.web.app.tjenester.mellomlagring;
 
 import static no.nav.foreldrepenger.behandlingslager.behandling.dokument.MellomlagringType.INNHENT_OPPLYSNINGER;
+import static no.nav.foreldrepenger.behandlingslager.behandling.dokument.MellomlagringType.PAPIRSØKNAD;
 import static no.nav.foreldrepenger.behandlingslager.behandling.dokument.MellomlagringType.VARSEL_REVURDERING;
 import static no.nav.foreldrepenger.behandlingslager.behandling.dokument.MellomlagringType.VEDTAKSBREV;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -175,5 +176,62 @@ class MellomlagringRestTjenesteTest {
 
         assertThat(mellomlagringRepository.hentMellomlagring(behandling.getId(), VARSEL_REVURDERING)).isPresent();
         assertThat(mellomlagringRepository.hentMellomlagring(behandling.getId(), INNHENT_OPPLYSNINGER)).isEmpty();
+    }
+
+    // --- Papirsøknad mellomlagring (via generisk endpoint med type PAPIRSØKNAD) ---
+
+    @Test
+    void lagre_og_hent_papirsoknad_engangsstonad() {
+        var payload = "{\"@type\":\"5012\",\"antallBarn\":2}";
+        var lagreDto = new MellomlagringRestTjeneste.MellomlagringDto(behandling.getUuid(), PAPIRSØKNAD, null, payload);
+
+        var lagreRespons = tjeneste.lagreMellomlagring(lagreDto);
+        assertThat(lagreRespons.getStatus()).isEqualTo(200);
+
+        var hentRespons = tjeneste.hentMellomlagring(new MellomlagringRestTjeneste.HentMellomlagringDto(behandling.getUuid(), PAPIRSØKNAD, null));
+        assertThat(hentRespons.getStatus()).isEqualTo(200);
+        var resultat = (MellomlagringRestTjeneste.MellomlagringResultatDto) hentRespons.getEntity();
+        assertThat(resultat.innhold()).isEqualTo(payload);
+    }
+
+    @Test
+    void lagre_og_hent_papirsoknad_med_vilkaarlige_felter() {
+        var payload = "{\"@type\":\"5040\",\"mottattDato\":\"2024-01-15\",\"customField\":\"custom\"}";
+        var lagreDto = new MellomlagringRestTjeneste.MellomlagringDto(behandling.getUuid(), PAPIRSØKNAD, null, payload);
+
+        tjeneste.lagreMellomlagring(lagreDto);
+
+        var hentRespons = tjeneste.hentMellomlagring(new MellomlagringRestTjeneste.HentMellomlagringDto(behandling.getUuid(), PAPIRSØKNAD, null));
+        assertThat(hentRespons.getStatus()).isEqualTo(200);
+        var resultat = (MellomlagringRestTjeneste.MellomlagringResultatDto) hentRespons.getEntity();
+        assertThat(resultat.innhold()).isEqualTo(payload);
+    }
+
+    @Test
+    void slett_papirsoknad_mellomlagring() {
+        tjeneste.lagreMellomlagring(new MellomlagringRestTjeneste.MellomlagringDto(behandling.getUuid(), PAPIRSØKNAD, null, "{\"@type\":\"5012\"}"));
+        assertThat(mellomlagringRepository.hentMellomlagring(behandling.getId(), PAPIRSØKNAD)).isPresent();
+
+        tjeneste.lagreMellomlagring(new MellomlagringRestTjeneste.MellomlagringDto(behandling.getUuid(), PAPIRSØKNAD, null, null));
+
+        assertThat(mellomlagringRepository.hentMellomlagring(behandling.getId(), PAPIRSØKNAD)).isEmpty();
+    }
+
+    @Test
+    void hent_papirsoknad_returnerer_204_naar_ingenting_lagret() {
+        var respons = tjeneste.hentMellomlagring(new MellomlagringRestTjeneste.HentMellomlagringDto(behandling.getUuid(), PAPIRSØKNAD, null));
+        assertThat(respons.getStatus()).isEqualTo(204);
+    }
+
+    @Test
+    void lagre_papirsoknad_oppdaterer_eksisterende() {
+        tjeneste.lagreMellomlagring(new MellomlagringRestTjeneste.MellomlagringDto(behandling.getUuid(), PAPIRSØKNAD, null, "{\"antallBarn\":1}"));
+
+        var oppdatertPayload = "{\"antallBarn\":3}";
+        tjeneste.lagreMellomlagring(new MellomlagringRestTjeneste.MellomlagringDto(behandling.getUuid(), PAPIRSØKNAD, null, oppdatertPayload));
+
+        var hentRespons = tjeneste.hentMellomlagring(new MellomlagringRestTjeneste.HentMellomlagringDto(behandling.getUuid(), PAPIRSØKNAD, null));
+        var resultat = (MellomlagringRestTjeneste.MellomlagringResultatDto) hentRespons.getEntity();
+        assertThat(resultat.innhold()).isEqualTo(oppdatertPayload);
     }
 }
