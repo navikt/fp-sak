@@ -5,6 +5,7 @@ import java.util.function.Function;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+import jakarta.persistence.OptimisticLockException;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
@@ -106,7 +107,11 @@ public class MellomlagringRestTjeneste {
                 mellomlagringRepository.fjernMellomlagring(behandling.getId(), resolvedType);
             } else {
                 validerIkkeLåst(behandling.getId(), resolvedType);
-                mellomlagringRepository.lagreEllerOppdater(behandling.getId(), resolvedType, dto.innhold());
+                try {
+                    mellomlagringRepository.lagreEllerOppdater(behandling.getId(), resolvedType, dto.innhold());
+                } catch (OptimisticLockException e) {
+                    LOG.info("Ignorerer mellomlagring pga. samtidige endringer (OLE), type {}", resolvedType);
+                }
             }
         }
         return Response.ok().build();
