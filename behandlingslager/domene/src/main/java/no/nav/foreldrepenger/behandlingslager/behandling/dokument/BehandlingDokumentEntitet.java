@@ -28,13 +28,6 @@ public class BehandlingDokumentEntitet extends BaseEntitet {
     @Column(name = "behandling_id", nullable = false, updatable = false, unique = true)
     private Long behandlingId;
 
-    @Column(name = "overstyrt_brev_overskrift")
-    private String overstyrtBrevOverskrift;
-
-    @Lob
-    @Column(name = "overstyrt_brev_fritekst")
-    private String overstyrtBrevFritekst;
-
     @Lob
     @Column(name = "overstyrt_brev_fritekst_html")
     private String overstyrtBrevFritekstHtml;
@@ -58,14 +51,6 @@ public class BehandlingDokumentEntitet extends BaseEntitet {
         return behandlingId;
     }
 
-    public String getOverstyrtBrevOverskrift() {
-        return overstyrtBrevOverskrift;
-    }
-
-    public String getOverstyrtBrevFritekst() {
-        return overstyrtBrevFritekst;
-    }
-
     public String getOverstyrtBrevFritekstHtml() {
         return overstyrtBrevFritekstHtml;
     }
@@ -84,7 +69,7 @@ public class BehandlingDokumentEntitet extends BaseEntitet {
     }
 
     public boolean harFritekst() {
-        return getOverstyrtBrevFritekstHtml() != null || getOverstyrtBrevFritekst() != null || getVedtakFritekst() != null;
+        return getOverstyrtBrevFritekstHtml() != null || getVedtakFritekst() != null;
     }
 
     @Override
@@ -97,14 +82,12 @@ public class BehandlingDokumentEntitet extends BaseEntitet {
         }
         var that = (BehandlingDokumentEntitet) o;
         return Objects.equals(behandlingId, that.behandlingId) &&
-            Objects.equals(overstyrtBrevOverskrift, that.overstyrtBrevOverskrift) &&
-            Objects.equals(overstyrtBrevFritekst, that.overstyrtBrevFritekst) &&
             Objects.equals(vedtakFritekst, that.vedtakFritekst);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(behandlingId, overstyrtBrevOverskrift, overstyrtBrevFritekst, vedtakFritekst);
+        return Objects.hash(behandlingId, vedtakFritekst);
     }
 
     @Override
@@ -129,8 +112,6 @@ public class BehandlingDokumentEntitet extends BaseEntitet {
         public static BehandlingDokumentEntitet.Builder fraEksisterende(BehandlingDokumentEntitet behandlingDokument) {
             var builder = new Builder()
                 .medBehandling(behandlingDokument.getBehandlingId())
-                .medOverstyrtBrevOverskrift(behandlingDokument.getOverstyrtBrevOverskrift())
-                .medOverstyrtBrevFritekst(behandlingDokument.getOverstyrtBrevFritekst())
                 .medOverstyrtBrevFritekstHtml(behandlingDokument.getOverstyrtBrevFritekstHtml())
                 .medUtfyllendeTekstAutomatiskVedtaksbrev(behandlingDokument.getVedtakFritekst())
                 .medBestilteDokumenter(behandlingDokument.getBestilteDokumenter());
@@ -140,16 +121,6 @@ public class BehandlingDokumentEntitet extends BaseEntitet {
 
         public BehandlingDokumentEntitet.Builder medBehandling(Long behandlingId) {
             behandlingDokumentMal.behandlingId = behandlingId;
-            return this;
-        }
-
-        public BehandlingDokumentEntitet.Builder medOverstyrtBrevOverskrift(String overstyrtBrevOverskrift) {
-            behandlingDokumentMal.overstyrtBrevOverskrift = overstyrtBrevOverskrift;
-            return this;
-        }
-
-        public BehandlingDokumentEntitet.Builder medOverstyrtBrevFritekst(String overstyrtBrevFritekst) {
-            behandlingDokumentMal.overstyrtBrevFritekst = overstyrtBrevFritekst;
             return this;
         }
 
@@ -175,10 +146,6 @@ public class BehandlingDokumentEntitet extends BaseEntitet {
 
         public void verifyStateForBuild() {
             Objects.requireNonNull(behandlingDokumentMal.behandlingId, "Behandling må være satt");
-            if (behandlingDokumentMal.overstyrtBrevFritekst != null || behandlingDokumentMal.overstyrtBrevOverskrift != null) {
-                Objects.requireNonNull(behandlingDokumentMal.overstyrtBrevFritekst, "overstyrtBrevFritekst må være satt");
-                Objects.requireNonNull(behandlingDokumentMal.overstyrtBrevOverskrift, "overstyrtBrevOverskrift må være satt");
-            }
         }
     }
 }

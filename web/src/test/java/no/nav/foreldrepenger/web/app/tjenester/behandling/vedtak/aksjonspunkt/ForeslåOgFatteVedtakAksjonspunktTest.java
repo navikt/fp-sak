@@ -147,8 +147,6 @@ class ForeslåOgFatteVedtakAksjonspunktTest extends EntityManagerAwareTest {
         // Assert
         var behandlingDokument = behandlingDokumentRepository.hentHvisEksisterer(behandlingTidligerOverstyrt.getId());
         assertThat(behandlingDokument).isPresent();
-        assertThat(behandlingDokument.get().getOverstyrtBrevOverskrift()).isNull();
-        assertThat(behandlingDokument.get().getOverstyrtBrevFritekst()).isNull();
         assertThat(behandlingDokument.get().getOverstyrtBrevFritekstHtml()).isNull();
         assertThat(behandlingDokument.get().getVedtakFritekst()).isEqualTo(dto.getBegrunnelse()); // Utfyllende tekst for automatisk vedtaksbrev
 
@@ -178,8 +176,6 @@ class ForeslåOgFatteVedtakAksjonspunktTest extends EntityManagerAwareTest {
         // Assert
         var behandlingDokument = behandlingDokumentRepository.hentHvisEksisterer(behandling.getId());
         assertThat(behandlingDokument).isPresent();
-        assertThat(behandlingDokument.get().getOverstyrtBrevOverskrift()).isNull();
-        assertThat(behandlingDokument.get().getOverstyrtBrevFritekst()).isNull();
         assertThat(behandlingDokument.get().getOverstyrtBrevFritekstHtml()).isNull();
         assertThat(behandlingDokument.get().getVedtakFritekst()).isNull();
 
@@ -202,8 +198,6 @@ class ForeslåOgFatteVedtakAksjonspunktTest extends EntityManagerAwareTest {
         // Assert
         var behandlingDokument = behandlingDokumentRepository.hentHvisEksisterer(behandling.getId());
         assertThat(behandlingDokument).isPresent();
-        assertThat(behandlingDokument.get().getOverstyrtBrevOverskrift()).isNull();
-        assertThat(behandlingDokument.get().getOverstyrtBrevFritekst()).isNull();
         assertThat(behandlingDokument.get().getOverstyrtBrevFritekstHtml()).isNull();
         assertThat(behandlingDokument.get().getVedtakFritekst()).isEqualTo(dto.getBegrunnelse()); // Utfyllende tekst for automatisk vedtaksbrev skal ikke fjernes
 
@@ -272,8 +266,6 @@ class ForeslåOgFatteVedtakAksjonspunktTest extends EntityManagerAwareTest {
         // Assert
         var behandlingDokument = behandlingDokumentRepository.hentHvisEksisterer(behandlingTidligerOverstyrt.getId());
         assertThat(behandlingDokument).isPresent();
-        assertThat(behandlingDokument.get().getOverstyrtBrevOverskrift()).isNull();
-        assertThat(behandlingDokument.get().getOverstyrtBrevFritekst()).isNull();
         assertThat(behandlingDokument.get().getOverstyrtBrevFritekstHtml()).isNull();
         assertThat(behandlingDokument.get().getVedtakFritekst()).isNull();
 
@@ -359,8 +351,6 @@ class ForeslåOgFatteVedtakAksjonspunktTest extends EntityManagerAwareTest {
 
         var eksisterendeDok = BehandlingDokumentEntitet.Builder.ny()
             .medBehandling(behandling.getId())
-            .medOverstyrtBrevOverskrift("123")
-            .medOverstyrtBrevFritekst("456")
             .medOverstyrtBrevFritekstHtml(redigertBrev)
             .build();
         behandlingDokumentRepository.lagreOgFlush(eksisterendeDok);

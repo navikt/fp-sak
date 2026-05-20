@@ -645,11 +645,9 @@ class BrevGrunnlagTjeneste {
         return behandlingDokumentRepository.hentHvisEksisterer(behandling.getId())
             .filter(BehandlingDokumentEntitet::harFritekst)
             .map(behandlingDokument -> {
-                var overskrift = behandlingDokument.getOverstyrtBrevOverskrift();
-                var brødtekst = Optional.ofNullable(behandlingDokument.getOverstyrtBrevFritekstHtml())
-                    .orElse(behandlingDokument.getOverstyrtBrevFritekst());
+                var brødtekst = behandlingDokument.getOverstyrtBrevFritekstHtml();
                 var avslagsarsakFritekst = behandlingDokument.getVedtakFritekst();
-                return new BrevGrunnlagDto.Behandlingsresultat.Fritekst(overskrift, brødtekst, avslagsarsakFritekst);
+                return new BrevGrunnlagDto.Behandlingsresultat.Fritekst(brødtekst, avslagsarsakFritekst);
             });
     }
 

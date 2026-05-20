@@ -244,7 +244,7 @@ record BrevGrunnlagDto(UUID uuid, String saksnummer, FagsakYtelseType fagsakYtel
                                String avslagsårsak, Fritekst fritekst, Skjæringstidspunkt skjæringstidspunkt, boolean endretDekningsgrad,
                                LocalDate opphørsdato, List<KonsekvensForYtelsen> konsekvenserForYtelsen, List<VilkårType> vilkårTyper) {
 
-        record Fritekst(String overskrift, String brødtekst, String avslagsarsakFritekst) {
+        record Fritekst(String brødtekst, String avslagsarsakFritekst) {
         }
 
         record Skjæringstidspunkt(LocalDate dato, boolean utenMinsterett) {
