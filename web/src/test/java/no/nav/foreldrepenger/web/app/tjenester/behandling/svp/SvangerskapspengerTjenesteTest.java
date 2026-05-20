@@ -246,7 +246,8 @@ class SvangerskapspengerTjenesteTest {
             .build();
 
         var stp = Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(FØRSTE_FRA_DATO_TILR.minusMonths(6)).build();
-        var inntektsmeldinger = List.of(lagIM(arbeidsgiver.getOrgnr(), null, 50000));
+        var inntektsmeldinger = List.of(lagIM(arbeidsgiver.getOrgnr(), null, 50000),
+            lagIM(arbeidsgiver.getOrgnr(), InternArbeidsforholdRef.nyRef(), 0));
 
         var skalVurdereSplitt = svangerskapspengerTjeneste.utledOmDetSkalVurderesSplittAvArbeidsforholdet(tilrettelegging, Optional.of(registerFilter), stp, inntektsmeldinger);
 
@@ -312,7 +313,8 @@ class SvangerskapspengerTjenesteTest {
             .build();
 
         var stp = Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(FØRSTE_FRA_DATO_TILR.minusMonths(6)).build();
-        var inntektsmeldinger = List.of(lagIM(arbeidsgiver.getOrgnr(), InternArbeidsforholdRef.nyRef(), 50000), lagIM("987654321", null, 10000));
+        var inntektsmeldinger = List.of(lagIM(arbeidsgiver.getOrgnr(), InternArbeidsforholdRef.nyRef(), 50000), lagIM("987654321", null, 10000),
+            lagIM(arbeidsgiver.getOrgnr(), InternArbeidsforholdRef.nyRef(), 0));
 
         var skalVurdereSplitt = svangerskapspengerTjeneste.utledOmDetSkalVurderesSplittAvArbeidsforholdet(tilrettelegging, Optional.of(registerFilter), stp, inntektsmeldinger);
 

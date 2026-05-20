@@ -98,7 +98,6 @@ public class BekreftSvangerskapspengerOppdaterer implements AksjonspunktOppdater
         var termindatoEndret = oppdaterFamiliehendelse(ref, dto, familieHendelseGrunnlag);
         var endredeTilrettelegginger = oppdaterTilrettelegging(dto, behandling, eksisterendeTilretteleginger);
         oppdaterPermisjonVedBehov(dto, param);
-        // TODO: lagre ned ny arbeidsforhold, og lagre endringer på eksisterende
         if (termindatoEndret || !endredeTilrettelegginger.isEmpty()) {
             bekreftSvangerskapspengerHistorikkinnslagTjeneste.lagHistorikkinnslagVedEndring(ref, dto, familieHendelseGrunnlag,
                 endredeTilrettelegginger, eksisterendeTilretteleginger);

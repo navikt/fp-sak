@@ -199,7 +199,7 @@ public class SvpTilretteleggingEntitet extends BaseEntitet {
     }
 
     public boolean getArbeidsforholdErSplittet() {
-        return false;
+        return arbeidsforholdErSplittet;
     }
 
     public static class Builder {
