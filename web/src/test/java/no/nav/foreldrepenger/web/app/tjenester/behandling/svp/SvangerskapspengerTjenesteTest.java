@@ -11,6 +11,7 @@ import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
 import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.SvpTilretteleggingEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.TilretteleggingFOM;
 import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.TilretteleggingType;
@@ -18,6 +19,8 @@ import no.nav.foreldrepenger.behandlingslager.virksomhet.ArbeidType;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.domene.iay.modell.AktivitetsAvtaleBuilder;
 import no.nav.foreldrepenger.domene.iay.modell.ArbeidsforholdInformasjon;
+import no.nav.foreldrepenger.domene.iay.modell.Inntektsmelding;
+import no.nav.foreldrepenger.domene.iay.modell.InntektsmeldingBuilder;
 import no.nav.foreldrepenger.domene.iay.modell.Permisjon;
 import no.nav.foreldrepenger.domene.iay.modell.Yrkesaktivitet;
 import no.nav.foreldrepenger.domene.iay.modell.YrkesaktivitetBuilder;
@@ -215,6 +218,113 @@ class SvangerskapspengerTjenesteTest {
 
         assertThat(resultat).isPresent();
         assertThat(resultat.get()).isEqualByComparingTo(forventetStillingsprosent);
+    }
+
+    @Test
+    public void skal_vurdere_splitt_av_arbeidsforholdet() {
+        var arbeidsgiver = Arbeidsgiver.virksomhet("123456789");
+
+        var avtaler1 = List.of(AktivitetsAvtaleBuilder.ny()
+                .medPeriode(DatoIntervallEntitet.fraOgMed(FØRSTE_FRA_DATO_TILR.minusYears(1).minusWeeks(1))));
+        var avtaler2 = List.of(AktivitetsAvtaleBuilder.ny()
+                .medPeriode(DatoIntervallEntitet.fraOgMed(FØRSTE_FRA_DATO_TILR.minusYears(1))));
+
+        var ref1 = InternArbeidsforholdRef.nyRef();
+        var ref2 = InternArbeidsforholdRef.nyRef();
+
+        var yrkesaktivitet1 = lagYrkesaktivitet(avtaler1, arbeidsgiver, ref1, List.of());
+        var yrkesaktivitet2 = lagYrkesaktivitet(avtaler2, arbeidsgiver, ref2, List.of());
+        var registerFilter = new YrkesaktivitetFilter(new ArbeidsforholdInformasjon(), List.of(yrkesaktivitet1, yrkesaktivitet2));
+
+        var tilrettelegging = new SvpTilretteleggingEntitet.Builder().medArbeidType(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD)
+            .medArbeidsgiver(arbeidsgiver)
+            .medTilretteleggingFraDatoer(List.of(new TilretteleggingFOM.Builder()
+                .medStillingsprosent(BigDecimal.valueOf(50))
+                .medTilretteleggingType(TilretteleggingType.DELVIS_TILRETTELEGGING)
+                .medFomDato(FØRSTE_FRA_DATO_TILR.minusMonths(6))
+                .build()))
+            .build();
+
+        var stp = Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(FØRSTE_FRA_DATO_TILR.minusMonths(6)).build();
+        var inntektsmeldinger = List.of(lagIM(arbeidsgiver.getOrgnr(), null, 50000));
+
+        var skalVurdereSplitt = svangerskapspengerTjeneste.utledOmDetSkalVurderesSplittAvArbeidsforholdet(tilrettelegging, Optional.of(registerFilter), stp, inntektsmeldinger);
+
+        assertThat(skalVurdereSplitt).isTrue();
+
+    }
+
+    @Test
+    public void ingen_splitt_av_arbeidsforhold_når_ikke_gradering() {
+        var arbeidsgiver = Arbeidsgiver.virksomhet("123456789");
+
+        var avtaler1 = List.of(AktivitetsAvtaleBuilder.ny()
+            .medPeriode(DatoIntervallEntitet.fraOgMed(FØRSTE_FRA_DATO_TILR.minusYears(1).minusWeeks(1))));
+        var avtaler2 = List.of(AktivitetsAvtaleBuilder.ny()
+            .medPeriode(DatoIntervallEntitet.fraOgMed(FØRSTE_FRA_DATO_TILR.minusYears(1))));
+
+        var ref1 = InternArbeidsforholdRef.nyRef();
+        var ref2 = InternArbeidsforholdRef.nyRef();
+
+        var yrkesaktivitet1 = lagYrkesaktivitet(avtaler1, arbeidsgiver, ref1, List.of());
+        var yrkesaktivitet2 = lagYrkesaktivitet(avtaler2, arbeidsgiver, ref2, List.of());
+        var registerFilter = new YrkesaktivitetFilter(new ArbeidsforholdInformasjon(), List.of(yrkesaktivitet1, yrkesaktivitet2));
+
+        var tilrettelegging = new SvpTilretteleggingEntitet.Builder().medArbeidType(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD)
+            .medArbeidsgiver(arbeidsgiver)
+            .medTilretteleggingFraDatoer(List.of(new TilretteleggingFOM.Builder()
+                .medTilretteleggingType(TilretteleggingType.INGEN_TILRETTELEGGING)
+                .medFomDato(FØRSTE_FRA_DATO_TILR.minusMonths(6))
+                .build()))
+            .build();
+
+        var stp = Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(FØRSTE_FRA_DATO_TILR.minusMonths(6)).build();
+        var inntektsmeldinger = List.of(lagIM(arbeidsgiver.getOrgnr(), null, 50000));
+
+        var skalVurdereSplitt = svangerskapspengerTjeneste.utledOmDetSkalVurderesSplittAvArbeidsforholdet(tilrettelegging, Optional.of(registerFilter), stp, inntektsmeldinger);
+
+        assertThat(skalVurdereSplitt).isFalse();
+    }
+
+    @Test
+    public void ingen_splitt_av_arbeidsforhold_når_mottatt_im_med_arbeidsforholdsid() {
+        var arbeidsgiver = Arbeidsgiver.virksomhet("123456789");
+
+        var avtaler1 = List.of(AktivitetsAvtaleBuilder.ny()
+            .medPeriode(DatoIntervallEntitet.fraOgMed(FØRSTE_FRA_DATO_TILR.minusYears(1).minusWeeks(1))));
+        var avtaler2 = List.of(AktivitetsAvtaleBuilder.ny()
+            .medPeriode(DatoIntervallEntitet.fraOgMed(FØRSTE_FRA_DATO_TILR.minusYears(1))));
+
+        var ref1 = InternArbeidsforholdRef.nyRef();
+        var ref2 = InternArbeidsforholdRef.nyRef();
+
+        var yrkesaktivitet1 = lagYrkesaktivitet(avtaler1, arbeidsgiver, ref1, List.of());
+        var yrkesaktivitet2 = lagYrkesaktivitet(avtaler2, arbeidsgiver, ref2, List.of());
+        var registerFilter = new YrkesaktivitetFilter(new ArbeidsforholdInformasjon(), List.of(yrkesaktivitet1, yrkesaktivitet2));
+
+        var tilrettelegging = new SvpTilretteleggingEntitet.Builder().medArbeidType(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD)
+            .medArbeidsgiver(arbeidsgiver)
+            .medTilretteleggingFraDatoer(List.of(new TilretteleggingFOM.Builder()
+                .medOverstyrtUtbetalingsgrad(BigDecimal.valueOf(50))
+                .medTilretteleggingType(TilretteleggingType.DELVIS_TILRETTELEGGING)
+                .medFomDato(FØRSTE_FRA_DATO_TILR.minusMonths(6))
+                .build()))
+            .build();
+
+        var stp = Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(FØRSTE_FRA_DATO_TILR.minusMonths(6)).build();
+        var inntektsmeldinger = List.of(lagIM(arbeidsgiver.getOrgnr(), InternArbeidsforholdRef.nyRef(), 50000), lagIM("987654321", null, 10000));
+
+        var skalVurdereSplitt = svangerskapspengerTjeneste.utledOmDetSkalVurderesSplittAvArbeidsforholdet(tilrettelegging, Optional.of(registerFilter), stp, inntektsmeldinger);
+
+        assertThat(skalVurdereSplitt).isFalse();
+    }
+
+    private Inntektsmelding lagIM(String orgnr, InternArbeidsforholdRef internRef, Integer inntekt) {
+        return InntektsmeldingBuilder.builder()
+            .medBeløp(BigDecimal.valueOf(inntekt))
+            .medArbeidsforholdId(internRef)
+            .medArbeidsgiver(Arbeidsgiver.virksomhet(orgnr))
+            .build();
     }
 
     private Yrkesaktivitet lagYrkesaktivitet(List<AktivitetsAvtaleBuilder> aktivitetsAvtale,

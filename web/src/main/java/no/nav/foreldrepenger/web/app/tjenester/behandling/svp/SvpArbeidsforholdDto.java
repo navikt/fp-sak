@@ -49,9 +49,9 @@ public class SvpArbeidsforholdDto {
     @NotNull
     private List<@Valid SvpAvklartOppholdPeriodeDto> avklarteOppholdPerioder = new ArrayList<>();
 
-    private boolean harFlereArbeidsforholdUnderSammeVirksomhet;
+    private boolean skalVurdereSplittAvArbeidsforholdet;
 
-    private boolean representererFAISU = false;
+    private boolean arbeidsforholdetErSplittet = false;
 
     @Size(max = 4000)
     @Pattern(regexp = InputValideringRegex.FRITEKST)
@@ -165,19 +165,19 @@ public class SvpArbeidsforholdDto {
         this.stillingsprosentStartTilrettelegging = stillingsprosentStartTilrettelegging;
     }
 
-    public boolean getHarFlereArbeidsforholdUnderSammeVirksomhet() {
-        return harFlereArbeidsforholdUnderSammeVirksomhet;
+    public boolean getSkalVurdereSplittAvArbeidsforholdet() {
+        return skalVurdereSplittAvArbeidsforholdet;
     }
 
-    public void setHarFlereArbeidsforholdUnderSammeVirksomhet(boolean harFlereArbeidsforholdUnderSammeVirksomhet) {
-        this.harFlereArbeidsforholdUnderSammeVirksomhet = harFlereArbeidsforholdUnderSammeVirksomhet;
+    public void setSkalVurdereSplittAvArbeidsforholdet(boolean skalVurdereSplittAvArbeidsforholdet) {
+        this.skalVurdereSplittAvArbeidsforholdet = skalVurdereSplittAvArbeidsforholdet;
     }
 
-    public boolean getRepresentererFAISU() {
-        return representererFAISU;
+    public boolean getArbeidsforholdetErSplittet() {
+        return arbeidsforholdetErSplittet;
     }
 
-    public void setRepresentererFAISU(boolean representererFAISU) {
-        this.representererFAISU = representererFAISU;
+    public void setArbeidsforholdetErSplittet(boolean arbeidsforholdetErSplittet) {
+        this.arbeidsforholdetErSplittet = arbeidsforholdetErSplittet;
     }
 }

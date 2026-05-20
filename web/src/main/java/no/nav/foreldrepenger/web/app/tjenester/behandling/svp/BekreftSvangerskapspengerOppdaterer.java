@@ -8,7 +8,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -260,13 +259,12 @@ public class BekreftSvangerskapspengerOppdaterer implements AksjonspunktOppdater
     private boolean tilretteleggingErEndret(BekreftTilrettelegging arbeidsforholdDto,
                                             List<SvpTilretteleggingEntitet> eksisterendeTilrettelegingerListe) {
 
-        if (arbeidsforholdDto.getRepresentererFAISU()) {
-            // TODO: sjekk om denne matchingen gjøres andre steder, eller kan forenkles
-            var harEksisterendeFAISU = eksisterendeTilrettelegingerListe.stream()
+        if (arbeidsforholdDto.getArbeidsforholdErSplittet()) {
+            var splittetArbeidsforholdEksisterer = eksisterendeTilrettelegingerListe.stream()
                 .anyMatch(ste -> Objects.equals(ste.getArbeidsgiver().map(Arbeidsgiver::getIdentifikator).orElse(null),
-                    arbeidsforholdDto.getArbeidsgiverReferanse()) && ste.getRepresentererFAISU());
+                    arbeidsforholdDto.getArbeidsgiverReferanse()) && ste.getArbeidsforholdErSplittet());
 
-            if (!harEksisterendeFAISU) {
+            if (!splittetArbeidsforholdEksisterer) {
                 return true;
             }
         }
@@ -300,8 +298,8 @@ public class BekreftSvangerskapspengerOppdaterer implements AksjonspunktOppdater
     private SvpTilretteleggingEntitet mapTilrettelegging(BekreftTilrettelegging arbeidsforholdDto,
                                                          List<SvpTilretteleggingEntitet> eksisterendeTilrettelegingerListe) {
         SvpTilretteleggingEntitet eksisterendeTilrettelegging;
-        if (arbeidsforholdDto.getRepresentererFAISU() && arbeidsforholdDto.getTilretteleggingId() == null) {
-            eksisterendeTilrettelegging = hentEksisterendeTilretteleggingForFAISU(eksisterendeTilrettelegingerListe,
+        if (arbeidsforholdDto.getArbeidsforholdErSplittet() && arbeidsforholdDto.getTilretteleggingId() == null) {
+            eksisterendeTilrettelegging = hentEksisterendeTilretteleggingForSplittetArbeidsforhold(eksisterendeTilrettelegingerListe,
                 arbeidsforholdDto.getArbeidsgiverReferanse());
         } else {
             eksisterendeTilrettelegging = hentEksisterendeTilrettelegging(eksisterendeTilrettelegingerListe,
@@ -347,14 +345,14 @@ public class BekreftSvangerskapspengerOppdaterer implements AksjonspunktOppdater
                 "Finner ikke eksisterende tilrettelegging på svangerskapspengergrunnlag med identifikator: " + tilretteleggingId));
     }
 
-    private SvpTilretteleggingEntitet hentEksisterendeTilretteleggingForFAISU(List<SvpTilretteleggingEntitet> eksisterendeTilrettelegingerListe,
-                                                                              String arbeidsgiverReferanse) {
+    private SvpTilretteleggingEntitet hentEksisterendeTilretteleggingForSplittetArbeidsforhold(List<SvpTilretteleggingEntitet> eksisterendeTilrettelegingerListe,
+                                                                                               String arbeidsgiverReferanse) {
         var arbeidsgiver = Arbeidsgiver.virksomhet(arbeidsgiverReferanse);
         return eksisterendeTilrettelegingerListe.stream()
-            .filter(svpTilretteleggingEntitet -> svpTilretteleggingEntitet.getArbeidsgiver().map(ag -> ag.equals(arbeidsgiver)).orElse(false))
+            .filter(svpTilretteleggingEntitet -> svpTilretteleggingEntitet.getArbeidsgiver().map(ag -> ag.equals(arbeidsgiver)).orElse(false) && !svpTilretteleggingEntitet.getArbeidsforholdErSplittet()) //todo avklar at siste sjekk er riktig
             .findFirst()
             .orElseThrow(() -> new TekniskException("FP-572362",
-                "Finner ikke matchende tilrettelegging for FAISU på svangerskapspengergrunnlag med identifikator: " + arbeidsgiver));
+                "Finner ikke matchende tilrettelegging for splittet arbeidsforhold på svangerskapspengergrunnlag med identifikator: " + arbeidsgiver));
     }
 
     private SvpTilretteleggingEntitet mapNyTilrettelegging(BekreftTilrettelegging arbeidsforholdDto,
@@ -370,7 +368,7 @@ public class BekreftSvangerskapspengerOppdaterer implements AksjonspunktOppdater
             .medMottattTidspunkt(eksisterendeTilrettelegging.getMottattTidspunkt())
             .medInternArbeidsforholdRef(eksisterendeTilrettelegging.getInternArbeidsforholdRef().orElse(null))
             .medSkalBrukes(arbeidsforholdDto.getSkalBrukes())
-            .medRepresentererFAISU(arbeidsforholdDto.getRepresentererFAISU());
+            .medErArbeidsforholdSplittet(arbeidsforholdDto.getArbeidsforholdErSplittet());
 
         // nye tilrettelegging-fra-datoer per arbeidsforhold
         for (var datoDto : arbeidsforholdDto.getTilretteleggingDatoer()) {

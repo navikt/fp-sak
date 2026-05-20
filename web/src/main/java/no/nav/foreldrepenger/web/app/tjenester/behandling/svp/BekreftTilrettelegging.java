@@ -52,7 +52,7 @@ public class BekreftTilrettelegging {
     @Pattern(regexp = InputValideringRegex.FRITEKST)
     private String begrunnelse;
 
-    private boolean representererFAISU = false;
+    private boolean arbeidsforholdErSplittet = false;
 
     public LocalDate getTilretteleggingBehovFom() {
         return tilretteleggingBehovFom;
@@ -162,11 +162,11 @@ public class BekreftTilrettelegging {
         this.stillingsprosentStartTilrettelegging = stillingsprosentStartTilrettelegging;
     }
 
-    public boolean getRepresentererFAISU() {
-        return representererFAISU;
+    public boolean getArbeidsforholdErSplittet() {
+        return arbeidsforholdErSplittet;
     }
 
-    public void setRepresentererFAISU(boolean representererFAISU) {
-        this.representererFAISU = representererFAISU;
+    public void setArbeidsforholdErSplittet(boolean arbeidsforholdErSplittet) {
+        this.arbeidsforholdErSplittet = arbeidsforholdErSplittet;
     }
 }
