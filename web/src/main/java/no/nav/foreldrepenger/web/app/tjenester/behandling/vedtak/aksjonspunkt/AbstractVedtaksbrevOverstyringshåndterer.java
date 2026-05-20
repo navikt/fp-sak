@@ -110,8 +110,6 @@ public abstract class AbstractVedtaksbrevOverstyringshåndterer {
         if (eksisterendeBehandlingDokument.isPresent() && erFritekst(eksisterendeBehandlingDokument.get())) {
             var behandlingDokument = BehandlingDokumentEntitet.Builder.fraEksisterende(eksisterendeBehandlingDokument.get())
                 .medBehandling(behandlingId)
-                .medOverstyrtBrevOverskrift(null)
-                .medOverstyrtBrevFritekst(null)
                 .medOverstyrtBrevFritekstHtml(null)
                 .build();
             behandlingDokumentRepository.lagreOgFlush(behandlingDokument);
@@ -127,7 +125,7 @@ public abstract class AbstractVedtaksbrevOverstyringshåndterer {
     }
 
     private static boolean erFritekst(BehandlingDokumentEntitet dok) {
-        return dok.getOverstyrtBrevFritekst() != null || dok.getOverstyrtBrevFritekstHtml() != null;
+        return dok.getOverstyrtBrevFritekstHtml() != null;
     }
 
     private boolean skalFjerneUtfyllendeTekstForAutomatiskVedtaksbrev(Behandling behandling) {

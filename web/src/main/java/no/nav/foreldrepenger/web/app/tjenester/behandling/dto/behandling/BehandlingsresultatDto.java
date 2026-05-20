@@ -31,10 +31,6 @@ public class BehandlingsresultatDto {
     private Vedtaksbrev vedtaksbrev;
     @NotNull @JsonProperty("vedtaksbrevStatus")
     private VedtaksbrevStatus vedtaksbrevStatus;
-    @JsonProperty("overskrift")
-    private String overskrift;
-    @JsonProperty("fritekstbrev")
-    private String fritekstbrev;
     @NotNull @JsonProperty("harRedigertVedtaksbrev")
     private boolean harRedigertVedtaksbrev;
     @JsonProperty("erRevurderingMedUendretUtfall")
@@ -104,22 +100,6 @@ public class BehandlingsresultatDto {
 
     public void setErRevurderingMedUendretUtfall(Boolean erRevurderingMedUendretUtfall) {
         this.erRevurderingMedUendretUtfall = erRevurderingMedUendretUtfall;
-    }
-
-    public String getOverskrift() {
-        return overskrift;
-    }
-
-    public void setOverskrift(String overskrift) {
-        this.overskrift = overskrift;
-    }
-
-    public String getFritekstbrev() {
-        return fritekstbrev;
-    }
-
-    public void setFritekstbrev(String fritekstbrev) {
-        this.fritekstbrev = fritekstbrev;
     }
 
     public boolean isHarRedigertVedtaksbrev() {

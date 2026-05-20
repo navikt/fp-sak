@@ -224,8 +224,6 @@ public class FagsakBehandlingDtoTjeneste {
         if (behandlingDokument.isPresent()) {
             var behandlingDokumentEntitet = behandlingDokument.get();
             dto.setAvslagsarsakFritekst(behandlingDokumentEntitet.getVedtakFritekst());
-            dto.setOverskrift(behandlingDokumentEntitet.getOverstyrtBrevOverskrift());
-            dto.setFritekstbrev(behandlingDokumentEntitet.getOverstyrtBrevFritekst());
             dto.setHarRedigertVedtaksbrev(behandlingDokumentEntitet.getOverstyrtBrevFritekstHtml() != null);
         }
 
