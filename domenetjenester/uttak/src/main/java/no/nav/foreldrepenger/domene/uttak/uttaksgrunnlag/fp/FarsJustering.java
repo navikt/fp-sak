@@ -70,7 +70,7 @@ class FarsJustering implements ForelderFødselJustering {
 
     private boolean skalJustere(List<OppgittPeriodeEntitet> oppgittePerioder) {
         if (ønskerJustertVedFødsel && !oppgittePerioder.isEmpty()) {
-            var bareEnPeriodeFraTermin = harBareEnPeriodeFedrekvoteRundtFødselFraTermindato(
+            var bareEnPeriodeFraTermin = harBareEnPeriodeJusterbartUttakRundtFødselFraTermindato(
                 oppgittePerioder) && intervallRundt(termindato).isPresent();
             if (bareEnPeriodeFraTermin) {
                 return true;
@@ -96,9 +96,9 @@ class FarsJustering implements ForelderFødselJustering {
         return Optional.of(OppgittPeriodeBuilder.fraEksisterende(periode).medPeriode(fødselsdato, nyTom).build());
     }
 
-    private boolean harBareEnPeriodeFedrekvoteRundtFødselFraTermindato(List<OppgittPeriodeEntitet> oppgittePerioder) {
-        var førstePeriode = oppgittePerioder.get(0);
-        if (!erFedrekvoteRundtTermin(førstePeriode) || !likTermindato(førstePeriode.getFom())) {
+    private boolean harBareEnPeriodeJusterbartUttakRundtFødselFraTermindato(List<OppgittPeriodeEntitet> oppgittePerioder) {
+        var førstePeriode = oppgittePerioder.getFirst();
+        if (!erJusterbartUttakRundtTermin(førstePeriode) || !likTermindato(førstePeriode.getFom())) {
             return false;
         }
         return oppgittePerioder.stream().filter(this::liggerIIntervalletRundtTermin).count() == 1;
@@ -108,8 +108,8 @@ class FarsJustering implements ForelderFødselJustering {
         return termindato.isEqual(Virkedager.justerHelgTilMandag(dato));
     }
 
-    private boolean erFedrekvoteRundtTermin(OppgittPeriodeEntitet op) {
-        return op.isSamtidigUttak() && (erFedrekvote(op) || erForeldrepenger(op)) && liggerIIntervalletRundtTermin(op);
+    private boolean erJusterbartUttakRundtTermin(OppgittPeriodeEntitet op) {
+        return ((op.isSamtidigUttak() && erFedrekvote(op)) || erForeldrepenger(op)) && liggerIIntervalletRundtTermin(op);
     }
 
     private Boolean liggerIIntervalletRundtTermin(OppgittPeriodeEntitet op) {

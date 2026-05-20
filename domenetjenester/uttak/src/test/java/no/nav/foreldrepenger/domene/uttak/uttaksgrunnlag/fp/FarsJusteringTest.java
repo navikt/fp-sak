@@ -8,6 +8,7 @@ import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
 
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 
@@ -37,6 +38,29 @@ class FarsJusteringTest {
         assertThat(justert.get(0).getFom()).isEqualTo(fødselsdato);
         assertThat(justert.get(0).getTom()).isEqualTo(fødselsdato.plusWeeks(2).minusDays(1));
         assertThat(justert.get(0).getPeriodeType()).isEqualTo(uttakPeriodeType);
+    }
+
+    @Test
+    void foreldrepenger_uten_samtidig_uttak_skal_justeres_ved_fødsel_etter_termin() {
+        var termindato = LocalDate.of(2022, 8, 12);
+        var fødselsdato = termindato.plusWeeks(1);
+        var farsJustering = new FarsJustering(termindato, fødselsdato, true);
+
+        var søktPeriode = OppgittPeriodeBuilder.ny()
+            .medPeriode(termindato, termindato.plusWeeks(2).minusDays(1))
+            .medPeriodeType(UttakPeriodeType.FORELDREPENGER)
+            .medPeriodeKilde(FordelingPeriodeKilde.SØKNAD)
+            .medFlerbarnsdager(false)
+            .build();
+
+        var justert = farsJustering.justerVedFødselEtterTermin(List.of(søktPeriode));
+
+        assertThat(søktPeriode.isSamtidigUttak()).isFalse();
+        assertThat(søktPeriode.getSamtidigUttaksprosent()).isNull();
+        assertThat(justert).hasSize(1);
+        assertThat(justert.get(0).getFom()).isEqualTo(fødselsdato);
+        assertThat(justert.get(0).getTom()).isEqualTo(fødselsdato.plusWeeks(2).minusDays(1));
+        assertThat(justert.get(0).getPeriodeType()).isEqualTo(UttakPeriodeType.FORELDREPENGER);
     }
 
     @ParameterizedTest
@@ -75,7 +99,7 @@ class FarsJusteringTest {
 
         var søktPeriode1 = periodeForFarRundtFødsel(termindato, termindato.plusWeeks(2).minusDays(1), uttakPeriodeType);
         var søktPeriode2 = periodeForFarRundtFødsel(termindato.plusWeeks(4), termindato.plusWeeks(6).minusDays(1), uttakPeriodeType);
-        var periodeEtterUke6 = OppgittPeriodeBuilder.ny().medPeriode(termindato.plusWeeks(6), termindato.plusWeeks(10).minusDays(1))
+        var periodeEtterUke6 = OppgittPeriodeBuilder.ny().medPeriode(termindato.plusWeeks(7), termindato.plusWeeks(10).minusDays(1))
             .medPeriodeType(uttakPeriodeType)
             .medPeriodeKilde(FordelingPeriodeKilde.SØKNAD)
             .build();
@@ -404,12 +428,15 @@ class FarsJusteringTest {
     }
 
     private OppgittPeriodeBuilder periodeForFarRundtFødselBuilder(LocalDate fom, LocalDate tom, UttakPeriodeType uttakPeriodeType) {
-        return OppgittPeriodeBuilder.ny()
+        var builder = OppgittPeriodeBuilder.ny()
             .medPeriode(fom, tom)
-            .medSamtidigUttak(true)
-            .medSamtidigUttaksprosent(new SamtidigUttaksprosent(100))
             .medPeriodeType(uttakPeriodeType)
             .medPeriodeKilde(FordelingPeriodeKilde.SØKNAD)
             .medFlerbarnsdager(false);
+        if (UttakPeriodeType.FEDREKVOTE.equals(uttakPeriodeType)) {
+            builder.medSamtidigUttak(true)
+                .medSamtidigUttaksprosent(new SamtidigUttaksprosent(100));
+        }
+        return builder;
     }
 }
