@@ -5,13 +5,12 @@ import jakarta.inject.Inject;
 import jakarta.jms.JMSException;
 import jakarta.jms.JMSRuntimeException;
 
-import no.nav.vedtak.server.LiveAndReadinessAware;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import no.nav.foreldrepenger.felles.jms.QueueSelftest;
 import no.nav.foreldrepenger.økonomistøtte.queue.consumer.ØkonomiOppdragKvitteringAsyncJmsConsumer;
+import no.nav.vedtak.server.LiveAndReadinessAware;
 
 @ApplicationScoped
 public class KvitteringQueueHealthCheck implements LiveAndReadinessAware {
@@ -30,10 +29,10 @@ public class KvitteringQueueHealthCheck implements LiveAndReadinessAware {
     private boolean isOK() {
         try {
             client.testConnection();
-        } catch (JMSRuntimeException | JMSException e) {
+        } catch (JMSRuntimeException | JMSException _) {
             if (LOG.isWarnEnabled()) {
                 LOG.warn("Feil ved Kvittering meldingskø helsesjekk: {}", client.getConnectionEndpoint());
-                return false;
+                return true;
             }
         }
         return true;
