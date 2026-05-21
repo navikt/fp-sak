@@ -259,7 +259,7 @@ public class BekreftSvangerskapspengerOppdaterer implements AksjonspunktOppdater
     private boolean tilretteleggingErEndret(BekreftTilrettelegging arbeidsforholdDto,
                                             List<SvpTilretteleggingEntitet> eksisterendeTilrettelegingerListe) {
 
-        if (arbeidsforholdDto.getArbeidsforholdErSplittet()) {
+        if (arbeidsforholdDto.getArbeidsforholdetErSplittet()) {
             var splittetArbeidsforholdEksisterer = eksisterendeTilrettelegingerListe.stream()
                 .anyMatch(ste -> Objects.equals(ste.getArbeidsgiver().map(Arbeidsgiver::getIdentifikator).orElse(null),
                     arbeidsforholdDto.getArbeidsgiverReferanse()) && ste.getArbeidsforholdErSplittet());
@@ -298,7 +298,7 @@ public class BekreftSvangerskapspengerOppdaterer implements AksjonspunktOppdater
     private SvpTilretteleggingEntitet mapTilrettelegging(BekreftTilrettelegging arbeidsforholdDto,
                                                          List<SvpTilretteleggingEntitet> eksisterendeTilrettelegingerListe) {
         SvpTilretteleggingEntitet eksisterendeTilrettelegging;
-        if (arbeidsforholdDto.getArbeidsforholdErSplittet() && arbeidsforholdDto.getTilretteleggingId() == null) {
+        if (arbeidsforholdDto.getArbeidsforholdetErSplittet() && arbeidsforholdDto.getTilretteleggingId() == null) {
             eksisterendeTilrettelegging = hentEksisterendeTilretteleggingForSplittetArbeidsforhold(eksisterendeTilrettelegingerListe,
                 arbeidsforholdDto.getArbeidsgiverReferanse());
         } else {
@@ -368,7 +368,7 @@ public class BekreftSvangerskapspengerOppdaterer implements AksjonspunktOppdater
             .medMottattTidspunkt(eksisterendeTilrettelegging.getMottattTidspunkt())
             .medInternArbeidsforholdRef(eksisterendeTilrettelegging.getInternArbeidsforholdRef().orElse(null))
             .medSkalBrukes(arbeidsforholdDto.getSkalBrukes())
-            .medErArbeidsforholdSplittet(arbeidsforholdDto.getArbeidsforholdErSplittet());
+            .medErArbeidsforholdSplittet(arbeidsforholdDto.getArbeidsforholdetErSplittet());
 
         // nye tilrettelegging-fra-datoer per arbeidsforhold
         for (var datoDto : arbeidsforholdDto.getTilretteleggingDatoer()) {
