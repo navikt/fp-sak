@@ -1,5 +1,11 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.svp;
 
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
+
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.DecimalMax;
 import jakarta.validation.constraints.DecimalMin;
@@ -12,12 +18,6 @@ import jakarta.validation.constraints.Size;
 import no.nav.foreldrepenger.behandlingslager.uttak.UttakArbeidType;
 import no.nav.foreldrepenger.validering.ValidKodeverk;
 import no.nav.vedtak.util.InputValideringRegex;
-
-import java.math.BigDecimal;
-import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
 
 public class BekreftTilrettelegging {
 
@@ -51,6 +51,8 @@ public class BekreftTilrettelegging {
     @Size(max = 4000)
     @Pattern(regexp = InputValideringRegex.FRITEKST)
     private String begrunnelse;
+
+    private boolean arbeidsforholdErSplittet = false;
 
     public LocalDate getTilretteleggingBehovFom() {
         return tilretteleggingBehovFom;
@@ -158,5 +160,13 @@ public class BekreftTilrettelegging {
 
     public void setStillingsprosentStartTilrettelegging(BigDecimal stillingsprosentStartTilrettelegging) {
         this.stillingsprosentStartTilrettelegging = stillingsprosentStartTilrettelegging;
+    }
+
+    public boolean getArbeidsforholdErSplittet() {
+        return arbeidsforholdErSplittet;
+    }
+
+    public void setArbeidsforholdErSplittet(boolean arbeidsforholdErSplittet) {
+        this.arbeidsforholdErSplittet = arbeidsforholdErSplittet;
     }
 }

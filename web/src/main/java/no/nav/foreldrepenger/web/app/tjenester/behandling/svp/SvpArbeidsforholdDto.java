@@ -49,6 +49,10 @@ public class SvpArbeidsforholdDto {
     @NotNull
     private List<@Valid SvpAvklartOppholdPeriodeDto> avklarteOppholdPerioder = new ArrayList<>();
 
+    private boolean skalVurdereSplittAvArbeidsforholdet;
+
+    private boolean arbeidsforholdetErSplittet = false;
+
     @Size(max = 4000)
     @Pattern(regexp = InputValideringRegex.FRITEKST)
     private String begrunnelse;
@@ -159,5 +163,21 @@ public class SvpArbeidsforholdDto {
 
     public void setStillingsprosentStartTilrettelegging(BigDecimal stillingsprosentStartTilrettelegging) {
         this.stillingsprosentStartTilrettelegging = stillingsprosentStartTilrettelegging;
+    }
+
+    public boolean getSkalVurdereSplittAvArbeidsforholdet() {
+        return skalVurdereSplittAvArbeidsforholdet;
+    }
+
+    public void setSkalVurdereSplittAvArbeidsforholdet(boolean skalVurdereSplittAvArbeidsforholdet) {
+        this.skalVurdereSplittAvArbeidsforholdet = skalVurdereSplittAvArbeidsforholdet;
+    }
+
+    public boolean getArbeidsforholdetErSplittet() {
+        return arbeidsforholdetErSplittet;
+    }
+
+    public void setArbeidsforholdetErSplittet(boolean arbeidsforholdetErSplittet) {
+        this.arbeidsforholdetErSplittet = arbeidsforholdetErSplittet;
     }
 }
