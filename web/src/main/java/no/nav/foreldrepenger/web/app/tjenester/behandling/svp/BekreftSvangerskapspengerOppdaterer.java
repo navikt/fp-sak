@@ -222,7 +222,8 @@ public class BekreftSvangerskapspengerOppdaterer implements AksjonspunktOppdater
                 .map(tilrettelegging -> mapTilrettelegging(tilrettelegging, eksisterendeTilrettelegginger))
                 .toList();
 
-            if (nyeTilrettelegginger.size() != eksisterendeTilrettelegginger.size()) {
+            if (nyeTilrettelegginger.stream().filter(tilr -> !tilr.getArbeidsforholdErSplittet()).toList().size()
+                != eksisterendeTilrettelegginger.stream().filter(tilr -> !tilr.getArbeidsforholdErSplittet()).toList().size()) {
                 throw new TekniskException("FP-564312",
                     "Antall overstyrte arbeidsforhold for svangerskapspenger stemmer " + "ikke overens med arbeidsforhold fra søknaden: "
                         + behandling.getId());
@@ -376,15 +377,18 @@ public class BekreftSvangerskapspengerOppdaterer implements AksjonspunktOppdater
                     "Fyll ut enten arbeidsprosent eller endre oppgitt utbetalingsgrad");
             }
 
-            var nyTilretteleggingFOM = new TilretteleggingFOM.Builder().medTilretteleggingType(datoDto.getType())
+            var nyTilretteleggingFOMBuilder = new TilretteleggingFOM.Builder()
+                .medTilretteleggingType(datoDto.getType())
                 .medFomDato(datoDto.getFom())
-                .medStillingsprosent(datoDto.getStillingsprosent())
                 .medOverstyrtUtbetalingsgrad(datoDto.getOverstyrtUtbetalingsgrad())
                 .medTidligstMottattDato(utledTidligstMotattFraEks(datoDto, eksisterendeTilrettelegging))
-                .medKilde(datoDto.getKilde())
-                .build();
+                .medKilde(datoDto.getKilde());
 
-            nyTilretteleggingEntitetBuilder.medTilretteleggingFom(nyTilretteleggingFOM);
+            if (!arbeidsforholdDto.getArbeidsforholdErSplittet()) {
+                nyTilretteleggingFOMBuilder.medStillingsprosent(datoDto.getStillingsprosent());
+            }
+
+            nyTilretteleggingEntitetBuilder.medTilretteleggingFom(nyTilretteleggingFOMBuilder.build());
         }
 
         if (arbeidsforholdDto.getAvklarteOppholdPerioder() != null) {
