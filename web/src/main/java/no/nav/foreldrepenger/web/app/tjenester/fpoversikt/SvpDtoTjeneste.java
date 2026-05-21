@@ -40,13 +40,10 @@ import no.nav.foreldrepenger.domene.arbeidsgiver.ArbeidsgiverOpplysninger;
 import no.nav.foreldrepenger.domene.arbeidsgiver.ArbeidsgiverTjeneste;
 import no.nav.foreldrepenger.domene.iay.modell.Inntektsmelding;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
-import no.nav.foreldrepenger.konfig.Environment;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 
 @ApplicationScoped
 public class SvpDtoTjeneste {
-
-    private static final Environment ENV = Environment.current();
 
     private static final String UNEXPECTED_VALUE = "Unexpected value: ";
     private ArbeidsgiverTjeneste arbeidsgiverTjeneste;
@@ -108,8 +105,8 @@ public class SvpDtoTjeneste {
             var behandlingId = v.getBehandlingsresultat().getBehandlingId();
             var behandling = felles.finnBehandling(behandlingId);
             var ref = BehandlingReferanse.fra(behandling);
-            var beregningsgrunnlag = ENV.isProd() ? Optional.<OversiktBeregningsgrunnlag>empty() : beregningOversiktDtoTjeneste.lagDtoForBehandling(ref);
-            var tilkjentYtelse = ENV.isProd() ? Optional.<OversiktTilkjentYtelse>empty() : tilkjentYtelseDtoTjeneste.lagDtoForTilkjentYtelse(ref);
+            var beregningsgrunnlag = beregningOversiktDtoTjeneste.lagDtoForBehandling(ref);
+            var tilkjentYtelse = tilkjentYtelseDtoTjeneste.lagDtoForTilkjentYtelse(ref);
             return new SvpSak.Vedtak(vedtakstidspunkt, arbeidsforhold, avslagÅrsak, beregningsgrunnlag.orElse(null), tilkjentYtelse.orElse(null));
         }).collect(Collectors.toSet());
     }
