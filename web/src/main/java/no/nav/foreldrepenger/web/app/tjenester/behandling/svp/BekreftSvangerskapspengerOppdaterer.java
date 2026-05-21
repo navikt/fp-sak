@@ -384,7 +384,7 @@ public class BekreftSvangerskapspengerOppdaterer implements AksjonspunktOppdater
                 .medTidligstMottattDato(utledTidligstMotattFraEks(datoDto, eksisterendeTilrettelegging))
                 .medKilde(datoDto.getKilde());
 
-            if (!arbeidsforholdDto.getArbeidsforholdErSplittet()) {
+            if (!arbeidsforholdDto.getArbeidsforholdetErSplittet()) {
                 nyTilretteleggingFOMBuilder.medStillingsprosent(datoDto.getStillingsprosent());
             }
 
