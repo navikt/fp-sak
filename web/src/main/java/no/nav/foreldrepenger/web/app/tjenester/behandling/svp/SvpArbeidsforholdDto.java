@@ -49,8 +49,10 @@ public class SvpArbeidsforholdDto {
     @NotNull
     private List<@Valid SvpAvklartOppholdPeriodeDto> avklarteOppholdPerioder = new ArrayList<>();
 
+    @NotNull
     private boolean skalVurdereSplittAvArbeidsforholdet;
 
+    @NotNull
     private boolean arbeidsforholdetErSplittet = false;
 
     @Size(max = 4000)
