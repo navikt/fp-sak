@@ -7,6 +7,8 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Stream;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -23,6 +25,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.dokument.BehandlingDoku
 import no.nav.foreldrepenger.behandlingslager.behandling.dokument.BehandlingDokumentEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.dokument.BehandlingDokumentRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.dokument.DokumentMalType;
+import no.nav.foreldrepenger.behandlingslager.behandling.dokument.MellomlagringEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.dokument.MellomlagringRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.dokument.MellomlagringType;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseEntitet;
@@ -198,32 +201,55 @@ public class DokumentBehandlingTjeneste {
     }
 
     public Optional<String> hentMellomlagretOverstyring(Long behandlingId) {
+        // Ny tabell først
+        var mellomlagring = mellomlagringRepository.hentMellomlagring(behandlingId, MellomlagringType.VEDTAKSBREV);
+        if (mellomlagring.isPresent()) {
+            return mellomlagring.map(MellomlagringEntitet::getInnhold);
+        }
+        // Fallback til gammel tabell
         return behandlingDokumentRepository.hentHvisEksisterer(behandlingId)
             .map(BehandlingDokumentEntitet::getOverstyrtBrevFritekstHtml);
     }
 
-    public void lagreOverstyrtBrev(Behandling behandling, String html) {
-        var behandlingDokumentBuilder = getBehandlingDokumentBuilder(behandling.getId());
-        behandlingDokumentRepository.lagreOgFlush(behandlingDokumentBuilder
-            .medBehandling(behandling.getId())
-            .medOverstyrtBrevFritekstHtml(html)
-            .build());
+    public boolean harMellomlagretOverstyring(Long behandlingId) {
+        return mellomlagringRepository.harMellomlagring(behandlingId, MellomlagringType.VEDTAKSBREV)
+            || behandlingDokumentRepository.hentHvisEksisterer(behandlingId)
+                .map(d -> d.getOverstyrtBrevFritekstHtml() != null).orElse(false);
     }
 
-    public void fjernOverstyringAvBrev(Behandling behandling) {
-        var behandlingDokumentBuilder = getBehandlingDokumentBuilder(behandling.getId());
-        behandlingDokumentRepository.lagreOgFlush(behandlingDokumentBuilder
-            .medBehandling(behandling.getId())
-            .medOverstyrtBrevFritekstHtml(null)
-            .build());
+    private static final Set<DokumentMalType> VEDTAKSBREV_MALER = Stream.concat(
+        DokumentMalType.VEDTAKSBREV.stream(),
+        Stream.of(DokumentMalType.ENDRING_UTBETALING)
+    ).collect(java.util.stream.Collectors.toUnmodifiableSet());
+
+    public boolean harRedigertVedtaksbrev(Long behandlingId) {
+        if (harMellomlagretOverstyring(behandlingId)) {
+            return true;
+        }
+        return harBestiltRedigertVedtaksbrev(behandlingId);
     }
 
-    private BehandlingDokumentEntitet.Builder getBehandlingDokumentBuilder(long behandlingId) {
-        var behandlingDokument = behandlingDokumentRepository.hentHvisEksisterer(behandlingId);
-        return getBehandlingDokumentBuilder(behandlingDokument);
+    private boolean harBestiltRedigertVedtaksbrev(Long behandlingId) {
+        return behandlingDokumentRepository.hentHvisEksisterer(behandlingId)
+            .map(BehandlingDokumentEntitet::getBestilteDokumenter)
+            .orElse(List.of())
+            .stream()
+            .anyMatch(d -> DokumentMalType.FRITEKST_HTML.equals(d.getDokumentMalType())
+                && d.getOpprinneligDokumentMal() != null
+                && VEDTAKSBREV_MALER.contains(d.getOpprinneligDokumentMal()));
     }
 
-    private BehandlingDokumentEntitet.Builder getBehandlingDokumentBuilder(Optional<BehandlingDokumentEntitet> behandlingDokument) {
-        return behandlingDokument.map(BehandlingDokumentEntitet.Builder::fraEksisterende).orElseGet(BehandlingDokumentEntitet.Builder::ny);
+    public Optional<JournalpostId> finnJournalpostIdForRedigertVedtaksbrev(Long behandlingId) {
+        return behandlingDokumentRepository.hentHvisEksisterer(behandlingId)
+            .map(BehandlingDokumentEntitet::getBestilteDokumenter)
+            .orElse(List.of())
+            .stream()
+            .filter(d -> DokumentMalType.FRITEKST_HTML.equals(d.getDokumentMalType())
+                && d.getOpprinneligDokumentMal() != null
+                && VEDTAKSBREV_MALER.contains(d.getOpprinneligDokumentMal())
+                && d.getJournalpostId() != null)
+            .map(BehandlingDokumentBestiltEntitet::getJournalpostId)
+            .findFirst();
     }
+
 }

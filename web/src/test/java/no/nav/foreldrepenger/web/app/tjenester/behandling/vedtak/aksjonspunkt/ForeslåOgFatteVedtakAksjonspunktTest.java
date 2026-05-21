@@ -24,6 +24,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspun
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.VurderÅrsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.dokument.BehandlingDokumentEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.dokument.BehandlingDokumentRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.dokument.MellomlagringRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
@@ -51,6 +52,7 @@ class ForeslåOgFatteVedtakAksjonspunktTest extends EntityManagerAwareTest {
 
     private BehandlingRepositoryProvider repositoryProvider;
     private BehandlingDokumentRepository behandlingDokumentRepository;
+    private MellomlagringRepository mellomlagringRepository;
     private FatterVedtakAksjonspunkt fatterVedtakAksjonspunkt;
     private TotrinnRepository totrinnRepository;
     private VedtakTjeneste vedtakTjeneste;
@@ -64,6 +66,7 @@ class ForeslåOgFatteVedtakAksjonspunktTest extends EntityManagerAwareTest {
         var lagretVedtakRepository = new LagretVedtakRepository(em);
         repositoryProvider = new BehandlingRepositoryProvider(em);
         behandlingDokumentRepository = new BehandlingDokumentRepository(em);
+        mellomlagringRepository = new MellomlagringRepository(em);
         behandlingRepository = new BehandlingRepository(em);
         behandlingsresultatRepository = new BehandlingsresultatRepository(em);
         totrinnRepository = new TotrinnRepository(em);
@@ -83,7 +86,7 @@ class ForeslåOgFatteVedtakAksjonspunktTest extends EntityManagerAwareTest {
 
         var dto = new ForeslåVedtakAksjonspunktDto(null, false);
         var foreslåVedtakManueltAksjonspunktOppdaterer = new ForeslåVedtakAksjonspunktOppdaterer(behandlingRepository,
-            behandlingsresultatRepository, historikkinnslagRepository, vedtakTjeneste, behandlingDokumentRepository);
+            behandlingsresultatRepository, historikkinnslagRepository, vedtakTjeneste, behandlingDokumentRepository, mellomlagringRepository);
 
         // Act
         var oppdateringResultat = foreslåVedtakManueltAksjonspunktOppdaterer
@@ -109,7 +112,7 @@ class ForeslåOgFatteVedtakAksjonspunktTest extends EntityManagerAwareTest {
         var behandling = behandlingMedTidligereOverstyringAvBrev(FRITEKST);
         var dto = new ForeslåVedtakAksjonspunktDto(BEGRUNNELSE, true);
         var foreslaVedtakAksjonspunktOppdaterer = new ForeslåVedtakAksjonspunktOppdaterer(behandlingRepository, behandlingsresultatRepository,
-            historikkinnslagRepository, vedtakTjeneste, behandlingDokumentRepository);
+            historikkinnslagRepository, vedtakTjeneste, behandlingDokumentRepository, mellomlagringRepository);
 
         // Act
         var oppdateringResultat = foreslaVedtakAksjonspunktOppdaterer.oppdater(dto,
@@ -138,7 +141,7 @@ class ForeslåOgFatteVedtakAksjonspunktTest extends EntityManagerAwareTest {
         var behandlingTidligerOverstyrt = behandlingMedTidligereOverstyringAvBrev(FRITEKST);
         var dto = new ForeslåVedtakAksjonspunktDto("begrunnelse", false);
         var foreslaVedtakAksjonspunktOppdaterer = new ForeslåVedtakAksjonspunktOppdaterer(behandlingRepository, behandlingsresultatRepository,
-            historikkinnslagRepository, vedtakTjeneste, behandlingDokumentRepository);
+            historikkinnslagRepository, vedtakTjeneste, behandlingDokumentRepository, mellomlagringRepository);
 
         // Act
         var oppdateringResultat = foreslaVedtakAksjonspunktOppdaterer.oppdater(dto,
@@ -168,7 +171,7 @@ class ForeslåOgFatteVedtakAksjonspunktTest extends EntityManagerAwareTest {
         var behandling = behandlingMedTidligereOverstyringAvBrev(FRITEKST);
         var dto = new ForeslåVedtakAksjonspunktDto(null, false);
         var foreslaVedtakAksjonspunktOppdaterer = new ForeslåVedtakAksjonspunktOppdaterer(behandlingRepository, behandlingsresultatRepository,
-            historikkinnslagRepository, vedtakTjeneste, behandlingDokumentRepository);
+            historikkinnslagRepository, vedtakTjeneste, behandlingDokumentRepository, mellomlagringRepository);
 
         // Act
         foreslaVedtakAksjonspunktOppdaterer.oppdater(dto, new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling), dto));
@@ -190,7 +193,7 @@ class ForeslåOgFatteVedtakAksjonspunktTest extends EntityManagerAwareTest {
 
         var dto = new ForeslåVedtakAksjonspunktDto("begrunnelse", false);
         var foreslaVedtakAksjonspunktOppdaterer = new ForeslåVedtakAksjonspunktOppdaterer(behandlingRepository, behandlingsresultatRepository,
-            historikkinnslagRepository, vedtakTjeneste, behandlingDokumentRepository);
+            historikkinnslagRepository, vedtakTjeneste, behandlingDokumentRepository, mellomlagringRepository);
 
         // Act
         foreslaVedtakAksjonspunktOppdaterer.oppdater(dto, new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling), dto));
@@ -213,7 +216,7 @@ class ForeslåOgFatteVedtakAksjonspunktTest extends EntityManagerAwareTest {
 
         var dto = new ForeslåVedtakAksjonspunktDto(BEGRUNNELSE, true);
         var foreslaVedtakAksjonspunktOppdaterer = new ForeslåVedtakAksjonspunktOppdaterer(behandlingRepository, behandlingsresultatRepository,
-            historikkinnslagRepository, vedtakTjeneste, behandlingDokumentRepository);
+            historikkinnslagRepository, vedtakTjeneste, behandlingDokumentRepository, mellomlagringRepository);
 
         // Act
         var param = new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling), dto);
@@ -230,7 +233,7 @@ class ForeslåOgFatteVedtakAksjonspunktTest extends EntityManagerAwareTest {
         var behandling = ScenarioFarSøkerEngangsstønad.forFødsel().lagre(repositoryProvider);
         var dto = new ForeslaVedtakManueltAksjonspuntDto(null, false);
         var foreslåVedtakManueltAksjonspunktOppdaterer = new ForeslåVedtakManueltAksjonspunktOppdaterer(behandlingRepository,
-            behandlingsresultatRepository, historikkinnslagRepository, vedtakTjeneste, behandlingDokumentRepository);
+            behandlingsresultatRepository, historikkinnslagRepository, vedtakTjeneste, behandlingDokumentRepository, mellomlagringRepository);
 
         // Act
         var oppdateringResultat = foreslåVedtakManueltAksjonspunktOppdaterer.oppdater(dto,
@@ -257,7 +260,7 @@ class ForeslåOgFatteVedtakAksjonspunktTest extends EntityManagerAwareTest {
 
         var dto = new ForeslaVedtakManueltAksjonspuntDto(null, false);
         var foreslåVedtakManueltAksjonspunktOppdaterer = new ForeslåVedtakManueltAksjonspunktOppdaterer(behandlingRepository,
-            behandlingsresultatRepository, historikkinnslagRepository, vedtakTjeneste, behandlingDokumentRepository);
+            behandlingsresultatRepository, historikkinnslagRepository, vedtakTjeneste, behandlingDokumentRepository, mellomlagringRepository);
 
         // Act
         var oppdateringResultat = foreslåVedtakManueltAksjonspunktOppdaterer.oppdater(dto,

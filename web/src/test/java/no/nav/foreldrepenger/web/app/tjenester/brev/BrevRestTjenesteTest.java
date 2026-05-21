@@ -6,6 +6,7 @@ import static no.nav.foreldrepenger.behandlingslager.behandling.dokument.Melloml
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -23,12 +24,17 @@ import no.nav.foreldrepenger.behandlingslager.behandling.dokument.MellomlagringR
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
+import no.nav.foreldrepenger.dokumentarkiv.ArkivDokument;
+import no.nav.foreldrepenger.dokumentarkiv.ArkivJournalPost;
+import no.nav.foreldrepenger.dokumentarkiv.DokumentArkivTjeneste;
+import no.nav.foreldrepenger.dokumentarkiv.DokumentRespons;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentBehandlingTjeneste;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentBestillerTjeneste;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentBestilling;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentForhåndsvisningTjeneste;
 import no.nav.foreldrepenger.dokumentbestiller.dto.BestillDokumentDto;
 import no.nav.foreldrepenger.domene.arbeidInntektsmelding.ArbeidsforholdInntektsmeldingMangelTjeneste;
+import no.nav.foreldrepenger.domene.typer.JournalpostId;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.dto.UuidDto;
 
@@ -41,6 +47,7 @@ class BrevRestTjenesteTest {
     private BehandlingRepository behandlingRepository;
     private ArbeidsforholdInntektsmeldingMangelTjeneste arbeidsforholdInntektsmeldingMangelTjeneste;
     private MellomlagringRepository mellomlagringRepositoryMock;
+    private DokumentArkivTjeneste dokumentArkivTjenesteMock;
 
     @BeforeEach
     void setUp() {
@@ -50,12 +57,13 @@ class BrevRestTjenesteTest {
         behandlingRepository = mock(BehandlingRepository.class);
         arbeidsforholdInntektsmeldingMangelTjeneste = mock(ArbeidsforholdInntektsmeldingMangelTjeneste.class);
         mellomlagringRepositoryMock = mock(MellomlagringRepository.class);
+        dokumentArkivTjenesteMock = mock(DokumentArkivTjeneste.class);
 
         when(behandlingRepository.hentBehandling(anyLong())).thenReturn(mock(Behandling.class));
 
         brevRestTjeneste = new BrevRestTjeneste(dokumentForhåndsvisningTjenesteMock, dokumentBestillerTjenesteMock,
             dokumentBehandlingTjenesteMock, behandlingRepository, arbeidsforholdInntektsmeldingMangelTjeneste,
-            mock(HistorikkinnslagRepository.class), mellomlagringRepositoryMock);
+            mock(HistorikkinnslagRepository.class), mellomlagringRepositoryMock, dokumentArkivTjenesteMock);
     }
 
     @Test
@@ -86,78 +94,6 @@ class BrevRestTjenesteTest {
         assertThat(bestilling.fritekst()).isEqualTo(fritekst);
         assertThat(bestilling.revurderingÅrsak()).isNull();
         assertThat(bestilling.journalførSom()).isNull();
-    }
-
-    @Test
-    void redigert_html_skal_være_null_hvis_en_ikke_finner_i_dokumentbehandling_entitet() {
-        // Arrange
-        var brevProdusertAvFpdokgen = "html";
-        var scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
-        var behandling = scenario.lagMocked();
-        when(behandlingRepository.hentBehandling(any(UUID.class))).thenReturn(behandling);
-        when(dokumentForhåndsvisningTjenesteMock.genererHtml(behandling)).thenReturn(brevProdusertAvFpdokgen);
-        when(dokumentBehandlingTjenesteMock.hentMellomlagretOverstyring(behandling.getId())).thenReturn(Optional.empty());
-
-        // Act
-        var respons = brevRestTjeneste.hentOverstyringAvBrevMedOrginaltBrevPåHtmlFormat(new UuidDto(UUID.randomUUID()));
-
-        // Assert
-        var overstyrtDokumentDto = (BrevRestTjeneste.OverstyrtDokumentDto) respons.getEntity();
-        assertThat(overstyrtDokumentDto.opprinneligHtml()).isEqualTo(brevProdusertAvFpdokgen);
-        assertThat(overstyrtDokumentDto.redigertHtml()).isNull();
-    }
-
-    @Test
-    void skal_returnere_opprinnelig_og_redigert_hvis_det_foreligger_overstyring() {
-        // Arrange
-        var brevProdusertAvFpdokgen = "html";
-        var overstyryBrev = "OVERSTYRY BREV";
-        var scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
-        var behandling = scenario.lagMocked();
-        when(behandlingRepository.hentBehandling(any(UUID.class))).thenReturn(behandling);
-        when(dokumentForhåndsvisningTjenesteMock.genererHtml(behandling)).thenReturn(brevProdusertAvFpdokgen);
-        when(dokumentBehandlingTjenesteMock.hentMellomlagretOverstyring(behandling.getId())).thenReturn(Optional.of(overstyryBrev));
-
-        // Act
-        var respons = brevRestTjeneste.hentOverstyringAvBrevMedOrginaltBrevPåHtmlFormat(new UuidDto(UUID.randomUUID()));
-
-        // Assert
-        var overstyrtDokumentDto = (BrevRestTjeneste.OverstyrtDokumentDto) respons.getEntity();
-        assertThat(overstyrtDokumentDto.opprinneligHtml()).isEqualTo(brevProdusertAvFpdokgen);
-        assertThat(overstyrtDokumentDto.redigertHtml()).isEqualTo(overstyryBrev);
-    }
-
-    @Test
-    void skal_returnere_500_feil_hvis_opprinnelig_html_er_null_eller_tom() {
-        // Arrange
-        var brevProdusertAvFpdokgen = "";
-        var overstyryBrev = "OVERSTYRY BREV";
-        var scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
-        var behandling = scenario.lagMocked();
-        when(behandlingRepository.hentBehandling(any(UUID.class))).thenReturn(behandling);
-        when(dokumentForhåndsvisningTjenesteMock.genererHtml(behandling)).thenReturn(brevProdusertAvFpdokgen);
-        when(dokumentBehandlingTjenesteMock.hentMellomlagretOverstyring(behandling.getId())).thenReturn(Optional.of(overstyryBrev));
-
-        // Act
-        var respons = brevRestTjeneste.hentOverstyringAvBrevMedOrginaltBrevPåHtmlFormat(new UuidDto(UUID.randomUUID()));
-        assertThat(respons.getStatus()).isEqualTo(500);
-    }
-
-    @Test
-    void mellomlagring_skal_lagre_innhold_hvis_oppgitt() {
-        var scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
-        var behandling = scenario.lagMocked();
-        when(behandlingRepository.hentBehandling(any(UUID.class))).thenReturn(behandling);
-
-        // Act
-        brevRestTjeneste.mellomlagringAvOverstyring(new BrevRestTjeneste.MellomlagreHtmlDto(behandling.getUuid(), "HTML"));
-
-        var captorHtml = ArgumentCaptor.forClass(String.class);
-
-        // Assert
-        verify(dokumentBehandlingTjenesteMock).lagreOverstyrtBrev(any(), captorHtml.capture());
-
-        assertThat(captorHtml.getValue()).isEqualTo("HTML");
     }
 
     @Test
@@ -238,5 +174,62 @@ class BrevRestTjenesteTest {
         var dto = (BrevRestTjeneste.OverstyrtDokumentDto) respons.getEntity();
         assertThat(dto.opprinneligHtml()).isEqualTo(brevProdusertAvFpdokgen);
         assertThat(dto.redigertHtml()).isNull();
+    }
+
+    @Test
+    void hent_vedtaksbrev_returnerer_pdf_fra_mellomlagring() {
+        var behandlingUuid = UUID.randomUUID();
+        var pdf = "pdf".getBytes();
+        var behandling = mock(Behandling.class);
+        when(behandling.getId()).thenReturn(1L);
+        when(behandling.getUuid()).thenReturn(behandlingUuid);
+        when(behandling.getSaksnummer()).thenReturn(new Saksnummer("9999"));
+        when(behandlingRepository.hentBehandling(behandlingUuid)).thenReturn(behandling);
+        when(dokumentBehandlingTjenesteMock.hentMellomlagretOverstyring(behandling.getId())).thenReturn(Optional.of("<html>redigert</html>"));
+        when(dokumentForhåndsvisningTjenesteMock.forhåndsvisDokument(eq(behandling.getId()), any())).thenReturn(pdf);
+
+        var respons = brevRestTjeneste.hentVedtaksbrev(new UuidDto(behandlingUuid));
+
+        assertThat(respons.getStatus()).isEqualTo(200);
+        assertThat(respons.getEntity()).isEqualTo(pdf);
+        assertThat(respons.getMediaType().toString()).isEqualTo("application/pdf");
+    }
+
+    @Test
+    void hent_vedtaksbrev_returnerer_pdf_fra_arkiv_når_mellomlagring_mangler() {
+        var behandlingUuid = UUID.randomUUID();
+        var behandling = mock(Behandling.class);
+        var journalpostId = new JournalpostId("123456789");
+        var dokumentId = "dok1";
+        var pdf = "arkiv-pdf".getBytes();
+        var hovedDokument = ArkivDokument.Builder.ny().medDokumentId(dokumentId).build();
+        var journalpost = ArkivJournalPost.Builder.ny().medJournalpostId(journalpostId).medHoveddokument(hovedDokument).build();
+        var dokumentRespons = new DokumentRespons(pdf, "application/pdf", "filename=vedtaksbrev.pdf");
+        when(behandling.getId()).thenReturn(1L);
+        when(behandlingRepository.hentBehandling(behandlingUuid)).thenReturn(behandling);
+        when(dokumentBehandlingTjenesteMock.hentMellomlagretOverstyring(behandling.getId())).thenReturn(Optional.empty());
+        when(dokumentBehandlingTjenesteMock.finnJournalpostIdForRedigertVedtaksbrev(behandling.getId())).thenReturn(Optional.of(journalpostId));
+        when(dokumentArkivTjenesteMock.hentJournalpostForSak(journalpostId)).thenReturn(Optional.of(journalpost));
+        when(dokumentArkivTjenesteMock.hentDokument(journalpostId, dokumentId)).thenReturn(dokumentRespons);
+
+        var respons = brevRestTjeneste.hentVedtaksbrev(new UuidDto(behandlingUuid));
+
+        assertThat(respons.getStatus()).isEqualTo(200);
+        assertThat(respons.getEntity()).isEqualTo(pdf);
+        assertThat(respons.getMediaType().toString()).isEqualTo("application/pdf");
+    }
+
+    @Test
+    void hent_vedtaksbrev_returnerer_404_når_verken_mellomlagring_eller_journalpost_finnes() {
+        var behandlingUuid = UUID.randomUUID();
+        var behandling = mock(Behandling.class);
+        when(behandling.getId()).thenReturn(1L);
+        when(behandlingRepository.hentBehandling(behandlingUuid)).thenReturn(behandling);
+        when(dokumentBehandlingTjenesteMock.hentMellomlagretOverstyring(behandling.getId())).thenReturn(Optional.empty());
+        when(dokumentBehandlingTjenesteMock.finnJournalpostIdForRedigertVedtaksbrev(behandling.getId())).thenReturn(Optional.empty());
+
+        var respons = brevRestTjeneste.hentVedtaksbrev(new UuidDto(behandlingUuid));
+
+        assertThat(respons.getStatus()).isEqualTo(404);
     }
 }

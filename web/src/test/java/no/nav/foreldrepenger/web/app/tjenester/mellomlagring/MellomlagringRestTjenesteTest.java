@@ -5,13 +5,11 @@ import static no.nav.foreldrepenger.behandlingslager.behandling.dokument.Melloml
 import static no.nav.foreldrepenger.behandlingslager.behandling.dokument.MellomlagringType.VARSEL_REVURDERING;
 import static no.nav.foreldrepenger.behandlingslager.behandling.dokument.MellomlagringType.VEDTAKSBREV;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.verify;
 
 import jakarta.inject.Inject;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mock;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.dokument.DokumentMalType;
@@ -20,7 +18,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
 import no.nav.foreldrepenger.dbstoette.CdiDbAwareTest;
-import no.nav.foreldrepenger.dokumentbestiller.DokumentBehandlingTjeneste;
 
 @CdiDbAwareTest
 class MellomlagringRestTjenesteTest {
@@ -31,8 +28,6 @@ class MellomlagringRestTjenesteTest {
     private BehandlingRepository behandlingRepository;
     @Inject
     private MellomlagringRepository mellomlagringRepository;
-    @Mock
-    private DokumentBehandlingTjeneste dokumentBehandlingTjeneste;
 
     private MellomlagringRestTjeneste tjeneste;
     private Behandling behandling;
@@ -40,7 +35,7 @@ class MellomlagringRestTjenesteTest {
     @BeforeEach
     void setUp() {
         behandling = ScenarioMorSøkerForeldrepenger.forFødsel().lagre(repositoryProvider);
-        tjeneste = new MellomlagringRestTjeneste(mellomlagringRepository, behandlingRepository, dokumentBehandlingTjeneste);
+        tjeneste = new MellomlagringRestTjeneste(mellomlagringRepository, behandlingRepository);
     }
 
     // --- POST: hentMellomlagring ---
@@ -148,21 +143,24 @@ class MellomlagringRestTjenesteTest {
     }
 
     @Test
-    void lagre_uten_type_og_dokumentMal_delegerer_til_dokumentBehandlingTjeneste() {
+    void lagre_uten_type_og_dokumentMal_lagrer_vedtaksbrev_i_mellomlagring() {
         var dto = new MellomlagringRestTjeneste.MellomlagringDto(behandling.getUuid(), null, null, "<p>Vedtak</p>");
 
         tjeneste.lagreMellomlagring(dto);
 
-        verify(dokumentBehandlingTjeneste).lagreOverstyrtBrev(behandling, "<p>Vedtak</p>");
+        var lagret = mellomlagringRepository.hentMellomlagring(behandling.getId(), VEDTAKSBREV);
+        assertThat(lagret).isPresent();
+        assertThat(lagret.get().getInnhold()).isEqualTo("<p>Vedtak</p>");
     }
 
     @Test
-    void lagre_vedtaksbrev_med_null_innhold_fjerner_overstyring() {
-        var dto = new MellomlagringRestTjeneste.MellomlagringDto(behandling.getUuid(), null, null, null);
+    void lagre_vedtaksbrev_med_null_innhold_sletter_fra_mellomlagring() {
+        mellomlagringRepository.lagreEllerOppdater(behandling.getId(), VEDTAKSBREV, "<p>Redigert vedtak</p>");
 
+        var dto = new MellomlagringRestTjeneste.MellomlagringDto(behandling.getUuid(), null, null, null);
         tjeneste.lagreMellomlagring(dto);
 
-        verify(dokumentBehandlingTjeneste).fjernOverstyringAvBrev(behandling);
+        assertThat(mellomlagringRepository.hentMellomlagring(behandling.getId(), VEDTAKSBREV)).isEmpty();
     }
 
     // --- resolveType ---

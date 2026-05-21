@@ -21,6 +21,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.tilbakekreving.Tilbakek
 import no.nav.foreldrepenger.behandlingslager.behandling.tilbakekreving.TilbakekrevingVidereBehandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.verge.VergeRepository;
 import no.nav.foreldrepenger.dbstoette.CdiDbAwareTest;
+import no.nav.foreldrepenger.dokumentbestiller.DokumentBehandlingTjeneste;
 import no.nav.foreldrepenger.domene.prosess.BeregningTjeneste;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakTjeneste;
 import no.nav.foreldrepenger.domene.uttak.UttakTjeneste;
@@ -82,10 +83,10 @@ class BehandlingDtoTjenesteTest {
     @BeforeEach
     void setUp() {
         tjeneste = new BehandlingDtoTjeneste(repositoryProvider, beregningTjeneste, uttakTjeneste, tilbakekrevingRepository,
-            skjæringstidspunktTjeneste, mock(EngangsstønadBeregningRepository.class), behandlingDokumentRepository, mock(TotrinnTjeneste.class),
-            dokumentasjonVurderingBehovDtoTjeneste, faktaUttakPeriodeDtoTjeneste, fagsakRelasjonTjeneste,
+            skjæringstidspunktTjeneste, mock(EngangsstønadBeregningRepository.class), behandlingDokumentRepository,
+            mock(TotrinnTjeneste.class), dokumentasjonVurderingBehovDtoTjeneste, faktaUttakPeriodeDtoTjeneste, fagsakRelasjonTjeneste,
             new UtregnetStønadskontoTjeneste(fagsakRelasjonTjeneste, foreldrepengerUttakTjeneste), vergeRepository,
-            vedtaksbrevStatusUtleder, eøsUttakRepository);
+            vedtaksbrevStatusUtleder, eøsUttakRepository, mock(DokumentBehandlingTjeneste.class));
     }
 
     @Test

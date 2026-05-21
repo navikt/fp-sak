@@ -11,6 +11,8 @@ import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspun
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.dokument.BehandlingDokumentEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.dokument.BehandlingDokumentRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.dokument.MellomlagringRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.dokument.MellomlagringType;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagRepository;
@@ -25,6 +27,7 @@ public abstract class AbstractVedtaksbrevOverstyringshåndterer {
     private HistorikkinnslagRepository historikkinnslagRepository;
     private BehandlingsresultatRepository behandlingsresultatRepository;
     private BehandlingDokumentRepository behandlingDokumentRepository;
+    private MellomlagringRepository mellomlagringRepository;
     private BehandlingRepository behandlingRepository;
     private VedtakTjeneste vedtakTjeneste;
 
@@ -32,11 +35,13 @@ public abstract class AbstractVedtaksbrevOverstyringshåndterer {
                                              BehandlingsresultatRepository behandlingsresultatRepository,
                                              HistorikkinnslagRepository historikkinnslagRepository,
                                              VedtakTjeneste vedtakTjeneste,
-                                             BehandlingDokumentRepository behandlingDokumentRepository) {
+                                             BehandlingDokumentRepository behandlingDokumentRepository,
+                                             MellomlagringRepository mellomlagringRepository) {
         this.historikkinnslagRepository = historikkinnslagRepository;
         this.behandlingsresultatRepository = behandlingsresultatRepository;
         this.vedtakTjeneste = vedtakTjeneste;
         this.behandlingDokumentRepository = behandlingDokumentRepository;
+        this.mellomlagringRepository = mellomlagringRepository;
         this.behandlingRepository = behandlingRepository;
     }
 
@@ -98,14 +103,19 @@ public abstract class AbstractVedtaksbrevOverstyringshåndterer {
     }
 
     private void verifiserBehandlingDokumentInneholderRedigertBrev(Long behandlingId) {
-        var behandlingDokumentEntitet = behandlingDokumentRepository.hentHvisEksisterer(behandlingId);
-        if (behandlingDokumentEntitet.isEmpty() || behandlingDokumentEntitet.get().getOverstyrtBrevFritekstHtml() == null) {
+        var harMellomlagring = mellomlagringRepository.harMellomlagring(behandlingId, MellomlagringType.VEDTAKSBREV);
+        var harGammelOverstyring = behandlingDokumentRepository.hentHvisEksisterer(behandlingId)
+            .map(d -> d.getOverstyrtBrevFritekstHtml() != null).orElse(false);
+        if (!harMellomlagring && !harGammelOverstyring) {
             throw new TekniskException("FP-666916", "Foreslå vedtaksteget har sendt at brev skal overstyres til beslutter men det foreligger ingen overstyring!");
         }
     }
 
     private void fjernEksisterendeRedigertEllerOverstyrBrevHvisEksisterer(Behandling behandling) {
         var behandlingId = behandling.getId();
+        // Fjern fra ny mellomlagring-tabell
+        mellomlagringRepository.fjernMellomlagring(behandlingId, MellomlagringType.VEDTAKSBREV);
+        // Fjern fra gammel tabell
         var eksisterendeBehandlingDokument = behandlingDokumentRepository.hentHvisEksisterer(behandlingId);
         if (eksisterendeBehandlingDokument.isPresent() && erFritekst(eksisterendeBehandlingDokument.get())) {
             var behandlingDokument = BehandlingDokumentEntitet.Builder.fraEksisterende(eksisterendeBehandlingDokument.get())

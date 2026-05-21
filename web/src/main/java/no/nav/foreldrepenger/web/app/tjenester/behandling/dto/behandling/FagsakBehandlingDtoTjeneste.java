@@ -35,6 +35,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtak
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtakRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Språkkode;
+import no.nav.foreldrepenger.dokumentbestiller.DokumentBehandlingTjeneste;
 import no.nav.foreldrepenger.dokumentbestiller.brevmal.BrevmalTjeneste;
 import no.nav.foreldrepenger.domene.uttak.Uttak;
 import no.nav.foreldrepenger.domene.uttak.UttakTjeneste;
@@ -70,6 +71,7 @@ public class FagsakBehandlingDtoTjeneste {
     private KontrollDtoTjeneste kontrollDtoTjeneste;
     private UttakTjeneste uttakTjeneste;
     private FagsakBehandlingOperasjonerDtoTjeneste behandlingOperasjonerDtoTjeneste;
+    private DokumentBehandlingTjeneste dokumentBehandlingTjeneste;
 
     @Inject
     public FagsakBehandlingDtoTjeneste(BehandlingRepositoryProvider repositoryProvider,
@@ -79,7 +81,8 @@ public class FagsakBehandlingDtoTjeneste {
                                        TotrinnskontrollAksjonspunkterTjeneste totrinnskontrollTjeneste,
                                        KontrollDtoTjeneste kontrollDtoTjeneste,
                                        UttakTjeneste uttakTjeneste,
-                                       FagsakBehandlingOperasjonerDtoTjeneste behandlingOperasjonerDtoTjeneste) {
+                                       FagsakBehandlingOperasjonerDtoTjeneste behandlingOperasjonerDtoTjeneste,
+                                       DokumentBehandlingTjeneste dokumentBehandlingTjeneste) {
 
         this.søknadRepository = repositoryProvider.getSøknadRepository();
         this.skjæringstidspunktTjeneste = skjæringstidspunktTjeneste;
@@ -92,6 +95,7 @@ public class FagsakBehandlingDtoTjeneste {
         this.kontrollDtoTjeneste = kontrollDtoTjeneste;
         this.uttakTjeneste = uttakTjeneste;
         this.behandlingOperasjonerDtoTjeneste = behandlingOperasjonerDtoTjeneste;
+        this.dokumentBehandlingTjeneste = dokumentBehandlingTjeneste;
     }
 
     FagsakBehandlingDtoTjeneste() {
@@ -149,7 +153,7 @@ public class FagsakBehandlingDtoTjeneste {
             behandlingHenlagt, språkkode, behandlingPåVent, brDto, behandlingÅrsaker, vilkår, fristDatoBehandlingPåVent, links);
     }
 
-    private static List<ResourceLink> lagLinks(Behandling behandling, UuidDto uuidDto) {
+    private List<ResourceLink> lagLinks(Behandling behandling, UuidDto uuidDto) {
         var links = new ArrayList<ResourceLink>();
         if (behandling.erYtelseBehandling()) {
             links.add(get(PersonRestTjeneste.PERSONOVERSIKT_PATH, "behandling-personoversikt", uuidDto));
@@ -165,6 +169,9 @@ public class FagsakBehandlingDtoTjeneste {
         links.add(post(BrevRestTjeneste.BREV_HTML_PATH, "hent-brev-html"));
         links.add(post(MellomlagringRestTjeneste.MELLOMLAGRING_PATH, "mellomlagring"));
         links.add(post(MellomlagringRestTjeneste.HENT_MELLOMLAGRING_PATH, "hent-mellomlagring"));
+        if (dokumentBehandlingTjeneste.harRedigertVedtaksbrev(behandling.getId())) {
+            links.add(get(BrevRestTjeneste.HENT_VEDTAKSBREV_PATH, "vedtaksbrev-dokument", uuidDto));
+        }
         return links;
     }
 
@@ -224,7 +231,6 @@ public class FagsakBehandlingDtoTjeneste {
         if (behandlingDokument.isPresent()) {
             var behandlingDokumentEntitet = behandlingDokument.get();
             dto.setAvslagsarsakFritekst(behandlingDokumentEntitet.getVedtakFritekst());
-            dto.setHarRedigertVedtaksbrev(behandlingDokumentEntitet.getOverstyrtBrevFritekstHtml() != null);
         }
 
         dto.setVedtaksbrev(behandlingsresultat.getVedtaksbrev());

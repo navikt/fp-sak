@@ -40,6 +40,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.Ytelses
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Språkkode;
+import no.nav.foreldrepenger.dokumentbestiller.DokumentBehandlingTjeneste;
 import no.nav.foreldrepenger.domene.arbeidInntektsmelding.ManglendeOpplysningerVurderingDto;
 import no.nav.foreldrepenger.domene.arbeidInntektsmelding.ManueltArbeidsforholdDto;
 import no.nav.foreldrepenger.domene.modell.Beregningsgrunnlag;
@@ -123,6 +124,7 @@ public class BehandlingDtoTjeneste {
     private VedtaksbrevStatusUtleder vedtaksbrevStatusUtleder;
     private FamilieHendelseRepository familieHendelseRepository;
     private EøsUttakRepository eøsUttakRepository;
+    private DokumentBehandlingTjeneste dokumentBehandlingTjeneste;
 
 
     @Inject
@@ -140,7 +142,8 @@ public class BehandlingDtoTjeneste {
                                  UtregnetStønadskontoTjeneste utregnetStønadskontoTjeneste,
                                  VergeRepository vergeRepository,
                                  VedtaksbrevStatusUtleder vedtaksbrevStatusUtleder,
-                                 EøsUttakRepository eøsUttakRepository) {
+                                 EøsUttakRepository eøsUttakRepository,
+                                 DokumentBehandlingTjeneste dokumentBehandlingTjeneste) {
         this.beregningTjeneste = beregningTjeneste;
         this.uttakTjeneste = uttakTjeneste;
         this.engangsstønadBeregningRepository = engangsstønadBeregningRepository;
@@ -161,6 +164,7 @@ public class BehandlingDtoTjeneste {
         this.vedtaksbrevStatusUtleder = vedtaksbrevStatusUtleder;
         this.familieHendelseRepository = repositoryProvider.getFamilieHendelseRepository();
         this.eøsUttakRepository = eøsUttakRepository;
+        this.dokumentBehandlingTjeneste = dokumentBehandlingTjeneste;
 
     }
 
@@ -346,12 +350,10 @@ public class BehandlingDtoTjeneste {
             return dto;
         }
 
-        if (harAksjonspunktIForslåVedtakSomErOpprettetEllerUtført(behandling) && vedtaksbrevStatusUtleder.statusVedtaksbrev(behandling.getId()).vedtaksbrevSkalProduseres()) {
-            dto.leggTil(get(BrevRestTjeneste.BREV_HENT_OVERSTYRING_PATH, "hent-brev-overstyring", uuidDto));
-            dto.leggTil(post(BrevRestTjeneste.BREV_MELLOMLAGRE_OVERSTYRING_PATH, "mellomlagre-brev-overstyring"));
-        }
-
         dto.leggTil(post(BrevRestTjeneste.BREV_HTML_PATH, "hent-brev-html"));
+        if (dokumentBehandlingTjeneste.harRedigertVedtaksbrev(behandling.getId())) {
+            dto.leggTil(get(BrevRestTjeneste.HENT_VEDTAKSBREV_PATH, "vedtaksbrev-dokument", uuidDto));
+        }
 
         dto.leggTil(get(FamiliehendelseRestTjeneste.FAMILIEHENDELSE_V3_PATH, "familiehendelse-v3", uuidDto));
 
@@ -481,12 +483,6 @@ public class BehandlingDtoTjeneste {
         return dto;
     }
 
-    private static boolean harAksjonspunktIForslåVedtakSomErOpprettetEllerUtført(Behandling behandling) {
-        return behandling.getAksjonspunkter().stream()
-            .filter(ap -> AksjonspunktDefinisjon.FORESLÅ_VEDTAK.equals(ap.getAksjonspunktDefinisjon()) || AksjonspunktDefinisjon.FORESLÅ_VEDTAK_MANUELT.equals(ap.getAksjonspunktDefinisjon()))
-            .anyMatch(ap -> ap.erOpprettet() || ap.erUtført());
-    }
-
     private Optional<BehandlingsresultatDto> lagBehandlingsresultatDto(Behandling behandling, Behandlingsresultat behandlingsresultat) {
         if (behandlingsresultat == null) {
             return Optional.empty();
@@ -507,7 +503,6 @@ public class BehandlingDtoTjeneste {
         if (behandlingDokument.isPresent()) {
             var behandlingDokumentEntitet = behandlingDokument.get();
             dto.setAvslagsarsakFritekst(behandlingDokumentEntitet.getVedtakFritekst());
-            dto.setHarRedigertVedtaksbrev(behandlingDokumentEntitet.getOverstyrtBrevFritekstHtml() != null);
         }
 
         dto.setVedtaksbrev(behandlingsresultat.getVedtaksbrev());
