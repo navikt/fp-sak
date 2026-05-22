@@ -91,10 +91,10 @@ import no.nav.foreldrepenger.web.app.tjenester.behandling.verge.VergeRestTjenest
 import no.nav.foreldrepenger.web.app.tjenester.behandling.vilkår.VilkårDtoMapper;
 import no.nav.foreldrepenger.web.app.tjenester.behandling.ytelsefordeling.YtelsefordelingRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.brev.BrevRestTjeneste;
-import no.nav.foreldrepenger.web.app.tjenester.mellomlagring.MellomlagringRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.dokument.DokumentRestTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.SaksnummerDto;
 import no.nav.foreldrepenger.web.app.tjenester.familiehendelse.FamiliehendelseRestTjeneste;
+import no.nav.foreldrepenger.web.app.tjenester.mellomlagring.MellomlagringRestTjeneste;
 
 /**
  * Bygger et sammensatt resultat av BehandlingDto ved å samle data fra ulike tjenester, for å kunne levere dette ut på en REST tjeneste.
@@ -339,6 +339,8 @@ public class BehandlingDtoTjeneste {
         var harSakenSøknad = søknadRepository.hentSøknadHvisEksisterer(behandling.getId()).isPresent();
         dto.setHarSøknad(harSakenSøknad);
         dto.leggTil(get(SøknadRestTjeneste.SØKNAD_PATH, "søknad", uuidDto));
+        dto.leggTil(post(MellomlagringRestTjeneste.MELLOMLAGRING_PATH, "mellomlagring"));
+        dto.leggTil(post(MellomlagringRestTjeneste.HENT_MELLOMLAGRING_PATH, "hent-mellomlagring"));
 
         if (dto.isAktivPapirsøknad()) {
             return dto;
@@ -350,8 +352,6 @@ public class BehandlingDtoTjeneste {
         }
 
         dto.leggTil(post(BrevRestTjeneste.BREV_HTML_PATH, "hent-brev-html"));
-        dto.leggTil(post(MellomlagringRestTjeneste.MELLOMLAGRING_PATH, "mellomlagring"));
-        dto.leggTil(post(MellomlagringRestTjeneste.HENT_MELLOMLAGRING_PATH, "hent-mellomlagring"));
 
         dto.leggTil(get(FamiliehendelseRestTjeneste.FAMILIEHENDELSE_V3_PATH, "familiehendelse-v3", uuidDto));
 
