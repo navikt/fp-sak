@@ -1,47 +1,31 @@
 # fp-sak — Agent Instructions
 
-## Integration Testing
+For team-wide context, see [fp-context](https://github.com/navikt/fp-context)
+and the **TeamForeldrepenger** Copilot Space.
 
-This application is tested by the [fp-autotest](https://github.com/navikt/fp-autotest) repository.
+## Integration testing
 
-**Test suites for fp-sak**: `fpsak`, `verdikjede`
+Lives in [fp-autotest](https://github.com/navikt/fp-autotest).
 
-### Quick Reference: Test Classes for fp-sak
+**Suites covering fp-sak:** `fpsak`, `verdikjede`
 
-#### Suite: fpsak (19 classes)
-**Engangsstønad:** Adopsjon, Fodsel, Innsyn, Klage, Medlemskap, Revurdering, Soknadsfrist, Termin
-**Foreldrepenger:** Aksjonspunkter, ArbeidsforholdVarianter, BeregningVerdikjede, Fodsel, Klage, MorOgFarSammen, RegresjonPreWLB, Revurdering, SammenhengendeUttak, Termin, ToTetteOgMinsterettTester, Ytelser
-**Svangerskapspenger:** Førstegangsbehandling
-
-#### Suite: verdikjede (4 classes)
-VerdikjedeEngangsstonad, VerdikjedeForeldrepenger, VerdikjedeSvangerskapspenger, AdressebeskyttelseOgSkjermetPersonTester
-
-### Run Commands
 ```bash
-# Full fpsak suite
-cd ~/git/fp-autotest && mvn test -P fpsak
-
-# Specific class
-mvn test -P fpsak -Dtest=Fodsel
-
-# Single method
-mvn test -P fpsak -Dtest="Fodsel#morSøkerFødselMedEttArbeidsforhold"
-
-# Verdikjede suite
-mvn test -P verdikjede
+cd ~/git/fp-autotest
+mvn test -P fpsak                    # full suite
+mvn test -P fpsak -Dtest=Fodsel      # single class
+mvn test -P verdikjede               # end-to-end
 ```
 
-### Testing Local Changes
+Test catalog and aksjonspunkt mapping are maintained in fp-autotest
+(`TEST_CATALOG.md`, `AKSJONSPUNKT_MAPPING.md`) — do not duplicate here.
 
-For building, deploying, and running tests against local fp-sak changes, use the `run-integration-tests` skill in fp-autotest (see `fp-autotest/.github/skills/run-integration-tests/`).
+## Local build for autotest
 
-Quick reference for fp-sak:
-- Docker build tag: `fp-sak`
-- .env variable: `FPSAK_IMAGE`
-- Docker Compose service: `fpsak`
+| Item | Value |
+|---|---|
+| Docker tag | `fp-sak` |
+| .env var | `FPSAK_IMAGE` |
+| Compose service | `fpsak` |
 
-### For Full Test Catalog
-
-See the fp-autotest repository for:
-- [AKSJONSPUNKT_MAPPING.md](https://github.com/navikt/fp-autotest/blob/master/AKSJONSPUNKT_MAPPING.md) — aksjonspunkt code → test method mapping
-- [TEST_CATALOG.md](https://github.com/navikt/fp-autotest/blob/master/TEST_CATALOG.md) — complete list of test methods with DisplayNames
+Use the `run-integration-tests` skill in fp-autotest for the full
+build → deploy → test loop.
