@@ -13,5 +13,5 @@ USING DUAL b
 ON (a.SATS_TYPE = 'GSNITT' and a.FOM = to_date('2026-01-01', 'YYYY-MM-DD'))
 WHEN NOT MATCHED THEN
     INSERT (id, SATS_TYPE, fom, tom, verdi)
-    VALUES (SEQ_BR_SATS.nextval, 'GSNITT', to_date('2026-01-01', 'YYYY-MM-DD'), to_date('2025-12-31', 'YYYY-MM-DD'), 134419);
+    VALUES (SEQ_BR_SATS.nextval, 'GSNITT', to_date('2026-01-01', 'YYYY-MM-DD'), to_date('2026-12-31', 'YYYY-MM-DD'), 134419);
 
