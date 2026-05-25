@@ -11,6 +11,14 @@ import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 
+import no.nav.foreldrepenger.mottak.fyllutsendinn.kilde.FormSubmission;
+import no.nav.foreldrepenger.mottak.fyllutsendinn.kilde.HvorHarDuBoddDeSiste12Manedene;
+import no.nav.foreldrepenger.mottak.fyllutsendinn.kilde.HvorSkalDuBoDeNeste12Manedene;
+import no.nav.foreldrepenger.mottak.fyllutsendinn.kilde.JaNei;
+import no.nav.foreldrepenger.mottak.fyllutsendinn.kilde.Nav140410Data;
+import no.nav.foreldrepenger.mottak.fyllutsendinn.kilde.Nav140507Data;
+import no.nav.foreldrepenger.mottak.fyllutsendinn.kilde.Nav140509Data;
+import no.nav.foreldrepenger.mottak.fyllutsendinn.kilde.Nav141605Data;
 import no.nav.vedtak.mapper.json.DefaultJsonMapper;
 
 class LesJournalførtFyllUtTest {
@@ -64,8 +72,8 @@ class LesJournalførtFyllUtTest {
 
             // Verify residence information
             assertThat(data.planleggerDuAVaereINorgePaFodselstidspunktet1()).isEqualTo(JaNei.JA);
-            assertThat(data.hvorSkalDuBoDeNeste12Manedene()).isEqualTo(Nav140507Data.HvorSkalDuBoDeNeste12Manedene.KUN_BO_I_NORGE);
-            assertThat(data.hvorHarDuBoddDeSiste12Manedene()).isEqualTo(Nav140507Data.HvorHarDuBoddDeSiste12Manedene.KUN_BODD_I_NORGE);
+            assertThat(data.hvorSkalDuBoDeNeste12Manedene()).isEqualTo(HvorSkalDuBoDeNeste12Manedene.KUN_BO_I_NORGE);
+            assertThat(data.hvorHarDuBoddDeSiste12Manedene()).isEqualTo(HvorHarDuBoddDeSiste12Manedene.KUN_BODD_I_NORGE);
             assertThat(data.harDuTilleggsopplysningerSomErRelevantForSoknaden()).isEqualTo(JaNei.NEI);
 
             // Verify attachments
@@ -136,8 +144,8 @@ class LesJournalførtFyllUtTest {
 
             // Verify residence information
             assertThat(data.planleggerDuAVaereINorgePaFodselstidspunktet1()).isEqualTo(JaNei.JA);
-            assertThat(data.hvorSkalDuBoDeNeste12Manedene()).isEqualTo(Nav140507Data.HvorSkalDuBoDeNeste12Manedene.KUN_BO_I_NORGE);
-            assertThat(data.hvorHarDuBoddDeSiste12Manedene()).isEqualTo(Nav140507Data.HvorHarDuBoddDeSiste12Manedene.BODD_I_UTLANDET_HELT_ELLER_DELVIS);
+            assertThat(data.hvorSkalDuBoDeNeste12Manedene()).isEqualTo(HvorSkalDuBoDeNeste12Manedene.KUN_BO_I_NORGE);
+            assertThat(data.hvorHarDuBoddDeSiste12Manedene()).isEqualTo(HvorHarDuBoddDeSiste12Manedene.BODD_I_UTLANDET_HELT_ELLER_DELVIS);
             assertThat(data.utenlandsopphold()).isNull();
 
             // Verify previous foreign stay
@@ -285,8 +293,8 @@ class LesJournalførtFyllUtTest {
             assertThat(periode.skalDuKombinereForeldrepengeneMedDelvisArbeid()).isEqualTo(JaNei.NEI);
 
             // Verify residence information
-            assertThat(data.hvorSkalDuBoDeNeste12Manedene()).isEqualTo(Nav140509Data.HvorSkalDuBoDeNeste12Manedene.KUN_BO_I_NORGE);
-            assertThat(data.hvorHarDuBoddDeSiste12Manedene()).isEqualTo(Nav140509Data.HvorHarDuBoddDeSiste12Manedene.KUN_BODD_I_NORGE);
+            assertThat(data.hvorSkalDuBoDeNeste12Manedene()).isEqualTo(HvorSkalDuBoDeNeste12Manedene.KUN_BO_I_NORGE);
+            assertThat(data.hvorHarDuBoddDeSiste12Manedene()).isEqualTo(HvorHarDuBoddDeSiste12Manedene.KUN_BODD_I_NORGE);
 
             // Verify income sources
             assertThat(data.harDuArbeidsforholdINorge()).isEqualTo(JaNei.NEI);

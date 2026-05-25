@@ -1,4 +1,4 @@
-package no.nav.foreldrepenger.mottak.fyllutsendinn;
+package no.nav.foreldrepenger.mottak.fyllutsendinn.kilde;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -35,20 +35,6 @@ public record Nav140508Data(
         ENGANGSSTONAD_VED_OVERTAKELSE_AV_FORELDREANSVARET_ELLER_OMSORGEN,
         @JsonProperty("engangsstonadTilFarSomAdoptererAlene")
         ENGANGSSTONAD_TIL_FAR_SOM_ADOPTERER_ALENE;
-    }
-
-    public enum HvorSkalDuBoDeNeste12Manedene {
-        @JsonProperty("boIUtlandetHeltEllerDelvis")
-        BO_I_UTLANDET_HELT_ELLER_DELVIS,
-        @JsonProperty("kunBoINorge")
-        KUN_BO_I_NORGE;
-    }
-
-    public enum HvorHarDuBoddDeSiste12Manedene {
-        @JsonProperty("boddIUtlandetHeltEllerDelvis")
-        BODD_I_UTLANDET_HELT_ELLER_DELVIS,
-        @JsonProperty("kunBoddINorge")
-        KUN_BODD_I_NORGE;
     }
 
     public record LeggTilBarnsFodselsdatoRow(@NotNull LocalDate fodselsdatoDdMmAaaa) {

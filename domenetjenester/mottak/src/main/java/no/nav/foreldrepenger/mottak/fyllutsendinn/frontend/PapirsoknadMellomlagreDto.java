@@ -1,11 +1,10 @@
-package no.nav.foreldrepenger.mottak.registrerer;
+package no.nav.foreldrepenger.mottak.fyllutsendinn.frontend;
 
 import java.time.LocalDate;
 import java.util.List;
 
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Max;
-import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 
@@ -41,13 +40,13 @@ public abstract class PapirsoknadMellomlagreDto {
 
     // Metadata — satt av frontend-wrapper (RegistrerPapirsoknadPanel), bruker ASCII-feltnavn
     @ValidKodeverk
-    private FamilieHendelseType tema;
+    private FamilieHendelseType familieHendelseType;
 
     @ValidKodeverk
-    private FagsakYtelseType soknadstype;
+    private FagsakYtelseType fagsakYtelseType;
 
     @ValidKodeverk
-    private ForeldreType foreldretype;
+    private ForeldreType foreldreType;
 
     // Mottatt dato
     private LocalDate mottattDato;
@@ -103,28 +102,28 @@ public abstract class PapirsoknadMellomlagreDto {
         // For Jackson
     }
 
-    public FamilieHendelseType getTema() {
-        return tema;
+    public FamilieHendelseType getFamilieHendelseType() {
+        return familieHendelseType;
     }
 
-    public void setTema(FamilieHendelseType tema) {
-        this.tema = tema;
+    public void setFamilieHendelseType(FamilieHendelseType familieHendelseType) {
+        this.familieHendelseType = familieHendelseType;
     }
 
-    public FagsakYtelseType getSoknadstype() {
-        return soknadstype;
+    public FagsakYtelseType getFagsakYtelseType() {
+        return fagsakYtelseType;
     }
 
-    public void setSoknadstype(FagsakYtelseType soknadstype) {
-        this.soknadstype = soknadstype;
+    public void setFagsakYtelseType(FagsakYtelseType fagsakYtelseType) {
+        this.fagsakYtelseType = fagsakYtelseType;
     }
 
-    public ForeldreType getForeldretype() {
-        return foreldretype;
+    public ForeldreType getForeldreType() {
+        return foreldreType;
     }
 
-    public void setForeldretype(ForeldreType foreldretype) {
-        this.foreldretype = foreldretype;
+    public void setForeldreType(ForeldreType foreldreType) {
+        this.foreldreType = foreldreType;
     }
 
     public LocalDate getMottattDato() {

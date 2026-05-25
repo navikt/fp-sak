@@ -1,4 +1,4 @@
-package no.nav.foreldrepenger.mottak.fyllutsendinn;
+package no.nav.foreldrepenger.mottak.fyllutsendinn.kilde;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -60,49 +60,6 @@ public record Nav141605Data(
         JEG_VAR_ALENE_OM_OMSORGEN_FOR_JEG_FIKK_FORELDREPENGER,
         @JsonProperty("jegHarBlittAleneOmOmsorgenEtterAtJegHarFattForeldrepenger")
         JEG_HAR_BLITT_ALENE_OM_OMSORGEN_ETTER_AT_JEG_HAR_FATT_FORELDREPENGER;
-    }
-
-    public enum HvaSkalMorGjoreIDennePerioden {
-        @JsonProperty("arbeid")
-        ARBEID,
-        @JsonProperty("utdanningPaHeltid")
-        UTDANNING_PA_HELTID,
-        @JsonProperty("arbeidOgUtdanningSomTilSammenBlirHeltid")
-        ARBEID_OG_UTDANNING_SOM_TIL_SAMMEN_BLIR_HELTID,
-        @JsonProperty("kvalifiseringsprogrammet")
-        KVALIFISERINGSPROGRAMMET,
-        @JsonProperty("introduksjonsprogrammet")
-        INTRODUKSJONSPROGRAMMET,
-        @JsonProperty("forSykTilATaSegAvBarnet")
-        FOR_SYK_TIL_A_TA_SEG_AV_BARNET,
-        @JsonProperty("innlagtPaHelseinstitusjon")
-        INNLAGT_PA_HELSEINSTITUSJON,
-        @JsonProperty("brukerDagerFraFlerbarnsukene")
-        BRUKER_DAGER_FRA_FLERBARNSUKENE;
-    }
-
-    public enum SkalDuTaUtForeldrepenger {
-        @JsonProperty("ja")
-        JA,
-        @JsonProperty("neiJegSkalHaOppholdIForeldrepengeneMine")
-        NEI_JEG_SKAL_HA_OPPHOLD_I_FORELDREPENGENE_MINE;
-    }
-
-    public enum HvaSkalMorGjoreIDennePeriodenOpphold {
-        @JsonProperty("arbeid")
-        ARBEID,
-        @JsonProperty("utdanningPaHeltid")
-        UTDANNING_PA_HELTID,
-        @JsonProperty("arbeidOgUtdanningSomTilSammenBlirHeltid")
-        ARBEID_OG_UTDANNING_SOM_TIL_SAMMEN_BLIR_HELTID,
-        @JsonProperty("kvalifiseringsprogrammet")
-        KVALIFISERINGSPROGRAMMET,
-        @JsonProperty("introduksjonsprogrammet")
-        INTRODUKSJONSPROGRAMMET,
-        @JsonProperty("forSykTilATaSegAvBarnet")
-        FOR_SYK_TIL_A_TA_SEG_AV_BARNET,
-        @JsonProperty("innlagtPaHelseinstitusjon")
-        INNLAGT_PA_HELSEINSTITUSJON;
     }
 
     public enum HvorforSkalDuOvertaKvoten {
@@ -192,13 +149,6 @@ public record Nav141605Data(
         @Valid HvorSkalDuJobbe hvorSkalDuJobbe,
         String navnPaArbeidsgiver
     ) {
-
-        public record HvorSkalDuJobbe(
-            Boolean hosArbeidsgiver,
-            Boolean frilanser,
-            Boolean selvstendigNaeringsdrivende
-        ) {
-        }
     }
 
     public record FedrekvoteRow(
@@ -211,13 +161,6 @@ public record Nav141605Data(
         @Valid HvorSkalDuJobbe hvorSkalDuJobbe,
         String navnPaArbeidsgiver
     ) {
-
-        public record HvorSkalDuJobbe(
-            Boolean hosArbeidsgiver,
-            Boolean frilanser,
-            Boolean selvstendigNaeringsdrivende
-        ) {
-        }
     }
 
     public record MedmorkvoteRow(
@@ -230,13 +173,6 @@ public record Nav141605Data(
         @Valid HvorSkalDuJobbe hvorSkalDuJobbe,
         String navnPaArbeidsgiver
     ) {
-
-        public record HvorSkalDuJobbe(
-            Boolean hosArbeidsgiver,
-            Boolean frilanser,
-            Boolean selvstendigNaeringsdrivende
-        ) {
-        }
     }
 
     public record FellesperiodeMorRow(
@@ -249,13 +185,6 @@ public record Nav141605Data(
         @Valid HvorSkalDuJobbe hvorSkalDuJobbe,
         String navnPaArbeidsgiver
     ) {
-
-        public record HvorSkalDuJobbe(
-            Boolean hosArbeidsgiver,
-            Boolean frilanser,
-            Boolean selvstendigNaeringsdrivende
-        ) {
-        }
     }
 
     public record FellesperiodeFarMedmorRow(
@@ -269,13 +198,6 @@ public record Nav141605Data(
         @Valid HvorSkalDuJobbe hvorSkalDuJobbe,
         String navnPaArbeidsgiver
     ) {
-
-        public record HvorSkalDuJobbe(
-            Boolean hosArbeidsgiver,
-            Boolean frilanser,
-            Boolean selvstendigNaeringsdrivende
-        ) {
-        }
     }
 
     public record KunMorRettRow(
@@ -286,13 +208,6 @@ public record Nav141605Data(
         @Valid HvorSkalDuJobbe hvorSkalDuJobbe,
         String navnPaArbeidsgiver
     ) {
-
-        public record HvorSkalDuJobbe(
-            Boolean hosArbeidsgiver,
-            Boolean frilanser,
-            Boolean selvstendigNaeringsdrivende
-        ) {
-        }
     }
 
     public record KunFarRettRow(
@@ -306,13 +221,6 @@ public record Nav141605Data(
         @Valid HvorSkalDuJobbe hvorSkalDuJobbe,
         String navnPaArbeidsgiver
     ) {
-
-        public record HvorSkalDuJobbe(
-            Boolean hosArbeidsgiver,
-            Boolean frilanser,
-            Boolean selvstendigNaeringsdrivende
-        ) {
-        }
     }
 
     public record KunMedmorRettRow(
@@ -326,13 +234,6 @@ public record Nav141605Data(
         @Valid HvorSkalDuJobbe hvorSkalDuJobbe,
         String navnPaArbeidsgiver
     ) {
-
-        public record HvorSkalDuJobbe(
-            Boolean hosArbeidsgiver,
-            Boolean frilanser,
-            Boolean selvstendigNaeringsdrivende
-        ) {
-        }
     }
 
     public record PeriodeMedforeldrepengerVedAleneomsorgRow(
@@ -343,13 +244,6 @@ public record Nav141605Data(
         @Valid HvorSkalDuJobbe hvorSkalDuJobbe,
         String navnPaArbeidsgiver
     ) {
-
-        public record HvorSkalDuJobbe(
-            Boolean hosArbeidsgiver,
-            Boolean frilanser,
-            Boolean selvstendigNaeringsdrivende
-        ) {
-        }
     }
 
     public record PeriodeMedforeldrepengerVedAleneomsorgFarMedmorRow(
@@ -360,13 +254,6 @@ public record Nav141605Data(
         @Valid HvorSkalDuJobbe hvorSkalDuJobbe,
         String navnPaArbeidsgiver
     ) {
-
-        public record HvorSkalDuJobbe(
-            Boolean hosArbeidsgiver,
-            Boolean frilanser,
-            Boolean selvstendigNaeringsdrivende
-        ) {
-        }
     }
 
     public record PeriodeMedforeldrepengerRow(
@@ -374,16 +261,9 @@ public record Nav141605Data(
         @NotNull LocalDate datoTilOgMedDdMmAaaa,
         @NotNull JaNei skalDuKombinereForeldrepengeneMedDelvisArbeidOvertattForeldreansvaret,
         @Min(1) @Max(99) Integer oppgiStillingsprosentenDuSkalJobbe,
-        @Valid HvorSkalDuJobbeOvertattForeldreansvaret hvorSkalDuJobbeOvertattForeldreansvaret,
+        @Valid HvorSkalDuJobbe hvorSkalDuJobbeOvertattForeldreansvaret,
         String navnPaArbeidsgiver
     ) {
-
-        public record HvorSkalDuJobbeOvertattForeldreansvaret(
-            Boolean hosArbeidsgiver,
-            Boolean frilanser,
-            Boolean selvstendigNaeringsdrivende
-        ) {
-        }
     }
 
     public record JegSokerOmAOvertaKvotenTilDenAndreForelderenRow(
@@ -396,13 +276,6 @@ public record Nav141605Data(
         @Valid HvorSkalDuJobbe hvorSkalDuJobbe,
         String navnPaArbeidsgiver
     ) {
-
-        public record HvorSkalDuJobbe(
-            Boolean hosArbeidsgiver,
-            Boolean frilanser,
-            Boolean selvstendigNaeringsdrivende
-        ) {
-        }
     }
 
     public record HvilkenPeriodeSkalDuIkkeAllikevelTaUtRow(@NotNull LocalDate datoFraOgMedDdMmAaaaUtenForeldrepenger, @NotNull LocalDate datoTilOgMedDdMmAaaa) {

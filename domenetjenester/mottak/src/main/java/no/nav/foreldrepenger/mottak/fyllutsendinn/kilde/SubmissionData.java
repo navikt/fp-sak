@@ -1,4 +1,4 @@
-package no.nav.foreldrepenger.mottak.fyllutsendinn;
+package no.nav.foreldrepenger.mottak.fyllutsendinn.kilde;
 
 import java.util.List;
 

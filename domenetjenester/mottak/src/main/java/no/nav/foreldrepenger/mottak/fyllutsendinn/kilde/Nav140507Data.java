@@ -1,4 +1,4 @@
-package no.nav.foreldrepenger.mottak.fyllutsendinn;
+package no.nav.foreldrepenger.mottak.fyllutsendinn.kilde;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -9,7 +9,6 @@ import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-
 
 /** NAV 14-05.07 – Søknad om engangsstønad ved fødsel */
 public record Nav140507Data(
@@ -45,20 +44,6 @@ public record Nav140507Data(
         TILBAKE_I_TID,
         @JsonProperty("fremITid")
         FREM_I_TID;
-    }
-
-    public enum HvorSkalDuBoDeNeste12Manedene {
-        @JsonProperty("boIUtlandetHeltEllerDelvis")
-        BO_I_UTLANDET_HELT_ELLER_DELVIS,
-        @JsonProperty("kunBoINorge")
-        KUN_BO_I_NORGE;
-    }
-
-    public enum HvorHarDuBoddDeSiste12Manedene {
-        @JsonProperty("boddIUtlandetHeltEllerDelvis")
-        BODD_I_UTLANDET_HELT_ELLER_DELVIS,
-        @JsonProperty("kunBoddINorge")
-        KUN_BODD_I_NORGE;
     }
 
     public record LeggTilBarnetEllerBarnasFodselsdatoRow(LocalDate fodselsdatoDdMmAaaa) {

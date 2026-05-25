@@ -1,4 +1,4 @@
-package no.nav.foreldrepenger.mottak.fyllutsendinn;
+package no.nav.foreldrepenger.mottak.fyllutsendinn.kilde;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -69,22 +69,11 @@ public record Nav140410Data(
         JEG_SKAL_BO_I_UTLANDET_HELT_ELLER_DELVIS;
     }
 
-    public enum HvilkenTypeVirksomhetDriverDu {
-        @JsonProperty("fiske")
-        FISKE,
-        @JsonProperty("jordbruk")
-        JORDBRUK,
-        @JsonProperty("dagmammaEllerFamiliebarnehageIEgetHjem")
-        DAGMAMMA_ELLER_FAMILIEBARNEHAGE_I_EGET_HJEM,
-        @JsonProperty("annenTypeVirksomhet")
-        ANNEN_TYPE_VIRKSOMHET;
-    }
-
     public enum HvorLengeHarDuHattDenneVirksomheten {
         @JsonProperty("under4Ar")
         UNDER_4_AR,
         @JsonProperty("4ArEllerMer")
-        _4_AR_ELLER_MER;
+        _4_AR_ELLER_MER; // NOSONAR
     }
 
     public enum HvilketLandJobbetDuI {
