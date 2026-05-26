@@ -10,10 +10,10 @@ import org.slf4j.LoggerFactory;
 
 import no.nav.foreldrepenger.felles.jms.QueueSelftest;
 import no.nav.foreldrepenger.økonomistøtte.queue.consumer.ØkonomiOppdragKvitteringAsyncJmsConsumer;
-import no.nav.vedtak.server.LiveAndReadinessAware;
+import no.nav.vedtak.server.LivenessAware;
 
 @ApplicationScoped
-public class KvitteringQueueHealthCheck implements LiveAndReadinessAware {
+public class KvitteringQueueHealthCheck implements LivenessAware {
     private static final Logger LOG = LoggerFactory.getLogger(KvitteringQueueHealthCheck.class);
     private QueueSelftest client;
 
@@ -32,15 +32,10 @@ public class KvitteringQueueHealthCheck implements LiveAndReadinessAware {
         } catch (JMSRuntimeException | JMSException _) {
             if (LOG.isWarnEnabled()) {
                 LOG.warn("Feil ved Kvittering meldingskø helsesjekk: {}", client.getConnectionEndpoint());
-                return true;
+                return false;
             }
         }
         return true;
-    }
-
-    @Override
-    public boolean isReady() {
-        return isOK();
     }
 
     @Override
