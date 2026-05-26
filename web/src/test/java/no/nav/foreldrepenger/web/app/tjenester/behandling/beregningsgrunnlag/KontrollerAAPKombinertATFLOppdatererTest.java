@@ -33,7 +33,7 @@ class KontrollerAAPKombinertATFLOppdatererTest {
 
         var historikkinnslag = captor.getValue();
         assertThat(historikkinnslag.getAktør()).isEqualTo(HistorikkAktør.SAKSBEHANDLER);
-        assertThat(historikkinnslag.getSkjermlenke()).isEqualTo(SkjermlenkeType.ARBEIDSAVKLARINGSPENGER);
+        assertThat(historikkinnslag.getSkjermlenke()).isEqualTo(SkjermlenkeType.FAKTA_OM_ARBEIDSAVKLARINGSPENGER);
         assertThat(historikkinnslag.getTekstLinjer()).contains("Beregningen er kontrollert og korrekt.");
         assertThat(resultat.getEkstraAksjonspunktResultat()).isEmpty();
     }
