@@ -21,7 +21,7 @@
     "mem": "2000Mi"
   },
   "requests": {
-    "cpu": "100m",
+    "cpu": "125m",
     "mem": "1600Mi"
   },
   "ingresses": [
