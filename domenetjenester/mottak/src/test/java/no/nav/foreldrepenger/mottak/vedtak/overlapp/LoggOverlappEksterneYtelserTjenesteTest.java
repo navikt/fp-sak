@@ -53,7 +53,6 @@ import no.nav.foreldrepenger.domene.typer.PersonIdent;
 import no.nav.foreldrepenger.mottak.vedtak.rest.DpsakKlient;
 import no.nav.foreldrepenger.mottak.vedtak.rest.InfotrygdPSGrunnlag;
 import no.nav.foreldrepenger.mottak.vedtak.rest.InfotrygdSPGrunnlag;
-import no.nav.foreldrepenger.mottak.vedtak.rest.KelvinKlient;
 import no.nav.foreldrepenger.produksjonsstyring.oppgavebehandling.OppgaveTjeneste;
 import no.nav.vedtak.felles.integrasjon.infotrygd.grunnlag.v1.respons.Grunnlag;
 import no.nav.vedtak.felles.integrasjon.infotrygd.grunnlag.v1.respons.Periode;
@@ -87,8 +86,6 @@ class LoggOverlappEksterneYtelserTjenesteTest extends EntityManagerAwareTest {
     @Mock
     private DpsakKlient dpsakKlientMock;
     @Mock
-    private KelvinKlient kelvinKlientMock;
-    @Mock
     private OppgaveTjeneste oppgaveTjenesteMock;
 
     private Behandling behandlingFP;
@@ -103,7 +100,7 @@ class LoggOverlappEksterneYtelserTjenesteTest extends EntityManagerAwareTest {
         var overlappOppgaveTjeneste = new OverlappOppgaveTjeneste(oppgaveTjenesteMock);
         overlappendeInfotrygdYtelseTjeneste = new LoggOverlappEksterneYtelserTjeneste(
             beregningsresultatRepository, personinfoAdapter, infotrygdPSGrTjenesteMock, infotrygdSPGrTjenesteMock,
-            abakusMock, spøkelseMock, dpsakKlientMock, kelvinKlientMock, overlappRepository, behandlingRepository, overlappOppgaveTjeneste);
+            abakusMock, spøkelseMock, dpsakKlientMock, overlappRepository, behandlingRepository, overlappOppgaveTjeneste);
         førsteUttaksdatoFp = LocalDate.now().minusMonths(4).minusWeeks(2);
         førsteUttaksdatoFp = VirkedagUtil.fomVirkedag(førsteUttaksdatoFp);
 
