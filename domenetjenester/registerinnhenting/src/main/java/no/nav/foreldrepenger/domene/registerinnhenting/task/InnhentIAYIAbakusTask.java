@@ -50,6 +50,11 @@ public class InnhentIAYIAbakusTask extends GenerellProsessTask {
     @Override
     protected void prosesser(ProsessTaskData prosessTaskData, Long fagsakId, Long behandlingId) {
 
+        var behandling = behandlingRepository.hentBehandling(behandlingId);
+        if (behandling.erSaksbehandlingAvsluttet()) {
+            return;
+        }
+
         var hendelse = prosessTaskData.getVentetHendelse();
         var grunnlag = Optional.ofNullable(prosessTaskData.getPropertyValue(OPPDATERT_GRUNNLAG_KEY));
         if (hendelse.isPresent() && grunnlag.filter(s -> !s.isEmpty()).isPresent()) {
@@ -59,7 +64,6 @@ public class InnhentIAYIAbakusTask extends GenerellProsessTask {
 
         if (hendelse.isEmpty() || grunnlag.isEmpty()) {
             var overstyr = prosessTaskData.getPropertyValue(OVERSTYR_KEY) != null && OVERSTYR_VALUE.equals(prosessTaskData.getPropertyValue(OVERSTYR_KEY));
-            var behandling = behandlingRepository.hentBehandling(behandlingId);
 
             precondition(behandling);
 
