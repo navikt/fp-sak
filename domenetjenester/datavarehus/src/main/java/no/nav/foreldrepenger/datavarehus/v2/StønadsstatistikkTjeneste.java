@@ -518,8 +518,7 @@ public class StønadsstatistikkTjeneste {
         if (!behandling.erRevurdering()) {
             return null;
         }
-        // MIdlertidig
-        if (behandling.harNoenBehandlingÅrsaker(Set.of(BehandlingÅrsakType.FEIL_PRAKSIS_UTSETTELSE, BehandlingÅrsakType.FEIL_PRAKSIS_IVERKS_UTSET)) || fagsakMarkering.contains(FagsakMarkering.PRAKSIS_UTSETTELSE)) {
+        if (fagsakMarkering.contains(FagsakMarkering.PRAKSIS_UTSETTELSE)) {
             return StønadsstatistikkVedtak.RevurderingÅrsak.PRAKSIS_UTSETTELSE;
         }
         if (behandling.harBehandlingÅrsak(BehandlingÅrsakType.RE_ENDRING_FRA_BRUKER)) {

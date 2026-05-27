@@ -29,7 +29,6 @@ import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
-import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspunkt;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatRepository;
@@ -229,17 +228,10 @@ public class SimulerOppdragSteg implements BehandlingSteg {
         // Ingen utbetaling i denne behandlingen, vil ikke bli etterbetaling
         var utbetResultat = beregningsresultatRepository.hentUtbetBeregningsresultat(behandling.getId());
 
-        // For å ikke stoppe unødig mange saker ifm revurderinger forårsaket av praksisendring for AAP status beregning har disse behandlingene egen grense
-        var erBehandlingSomSkalTåleHøyereEtterbetaling = behandling.harBehandlingÅrsak(BehandlingÅrsakType.FEIL_PRAKSIS_BG_AAP_KOMBI);
-
         return utbetResultat.flatMap(beregningsresultatEntitet -> behandling.getOriginalBehandlingId()
-            .flatMap(orgId -> beregningsresultatRepository.hentUtbetBeregningsresultat(orgId).map(forrigeRes -> {
-                if (erBehandlingSomSkalTåleHøyereEtterbetaling) {
-                    return Etterbetalingtjeneste.finnSumSomVilBliEtterbetalt(LocalDate.now(), forrigeRes, beregningsresultatEntitet, BigDecimal.valueOf(200_000));
-                } else {
-                    return Etterbetalingtjeneste.finnSumSomVilBliEtterbetalt(LocalDate.now(), forrigeRes, beregningsresultatEntitet);
-                }
-            })));
+            .flatMap(orgId -> beregningsresultatRepository.hentUtbetBeregningsresultat(orgId).map(forrigeRes ->
+                Etterbetalingtjeneste.finnSumSomVilBliEtterbetalt(LocalDate.now(), forrigeRes, beregningsresultatEntitet)
+            )));
     }
 
     private void lagreBrukInntrekk(Behandling behandling, SimuleringResultatDto resultatDto) {

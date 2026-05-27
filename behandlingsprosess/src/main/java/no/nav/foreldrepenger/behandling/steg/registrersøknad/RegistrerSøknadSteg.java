@@ -9,11 +9,9 @@ import static no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aks
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.Month;
 import java.time.Period;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Set;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -51,7 +49,6 @@ import no.nav.foreldrepenger.produksjonsstyring.behandlingenhet.RegistrerFagsakE
 @ApplicationScoped
 public class RegistrerSøknadSteg implements BehandlingSteg {
     private static final Period VENT_PÅ_SØKNAD_PERIODE = Period.parse("P4W");
-    private static final LocalDate FRIST_PRAKSIS_UTSETTELSE = LocalDate.of(2026, Month.APRIL, 20);
     private BehandlingRepository behandlingRepository;
     private MottatteDokumentTjeneste mottatteDokumentTjeneste;
     private RegistrerFagsakEgenskaper registrerFagsakEgenskaper;
@@ -93,18 +90,6 @@ public class RegistrerSøknadSteg implements BehandlingSteg {
         var søknadMottatt = kompletthetsjekker.vurderSøknadMottatt(ref);
         if (!søknadMottatt.erOppfylt()) {
             return evaluerSøknadMottattUoppfylt(behandling, kontekst.getSkriveLås(), søknadMottatt, VENT_PÅ_SØKNAD);
-        }
-
-        if (behandling.harNoenBehandlingÅrsaker(Set.of(BehandlingÅrsakType.FEIL_PRAKSIS_UTSETTELSE, BehandlingÅrsakType.FEIL_PRAKSIS_IVERKS_UTSET)) && !behandling.harBehandlingÅrsak(BehandlingÅrsakType.RE_ENDRING_FRA_BRUKER)) {
-            if (skalHenleggeBehandling(behandling)) {
-                return henlegg(behandling, kontekst.getSkriveLås());
-            }
-            if (!behandling.harAksjonspunktMedType(VENT_PÅ_SØKNAD)) {
-                var ventefrist = FRIST_PRAKSIS_UTSETTELSE.atStartOfDay();
-
-                var aksjonspunktResultat = AksjonspunktResultat.opprettForAksjonspunktMedFrist(VENT_PÅ_SØKNAD, Venteårsak.VENT_PÅ_BRUKERTILBAKEMELDING, ventefrist);
-                return BehandleStegResultat.utførtMedAksjonspunktResultat(aksjonspunktResultat);
-            }
         }
 
         // OBS Dokumentmottak kan kopierere vedlegg fra tidligere behandlinger og disse
