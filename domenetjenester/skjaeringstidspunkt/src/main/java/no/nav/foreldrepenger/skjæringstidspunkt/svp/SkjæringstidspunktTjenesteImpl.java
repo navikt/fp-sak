@@ -153,6 +153,11 @@ public class SkjæringstidspunktTjenesteImpl implements SkjæringstidspunktTjene
             .flatMap(SkjæringstidspunktTjenesteImpl::tidligsteDatoFraTilrettelegginger)
             .or(() -> Optional.ofNullable(grunnlag.getOpprinneligeTilrettelegginger())
                 .flatMap(SkjæringstidspunktTjenesteImpl::tidligsteDatoFraTilrettelegginger))
+            // I tilfelle alle tilrettelegginger har skalBrukes = false av mystisk grunner (sett ved søknad på åpen manuell revurdering).
+            .or(() -> Optional.ofNullable(grunnlag.getOverstyrteTilrettelegginger())
+                .flatMap(SkjæringstidspunktTjenesteImpl::tidligsteDatoFraAlleTilrettelegginger))
+            .or(() -> Optional.ofNullable(grunnlag.getOpprinneligeTilrettelegginger())
+                .flatMap(SkjæringstidspunktTjenesteImpl::tidligsteDatoFraAlleTilrettelegginger))
             .orElseThrow(() -> new IllegalStateException("Klarte ikke finne skjæringstidspunkt for SVP"));
     }
 
@@ -160,6 +165,13 @@ public class SkjæringstidspunktTjenesteImpl implements SkjæringstidspunktTjene
         return Optional.ofNullable(tilrettelegginger)
             .map(SvpTilretteleggingerEntitet::getTilretteleggingListe).orElse(List.of()).stream()
             .filter(SvpTilretteleggingEntitet::getSkalBrukes)
+            .map(BeregnTilrettleggingsdato::beregnFraTilrettelegging)
+            .min(Comparator.naturalOrder());
+    }
+
+    private static Optional<LocalDate> tidligsteDatoFraAlleTilrettelegginger(SvpTilretteleggingerEntitet tilrettelegginger) {
+        return Optional.ofNullable(tilrettelegginger)
+            .map(SvpTilretteleggingerEntitet::getTilretteleggingListe).orElse(List.of()).stream()
             .map(BeregnTilrettleggingsdato::beregnFraTilrettelegging)
             .min(Comparator.naturalOrder());
     }
