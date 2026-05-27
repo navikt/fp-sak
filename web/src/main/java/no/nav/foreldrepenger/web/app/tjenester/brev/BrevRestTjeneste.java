@@ -264,13 +264,25 @@ public class BrevRestTjeneste {
 
     @GET
     @Path(HENT_VEDTAKSBREV_PART_PATH)
-    @Operation(description = "Henter redigert vedtaksbrev som PDF. Bruker mellomlagring for aktive behandlinger, SAF for avsluttede.", tags = "brev")
+    @Operation(description = "Henter redigert vedtaksbrev som PDF. Prioriterer arkivert dokument (SAF), faller tilbake til mellomlagring for aktive behandlinger.", tags = "brev")
     @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK, sporingslogg = false)
     public Response hentVedtaksbrev(@TilpassetAbacAttributt(supplierClass = BehandlingAbacSuppliers.UuidAbacDataSupplier.class)
             @NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
         var behandling = behandlingRepository.hentBehandling(uuidDto.getBehandlingUuid());
 
-        // Strategi 1: Mellomlagring finnes (aktiv behandling) → konverter til PDF via fp-formidling
+        // Strategi 1: Hent fra SAF (arkivert PDF er fasit — det som faktisk ble sendt)
+        var journalpostId = dokumentBehandlingTjeneste.finnJournalpostIdForRedigertVedtaksbrev(behandling.getId());
+        if (journalpostId.isPresent()) {
+            var journalpost = dokumentArkivTjeneste.hentJournalpostForSak(journalpostId.get());
+            if (journalpost.isPresent() && journalpost.get().getHovedDokument() != null) {
+                var dokumentId = journalpost.get().getHovedDokument().getDokumentId();
+                var dokumentRespons = dokumentArkivTjeneste.hentDokument(journalpostId.get(), dokumentId);
+                return Response.ok(dokumentRespons.innhold()).type(dokumentRespons.contentType())
+                    .header("Content-Disposition", dokumentRespons.contentDisp()).build();
+            }
+        }
+
+        // Strategi 2: Mellomlagring finnes (aktiv behandling, ikke ennå arkivert) → konverter til PDF via fp-formidling
         var mellomlagretHtml = dokumentBehandlingTjeneste.hentMellomlagretOverstyring(behandling.getId());
         if (mellomlagretHtml.isPresent()) {
             var bestilling = DokumentForhandsvisning.builder()
@@ -286,18 +298,6 @@ public class BrevRestTjeneste {
                     .header("Content-Disposition", "filename=vedtaksbrev.pdf").build();
             }
             return Response.serverError().build();
-        }
-
-        // Strategi 2: Hent fra SAF (avsluttet behandling, mellomlagring slettet)
-        var journalpostId = dokumentBehandlingTjeneste.finnJournalpostIdForRedigertVedtaksbrev(behandling.getId());
-        if (journalpostId.isPresent()) {
-            var journalpost = dokumentArkivTjeneste.hentJournalpostForSak(journalpostId.get());
-            if (journalpost.isPresent() && journalpost.get().getHovedDokument() != null) {
-                var dokumentId = journalpost.get().getHovedDokument().getDokumentId();
-                var dokumentRespons = dokumentArkivTjeneste.hentDokument(journalpostId.get(), dokumentId);
-                return Response.ok(dokumentRespons.innhold()).type(dokumentRespons.contentType())
-                    .header("Content-Disposition", dokumentRespons.contentDisp()).build();
-            }
         }
 
         return Response.status(Response.Status.NOT_FOUND).build();
