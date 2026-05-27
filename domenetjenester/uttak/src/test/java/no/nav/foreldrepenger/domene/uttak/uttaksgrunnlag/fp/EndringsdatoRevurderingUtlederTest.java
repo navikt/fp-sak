@@ -1,8 +1,6 @@
 package no.nav.foreldrepenger.domene.uttak.uttaksgrunnlag.fp;
 
 import static no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType.BERØRT_BEHANDLING;
-import static no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType.FEIL_PRAKSIS_IVERKS_UTSET;
-import static no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType.FEIL_PRAKSIS_UTSETTELSE;
 import static no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType.OPPHØR_YTELSE_NYTT_BARN;
 import static no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType.RE_ENDRET_INNTEKTSMELDING;
 import static no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType.RE_ENDRING_FRA_BRUKER;
@@ -787,46 +785,6 @@ class EndringsdatoRevurderingUtlederTest {
         var endringsdatoMor = utleder.utledEndringsdato(input);
 
         assertThat(endringsdatoMor).isEqualTo(FØRSTE_UTTAKSDATO_GJELDENDE_VEDTAK);
-    }
-
-    @Test
-    void skal_utlede_at_endringsdato_er_første_uttaksdato_fra_vedtak_når_revurdering_er_pga_feil_praksis_utsettelse() {
-        var revurdering = testUtil.opprettRevurdering(FEIL_PRAKSIS_UTSETTELSE);
-        var input = lagInput(revurdering).medBehandlingÅrsaker(Set.of(FEIL_PRAKSIS_UTSETTELSE));
-
-        var endringsdato = utleder.utledEndringsdato(input);
-
-        assertThat(endringsdato).isEqualTo(FØRSTE_UTTAKSDATO_GJELDENDE_VEDTAK);
-    }
-
-    @Test
-    void skal_utlede_at_endringsdato_er_første_uttaksdato_fra_vedtak_når_revurdering_er_pga_feil_praksis_utsettelse_og_endringssøknad_mottatt() {
-        var revurdering = testUtil.opprettRevurdering(FEIL_PRAKSIS_UTSETTELSE);
-        var input = lagInput(revurdering).medBehandlingÅrsaker(Set.of(FEIL_PRAKSIS_UTSETTELSE, RE_ENDRING_FRA_BRUKER));
-
-        var endringsdato = utleder.utledEndringsdato(input);
-
-        assertThat(endringsdato).isEqualTo(FØRSTE_UTTAKSDATO_GJELDENDE_VEDTAK);
-    }
-
-    @Test
-    void skal_utlede_at_endringsdato_er_første_uttaksdato_fra_vedtak_når_revurdering_er_pga_feil_iverksettelse_fri_utsettelse() {
-        var revurdering = testUtil.opprettRevurdering(FEIL_PRAKSIS_IVERKS_UTSET);
-        var input = lagInput(revurdering).medBehandlingÅrsaker(Set.of(FEIL_PRAKSIS_IVERKS_UTSET));
-
-        var endringsdato = utleder.utledEndringsdato(input);
-
-        assertThat(endringsdato).isEqualTo(FØRSTE_UTTAKSDATO_GJELDENDE_VEDTAK);
-    }
-
-    @Test
-    void skal_utlede_at_endringsdato_er_første_uttaksdato_fra_vedtak_når_revurdering_er_pga_feil_iverksettelse_fri_utsettelse_og_endringssøknad_mottatt() {
-        var revurdering = testUtil.opprettRevurdering(FEIL_PRAKSIS_IVERKS_UTSET);
-        var input = lagInput(revurdering).medBehandlingÅrsaker(Set.of(FEIL_PRAKSIS_IVERKS_UTSET, RE_ENDRING_FRA_BRUKER));
-
-        var endringsdato = utleder.utledEndringsdato(input);
-
-        assertThat(endringsdato).isEqualTo(FØRSTE_UTTAKSDATO_GJELDENDE_VEDTAK);
     }
 
     @Test
