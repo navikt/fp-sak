@@ -7,8 +7,6 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.Set;
-import java.util.stream.Stream;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -101,12 +99,6 @@ public class DokumentBehandlingTjeneste {
                 || dokumentMalTypeKode.equals(dok.getOpprinneligDokumentMal()))
             .map(BaseCreateableEntitet::getOpprettetTidspunkt)
             .max(Comparator.naturalOrder());
-    }
-
-    public boolean erDokumentBestiltForFagsak(Long fagsakId, DokumentMalType dokumentMalTypeKode) {
-        return behandlingRepository.hentAbsoluttAlleBehandlingerForFagsak(fagsakId)
-            .stream()
-            .anyMatch(b -> erDokumentBestilt(b.getId(), dokumentMalTypeKode));
     }
 
     public void nullstillVedtakFritekstHvisFinnes(Long behandlingId) {
@@ -217,11 +209,6 @@ public class DokumentBehandlingTjeneste {
                 .map(d -> d.getOverstyrtBrevFritekstHtml() != null).orElse(false);
     }
 
-    private static final Set<DokumentMalType> VEDTAKSBREV_MALER = Stream.concat(
-        DokumentMalType.VEDTAKSBREV.stream(),
-        Stream.of(DokumentMalType.ENDRING_UTBETALING)
-    ).collect(java.util.stream.Collectors.toUnmodifiableSet());
-
     public boolean harRedigertVedtaksbrev(Long behandlingId) {
         if (harMellomlagretOverstyring(behandlingId)) {
             return true;
@@ -236,7 +223,7 @@ public class DokumentBehandlingTjeneste {
             .stream()
             .anyMatch(d -> DokumentMalType.FRITEKST_HTML.equals(d.getDokumentMalType())
                 && d.getOpprinneligDokumentMal() != null
-                && VEDTAKSBREV_MALER.contains(d.getOpprinneligDokumentMal()));
+                && DokumentMalType.VEDTAKSBREV.contains(d.getOpprinneligDokumentMal()));
     }
 
     public Optional<JournalpostId> finnJournalpostIdForRedigertVedtaksbrev(Long behandlingId) {
@@ -246,7 +233,7 @@ public class DokumentBehandlingTjeneste {
             .stream()
             .filter(d -> DokumentMalType.FRITEKST_HTML.equals(d.getDokumentMalType())
                 && d.getOpprinneligDokumentMal() != null
-                && VEDTAKSBREV_MALER.contains(d.getOpprinneligDokumentMal())
+                && DokumentMalType.VEDTAKSBREV.contains(d.getOpprinneligDokumentMal())
                 && d.getJournalpostId() != null)
             .map(BehandlingDokumentBestiltEntitet::getJournalpostId)
             .findFirst();
