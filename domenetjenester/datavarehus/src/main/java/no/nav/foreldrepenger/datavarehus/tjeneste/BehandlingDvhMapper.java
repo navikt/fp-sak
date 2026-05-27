@@ -29,7 +29,6 @@ import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 import java.util.UUID;
 import java.util.function.Function;
 
@@ -202,8 +201,7 @@ public class BehandlingDvhMapper {
         if (!behandling.erRevurdering()) {
             return null;
         }
-        // Midlertidig
-        if (behandling.harNoenBehandlingÅrsaker(Set.of(BehandlingÅrsakType.FEIL_PRAKSIS_UTSETTELSE, BehandlingÅrsakType.FEIL_PRAKSIS_IVERKS_UTSET)) || fagsakMarkering.contains(FagsakMarkering.PRAKSIS_UTSETTELSE)) {
+        if (fagsakMarkering.contains(FagsakMarkering.PRAKSIS_UTSETTELSE)) {
             return RevurderingÅrsak.PRAKSISUTSETTELSE;
         }
         if (behandling.harBehandlingÅrsak(BehandlingÅrsakType.RE_ENDRING_FRA_BRUKER)) {
