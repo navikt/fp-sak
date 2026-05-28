@@ -132,7 +132,7 @@ public class RevurderingBehandlingsresultatutlederFelles {
         if (erEndringIUttak && uttakRevurdering.map(Uttak::erOpphør).orElse(false)) {
             // Endret ifm TFP-5356 la bruker søke på restdager av minsterett også etter ny stønadsperiode
             // Aktuell kode for TFP-5360 - håndtering av søknad som gir både innvilget og avslått/opphør-perioder
-            var opphør = !uttakOriginal.orElseThrow().harOpphørsUttakNyeInnvilgetePerioder(uttakRevurdering.orElseThrow()) || !totette(revurdering);
+            var opphør = !uttakRevurdering.orElseThrow().harOpphørsUttakNyeInnvilgedePerioderFra(uttakOriginal.orElseThrow()) || !totette(revurdering);
             if (opphør) {
                 return opphør(revurdering, behandlingsresultatRevurdering);
             }
@@ -178,7 +178,7 @@ public class RevurderingBehandlingsresultatutlederFelles {
 
     private boolean erEndringIUttak(Optional<Uttak> uttakRevurdering, Optional<Uttak> uttakOriginal, BehandlingReferanse revurderingRef) {
         if (uttakRevurdering.isPresent() && uttakOriginal.isPresent()) {
-            return uttakOriginal.get().harUlikUttaksplan(uttakRevurdering.get()) || uttakOriginal.get()
+            return uttakRevurdering.get().erEndretUttaksplanFra(uttakOriginal.get()) || uttakOriginal.get()
                 .harUlikKontoEllerMinsterett(uttakRevurdering.get()) || dekningsgradTjeneste.behandlingHarEndretDekningsgrad(revurderingRef);
         }
         return !Objects.equals(uttakOriginal, uttakRevurdering);
