@@ -18,12 +18,14 @@ import no.nav.foreldrepenger.behandlingslager.behandling.dokument.BehandlingDoku
 import no.nav.foreldrepenger.behandlingslager.behandling.dokument.BehandlingDokumentRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.dokument.DokumentMalType;
 import no.nav.foreldrepenger.behandlingslager.behandling.dokument.MellomlagringRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.dokument.MellomlagringType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.AbstractTestScenario;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerEngangsstønad;
 import no.nav.foreldrepenger.behandlingsprosess.prosessering.BehandlingProsesseringTjeneste;
 import no.nav.foreldrepenger.dbstoette.CdiDbAwareTest;
+import no.nav.foreldrepenger.domene.typer.JournalpostId;
 
 @CdiDbAwareTest
 class DokumentBehandlingTjenesteTest {
@@ -36,6 +38,7 @@ class DokumentBehandlingTjenesteTest {
 
     private AbstractTestScenario<?> scenario;
     private BehandlingDokumentRepository behandlingDokumentRepository;
+    private MellomlagringRepository mellomlagringRepository;
     private DokumentBehandlingTjeneste dokumentBehandlingTjeneste;
     private Behandling behandling;
     private BehandlingRepository behandlingRepository;
@@ -45,8 +48,9 @@ class DokumentBehandlingTjenesteTest {
     void setUp() {
         behandlingRepository = repositoryProvider.getBehandlingRepository();
         behandlingDokumentRepository = new BehandlingDokumentRepository(repositoryProvider.getEntityManager());
+        mellomlagringRepository = new MellomlagringRepository(repositoryProvider.getEntityManager());
         dokumentBehandlingTjeneste = new DokumentBehandlingTjeneste(repositoryProvider, behandlingProsesseringTjeneste, behandlingDokumentRepository,
-            new MellomlagringRepository(repositoryProvider.getEntityManager()));
+            mellomlagringRepository);
         this.scenario = ScenarioMorSøkerEngangsstønad
                 .forFødsel()
                 .medFødselAdopsjonsdato(Collections.singletonList(LocalDate.now().minusDays(3)));
@@ -182,13 +186,8 @@ class DokumentBehandlingTjenesteTest {
     void skal_finne_overtyrt_brev_ved_mellomlagring() {
         // Arrange
         behandling = scenario.lagre(repositoryProvider);
-        var behandlingDokumentBuilder = BehandlingDokumentEntitet.Builder.ny()
-            .medBehandling(behandling.getId());
-        behandlingDokumentRepository.lagreOgFlush(behandlingDokumentBuilder.build());
-
-        // Act
         var overstyrtBrev = "<div><h1>TITTELEN ER GOD</h1><p>body</p></div>";
-        dokumentBehandlingTjeneste.lagreOverstyrtBrev(behandling, overstyrtBrev);
+        mellomlagringRepository.lagreEllerOppdater(behandling.getId(), MellomlagringType.VEDTAKSBREV, overstyrtBrev);
 
         // Assert
         var mellomlagretOverstyring = dokumentBehandlingTjeneste.hentMellomlagretOverstyring(behandling.getId());
@@ -197,7 +196,7 @@ class DokumentBehandlingTjenesteTest {
     }
 
     @Test
-    void skal_ikke_finne_overstyrt_brev_hvis_en_fjerner_mellomlagring() {
+    void skal_fallbacke_til_gammel_tabell_hvis_ikke_i_mellomlagring() {
         // Arrange
         var overstyrtBrev = "<div><h1>TITTELEN ER GOD</h1><p>body</p></div>";
         behandling = scenario.lagre(repositoryProvider);
@@ -206,15 +205,78 @@ class DokumentBehandlingTjenesteTest {
             .medOverstyrtBrevFritekstHtml(overstyrtBrev)
             .medUtfyllendeTekstAutomatiskVedtaksbrev(VEDTAK_FRITEKST);
         behandlingDokumentRepository.lagreOgFlush(behandlingDokumentBuilder.build());
-        assertThat(dokumentBehandlingTjeneste.hentMellomlagretOverstyring(behandling.getId())).isPresent();
-        assertThat(dokumentBehandlingTjeneste.hentMellomlagretOverstyring(behandling.getId()).get()).contains(overstyrtBrev);
 
-        // Act
-        dokumentBehandlingTjeneste.lagreOverstyrtBrev(behandling, null);
-
-        // Assert
+        // Assert - finner fra gammel tabell
         var mellomlagretOverstyring = dokumentBehandlingTjeneste.hentMellomlagretOverstyring(behandling.getId());
-        assertThat(mellomlagretOverstyring).isEmpty();
+        assertThat(mellomlagretOverstyring).isPresent();
+        assertThat(mellomlagretOverstyring.get()).contains(overstyrtBrev);
+    }
+
+    @Test
+    void harMellomlagretOverstyring_returnerer_true_for_ny_tabell() {
+        behandling = scenario.lagre(repositoryProvider);
+        mellomlagringRepository.lagreEllerOppdater(behandling.getId(), MellomlagringType.VEDTAKSBREV, "<p>vedtak</p>");
+
+        assertThat(dokumentBehandlingTjeneste.harMellomlagretOverstyring(behandling.getId())).isTrue();
+    }
+
+    @Test
+    void harMellomlagretOverstyring_returnerer_false_uten_data() {
+        behandling = scenario.lagre(repositoryProvider);
+
+        assertThat(dokumentBehandlingTjeneste.harMellomlagretOverstyring(behandling.getId())).isFalse();
+    }
+
+    @Test
+    void harRedigertVedtaksbrev_returnerer_true_for_mellomlagret_vedtaksbrev() {
+        behandling = scenario.lagre(repositoryProvider);
+        mellomlagringRepository.lagreEllerOppdater(behandling.getId(), MellomlagringType.VEDTAKSBREV, "<p>redigert vedtaksbrev</p>");
+
+        assertThat(dokumentBehandlingTjeneste.harRedigertVedtaksbrev(behandling.getId())).isTrue();
+    }
+
+    @Test
+    void harRedigertVedtaksbrev_returnerer_true_for_bestilt_redigert_vedtaksbrev() {
+        behandling = scenario.lagre(repositoryProvider);
+        dokumentBehandlingTjeneste.lagreDokumentBestilt(behandling,
+            lagBestilling(DokumentMalType.FRITEKST_HTML, DokumentMalType.ENGANGSSTØNAD_INNVILGELSE));
+
+        assertThat(dokumentBehandlingTjeneste.harRedigertVedtaksbrev(behandling.getId())).isTrue();
+    }
+
+    @Test
+    void harRedigertVedtaksbrev_returnerer_false_for_bestilt_fritekst_som_ikke_er_vedtaksbrev() {
+        behandling = scenario.lagre(repositoryProvider);
+        dokumentBehandlingTjeneste.lagreDokumentBestilt(behandling,
+            lagBestilling(DokumentMalType.FRITEKST_HTML, DokumentMalType.INNHENTE_OPPLYSNINGER));
+
+        assertThat(dokumentBehandlingTjeneste.harRedigertVedtaksbrev(behandling.getId())).isFalse();
+    }
+
+    @Test
+    void finnJournalpostIdForRedigertVedtaksbrev_returnerer_journalpost_for_bestilt_redigert_vedtaksbrev() {
+        behandling = scenario.lagre(repositoryProvider);
+        var journalpostId = new JournalpostId("123456789");
+        lagreBestiltRedigertVedtaksbrev(DokumentMalType.FORELDREPENGER_INNVILGELSE, journalpostId);
+
+        assertThat(dokumentBehandlingTjeneste.finnJournalpostIdForRedigertVedtaksbrev(behandling.getId())).contains(journalpostId);
+    }
+
+    @Test
+    void finnJournalpostIdForRedigertVedtaksbrev_returnerer_tomt_for_bestilt_redigert_vedtaksbrev_uten_journalpost() {
+        behandling = scenario.lagre(repositoryProvider);
+        dokumentBehandlingTjeneste.lagreDokumentBestilt(behandling,
+            lagBestilling(DokumentMalType.FRITEKST_HTML, DokumentMalType.FORELDREPENGER_INNVILGELSE));
+
+        assertThat(dokumentBehandlingTjeneste.finnJournalpostIdForRedigertVedtaksbrev(behandling.getId())).isEmpty();
+    }
+
+    @Test
+    void finnJournalpostIdForRedigertVedtaksbrev_filtrerer_bort_fritekst_som_ikke_er_vedtaksbrev() {
+        behandling = scenario.lagre(repositoryProvider);
+        lagreBestiltRedigertVedtaksbrev(DokumentMalType.INNHENTE_OPPLYSNINGER, new JournalpostId("123456789"));
+
+        assertThat(dokumentBehandlingTjeneste.finnJournalpostIdForRedigertVedtaksbrev(behandling.getId())).isEmpty();
     }
 
     @Test
@@ -238,5 +300,12 @@ class DokumentBehandlingTjenesteTest {
             .medJournalførSom(journalførSomMal)
             .medFritekst("test")
             .build();
+    }
+
+    private void lagreBestiltRedigertVedtaksbrev(DokumentMalType opprinneligDokumentMal, JournalpostId journalpostId) {
+        dokumentBehandlingTjeneste.lagreDokumentBestilt(behandling, lagBestilling(DokumentMalType.FRITEKST_HTML, opprinneligDokumentMal));
+        var bestiltDokument = behandlingDokumentRepository.hentHvisEksisterer(behandling.getId()).orElseThrow().getBestilteDokumenter().getFirst();
+        bestiltDokument.setJournalpostId(journalpostId);
+        behandlingDokumentRepository.lagreOgFlush(bestiltDokument);
     }
 }

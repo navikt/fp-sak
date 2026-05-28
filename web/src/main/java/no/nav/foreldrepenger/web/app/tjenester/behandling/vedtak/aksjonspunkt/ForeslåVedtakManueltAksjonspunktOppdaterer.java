@@ -9,6 +9,7 @@ import no.nav.foreldrepenger.behandling.aksjonspunkt.DtoTilServiceAdapter;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.OppdateringResultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingsresultatRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.dokument.BehandlingDokumentRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.dokument.MellomlagringRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.domene.vedtak.VedtakTjeneste;
@@ -22,8 +23,9 @@ class ForeslåVedtakManueltAksjonspunktOppdaterer extends AbstractVedtaksbrevOve
                                                       BehandlingsresultatRepository behandlingsresultatRepository,
                                                       HistorikkinnslagRepository historikkinnslagRepository,
                                                       VedtakTjeneste vedtakTjeneste,
-                                                      BehandlingDokumentRepository behandlingDokumentRepository) {
-        super(behandlingRepository, behandlingsresultatRepository, historikkinnslagRepository, vedtakTjeneste, behandlingDokumentRepository);
+                                                      BehandlingDokumentRepository behandlingDokumentRepository,
+                                                      MellomlagringRepository mellomlagringRepository) {
+        super(behandlingRepository, behandlingsresultatRepository, historikkinnslagRepository, vedtakTjeneste, behandlingDokumentRepository, mellomlagringRepository);
     }
 
     ForeslåVedtakManueltAksjonspunktOppdaterer() {
