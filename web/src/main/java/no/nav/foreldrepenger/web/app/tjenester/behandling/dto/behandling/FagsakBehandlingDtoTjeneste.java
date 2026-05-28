@@ -170,7 +170,7 @@ public class FagsakBehandlingDtoTjeneste {
         links.add(post(MellomlagringRestTjeneste.MELLOMLAGRING_PATH, "mellomlagring"));
         links.add(post(MellomlagringRestTjeneste.HENT_MELLOMLAGRING_PATH, "hent-mellomlagring"));
         if (dokumentBehandlingTjeneste.harRedigertVedtaksbrev(behandling.getId())) {
-            links.add(get(BrevRestTjeneste.HENT_VEDTAKSBREV_PATH, "vedtaksbrev-dokument", uuidDto));
+            links.add(get(BrevRestTjeneste.HENT_OVERSTYRT_VEDTAKSBREV_PATH, "overstyrt-vedtaksbrev", uuidDto));
         }
         return links;
     }

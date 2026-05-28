@@ -352,7 +352,7 @@ public class BehandlingDtoTjeneste {
 
         dto.leggTil(post(BrevRestTjeneste.BREV_HTML_PATH, "hent-brev-html"));
         if (dokumentBehandlingTjeneste.harRedigertVedtaksbrev(behandling.getId())) {
-            dto.leggTil(get(BrevRestTjeneste.HENT_VEDTAKSBREV_PATH, "vedtaksbrev-dokument", uuidDto));
+            dto.leggTil(get(BrevRestTjeneste.HENT_OVERSTYRT_VEDTAKSBREV_PATH, "overstyrt-vedtaksbrev", uuidDto));
         }
 
         dto.leggTil(get(FamiliehendelseRestTjeneste.FAMILIEHENDELSE_V3_PATH, "familiehendelse-v3", uuidDto));

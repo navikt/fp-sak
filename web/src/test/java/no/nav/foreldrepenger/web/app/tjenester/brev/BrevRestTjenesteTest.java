@@ -177,7 +177,7 @@ class BrevRestTjenesteTest {
     }
 
     @Test
-    void hent_vedtaksbrev_returnerer_pdf_fra_mellomlagring() {
+    void hent_overstyrt_vedtaksbrev_returnerer_pdf_fra_mellomlagring() {
         var behandlingUuid = UUID.randomUUID();
         var pdf = "pdf".getBytes();
         var behandling = mock(Behandling.class);
@@ -188,7 +188,7 @@ class BrevRestTjenesteTest {
         when(dokumentBehandlingTjenesteMock.hentMellomlagretOverstyring(behandling.getId())).thenReturn(Optional.of("<html>redigert</html>"));
         when(dokumentForhåndsvisningTjenesteMock.forhåndsvisDokument(eq(behandling.getId()), any())).thenReturn(pdf);
 
-        var respons = brevRestTjeneste.hentVedtaksbrev(new UuidDto(behandlingUuid));
+        var respons = brevRestTjeneste.hentOverstyrtVedtaksbrev(new UuidDto(behandlingUuid));
 
         assertThat(respons.getStatus()).isEqualTo(200);
         assertThat(respons.getEntity()).isEqualTo(pdf);
@@ -196,7 +196,7 @@ class BrevRestTjenesteTest {
     }
 
     @Test
-    void hent_vedtaksbrev_returnerer_pdf_fra_arkiv_når_mellomlagring_mangler() {
+    void hent_overstyrt_vedtaksbrev_returnerer_pdf_fra_arkiv_når_mellomlagring_mangler() {
         var behandlingUuid = UUID.randomUUID();
         var behandling = mock(Behandling.class);
         var journalpostId = new JournalpostId("123456789");
@@ -212,7 +212,7 @@ class BrevRestTjenesteTest {
         when(dokumentArkivTjenesteMock.hentJournalpostForSak(journalpostId)).thenReturn(Optional.of(journalpost));
         when(dokumentArkivTjenesteMock.hentDokument(journalpostId, dokumentId)).thenReturn(dokumentRespons);
 
-        var respons = brevRestTjeneste.hentVedtaksbrev(new UuidDto(behandlingUuid));
+        var respons = brevRestTjeneste.hentOverstyrtVedtaksbrev(new UuidDto(behandlingUuid));
 
         assertThat(respons.getStatus()).isEqualTo(200);
         assertThat(respons.getEntity()).isEqualTo(pdf);
@@ -220,7 +220,7 @@ class BrevRestTjenesteTest {
     }
 
     @Test
-    void hent_vedtaksbrev_returnerer_404_når_verken_mellomlagring_eller_journalpost_finnes() {
+    void hent_overstyrt_vedtaksbrev_returnerer_404_når_verken_mellomlagring_eller_journalpost_finnes() {
         var behandlingUuid = UUID.randomUUID();
         var behandling = mock(Behandling.class);
         when(behandling.getId()).thenReturn(1L);
@@ -228,7 +228,7 @@ class BrevRestTjenesteTest {
         when(dokumentBehandlingTjenesteMock.hentMellomlagretOverstyring(behandling.getId())).thenReturn(Optional.empty());
         when(dokumentBehandlingTjenesteMock.finnJournalpostIdForRedigertVedtaksbrev(behandling.getId())).thenReturn(Optional.empty());
 
-        var respons = brevRestTjeneste.hentVedtaksbrev(new UuidDto(behandlingUuid));
+        var respons = brevRestTjeneste.hentOverstyrtVedtaksbrev(new UuidDto(behandlingUuid));
 
         assertThat(respons.getStatus()).isEqualTo(404);
     }

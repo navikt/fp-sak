@@ -73,8 +73,8 @@ public class BrevRestTjeneste {
     public static final String BREV_BESTILL_PATH = BASE_PATH + BREV_BESTILL_PART_PATH;
     private static final String BREV_HTML_PART_PATH = "/html";
     public static final String BREV_HTML_PATH = BASE_PATH + BREV_HTML_PART_PATH;
-    private static final String HENT_VEDTAKSBREV_PART_PATH = "/hent-vedtaksbrev";
-    public static final String HENT_VEDTAKSBREV_PATH = BASE_PATH + HENT_VEDTAKSBREV_PART_PATH;
+    private static final String HENT_OVERSTYRT_VEDTAKSBREV_PART_PATH = "/hent-overstyrt-vedtaksbrev";
+    public static final String HENT_OVERSTYRT_VEDTAKSBREV_PATH = BASE_PATH + HENT_OVERSTYRT_VEDTAKSBREV_PART_PATH;
 
     private DokumentForhåndsvisningTjeneste dokumentForhåndsvisningTjeneste;
     private DokumentBestillerTjeneste dokumentBestillerTjeneste;
@@ -263,10 +263,10 @@ public class BrevRestTjeneste {
     }
 
     @GET
-    @Path(HENT_VEDTAKSBREV_PART_PATH)
-    @Operation(description = "Henter redigert vedtaksbrev som PDF. Prioriterer arkivert dokument (SAF), faller tilbake til mellomlagring for aktive behandlinger.", tags = "brev")
+    @Path(HENT_OVERSTYRT_VEDTAKSBREV_PART_PATH)
+    @Operation(description = "Henter overstyrt (redigert) vedtaksbrev som PDF. Prioriterer arkivert dokument (SAF), faller tilbake til mellomlagring for aktive behandlinger.", tags = "brev")
     @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK, sporingslogg = false)
-    public Response hentVedtaksbrev(@TilpassetAbacAttributt(supplierClass = BehandlingAbacSuppliers.UuidAbacDataSupplier.class)
+    public Response hentOverstyrtVedtaksbrev(@TilpassetAbacAttributt(supplierClass = BehandlingAbacSuppliers.UuidAbacDataSupplier.class)
             @NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
         var behandling = behandlingRepository.hentBehandling(uuidDto.getBehandlingUuid());
 
