@@ -5,9 +5,6 @@ import java.util.List;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
-import no.nav.vedtak.server.Controllable;
-import no.nav.vedtak.server.LiveAndReadinessAware;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -15,10 +12,12 @@ import no.nav.foreldrepenger.mottak.kabal.KabalHendelseHåndterer;
 import no.nav.foreldrepenger.mottak.vedtak.kafka.VedtaksHendelseHåndterer;
 import no.nav.foreldrepenger.produksjonsstyring.behandlinghendelse.BehandlingHendelseHåndterer;
 import no.nav.vedtak.felles.integrasjon.kafka.KafkaConsumerManager;
+import no.nav.vedtak.server.Controllable;
+import no.nav.vedtak.server.LivenessAware;
 
 
 @ApplicationScoped
-public class KafkaStringConsumerStarter implements LiveAndReadinessAware, Controllable {
+public class KafkaStringConsumerStarter implements LivenessAware, Controllable {
 
     private static final Logger LOG = LoggerFactory.getLogger(KafkaStringConsumerStarter.class);
 
@@ -40,11 +39,6 @@ public class KafkaStringConsumerStarter implements LiveAndReadinessAware, Contro
     @Override
     public boolean isAlive() {
         return kcm.allRunning();
-    }
-
-    @Override
-    public boolean isReady() {
-        return isAlive();
     }
 
     @Override

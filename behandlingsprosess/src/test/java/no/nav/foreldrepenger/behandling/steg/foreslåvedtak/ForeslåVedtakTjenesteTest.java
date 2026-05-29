@@ -370,7 +370,7 @@ class ForeslåVedtakTjenesteTest {
         // Arrange
         behandling = ScenarioMorSøkerForeldrepenger.forFødsel().medBehandlingType(BehandlingType.FØRSTEGANGSSØKNAD).lagre(repositoryProvider);
         leggTilAksjonspunkt(AksjonspunktDefinisjon.FORESLÅ_VEDTAK, true, true);
-        when(dokumentBehandlingTjeneste.hentMellomlagretOverstyring(any())).thenReturn(Optional.of("OVERSTYRY BREV!!"));
+        when(dokumentBehandlingTjeneste.harMellomlagretOverstyring(any())).thenReturn(true);
 
         // Act
         var stegResultat = tjeneste.foreslåVedtak(behandling);
@@ -385,7 +385,7 @@ class ForeslåVedtakTjenesteTest {
         // Arrange
         behandling = ScenarioMorSøkerForeldrepenger.forFødsel().medBehandlingType(BehandlingType.FØRSTEGANGSSØKNAD).lagre(repositoryProvider);
         leggTilAksjonspunkt(AksjonspunktDefinisjon.FORESLÅ_VEDTAK_MANUELT, true, true);
-        when(dokumentBehandlingTjeneste.hentMellomlagretOverstyring(any())).thenReturn(Optional.of("OVERSTYRY BREV!!"));
+        when(dokumentBehandlingTjeneste.harMellomlagretOverstyring(any())).thenReturn(true);
 
         // Act
         var stegResultat = tjeneste.foreslåVedtak(behandling);
@@ -400,7 +400,7 @@ class ForeslåVedtakTjenesteTest {
     void skal_hive_exception_hvis_brev_er_overstyrt_og_det_ikke_finnes_et_tidligere_avbrutt_foreslå_vedtak_aksjonspunkt() {
         // Arrange
         behandling = ScenarioMorSøkerForeldrepenger.forFødsel().medBehandlingType(BehandlingType.FØRSTEGANGSSØKNAD).lagre(repositoryProvider);
-        when(dokumentBehandlingTjeneste.hentMellomlagretOverstyring(any())).thenReturn(Optional.of("ULOVLIG OVERSTYRING AV BREV!"));
+        when(dokumentBehandlingTjeneste.harMellomlagretOverstyring(any())).thenReturn(true);
 
         // Act
         assertThrows(IllegalStateException.class, () -> tjeneste.foreslåVedtak(behandling));

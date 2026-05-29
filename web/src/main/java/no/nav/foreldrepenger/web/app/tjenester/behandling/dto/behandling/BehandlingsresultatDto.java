@@ -31,8 +31,6 @@ public class BehandlingsresultatDto {
     private Vedtaksbrev vedtaksbrev;
     @NotNull @JsonProperty("vedtaksbrevStatus")
     private VedtaksbrevStatus vedtaksbrevStatus;
-    @NotNull @JsonProperty("harRedigertVedtaksbrev")
-    private boolean harRedigertVedtaksbrev;
     @JsonProperty("erRevurderingMedUendretUtfall")
     private Boolean erRevurderingMedUendretUtfall;
     @JsonProperty("skjæringstidspunkt")
@@ -100,14 +98,6 @@ public class BehandlingsresultatDto {
 
     public void setErRevurderingMedUendretUtfall(Boolean erRevurderingMedUendretUtfall) {
         this.erRevurderingMedUendretUtfall = erRevurderingMedUendretUtfall;
-    }
-
-    public boolean isHarRedigertVedtaksbrev() {
-        return harRedigertVedtaksbrev;
-    }
-
-    public void setHarRedigertVedtaksbrev(boolean harRedigertVedtaksbrev) {
-        this.harRedigertVedtaksbrev = harRedigertVedtaksbrev;
     }
 
     public VedtaksbrevStatus getVedtaksbrevStatus() {

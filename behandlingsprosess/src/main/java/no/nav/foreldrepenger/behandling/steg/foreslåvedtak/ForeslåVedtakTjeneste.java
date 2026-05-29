@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -114,7 +113,7 @@ class ForeslåVedtakTjeneste {
         if (aksjonspunktDefinisjoner.contains(AksjonspunktDefinisjon.FORESLÅ_VEDTAK) || aksjonspunktDefinisjoner.contains(AksjonspunktDefinisjon.FORESLÅ_VEDTAK_MANUELT)) {
             return false;
         }
-        return dokumentBehandlingTjeneste.hentMellomlagretOverstyring(behandling.getId()).isPresent();
+        return dokumentBehandlingTjeneste.harMellomlagretOverstyring(behandling.getId());
     }
 
     private boolean harÅpneKlagerEllerAnker(Fagsak fagsak) {
@@ -147,8 +146,7 @@ class ForeslåVedtakTjeneste {
         if (behandling.harNoenBehandlingÅrsaker(BehandlingÅrsakType.årsakerRelatertTilDød())) {
             return true;
         }
-        if (behandling.harNoenBehandlingÅrsaker(Set.of(BehandlingÅrsakType.FEIL_PRAKSIS_UTSETTELSE, BehandlingÅrsakType.FEIL_PRAKSIS_IVERKS_UTSET)) ||
-            fagsakEgenskapRepository.harFagsakMarkering(behandling.getFagsakId(), FagsakMarkering.PRAKSIS_UTSETTELSE)) {
+        if (fagsakEgenskapRepository.harFagsakMarkering(behandling.getFagsakId(), FagsakMarkering.PRAKSIS_UTSETTELSE)) {
             return true;
         }
         if (harAksjonspunktUtførtAvSaksbehandler(behandling)) {

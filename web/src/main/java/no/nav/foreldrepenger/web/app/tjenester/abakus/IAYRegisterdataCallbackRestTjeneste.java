@@ -1,6 +1,7 @@
 package no.nav.foreldrepenger.web.app.tjenester.abakus;
 
 import java.util.Optional;
+import java.util.UUID;
 import java.util.function.Function;
 
 import jakarta.enterprise.context.RequestScoped;
@@ -58,8 +59,7 @@ public class IAYRegisterdataCallbackRestTjeneste {
         // Oppdaterer grunnlag med ny referanse
         var registerdataCallback = new RegisterdataCallback(behandlingLås.getBehandlingId(),
             Optional.ofNullable(dto.getOpprinneligGrunnlagRef()).map(ReferanseDto::getReferanse).orElse(null),
-            dto.getOppdatertGrunnlagRef().getReferanse(),
-            dto.getOpprettetTidspunkt());
+            Optional.ofNullable(dto.getOppdatertGrunnlagRef()).map(ReferanseDto::getReferanse).orElseGet(UUID::randomUUID));
 
         iayTjeneste.håndterCallback(registerdataCallback);
 

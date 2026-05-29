@@ -27,7 +27,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.dokument.MellomlagringE
 import no.nav.foreldrepenger.behandlingslager.behandling.dokument.MellomlagringRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.dokument.MellomlagringType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
-import no.nav.foreldrepenger.dokumentbestiller.DokumentBehandlingTjeneste;
 import no.nav.foreldrepenger.validering.ValidKodeverk;
 import no.nav.vedtak.sikkerhet.abac.AbacDataAttributter;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
@@ -50,7 +49,6 @@ public class MellomlagringRestTjeneste {
 
     private MellomlagringRepository mellomlagringRepository;
     private BehandlingRepository behandlingRepository;
-    private DokumentBehandlingTjeneste dokumentBehandlingTjeneste;
 
     public MellomlagringRestTjeneste() {
         // CDI
@@ -58,11 +56,9 @@ public class MellomlagringRestTjeneste {
 
     @Inject
     public MellomlagringRestTjeneste(MellomlagringRepository mellomlagringRepository,
-                                     BehandlingRepository behandlingRepository,
-                                     DokumentBehandlingTjeneste dokumentBehandlingTjeneste) {
+                                     BehandlingRepository behandlingRepository) {
         this.mellomlagringRepository = mellomlagringRepository;
         this.behandlingRepository = behandlingRepository;
-        this.dokumentBehandlingTjeneste = dokumentBehandlingTjeneste;
     }
 
     @POST
@@ -91,27 +87,17 @@ public class MellomlagringRestTjeneste {
         var resolvedType = resolveType(dto.type(), dto.dokumentMal());
         if (dto.innhold() == null) {
             LOG.info("Mellomlagring slett mottatt, type {}", resolvedType);
-        }
-        if (resolvedType == MellomlagringType.VEDTAKSBREV) {
-            if (dto.innhold() == null) {
-                dokumentBehandlingTjeneste.fjernOverstyringAvBrev(behandling);
-            } else {
-                dokumentBehandlingTjeneste.lagreOverstyrtBrev(behandling, dto.innhold());
+            if (erLåst(behandling.getId(), resolvedType)) {
+                LOG.info("Ignorerer slett av mellomlagring, type {} - bestilling pågår", resolvedType);
+                return Response.ok().build();
             }
+            mellomlagringRepository.fjernMellomlagring(behandling.getId(), resolvedType);
         } else {
-            if (dto.innhold() == null) {
-                if (erLåst(behandling.getId(), resolvedType)) {
-                    LOG.info("Ignorerer slett av mellomlagring, type {} - bestilling pågår", resolvedType);
-                    return Response.ok().build();
-                }
-                mellomlagringRepository.fjernMellomlagring(behandling.getId(), resolvedType);
-            } else {
-                validerIkkeLåst(behandling.getId(), resolvedType);
-                try {
-                    mellomlagringRepository.lagreEllerOppdater(behandling.getId(), resolvedType, dto.innhold());
-                } catch (OptimisticLockException e) {
-                    LOG.info("Ignorerer mellomlagring pga. samtidige endringer (OLE), type {}", resolvedType);
-                }
+            validerIkkeLåst(behandling.getId(), resolvedType);
+            try {
+                mellomlagringRepository.lagreEllerOppdater(behandling.getId(), resolvedType, dto.innhold());
+            } catch (OptimisticLockException e) {
+                LOG.info("Ignorerer mellomlagring pga. samtidige endringer (OLE), type {}", resolvedType);
             }
         }
         return Response.ok().build();

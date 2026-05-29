@@ -72,17 +72,17 @@ public enum BehandlingÅrsakType implements Kodeverdi, DatabaseKode {
 
     RE_VEDTAK_PLEIEPENGER("RE-VEDTAK-PSB", "Pleiepenger"),
 
-    // Håndtering av diverse feilsituaqsjoner
-    FEIL_PRAKSIS_UTSETTELSE("FEIL_PRAKSIS_UTSETTELSE", "Feil praksis utsettelse"),
-    FEIL_PRAKSIS_IVERKS_UTSET("FEIL_PRAKSIS_IVERKS_UTSET", "Feil iverksettelse fri utsettelse"),
-    FEIL_PRAKSIS_BG_AAP_KOMBI("FEIL_PRAKSIS_BG_AAP_KOMBI", "Feil praksis AAP og annen aktivitet"),
-
     // Skille klageområder
     KLAGE_TILBAKEBETALING("KLAGE_TILBAKE", "Tilbakebetaling"),
 
     // UTGÅTT. men ikke slett - BehandlingÅrsak-tabellen er rensket og ikke bruk disse som nye behandlingsårsaker!
     // Det ligger en hel del i historikk-innslag (inntil evt konvertert) og de brukes til vise tekst frontend.
     // OPPLYSNINGER_OM_YTELSER brukes til å lage nye historikkinnslag - de øvrige er historiske
+
+    // Håndtering av diverse feilsituasjoner
+    @Deprecated FEIL_PRAKSIS_UTSETTELSE("FEIL_PRAKSIS_UTSETTELSE", "Feil praksis utsettelse"),
+    @Deprecated FEIL_PRAKSIS_IVERKS_UTSET("FEIL_PRAKSIS_IVERKS_UTSET", "Feil iverksettelse fri utsettelse"),
+    @Deprecated FEIL_PRAKSIS_BG_AAP_KOMBI("FEIL_PRAKSIS_BG_AAP_KOMBI", "Feil praksis AAP og annen aktivitet"),
 
     @Deprecated // Registeroppdatering. 49450 forekomster i HISTORIKKINNSLAG_FELT
     RE_OPPLYSNINGER_OM_YTELSER("RE-YTELSE", "Opplysninger annen ytelse"),

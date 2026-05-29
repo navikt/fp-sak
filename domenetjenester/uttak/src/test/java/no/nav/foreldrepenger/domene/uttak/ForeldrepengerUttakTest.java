@@ -5,7 +5,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -23,7 +23,6 @@ import no.nav.foreldrepenger.behandlingslager.uttak.fp.Trekkdager;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.OrgNummer;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
-import no.nav.fpsak.tidsserie.LocalDateInterval;
 
 class ForeldrepengerUttakTest {
 
@@ -72,7 +71,6 @@ class ForeldrepengerUttakTest {
 
     @Test
     void skal_gi_endring_i_uttak_om_det_er_avvik_i_antall_aktiviteter() {
-        // Arrange
         var dato = LocalDate.now();
 
         var aktivitet1 = new ForeldrepengerUttakPeriodeAktivitet.Builder().medAktivitet(new ForeldrepengerUttakAktivitet(UttakArbeidType.FRILANS))
@@ -87,404 +85,347 @@ class ForeldrepengerUttakTest {
 
         var aktivitet2 = new ForeldrepengerUttakPeriodeAktivitet.Builder().medAktivitet(
             new ForeldrepengerUttakAktivitet(UttakArbeidType.SELVSTENDIG_NÆRINGSDRIVENDE)).medArbeidsprosent(BigDecimal.ZERO).build();
-        var toAktiviteter = List.of(aktivitet1, aktivitet2);
 
         var uttakResultatRevurdering = new ForeldrepengerUttak(List.of(
             new ForeldrepengerUttakPeriode.Builder().medResultatÅrsak(PeriodeResultatÅrsak.UKJENT)
                 .medTidsperiode(dato, dato.plusWeeks(2))
-                .medAktiviteter(toAktiviteter)
+                .medAktiviteter(List.of(aktivitet1, aktivitet2))
                 .build()));
 
-        // Act
-        var endringIUttak = uttakResultatOriginal.harUlikUttaksplan(uttakResultatRevurdering) || uttakResultatOriginal.harUlikKontoEllerMinsterett(
-            uttakResultatRevurdering);
-
-        // Assert
-        assertThat(endringIUttak).isTrue();
+        assertThat(uttakResultatRevurdering.erEndretUttaksplanFra(uttakResultatOriginal)).isTrue();
     }
 
     @Test
     void skal_gi_endring_i_uttak_om_det_er_avvik_i_antall_trekkdager_i_aktivitet() {
-        // Arrange
         var dato = LocalDate.now();
 
-        var uttakResultatOriginal = lagUttak(List.of(new LocalDateInterval(dato, dato.plusDays(10))), List.of(false), List.of(false),
-            List.of(PeriodeResultatType.INNVILGET), List.of(PeriodeResultatÅrsak.UKJENT), List.of(true), List.of(100), List.of(100),
-            List.of(new Trekkdager(12)), List.of(UttakPeriodeType.FORELDREPENGER));
+        var original = lagUttak(innvilget(dato, dato.plusDays(10)).trekkdager(12));
+        var revurdering = lagUttak(innvilget(dato, dato.plusDays(10)).trekkdager(10));
 
-        var uttakResultatRevurdering = lagUttak(List.of(new LocalDateInterval(dato, dato.plusDays(10))), List.of(false), List.of(false),
-            List.of(PeriodeResultatType.INNVILGET), List.of(PeriodeResultatÅrsak.UKJENT), List.of(true), List.of(100), List.of(100),
-            List.of(new Trekkdager(10)), List.of(UttakPeriodeType.FORELDREPENGER));
-
-        // Act
-        var endringIUttak = uttakResultatOriginal.harUlikUttaksplan(uttakResultatRevurdering) || uttakResultatOriginal.harUlikKontoEllerMinsterett(
-            uttakResultatRevurdering);
-
-        // Assert
-        assertThat(endringIUttak).isTrue();
+        assertThat(revurdering.erEndretUttaksplanFra(original)).isTrue();
     }
 
     @Test
     void skal_ikke_gi_endring_i_uttak_null_trekkdager_ulik_konto() {
-        // Arrange
         var dato = LocalDate.now();
 
-        var uttakResultatOriginal = lagUttak(List.of(new LocalDateInterval(dato, dato.plusDays(10))), List.of(false), List.of(false),
-            List.of(PeriodeResultatType.INNVILGET), List.of(PeriodeResultatÅrsak.UKJENT), List.of(false), List.of(100), List.of(100),
-            List.of(Trekkdager.ZERO), List.of(UttakPeriodeType.UDEFINERT));
+        var original = lagUttak(innvilget(dato, dato.plusDays(10)).trekkdager(0).konto(UttakPeriodeType.UDEFINERT).gradering(false));
+        var revurdering = lagUttak(innvilget(dato, dato.plusDays(10)).trekkdager(0).konto(UttakPeriodeType.FORELDREPENGER).gradering(false));
 
-        var uttakResultatRevurdering = lagUttak(List.of(new LocalDateInterval(dato, dato.plusDays(10))), List.of(false), List.of(false),
-            List.of(PeriodeResultatType.INNVILGET), List.of(PeriodeResultatÅrsak.UKJENT), List.of(false), List.of(100), List.of(100),
-            List.of(Trekkdager.ZERO), List.of(UttakPeriodeType.FORELDREPENGER));
-
-        // Act
-        var endringIUttak = uttakResultatOriginal.harUlikUttaksplan(uttakResultatRevurdering) || uttakResultatOriginal.harUlikKontoEllerMinsterett(
-            uttakResultatRevurdering);
-
-        // Assert
-        assertThat(endringIUttak).isFalse();
+        assertThat(revurdering.erEndretUttaksplanFra(original)).isFalse();
     }
 
     @Test
     void case_fra_prod_bør_gi_ingen_endring() {
-        // Arrange
         var dato = LocalDate.of(2020, 4, 9);
-        var orig1 = new LocalDateInterval(dato, LocalDate.of(2020, 4, 30));
-        var orig2 = new LocalDateInterval(LocalDate.of(2020, 5, 1), LocalDate.of(2020, 9, 10));
-        var ny1a = new LocalDateInterval(dato, LocalDate.of(2020, 4, 11));
-        var ny1b = new LocalDateInterval(LocalDate.of(2020, 4, 12), LocalDate.of(2020, 4, 30));
-        var ny2a = new LocalDateInterval(LocalDate.of(2020, 5, 1), LocalDate.of(2020, 9, 8));
-        var ny2b = new LocalDateInterval(LocalDate.of(2020, 9, 9), LocalDate.of(2020, 9, 10));
 
-        var originalUttak = lagUttak(List.of(orig1, orig2), List.of(false, false), List.of(false, false),
-            List.of(PeriodeResultatType.INNVILGET, PeriodeResultatType.INNVILGET), List.of(PeriodeResultatÅrsak.UKJENT, PeriodeResultatÅrsak.UKJENT),
-            List.of(false, false), List.of(100, 0), List.of(0, 100), List.of(Trekkdager.ZERO, new Trekkdager(95)),
-            List.of(UttakPeriodeType.UDEFINERT, UttakPeriodeType.FEDREKVOTE), null);
+        var originalUttak = lagUttak(innvilget(dato, LocalDate.of(2020, 4, 30)).trekkdager(0)
+                .arbeidsprosent(100)
+                .utbetalingsgrad(0)
+                .konto(UttakPeriodeType.UDEFINERT)
+                .gradering(false),
+            innvilget(LocalDate.of(2020, 5, 1), LocalDate.of(2020, 9, 10)).trekkdager(95).konto(UttakPeriodeType.FEDREKVOTE).gradering(false));
 
-        var uttakRevurdering = lagUttak(List.of(ny1a, ny1b, ny2a, ny2b), List.of(false, false, false, false), List.of(false, false, false, false),
-            List.of(PeriodeResultatType.INNVILGET, PeriodeResultatType.INNVILGET, PeriodeResultatType.INNVILGET, PeriodeResultatType.INNVILGET),
-            List.of(PeriodeResultatÅrsak.UKJENT, PeriodeResultatÅrsak.UKJENT, PeriodeResultatÅrsak.UKJENT, PeriodeResultatÅrsak.UKJENT),
-            List.of(false, false, false, false), List.of(100, 100, 0, 0), List.of(0, 0, 100, 100),
-            List.of(Trekkdager.ZERO, Trekkdager.ZERO, new Trekkdager(93), new Trekkdager(2)),
-            List.of(UttakPeriodeType.UDEFINERT, UttakPeriodeType.FEDREKVOTE, UttakPeriodeType.FEDREKVOTE, UttakPeriodeType.FEDREKVOTE), null);
+        var uttakRevurdering = lagUttak(innvilget(dato, LocalDate.of(2020, 4, 11)).trekkdager(0)
+                .arbeidsprosent(100)
+                .utbetalingsgrad(0)
+                .konto(UttakPeriodeType.UDEFINERT)
+                .gradering(false), innvilget(LocalDate.of(2020, 4, 12), LocalDate.of(2020, 4, 30)).trekkdager(0)
+                .arbeidsprosent(100)
+                .utbetalingsgrad(0)
+                .konto(UttakPeriodeType.FEDREKVOTE)
+                .gradering(false),
+            innvilget(LocalDate.of(2020, 5, 1), LocalDate.of(2020, 9, 8)).trekkdager(93).konto(UttakPeriodeType.FEDREKVOTE).gradering(false),
+            innvilget(LocalDate.of(2020, 9, 9), LocalDate.of(2020, 9, 10)).trekkdager(2).konto(UttakPeriodeType.FEDREKVOTE).gradering(false));
 
-        // Act
-        var endringIUttak = originalUttak.harUlikUttaksplan(uttakRevurdering) || originalUttak.harUlikKontoEllerMinsterett(uttakRevurdering);
-
-        // Assert
-        assertThat(endringIUttak).isFalse();
+        assertThat(uttakRevurdering.erEndretUttaksplanFra(originalUttak)).isFalse();
     }
 
     @Test
     void case_fra_prod_bør_gi_endring_avslag() {
-        // Arrange
         var dato = LocalDate.of(2020, 3, 31);
-        var orig1 = new LocalDateInterval(dato, LocalDate.of(2020, 4, 27));
-        var orig2 = new LocalDateInterval(LocalDate.of(2020, 4, 28), LocalDate.of(2020, 4, 30));
-        var orig3 = new LocalDateInterval(LocalDate.of(2020, 5, 1), LocalDate.of(2020, 6, 3));
-        var ny1 = new LocalDateInterval(dato, LocalDate.of(2020, 4, 23));
-        var ny2 = new LocalDateInterval(LocalDate.of(2020, 4, 24), LocalDate.of(2020, 4, 24));
-        var ny3 = new LocalDateInterval(LocalDate.of(2020, 4, 25), LocalDate.of(2020, 4, 30));
-        var ny4 = new LocalDateInterval(LocalDate.of(2020, 5, 1), LocalDate.of(2020, 5, 1));
-        var ny5 = new LocalDateInterval(LocalDate.of(2020, 5, 2), LocalDate.of(2020, 6, 3));
 
+        var uttak1 = lagUttak(innvilget(dato, LocalDate.of(2020, 4, 27)).trekkdager(0)
+            .arbeidsprosent(0)
+            .utbetalingsgrad(0)
+            .konto(UttakPeriodeType.UDEFINERT)
+            .gradering(false), innvilget(LocalDate.of(2020, 4, 28), LocalDate.of(2020, 4, 30)).trekkdager(0)
+            .arbeidsprosent(0)
+            .utbetalingsgrad(0)
+            .konto(UttakPeriodeType.UDEFINERT)
+            .gradering(false), innvilget(LocalDate.of(2020, 5, 1), LocalDate.of(2020, 6, 3)).trekkdager(0)
+            .arbeidsprosent(0)
+            .utbetalingsgrad(0)
+            .konto(UttakPeriodeType.UDEFINERT)
+            .gradering(false));
 
-        var uttak1 = lagUttak(List.of(orig1, orig2, orig3), List.of(false, false, false), List.of(false, false, false),
-            List.of(PeriodeResultatType.INNVILGET, PeriodeResultatType.INNVILGET, PeriodeResultatType.INNVILGET),
-            List.of(PeriodeResultatÅrsak.UKJENT, PeriodeResultatÅrsak.UKJENT, PeriodeResultatÅrsak.UKJENT), List.of(false, false, false),
-            List.of(0, 0, 0), List.of(0, 0, 0), List.of(Trekkdager.ZERO, Trekkdager.ZERO, Trekkdager.ZERO),
-            List.of(UttakPeriodeType.UDEFINERT, UttakPeriodeType.UDEFINERT, UttakPeriodeType.UDEFINERT), null);
+        var uttak2 = lagUttak(innvilget(dato, LocalDate.of(2020, 4, 23)).trekkdager(0)
+                .arbeidsprosent(0)
+                .utbetalingsgrad(0)
+                .konto(UttakPeriodeType.FELLESPERIODE)
+                .gradering(false), avslått(LocalDate.of(2020, 4, 24), LocalDate.of(2020, 4, 24)).konto(UttakPeriodeType.FELLESPERIODE),
+            avslått(LocalDate.of(2020, 4, 25), LocalDate.of(2020, 4, 30)).konto(UttakPeriodeType.FELLESPERIODE),
+            innvilget(LocalDate.of(2020, 5, 1), LocalDate.of(2020, 5, 1)).trekkdager(0)
+                .arbeidsprosent(0)
+                .utbetalingsgrad(0)
+                .konto(UttakPeriodeType.FELLESPERIODE)
+                .gradering(false), innvilget(LocalDate.of(2020, 5, 2), LocalDate.of(2020, 6, 3)).trekkdager(0)
+                .arbeidsprosent(0)
+                .utbetalingsgrad(0)
+                .konto(UttakPeriodeType.FELLESPERIODE)
+                .gradering(false));
 
-        var uttak2 = lagUttak(List.of(ny1, ny2, ny3, ny4, ny5), List.of(false, false, false, false, false),
-            List.of(false, false, false, false, false),
-            List.of(PeriodeResultatType.INNVILGET, PeriodeResultatType.AVSLÅTT, PeriodeResultatType.AVSLÅTT, PeriodeResultatType.INNVILGET,
-                PeriodeResultatType.INNVILGET),
-            List.of(PeriodeResultatÅrsak.UKJENT, PeriodeResultatÅrsak.UKJENT, PeriodeResultatÅrsak.UKJENT, PeriodeResultatÅrsak.UKJENT,
-                PeriodeResultatÅrsak.UKJENT), List.of(false, false, false, false, false), List.of(0, 0, 0, 0, 0), List.of(0, 0, 0, 0, 0),
-            List.of(Trekkdager.ZERO, Trekkdager.ZERO, Trekkdager.ZERO, Trekkdager.ZERO, Trekkdager.ZERO),
-            List.of(UttakPeriodeType.FELLESPERIODE, UttakPeriodeType.FELLESPERIODE, UttakPeriodeType.FELLESPERIODE, UttakPeriodeType.FELLESPERIODE,
-                UttakPeriodeType.FELLESPERIODE), null);
-
-        // Act
-        var endringIUttak = uttak1.harUlikUttaksplan(uttak2) || uttak1.harUlikKontoEllerMinsterett(uttak2);
-
-        // Assert
-        assertThat(endringIUttak).isTrue();
+        assertThat(uttak2.erEndretUttaksplanFra(uttak1)).isTrue();
     }
-
 
     @Test
     void skal_gi_endring_i_uttak_om_det_er_avvik_i_arbeidsprosent_i_aktivitet_etter_endringstidspunktet() {
-        // Arrange
         var dato = LocalDate.now();
 
-        var uttakResultatOriginal = lagUttak(List.of(new LocalDateInterval(dato, dato.plusDays(10))), List.of(false), List.of(false),
-            List.of(PeriodeResultatType.INNVILGET), List.of(PeriodeResultatÅrsak.UKJENT), List.of(true), List.of(100), List.of(100),
-            List.of(new Trekkdager(12)), List.of(UttakPeriodeType.FORELDREPENGER));
+        var original = lagUttak(innvilget(dato, dato.plusDays(10)).trekkdager(12).arbeidsprosent(100));
+        var revurdering = lagUttak(innvilget(dato, dato.plusDays(10)).trekkdager(12).arbeidsprosent(50));
 
-        var uttakResultatRevurdering = lagUttak(List.of(new LocalDateInterval(dato, dato.plusDays(10))), List.of(false), List.of(false),
-            List.of(PeriodeResultatType.INNVILGET), List.of(PeriodeResultatÅrsak.UKJENT), List.of(true), List.of(50), List.of(100),
-            List.of(new Trekkdager(12)), List.of(UttakPeriodeType.FORELDREPENGER));
-
-        // Act
-        var endringIUttak = uttakResultatOriginal.harUlikUttaksplan(uttakResultatRevurdering) || uttakResultatOriginal.harUlikKontoEllerMinsterett(
-            uttakResultatRevurdering);
-
-        // Assert
-        assertThat(endringIUttak).isTrue();
+        assertThat(revurdering.erEndretUttaksplanFra(original)).isTrue();
     }
 
     @Test
     void skal_gi_endring_i_uttak_om_det_er_avvik_i_utbetatlingsgrad_i_aktivitet() {
-        // Arrange
         var dato = LocalDate.now();
 
-        var uttakResultatOriginal = lagUttak(List.of(new LocalDateInterval(dato, dato.plusDays(10))), List.of(false), List.of(false),
-            List.of(PeriodeResultatType.INNVILGET), List.of(PeriodeResultatÅrsak.UKJENT), List.of(true), List.of(100), List.of(100),
-            List.of(new Trekkdager(12)), List.of(UttakPeriodeType.FORELDREPENGER));
+        var original = lagUttak(innvilget(dato, dato.plusDays(10)).trekkdager(12).utbetalingsgrad(100));
+        var revurdering = lagUttak(innvilget(dato, dato.plusDays(10)).trekkdager(12).utbetalingsgrad(50));
 
-        var uttakResultatRevurdering = lagUttak(List.of(new LocalDateInterval(dato, dato.plusDays(10))), List.of(false), List.of(false),
-            List.of(PeriodeResultatType.INNVILGET), List.of(PeriodeResultatÅrsak.UKJENT), List.of(true), List.of(100), List.of(50),
-            List.of(new Trekkdager(12)), List.of(UttakPeriodeType.FORELDREPENGER));
-
-        // Act
-        var endringIUttak = uttakResultatOriginal.harUlikUttaksplan(uttakResultatRevurdering) || uttakResultatOriginal.harUlikKontoEllerMinsterett(
-            uttakResultatRevurdering);
-
-        // Assert
-        assertThat(endringIUttak).isTrue();
+        assertThat(revurdering.erEndretUttaksplanFra(original)).isTrue();
     }
 
     @Test
     void skal_gi_endring_i_uttak_om_det_er_avvik_i_stønadskonto() {
-        // Arrange
         var dato = LocalDate.now();
 
-        var uttakResultatOriginal = lagUttak(List.of(new LocalDateInterval(dato, dato.plusDays(10))), List.of(false), List.of(false),
-            List.of(PeriodeResultatType.INNVILGET), List.of(PeriodeResultatÅrsak.UKJENT), List.of(true), List.of(100), List.of(100),
-            List.of(new Trekkdager(12)), List.of(UttakPeriodeType.FELLESPERIODE));
+        var original = lagUttak(innvilget(dato, dato.plusDays(10)).trekkdager(12).konto(UttakPeriodeType.FELLESPERIODE));
+        var revurdering = lagUttak(innvilget(dato, dato.plusDays(10)).trekkdager(12).konto(UttakPeriodeType.MØDREKVOTE));
 
-        var uttakResultatRevurdering = lagUttak(List.of(new LocalDateInterval(dato, dato.plusDays(10))), List.of(false), List.of(false),
-            List.of(PeriodeResultatType.INNVILGET), List.of(PeriodeResultatÅrsak.UKJENT), List.of(true), List.of(100), List.of(100),
-            List.of(new Trekkdager(12)), List.of(UttakPeriodeType.MØDREKVOTE));
-
-        // Act
-        var endringIUttak = uttakResultatOriginal.harUlikUttaksplan(uttakResultatRevurdering) || uttakResultatOriginal.harUlikKontoEllerMinsterett(
-            uttakResultatRevurdering);
-
-        // Assert
-        assertThat(endringIUttak).isTrue();
+        assertThat(revurdering.erEndretUttaksplanFra(original)).isTrue();
     }
 
     @Test
     void skal_gi_endring_i_uttak_om_det_er_avvik_i_resultatType() {
-        // Arrange
         var dato = LocalDate.now();
 
-        var uttakResultatOriginal = lagUttak(List.of(new LocalDateInterval(dato, dato.plusDays(10))), List.of(false), List.of(false),
-            List.of(PeriodeResultatType.INNVILGET), List.of(PeriodeResultatÅrsak.UKJENT), List.of(true), List.of(100), List.of(100),
-            List.of(new Trekkdager(12)), List.of(UttakPeriodeType.MØDREKVOTE));
+        var original = lagUttak(innvilget(dato, dato.plusDays(10)).trekkdager(12).konto(UttakPeriodeType.MØDREKVOTE));
+        var revurdering = lagUttak(avslått(dato, dato.plusDays(10)).trekkdager(12).konto(UttakPeriodeType.MØDREKVOTE));
 
-        var uttakResultatRevurdering = lagUttak(List.of(new LocalDateInterval(dato, dato.plusDays(10))), List.of(false), List.of(false),
-            List.of(PeriodeResultatType.AVSLÅTT), List.of(PeriodeResultatÅrsak.UKJENT), List.of(true), List.of(100), List.of(100),
-            List.of(new Trekkdager(12)), List.of(UttakPeriodeType.MØDREKVOTE));
-
-        // Act
-        var endringIUttak = uttakResultatOriginal.harUlikUttaksplan(uttakResultatRevurdering) || uttakResultatOriginal.harUlikKontoEllerMinsterett(
-            uttakResultatRevurdering);
-
-        // Assert
-        assertThat(endringIUttak).isTrue();
+        assertThat(revurdering.erEndretUttaksplanFra(original)).isTrue();
     }
 
     @Test
     void skal_gi_endring_i_uttak_om_det_er_avvik_i_samtidig_uttak() {
-        // Arrange
         var dato = LocalDate.now();
 
-        var uttakResultatOriginal = lagUttak(List.of(new LocalDateInterval(dato, dato.plusDays(10))), List.of(false), List.of(false),
-            List.of(PeriodeResultatType.INNVILGET), List.of(PeriodeResultatÅrsak.UKJENT), List.of(true), List.of(100), List.of(100),
-            List.of(new Trekkdager(12)), List.of(UttakPeriodeType.FORELDREPENGER));
+        var original = lagUttak(innvilget(dato, dato.plusDays(10)).trekkdager(12));
+        var revurdering = lagUttak(innvilget(dato, dato.plusDays(10)).trekkdager(12).samtidigUttak());
 
-        var uttakResultatRevurdering = lagUttak(List.of(new LocalDateInterval(dato, dato.plusDays(10))), List.of(true), List.of(false),
-            List.of(PeriodeResultatType.INNVILGET), List.of(PeriodeResultatÅrsak.UKJENT), List.of(true), List.of(100), List.of(100),
-            List.of(new Trekkdager(12)), List.of(UttakPeriodeType.FORELDREPENGER));
-
-        // Act
-        var endringIUttak = uttakResultatOriginal.harUlikUttaksplan(uttakResultatRevurdering) || uttakResultatOriginal.harUlikKontoEllerMinsterett(
-            uttakResultatRevurdering);
-
-        // Assert
-        assertThat(endringIUttak).isTrue();
+        assertThat(revurdering.erEndretUttaksplanFra(original)).isTrue();
     }
 
     @Test
     void skal_gi_endring_i_uttak_om_det_er_avvik_i_gradering_utfall_i_aktivitet() {
-        // Arrange
         var dato = LocalDate.now();
 
-        var uttakResultatOriginal = lagUttak(List.of(new LocalDateInterval(dato, dato.plusDays(10))), List.of(false), List.of(false),
-            List.of(PeriodeResultatType.INNVILGET), List.of(PeriodeResultatÅrsak.UKJENT), List.of(true), List.of(50), List.of(50),
-            List.of(new Trekkdager(12)), List.of(UttakPeriodeType.FORELDREPENGER));
+        var original = lagUttak(innvilget(dato, dato.plusDays(10)).trekkdager(12).arbeidsprosent(50).utbetalingsgrad(50));
+        var revurdering = lagUttak(innvilget(dato, dato.plusDays(10)).trekkdager(12).arbeidsprosent(60).utbetalingsgrad(40).gradering(false));
 
-        var uttakResultatRevurdering = lagUttak(List.of(new LocalDateInterval(dato, dato.plusDays(10))), List.of(false), List.of(false),
-            List.of(PeriodeResultatType.INNVILGET), List.of(PeriodeResultatÅrsak.UKJENT), List.of(false), List.of(60), List.of(40),
-            List.of(new Trekkdager(12)), List.of(UttakPeriodeType.FORELDREPENGER));
-
-        // Act
-        var endringIUttak = uttakResultatOriginal.harUlikUttaksplan(uttakResultatRevurdering) || uttakResultatOriginal.harUlikKontoEllerMinsterett(
-            uttakResultatRevurdering);
-
-        // Assert
-        assertThat(endringIUttak).isTrue();
+        assertThat(revurdering.erEndretUttaksplanFra(original)).isTrue();
     }
 
     @Test
     void skal_gi_endring_i_uttak_dersom_uttakene_har_like_aktiviteter_men_forskjellig_uttakskonto() {
-        // Arrange
         var dato = LocalDate.now();
 
-        var uttakResultatOriginal = lagUttak(List.of(new LocalDateInterval(dato, dato.plusDays(10))), List.of(false), List.of(false),
-            List.of(PeriodeResultatType.INNVILGET), List.of(PeriodeResultatÅrsak.UKJENT), List.of(true), List.of(100), List.of(100),
-            List.of(new Trekkdager(12)), List.of(UttakPeriodeType.FORELDREPENGER));
+        var original = lagUttak(innvilget(dato, dato.plusDays(10)).trekkdager(12).konto(UttakPeriodeType.FORELDREPENGER));
+        var revurdering = lagUttak(innvilget(dato, dato.plusDays(10)).trekkdager(12).konto(UttakPeriodeType.FELLESPERIODE));
 
-        var uttakResultatRevurdering = lagUttak(List.of(new LocalDateInterval(dato, dato.plusDays(10))), List.of(false), List.of(false),
-            List.of(PeriodeResultatType.INNVILGET), List.of(PeriodeResultatÅrsak.UKJENT), List.of(true), List.of(100), List.of(100),
-            List.of(new Trekkdager(12)), List.of(UttakPeriodeType.FELLESPERIODE));
-        // Act
-        var endringIUttak = uttakResultatOriginal.harUlikUttaksplan(uttakResultatRevurdering) || uttakResultatOriginal.harUlikKontoEllerMinsterett(
-            uttakResultatRevurdering);
-
-        // Assert
-        assertThat(endringIUttak).isTrue();
+        assertThat(revurdering.erEndretUttaksplanFra(original)).isTrue();
     }
 
     @Test
     void skal_gi_endring_i_uttak_dersom_uttakene_har_samme_antall_perioder_men_med_ulik_fom_og_tom() {
-        // Arrange
         var dato = LocalDate.now();
 
-        var uttakResultatOriginal = lagUttak(List.of(new LocalDateInterval(dato, dato.plusDays(10))), List.of(false), List.of(false),
-            List.of(PeriodeResultatType.INNVILGET), List.of(PeriodeResultatÅrsak.UKJENT), List.of(true), List.of(100), List.of(100),
-            List.of(new Trekkdager(12)), List.of(UttakPeriodeType.FELLESPERIODE));
+        var original = lagUttak(innvilget(dato, dato.plusDays(10)).trekkdager(12).konto(UttakPeriodeType.FELLESPERIODE));
+        var revurdering = lagUttak(innvilget(dato.plusDays(1), dato.plusDays(11)).trekkdager(12).konto(UttakPeriodeType.FELLESPERIODE));
 
-        var uttakResultatRevurdering = lagUttak(List.of(new LocalDateInterval(dato.plusDays(1), dato.plusDays(11))), List.of(false), List.of(false),
-            List.of(PeriodeResultatType.INNVILGET), List.of(PeriodeResultatÅrsak.UKJENT), List.of(true), List.of(100), List.of(100),
-            List.of(new Trekkdager(12)), List.of(UttakPeriodeType.FELLESPERIODE));
-        // Act
-        var endringIUttak = uttakResultatOriginal.harUlikUttaksplan(uttakResultatRevurdering) || uttakResultatOriginal.harUlikKontoEllerMinsterett(
-            uttakResultatRevurdering);
-
-        // Assert
-        assertThat(endringIUttak).isTrue();
+        assertThat(revurdering.erEndretUttaksplanFra(original)).isTrue();
     }
 
     @Test
     void skal_gi_endring_i_uttak_dersom_kun_et_av_uttakene_har_periode_med_flerbarnsdager() {
-        // Arrange
         var dato = LocalDate.now();
 
-        var uttakResultatOriginal = lagUttak(List.of(new LocalDateInterval(dato, dato.plusDays(10))), List.of(false), List.of(true),
-            List.of(PeriodeResultatType.INNVILGET), List.of(PeriodeResultatÅrsak.UKJENT), List.of(true), List.of(100), List.of(100),
-            List.of(new Trekkdager(12)), List.of(UttakPeriodeType.FORELDREPENGER));
+        var original = lagUttak(innvilget(dato, dato.plusDays(10)).trekkdager(12).flerbarnsdager());
+        var revurdering = lagUttak(innvilget(dato, dato.plusDays(10)).trekkdager(12));
 
-        var uttakResultatRevurdering = lagUttak(List.of(new LocalDateInterval(dato, dato.plusDays(10))), List.of(false), List.of(false),
-            List.of(PeriodeResultatType.INNVILGET), List.of(PeriodeResultatÅrsak.UKJENT), List.of(true), List.of(100), List.of(100),
-            List.of(new Trekkdager(12)), List.of(UttakPeriodeType.FORELDREPENGER));
-        // Act
-        var endringIUttak = uttakResultatOriginal.harUlikUttaksplan(uttakResultatRevurdering) || uttakResultatOriginal.harUlikKontoEllerMinsterett(
-            uttakResultatRevurdering);
+        assertThat(revurdering.erEndretUttaksplanFra(original)).isTrue();
+    }
 
-        // Assert
-        assertThat(endringIUttak).isTrue();
+    @Test
+    void skal_ikke_gi_endring_når_periode_ender_fredag_istedenfor_søndag_samme_uke() {
+        var mandag = LocalDate.of(2024, 6, 3);
+        var fredag = LocalDate.of(2024, 6, 7);
+        var søndag = LocalDate.of(2024, 6, 9);
+
+        var original = lagUttak(innvilget(mandag, søndag).trekkdager(5).gradering(false));
+        var revurdering = lagUttak(innvilget(mandag, fredag).trekkdager(5).gradering(false));
+
+        assertThat(revurdering.erEndretUttaksplanFra(original)).isFalse();
+    }
+
+    @Test
+    void skal_ikke_gi_endring_når_avslått_periode_uten_trekkdager_og_utbetaling_mangler_i_revurdering() {
+        var fom = LocalDate.of(2024, 6, 3);
+        var innvilgetTom = LocalDate.of(2024, 8, 30);
+        var avslagFom = LocalDate.of(2024, 9, 2);
+        var avslagTom = LocalDate.of(2024, 9, 27);
+
+        var original = lagUttak(innvilget(fom, innvilgetTom).trekkdager(64).gradering(false),
+            avslått(avslagFom, avslagTom).årsak(PeriodeResultatÅrsak.IKKE_STØNADSDAGER_IGJEN));
+
+        var revurdering = lagUttak(innvilget(fom, innvilgetTom).trekkdager(64).gradering(false));
+
+        assertThat(revurdering.erEndretUttaksplanFra(original)).isFalse();
+    }
+
+    @Test
+    void skal_gi_endring_når_revurdering_har_ny_avslått_periode_uten_trekkdager() {
+        var fom = LocalDate.of(2024, 6, 3);
+        var innvilgetTom = LocalDate.of(2024, 8, 30);
+        var avslagFom = LocalDate.of(2024, 9, 2);
+        var avslagTom = LocalDate.of(2024, 9, 27);
+
+        var original = lagUttak(innvilget(fom, innvilgetTom).trekkdager(64).gradering(false));
+
+        var revurdering = lagUttak(innvilget(fom, innvilgetTom).trekkdager(64).gradering(false),
+            avslått(avslagFom, avslagTom).årsak(PeriodeResultatÅrsak.IKKE_STØNADSDAGER_IGJEN));
+
+        assertThat(revurdering.erEndretUttaksplanFra(original)).isTrue();
+    }
+
+    @Test
+    void skal_ikke_gi_endring_når_ulik_splitting_skyldes_erFraSøknad_forskjell() {
+        var fom = LocalDate.of(2024, 6, 3);
+        var splittTom = LocalDate.of(2024, 6, 14);
+        var fom2 = LocalDate.of(2024, 6, 17);
+        var tom = LocalDate.of(2024, 6, 28);
+
+        var periodeA = new ForeldrepengerUttakPeriode.Builder()
+            .medResultatÅrsak(PeriodeResultatÅrsak.UKJENT)
+            .medResultatType(PeriodeResultatType.INNVILGET)
+            .medTidsperiode(fom, splittTom)
+            .medErFraSøknad(true)
+            .medAktiviteter(List.of(lagPeriodeAktivitet(UttakPeriodeType.FORELDREPENGER, new Trekkdager(10), 0, 100)))
+            .build();
+
+        var periodeB = new ForeldrepengerUttakPeriode.Builder()
+            .medResultatÅrsak(PeriodeResultatÅrsak.UKJENT)
+            .medResultatType(PeriodeResultatType.INNVILGET)
+            .medTidsperiode(fom2, tom)
+            .medErFraSøknad(false)
+            .medAktiviteter(List.of(lagPeriodeAktivitet(UttakPeriodeType.FORELDREPENGER, new Trekkdager(10), 0, 100)))
+            .build();
+
+        var periodeC = new ForeldrepengerUttakPeriode.Builder()
+            .medResultatÅrsak(PeriodeResultatÅrsak.UKJENT)
+            .medResultatType(PeriodeResultatType.INNVILGET)
+            .medTidsperiode(fom, tom)
+            .medErFraSøknad(true)
+            .medAktiviteter(List.of(lagPeriodeAktivitet(UttakPeriodeType.FORELDREPENGER, new Trekkdager(20), 0, 100)))
+            .build();
+
+        var uttakOriginal = new ForeldrepengerUttak(List.of(periodeA, periodeB));
+        var uttakRevurdering = new ForeldrepengerUttak(List.of(periodeC));
+
+        assertThat(uttakRevurdering.erEndretUttaksplanFra(uttakOriginal)).isFalse();
+    }
+
+    @Test
+    void skal_ikke_gi_endring_når_kun_erFraSøknad_er_forskjellig() {
+        var fom = LocalDate.of(2024, 6, 3);
+        var tom = LocalDate.of(2024, 6, 28);
+
+        var periodeOriginal = new ForeldrepengerUttakPeriode.Builder().medResultatÅrsak(PeriodeResultatÅrsak.UKJENT)
+            .medResultatType(PeriodeResultatType.INNVILGET)
+            .medTidsperiode(fom, tom)
+            .medErFraSøknad(true)
+            .medAktiviteter(List.of(lagPeriodeAktivitet(UttakPeriodeType.FORELDREPENGER, new Trekkdager(20), 0, 100)))
+            .build();
+
+        var periodeRevurdering = new ForeldrepengerUttakPeriode.Builder().medResultatÅrsak(PeriodeResultatÅrsak.UKJENT)
+            .medResultatType(PeriodeResultatType.INNVILGET)
+            .medTidsperiode(fom, tom)
+            .medErFraSøknad(false)
+            .medAktiviteter(List.of(lagPeriodeAktivitet(UttakPeriodeType.FORELDREPENGER, new Trekkdager(20), 0, 100)))
+            .build();
+
+        var uttakOriginal = new ForeldrepengerUttak(List.of(periodeOriginal));
+        var uttakRevurdering = new ForeldrepengerUttak(List.of(periodeRevurdering));
+
+        assertThat(uttakRevurdering.erEndretUttaksplanFra(uttakOriginal)).isFalse();
     }
 
     @Test
     void skal_ikke_gi_endring_i_uttak_om_det_ikke_er_avvik() {
-        // Arrange
         var dato = LocalDate.now();
 
-        var uttakResultatOriginal = lagUttak(List.of(new LocalDateInterval(dato, dato.plusDays(10))), List.of(false), List.of(false),
-            List.of(PeriodeResultatType.INNVILGET), List.of(PeriodeResultatÅrsak.UKJENT), List.of(true), List.of(100), List.of(100),
-            List.of(new Trekkdager(12)), List.of(UttakPeriodeType.FORELDREPENGER));
+        var original = lagUttak(innvilget(dato, dato.plusDays(10)).trekkdager(12));
+        var revurdering = lagUttak(innvilget(dato, dato.plusDays(10)).trekkdager(12));
 
-        var uttakResultatRevurdering = lagUttak(List.of(new LocalDateInterval(dato, dato.plusDays(10))), List.of(false), List.of(false),
-            List.of(PeriodeResultatType.INNVILGET), List.of(PeriodeResultatÅrsak.UKJENT), List.of(true), List.of(100), List.of(100),
-            List.of(new Trekkdager(12)), List.of(UttakPeriodeType.FORELDREPENGER));
-
-        // Act
-        var endringIUttak = uttakResultatOriginal.harUlikUttaksplan(uttakResultatRevurdering) || uttakResultatOriginal.harUlikKontoEllerMinsterett(
-            uttakResultatRevurdering);
-
-        // Assert
-        assertThat(endringIUttak).isFalse();
+        assertThat(revurdering.erEndretUttaksplanFra(original)).isFalse();
     }
 
     @Test
     void skal_gi_endring_i_uttak_om_det_er_endring_kontodager() {
-        // Arrange
         var dato = LocalDate.now();
-
         var kontoOriginal = new Stønadskontoberegning.Builder().medStønadskonto(
             Stønadskonto.builder().medStønadskontoType(StønadskontoType.FORELDREPENGER).medMaxDager(280).build()).build();
-
-        var uttakResultatOriginal = lagUttak(List.of(new LocalDateInterval(dato, dato.plusDays(10))), List.of(false), List.of(false),
-            List.of(PeriodeResultatType.INNVILGET), List.of(PeriodeResultatÅrsak.UKJENT), List.of(true), List.of(100), List.of(100),
-            List.of(new Trekkdager(12)), List.of(UttakPeriodeType.FORELDREPENGER), kontoOriginal);
-
         var kontoRevurdering = new Stønadskontoberegning.Builder().medStønadskonto(
             Stønadskonto.builder().medStønadskontoType(StønadskontoType.FORELDREPENGER).medMaxDager(291).build()).build();
 
-        var uttakResultatRevurdering = lagUttak(List.of(new LocalDateInterval(dato, dato.plusDays(10))), List.of(false), List.of(false),
-            List.of(PeriodeResultatType.INNVILGET), List.of(PeriodeResultatÅrsak.UKJENT), List.of(true), List.of(100), List.of(100),
-            List.of(new Trekkdager(12)), List.of(UttakPeriodeType.FORELDREPENGER), kontoRevurdering);
+        var original = lagUttak(kontoOriginal, innvilget(dato, dato.plusDays(10)).trekkdager(12));
+        var revurdering = lagUttak(kontoRevurdering, innvilget(dato, dato.plusDays(10)).trekkdager(12));
 
-        assertThat(uttakResultatOriginal.harUlikKontoEllerMinsterett(uttakResultatRevurdering)).isTrue();
+        assertThat(original.harUlikKontoEllerMinsterett(revurdering)).isTrue();
     }
 
     @Test
     void skal_gi_endring_i_uttak_om_det_er_endring_minsterett() {
         var dato = LocalDate.now();
-
         var kontoOriginal = new Stønadskontoberegning.Builder().medStønadskonto(
                 Stønadskonto.builder().medStønadskontoType(StønadskontoType.FORELDREPENGER).medMaxDager(200).build())
             .medStønadskonto(Stønadskonto.builder().medStønadskontoType(StønadskontoType.BARE_FAR_RETT).medMaxDager(40).build())
             .build();
-
-        var uttakResultatOriginal = lagUttak(List.of(new LocalDateInterval(dato, dato.plusDays(10))), List.of(false), List.of(false),
-            List.of(PeriodeResultatType.INNVILGET), List.of(PeriodeResultatÅrsak.UKJENT), List.of(true), List.of(100), List.of(100),
-            List.of(new Trekkdager(12)), List.of(UttakPeriodeType.FORELDREPENGER), kontoOriginal);
-
         var kontoRevurdering = new Stønadskontoberegning.Builder().medStønadskonto(
                 Stønadskonto.builder().medStønadskontoType(StønadskontoType.FORELDREPENGER).medMaxDager(200).build())
             .medStønadskonto(Stønadskonto.builder().medStønadskontoType(StønadskontoType.BARE_FAR_RETT).medMaxDager(50).build())
             .build();
 
-        var uttakResultatRevurdering = lagUttak(List.of(new LocalDateInterval(dato, dato.plusDays(10))), List.of(false), List.of(false),
-            List.of(PeriodeResultatType.INNVILGET), List.of(PeriodeResultatÅrsak.UKJENT), List.of(true), List.of(100), List.of(100),
-            List.of(new Trekkdager(12)), List.of(UttakPeriodeType.FORELDREPENGER), kontoRevurdering);
+        var original = lagUttak(kontoOriginal, innvilget(dato, dato.plusDays(10)).trekkdager(12));
+        var revurdering = lagUttak(kontoRevurdering, innvilget(dato, dato.plusDays(10)).trekkdager(12));
 
-        assertThat(uttakResultatOriginal.harUlikKontoEllerMinsterett(uttakResultatRevurdering)).isTrue();
+        assertThat(original.harUlikKontoEllerMinsterett(revurdering)).isTrue();
     }
 
     @Test
     void skal_ikke_gi_endring_i_uttak_om_det_er_konto_minsterett_uendret() {
         var dato = LocalDate.now();
-
         var konto = new Stønadskontoberegning.Builder().medStønadskonto(
                 Stønadskonto.builder().medStønadskontoType(StønadskontoType.FORELDREPENGER).medMaxDager(200).build())
             .medStønadskonto(Stønadskonto.builder().medStønadskontoType(StønadskontoType.BARE_FAR_RETT).medMaxDager(40).build())
             .build();
 
-        var uttakResultatOriginal = lagUttak(List.of(new LocalDateInterval(dato, dato.plusDays(10))), List.of(false), List.of(false),
-            List.of(PeriodeResultatType.INNVILGET), List.of(PeriodeResultatÅrsak.UKJENT), List.of(true), List.of(100), List.of(100),
-            List.of(new Trekkdager(12)), List.of(UttakPeriodeType.FORELDREPENGER), konto);
+        var original = lagUttak(konto, innvilget(dato, dato.plusDays(10)).trekkdager(12));
+        var revurdering = lagUttak(konto, innvilget(dato, dato.plusDays(10)).trekkdager(12));
 
-        var uttakResultatRevurdering = lagUttak(List.of(new LocalDateInterval(dato, dato.plusDays(10))), List.of(false), List.of(false),
-            List.of(PeriodeResultatType.INNVILGET), List.of(PeriodeResultatÅrsak.UKJENT), List.of(true), List.of(100), List.of(100),
-            List.of(new Trekkdager(12)), List.of(UttakPeriodeType.FORELDREPENGER), konto);
-
-        assertThat(uttakResultatRevurdering.harUlikKontoEllerMinsterett(uttakResultatOriginal)).isFalse();
+        assertThat(revurdering.harUlikKontoEllerMinsterett(original)).isFalse();
     }
 
     @Test
@@ -501,38 +442,31 @@ class ForeldrepengerUttakTest {
         var foreldrepengerUttak = new ForeldrepengerUttak(List.of(opprinnelig), List.of(overstyrt), Map.of());
 
         assertThat(foreldrepengerUttak.altAvslått()).isTrue();
-
     }
 
-    private ForeldrepengerUttakPeriode lagUttakPeriode(LocalDateInterval periode,
-                                                       boolean samtidigUttak,
-                                                       PeriodeResultatType periodeResultatType,
-                                                       PeriodeResultatÅrsak periodeResultatÅrsak,
-                                                       boolean graderingInnvilget,
-                                                       boolean erFlerbarnsdager,
-                                                       Integer andelIArbeid,
-                                                       Integer utbetalingsgrad,
-                                                       Trekkdager trekkdager,
-                                                       UttakPeriodeType stønadskontotype) {
-        var aktiviteter = new ArrayList<ForeldrepengerUttakPeriodeAktivitet>();
-        var periodeAktivitet = lagPeriodeAktivitet(stønadskontotype, trekkdager, andelIArbeid, utbetalingsgrad);
-        aktiviteter.add(periodeAktivitet);
+    // --- Helpers ---
 
-        return new ForeldrepengerUttakPeriode.Builder().medResultatÅrsak(periodeResultatÅrsak)
-            .medTidsperiode(periode.getFomDato(), periode.getTomDato())
-            .medResultatType(periodeResultatType)
-            .medFlerbarnsdager(erFlerbarnsdager)
-            .medGraderingInnvilget(graderingInnvilget)
-            .medSamtidigUttak(samtidigUttak)
-            .medAktiviteter(aktiviteter)
-            .build();
-
+    private static PeriodeSpec innvilget(LocalDate fom, LocalDate tom) {
+        return new PeriodeSpec(fom, tom, PeriodeResultatType.INNVILGET);
     }
 
-    private ForeldrepengerUttakPeriodeAktivitet lagPeriodeAktivitet(UttakPeriodeType stønadskontoType,
-                                                                    Trekkdager trekkdager,
-                                                                    int andelIArbeid,
-                                                                    int utbetalingsgrad) {
+    private static PeriodeSpec avslått(LocalDate fom, LocalDate tom) {
+        return new PeriodeSpec(fom, tom, PeriodeResultatType.AVSLÅTT).trekkdager(0).utbetalingsgrad(0).arbeidsprosent(0).gradering(false);
+    }
+
+    private static ForeldrepengerUttak lagUttak(PeriodeSpec... perioder) {
+        return lagUttak(null, perioder);
+    }
+
+    private static ForeldrepengerUttak lagUttak(Stønadskontoberegning konto, PeriodeSpec... perioder) {
+        var uttaksperioder = Arrays.stream(perioder).map(PeriodeSpec::build).toList();
+        return new ForeldrepengerUttak(uttaksperioder, List.of(), konto == null ? null : konto.getStønadskontoutregning());
+    }
+
+    private static ForeldrepengerUttakPeriodeAktivitet lagPeriodeAktivitet(UttakPeriodeType stønadskontoType,
+                                                                           Trekkdager trekkdager,
+                                                                           int andelIArbeid,
+                                                                           int utbetalingsgrad) {
         return new ForeldrepengerUttakPeriodeAktivitet.Builder().medAktivitet(
                 new ForeldrepengerUttakAktivitet(UttakArbeidType.ORDINÆRT_ARBEID, Arbeidsgiver.virksomhet(OrgNummer.KUNSTIG_ORG),
                     InternArbeidsforholdRef.namedRef("TEST-REF")))
@@ -543,49 +477,74 @@ class ForeldrepengerUttakTest {
             .build();
     }
 
-    private ForeldrepengerUttak lagUttak(List<LocalDateInterval> perioder,
-                                         List<Boolean> samtidigUttak,
-                                         List<Boolean> erFlerbarnsdager,
-                                         List<PeriodeResultatType> periodeResultatTyper,
-                                         List<PeriodeResultatÅrsak> periodeResultatÅrsak,
-                                         List<Boolean> graderingInnvilget,
-                                         List<Integer> andelIArbeid,
-                                         List<Integer> utbetalingsgrad,
-                                         List<Trekkdager> trekkdager,
-                                         List<UttakPeriodeType> stønadskontoTyper) {
-        return lagUttak(perioder, samtidigUttak, erFlerbarnsdager, periodeResultatTyper, periodeResultatÅrsak, graderingInnvilget, andelIArbeid,
-            utbetalingsgrad, trekkdager, stønadskontoTyper, null);
-    }
+    private static class PeriodeSpec {
+        private final LocalDate fom;
+        private final LocalDate tom;
+        private final PeriodeResultatType resultatType;
+        private PeriodeResultatÅrsak årsak = PeriodeResultatÅrsak.UKJENT;
+        private int trekkdager = 10;
+        private int arbeidsprosent = 0;
+        private int utbetalingsgrad = 100;
+        private UttakPeriodeType konto = UttakPeriodeType.FORELDREPENGER;
+        private boolean samtidigUttak = false;
+        private boolean flerbarnsdager = false;
+        private boolean graderingInnvilget = true;
 
-    private ForeldrepengerUttak lagUttak(List<LocalDateInterval> perioder,
-                                         List<Boolean> samtidigUttak,
-                                         List<Boolean> erFlerbarnsdager,
-                                         List<PeriodeResultatType> periodeResultatTyper,
-                                         List<PeriodeResultatÅrsak> periodeResultatÅrsak,
-                                         List<Boolean> graderingInnvilget,
-                                         List<Integer> andelIArbeid,
-                                         List<Integer> utbetalingsgrad,
-                                         List<Trekkdager> trekkdager,
-                                         List<UttakPeriodeType> stønadskontoTyper,
-                                         Stønadskontoberegning stønadskontoBeregning) {
-        //Her er det krisestemning!
-        assertThat(perioder).hasSize(samtidigUttak.size());
-        assertThat(perioder).hasSize(periodeResultatTyper.size());
-        assertThat(perioder).hasSize(periodeResultatÅrsak.size());
-        assertThat(perioder).hasSize(graderingInnvilget.size());
-        assertThat(perioder).hasSize(andelIArbeid.size());
-        assertThat(perioder).hasSize(utbetalingsgrad.size());
-        assertThat(perioder).hasSize(trekkdager.size());
-        assertThat(perioder).hasSize(stønadskontoTyper.size());
-        var antallPerioder = perioder.size();
-        var uttaksperioder = new ArrayList<ForeldrepengerUttakPeriode>();
-        for (var i = 0; i < antallPerioder; i++) {
-            var p = lagUttakPeriode(perioder.get(i), samtidigUttak.get(i), periodeResultatTyper.get(i), periodeResultatÅrsak.get(i),
-                graderingInnvilget.get(i), erFlerbarnsdager.get(i), andelIArbeid.get(i), utbetalingsgrad.get(i), trekkdager.get(i),
-                stønadskontoTyper.get(i));
-            uttaksperioder.add(p);
+        PeriodeSpec(LocalDate fom, LocalDate tom, PeriodeResultatType resultatType) {
+            this.fom = fom;
+            this.tom = tom;
+            this.resultatType = resultatType;
         }
-        return new ForeldrepengerUttak(uttaksperioder, List.of(), stønadskontoBeregning == null ? null : stønadskontoBeregning.getStønadskontoutregning());
-    }
 
+        PeriodeSpec trekkdager(int trekkdager) {
+            this.trekkdager = trekkdager;
+            return this;
+        }
+
+        PeriodeSpec arbeidsprosent(int arbeidsprosent) {
+            this.arbeidsprosent = arbeidsprosent;
+            return this;
+        }
+
+        PeriodeSpec utbetalingsgrad(int utbetalingsgrad) {
+            this.utbetalingsgrad = utbetalingsgrad;
+            return this;
+        }
+
+        PeriodeSpec konto(UttakPeriodeType konto) {
+            this.konto = konto;
+            return this;
+        }
+
+        PeriodeSpec samtidigUttak() {
+            this.samtidigUttak = true;
+            return this;
+        }
+
+        PeriodeSpec flerbarnsdager() {
+            this.flerbarnsdager = true;
+            return this;
+        }
+
+        PeriodeSpec gradering(boolean innvilget) {
+            this.graderingInnvilget = innvilget;
+            return this;
+        }
+
+        PeriodeSpec årsak(PeriodeResultatÅrsak årsak) {
+            this.årsak = årsak;
+            return this;
+        }
+
+        ForeldrepengerUttakPeriode build() {
+            return new ForeldrepengerUttakPeriode.Builder().medResultatÅrsak(årsak)
+                .medResultatType(resultatType)
+                .medTidsperiode(fom, tom)
+                .medSamtidigUttak(samtidigUttak)
+                .medFlerbarnsdager(flerbarnsdager)
+                .medGraderingInnvilget(graderingInnvilget)
+                .medAktiviteter(List.of(lagPeriodeAktivitet(konto, new Trekkdager(trekkdager), arbeidsprosent, utbetalingsgrad)))
+                .build();
+        }
+    }
 }
