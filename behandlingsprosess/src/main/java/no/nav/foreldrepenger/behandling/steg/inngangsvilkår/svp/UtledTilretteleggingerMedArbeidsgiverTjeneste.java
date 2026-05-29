@@ -97,6 +97,13 @@ class UtledTilretteleggingerMedArbeidsgiverTjeneste {
             });
         }
 
+        // Kommentar ifm utbedring av finnTilretteleggingerSomMåVurderesPåNytt - bare de som "skalBrukes"
+        // måVurderesPåNytt er fjernet fra tilretteleggingerMedArbeidsforholdId men lagt til i
+        // tilretteleggingerUtenArbeidsforholdId - dvs brukes i for-loopen
+        // Problemet er da at man glemmer både "skalBrukes", lista av "tilretteleggingFom", osv.
+        // Det virker mer fornuftig å videreføre eksisterende tilrettelegginger og lage nye for tilkommet arb.forhold.
+        // Bør også se på om de 2 new SvpTilretteleggingEntitet.Builder skal ta med ".medSkalBrukes(true)"
+
         nyeTilrettelegginger.addAll(tilretteleggingerMedArbeidsforholdId);
 
         for (var tilrettelegging : tilretteleggingerUtenArbeidsforholdId) {
@@ -110,7 +117,7 @@ class UtledTilretteleggingerMedArbeidsgiverTjeneste {
                     .toList();
 
             if (skalKunOppretteEnTilretteleggingForArbeidsgiver(inntektsmeldingerForArbeidsgiver)) {
-                nyeTilrettelegginger.add(new SvpTilretteleggingEntitet.Builder(tilrettelegging).medInternArbeidsforholdRef(null).medSkalBrukes(true).build());
+                nyeTilrettelegginger.add(new SvpTilretteleggingEntitet.Builder(tilrettelegging).medInternArbeidsforholdRef(null).build());
             } else {
                 var tilrettelegginger = opprettTilretteleggingForHverYrkesaktivitet(relevanteYrkesaktiviteter, tilrettelegging, arbeidsgiver);
                 nyeTilrettelegginger.addAll(tilrettelegginger);
@@ -167,7 +174,6 @@ class UtledTilretteleggingerMedArbeidsgiverTjeneste {
                 .filter(yrkesaktivitet -> arbeidsgiver.equals(yrkesaktivitet.getArbeidsgiver()))
                 .map(yrkesaktivitet -> new SvpTilretteleggingEntitet.Builder(tilrettelegging)
                         .medInternArbeidsforholdRef(yrkesaktivitet.getArbeidsforholdRef())
-                        .medSkalBrukes(true)
                         .build())
                 .toList();
     }
