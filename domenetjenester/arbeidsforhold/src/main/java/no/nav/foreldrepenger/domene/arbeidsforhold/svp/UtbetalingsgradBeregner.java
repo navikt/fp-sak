@@ -70,9 +70,9 @@ class UtbetalingsgradBeregner {
                 .toList();
 
         var tilretteleggingArbeidsforhold = new TilretteleggingArbeidsforhold(
-                svpTilrettelegging.getArbeidsgiver().orElse(null),
-                svpTilrettelegging.getInternArbeidsforholdRef().orElse(InternArbeidsforholdRef.nullRef()),
-                finnUttakArbeidType(svpTilrettelegging.getArbeidType()),
+            svpTilrettelegging.getArbeidsgiver().orElse(null),
+            svpTilrettelegging.getInternArbeidsforholdRef().orElse(InternArbeidsforholdRef.nullRef()),
+            finnUttakArbeidType(svpTilrettelegging.getArbeidType()),
             svpTilrettelegging.getArbeidsforholdErSplittet());
 
         return new TilretteleggingMedUtbelingsgrad(tilretteleggingArbeidsforhold, periodeMedUtbetalingsgrad);

@@ -1,0 +1,2 @@
+ALTER TABLE SVP_UTTAK_ARBEIDSFORHOLD ADD ARBEIDSFORHOLD_ER_SPLITTET VARCHAR2(1) DEFAULT 'N';
+COMMENT ON COLUMN SVP_UTTAK_ARBEIDSFORHOLD.ARBEIDSFORHOLD_ER_SPLITTET IS 'Indikerer om arbeidsforholdet er splittet av saksbehandler grunnet flere arbeidsforhold i samme underenhet';

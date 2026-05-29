@@ -22,6 +22,7 @@ import no.nav.foreldrepenger.behandlingslager.BaseEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.UttakArbeidType;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
+import no.nav.vedtak.felles.jpa.converters.BooleanToStringConverter;
 
 @Entity
 @Table(name = "SVP_UTTAK_ARBEIDSFORHOLD")
@@ -48,6 +49,10 @@ public class SvangerskapspengerUttakResultatArbeidsforholdEntitet extends BaseEn
     @Column(name = "UTTAK_ARBEID_TYPE")
     private UttakArbeidType uttakArbeidType;
 
+    @Convert(converter = BooleanToStringConverter.class)
+    @Column(name = "ARBEIDSFORHOLD_ER_SPLITTET", nullable = false)
+    private boolean arbeidsforholdErSplittet = false;
+
     public Long getId() {
         return id;
     }
@@ -70,6 +75,10 @@ public class SvangerskapspengerUttakResultatArbeidsforholdEntitet extends BaseEn
 
     public UttakArbeidType getUttakArbeidType() {
         return uttakArbeidType;
+    }
+
+    public boolean isArbeidsforholdErSplittet() {
+        return arbeidsforholdErSplittet;
     }
 
     public boolean isAvslått() {
@@ -102,6 +111,11 @@ public class SvangerskapspengerUttakResultatArbeidsforholdEntitet extends BaseEn
 
         public Builder medUttakArbeidType(UttakArbeidType uttakArbeidType) {
             kladd.uttakArbeidType = uttakArbeidType;
+            return this;
+        }
+
+        public Builder medArbeidsforholdErSplittet(boolean arbeidsforholdErSplittet) {
+            kladd.arbeidsforholdErSplittet = arbeidsforholdErSplittet;
             return this;
         }
 

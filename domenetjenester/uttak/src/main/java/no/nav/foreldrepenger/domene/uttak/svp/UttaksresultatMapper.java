@@ -37,6 +37,7 @@ class UttaksresultatMapper {
         var orgnr = arbeidsforhold.getArbeidsgiverVirksomhetId();
         if (orgnr != null) {
             arbeidsforholdBuilder.medArbeidsforhold(Arbeidsgiver.virksomhet(orgnr), arbeidsforholdRef);
+            arbeidsforholdBuilder.medArbeidsforholdErSplittet(arbeidsforhold.getArbeidsforholdErSplittet());
         } else {
             if (arbeidsforhold.getArbeidsgiverAktørId() != null) {
                 arbeidsforholdBuilder.medArbeidsforhold(Arbeidsgiver.person(new AktørId(arbeidsforhold.getArbeidsgiverAktørId())), arbeidsforholdRef);
