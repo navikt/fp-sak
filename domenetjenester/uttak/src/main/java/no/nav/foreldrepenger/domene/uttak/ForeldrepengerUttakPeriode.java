@@ -78,7 +78,6 @@ public class ForeldrepengerUttakPeriode {
             && Objects.equals(periode.isFlerbarnsdager(), isFlerbarnsdager())
             && Objects.equals(periode.getUtsettelseType(), getUtsettelseType())
             && Objects.equals(periode.getOverføringÅrsak(), getOverføringÅrsak())
-            && Objects.equals(periode.erFraSøknad(), erFraSøknad())
             && Objects.equals(periode.getOppholdÅrsak(), getOppholdÅrsak());
     }
 

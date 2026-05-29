@@ -60,16 +60,16 @@ public class SvangerskapspengerUttak implements Uttak {
     }
 
     @Override
-    public boolean harUlikUttaksplan(Uttak other) {
-        var uttakresultatSammenligneMed = (SvangerskapspengerUttak) other;
-        if (!uttakresultatSammenligneMed.getSisteDagAvSistePeriode().isEqual(getSisteDagAvSistePeriode())) {
+    public boolean erEndretUttaksplanFra(Uttak originaltUttak) {
+        var original = (SvangerskapspengerUttak) originaltUttak;
+        if (!original.getSisteDagAvSistePeriode().isEqual(getSisteDagAvSistePeriode())) {
             return true;
         }
 
-        if (!uttakresultatSammenligneMed.getFørsteDagAvFørstePeriode().isEqual(getFørsteDagAvFørstePeriode())) {
+        if (!original.getFørsteDagAvFørstePeriode().isEqual(getFørsteDagAvFørstePeriode())) {
             return true;
         }
-        return !erLikresultat(getUttaksResultatArbeidsforhold(), uttakresultatSammenligneMed.getUttaksResultatArbeidsforhold());
+        return !erLikresultat(getUttaksResultatArbeidsforhold(), original.getUttaksResultatArbeidsforhold());
     }
 
     @Override
@@ -78,7 +78,7 @@ public class SvangerskapspengerUttak implements Uttak {
     }
 
     @Override
-    public boolean harOpphørsUttakNyeInnvilgetePerioder(Uttak uttak) {
+    public boolean harOpphørsUttakNyeInnvilgedePerioderFra(Uttak originaltUttak) {
         return false;
     }
 
