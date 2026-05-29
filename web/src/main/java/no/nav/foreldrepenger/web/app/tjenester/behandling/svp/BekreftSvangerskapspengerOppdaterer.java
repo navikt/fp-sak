@@ -377,18 +377,15 @@ public class BekreftSvangerskapspengerOppdaterer implements AksjonspunktOppdater
                     "Fyll ut enten arbeidsprosent eller endre oppgitt utbetalingsgrad");
             }
 
-            var nyTilretteleggingFOMBuilder = new TilretteleggingFOM.Builder()
-                .medTilretteleggingType(datoDto.getType())
+            var nyTilretteleggingFOM = new TilretteleggingFOM.Builder().medTilretteleggingType(datoDto.getType())
                 .medFomDato(datoDto.getFom())
+                .medStillingsprosent(datoDto.getStillingsprosent())
                 .medOverstyrtUtbetalingsgrad(datoDto.getOverstyrtUtbetalingsgrad())
                 .medTidligstMottattDato(utledTidligstMotattFraEks(datoDto, eksisterendeTilrettelegging))
-                .medKilde(datoDto.getKilde());
+                .medKilde(datoDto.getKilde())
+                .build();
 
-            if (!arbeidsforholdDto.getArbeidsforholdetErSplittet()) {
-                nyTilretteleggingFOMBuilder.medStillingsprosent(datoDto.getStillingsprosent());
-            }
-
-            nyTilretteleggingEntitetBuilder.medTilretteleggingFom(nyTilretteleggingFOMBuilder.build());
+            nyTilretteleggingEntitetBuilder.medTilretteleggingFom(nyTilretteleggingFOM);
         }
 
         if (arbeidsforholdDto.getAvklarteOppholdPerioder() != null) {
