@@ -84,7 +84,13 @@ class UtledTilretteleggingerMedArbeidsgiverTjeneste {
 
             tilretteleggingerMedArbeidsforholdId.removeAll(måVurderesPåNytt);
             //Dersom det er allerede finnes tilrettelegging for samme arbeidsgiver skal den ikke legges til listen.
-            måVurderesPåNytt.forEach(tilr -> {
+            //Prioriterer arbeidsforhold som er i bruk - unngå at getSkalBrukes brukes videre
+            måVurderesPåNytt.stream().filter(SvpTilretteleggingEntitet::getSkalBrukes).forEach(tilr -> {
+                if (tilretteleggingerUtenArbeidsforholdId.stream().map(SvpTilretteleggingEntitet::getArbeidsgiver).noneMatch(a -> a.equals(tilr.getArbeidsgiver()))) {
+                    tilretteleggingerUtenArbeidsforholdId.add(tilr);
+                }
+            });
+            måVurderesPåNytt.stream().filter(t -> !t.getSkalBrukes()).forEach(tilr -> {
                 if (tilretteleggingerUtenArbeidsforholdId.stream().map(SvpTilretteleggingEntitet::getArbeidsgiver).noneMatch(a -> a.equals(tilr.getArbeidsgiver()))) {
                     tilretteleggingerUtenArbeidsforholdId.add(tilr);
                 }
@@ -104,7 +110,7 @@ class UtledTilretteleggingerMedArbeidsgiverTjeneste {
                     .toList();
 
             if (skalKunOppretteEnTilretteleggingForArbeidsgiver(inntektsmeldingerForArbeidsgiver)) {
-                nyeTilrettelegginger.add(new SvpTilretteleggingEntitet.Builder(tilrettelegging).medInternArbeidsforholdRef(null).build());
+                nyeTilrettelegginger.add(new SvpTilretteleggingEntitet.Builder(tilrettelegging).medInternArbeidsforholdRef(null).medSkalBrukes(true).build());
             } else {
                 var tilrettelegginger = opprettTilretteleggingForHverYrkesaktivitet(relevanteYrkesaktiviteter, tilrettelegging, arbeidsgiver);
                 nyeTilrettelegginger.addAll(tilrettelegginger);
@@ -126,10 +132,12 @@ class UtledTilretteleggingerMedArbeidsgiverTjeneste {
                 .toList();
             var arbeidsgiver = Arbeidsgiver.virksomhet(arbeidsgiverIdentifikator);
 
-            var alleIderHarMatchendeIm = tilretteleggingerForArbeidsgiver.stream().map(SvpTilretteleggingEntitet::getInternArbeidsforholdRef)
+            var alleTilretteleggingIderSomSkalBrukesHarMatchendeIm = tilretteleggingerForArbeidsgiver.stream()
+                .filter(SvpTilretteleggingEntitet::getSkalBrukes)
+                .map(SvpTilretteleggingEntitet::getInternArbeidsforholdRef)
                 .allMatch(internArbeidsforholdRef -> finnesIdIListenAvInntektsmeldingerForArbeidsgiver(arbeidsgiver, kobledeInntektsmeldinger, internArbeidsforholdRef.orElse(null)));
 
-            if (!alleIderHarMatchendeIm || inntektsmeldingerForArbeidsgiver.size() > tilretteleggingerForArbeidsgiver.size() ) {
+            if (!alleTilretteleggingIderSomSkalBrukesHarMatchendeIm || inntektsmeldingerForArbeidsgiver.size() > tilretteleggingerForArbeidsgiver.size() ) {
                 tilretteleggingerSomMåVurderesPåNytt.addAll(tilretteleggingerForArbeidsgiver);
             }
         });
@@ -159,6 +167,7 @@ class UtledTilretteleggingerMedArbeidsgiverTjeneste {
                 .filter(yrkesaktivitet -> arbeidsgiver.equals(yrkesaktivitet.getArbeidsgiver()))
                 .map(yrkesaktivitet -> new SvpTilretteleggingEntitet.Builder(tilrettelegging)
                         .medInternArbeidsforholdRef(yrkesaktivitet.getArbeidsforholdRef())
+                        .medSkalBrukes(true)
                         .build())
                 .toList();
     }
