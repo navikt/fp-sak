@@ -81,11 +81,17 @@ class MellomlagringRepositoryTest extends EntityManagerAwareTest {
             .medType(MellomlagringType.INNHENT_OPPLYSNINGER)
             .medInnhold("<p>Innhent</p>")
             .build());
+        mellomlagringRepository.lagreOgFlush(MellomlagringEntitet.Builder.ny()
+            .medBehandlingId(behandling.getId())
+            .medType(MellomlagringType.VEDTAKSBREV)
+            .medInnhold("<p>Vedtak</p>")
+            .build());
 
-        mellomlagringRepository.fjernAlleMellomlagringer(behandling.getId());
+        mellomlagringRepository.fjernMellomlagringer(behandling.getId(), MellomlagringType.VEDTAKSBREV);
 
         assertThat(mellomlagringRepository.hentMellomlagring(behandling.getId(), MellomlagringType.VARSEL_REVURDERING)).isEmpty();
         assertThat(mellomlagringRepository.hentMellomlagring(behandling.getId(), MellomlagringType.INNHENT_OPPLYSNINGER)).isEmpty();
+        assertThat(mellomlagringRepository.hentMellomlagring(behandling.getId(), MellomlagringType.VEDTAKSBREV)).isPresent();
     }
 
     @Test
