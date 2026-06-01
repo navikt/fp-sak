@@ -89,11 +89,12 @@ public class MellomlagringRepository {
         entityManager.flush();
     }
 
-    public void fjernAlleMellomlagringer(Long behandlingId) {
+    public void fjernMellomlagringer(Long behandlingId, MellomlagringType ikkeSlettType) {
         LOG.info("Alle mellomlagringer slettet");
         entityManager.createQuery(
-                "delete from BehandlingMellomlagring m where m.behandlingId = :behandlingId")
+                "delete from BehandlingMellomlagring m where m.behandlingId = :behandlingId and m.type <> :type")
             .setParameter("behandlingId", behandlingId)
+            .setParameter("type", ikkeSlettType)
             .executeUpdate();
         entityManager.flush();
     }
