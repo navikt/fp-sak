@@ -76,9 +76,8 @@ class BrevRestTjenesteTest {
         var behandlingMock = mock(Behandling.class);
         when(behandlingMock.getSaksnummer()).thenReturn(new Saksnummer("9999"));
         when(behandlingRepository.hentBehandling(behandlingUuid)).thenReturn(behandlingMock);
-        var fritekst = "Dette er en fritekst";
         var dokumentMal = INNHENTE_OPPLYSNINGER;
-        var bestillBrevDto = new BestillDokumentDto(behandlingUuid, dokumentMal, fritekst, null);
+        var bestillBrevDto = new BestillDokumentDto(behandlingUuid, dokumentMal, null);
 
         // Act
         brevRestTjeneste.bestillDokument(bestillBrevDto);
@@ -94,7 +93,7 @@ class BrevRestTjenesteTest {
         assertThat(bestilling.bestillingUuid()).isNotNull();
         assertThat(bestilling.behandlingUuid()).isEqualTo(behandlingUuid);
         assertThat(bestilling.dokumentMal()).isEqualTo(dokumentMal);
-        assertThat(bestilling.fritekst()).isEqualTo(fritekst);
+        assertThat(bestilling.fritekst()).isNull();
         assertThat(bestilling.revurderingÅrsak()).isNull();
         assertThat(bestilling.journalførSom()).isNull();
     }
@@ -254,7 +253,7 @@ class BrevRestTjenesteTest {
         var bestillingCaptor = ArgumentCaptor.forClass(DokumentForhandsvisning.class);
         when(dokumentForhåndsvisningTjenesteMock.forhåndsvisDokument(eq(1L), bestillingCaptor.capture())).thenReturn(pdf);
 
-        var dto = new ForhåndsvisDokumentDto(behandlingUuid, VARSEL_OM_REVURDERING, null, false, null, null);
+        var dto = new ForhåndsvisDokumentDto(behandlingUuid, VARSEL_OM_REVURDERING, null, false);
         var respons = brevRestTjeneste.forhåndsvisDokument(dto);
 
         assertThat(respons.getStatus()).isEqualTo(200);
@@ -264,7 +263,7 @@ class BrevRestTjenesteTest {
     }
 
     @Test
-    void forhåndsvis_varselOmRevurdering_uten_mellomlagring_ignorerer_fritekst_fra_dto() {
+    void forhåndsvis_varselOmRevurdering_uten_mellomlagring_gir_null_fritekst() {
         var behandlingUuid = UUID.randomUUID();
         var behandling = mock(Behandling.class);
         when(behandling.getId()).thenReturn(1L);
@@ -275,8 +274,7 @@ class BrevRestTjenesteTest {
         var bestillingCaptor = ArgumentCaptor.forClass(DokumentForhandsvisning.class);
         when(dokumentForhåndsvisningTjenesteMock.forhåndsvisDokument(eq(1L), bestillingCaptor.capture())).thenReturn(pdf);
 
-        // fritekst sendt fra DTO skal IKKE brukes for maltyper med mellomlagring
-        var dto = new ForhåndsvisDokumentDto(behandlingUuid, VARSEL_OM_REVURDERING, null, false, null, "fritekst fra dto");
+        var dto = new ForhåndsvisDokumentDto(behandlingUuid, VARSEL_OM_REVURDERING, null, false);
         var respons = brevRestTjeneste.forhåndsvisDokument(dto);
 
         assertThat(respons.getStatus()).isEqualTo(200);

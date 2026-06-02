@@ -131,7 +131,7 @@ public class BrevRestTjeneste {
         if (harMellomlagring) {
             builder.medDokumentMal(DokumentMalType.FRITEKST_HTML).medJournalførSom(brevmalkode);
         } else {
-            builder.medDokumentMal(brevmalkode).medFritekst(bestillBrevDto.fritekst());
+            builder.medDokumentMal(brevmalkode);
         }
 
         var dokumentBestilling = builder.build();
@@ -225,7 +225,7 @@ public class BrevRestTjeneste {
             : Optional.<MellomlagringEntitet>empty();
         var dokumentMal = mellomlagring.isPresent() ? DokumentMalType.FRITEKST_HTML : brevmalkode;
         // Fritekst hentes utelukkende fra mellomlagring for maltyper som støtter html redigering
-        var fritekst = mellomlagring.map(MellomlagringEntitet::getInnhold).orElse(mellomlagringType != null ? null : forhåndsvisDto.fritekst());
+        var fritekst = mellomlagring.map(MellomlagringEntitet::getInnhold).orElse(null);
 
         var bestilling = DokumentForhandsvisning.builder()
             .medBehandlingUuid(forhåndsvisDto.behandlingUuid())
@@ -233,7 +233,6 @@ public class BrevRestTjeneste {
             .medDokumentMal(dokumentMal)
             .medRevurderingÅrsak(forhåndsvisDto.årsakskode())
             .medFritekst(fritekst)
-            .medTittel(forhåndsvisDto.tittel())
             .medDokumentType(utledDokumentType(forhåndsvisDto.automatiskVedtaksbrev()))
             .build();
 
