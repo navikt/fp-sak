@@ -38,8 +38,7 @@ public class OppholdTjeneste {
         svpGrunnlag.getGrunnlagEntitet()
             .map(SvpGrunnlagEntitet::hentTilretteleggingerSomSkalBrukes)
             .orElse(Collections.emptyList()).forEach(tilrettelegging -> {
-            var aktivitetType = RegelmodellSøknaderMapper.mapTilAktivitetType(tilrettelegging.getArbeidType());
-            var arbeidsforhold =  RegelmodellSøknaderMapper.lagArbeidsforhold(tilrettelegging.getArbeidsgiver(), tilrettelegging.getInternArbeidsforholdRef(), aktivitetType);
+            var arbeidsforhold =  RegelmodellSøknaderMapper.lagArbeidsforhold(tilrettelegging);
 
             //henter ferie- eller sykepenger-opphold registrert av saksbehandler
             var oppholdListeFraTIlr = hentOppholdListeFraTilrettelegging(tilrettelegging);
