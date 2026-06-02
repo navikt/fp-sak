@@ -21,7 +21,6 @@ import no.nav.vedtak.util.InputValideringRegex;
 
 public class BekreftTilrettelegging {
 
-    @NotNull
     @Min(0L)
     @Max(Long.MAX_VALUE)
     private Long tilretteleggingId;

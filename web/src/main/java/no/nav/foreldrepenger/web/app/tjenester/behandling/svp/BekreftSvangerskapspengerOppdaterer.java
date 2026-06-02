@@ -302,6 +302,10 @@ public class BekreftSvangerskapspengerOppdaterer implements AksjonspunktOppdater
             eksisterendeTilrettelegging = hentEksisterendeTilretteleggingForSplittetArbeidsforhold(eksisterendeTilrettelegingerListe,
                 arbeidsforholdDto.getArbeidsgiverReferanse());
         } else {
+            if (arbeidsforholdDto.getTilretteleggingId() == null) {
+                throw new TekniskException("FP-572363",
+                    "Mangler tilretteleggingId for ikke-splittet arbeidsforhold på svangerskapspengergrunnlag");
+            }
             eksisterendeTilrettelegging = hentEksisterendeTilrettelegging(eksisterendeTilrettelegingerListe,
                 arbeidsforholdDto.getTilretteleggingId());
         }
