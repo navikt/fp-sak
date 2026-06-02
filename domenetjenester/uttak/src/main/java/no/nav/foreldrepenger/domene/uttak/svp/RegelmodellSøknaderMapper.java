@@ -49,8 +49,7 @@ public class RegelmodellSøknaderMapper {
 
     private Søknad lagSøknad(UttakInput input, SvpTilretteleggingEntitet tilrettelegging, LocalDate termindato) {
         var tilrettelegginger = tilrettelegging.getTilretteleggingFOMListe().stream().map(this::mapTilrettelegging).toList();
-        var aktivitetType = mapTilAktivitetType(tilrettelegging.getArbeidType());
-        var arbeidsforhold = lagArbeidsforhold(tilrettelegging.getArbeidsgiver(), tilrettelegging.getInternArbeidsforholdRef(), aktivitetType);
+        var arbeidsforhold = lagArbeidsforhold(tilrettelegging);
         var stillingsprosent = finnStillingsprosent(input, tilrettelegging, arbeidsforhold);
         return new Søknad(arbeidsforhold, stillingsprosent, termindato, tilrettelegging.getBehovForTilretteleggingFom(), tilrettelegginger);
     }
@@ -93,21 +92,24 @@ public class RegelmodellSøknaderMapper {
         return BigDecimal.valueOf(100L); //Ellers 100% stilling
     }
 
-    public static Arbeidsforhold lagArbeidsforhold(Optional<Arbeidsgiver> arbeidsforhold,
-                                             Optional<InternArbeidsforholdRef> internArbeidsforholdRef,
-                                             AktivitetType aktivitetType) {
+    public static Arbeidsforhold lagArbeidsforhold(SvpTilretteleggingEntitet tilrettelegging) {
+
+        var aktivitetType = mapTilAktivitetType(tilrettelegging.getArbeidType());
+        var arbeidsforhold= tilrettelegging.getArbeidsgiver();
+        var internArbeidsforholdRef= tilrettelegging.getInternArbeidsforholdRef();
+
         if (arbeidsforhold.isEmpty()) {
             return Arbeidsforhold.annet(aktivitetType);
         }
         var arbeidsgiver = arbeidsforhold.get();
         if (internArbeidsforholdRef.isEmpty()) {
             if (arbeidsgiver.getErVirksomhet()) {
-                return Arbeidsforhold.virksomhet(aktivitetType, arbeidsgiver.getOrgnr(), null);
+                return Arbeidsforhold.virksomhet(aktivitetType, arbeidsgiver.getOrgnr(), null, tilrettelegging.getArbeidsforholdErSplittet());
             }
             return Arbeidsforhold.aktør(aktivitetType, arbeidsgiver.getAktørId().getId(), null);
         }
         if (arbeidsgiver.getErVirksomhet()) {
-            return Arbeidsforhold.virksomhet(aktivitetType, arbeidsgiver.getOrgnr(), internArbeidsforholdRef.get().getReferanse());
+            return Arbeidsforhold.virksomhet(aktivitetType, arbeidsgiver.getOrgnr(), internArbeidsforholdRef.get().getReferanse(),tilrettelegging.getArbeidsforholdErSplittet() );
         }
         return Arbeidsforhold.aktør(aktivitetType, arbeidsgiver.getAktørId().getId(), internArbeidsforholdRef.get().getReferanse());
     }
