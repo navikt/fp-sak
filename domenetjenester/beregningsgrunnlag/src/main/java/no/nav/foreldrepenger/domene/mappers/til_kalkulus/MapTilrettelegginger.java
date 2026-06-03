@@ -51,10 +51,11 @@ public class MapTilrettelegginger {
     }
 
     private static AktivitetDto mapTilretteleggingArbeidsforhold(TilretteleggingArbeidsforhold tilretteleggingArbeidsforhold) {
-        return new AktivitetDto(mapTilAktør(tilretteleggingArbeidsforhold.getArbeidsgiver().orElse(null)),
+        return new AktivitetDto(
+            mapTilAktør(tilretteleggingArbeidsforhold.getArbeidsgiver().orElse(null)),
             mapReferanse(tilretteleggingArbeidsforhold.getInternArbeidsforholdRef()),
-            KodeverkTilKalkulusMapper.mapUttakArbeidType(tilretteleggingArbeidsforhold.getUttakArbeidType()),
-            tilretteleggingArbeidsforhold.getArbeidsforholdetErSplittet());
+            KodeverkTilKalkulusMapper.mapUttakArbeidType(tilretteleggingArbeidsforhold.getUttakArbeidType())
+        );
     }
 
     private static Aktør mapTilAktør(Arbeidsgiver arbeidsgiver) {
