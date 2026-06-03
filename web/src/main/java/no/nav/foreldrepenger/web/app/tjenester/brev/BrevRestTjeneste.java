@@ -240,7 +240,7 @@ public class BrevRestTjeneste {
             validerFinnesManglendeInntektsmelding(behandling);
         }
 
-        var dokument = dokumentForhåndsvisningTjeneste.forhåndsvisDokument(behandling.getId(), bestilling);
+        var dokument = dokumentForhåndsvisningTjeneste.forhåndsvisDokument(bestilling);
         if (dokument != null && dokument.length != 0) {
             var responseBuilder = Response.ok(dokument);
             responseBuilder.type("application/pdf");
@@ -302,7 +302,7 @@ public class BrevRestTjeneste {
                 .medFritekst(mellomlagretHtml.get())
                 .medDokumentType(DokumentForhandsvisning.DokumentType.OVERSTYRT)
                 .build();
-            var pdf = dokumentForhåndsvisningTjeneste.forhåndsvisDokument(behandling.getId(), bestilling);
+            var pdf = dokumentForhåndsvisningTjeneste.forhåndsvisDokument(bestilling);
             if (pdf != null && pdf.length != 0) {
                 return Response.ok(pdf).type("application/pdf")
                     .header("Content-Disposition", "filename=vedtaksbrev.pdf").build();

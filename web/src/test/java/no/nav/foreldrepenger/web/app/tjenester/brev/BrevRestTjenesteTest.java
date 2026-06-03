@@ -6,7 +6,6 @@ import static no.nav.foreldrepenger.behandlingslager.behandling.dokument.Melloml
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -25,8 +24,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.dokument.MellomlagringR
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
-import no.nav.foreldrepenger.dokumentbestiller.DokumentForhandsvisning;
-import no.nav.foreldrepenger.dokumentbestiller.dto.ForhåndsvisDokumentDto;
 import no.nav.foreldrepenger.dokumentarkiv.ArkivDokument;
 import no.nav.foreldrepenger.dokumentarkiv.ArkivJournalPost;
 import no.nav.foreldrepenger.dokumentarkiv.DokumentArkivTjeneste;
@@ -34,8 +31,10 @@ import no.nav.foreldrepenger.dokumentarkiv.DokumentRespons;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentBehandlingTjeneste;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentBestillerTjeneste;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentBestilling;
+import no.nav.foreldrepenger.dokumentbestiller.DokumentForhandsvisning;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentForhåndsvisningTjeneste;
 import no.nav.foreldrepenger.dokumentbestiller.dto.BestillDokumentDto;
+import no.nav.foreldrepenger.dokumentbestiller.dto.ForhåndsvisDokumentDto;
 import no.nav.foreldrepenger.domene.arbeidInntektsmelding.ArbeidsforholdInntektsmeldingMangelTjeneste;
 import no.nav.foreldrepenger.domene.typer.JournalpostId;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
@@ -188,7 +187,7 @@ class BrevRestTjenesteTest {
         when(behandling.getSaksnummer()).thenReturn(new Saksnummer("9999"));
         when(behandlingRepository.hentBehandling(behandlingUuid)).thenReturn(behandling);
         when(dokumentBehandlingTjenesteMock.hentMellomlagretOverstyring(behandling.getId())).thenReturn(Optional.of("<html>redigert</html>"));
-        when(dokumentForhåndsvisningTjenesteMock.forhåndsvisDokument(eq(behandling.getId()), any())).thenReturn(pdf);
+        when(dokumentForhåndsvisningTjenesteMock.forhåndsvisDokument(any())).thenReturn(pdf);
 
         var respons = brevRestTjeneste.hentOverstyrtVedtaksbrev(new UuidDto(behandlingUuid));
 
@@ -251,7 +250,7 @@ class BrevRestTjenesteTest {
         when(mellomlagringRepositoryMock.hentMellomlagring(1L, VARSEL_REVURDERING)).thenReturn(Optional.of(mellomlagringEntitet));
         var pdf = new byte[]{1, 2, 3};
         var bestillingCaptor = ArgumentCaptor.forClass(DokumentForhandsvisning.class);
-        when(dokumentForhåndsvisningTjenesteMock.forhåndsvisDokument(eq(1L), bestillingCaptor.capture())).thenReturn(pdf);
+        when(dokumentForhåndsvisningTjenesteMock.forhåndsvisDokument(bestillingCaptor.capture())).thenReturn(pdf);
 
         var dto = new ForhåndsvisDokumentDto(behandlingUuid, VARSEL_OM_REVURDERING, null, false);
         var respons = brevRestTjeneste.forhåndsvisDokument(dto);
@@ -272,7 +271,7 @@ class BrevRestTjenesteTest {
         when(mellomlagringRepositoryMock.hentMellomlagring(1L, VARSEL_REVURDERING)).thenReturn(Optional.empty());
         var pdf = new byte[]{1, 2, 3};
         var bestillingCaptor = ArgumentCaptor.forClass(DokumentForhandsvisning.class);
-        when(dokumentForhåndsvisningTjenesteMock.forhåndsvisDokument(eq(1L), bestillingCaptor.capture())).thenReturn(pdf);
+        when(dokumentForhåndsvisningTjenesteMock.forhåndsvisDokument(bestillingCaptor.capture())).thenReturn(pdf);
 
         var dto = new ForhåndsvisDokumentDto(behandlingUuid, VARSEL_OM_REVURDERING, null, false);
         var respons = brevRestTjeneste.forhåndsvisDokument(dto);
