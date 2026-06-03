@@ -26,14 +26,14 @@ public class UttakResultatPeriodeDto {
     private PeriodeResultatType periodeResultatType;
     private String begrunnelse;
     @NotNull private PeriodeResultatÅrsak periodeResultatÅrsak;
-    private ManuellBehandlingÅrsak manuellBehandlingÅrsak;
-    private GraderingAvslagÅrsak graderingAvslagÅrsak;
+    @NotNull private ManuellBehandlingÅrsak manuellBehandlingÅrsak;
+    @NotNull private GraderingAvslagÅrsak graderingAvslagÅrsak;
     @NotNull private boolean flerbarnsdager;
     private boolean samtidigUttak;
     private SamtidigUttaksprosent samtidigUttaksprosent;
     @NotNull private boolean graderingInnvilget;
     private UttakPeriodeType periodeType;
-    private UttakUtsettelseType utsettelseType;
+    @NotNull private UttakUtsettelseType utsettelseType;
     @NotNull private OppholdÅrsak oppholdÅrsak;
     private LocalDate mottattDato;
 
