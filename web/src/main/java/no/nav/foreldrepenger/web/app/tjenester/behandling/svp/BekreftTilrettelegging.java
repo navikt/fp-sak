@@ -51,7 +51,7 @@ public class BekreftTilrettelegging {
     @Pattern(regexp = InputValideringRegex.FRITEKST)
     private String begrunnelse;
 
-    private boolean arbeidsforholdetErSplittet = false;
+    private boolean arbeidsforholdErSplittet = false;
 
     public LocalDate getTilretteleggingBehovFom() {
         return tilretteleggingBehovFom;
@@ -161,11 +161,11 @@ public class BekreftTilrettelegging {
         this.stillingsprosentStartTilrettelegging = stillingsprosentStartTilrettelegging;
     }
 
-    public boolean getArbeidsforholdetErSplittet() {
-        return arbeidsforholdetErSplittet;
+    public boolean getArbeidsforholdErSplittet() {
+        return arbeidsforholdErSplittet;
     }
 
-    public void setArbeidsforholdetErSplittet(boolean arbeidsforholdetErSplittet) {
-        this.arbeidsforholdetErSplittet = arbeidsforholdetErSplittet;
+    public void setArbeidsforholdErSplittet(boolean arbeidsforholdErSplittet) {
+        this.arbeidsforholdErSplittet = arbeidsforholdErSplittet;
     }
 }
