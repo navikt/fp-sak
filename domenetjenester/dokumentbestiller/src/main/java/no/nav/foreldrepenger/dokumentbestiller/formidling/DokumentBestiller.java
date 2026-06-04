@@ -2,11 +2,11 @@ package no.nav.foreldrepenger.dokumentbestiller.formidling;
 
 import java.util.Optional;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.dokument.DokumentMalType;
@@ -46,10 +46,9 @@ public class DokumentBestiller {
 
     public void bestillDokument(DokumentBestilling bestilling) {
         var behandling = behandlingRepository.hentBehandling(bestilling.behandlingUuid());
-        var resolved = resolveMellomlagring(behandling, bestilling);
-        dokumentBehandlingTjeneste.lagreDokumentBestilt(behandling, resolved);
-        opprettBestillBrevTask(behandling, resolved);
-        låsMellomlagringHvisHtmlBrev(behandling, resolved);
+        dokumentBehandlingTjeneste.lagreDokumentBestilt(behandling, bestilling);
+        opprettBestillBrevTask(behandling, bestilling);
+        låsMellomlagringHvisHtmlBrev(behandling, bestilling);
     }
 
     private void låsMellomlagringHvisHtmlBrev(Behandling behandling, DokumentBestilling bestilling) {
@@ -60,26 +59,6 @@ public class DokumentBestiller {
                 mellomlagringRepository.låsMellomlagring(behandling.getId(), mellomlagringType);
             }
         }
-    }
-
-    private DokumentBestilling resolveMellomlagring(Behandling behandling, DokumentBestilling bestilling) {
-        var mellomlagringType = MellomlagringType.fraDokumentMalType(bestilling.dokumentMal());
-        if (mellomlagringType == null) {
-            return bestilling;
-        }
-        var mellomlagring = mellomlagringRepository.hentMellomlagring(behandling.getId(), mellomlagringType);
-        if (mellomlagring.isEmpty()) {
-            return bestilling;
-        }
-
-        return DokumentBestilling.builder()
-            .medBehandlingUuid(bestilling.behandlingUuid())
-            .medSaksnummer(bestilling.saksnummer())
-            .medDokumentMal(DokumentMalType.FRITEKST_HTML)
-            .medJournalførSom(bestilling.dokumentMal())
-            .medRevurderingÅrsak(bestilling.revurderingÅrsak())
-            .medBestillingUuid(bestilling.bestillingUuid())
-            .build();
     }
 
     private void opprettBestillBrevTask(Behandling behandling, DokumentBestilling bestilling) {

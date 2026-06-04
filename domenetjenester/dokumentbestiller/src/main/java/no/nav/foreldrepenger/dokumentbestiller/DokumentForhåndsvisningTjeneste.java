@@ -60,14 +60,14 @@ public class DokumentForhåndsvisningTjeneste extends AbstractDokumentBestillerT
         this.brev = brev;
     }
 
-    public byte[] forhåndsvisDokument(Long behandlingId, DokumentForhandsvisning bestilling) {
-        var bestillingDokumentMal = maltypeFraBestillingEllersUtledFraBehandling(behandlingId, bestilling, bestilling.behandlingUuid());
+    public byte[] forhåndsvisDokument(DokumentForhandsvisning bestilling) {
+        var bestillingDokumentMal = maltypeFraBestillingEllersUtledFraBehandling(bestilling, bestilling.behandlingUuid());
         LOG.info("Forhåndsviser brev med mal {} for behandling {}", bestillingDokumentMal, bestilling.behandlingUuid());
         return brev.forhåndsvis(lagForhåndsvisningDto(bestilling, bestillingDokumentMal));
     }
 
     public String genererHtml(Behandling behandling) {
-        var dokumentMalType = utledDokumentmalTypeFraBehandling(behandling.getId(), behandling.getUuid(), DokumentForhandsvisning.DokumentType.AUTOMATISK);
+        var dokumentMalType = utledDokumentmalTypeFraBehandling(behandling.getUuid(), DokumentForhandsvisning.DokumentType.AUTOMATISK);
         if (DokumentMalType.FORELDREPENGER_INNVILGELSE.equals(dokumentMalType) && erUttakTomt(behandling)) {
             LOG.info("Genererer annuleringsbrev som utgangspunkt for overstyring av foreldrepenger som med tomt uttak: {}", behandling.getFagsak().getSaksnummer());
             dokumentMalType = DokumentMalType.FORELDREPENGER_ANNULLERT;
@@ -101,14 +101,14 @@ public class DokumentForhåndsvisningTjeneste extends AbstractDokumentBestillerT
             .noneMatch(periode -> periode.harUtbetaling() || periode.harTrekkdager());
     }
 
-    private DokumentMalType maltypeFraBestillingEllersUtledFraBehandling(Long behandlingId, DokumentForhandsvisning bestilling, UUID behandlingUuid) {
+    private DokumentMalType maltypeFraBestillingEllersUtledFraBehandling(DokumentForhandsvisning bestilling, UUID behandlingUuid) {
         if (bestilling.dokumentMal() != null) {
             return bestilling.dokumentMal();
         }
-        return utledDokumentmalTypeFraBehandling(behandlingId, behandlingUuid, bestilling.dokumentType());
+        return utledDokumentmalTypeFraBehandling(behandlingUuid, bestilling.dokumentType());
     }
 
-    private DokumentMalType utledDokumentmalTypeFraBehandling(Long behandlingId, UUID behandlingUuid, DokumentForhandsvisning.DokumentType brevType) {
+    private DokumentMalType utledDokumentmalTypeFraBehandling(UUID behandlingUuid, DokumentForhandsvisning.DokumentType brevType) {
         LOG.info("Utleder dokumentMal for {}", behandlingUuid);
 
         var behandling = behandlingRepository.hentBehandling(behandlingUuid);

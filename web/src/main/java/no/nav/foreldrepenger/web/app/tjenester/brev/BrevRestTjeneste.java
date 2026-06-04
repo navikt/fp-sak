@@ -118,13 +118,23 @@ public class BrevRestTjeneste {
         var behandling = behandlingRepository.hentBehandling(bestillBrevDto.behandlingUuid());
         LOG.info("Brev med brevmalkode={} bestilt på behandlingId={}", bestillBrevDto.brevmalkode(), behandling.getId());
 
-        var dokumentBestilling = DokumentBestilling.builder()
+        var brevmalkode = bestillBrevDto.brevmalkode();
+        var mellomlagringType = MellomlagringType.fraDokumentMalType(brevmalkode);
+        var harMellomlagring = mellomlagringType != null
+            && mellomlagringRepository.harMellomlagring(behandling.getId(), mellomlagringType);
+
+        var builder = DokumentBestilling.builder()
             .medBehandlingUuid(bestillBrevDto.behandlingUuid())
             .medSaksnummer(behandling.getSaksnummer())
-            .medDokumentMal(bestillBrevDto.brevmalkode())
-            .medRevurderingÅrsak(bestillBrevDto.årsakskode())
-            .medFritekst(bestillBrevDto.fritekst())
-            .build();
+            .medRevurderingÅrsak(bestillBrevDto.årsakskode());
+
+        if (harMellomlagring) {
+            builder.medDokumentMal(DokumentMalType.FRITEKST_HTML).medJournalførSom(brevmalkode);
+        } else {
+            builder.medDokumentMal(brevmalkode);
+        }
+
+        var dokumentBestilling = builder.build();
 
         if (DokumentMalType.ETTERLYS_INNTEKTSMELDING.equals(bestillBrevDto.brevmalkode())) {
             validerFinnesManglendeInntektsmelding(behandling);
@@ -214,7 +224,8 @@ public class BrevRestTjeneste {
             ? mellomlagringRepository.hentMellomlagring(behandling.getId(), mellomlagringType)
             : Optional.<MellomlagringEntitet>empty();
         var dokumentMal = mellomlagring.isPresent() ? DokumentMalType.FRITEKST_HTML : brevmalkode;
-        var fritekst = mellomlagring.map(MellomlagringEntitet::getInnhold).orElse(forhåndsvisDto.fritekst());
+        // Fritekst hentes utelukkende fra mellomlagring for maltyper som støtter html redigering
+        var fritekst = mellomlagring.map(MellomlagringEntitet::getInnhold).orElse(null);
 
         var bestilling = DokumentForhandsvisning.builder()
             .medBehandlingUuid(forhåndsvisDto.behandlingUuid())
@@ -222,7 +233,6 @@ public class BrevRestTjeneste {
             .medDokumentMal(dokumentMal)
             .medRevurderingÅrsak(forhåndsvisDto.årsakskode())
             .medFritekst(fritekst)
-            .medTittel(forhåndsvisDto.tittel())
             .medDokumentType(utledDokumentType(forhåndsvisDto.automatiskVedtaksbrev()))
             .build();
 
@@ -230,7 +240,7 @@ public class BrevRestTjeneste {
             validerFinnesManglendeInntektsmelding(behandling);
         }
 
-        var dokument = dokumentForhåndsvisningTjeneste.forhåndsvisDokument(behandling.getId(), bestilling);
+        var dokument = dokumentForhåndsvisningTjeneste.forhåndsvisDokument(bestilling);
         if (dokument != null && dokument.length != 0) {
             var responseBuilder = Response.ok(dokument);
             responseBuilder.type("application/pdf");
@@ -292,7 +302,7 @@ public class BrevRestTjeneste {
                 .medFritekst(mellomlagretHtml.get())
                 .medDokumentType(DokumentForhandsvisning.DokumentType.OVERSTYRT)
                 .build();
-            var pdf = dokumentForhåndsvisningTjeneste.forhåndsvisDokument(behandling.getId(), bestilling);
+            var pdf = dokumentForhåndsvisningTjeneste.forhåndsvisDokument(bestilling);
             if (pdf != null && pdf.length != 0) {
                 return Response.ok(pdf).type("application/pdf")
                     .header("Content-Disposition", "filename=vedtaksbrev.pdf").build();
