@@ -75,7 +75,7 @@ class OppholdTjenesteTest {
         var oppholdFraSaksbehandlerOgInntektsmeldingMap = oppholdTjeneste.finnOppholdFraTilretteleggingOgInntektsmelding(lagBehandlingReferanse(),
             Skjæringstidspunkt.builder().medSkjæringstidspunktOpptjening(LocalDate.now().minusMonths(1)).build(), svangerskapspengerGrunnlag);
 
-        var arbeidsforhold = Arbeidsforhold.virksomhet(AktivitetType.ARBEID, "123456789", null, false);
+        var arbeidsforhold = Arbeidsforhold.virksomhet(AktivitetType.ARBEID, "123456789", null );
         var oppholdForventet = oppholdFraSaksbehandlerOgInntektsmeldingMap.get(arbeidsforhold);
 
 
@@ -108,7 +108,7 @@ class OppholdTjenesteTest {
         var oppholdFraSaksbehandlerOgInntektsmeldingMap = oppholdTjeneste.finnOppholdFraTilretteleggingOgInntektsmelding(lagBehandlingReferanse(),
             Skjæringstidspunkt.builder().medSkjæringstidspunktOpptjening(LocalDate.now().minusMonths(1)).build(), svangerskapspengerGrunnlag);
 
-        var arbeidsforhold1 = Arbeidsforhold.virksomhet(AktivitetType.ARBEID, "123456789", null, false);
+        var arbeidsforhold1 = Arbeidsforhold.virksomhet(AktivitetType.ARBEID, "123456789", null );
         var arbeidsforhold2 = Arbeidsforhold.annet(AktivitetType.FRILANS);
         var oppholdForventetArbeidsforhold1 = oppholdFraSaksbehandlerOgInntektsmeldingMap.get(arbeidsforhold1);
         var oppholdForventetArbeidsforhold2 = oppholdFraSaksbehandlerOgInntektsmeldingMap.get(arbeidsforhold2);
@@ -148,7 +148,7 @@ class OppholdTjenesteTest {
         var oppholdFraSaksbehandlerOgInntektsmeldingMap = oppholdTjeneste.finnOppholdFraTilretteleggingOgInntektsmelding(lagBehandlingReferanse(),
             Skjæringstidspunkt.builder().medSkjæringstidspunktOpptjening(LocalDate.now().minusMonths(1)).build(), svangerskapspengerGrunnlag);
 
-        var arbeidsforhold1 = Arbeidsforhold.virksomhet(AktivitetType.ARBEID, "123456789", null, false);
+        var arbeidsforhold1 = Arbeidsforhold.virksomhet(AktivitetType.ARBEID, "123456789", null );
         var arbeidsforhold2 = Arbeidsforhold.annet(AktivitetType.FRILANS);
         var oppholdForventetArbeidsforhold1 = oppholdFraSaksbehandlerOgInntektsmeldingMap.get(arbeidsforhold1);
         var oppholdForventetArbeidsforhold2 = oppholdFraSaksbehandlerOgInntektsmeldingMap.get(arbeidsforhold2);
