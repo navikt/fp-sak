@@ -13,9 +13,6 @@ public enum MellomlagringType implements DatabaseKode {
         if (dokumentMalType == null) {
             return null;
         }
-        if (DokumentMalType.erVedtaksBrev(dokumentMalType)) {
-            return VEDTAKSBREV;
-        }
         return switch (dokumentMalType) {
             case VARSEL_OM_REVURDERING -> VARSEL_REVURDERING;
             case INNHENTE_OPPLYSNINGER -> INNHENT_OPPLYSNINGER;

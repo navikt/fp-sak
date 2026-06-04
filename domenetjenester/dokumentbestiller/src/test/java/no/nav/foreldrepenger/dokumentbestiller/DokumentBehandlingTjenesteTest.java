@@ -292,44 +292,6 @@ class DokumentBehandlingTjenesteTest {
         assertThat(behandlingDokument).isNotPresent();
     }
 
-    @Test
-    void kvittering_skal_slette_vedtaksbrev_mellomlagring() {
-        // Arrange
-        behandling = scenario.lagre(repositoryProvider);
-        mellomlagringRepository.lagreEllerOppdater(behandling.getId(), MellomlagringType.VEDTAKSBREV, "<p>redigert vedtaksbrev</p>");
-
-        var bestilling = lagBestilling(DokumentMalType.FRITEKST_HTML, DokumentMalType.FORELDREPENGER_INNVILGELSE);
-        dokumentBehandlingTjeneste.lagreDokumentBestilt(behandling, bestilling);
-        var bestiltDokument = behandlingDokumentRepository.hentHvisEksisterer(behandling.getId()).orElseThrow().getBestilteDokumenter().getFirst();
-
-        // Act
-        dokumentBehandlingTjeneste.kvitterSendtBrev(new DokumentKvittering(
-            behandling.getUuid(), bestiltDokument.getBestillingUuid(), "123456789", "dok1"));
-
-        // Assert - mellomlagring skal være slettet
-        assertThat(mellomlagringRepository.hentMellomlagring(behandling.getId(), MellomlagringType.VEDTAKSBREV)).isEmpty();
-    }
-
-    @Test
-    void kvittering_for_annet_brev_skal_ikke_slette_vedtaksbrev_mellomlagring() {
-        // Arrange
-        behandling = scenario.lagre(repositoryProvider);
-        mellomlagringRepository.lagreEllerOppdater(behandling.getId(), MellomlagringType.VEDTAKSBREV, "<p>redigert vedtaksbrev</p>");
-        mellomlagringRepository.lagreEllerOppdater(behandling.getId(), MellomlagringType.INNHENT_OPPLYSNINGER, "<p>redigert innhent</p>");
-
-        var bestilling = lagBestilling(DokumentMalType.FRITEKST_HTML, DokumentMalType.INNHENTE_OPPLYSNINGER);
-        dokumentBehandlingTjeneste.lagreDokumentBestilt(behandling, bestilling);
-        var bestiltDokument = behandlingDokumentRepository.hentHvisEksisterer(behandling.getId()).orElseThrow().getBestilteDokumenter().getFirst();
-
-        // Act
-        dokumentBehandlingTjeneste.kvitterSendtBrev(new DokumentKvittering(
-            behandling.getUuid(), bestiltDokument.getBestillingUuid(), "123456789", "dok1"));
-
-        // Assert - vedtaksbrev mellomlagring skal IKKE slettes, men innhent opplysninger skal
-        assertThat(mellomlagringRepository.hentMellomlagring(behandling.getId(), MellomlagringType.VEDTAKSBREV)).isPresent();
-        assertThat(mellomlagringRepository.hentMellomlagring(behandling.getId(), MellomlagringType.INNHENT_OPPLYSNINGER)).isEmpty();
-    }
-
     private DokumentBestilling lagBestilling(DokumentMalType dokumentMal, DokumentMalType journalførSomMal) {
         return DokumentBestilling.builder()
             .medBehandlingUuid(behandling.getUuid())
