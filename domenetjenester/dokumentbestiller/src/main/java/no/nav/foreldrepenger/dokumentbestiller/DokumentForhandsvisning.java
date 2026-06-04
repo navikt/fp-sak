@@ -11,7 +11,6 @@ public record DokumentForhandsvisning(UUID behandlingUuid,
                                        Saksnummer saksnummer,
                                        DokumentMalType dokumentMal,
                                        String fritekst,
-                                       String tittel,
                                        RevurderingVarslingÅrsak revurderingÅrsak,
                                        DokumentType dokumentType) {
 
@@ -30,7 +29,6 @@ public record DokumentForhandsvisning(UUID behandlingUuid,
         private DokumentMalType dokumentMal;
         private RevurderingVarslingÅrsak revurderingÅrsak;
         private String fritekst;
-        private String tittel;
         private DokumentType dokumentType;
 
         public Builder medBehandlingUuid(UUID behandlingUuid) {
@@ -58,11 +56,6 @@ public record DokumentForhandsvisning(UUID behandlingUuid,
             return this;
         }
 
-        public Builder medTittel(String tittel) {
-            this.tittel = tittel;
-            return this;
-        }
-
         public Builder medDokumentType(DokumentType dokumentType) {
             this.dokumentType = dokumentType;
             return this;
@@ -70,7 +63,7 @@ public record DokumentForhandsvisning(UUID behandlingUuid,
 
         public DokumentForhandsvisning build() {
             valider();
-            return new DokumentForhandsvisning(behandlingUuid, saksnummer, dokumentMal, fritekst, tittel, revurderingÅrsak, dokumentType);
+            return new DokumentForhandsvisning(behandlingUuid, saksnummer, dokumentMal, fritekst, revurderingÅrsak, dokumentType);
         }
 
         private void valider() {

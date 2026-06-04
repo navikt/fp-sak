@@ -21,7 +21,6 @@ class DokumentForhandsvisningTest {
         var expectedBehandlignUuid = UUID.randomUUID();
         var expectedÅrsak = RevurderingVarslingÅrsak.BRUKER_REGISTRERT_UTVANDRET;
         var expectedSaksnummer = "123";
-        var expectedTittel = "tittel";
         var expectedDokumentType = DokumentForhandsvisning.DokumentType.AUTOMATISK;
 
         var dokumentForhandsvisning = DokumentForhandsvisning.builder()
@@ -30,7 +29,6 @@ class DokumentForhandsvisningTest {
                 .medFritekst(expectedFritekst)
                 .medRevurderingÅrsak(expectedÅrsak)
                 .medSaksnummer(new Saksnummer(expectedSaksnummer))
-                .medTittel(expectedTittel)
                 .medDokumentType(expectedDokumentType)
                 .build();
 
@@ -41,7 +39,6 @@ class DokumentForhandsvisningTest {
             softly.assertThat(dokumentForhandsvisning.fritekst()).isEqualTo(expectedFritekst);
             softly.assertThat(dokumentForhandsvisning.revurderingÅrsak()).isEqualTo(expectedÅrsak);
             softly.assertThat(dokumentForhandsvisning.saksnummer().getVerdi()).isEqualTo(expectedSaksnummer);
-            softly.assertThat(dokumentForhandsvisning.tittel()).isEqualTo(expectedTittel);
             softly.assertThat(dokumentForhandsvisning.dokumentType()).isEqualTo(expectedDokumentType);
         });
     }
