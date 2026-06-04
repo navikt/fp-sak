@@ -17,6 +17,8 @@ import java.util.Set;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
+import no.nav.foreldrepenger.konfig.Environment;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -55,7 +57,6 @@ import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 import no.nav.foreldrepenger.domene.typer.Stillingsprosent;
-import no.nav.foreldrepenger.konfig.Environment;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 import no.nav.vedtak.konfig.Tid;
 
@@ -295,7 +296,6 @@ public class SvangerskapspengerTjeneste {
             var vurdereSplittAvArbeidsforholdet = utledOmDetSkalVurderesSplittAvArbeidsforholdet(svpTilrettelegging, registerFilter,
                 skjæringstidspunkt, inntektsmeldinger);
             arbeidsforholdDto.setSkalVurdereSplittAvArbeidsforholdet(vurdereSplittAvArbeidsforholdet);
-            arbeidsforholdDto.setArbeidsforholdetErSplittet(svpTilrettelegging.getArbeidsforholdErSplittet());
         }
         return arbeidsforholdDto;
     }

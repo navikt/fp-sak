@@ -86,10 +86,6 @@ public class SvpTilretteleggingEntitet extends BaseEntitet {
     @JoinColumn(name = "SVP_TILRETTELEGGING_ID")
     private List<SvpAvklartOpphold> avklarteOpphold = new ArrayList<>();
 
-    @Convert(converter = BooleanToStringConverter.class)
-    @Column(name = "ARBEIDSFORHOLD_ER_SPLITTET", nullable = false)
-    private boolean arbeidsforholdErSplittet = false;
-
     public SvpTilretteleggingEntitet() {
         //jaja
     }
@@ -198,10 +194,6 @@ public class SvpTilretteleggingEntitet extends BaseEntitet {
         return avklarteOpphold;
     }
 
-    public boolean getArbeidsforholdErSplittet() {
-        return arbeidsforholdErSplittet;
-    }
-
     public static class Builder {
 
         private SvpTilretteleggingEntitet mal;
@@ -225,8 +217,7 @@ public class SvpTilretteleggingEntitet extends BaseEntitet {
                 .medSkalBrukes(tilrettelegging.getSkalBrukes())
                 .medMottattTidspunkt(tilrettelegging.getMottattTidspunkt())
                 .medAvklarteOpphold(tilrettelegging.getAvklarteOpphold())
-                .medTilretteleggingFraDatoer(tilrettelegging.getTilretteleggingFOMListe())
-                .medErArbeidsforholdSplittet(tilrettelegging.getArbeidsforholdErSplittet());
+                .medTilretteleggingFraDatoer(tilrettelegging.getTilretteleggingFOMListe());
         }
         public Builder(SvpTilretteleggingEntitet tilretteleggingEntitet) {
             mal = new SvpTilretteleggingEntitet(tilretteleggingEntitet, null);
@@ -343,11 +334,6 @@ public class SvpTilretteleggingEntitet extends BaseEntitet {
         public Builder medAvklarteOpphold(List<SvpAvklartOpphold> avklarteOpphold) {
             this.mal.avklarteOpphold.clear();
             avklarteOpphold.forEach(this::medAvklartOpphold);
-            return this;
-        }
-
-        public Builder medErArbeidsforholdSplittet(boolean arbeidsforholdErSplittet) {
-            this.mal.arbeidsforholdErSplittet = arbeidsforholdErSplittet;
             return this;
         }
 

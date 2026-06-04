@@ -51,8 +51,6 @@ public class BekreftTilrettelegging {
     @Pattern(regexp = InputValideringRegex.FRITEKST)
     private String begrunnelse;
 
-    private boolean arbeidsforholdErSplittet = false;
-
     public LocalDate getTilretteleggingBehovFom() {
         return tilretteleggingBehovFom;
     }
@@ -159,13 +157,5 @@ public class BekreftTilrettelegging {
 
     public void setStillingsprosentStartTilrettelegging(BigDecimal stillingsprosentStartTilrettelegging) {
         this.stillingsprosentStartTilrettelegging = stillingsprosentStartTilrettelegging;
-    }
-
-    public boolean getArbeidsforholdErSplittet() {
-        return arbeidsforholdErSplittet;
-    }
-
-    public void setArbeidsforholdErSplittet(boolean arbeidsforholdErSplittet) {
-        this.arbeidsforholdErSplittet = arbeidsforholdErSplittet;
     }
 }
