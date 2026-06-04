@@ -57,7 +57,7 @@ class DokumentForhåndsvisningTjenesteTest extends EntityManagerAwareTest {
             .medDokumentType(DokumentForhandsvisning.DokumentType.OVERSTYRT)
             .build();
 
-        tjeneste.forhåndsvisDokument(bestilling);
+        tjeneste.forhåndsvisDokument(behandling.getId(), bestilling);
 
         var bestillingCaptor = ArgumentCaptor.forClass(DokumentForhåndsvisDto.class);
 
@@ -82,7 +82,7 @@ class DokumentForhåndsvisningTjenesteTest extends EntityManagerAwareTest {
             .medDokumentType(DokumentForhandsvisning.DokumentType.OVERSTYRT)
             .build();
 
-        tjeneste.forhåndsvisDokument(bestilling);
+        tjeneste.forhåndsvisDokument(behandling.getId(), bestilling);
 
         var bestillingCaptor = ArgumentCaptor.forClass(DokumentForhåndsvisDto.class);
 
@@ -105,7 +105,7 @@ class DokumentForhåndsvisningTjenesteTest extends EntityManagerAwareTest {
             .medDokumentType(DokumentForhandsvisning.DokumentType.AUTOMATISK)
             .build();
 
-        tjeneste.forhåndsvisDokument(bestilling);
+        tjeneste.forhåndsvisDokument(behandling.getId(), bestilling);
 
         var bestillingCaptor = ArgumentCaptor.forClass(DokumentForhåndsvisDto.class);
 
@@ -128,7 +128,7 @@ class DokumentForhåndsvisningTjenesteTest extends EntityManagerAwareTest {
             .medDokumentType(DokumentForhandsvisning.DokumentType.OVERSTYRT)
             .build();
 
-        tjeneste.forhåndsvisDokument(bestilling);
+        tjeneste.forhåndsvisDokument(behandling.getId(), bestilling);
 
         var bestillingCaptor = ArgumentCaptor.forClass(DokumentForhåndsvisDto.class);
 

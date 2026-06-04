@@ -9,6 +9,9 @@ import java.util.UUID;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import no.nav.foreldrepenger.behandlingslager.behandling.RevurderingVarslingÅrsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.dokument.BehandlingDokumentBestiltEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.dokument.BehandlingDokumentRepository;
@@ -30,6 +33,7 @@ public class BestillDokumentTask implements ProsessTaskHandler {
 
     public static final String REVURDERING_ÅRSAK = "revurderingAarsak";
     public static final String BESTILLING_UUID = "bestillingUuid";
+    private static final Logger LOG = LoggerFactory.getLogger(BestillDokumentTask.class);
     private Dokument brev;
     private BehandlingDokumentRepository behandlingDokumentRepository;
     private MellomlagringRepository mellomlagringRepository;
@@ -58,6 +62,9 @@ public class BestillDokumentTask implements ProsessTaskHandler {
             .orElseThrow(() -> new IllegalStateException("Fant ikke bestilt dokument for bestillingUuid: " + bestillingUuid));
 
         var fritekst = hentFritekst(prosessTaskData, bestiltEntitet);
+        if (fritekst != null) {
+            LOG.info("Fritekst er satt på dokumentbestilling");
+        }
 
         var revurderingÅrsak = mapRevurderignÅrsak(
             Optional.ofNullable(prosessTaskData.getPropertyValue(REVURDERING_ÅRSAK)).map(RevurderingVarslingÅrsak::valueOf).orElse(null));
