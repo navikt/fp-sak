@@ -222,8 +222,7 @@ public class BekreftSvangerskapspengerOppdaterer implements AksjonspunktOppdater
                 .map(tilrettelegging -> mapTilrettelegging(tilrettelegging, eksisterendeTilrettelegginger))
                 .toList();
 
-            if (nyeTilrettelegginger.stream().filter(tilr -> !tilr.getArbeidsforholdErSplittet()).toList().size()
-                != eksisterendeTilrettelegginger.stream().filter(tilr -> !tilr.getArbeidsforholdErSplittet()).toList().size()) {
+            if (nyeTilrettelegginger.size() != eksisterendeTilrettelegginger.size()) {
                 throw new TekniskException("FP-564312",
                     "Antall overstyrte arbeidsforhold for svangerskapspenger stemmer " + "ikke overens med arbeidsforhold fra søknaden: "
                         + behandling.getId());

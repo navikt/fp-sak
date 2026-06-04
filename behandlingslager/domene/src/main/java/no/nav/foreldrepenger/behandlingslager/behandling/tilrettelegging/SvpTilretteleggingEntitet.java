@@ -109,7 +109,6 @@ public class SvpTilretteleggingEntitet extends BaseEntitet {
         this.mottattTidspunkt = svpTilrettelegging.getMottattTidspunkt();
         this.internArbeidsforholdRef = svpTilrettelegging.getInternArbeidsforholdRef().orElse(null);
         this.skalBrukes = svpTilrettelegging.getSkalBrukes();
-        this.arbeidsforholdErSplittet = svpTilrettelegging.getArbeidsforholdErSplittet();
         svpTilrettelegging.getAvklarteOpphold().stream()
             .map(avklartOpphold -> SvpAvklartOpphold.Builder.fraEksisterende(avklartOpphold).build())
             .forEach(avklartOpphold -> this.avklarteOpphold.add(avklartOpphold));
