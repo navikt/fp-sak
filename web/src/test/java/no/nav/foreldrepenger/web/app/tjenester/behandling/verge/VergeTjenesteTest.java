@@ -56,6 +56,8 @@ import no.nav.foreldrepenger.domene.personopplysning.PersonopplysningTjeneste;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.vedtak.exception.TekniskException;
+import no.nav.vedtak.felles.integrasjon.organisasjon.OrgInfo;
+import no.nav.vedtak.felles.integrasjon.organisasjon.OrganisasjonEReg;
 
 @ExtendWith(MockitoExtension.class)
 class VergeTjenesteTest extends EntityManagerAwareTest {
@@ -77,6 +79,10 @@ class VergeTjenesteTest extends EntityManagerAwareTest {
     private PersoninfoAdapter personinfoAdapter;
     @Mock
     private NavBrukerTjeneste brukerTjeneste;
+    @Mock
+    private OrgInfo eregKlient;
+
+    private static final LocalDate REFERANSEDATO = LocalDate.of(2026, Month.JUNE, 5);
 
     private VergeTjeneste vergeTjeneste;
 
@@ -95,7 +101,7 @@ class VergeTjenesteTest extends EntityManagerAwareTest {
         vergeRepository = new VergeRepository(entityManager);
         historikkRepository = new HistorikkinnslagRepository(entityManager);
 
-        var opprettVergeTjeneste = new OpprettVergeTjeneste(personinfoAdapter, brukerTjeneste, vergeRepository, historikkRepository);
+        var opprettVergeTjeneste = new OpprettVergeTjeneste(personinfoAdapter, brukerTjeneste, vergeRepository, historikkRepository, eregKlient);
         vergeTjeneste = new VergeTjeneste(aksjonspunktkontrollTjeneste, behandlingProsesseringTjeneste, vergeRepository, historikkRepository, personopplysningTjeneste,
             opprettVergeTjeneste, vergeDtoTjeneste, behandlingEventPubliserer);
 
@@ -223,6 +229,7 @@ class VergeTjenesteTest extends EntityManagerAwareTest {
             // Arrange
             var opprettVergeDto = VergeDto.organisasjon(VergeType.ADVOKAT, LocalDate.of(2022, Month.JANUARY, 1), LocalDate.of(2024, Month.JANUARY, 1),
                 "Kunstig virksomhet", OrgNummer.KUNSTIG_ORG);
+            when(eregKlient.hentOrganisasjon(OrgNummer.KUNSTIG_ORG)).thenReturn(new OrganisasjonEReg(OrgNummer.KUNSTIG_ORG, null, null, null, null));
 
             // Act
             vergeTjeneste.opprettVerge(behandling, opprettVergeDto, null);
@@ -292,13 +299,13 @@ class VergeTjenesteTest extends EntityManagerAwareTest {
 
     private VergeEntitet.Builder opprettVergeBuilder() {
         return new VergeEntitet.Builder().medVergeType(VergeType.BARN)
-            .gyldigPeriode(LocalDate.now().minusYears(1), LocalDate.now().plusYears(1))
+            .gyldigPeriode(REFERANSEDATO.minusYears(1), REFERANSEDATO.plusYears(1))
             .medBruker(NavBruker.opprettNyNB(AktørId.dummy()));
     }
 
     private PersonopplysningerAggregat opprettPersonopplysningAggregatForPersonUnder18(AktørId aktørId) {
         var builder = PersonInformasjonBuilder.oppdater(Optional.empty(), PersonopplysningVersjonType.REGISTRERT);
-        builder.leggTil(builder.getPersonopplysningBuilder(aktørId).medFødselsdato(LocalDate.now().minusYears(15)));
+        builder.leggTil(builder.getPersonopplysningBuilder(aktørId).medFødselsdato(REFERANSEDATO.minusYears(15)));
         var entitet = PersonopplysningGrunnlagBuilder.oppdatere(Optional.empty()).medRegistrertVersjon(builder).build();
 
         return new PersonopplysningerAggregat(entitet, aktørId);
