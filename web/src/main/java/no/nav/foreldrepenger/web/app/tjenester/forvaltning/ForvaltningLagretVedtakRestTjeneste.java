@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+import jakarta.persistence.EntityManager;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Max;
@@ -22,6 +23,9 @@ import org.slf4j.LoggerFactory;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStatus;
+import no.nav.foreldrepenger.behandlingslager.behandling.dokument.DokumentMalType;
+import no.nav.foreldrepenger.behandlingslager.behandling.dokument.MellomlagringType;
 import no.nav.foreldrepenger.domene.vedtak.VedtakTjeneste;
 import no.nav.foreldrepenger.domene.vedtak.ekstern.RegenererVedtaksXmlTask;
 import no.nav.foreldrepenger.domene.vedtak.ekstern.RegenererVedtaksXmlTjeneste;
@@ -47,6 +51,7 @@ public class ForvaltningLagretVedtakRestTjeneste {
     private ProsessTaskTjeneste taskTjeneste;
     private VedtakTjeneste vedtakTjeneste;
     private RegenererVedtaksXmlTjeneste regenererVedtaksXmlTjeneste;
+    private EntityManager entityManager;
     private static final Logger LOG = LoggerFactory.getLogger(ForvaltningLagretVedtakRestTjeneste.class);
 
     public ForvaltningLagretVedtakRestTjeneste() {
@@ -57,11 +62,13 @@ public class ForvaltningLagretVedtakRestTjeneste {
     public ForvaltningLagretVedtakRestTjeneste(BehandlingsprosessTjeneste behandlingsprosessTjeneste,
                                                ProsessTaskTjeneste taskTjeneste,
                                                VedtakTjeneste vedtakTjeneste,
-                                               RegenererVedtaksXmlTjeneste regenererVedtaksXmlTjeneste) {
+                                               RegenererVedtaksXmlTjeneste regenererVedtaksXmlTjeneste,
+                                               EntityManager entityManager) {
         this.behandlingsprosessTjeneste = behandlingsprosessTjeneste;
         this.taskTjeneste = taskTjeneste;
         this.vedtakTjeneste = vedtakTjeneste;
         this.regenererVedtaksXmlTjeneste = regenererVedtaksXmlTjeneste;
+        this.entityManager = entityManager;
     }
 
     @POST
@@ -151,6 +158,28 @@ public class ForvaltningLagretVedtakRestTjeneste {
         LOG.info("{} vedtakXML av {} var gyldige  ", behandlinger.size() - antallIkkeGyldig, behandlinger.size());
 
         return Response.ok().build();
+    }
+
+    @POST
+    @Operation(description = "Fjerner vedtaksbrev-mellomlagring for alle avsluttede behandlinger.", tags = "FORVALTNING-lagret-vedtak")
+    @Path("/fjernVedtaksbrevMellomlagring")
+    @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.DRIFT, sporingslogg = false)
+    public Response fjernVedtaksbrevMellomlagringForAvsluttedeBehandlinger() {
+        var antall = entityManager.createQuery(
+                "delete from BehandlingMellomlagring m where m.type = :type"
+                    + " and exists (select 1 from Behandling b where b.id = m.behandlingId and b.status = :status)"
+                    + " and exists (select 1 from BehandlingDokumentBestilt bdb"
+                    + "   join bdb.behandlingDokument bd"
+                    + "   where bd.behandlingId = m.behandlingId"
+                    + "   and bdb.journalpostId is not null"
+                    + "   and (bdb.dokumentMalType in :vedtaksbrevTyper or bdb.opprineligDokumentMal in :vedtaksbrevTyper))")
+            .setParameter("type", MellomlagringType.VEDTAKSBREV)
+            .setParameter("status", BehandlingStatus.AVSLUTTET)
+            .setParameter("vedtaksbrevTyper", DokumentMalType.VEDTAKSBREV)
+            .executeUpdate();
+        entityManager.flush();
+        LOG.info("Forvaltning: fjernet {} vedtaksbrev-mellomlagringer for avsluttede behandlinger", antall);
+        return Response.ok(antall).build();
     }
 
     public static record ForvaltningGenererVedtaksXmlDto(@NotNull LocalDateTime fom,
