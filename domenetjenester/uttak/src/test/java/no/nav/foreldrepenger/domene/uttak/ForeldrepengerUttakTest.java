@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.Month;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -117,59 +118,59 @@ class ForeldrepengerUttakTest {
 
     @Test
     void case_fra_prod_bør_gi_ingen_endring() {
-        var dato = LocalDate.of(2020, 4, 9);
+        var dato = LocalDate.of(2020, Month.APRIL, 9);
 
-        var originalUttak = lagUttak(innvilget(dato, LocalDate.of(2020, 4, 30)).trekkdager(0)
+        var originalUttak = lagUttak(innvilget(dato, LocalDate.of(2020, Month.APRIL, 30)).trekkdager(0)
                 .arbeidsprosent(100)
                 .utbetalingsgrad(0)
                 .konto(UttakPeriodeType.UDEFINERT)
                 .gradering(false),
-            innvilget(LocalDate.of(2020, 5, 1), LocalDate.of(2020, 9, 10)).trekkdager(95).konto(UttakPeriodeType.FEDREKVOTE).gradering(false));
+            innvilget(LocalDate.of(2020, Month.MAY, 1), LocalDate.of(2020, Month.SEPTEMBER, 10)).trekkdager(95).konto(UttakPeriodeType.FEDREKVOTE).gradering(false));
 
-        var uttakRevurdering = lagUttak(innvilget(dato, LocalDate.of(2020, 4, 11)).trekkdager(0)
+        var uttakRevurdering = lagUttak(innvilget(dato, LocalDate.of(2020, Month.APRIL, 11)).trekkdager(0)
                 .arbeidsprosent(100)
                 .utbetalingsgrad(0)
                 .konto(UttakPeriodeType.UDEFINERT)
-                .gradering(false), innvilget(LocalDate.of(2020, 4, 12), LocalDate.of(2020, 4, 30)).trekkdager(0)
+                .gradering(false), innvilget(LocalDate.of(2020, Month.APRIL, 12), LocalDate.of(2020, Month.APRIL, 30)).trekkdager(0)
                 .arbeidsprosent(100)
                 .utbetalingsgrad(0)
                 .konto(UttakPeriodeType.FEDREKVOTE)
                 .gradering(false),
-            innvilget(LocalDate.of(2020, 5, 1), LocalDate.of(2020, 9, 8)).trekkdager(93).konto(UttakPeriodeType.FEDREKVOTE).gradering(false),
-            innvilget(LocalDate.of(2020, 9, 9), LocalDate.of(2020, 9, 10)).trekkdager(2).konto(UttakPeriodeType.FEDREKVOTE).gradering(false));
+            innvilget(LocalDate.of(2020, Month.MAY, 1), LocalDate.of(2020, Month.SEPTEMBER, 8)).trekkdager(93).konto(UttakPeriodeType.FEDREKVOTE).gradering(false),
+            innvilget(LocalDate.of(2020, Month.SEPTEMBER, 9), LocalDate.of(2020, Month.SEPTEMBER, 10)).trekkdager(2).konto(UttakPeriodeType.FEDREKVOTE).gradering(false));
 
         assertThat(uttakRevurdering.erEndretUttaksplanFra(originalUttak)).isFalse();
     }
 
     @Test
     void case_fra_prod_bør_gi_endring_avslag() {
-        var dato = LocalDate.of(2020, 3, 31);
+        var dato = LocalDate.of(2020, Month.MARCH, 31);
 
-        var uttak1 = lagUttak(innvilget(dato, LocalDate.of(2020, 4, 27)).trekkdager(0)
+        var uttak1 = lagUttak(innvilget(dato, LocalDate.of(2020, Month.APRIL, 27)).trekkdager(0)
             .arbeidsprosent(0)
             .utbetalingsgrad(0)
             .konto(UttakPeriodeType.UDEFINERT)
-            .gradering(false), innvilget(LocalDate.of(2020, 4, 28), LocalDate.of(2020, 4, 30)).trekkdager(0)
+            .gradering(false), innvilget(LocalDate.of(2020, Month.APRIL, 28), LocalDate.of(2020, Month.APRIL, 30)).trekkdager(0)
             .arbeidsprosent(0)
             .utbetalingsgrad(0)
             .konto(UttakPeriodeType.UDEFINERT)
-            .gradering(false), innvilget(LocalDate.of(2020, 5, 1), LocalDate.of(2020, 6, 3)).trekkdager(0)
+            .gradering(false), innvilget(LocalDate.of(2020, Month.MAY, 1), LocalDate.of(2020, Month.JUNE, 3)).trekkdager(0)
             .arbeidsprosent(0)
             .utbetalingsgrad(0)
             .konto(UttakPeriodeType.UDEFINERT)
             .gradering(false));
 
-        var uttak2 = lagUttak(innvilget(dato, LocalDate.of(2020, 4, 23)).trekkdager(0)
+        var uttak2 = lagUttak(innvilget(dato, LocalDate.of(2020, Month.APRIL, 23)).trekkdager(0)
                 .arbeidsprosent(0)
                 .utbetalingsgrad(0)
                 .konto(UttakPeriodeType.FELLESPERIODE)
-                .gradering(false), avslått(LocalDate.of(2020, 4, 24), LocalDate.of(2020, 4, 24)).konto(UttakPeriodeType.FELLESPERIODE),
-            avslått(LocalDate.of(2020, 4, 25), LocalDate.of(2020, 4, 30)).konto(UttakPeriodeType.FELLESPERIODE),
-            innvilget(LocalDate.of(2020, 5, 1), LocalDate.of(2020, 5, 1)).trekkdager(0)
+                .gradering(false), avslått(LocalDate.of(2020, Month.APRIL, 24), LocalDate.of(2020, Month.APRIL, 24)).konto(UttakPeriodeType.FELLESPERIODE),
+            avslått(LocalDate.of(2020, Month.APRIL, 25), LocalDate.of(2020, Month.APRIL, 30)).konto(UttakPeriodeType.FELLESPERIODE),
+            innvilget(LocalDate.of(2020, Month.MAY, 1), LocalDate.of(2020, Month.MAY, 1)).trekkdager(0)
                 .arbeidsprosent(0)
                 .utbetalingsgrad(0)
                 .konto(UttakPeriodeType.FELLESPERIODE)
-                .gradering(false), innvilget(LocalDate.of(2020, 5, 2), LocalDate.of(2020, 6, 3)).trekkdager(0)
+                .gradering(false), innvilget(LocalDate.of(2020, Month.MAY, 2), LocalDate.of(2020, Month.JUNE, 3)).trekkdager(0)
                 .arbeidsprosent(0)
                 .utbetalingsgrad(0)
                 .konto(UttakPeriodeType.FELLESPERIODE)
@@ -270,9 +271,9 @@ class ForeldrepengerUttakTest {
 
     @Test
     void skal_ikke_gi_endring_når_periode_ender_fredag_istedenfor_søndag_samme_uke() {
-        var mandag = LocalDate.of(2024, 6, 3);
-        var fredag = LocalDate.of(2024, 6, 7);
-        var søndag = LocalDate.of(2024, 6, 9);
+        var mandag = LocalDate.of(2024, Month.JUNE, 3);
+        var fredag = LocalDate.of(2024, Month.JUNE, 7);
+        var søndag = LocalDate.of(2024, Month.JUNE, 9);
 
         var original = lagUttak(innvilget(mandag, søndag).trekkdager(5).gradering(false));
         var revurdering = lagUttak(innvilget(mandag, fredag).trekkdager(5).gradering(false));
@@ -282,8 +283,8 @@ class ForeldrepengerUttakTest {
 
     @Test
     void skal_ignorere_perioder_som_bare_er_i_helg_i_uttakssammenligning() {
-        var lørdag = LocalDate.of(2024, 6, 8);
-        var søndag = LocalDate.of(2024, 6, 9);
+        var lørdag = LocalDate.of(2024, Month.JUNE, 8);
+        var søndag = LocalDate.of(2024, Month.JUNE, 9);
 
         var original = lagUttak(innvilget(lørdag, søndag).trekkdager(1).gradering(false));
         var revurdering = lagUttak(innvilget(lørdag, søndag).trekkdager(1).gradering(false));
@@ -293,8 +294,8 @@ class ForeldrepengerUttakTest {
 
     @Test
     void skal_ignorere_periode_på_enkeltstående_helgedag() {
-        var lørdag = LocalDate.of(2024, 6, 8);
-        var søndag = LocalDate.of(2024, 6, 9);
+        var lørdag = LocalDate.of(2024, Month.JUNE, 8);
+        var søndag = LocalDate.of(2024, Month.JUNE, 9);
 
         var original = lagUttak(innvilget(lørdag, lørdag).trekkdager(1).gradering(false));
         var revurdering = lagUttak(innvilget(søndag, søndag).trekkdager(1).gradering(false));
@@ -304,10 +305,10 @@ class ForeldrepengerUttakTest {
 
     @Test
     void skal_ikke_gi_endring_når_kun_forskjell_er_en_helg_kun_periode() {
-        var mandag = LocalDate.of(2024, 6, 3);
-        var fredag = LocalDate.of(2024, 6, 7);
-        var lørdag = LocalDate.of(2024, 6, 8);
-        var søndag = LocalDate.of(2024, 6, 9);
+        var mandag = LocalDate.of(2024, Month.JUNE, 3);
+        var fredag = LocalDate.of(2024, Month.JUNE, 7);
+        var lørdag = LocalDate.of(2024, Month.JUNE, 8);
+        var søndag = LocalDate.of(2024, Month.JUNE, 9);
 
         var original = lagUttak(innvilget(mandag, fredag).trekkdager(5).gradering(false),
             innvilget(lørdag, søndag).trekkdager(0).utbetalingsgrad(0).gradering(false));
@@ -318,8 +319,8 @@ class ForeldrepengerUttakTest {
 
     @Test
     void skal_ikke_ignorere_periode_fra_søndag_til_mandag_som_har_virkedag() {
-        var søndag = LocalDate.of(2024, 6, 9);
-        var mandag = LocalDate.of(2024, 6, 10);
+        var søndag = LocalDate.of(2024, Month.JUNE, 9);
+        var mandag = LocalDate.of(2024, Month.JUNE, 10);
 
         var original = lagUttak(innvilget(mandag, mandag).trekkdager(1).gradering(false));
         var revurdering = lagUttak(innvilget(søndag, mandag).trekkdager(1).gradering(false));
@@ -329,10 +330,10 @@ class ForeldrepengerUttakTest {
 
     @Test
     void skal_ikke_gi_endring_når_avslått_periode_uten_trekkdager_og_utbetaling_mangler_i_revurdering() {
-        var fom = LocalDate.of(2024, 6, 3);
-        var innvilgetTom = LocalDate.of(2024, 8, 30);
-        var avslagFom = LocalDate.of(2024, 9, 2);
-        var avslagTom = LocalDate.of(2024, 9, 27);
+        var fom = LocalDate.of(2024, Month.JUNE, 3);
+        var innvilgetTom = LocalDate.of(2024, Month.AUGUST, 30);
+        var avslagFom = LocalDate.of(2024, Month.SEPTEMBER, 2);
+        var avslagTom = LocalDate.of(2024, Month.SEPTEMBER, 27);
 
         var original = lagUttak(innvilget(fom, innvilgetTom).trekkdager(64).gradering(false),
             avslått(avslagFom, avslagTom).årsak(PeriodeResultatÅrsak.IKKE_STØNADSDAGER_IGJEN));
@@ -344,10 +345,10 @@ class ForeldrepengerUttakTest {
 
     @Test
     void skal_gi_endring_når_revurdering_har_ny_avslått_periode_uten_trekkdager() {
-        var fom = LocalDate.of(2024, 6, 3);
-        var innvilgetTom = LocalDate.of(2024, 8, 30);
-        var avslagFom = LocalDate.of(2024, 9, 2);
-        var avslagTom = LocalDate.of(2024, 9, 27);
+        var fom = LocalDate.of(2024, Month.JUNE, 3);
+        var innvilgetTom = LocalDate.of(2024, Month.AUGUST, 30);
+        var avslagFom = LocalDate.of(2024, Month.SEPTEMBER, 2);
+        var avslagTom = LocalDate.of(2024, Month.SEPTEMBER, 27);
 
         var original = lagUttak(innvilget(fom, innvilgetTom).trekkdager(64).gradering(false));
 
@@ -359,10 +360,10 @@ class ForeldrepengerUttakTest {
 
     @Test
     void skal_ikke_gi_endring_når_ulik_splitting_skyldes_erFraSøknad_forskjell() {
-        var fom = LocalDate.of(2024, 6, 3);
-        var splittTom = LocalDate.of(2024, 6, 14);
-        var fom2 = LocalDate.of(2024, 6, 17);
-        var tom = LocalDate.of(2024, 6, 28);
+        var fom = LocalDate.of(2024, Month.JUNE, 3);
+        var splittTom = LocalDate.of(2024, Month.JUNE, 14);
+        var fom2 = LocalDate.of(2024, Month.JUNE, 17);
+        var tom = LocalDate.of(2024, Month.JUNE, 28);
 
         var periodeA = new ForeldrepengerUttakPeriode.Builder()
             .medResultatÅrsak(PeriodeResultatÅrsak.UKJENT)
@@ -396,8 +397,8 @@ class ForeldrepengerUttakTest {
 
     @Test
     void skal_ikke_gi_endring_når_kun_erFraSøknad_er_forskjellig() {
-        var fom = LocalDate.of(2024, 6, 3);
-        var tom = LocalDate.of(2024, 6, 28);
+        var fom = LocalDate.of(2024, Month.JUNE, 3);
+        var tom = LocalDate.of(2024, Month.JUNE, 28);
 
         var periodeOriginal = new ForeldrepengerUttakPeriode.Builder().medResultatÅrsak(PeriodeResultatÅrsak.UKJENT)
             .medResultatType(PeriodeResultatType.INNVILGET)
