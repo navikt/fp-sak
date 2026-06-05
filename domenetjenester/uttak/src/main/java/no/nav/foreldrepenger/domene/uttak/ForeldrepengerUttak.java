@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -158,14 +159,13 @@ public class ForeldrepengerUttak implements Uttak {
 
     private static LocalDateTimeline<WrapUttakPeriode> lagTidslinjeFraUttaksPerioder(List<ForeldrepengerUttakPeriode> uttaksPerioder,
                                                                                     boolean filtrerAvslåttUtenEffekt) {
-        var stream = uttaksPerioder.stream();
-        if (filtrerAvslåttUtenEffekt) {
-            stream = stream.filter(ForeldrepengerUttak::erRelevantForSammenligning);
-        }
-        return new LocalDateTimeline<>(stream
+        return new LocalDateTimeline<>(uttaksPerioder.stream()
+            .filter(periode -> !filtrerAvslåttUtenEffekt || erRelevantForSammenligning(periode))
+            .filter(Predicate.not(ForeldrepengerUttak::erPeriodeBareHelg))
             .map(p -> new WrapUttakPeriode(p.getTidsperiode().adjustIntoWorkweek(), p))
             .map(w -> new LocalDateSegment<>(w.getI(), w))
-            .toList()).compress(LocalDateInterval::abutsWorkdays, WrapUttakPeriode::erLikeNaboer, ForeldrepengerUttak::kombinerLikeNaboer);
+            .toList())
+            .compress(LocalDateInterval::abutsWorkdays, WrapUttakPeriode::erLikeNaboer, ForeldrepengerUttak::kombinerLikeNaboer);
     }
 
     private static boolean erRelevantForSammenligning(ForeldrepengerUttakPeriode periode) {
@@ -173,6 +173,14 @@ public class ForeldrepengerUttak implements Uttak {
             return periode.harTrekkdager() || periode.harUtbetaling();
         }
         return true;
+    }
+
+    private static boolean erPeriodeBareHelg(ForeldrepengerUttakPeriode periode) {
+        // Perioder som kun ligger i helg har ingen virkedager og forsvinner ved justering til virkeuke.
+        // Identifiseres ved at justert fom havner etter justert tom (samme tilfelle som ville feilet i adjustIntoWorkweek).
+        var fom = PerioderUtenHelgUtil.justerFomMandag(periode.getFom());
+        var tom = PerioderUtenHelgUtil.justerTomFredag(periode.getTom());
+        return fom.isAfter(tom);
     }
 
     private static LocalDateSegment<WrapUttakPeriode> kombinerLikeNaboer(LocalDateInterval i,
