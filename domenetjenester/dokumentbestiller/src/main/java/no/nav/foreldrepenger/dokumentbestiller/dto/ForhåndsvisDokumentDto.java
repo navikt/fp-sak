@@ -15,6 +15,6 @@ public record ForhåndsvisDokumentDto(@Valid @NotNull UUID behandlingUuid,
                                      @ValidKodeverk DokumentMalType dokumentMal,
                                      @ValidKodeverk RevurderingVarslingÅrsak årsakskode,
                                      boolean automatiskVedtaksbrev,
-                                     @Valid @Fritekst @Size(max = 20_000) String fritekst) {
+                                     @Valid @Fritekst @Size(max = 100_000) String fritekst) {
 }
 

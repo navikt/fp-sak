@@ -134,7 +134,7 @@ public class MellomlagringRestTjeneste {
         @Valid @NotNull UUID behandlingUuid,
         @Valid MellomlagringType type,
         @ValidKodeverk DokumentMalType dokumentMal,
-        @Fritekst @Size(max = 200_000) String innhold
+        @Fritekst @Size(max = 100_000) String innhold
     ) {}
 
     public record MellomlagringResultatDto(String innhold) {}
