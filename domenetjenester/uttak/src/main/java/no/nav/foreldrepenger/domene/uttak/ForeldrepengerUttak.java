@@ -7,8 +7,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import no.nav.foreldrepenger.behandlingslager.uttak.PeriodeResultatType;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.StønadskontoType;
@@ -158,15 +158,13 @@ public class ForeldrepengerUttak implements Uttak {
 
     private static LocalDateTimeline<WrapUttakPeriode> lagTidslinjeFraUttaksPerioder(List<ForeldrepengerUttakPeriode> uttaksPerioder,
                                                                                     boolean filtrerAvslåttUtenEffekt) {
-        var stream = uttaksPerioder.stream();
-        if (filtrerAvslåttUtenEffekt) {
-            stream = stream.filter(ForeldrepengerUttak::erRelevantForSammenligning);
-        }
-        stream = stream.filter(periode -> !erPeriodeBareHelg(periode));
-        return new LocalDateTimeline<>(stream
+        return uttaksPerioder.stream()
+            .filter(periode -> !filtrerAvslåttUtenEffekt || erRelevantForSammenligning(periode))
+            .filter(Predicate.not(ForeldrepengerUttak::erPeriodeBareHelg))
             .map(p -> new WrapUttakPeriode(p.getTidsperiode().adjustIntoWorkweek(), p))
             .map(w -> new LocalDateSegment<>(w.getI(), w))
-            .toList()).compress(LocalDateInterval::abutsWorkdays, WrapUttakPeriode::erLikeNaboer, ForeldrepengerUttak::kombinerLikeNaboer);
+            .collect(Collectors.collectingAndThen(Collectors.toList(), LocalDateTimeline::new))
+            .compress(LocalDateInterval::abutsWorkdays, WrapUttakPeriode::erLikeNaboer, ForeldrepengerUttak::kombinerLikeNaboer);
     }
 
     private static boolean erRelevantForSammenligning(ForeldrepengerUttakPeriode periode) {
