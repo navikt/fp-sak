@@ -16,6 +16,7 @@ import no.nav.foreldrepenger.domene.bruker.NavBrukerTjeneste;
 import no.nav.foreldrepenger.domene.person.PersoninfoAdapter;
 import no.nav.foreldrepenger.domene.person.verge.dto.VergeDto;
 import no.nav.foreldrepenger.domene.typer.PersonIdent;
+import no.nav.vedtak.felles.integrasjon.organisasjon.OrgInfo;
 
 @ApplicationScoped
 public class OpprettVergeTjeneste {
@@ -24,16 +25,19 @@ public class OpprettVergeTjeneste {
     private NavBrukerTjeneste brukerTjeneste;
     private VergeRepository vergeRepository;
     private HistorikkinnslagRepository historikkinnslagRepository;
+    private OrgInfo eregKlient;
 
     @Inject
     public OpprettVergeTjeneste(PersoninfoAdapter personinfoAdapter,
                                 NavBrukerTjeneste brukerTjeneste,
                                 VergeRepository vergeRepository,
-                                HistorikkinnslagRepository historikkinnslagRepository) {
+                                HistorikkinnslagRepository historikkinnslagRepository,
+                                OrgInfo eregKlient) {
         this.personinfoAdapter = personinfoAdapter;
         this.brukerTjeneste = brukerTjeneste;
         this.vergeRepository = vergeRepository;
         this.historikkinnslagRepository = historikkinnslagRepository;
+        this.eregKlient = eregKlient;
     }
 
     OpprettVergeTjeneste() {
@@ -63,6 +67,10 @@ public class OpprettVergeTjeneste {
     }
 
     private VergeOrganisasjonEntitet opprettVergeOrganisasjon(VergeDto dto) {
+        var org = eregKlient.hentOrganisasjon(dto.organisasjonsnummer());
+        if (org == null) {
+            throw new IllegalArgumentException("Ugyldig organisasjonsnummer for Verge: finnes ikke i Enhetsregisteret");
+        }
         return new VergeOrganisasjonEntitet.Builder().medOrganisasjonsnummer(dto.organisasjonsnummer()).medNavn(dto.navn()).build();
     }
 
