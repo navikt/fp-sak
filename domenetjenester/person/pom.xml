@@ -23,6 +23,11 @@
             <artifactId>person-klient</artifactId>
         </dependency>
 
+        <dependency>
+            <groupId>no.nav.foreldrepenger.felles.integrasjon</groupId>
+            <artifactId>ereg-klient</artifactId>
+        </dependency>
+
         <!-- Prosjektinterne avhengigheter -->
         <dependency>
             <groupId>no.nav.foreldrepenger</groupId>

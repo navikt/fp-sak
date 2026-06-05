@@ -16,6 +16,8 @@ import no.nav.foreldrepenger.domene.bruker.NavBrukerTjeneste;
 import no.nav.foreldrepenger.domene.person.PersoninfoAdapter;
 import no.nav.foreldrepenger.domene.person.verge.dto.VergeDto;
 import no.nav.foreldrepenger.domene.typer.PersonIdent;
+import no.nav.vedtak.felles.integrasjon.organisasjon.OrgInfo;
+import no.nav.vedtak.exception.FunksjonellException;
 
 @ApplicationScoped
 public class OpprettVergeTjeneste {
@@ -24,16 +26,19 @@ public class OpprettVergeTjeneste {
     private NavBrukerTjeneste brukerTjeneste;
     private VergeRepository vergeRepository;
     private HistorikkinnslagRepository historikkinnslagRepository;
+    private OrgInfo eregKlient;
 
     @Inject
     public OpprettVergeTjeneste(PersoninfoAdapter personinfoAdapter,
                                 NavBrukerTjeneste brukerTjeneste,
                                 VergeRepository vergeRepository,
-                                HistorikkinnslagRepository historikkinnslagRepository) {
+                                HistorikkinnslagRepository historikkinnslagRepository,
+                                OrgInfo eregKlient) {
         this.personinfoAdapter = personinfoAdapter;
         this.brukerTjeneste = brukerTjeneste;
         this.vergeRepository = vergeRepository;
         this.historikkinnslagRepository = historikkinnslagRepository;
+        this.eregKlient = eregKlient;
     }
 
     OpprettVergeTjeneste() {
@@ -59,10 +64,14 @@ public class OpprettVergeTjeneste {
 
         return personinfoAdapter.hentAktørForFnr(personIdent)
             .map(vergeAktorId -> brukerTjeneste.hentEllerOpprettFraAktørId(vergeAktorId))
-            .orElseThrow(() -> new IllegalArgumentException("Ugyldig FNR for Verge"));
+            .orElseThrow(() -> new FunksjonellException("FP-VERGE-001", "Ugyldig FNR for verge", "Kontroller fødselsnummeret og prøv på nytt"));
     }
 
     private VergeOrganisasjonEntitet opprettVergeOrganisasjon(VergeDto dto) {
+        var org = eregKlient.hentOrganisasjon(dto.organisasjonsnummer());
+        if (org == null) {
+            throw new FunksjonellException("FP-VERGE-002", "Ugyldig organisasjonsnummer for verge", "Kontroller organisasjonsnummeret og prøv på nytt");
+        }
         return new VergeOrganisasjonEntitet.Builder().medOrganisasjonsnummer(dto.organisasjonsnummer()).medNavn(dto.navn()).build();
     }
 
