@@ -82,6 +82,8 @@ class VergeTjenesteTest extends EntityManagerAwareTest {
     @Mock
     private OrgInfo eregKlient;
 
+    private static final LocalDate REFERANSEDATO = LocalDate.of(2026, Month.JUNE, 5);
+
     private VergeTjeneste vergeTjeneste;
 
     @Mock
@@ -297,13 +299,13 @@ class VergeTjenesteTest extends EntityManagerAwareTest {
 
     private VergeEntitet.Builder opprettVergeBuilder() {
         return new VergeEntitet.Builder().medVergeType(VergeType.BARN)
-            .gyldigPeriode(LocalDate.now().minusYears(1), LocalDate.now().plusYears(1))
+            .gyldigPeriode(REFERANSEDATO.minusYears(1), REFERANSEDATO.plusYears(1))
             .medBruker(NavBruker.opprettNyNB(AktørId.dummy()));
     }
 
     private PersonopplysningerAggregat opprettPersonopplysningAggregatForPersonUnder18(AktørId aktørId) {
         var builder = PersonInformasjonBuilder.oppdater(Optional.empty(), PersonopplysningVersjonType.REGISTRERT);
-        builder.leggTil(builder.getPersonopplysningBuilder(aktørId).medFødselsdato(LocalDate.now().minusYears(15)));
+        builder.leggTil(builder.getPersonopplysningBuilder(aktørId).medFødselsdato(REFERANSEDATO.minusYears(15)));
         var entitet = PersonopplysningGrunnlagBuilder.oppdatere(Optional.empty()).medRegistrertVersjon(builder).build();
 
         return new PersonopplysningerAggregat(entitet, aktørId);

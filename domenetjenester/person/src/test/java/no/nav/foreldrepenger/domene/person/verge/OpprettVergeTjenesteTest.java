@@ -3,11 +3,11 @@ package no.nav.foreldrepenger.domene.person.verge;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.time.LocalDate;
+import java.time.Month;
 import java.util.Optional;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -109,10 +109,10 @@ class OpprettVergeTjenesteTest {
     @Test
     void skal_opprette_verge_advokat_når_orgnummer_finnes_i_ereg() {
         var orgnummer = "974760673";
-        var dto = VergeDto.organisasjon(VergeType.ADVOKAT, LocalDate.of(2025, 1, 1), LocalDate.of(2025, 12, 31),
+        var dto = VergeDto.organisasjon(VergeType.ADVOKAT, LocalDate.of(2025, Month.JANUARY, 1), LocalDate.of(2025, Month.DECEMBER, 31),
             "Advokatfirmaet AS", orgnummer);
         when(vergeRepository.hentAggregat(any())).thenReturn(Optional.empty());
-        when(eregKlient.hentOrganisasjon(eq(orgnummer))).thenReturn(new OrganisasjonEReg(orgnummer, null, null, null, null));
+        when(eregKlient.hentOrganisasjon(orgnummer)).thenReturn(new OrganisasjonEReg(orgnummer, null, null, null, null));
 
         tjeneste.opprettVerge(behandling.getId(), behandling.getFagsakId(), dto, null);
 
@@ -124,17 +124,18 @@ class OpprettVergeTjenesteTest {
     @Test
     void skal_feile_når_orgnummer_ikke_finnes_i_ereg() {
         var orgnummer = "000000000";
-        var dto = VergeDto.organisasjon(VergeType.ADVOKAT, LocalDate.of(2025, 1, 1), LocalDate.of(2025, 12, 31),
+        var dto = VergeDto.organisasjon(VergeType.ADVOKAT, LocalDate.of(2025, Month.JANUARY, 1), LocalDate.of(2025, Month.DECEMBER, 31),
             "Ukjent firma", orgnummer);
-        when(eregKlient.hentOrganisasjon(eq(orgnummer))).thenThrow(new RuntimeException("404 Not Found"));
+        when(eregKlient.hentOrganisasjon(orgnummer)).thenThrow(new RuntimeException("404 Not Found"));
 
-        assertThatThrownBy(() -> tjeneste.opprettVerge(behandling.getId(), behandling.getFagsakId(), dto, null))
+        var behandlingId = behandling.getId();
+        var fagsakId = behandling.getFagsakId();
+        assertThatThrownBy(() -> tjeneste.opprettVerge(behandlingId, fagsakId, dto, null))
             .isInstanceOf(RuntimeException.class);
     }
 
     private VergeDto opprettDtoVerge() {
-        return VergeDto.person(VergeType.BARN, LocalDate.of(2025, 1, 1), LocalDate.of(2025, 12, 31),
+        return VergeDto.person(VergeType.BARN, LocalDate.of(2025, Month.JANUARY, 1), LocalDate.of(2025, Month.DECEMBER, 31),
             "Harald Hårfagre", "12345678901");
     }
 }
-
