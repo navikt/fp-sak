@@ -51,6 +51,9 @@ import no.nav.foreldrepenger.behandlingslager.behandling.beregning.Beregningsres
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.EngangsstønadBeregningRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.dokument.BehandlingDokumentEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.dokument.BehandlingDokumentRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.dokument.MellomlagringEntitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.dokument.MellomlagringRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.dokument.MellomlagringType;
 import no.nav.foreldrepenger.behandlingslager.behandling.eøs.EøsUttakRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.eøs.EøsUttaksperiodeEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.AdopsjonEntitet;
@@ -125,6 +128,7 @@ class BrevGrunnlagTjeneste {
     private BehandlingsresultatRepository behandlingsresultatRepository;
     private UføretrygdRepository uføretrygdRepository;
     private BehandlingDokumentRepository behandlingDokumentRepository;
+    private MellomlagringRepository mellomlagringRepository;
     private EøsUttakRepository eøsUttakRepository;
     private EngangsstønadBeregningRepository engangsstønadBeregningRepository;
     private BeregningsresultatRepository beregningsresultatRepository;
@@ -167,6 +171,7 @@ class BrevGrunnlagTjeneste {
                          YtelseFordelingTjeneste ytelseFordelingTjeneste,
                          UføretrygdRepository uføretrygdRepository,
                          BehandlingDokumentRepository behandlingDokumentRepository,
+                         MellomlagringRepository mellomlagringRepository,
                          ForeldrepengerUttakTjeneste foreldrepengerUttakTjeneste,
                          SkjæringstidspunktTjeneste skjæringstidspunktTjeneste,
                          DekningsgradTjeneste dekningsgradTjeneste,
@@ -195,6 +200,7 @@ class BrevGrunnlagTjeneste {
         this.ytelseFordelingTjeneste = ytelseFordelingTjeneste;
         this.uføretrygdRepository = uføretrygdRepository;
         this.behandlingDokumentRepository = behandlingDokumentRepository;
+        this.mellomlagringRepository = mellomlagringRepository;
         this.foreldrepengerUttakTjeneste = foreldrepengerUttakTjeneste;
         this.skjæringstidspunktTjeneste = skjæringstidspunktTjeneste;
         this.dekningsgradTjeneste = dekningsgradTjeneste;
@@ -642,13 +648,19 @@ class BrevGrunnlagTjeneste {
     }
 
     private Optional<BrevGrunnlagDto.Behandlingsresultat.Fritekst> finnFritekst(Behandling behandling) {
-        return behandlingDokumentRepository.hentHvisEksisterer(behandling.getId())
-            .filter(BehandlingDokumentEntitet::harFritekst)
-            .map(behandlingDokument -> {
-                var brødtekst = behandlingDokument.getOverstyrtBrevFritekstHtml();
-                var avslagsarsakFritekst = behandlingDokument.getVedtakFritekst();
-                return new BrevGrunnlagDto.Behandlingsresultat.Fritekst(brødtekst, avslagsarsakFritekst);
-            });
+        // Brødtekst: sjekk ny mellomlagring-tabell først, deretter gammel tabell
+        var brødtekst = mellomlagringRepository.hentMellomlagring(behandling.getId(), MellomlagringType.VEDTAKSBREV)
+            .map(MellomlagringEntitet::getInnhold)
+            .orElseGet(() -> behandlingDokumentRepository.hentHvisEksisterer(behandling.getId())
+                .map(BehandlingDokumentEntitet::getOverstyrtBrevFritekstHtml)
+                .orElse(null));
+        var avslagsarsakFritekst = behandlingDokumentRepository.hentHvisEksisterer(behandling.getId())
+            .map(BehandlingDokumentEntitet::getVedtakFritekst)
+            .orElse(null);
+        if (brødtekst == null && avslagsarsakFritekst == null) {
+            return Optional.empty();
+        }
+        return Optional.of(new BrevGrunnlagDto.Behandlingsresultat.Fritekst(brødtekst, avslagsarsakFritekst));
     }
 
     private Optional<Rettigheter> utledRettigheter(Behandling behandling) {

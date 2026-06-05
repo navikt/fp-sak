@@ -6,7 +6,7 @@ import java.util.Optional;
 public interface Uttak {
     Optional<LocalDate> opphørsdato();
 
-    boolean harUlikUttaksplan(Uttak uttak);
+    boolean erEndretUttaksplanFra(Uttak originaltUttak);
 
     boolean harUlikKontoEllerMinsterett(Uttak uttak);
 
@@ -14,7 +14,7 @@ public interface Uttak {
         return opphørsdato().isPresent();
     }
 
-    boolean harOpphørsUttakNyeInnvilgetePerioder(Uttak uttak);
+    boolean harOpphørsUttakNyeInnvilgedePerioderFra(Uttak originaltUttak);
 
     boolean harAvslagPgaMedlemskap();
 

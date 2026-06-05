@@ -5,6 +5,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.when;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
@@ -16,6 +17,7 @@ import org.mockito.Mockito;
 import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.SvpTilretteleggingEntitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.SvpTilretteleggingFomKilde;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerSvangerskapspenger;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.ArbeidType;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
@@ -120,6 +122,49 @@ class UtledTilretteleggingerMedArbeidsgiverTjenesteTest {
         var result = utledTilretteleggingerMedArbeidsgiverTjeneste.utled(behandling, skjæringstidspunkt, tilrettelegginger);
         // Assert
         assertThat(result).hasSize(2);
+        assertThat(result.stream().anyMatch(tilr-> tilr.getInternArbeidsforholdRef().equals(Optional.of(ref_1)))).isTrue();
+        assertThat(result.stream().anyMatch(tilr-> tilr.getInternArbeidsforholdRef().equals(Optional.of(ref_2)))).isTrue();
+        assertThat(result.stream().anyMatch(tilr-> tilr.getArbeidsgiver().equals(Optional.of(DEFAULT_VIRKSOMHET)))).isTrue();
+    }
+
+    @Test
+    void skal_lage_to_tilrettelegginger_for_virksomhet_med_to_yrkesaktiviteter_ene_med_IM_andre_ikke_bruk() {
+        var startdato = LocalDate.of(2026, 3, 9);
+
+        // Arrange
+        var ref_1 = InternArbeidsforholdRef.nyRef();
+        var ref_2 = InternArbeidsforholdRef.nyRef();
+        var tlrg1 = new SvpTilretteleggingEntitet.Builder()
+                .medArbeidType(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD)
+                .medBehovForTilretteleggingFom(startdato)
+                .medDelvisTilrettelegging(startdato, BigDecimal.TEN, startdato, SvpTilretteleggingFomKilde.TIDLIGERE_VEDTAK)
+                .medDelvisTilrettelegging(LocalDate.of(2026, 5, 4), BigDecimal.valueOf(30), startdato, SvpTilretteleggingFomKilde.TIDLIGERE_VEDTAK)
+                .medArbeidsgiver(DEFAULT_VIRKSOMHET)
+                .medInternArbeidsforholdRef(ref_1).build();
+        var tlrg2 = new SvpTilretteleggingEntitet.Builder()
+                .medArbeidType(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD)
+                .medArbeidsgiver(DEFAULT_VIRKSOMHET)
+                .medSkalBrukes(false)
+                .medBehovForTilretteleggingFom(startdato)
+                .medDelvisTilrettelegging(startdato, BigDecimal.TEN, startdato, SvpTilretteleggingFomKilde.TIDLIGERE_VEDTAK)
+                .medInternArbeidsforholdRef(ref_2).build();
+
+        var tilrettelegginger = List.of(tlrg2, tlrg1); // Tidlligere - feilet med denne rekkefølgen, 1 før 2 var OK.
+
+        when(iayTjeneste.hentGrunnlag(anyLong())).thenReturn(lagGrunnlag(behandling, List.of(
+            lagYrkesaktivitet(DEFAULT_VIRKSOMHET, ArbeidType.ORDINÆRT_ARBEIDSFORHOLD, ref_1, SKJÆRINGSTIDSPUNKT.minusYears(1), Tid.TIDENES_ENDE),
+            lagYrkesaktivitet(DEFAULT_VIRKSOMHET, ArbeidType.ORDINÆRT_ARBEIDSFORHOLD, ref_2, SKJÆRINGSTIDSPUNKT.minusYears(2), Tid.TIDENES_ENDE))));
+
+        when(inntektsmeldingTjeneste.hentInntektsmeldinger(any(), any())).thenReturn(List.of(
+            lagInntektsmelding(DEFAULT_VIRKSOMHET, ref_1)));
+
+        // Act
+        var result = utledTilretteleggingerMedArbeidsgiverTjeneste.utled(behandling, skjæringstidspunkt, tilrettelegginger);
+        // Assert
+        assertThat(result).hasSize(2);
+        var resultatLikinput = tilrettelegginger.stream().allMatch(tlre -> result.stream().anyMatch(tlre::erLik));
+        assertThat(resultatLikinput).isTrue();
+        assertThat(result.stream().filter(SvpTilretteleggingEntitet::getSkalBrukes).count()).isEqualTo(1);
         assertThat(result.stream().anyMatch(tilr-> tilr.getInternArbeidsforholdRef().equals(Optional.of(ref_1)))).isTrue();
         assertThat(result.stream().anyMatch(tilr-> tilr.getInternArbeidsforholdRef().equals(Optional.of(ref_2)))).isTrue();
         assertThat(result.stream().anyMatch(tilr-> tilr.getArbeidsgiver().equals(Optional.of(DEFAULT_VIRKSOMHET)))).isTrue();

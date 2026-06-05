@@ -222,7 +222,8 @@ public class BekreftSvangerskapspengerOppdaterer implements AksjonspunktOppdater
                 .map(tilrettelegging -> mapTilrettelegging(tilrettelegging, eksisterendeTilrettelegginger))
                 .toList();
 
-            if (nyeTilrettelegginger.size() != eksisterendeTilrettelegginger.size()) {
+            if (nyeTilrettelegginger.stream().filter(tilr -> !tilr.getArbeidsforholdErSplittet()).toList().size()
+                != eksisterendeTilrettelegginger.stream().filter(tilr -> !tilr.getArbeidsforholdErSplittet()).toList().size()) {
                 throw new TekniskException("FP-564312",
                     "Antall overstyrte arbeidsforhold for svangerskapspenger stemmer " + "ikke overens med arbeidsforhold fra søknaden: "
                         + behandling.getId());
@@ -301,6 +302,10 @@ public class BekreftSvangerskapspengerOppdaterer implements AksjonspunktOppdater
             eksisterendeTilrettelegging = hentEksisterendeTilretteleggingForSplittetArbeidsforhold(eksisterendeTilrettelegingerListe,
                 arbeidsforholdDto.getArbeidsgiverReferanse());
         } else {
+            if (arbeidsforholdDto.getTilretteleggingId() == null) {
+                throw new TekniskException("FP-572363",
+                    "Mangler tilretteleggingId for ikke-splittet arbeidsforhold på svangerskapspengergrunnlag");
+            }
             eksisterendeTilrettelegging = hentEksisterendeTilrettelegging(eksisterendeTilrettelegingerListe,
                 arbeidsforholdDto.getTilretteleggingId());
         }

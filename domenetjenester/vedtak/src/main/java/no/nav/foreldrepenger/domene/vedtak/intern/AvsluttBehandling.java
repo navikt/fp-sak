@@ -9,12 +9,13 @@ import org.slf4j.LoggerFactory;
 import no.nav.foreldrepenger.behandling.BehandlingEventPubliserer;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
+import no.nav.foreldrepenger.behandlingslager.behandling.dokument.MellomlagringRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.dokument.MellomlagringType;
 import no.nav.foreldrepenger.behandlingslager.behandling.events.BehandlingVedtakEvent;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtakRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.IverksettingStatus;
-import no.nav.foreldrepenger.behandlingslager.behandling.dokument.MellomlagringRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakEgenskapRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.egenskaper.FagsakMarkering;
 import no.nav.foreldrepenger.behandlingsprosess.prosessering.BehandlingProsesseringTjeneste;
@@ -65,7 +66,7 @@ public class AvsluttBehandling {
         var behandling = behandlingRepository.hentBehandling(behandlingId);
         var kontekst = behandlingskontrollTjeneste.initBehandlingskontroll(behandling, lås);
 
-        mellomlagringRepository.fjernAlleMellomlagringer(behandlingId);
+        mellomlagringRepository.fjernMellomlagringer(behandlingId, MellomlagringType.VEDTAKSBREV); //Ikke slett vedtaksbrev før brev er produsert
         oppdatereFagsakRelasjonVedVedtak.oppdaterRelasjonVedVedtattBehandling(behandling);
 
         var vedtak = behandlingVedtakRepository.hentForBehandling(behandling.getId());

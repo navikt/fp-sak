@@ -32,6 +32,7 @@ import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.personopp
 import no.nav.foreldrepenger.behandlingsprosess.prosessering.BehandlingOpprettingTjeneste;
 import no.nav.foreldrepenger.behandlingsprosess.prosessering.HenleggBehandlingTjeneste;
 import no.nav.foreldrepenger.dbstoette.JpaExtension;
+import no.nav.foreldrepenger.dokumentbestiller.DokumentBehandlingTjeneste;
 import no.nav.foreldrepenger.domene.prosess.BeregningTjeneste;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakTjeneste;
@@ -86,9 +87,9 @@ class BehandlingRestTjenesteESTest {
         var fagsakRelasjonTjeneste = new FagsakRelasjonTjeneste(repositoryProvider);
         var uttakTjeneste = new UttakTjeneste(repositoryProvider.getBehandlingRepository(), null, null);
         var behandlingDtoTjeneste = new BehandlingDtoTjeneste(repositoryProvider, beregningTjeneste, uttakTjeneste, tilbakekrevingRepository,
-            skjæringstidspunktTjeneste, esBeregningRepository, behandlingDokumentRepository, mock(TotrinnTjeneste.class), null, null, fagsakRelasjonTjeneste,
-            new UtregnetStønadskontoTjeneste(fagsakRelasjonTjeneste, mock(ForeldrepengerUttakTjeneste.class)), vergeRepository,
-            vedtaksbrevStatusUtleder, mock(EøsUttakRepository.class));
+            skjæringstidspunktTjeneste, esBeregningRepository, behandlingDokumentRepository, mock(TotrinnTjeneste.class), null,
+            null, fagsakRelasjonTjeneste, new UtregnetStønadskontoTjeneste(fagsakRelasjonTjeneste, mock(ForeldrepengerUttakTjeneste.class)), vergeRepository,
+            vedtaksbrevStatusUtleder, mock(EøsUttakRepository.class), mock(DokumentBehandlingTjeneste.class));
 
         henleggBehandlingTjeneste = mock(HenleggBehandlingTjeneste.class);
         behandlingRestTjeneste = new BehandlingRestTjeneste(behandlingsutredningTjeneste, behandlingsoppretterTjeneste,

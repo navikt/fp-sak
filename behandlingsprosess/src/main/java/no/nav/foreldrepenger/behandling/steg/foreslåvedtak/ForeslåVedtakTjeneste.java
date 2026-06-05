@@ -113,7 +113,7 @@ class ForeslåVedtakTjeneste {
         if (aksjonspunktDefinisjoner.contains(AksjonspunktDefinisjon.FORESLÅ_VEDTAK) || aksjonspunktDefinisjoner.contains(AksjonspunktDefinisjon.FORESLÅ_VEDTAK_MANUELT)) {
             return false;
         }
-        return dokumentBehandlingTjeneste.hentMellomlagretOverstyring(behandling.getId()).isPresent();
+        return dokumentBehandlingTjeneste.harMellomlagretOverstyring(behandling.getId());
     }
 
     private boolean harÅpneKlagerEllerAnker(Fagsak fagsak) {

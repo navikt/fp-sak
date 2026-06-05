@@ -25,7 +25,7 @@ public class UttakResultatPeriodeDto {
     @NotNull private List<UttakResultatPeriodeAktivitetDto> aktiviteter = new ArrayList<>();
     private PeriodeResultatType periodeResultatType;
     private String begrunnelse;
-    @NotNull private PeriodeResultatÅrsak periodeResultatÅrsak;
+    private PeriodeResultatÅrsak periodeResultatÅrsak;
     private ManuellBehandlingÅrsak manuellBehandlingÅrsak;
     private GraderingAvslagÅrsak graderingAvslagÅrsak;
     @NotNull private boolean flerbarnsdager;

@@ -1,49 +1,66 @@
 # fp-sak
 
-Core case processing application (fagsystem) for Norwegian parental benefits:
-**foreldrepenger**, **engangsstønad**, **svangerskapspenger**. Largest and most
-central backend in the Team Foreldrepenger ecosystem.
+Core case processing application for foreldrepenger, engangsstonad, and svangerskapspenger.
 
-## Context (read first)
+## Shared context
 
-- **fp-context** (https://github.com/navikt/fp-context) — team-wide domain,
-  architecture, conventions, workflow. Treat as source of truth.
-- **Copilot Space**: navikt / TeamForeldrepenger — attaches fp-context + key repos.
-- Defer to fp-context for: domain/Folketrygdloven kap. 14, backend stack,
-  Java code style, testing conventions, workflow/PR rules, CI/CD, dependency mgmt.
+- Source of truth for shared domain, architecture, and conventions: `navikt/fp-context`
+- Copilot Space: `navikt/TeamForeldrepenger`
 
-## Role in the value chain
+## Repo-specific context
 
-| Upstream | fp-sak | Downstream |
-|---|---|---|
-| fp-mottak (søknad, inntektsmelding routing) | Behandling, vilkår, vedtak | fp-formidling (brev) |
-| fp-abakus (arbeid/inntekt historikk) | | fpoppdrag → OS (utbetaling, JMS) |
-| fp-kalkulus (beregning) | | fp-oversikt (innsyn) |
-| fp-inntektsmelding (IM-API) | | fptilbake (via kravgrunnlag fra OS) |
-| fp-tilgang (ABAC) | | |
+| Topic             | Details                                                                                 |
+|-------------------|-----------------------------------------------------------------------------------------|
+| Role              | Central application for case processing from søknad to vedtak/dismissal                 |
+| Consumers         | `fp-frontend`, `fp-los`, `fp-oversikt`, `fp-mottak`, `fp-soknad`, `fptilbake`, external |
+| Tech stack        | Standard fp Java backend using `fp-prosesstask`                                         |
+| Data              | Oracle; FSS deployment; long-term storage of sak, behandling, vedtak                    |
 
-Frontend: fp-frontend (saksbehandler UI).
+Direct relations/integrations:
+- Upstream: `fp-soknad`, `fp-mottak`, `fp-inntektsmelding`, Joark, K9-sak (vedtak pleiepenger), Kabal (vedtak klage)
+- Frontend: `fp-frontend`, `fp-swagger`
+- Satellites: `fp-abakus`, `fp-kalkulus`, `fpoppdrag`, `fp-formidling`
+- Downstream: `fp-oversikt`, OS, Joark
+- Parallel: `fp-los`, Kabal (klage unit)
+- Main data sources: PDL, Joark
+- Data warehouse: Oracle export schema fpsak_hist; Topic
 
-## Repo-specific structure
+## Entry points
 
-| Area | Purpose |
-|---|---|
-| `behandlingslager` | JPA entities, repositories |
-| `behandlingskontroll` | Behandlingsteg orchestration |
-| `domenetjenester` | Domain services per fagområde |
-| `web` | Jersey REST + Jetty bootstrap |
-| `mottak` | Inbound events (søknad, IM, hendelser) |
-| `migreringer` | Flyway scripts |
+- JakartaRS apps: `ApiConfig`, `EksternApiConfig`, `ForvaltningApiConfig`
+- Endpoints from `RestImplementationClasses` methods: `getImplementationClasses` (fp-frontend), `getServiceClasses` (fp-apps), `getForvaltningClasses` (`fp-swagger`)
+- Nav vedtak sharing endpoint: `EksternDelingYtelseInfoRestTjeneste`
+- Nav Xacml PIP endpoint: `EksternPipRestTjeneste`
 
-Behandling = a unit of case processing; steg = pipeline stage;
-aksjonspunkt = saksbehandler decision point. See fp-context glossary.
+## Repo structure
 
-## Integration testing
+| Area | Purpose                                                   |
+|---|-----------------------------------------------------------|
+| `behandlingslager` | JPA entities and repositories                             |
+| `behandlingskontroll` | Behandlingsteg orchestration                              |
+| `domenetjenester` | Domain services per fagomrade                             |
+| `infrastrukturtjenester` | Structure for scheduled jobs                              |
+| `web` | Jersey REST and Jetty bootstrap                           |
+| `mottak` | Inbound events for soknad, inntektsmelding, and hendelser |
+| `migreringer` | Flyway scripts                                            |
 
-See `AGENTS.md` and [fp-autotest](https://github.com/navikt/fp-autotest).
+## Key concepts in code and database
 
-## Local notes
+- `Fagsak` = Case. Connecting citizen, benefit, documents, behandling, vedtak
+- `Behandling` = a unit of case processing from start (søknad, klage, event) to vedtak/dismissal
+- `BehandlingÅrsak` = reason and chaining to previous behandling
+- `Behandlingsresultat` = detailed outcome and reasons
+- `BehandlingVedtak` = vedtak overall outcome
+- `BehandlingModell` = pre-defined pipeline (behandlingsprosess) for a benefit and behandling type. See `ForeldrepengerModellProducer`and similar for ES/SVP
+- `BehandlingSteg` = pipeline stage with implementation 
+- `Aksjonspunkt` = saksbehandler decision point
+- `Vilkår`: conditions for the benefit (medlemskap, relasjon til barn, opptjening)
+- Beregning: process of calculating the benefit using `fp-kalkulus`
+- Uttak: process of selecting quota configuration resulting in the `UttakResultatEntitet` aggregate 
+- Beregningsresultat: distrubution of benefit amounts over time and recipients (citizen, employer reimbursement)
 
-- Port 8080
-- DB: PostgreSQL (local), Oracle (prod legacy)
-- All external systems mocked by VTP in test
+## Verification
+
+- Verify integration impact via `navikt/fp-autotest`
+- Relevant suites: `fpsak`, `verdikjede`
+- Preferred path: use the `run-integration-tests` skill

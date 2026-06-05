@@ -116,14 +116,11 @@ public class ForeldrepengerUttak implements Uttak {
     }
 
     @Override
-    public boolean harUlikUttaksplan(Uttak other) {
-        var uttakresultatSammenligneMed = (ForeldrepengerUttak) other;
-        var uttaksTL = lagTidslinjeFraUttaksPerioder(uttakresultatSammenligneMed.getGjeldendePerioder());
-        var originalTL = lagTidslinjeFraUttaksPerioder(getGjeldendePerioder());
-        if (uttaksTL.getLocalDateIntervals().size() != originalTL.getLocalDateIntervals().size()) {
-            return true;
-        }
-        var kombinert = uttaksTL.combine(originalTL, ForeldrepengerUttak::fjernLikePerioder, LocalDateTimeline.JoinStyle.CROSS_JOIN);
+    public boolean erEndretUttaksplanFra(Uttak originaltUttak) {
+        var original = (ForeldrepengerUttak) originaltUttak;
+        var originalTL = lagTidslinjeFraUttaksPerioder(original.getGjeldendePerioder(), true);
+        var revurderingTL = lagTidslinjeFraUttaksPerioder(getGjeldendePerioder(), false);
+        var kombinert = revurderingTL.combine(originalTL, ForeldrepengerUttak::fjernLikePerioder, LocalDateTimeline.JoinStyle.CROSS_JOIN);
         return !kombinert.filterValue(Objects::nonNull).getLocalDateIntervals().isEmpty();
     }
 
@@ -135,11 +132,11 @@ public class ForeldrepengerUttak implements Uttak {
     }
 
     @Override
-    public boolean harOpphørsUttakNyeInnvilgetePerioder(Uttak other) {
-        var uttakresultatSammenligneMed = (ForeldrepengerUttak) other;
-        var uttaksTL = lagTidslinjeFraUttaksPerioder(uttakresultatSammenligneMed.getGjeldendePerioder());
-        var originalTL = lagTidslinjeFraUttaksPerioder(getGjeldendePerioder());
-        return uttaksTL.combine(originalTL, ForeldrepengerUttak::fjernLikePerioder, LocalDateTimeline.JoinStyle.CROSS_JOIN)
+    public boolean harOpphørsUttakNyeInnvilgedePerioderFra(Uttak originaltUttak) {
+        var original = (ForeldrepengerUttak) originaltUttak;
+        var originalTL = lagTidslinjeFraUttaksPerioder(original.getGjeldendePerioder(), true);
+        var revurderingTL = lagTidslinjeFraUttaksPerioder(getGjeldendePerioder(), false);
+        return revurderingTL.combine(originalTL, ForeldrepengerUttak::fjernLikePerioder, LocalDateTimeline.JoinStyle.CROSS_JOIN)
             .toSegments()
             .stream()
             .map(LocalDateSegment::getValue)
@@ -159,11 +156,23 @@ public class ForeldrepengerUttak implements Uttak {
             StønadskontoType.TETTE_SAKER_FAR, 0);
     }
 
-    private static LocalDateTimeline<WrapUttakPeriode> lagTidslinjeFraUttaksPerioder(List<ForeldrepengerUttakPeriode> uttaksPerioder) {
-        return new LocalDateTimeline<>(uttaksPerioder.stream()
-            .map(p -> new WrapUttakPeriode(p.getTidsperiode(), p))
+    private static LocalDateTimeline<WrapUttakPeriode> lagTidslinjeFraUttaksPerioder(List<ForeldrepengerUttakPeriode> uttaksPerioder,
+                                                                                    boolean filtrerAvslåttUtenEffekt) {
+        var stream = uttaksPerioder.stream();
+        if (filtrerAvslåttUtenEffekt) {
+            stream = stream.filter(ForeldrepengerUttak::erRelevantForSammenligning);
+        }
+        return new LocalDateTimeline<>(stream
+            .map(p -> new WrapUttakPeriode(p.getTidsperiode().adjustIntoWorkweek(), p))
             .map(w -> new LocalDateSegment<>(w.getI(), w))
-            .toList()).compress(WrapUttakPeriode::erLikeNaboer, ForeldrepengerUttak::kombinerLikeNaboer);
+            .toList()).compress(LocalDateInterval::abutsWorkdays, WrapUttakPeriode::erLikeNaboer, ForeldrepengerUttak::kombinerLikeNaboer);
+    }
+
+    private static boolean erRelevantForSammenligning(ForeldrepengerUttakPeriode periode) {
+        if (PeriodeResultatType.AVSLÅTT.equals(periode.getResultatType())) {
+            return periode.harTrekkdager() || periode.harUtbetaling();
+        }
+        return true;
     }
 
     private static LocalDateSegment<WrapUttakPeriode> kombinerLikeNaboer(LocalDateInterval i,

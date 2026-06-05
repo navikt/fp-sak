@@ -2,7 +2,10 @@ package no.nav.foreldrepenger.web.app.tjenester.behandling.uttak.dto;
 
 import java.math.BigDecimal;
 
+
 import com.fasterxml.jackson.annotation.JsonProperty;
+
+import jakarta.validation.constraints.NotNull;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeType;
 import no.nav.foreldrepenger.behandlingslager.uttak.Utbetalingsgrad;
@@ -13,7 +16,8 @@ import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 public class UttakResultatPeriodeAktivitetDto {
 
     private UttakPeriodeType stønadskontoType;
-    private Trekkdager trekkdager;
+    @NotNull
+    private BigDecimal trekkdager;
     private BigDecimal prosentArbeid;
     private String arbeidsforholdId;
     private String eksternArbeidsforholdId;
@@ -29,9 +33,14 @@ public class UttakResultatPeriodeAktivitetDto {
         return stønadskontoType;
     }
 
-    @JsonProperty("trekkdagerDesimaler")
     public BigDecimal getTrekkdager() {
-        return trekkdager.decimalValue();
+        return trekkdager;
+    }
+
+    @NotNull
+    @JsonProperty(value = "trekkdagerDesimaler")
+    public BigDecimal getTrekkdagerDesimaler() {
+        return trekkdager;
     }
 
     public BigDecimal getProsentArbeid() {
@@ -72,7 +81,7 @@ public class UttakResultatPeriodeAktivitetDto {
         }
 
         public Builder medTrekkdager(Trekkdager trekkdager) {
-            kladd.trekkdager = trekkdager;
+            kladd.trekkdager = trekkdager.decimalValue();
             return this;
         }
 

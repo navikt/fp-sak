@@ -84,12 +84,25 @@ class UtledTilretteleggingerMedArbeidsgiverTjeneste {
 
             tilretteleggingerMedArbeidsforholdId.removeAll(måVurderesPåNytt);
             //Dersom det er allerede finnes tilrettelegging for samme arbeidsgiver skal den ikke legges til listen.
-            måVurderesPåNytt.forEach(tilr -> {
+            //Prioriterer arbeidsforhold som er i bruk - unngå at getSkalBrukes brukes videre
+            måVurderesPåNytt.stream().filter(SvpTilretteleggingEntitet::getSkalBrukes).forEach(tilr -> {
+                if (tilretteleggingerUtenArbeidsforholdId.stream().map(SvpTilretteleggingEntitet::getArbeidsgiver).noneMatch(a -> a.equals(tilr.getArbeidsgiver()))) {
+                    tilretteleggingerUtenArbeidsforholdId.add(tilr);
+                }
+            });
+            måVurderesPåNytt.stream().filter(t -> !t.getSkalBrukes()).forEach(tilr -> {
                 if (tilretteleggingerUtenArbeidsforholdId.stream().map(SvpTilretteleggingEntitet::getArbeidsgiver).noneMatch(a -> a.equals(tilr.getArbeidsgiver()))) {
                     tilretteleggingerUtenArbeidsforholdId.add(tilr);
                 }
             });
         }
+
+        // Kommentar ifm utbedring av finnTilretteleggingerSomMåVurderesPåNytt - bare de som "skalBrukes"
+        // måVurderesPåNytt er fjernet fra tilretteleggingerMedArbeidsforholdId men lagt til i
+        // tilretteleggingerUtenArbeidsforholdId - dvs brukes i for-loopen
+        // Problemet er da at man glemmer både "skalBrukes", lista av "tilretteleggingFom", osv.
+        // Det virker mer fornuftig å videreføre eksisterende tilrettelegginger og lage nye for tilkommet arb.forhold.
+        // Bør også se på om de 2 new SvpTilretteleggingEntitet.Builder skal ta med ".medSkalBrukes(true)"
 
         nyeTilrettelegginger.addAll(tilretteleggingerMedArbeidsforholdId);
 
@@ -126,10 +139,12 @@ class UtledTilretteleggingerMedArbeidsgiverTjeneste {
                 .toList();
             var arbeidsgiver = Arbeidsgiver.virksomhet(arbeidsgiverIdentifikator);
 
-            var alleIderHarMatchendeIm = tilretteleggingerForArbeidsgiver.stream().map(SvpTilretteleggingEntitet::getInternArbeidsforholdRef)
+            var alleTilretteleggingIderSomSkalBrukesHarMatchendeIm = tilretteleggingerForArbeidsgiver.stream()
+                .filter(SvpTilretteleggingEntitet::getSkalBrukes)
+                .map(SvpTilretteleggingEntitet::getInternArbeidsforholdRef)
                 .allMatch(internArbeidsforholdRef -> finnesIdIListenAvInntektsmeldingerForArbeidsgiver(arbeidsgiver, kobledeInntektsmeldinger, internArbeidsforholdRef.orElse(null)));
 
-            if (!alleIderHarMatchendeIm || inntektsmeldingerForArbeidsgiver.size() > tilretteleggingerForArbeidsgiver.size() ) {
+            if (!alleTilretteleggingIderSomSkalBrukesHarMatchendeIm || inntektsmeldingerForArbeidsgiver.size() > tilretteleggingerForArbeidsgiver.size() ) {
                 tilretteleggingerSomMåVurderesPåNytt.addAll(tilretteleggingerForArbeidsgiver);
             }
         });
