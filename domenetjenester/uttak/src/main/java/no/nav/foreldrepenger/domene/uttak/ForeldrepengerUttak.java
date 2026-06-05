@@ -162,6 +162,7 @@ public class ForeldrepengerUttak implements Uttak {
         if (filtrerAvslåttUtenEffekt) {
             stream = stream.filter(ForeldrepengerUttak::erRelevantForSammenligning);
         }
+        stream = stream.filter(periode -> !erPeriodeBareHelg(periode));
         return new LocalDateTimeline<>(stream
             .map(p -> new WrapUttakPeriode(p.getTidsperiode().adjustIntoWorkweek(), p))
             .map(w -> new LocalDateSegment<>(w.getI(), w))
@@ -173,6 +174,14 @@ public class ForeldrepengerUttak implements Uttak {
             return periode.harTrekkdager() || periode.harUtbetaling();
         }
         return true;
+    }
+
+    private static boolean erPeriodeBareHelg(ForeldrepengerUttakPeriode periode) {
+        // Perioder som kun ligger i helg har ingen virkedager og forsvinner ved justering til virkeuke.
+        // Identifiseres ved at justert fom havner etter justert tom (samme tilfelle som ville feilet i adjustIntoWorkweek).
+        var fom = PerioderUtenHelgUtil.justerFomMandag(periode.getFom());
+        var tom = PerioderUtenHelgUtil.justerTomFredag(periode.getTom());
+        return fom.isAfter(tom);
     }
 
     private static LocalDateSegment<WrapUttakPeriode> kombinerLikeNaboer(LocalDateInterval i,

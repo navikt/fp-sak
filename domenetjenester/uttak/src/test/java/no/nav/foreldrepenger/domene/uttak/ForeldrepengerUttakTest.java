@@ -281,6 +281,53 @@ class ForeldrepengerUttakTest {
     }
 
     @Test
+    void skal_ignorere_perioder_som_bare_er_i_helg_i_uttakssammenligning() {
+        var lørdag = LocalDate.of(2024, 6, 8);
+        var søndag = LocalDate.of(2024, 6, 9);
+
+        var original = lagUttak(innvilget(lørdag, søndag).trekkdager(1).gradering(false));
+        var revurdering = lagUttak(innvilget(lørdag, søndag).trekkdager(1).gradering(false));
+
+        assertThat(revurdering.erEndretUttaksplanFra(original)).isFalse();
+    }
+
+    @Test
+    void skal_ignorere_periode_på_enkeltstående_helgedag() {
+        var lørdag = LocalDate.of(2024, 6, 8);
+        var søndag = LocalDate.of(2024, 6, 9);
+
+        var original = lagUttak(innvilget(lørdag, lørdag).trekkdager(1).gradering(false));
+        var revurdering = lagUttak(innvilget(søndag, søndag).trekkdager(1).gradering(false));
+
+        assertThat(revurdering.erEndretUttaksplanFra(original)).isFalse();
+    }
+
+    @Test
+    void skal_ikke_gi_endring_når_kun_forskjell_er_en_helg_kun_periode() {
+        var mandag = LocalDate.of(2024, 6, 3);
+        var fredag = LocalDate.of(2024, 6, 7);
+        var lørdag = LocalDate.of(2024, 6, 8);
+        var søndag = LocalDate.of(2024, 6, 9);
+
+        var original = lagUttak(innvilget(mandag, fredag).trekkdager(5).gradering(false),
+            innvilget(lørdag, søndag).trekkdager(0).utbetalingsgrad(0).gradering(false));
+        var revurdering = lagUttak(innvilget(mandag, fredag).trekkdager(5).gradering(false));
+
+        assertThat(revurdering.erEndretUttaksplanFra(original)).isFalse();
+    }
+
+    @Test
+    void skal_ikke_ignorere_periode_fra_søndag_til_mandag_som_har_virkedag() {
+        var søndag = LocalDate.of(2024, 6, 9);
+        var mandag = LocalDate.of(2024, 6, 10);
+
+        var original = lagUttak(innvilget(mandag, mandag).trekkdager(1).gradering(false));
+        var revurdering = lagUttak(innvilget(søndag, mandag).trekkdager(1).gradering(false));
+
+        assertThat(revurdering.erEndretUttaksplanFra(original)).isFalse();
+    }
+
+    @Test
     void skal_ikke_gi_endring_når_avslått_periode_uten_trekkdager_og_utbetaling_mangler_i_revurdering() {
         var fom = LocalDate.of(2024, 6, 3);
         var innvilgetTom = LocalDate.of(2024, 8, 30);
