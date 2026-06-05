@@ -159,12 +159,12 @@ public class ForeldrepengerUttak implements Uttak {
 
     private static LocalDateTimeline<WrapUttakPeriode> lagTidslinjeFraUttaksPerioder(List<ForeldrepengerUttakPeriode> uttaksPerioder,
                                                                                     boolean filtrerAvslåttUtenEffekt) {
-        return uttaksPerioder.stream()
+        return new LocalDateTimeline<>(uttaksPerioder.stream()
             .filter(periode -> !filtrerAvslåttUtenEffekt || erRelevantForSammenligning(periode))
             .filter(Predicate.not(ForeldrepengerUttak::erPeriodeBareHelg))
             .map(p -> new WrapUttakPeriode(p.getTidsperiode().adjustIntoWorkweek(), p))
             .map(w -> new LocalDateSegment<>(w.getI(), w))
-            .collect(Collectors.collectingAndThen(Collectors.toList(), LocalDateTimeline::new))
+            .toList())
             .compress(LocalDateInterval::abutsWorkdays, WrapUttakPeriode::erLikeNaboer, ForeldrepengerUttak::kombinerLikeNaboer);
     }
 
