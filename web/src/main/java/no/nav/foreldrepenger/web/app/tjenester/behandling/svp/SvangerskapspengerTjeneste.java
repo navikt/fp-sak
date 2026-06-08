@@ -399,7 +399,8 @@ public class SvangerskapspengerTjeneste {
     private VelferdspermisjonDto mapPermisjon(Permisjon p, Optional<YrkesaktivitetFilter> registerFilter, Optional<YrkesaktivitetFilter> saksbehandletFilter) {
         return new VelferdspermisjonDto(p.getFraOgMed(),
             p.getTilOgMed() == null || p.getTilOgMed().isEqual(Tid.TIDENES_ENDE) ? null : p.getTilOgMed(), p.getProsentsats().getVerdi(),
-            p.getPermisjonsbeskrivelseType(), erGyldig(p, registerFilter, saksbehandletFilter));
+            p.getPermisjonsbeskrivelseType(), erGyldig(p, registerFilter, saksbehandletFilter),
+            p.getYrkesaktivitet().getArbeidsforholdRef().getUUIDReferanse());
     }
 
     private Boolean erGyldig(Permisjon p, Optional<YrkesaktivitetFilter> yrkesfilter, Optional<YrkesaktivitetFilter> saksbehandletFilter) {

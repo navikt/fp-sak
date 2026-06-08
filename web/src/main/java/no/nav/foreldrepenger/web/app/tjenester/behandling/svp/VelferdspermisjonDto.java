@@ -3,6 +3,7 @@ package no.nav.foreldrepenger.web.app.tjenester.behandling.svp;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.UUID;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
@@ -28,6 +29,8 @@ public class VelferdspermisjonDto {
     private PermisjonsbeskrivelseType type;
     @JsonProperty("erGyldig")
     private Boolean erGyldig;
+    @JsonProperty("internArbeidsforholdId")
+    private UUID internArbeidsforholdId;
 
     public VelferdspermisjonDto(){
         // Jackson
@@ -37,12 +40,14 @@ public class VelferdspermisjonDto {
                                 LocalDate permisjonTom,
                                 BigDecimal permisjonsprosent,
                                 PermisjonsbeskrivelseType type,
-                                Boolean erGyldig) {
+                                Boolean erGyldig,
+                                UUID internArbeidsforholdId) {
         this.permisjonFom = permisjonFom;
         this.permisjonTom = permisjonTom;
         this.permisjonsprosent = permisjonsprosent;
         this.type = type;
         this.erGyldig = erGyldig;
+        this.internArbeidsforholdId = internArbeidsforholdId;
     }
 
     public LocalDate getPermisjonFom() {
@@ -83,5 +88,13 @@ public class VelferdspermisjonDto {
 
     public void setErGyldig(Boolean erGyldig) {
         this.erGyldig = erGyldig;
+    }
+
+    public UUID getInternArbeidsforholdId() {
+        return internArbeidsforholdId;
+    }
+
+    public void setInternArbeidsforholdId(UUID internArbeidsforholdId) {
+        this.internArbeidsforholdId = internArbeidsforholdId;
     }
 }
