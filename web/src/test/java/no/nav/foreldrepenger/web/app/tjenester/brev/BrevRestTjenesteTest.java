@@ -1,6 +1,7 @@
 package no.nav.foreldrepenger.web.app.tjenester.brev;
 
 import static no.nav.foreldrepenger.behandlingslager.behandling.dokument.DokumentMalType.INNHENTE_OPPLYSNINGER;
+import static no.nav.foreldrepenger.behandlingslager.behandling.dokument.DokumentMalType.KLAGE_OVERSENDT;
 import static no.nav.foreldrepenger.behandlingslager.behandling.dokument.DokumentMalType.VARSEL_OM_REVURDERING;
 import static no.nav.foreldrepenger.behandlingslager.behandling.dokument.MellomlagringType.VARSEL_REVURDERING;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -30,8 +31,10 @@ import no.nav.foreldrepenger.dokumentarkiv.DokumentRespons;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentBehandlingTjeneste;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentBestillerTjeneste;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentBestilling;
+import no.nav.foreldrepenger.dokumentbestiller.DokumentForhandsvisning;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentForhåndsvisningTjeneste;
 import no.nav.foreldrepenger.dokumentbestiller.dto.BestillDokumentDto;
+import no.nav.foreldrepenger.dokumentbestiller.dto.ForhåndsvisDokumentDto;
 import no.nav.foreldrepenger.domene.arbeidInntektsmelding.ArbeidsforholdInntektsmeldingMangelTjeneste;
 import no.nav.foreldrepenger.domene.typer.JournalpostId;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
@@ -172,6 +175,25 @@ class BrevRestTjenesteTest {
         var dto = (BrevRestTjeneste.OverstyrtDokumentDto) respons.getEntity();
         assertThat(dto.opprinneligHtml()).isEqualTo(brevProdusertAvFpdokgen);
         assertThat(dto.redigertHtml()).isNull();
+    }
+
+    @Test
+    void forhåndsvis_klage_oversendt_med_fritekst_bruker_ikke_fritekst_html_som_dokumentmal() {
+        var behandlingUuid = UUID.randomUUID();
+        var behandling = mock(Behandling.class);
+        var pdf = "pdf".getBytes();
+        when(behandling.getSaksnummer()).thenReturn(new Saksnummer("9999"));
+        when(behandlingRepository.hentBehandling(behandlingUuid)).thenReturn(behandling);
+        when(dokumentForhåndsvisningTjenesteMock.forhåndsvisDokument(any())).thenReturn(pdf);
+        var dto = new ForhåndsvisDokumentDto(behandlingUuid, KLAGE_OVERSENDT, null, false, "fritekst");
+
+        var respons = brevRestTjeneste.forhåndsvisDokument(dto);
+
+        var captor = ArgumentCaptor.forClass(DokumentForhandsvisning.class);
+        verify(dokumentForhåndsvisningTjenesteMock).forhåndsvisDokument(captor.capture());
+        assertThat(captor.getValue().dokumentMal()).isEqualTo(KLAGE_OVERSENDT);
+        assertThat(captor.getValue().fritekst()).isEqualTo("fritekst");
+        assertThat(respons.getStatus()).isEqualTo(200);
     }
 
     @Test
