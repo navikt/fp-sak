@@ -7,7 +7,7 @@ import jakarta.validation.constraints.NotNull;
 
 import no.nav.foreldrepenger.domene.iay.modell.kodeverk.PermisjonsbeskrivelseType;
 
-public record PermisjonDto(@NotNull LocalDate permisjonFom,
-                           LocalDate permisjonTom,
+public record PermisjonDto(@NotNull LocalDate fom,
+                           LocalDate tom,
                            @NotNull BigDecimal permisjonsprosent,
                            @NotNull PermisjonsbeskrivelseType type) {}
