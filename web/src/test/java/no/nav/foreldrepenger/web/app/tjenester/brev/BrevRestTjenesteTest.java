@@ -6,7 +6,6 @@ import static no.nav.foreldrepenger.behandlingslager.behandling.dokument.Melloml
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -73,9 +72,8 @@ class BrevRestTjenesteTest {
         var behandlingMock = mock(Behandling.class);
         when(behandlingMock.getSaksnummer()).thenReturn(new Saksnummer("9999"));
         when(behandlingRepository.hentBehandling(behandlingUuid)).thenReturn(behandlingMock);
-        var fritekst = "Dette er en fritekst";
         var dokumentMal = INNHENTE_OPPLYSNINGER;
-        var bestillBrevDto = new BestillDokumentDto(behandlingUuid, dokumentMal, fritekst, null);
+        var bestillBrevDto = new BestillDokumentDto(behandlingUuid, dokumentMal, null);
 
         // Act
         brevRestTjeneste.bestillDokument(bestillBrevDto);
@@ -91,7 +89,7 @@ class BrevRestTjenesteTest {
         assertThat(bestilling.bestillingUuid()).isNotNull();
         assertThat(bestilling.behandlingUuid()).isEqualTo(behandlingUuid);
         assertThat(bestilling.dokumentMal()).isEqualTo(dokumentMal);
-        assertThat(bestilling.fritekst()).isEqualTo(fritekst);
+        assertThat(bestilling.fritekst()).isNull();
         assertThat(bestilling.revurderingÅrsak()).isNull();
         assertThat(bestilling.journalførSom()).isNull();
     }
@@ -186,7 +184,7 @@ class BrevRestTjenesteTest {
         when(behandling.getSaksnummer()).thenReturn(new Saksnummer("9999"));
         when(behandlingRepository.hentBehandling(behandlingUuid)).thenReturn(behandling);
         when(dokumentBehandlingTjenesteMock.hentMellomlagretOverstyring(behandling.getId())).thenReturn(Optional.of("<html>redigert</html>"));
-        when(dokumentForhåndsvisningTjenesteMock.forhåndsvisDokument(eq(behandling.getId()), any())).thenReturn(pdf);
+        when(dokumentForhåndsvisningTjenesteMock.forhåndsvisDokument(any())).thenReturn(pdf);
 
         var respons = brevRestTjeneste.hentOverstyrtVedtaksbrev(new UuidDto(behandlingUuid));
 
