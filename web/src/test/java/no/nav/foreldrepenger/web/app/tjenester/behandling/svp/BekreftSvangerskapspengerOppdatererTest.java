@@ -336,7 +336,7 @@ class BekreftSvangerskapspengerOppdatererTest {
             var tilrBuilder = new SvpTilretteleggingEntitet.Builder().medBehovForTilretteleggingFom(BEHOV_FRA_DATO)
                 .medTilretteleggingFraDatoer(List.of(tilr2Fom1, tilr2Fom2))
                 .medArbeidType(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD)
-                .medArbeidsgiver(Arbeidsgiver.virksomhet("123456789"))
+                .medArbeidsgiver(Arbeidsgiver.virksomhet(ARBEIDSGIVER_IDENT))
                 .medMottattTidspunkt(LocalDateTime.now())
                 .medKopiertFraTidligereBehandling(false);
             if (medAvklartOpphold){
@@ -351,7 +351,7 @@ class BekreftSvangerskapspengerOppdatererTest {
            var tilrBuilder  = new SvpTilretteleggingEntitet.Builder().medBehovForTilretteleggingFom(BEHOV_FRA_DATO)
                 .medTilretteleggingFraDatoer(List.of(tilr1Fom))
                 .medArbeidType(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD)
-                .medArbeidsgiver(Arbeidsgiver.virksomhet("987654321"))
+                .medArbeidsgiver(Arbeidsgiver.virksomhet(ARBEIDSGIVER_IDENT))
                 .medMottattTidspunkt(LocalDateTime.now())
                 .medKopiertFraTidligereBehandling(false);
 

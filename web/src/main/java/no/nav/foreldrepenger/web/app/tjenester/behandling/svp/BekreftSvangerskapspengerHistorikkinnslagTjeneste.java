@@ -6,7 +6,6 @@ import static no.nav.foreldrepenger.web.app.tjenester.behandling.svp.BekreftSvan
 import static no.nav.foreldrepenger.web.app.tjenester.behandling.svp.BekreftSvangerskapspengerOppdaterer.getTermindato;
 
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 
@@ -25,11 +24,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.SvpOpph
 import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.SvpTilretteleggingEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.TilretteleggingFOM;
 import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.TilretteleggingType;
-import no.nav.foreldrepenger.behandlingslager.virksomhet.ArbeidType;
-import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.domene.arbeidsgiver.ArbeidsgiverTjeneste;
-import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
-import no.nav.vedtak.exception.TekniskException;
 
 @ApplicationScoped
 public class BekreftSvangerskapspengerHistorikkinnslagTjeneste {
@@ -50,12 +45,11 @@ public class BekreftSvangerskapspengerHistorikkinnslagTjeneste {
     public void lagHistorikkinnslagVedEndring(BehandlingReferanse ref,
                                               BekreftSvangerskapspengerDto dto,
                                               FamilieHendelseGrunnlagEntitet familieHendelseGrunnlag,
-                                              List<SvpTilretteleggingEntitet> endredeTilrettelegginger,
-                                              List<SvpTilretteleggingEntitet> eksisterendeTilretteleginger) {
-        var linjer = endredeTilrettelegginger.stream()
-            .filter(ny -> erTilretteleggingEndret(hentEksisterendeTilrettelegging(eksisterendeTilretteleginger, ny), ny))
-            .map(ny -> oppprettHistorikkinnslagForTilretteleggingsperiode(hentEksisterendeTilrettelegging(eksisterendeTilretteleginger, ny), ny))
+                                              List<TilretteleggingEndringStatus> endredeTilrettelegginger) {
+        var linjer = endredeTilrettelegginger.stream().filter(TilretteleggingEndringStatus::erEndret)
+            .map(endringStatus -> oppprettHistorikkinnslagForTilretteleggingsperiode(endringStatus.gammelTilrettelegging(), endringStatus.nyTilrettelegging()))
             .toList();
+
         var builder = new Historikkinnslag.Builder()
             .medAktør(HistorikkAktør.SAKSBEHANDLER)
             .medFagsakId(ref.fagsakId())
@@ -63,11 +57,13 @@ public class BekreftSvangerskapspengerHistorikkinnslagTjeneste {
             .medTittel(SkjermlenkeType.PUNKT_FOR_SVP_INNGANG)
             .addLinje(fraTilEquals("Termindato", getTermindato(familieHendelseGrunnlag, ref), dto.getTermindato()))
             .addLinje(fraTilEquals("Fødselsdato", getFødselsdato(familieHendelseGrunnlag).orElse(null), dto.getFødselsdato()));
+
         linjer.forEach(t -> {
             builder.addLinje(HistorikkinnslagLinjeBuilder.LINJESKIFT);
             t.forEach(builder::addLinje);
             builder.addLinje(HistorikkinnslagLinjeBuilder.LINJESKIFT);
         });
+
         builder.addLinje(dto.getBegrunnelse());
         historikkinnslagRepository.lagre(builder.build());
     }
@@ -82,13 +78,13 @@ public class BekreftSvangerskapspengerHistorikkinnslagTjeneste {
             endredeLinjer.add(fraTilEquals("Tilrettelegging er nødvendig fra og med", eksisterendeTilrettelegging.getBehovForTilretteleggingFom(), nyTilrettelegging.getBehovForTilretteleggingFom()));
         }
 
-        //Tilrettelegging fra datoer
+        // Tilrettelegging fra datoer
         var eksisterendeFoms = eksisterendeTilrettelegging.getTilretteleggingFOMListe();
         var nyeFoms = nyTilrettelegging.getTilretteleggingFOMListe();
         var fjernetListe = eksisterendeFoms.stream().filter(fom -> !nyeFoms.contains(fom));
         var lagtTilListe = nyeFoms.stream().filter(fom -> !eksisterendeFoms.contains(fom)).toList();
 
-        //Oppholdsperioder
+        // Oppholdsperioder
         var eksisterendeOpphold = eksisterendeTilrettelegging.getAvklarteOpphold();
         var nyeOpphold = nyTilrettelegging.getAvklarteOpphold();
         var fjernetOppholdListe = eksisterendeOpphold.stream()
@@ -137,64 +133,14 @@ public class BekreftSvangerskapspengerHistorikkinnslagTjeneste {
         return builder.toString();
     }
 
-    private static boolean erTilretteleggingEndret(SvpTilretteleggingEntitet eksisterendeTilrettelegging, SvpTilretteleggingEntitet nyTilrettelegging) {
-        var nyFomsSortert = sorterFoms(nyTilrettelegging.getTilretteleggingFOMListe());
-        var eksFomsSortert = sorterFoms(eksisterendeTilrettelegging.getTilretteleggingFOMListe());
-        var nyOppholdSortert = sorterOpphold(nyTilrettelegging.getAvklarteOpphold());
-        var eksOppholdSortert = sorterOpphold(eksisterendeTilrettelegging.getAvklarteOpphold());
-
-        return nyTilrettelegging.getSkalBrukes() != eksisterendeTilrettelegging.getSkalBrukes()
-            || !nyFomsSortert.equals(eksFomsSortert)
-            || !Objects.equals(eksisterendeTilrettelegging.getBehovForTilretteleggingFom(), nyTilrettelegging.getBehovForTilretteleggingFom())
-            || !nyOppholdSortert.equals(eksOppholdSortert);
-    }
-
-    private static List<TilretteleggingFOM> sorterFoms(List<TilretteleggingFOM> tilretteleggingFOM) {
-        return tilretteleggingFOM.stream()
-            .sorted(Comparator.comparing(TilretteleggingFOM::getFomDato))
-            .toList();
-    }
-
-    private static List<SvpAvklartOpphold> sorterOpphold(List<SvpAvklartOpphold> tilretteleggingFOM) {
-        return tilretteleggingFOM.stream()
-            .sorted(Comparator.comparing(SvpAvklartOpphold::getFom))
-            .toList();
-    }
-
-    private static SvpTilretteleggingEntitet hentEksisterendeTilrettelegging(List<SvpTilretteleggingEntitet> eksisterendeTilrettelegingerListe, SvpTilretteleggingEntitet nyTilrettelegging) {
-        return eksisterendeTilrettelegingerListe.stream()
-            .filter(eksistrende -> erTilrettleggingPåSammeArbeidsforhold(eksistrende, nyTilrettelegging))
-            .findFirst()
-            .orElseThrow(() -> new TekniskException("FP-572361", "Fant ikke eksiterende tilrettelegging med identifikator" +
-                new TilretteleggingAktivitet(
-                    nyTilrettelegging.getArbeidsgiver().orElse(null),
-                    nyTilrettelegging.getInternArbeidsforholdRef().orElse(null),
-                    nyTilrettelegging.getArbeidType())));
-    }
 
     private static boolean erLikeUtenKilde(SvpAvklartOpphold a, SvpAvklartOpphold b) {
         return Objects.equals(a.getOppholdÅrsak(), b.getOppholdÅrsak()) && Objects.equals(a.getFom(), b.getFom()) && Objects.equals(
             a.getTom(), b.getTom());
     }
 
-    private static boolean erTilrettleggingPåSammeArbeidsforhold(SvpTilretteleggingEntitet eksistrende, SvpTilretteleggingEntitet nyTilrettelegging) {
-        var eksisterendeAG = new TilretteleggingAktivitet(
-            eksistrende.getArbeidsgiver().orElse(null),
-            eksistrende.getInternArbeidsforholdRef().orElse(null),
-            eksistrende.getArbeidType()
-        );
-        var nyAG = new TilretteleggingAktivitet(
-            nyTilrettelegging.getArbeidsgiver().orElse(null),
-            nyTilrettelegging.getInternArbeidsforholdRef().orElse(null),
-            nyTilrettelegging.getArbeidType()
-        );
-        return eksisterendeAG.equals(nyAG);
-    }
-
     private static HistorikkinnslagLinjeBuilder tekst(String tekst) {
         return new HistorikkinnslagLinjeBuilder().tekst(tekst);
     }
 
-    private record TilretteleggingAktivitet(Arbeidsgiver identifikator, InternArbeidsforholdRef internArbeidsforholdRef, ArbeidType arbeidType) {
-    }
 }
