@@ -1,6 +1,7 @@
 package no.nav.foreldrepenger.web.app.tjenester.brev;
 
 import java.util.Objects;
+import java.util.Set;
 import java.util.UUID;
 import java.util.function.Function;
 
@@ -74,6 +75,8 @@ public class BrevRestTjeneste {
     public static final String BREV_HTML_PATH = BASE_PATH + BREV_HTML_PART_PATH;
     private static final String HENT_OVERSTYRT_VEDTAKSBREV_PART_PATH = "/hent-overstyrt-vedtaksbrev";
     public static final String HENT_OVERSTYRT_VEDTAKSBREV_PATH = BASE_PATH + HENT_OVERSTYRT_VEDTAKSBREV_PART_PATH;
+    private static final Set<DokumentMalType> BREV_SOM_FORHÅNDSVISES_MED_FRITEKST_UTEN_HTML_REDIGERING = Set.of(DokumentMalType.KLAGE_OVERSENDT,
+        DokumentMalType.KLAGE_OMGJORT);
 
     private DokumentForhåndsvisningTjeneste dokumentForhåndsvisningTjeneste;
     private DokumentBestillerTjeneste dokumentBestillerTjeneste;
@@ -217,15 +220,14 @@ public class BrevRestTjeneste {
     public Response forhåndsvisDokument(@Parameter(description = "Inneholder kode til brevmal og bestillingsdetaljer.") @TilpassetAbacAttributt(supplierClass = ForhåndsvisSupplier.class) @Valid ForhåndsvisDokumentDto forhåndsvisDto) { // NOSONAR
         var behandling = behandlingRepository.hentBehandling(forhåndsvisDto.behandlingUuid());
 
-        var fritekst = forhåndsvisDto.fritekst();
-        var dokumentMal = forhåndsvisDto.fritekst() != null ? DokumentMalType.FRITEKST_HTML : forhåndsvisDto.dokumentMal();
+        var dokumentMal = utledDokumentMapTypeForhåndsvisning(forhåndsvisDto);
 
         var bestilling = DokumentForhandsvisning.builder()
             .medBehandlingUuid(forhåndsvisDto.behandlingUuid())
             .medSaksnummer(behandling.getSaksnummer())
             .medDokumentMal(dokumentMal)
             .medRevurderingÅrsak(forhåndsvisDto.årsakskode())
-            .medFritekst(fritekst)
+            .medFritekst(forhåndsvisDto.fritekst())
             .medDokumentType(utledDokumentType(forhåndsvisDto.automatiskVedtaksbrev()))
             .build();
 
@@ -241,6 +243,14 @@ public class BrevRestTjeneste {
             return responseBuilder.build();
         }
         return Response.serverError().build();
+    }
+
+    private static DokumentMalType utledDokumentMapTypeForhåndsvisning(ForhåndsvisDokumentDto forhåndsvisDto) {
+        if (forhåndsvisDto.fritekst() != null) {
+            return BREV_SOM_FORHÅNDSVISES_MED_FRITEKST_UTEN_HTML_REDIGERING
+                .contains(forhåndsvisDto.dokumentMal()) ? forhåndsvisDto.dokumentMal() : DokumentMalType.FRITEKST_HTML;
+        }
+        return forhåndsvisDto.dokumentMal();
     }
 
     private DokumentForhandsvisning.DokumentType utledDokumentType(boolean gjelderAutomatiskBrev) {
