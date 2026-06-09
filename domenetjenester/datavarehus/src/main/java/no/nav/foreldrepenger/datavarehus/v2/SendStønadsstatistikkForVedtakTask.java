@@ -54,7 +54,7 @@ public class SendStønadsstatistikkForVedtakTask extends GenerellProsessTask {
         var vedtak = stønadsstatistikkTjeneste.genererVedtak(BehandlingReferanse.fra(behandling), stp);
 
         valider(vedtak);
-        var header = new KafkaSender.KafkaHeader("stønadstype", vedtak.getYtelseType().name().getBytes());
+        var header = new KafkaSender.KafkaHeader("stønadstype", vedtak.getYtelseType().name());
         kafkaProducer.sendJson(header, vedtak.getSaksnummer().id(), DefaultJsonMapper.toJson(vedtak));
     }
 
