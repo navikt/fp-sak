@@ -1,4 +1,4 @@
-package no.nav.foreldrepenger.mottak.registrerer;
+package no.nav.foreldrepenger.mottak.fyllutsendinn.frontend;
 
 import java.time.LocalDate;
 import java.util.List;

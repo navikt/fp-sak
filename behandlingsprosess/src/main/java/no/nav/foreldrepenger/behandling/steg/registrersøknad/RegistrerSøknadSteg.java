@@ -41,6 +41,7 @@ import no.nav.foreldrepenger.behandlingsprosess.prosessering.HenleggBehandlingTj
 import no.nav.foreldrepenger.kompletthet.KompletthetResultat;
 import no.nav.foreldrepenger.kompletthet.Kompletthetsjekker;
 import no.nav.foreldrepenger.mottak.dokumentmottak.MottatteDokumentTjeneste;
+import no.nav.foreldrepenger.mottak.fyllutsendinn.FyllUtSendInnOversetter;
 import no.nav.foreldrepenger.produksjonsstyring.behandlingenhet.RegistrerFagsakEgenskaper;
 
 @BehandlingStegRef(BehandlingStegType.REGISTRER_SØKNAD)
@@ -54,6 +55,7 @@ public class RegistrerSøknadSteg implements BehandlingSteg {
     private RegistrerFagsakEgenskaper registrerFagsakEgenskaper;
     private HenleggBehandlingTjeneste henleggBehandlingTjeneste;
     private Kompletthetsjekker kompletthetsjekker;
+    private FyllUtSendInnOversetter fyllUtSendInnOversetter;
 
     RegistrerSøknadSteg() {
         // for CDI proxy
@@ -64,12 +66,14 @@ public class RegistrerSøknadSteg implements BehandlingSteg {
                                MottatteDokumentTjeneste mottatteDokumentTjeneste,
                                RegistrerFagsakEgenskaper registrerFagsakEgenskaper,
                                HenleggBehandlingTjeneste henleggBehandlingTjeneste,
-                               Kompletthetsjekker kompletthetsjekker) {
+                               Kompletthetsjekker kompletthetsjekker,
+                               FyllUtSendInnOversetter fyllUtSendInnOversetter) {
         this.behandlingRepository = behandlingRepository;
         this.mottatteDokumentTjeneste = mottatteDokumentTjeneste;
         this.registrerFagsakEgenskaper = registrerFagsakEgenskaper;
         this.henleggBehandlingTjeneste = henleggBehandlingTjeneste;
         this.kompletthetsjekker = kompletthetsjekker;
+        this.fyllUtSendInnOversetter = fyllUtSendInnOversetter;
     }
 
     @Override
@@ -115,6 +119,7 @@ public class RegistrerSøknadSteg implements BehandlingSteg {
         }
         var ytelseType = behandling.getFagsak().getYtelseType();
         if (FagsakYtelseType.ENGANGSTØNAD.equals(ytelseType) && erUstrukturertEngangsstønadSøknad(nyesteSøknad)) {
+            fyllUtSendInnOversetter.finnOgMellomlagreFyllUtSøknad(behandling, nyesteSøknad);
             return BehandleStegResultat.utførtMedAksjonspunkter(singletonList(REGISTRER_PAPIRSØKNAD_ENGANGSSTØNAD));
         }
 
@@ -200,4 +205,5 @@ public class RegistrerSøknadSteg implements BehandlingSteg {
         henleggBehandlingTjeneste.forberedHenleggelseFraSteg(behandling, behandlingLås, BehandlingResultatType.HENLAGT_SØKNAD_MANGLER, "Ikke mottatt søknad");
         return BehandleStegResultat.henlagtBehandling();
     }
+
 }

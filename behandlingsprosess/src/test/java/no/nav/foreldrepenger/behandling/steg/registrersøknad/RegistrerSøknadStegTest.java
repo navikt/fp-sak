@@ -32,6 +32,7 @@ import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.kompletthet.KompletthetResultat;
 import no.nav.foreldrepenger.kompletthet.Kompletthetsjekker;
 import no.nav.foreldrepenger.mottak.dokumentmottak.MottatteDokumentTjeneste;
+import no.nav.foreldrepenger.mottak.fyllutsendinn.FyllUtSendInnOversetter;
 import no.nav.foreldrepenger.produksjonsstyring.behandlingenhet.RegistrerFagsakEgenskaper;
 
 class RegistrerSøknadStegTest extends EntityManagerAwareTest {
@@ -41,7 +42,7 @@ class RegistrerSøknadStegTest extends EntityManagerAwareTest {
     private BehandlingRepository behandlingRepository;
     private FagsakRepository fagsakRepository;
     private MottatteDokumentRepository mottatteDokumentRepository;
-    private Kompletthetsjekker kompletthetsjekker = mock(Kompletthetsjekker.class);
+    private final Kompletthetsjekker kompletthetsjekker = mock(Kompletthetsjekker.class);
     private RegistrerSøknadSteg steg;
 
     @BeforeEach
@@ -52,7 +53,7 @@ class RegistrerSøknadStegTest extends EntityManagerAwareTest {
         mottatteDokumentTjeneste = new MottatteDokumentTjeneste(Period.ofWeeks(6), null, mottatteDokumentRepository,
                 new BehandlingRepositoryProvider(getEntityManager()));
         steg = new RegistrerSøknadSteg(behandlingRepository, mottatteDokumentTjeneste, mock(RegistrerFagsakEgenskaper.class),
-            null, kompletthetsjekker);
+            null, kompletthetsjekker, mock(FyllUtSendInnOversetter.class));
         when(kompletthetsjekker.vurderSøknadMottatt(any())).thenReturn(KompletthetResultat.oppfylt());
     }
 

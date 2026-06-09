@@ -1,0 +1,55 @@
+{
+  "language": "nb",
+  "formRevision": 9,
+  "data": {
+    "data": {
+      "fornavnSoker": "Eksemplarisk",
+      "etternavnSoker": "Maur",
+      "fodselsnummerDNummerSoker": "17410699672",
+      "hvaSokerDuOm": "engangsstonadVedFodsel",
+      "antallBarn": 1,
+      "erBarnetFodt": "ja",
+      "fodselsdatoDdMmAaaa": "2026-06-01",
+      "termindatoDdMmAaaa": "2026-06-15",
+      "planleggerDuAVaereINorgePaFodselstidspunktet1": "ja",
+      "hvorHarDuBoddDeSiste12Manedene": "kunBoddINorge",
+      "hvorSkalDuBoDeNeste12Manedene": "boIUtlandetHeltEllerDelvis",
+      "utenlandsopphold": [
+        {
+          "fraDatoDdMmAaaa": "2026-07-06",
+          "tilDatoDdMmAaaa": "2026-08-02",
+          "hvilketLandSkalDuBoI": {
+            "value": "ES",
+            "label": "Spania"
+          }
+        }
+      ]
+    },
+    "attachments": [
+      {
+        "attachmentId": "personal-id",
+        "navId": "personal-id",
+        "type": "personal-id",
+        "value": "nationalIdEU",
+        "title": "Nasjonalt ID-kort fra EU/EØS-land og Sveits",
+        "files": [
+          {
+            "fileId": "98f7a776-c97c-447f-ad57-177b41922ace",
+            "attachmentId": "personal-id",
+            "innsendingId": "9631f6cd-29bd-49fa-9e2f-0fb1be9b3dea",
+            "fileName": "sun_microsystems.png",
+            "size": 29262
+          }
+        ]
+      },
+      {
+        "attachmentId": "es3i5y9h",
+        "navId": "es3i5y9h",
+        "type": "other",
+        "value": "nei",
+        "files": []
+      }
+    ],
+    "selfDeclaration": true
+  }
+}

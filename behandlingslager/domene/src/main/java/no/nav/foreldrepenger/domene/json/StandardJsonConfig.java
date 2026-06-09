@@ -5,6 +5,7 @@ import java.io.StringWriter;
 import java.io.Writer;
 import java.net.URL;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 
@@ -34,6 +35,14 @@ public final class StandardJsonConfig {
     public static <T> T fromJson(String json, Class<T> clazz) {
         try {
             return OM.readerFor(clazz).readValue(json);
+        } catch (IOException e) {
+            throw deserialiseringException(e);
+        }
+    }
+
+    public static <T> T fromJson(String json, TypeReference<T> typeReference) {
+        try {
+            return OM.readerFor(typeReference).readValue(json);
         } catch (IOException e) {
             throw deserialiseringException(e);
         }

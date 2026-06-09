@@ -1,4 +1,4 @@
-package no.nav.foreldrepenger.mottak.registrerer;
+package no.nav.foreldrepenger.mottak.fyllutsendinn.frontend;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonTypeName;

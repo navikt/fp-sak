@@ -1,0 +1,71 @@
+{
+  "language": "nb",
+  "formRevision": 9,
+  "data": {
+    "data": {
+      "fornavnSoker": "Livlig",
+      "etternavnSoker": "Kutte",
+      "fodselsnummerDNummerSoker": "13499539279",
+      "hvaSokerDuOm": "engangsstonadVedOvertakelseAvForeldreansvaretEllerOmsorgen",
+      "antallBarn": 1,
+      "erBarnetFodt": "ja",
+      "fodselsdatoDdMmAaaa": "2026-01-02",
+      "termindatoDdMmAaaa": "2026-06-22",
+      "datoForOmsorgsovertakelsenAvBarnetDdMmAaaa": "2026-06-22",
+      "planleggerDuAVaereINorgePaFodselstidspunktet1": "ja",
+      "hvorSkalDuBoDeNeste12Manedene": "kunBoINorge",
+      "hvorHarDuBoddDeSiste12Manedene": "boddIUtlandetHeltEllerDelvis",
+      "utenlandsopphold1": [
+        {
+          "fraDatoDdMmAaaa": "2026-04-01",
+          "tilDatoDdMmAaaa": "2026-04-26",
+          "hvilketLandBoddeDuI": {
+            "value": "DE",
+            "label": "Tyskland"
+          }
+        }
+      ]
+    },
+    "attachments": [
+      {
+        "attachmentId": "personal-id",
+        "navId": "personal-id",
+        "type": "personal-id",
+        "value": "nationalIdEU",
+        "title": "Nasjonalt ID-kort fra EU/EØS-land og Sveits",
+        "files": [
+          {
+            "fileId": "40c413f5-4c40-46ad-902c-b1bb3c3c18a2",
+            "attachmentId": "personal-id",
+            "innsendingId": "6941eb6f-9e76-48a6-b79a-71cba34e4792",
+            "fileName": "sun_microsystems.png",
+            "size": 29260
+          }
+        ]
+      },
+      {
+        "attachmentId": "ey9jkuq",
+        "navId": "ey9jkuq",
+        "type": "default",
+        "value": "leggerVedNaa",
+        "files": [
+          {
+            "fileId": "ff228a2f-16f6-475e-9a10-f6605017df8f",
+            "attachmentId": "ey9jkuq",
+            "innsendingId": "6941eb6f-9e76-48a6-b79a-71cba34e4792",
+            "fileName": "sun_microsystems.png",
+            "size": 29261
+          }
+        ]
+      },
+      {
+        "attachmentId": "es3i5y9h",
+        "navId": "es3i5y9h",
+        "type": "other",
+        "value": "nei",
+        "files": []
+      }
+    ],
+    "selfDeclaration": true
+  }
+}
