@@ -3,7 +3,6 @@ package no.nav.foreldrepenger.web.app.tjenester.behandling.svp;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.util.UUID;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
@@ -16,20 +15,21 @@ import no.nav.foreldrepenger.validering.ValidKodeverk;
 
 public class VelferdspermisjonDto {
 
-    @NotNull
+    @JsonProperty("permisjonFom") @NotNull
     private LocalDate permisjonFom;
+    @JsonProperty("permisjonTom")
     private LocalDate permisjonTom;
-    @NotNull
+    @JsonProperty("permisjonsprosent") @NotNull
     @DecimalMin("0.00")
     @DecimalMax("100.00")
     private BigDecimal permisjonsprosent;
     @ValidKodeverk
-    @NotNull
+    @JsonProperty("type") @NotNull
     private PermisjonsbeskrivelseType type;
+    @JsonProperty("erGyldig")
     private Boolean erGyldig;
-    private UUID internArbeidsforholdId;
 
-    public VelferdspermisjonDto() {
+    public VelferdspermisjonDto(){
         // Jackson
     }
 
@@ -37,14 +37,12 @@ public class VelferdspermisjonDto {
                                 LocalDate permisjonTom,
                                 BigDecimal permisjonsprosent,
                                 PermisjonsbeskrivelseType type,
-                                Boolean erGyldig,
-                                UUID internArbeidsforholdId) {
+                                Boolean erGyldig) {
         this.permisjonFom = permisjonFom;
         this.permisjonTom = permisjonTom;
         this.permisjonsprosent = permisjonsprosent;
         this.type = type;
         this.erGyldig = erGyldig;
-        this.internArbeidsforholdId = internArbeidsforholdId;
     }
 
     public LocalDate getPermisjonFom() {
@@ -85,13 +83,5 @@ public class VelferdspermisjonDto {
 
     public void setErGyldig(Boolean erGyldig) {
         this.erGyldig = erGyldig;
-    }
-
-    public UUID getInternArbeidsforholdId() {
-        return internArbeidsforholdId;
-    }
-
-    public void setInternArbeidsforholdId(UUID internArbeidsforholdId) {
-        this.internArbeidsforholdId = internArbeidsforholdId;
     }
 }
