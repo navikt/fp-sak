@@ -82,7 +82,7 @@ class StønadsstatistikkMigreringTask implements ProsessTaskHandler {
             .toList();
 
         dtos.forEach(v -> {
-            var header = new KafkaSender.KafkaHeader("stønadstype", v.getYtelseType().name().getBytes());
+            var header = new KafkaSender.KafkaHeader("stønadstype", v.getYtelseType().name());
             kafkaProducer.sendJson(header, v.getSaksnummer().id(), DefaultJsonMapper.toJson(v));
         });
 

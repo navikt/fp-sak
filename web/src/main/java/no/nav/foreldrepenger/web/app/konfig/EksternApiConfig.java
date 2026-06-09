@@ -13,6 +13,7 @@ import org.slf4j.LoggerFactory;
 
 import no.nav.foreldrepenger.web.app.tjenester.vedtak.ytelseinfo.EksternDelingYtelseInfoRestTjeneste;
 import no.nav.foreldrepenger.web.server.abac.EksternPipRestTjeneste;
+import no.nav.vedtak.server.rest.AuthenticationFilter;
 import no.nav.vedtak.server.rest.FpRestJackson2Feature;
 
 @ApplicationPath(EksternApiConfig.API_URI)
@@ -25,6 +26,7 @@ public class EksternApiConfig extends ResourceConfig {
         LOG.info("Initialiserer: {}", API_URI);
         setApplicationName(EksternApiConfig.class.getSimpleName());
         // Sikkerhet
+        register(AuthenticationFilter.class);
         register(FpRestJackson2Feature.class);
 
         // REST
