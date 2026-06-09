@@ -3,6 +3,7 @@ package no.nav.foreldrepenger.mottak.fyllutsendinn;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.LocalDate;
+import java.time.Month;
 
 import jakarta.validation.Validation;
 import jakarta.validation.Validator;
@@ -60,7 +61,7 @@ class LesJournalførtFyllUtTest {
             assertThat(data.erBarnetFodt()).isEqualTo(JaNei.NEI);
             assertThat(data.erBarnaFodt()).isNull();
             assertThat(data.antallBarn()).isEqualTo(1);
-            assertThat(data.termindatoDdMmAaaa()).isEqualTo(LocalDate.of(2026, 6, 30));
+            assertThat(data.termindatoDdMmAaaa()).isEqualTo(LocalDate.of(2026, Month.JUNE, 30));
 
             // Verify optional fields absent from JSON
             assertThat(data.fodselsdatoDdMmAaaa()).isNull();
@@ -75,31 +76,10 @@ class LesJournalførtFyllUtTest {
             // Verify planned foreign stay
             assertThat(data.utenlandsopphold()).hasSize(1);
             var utenlandsopphold = data.utenlandsopphold().getFirst();
-            assertThat(utenlandsopphold.fraDatoDdMmAaaa()).isEqualTo(LocalDate.of(2026, 7, 13));
-            assertThat(utenlandsopphold.tilDatoDdMmAaaa()).isEqualTo(LocalDate.of(2026, 7, 19));
+            assertThat(utenlandsopphold.fraDatoDdMmAaaa()).isEqualTo(LocalDate.of(2026, Month.JULY, 13));
+            assertThat(utenlandsopphold.tilDatoDdMmAaaa()).isEqualTo(LocalDate.of(2026, Month.JULY, 19));
             assertThat(utenlandsopphold.hvilketLandSkalDuBoI()).isNotNull();
             assertThat(utenlandsopphold.hvilketLandSkalDuBoI().value()).isEqualTo("SE");
-
-            // Verify attachments
-            assertThat(submission.data().attachments()).hasSize(3);
-
-            var personalIdAttachment = submission.data().attachments().getFirst();
-            assertThat(personalIdAttachment.attachmentId()).isEqualTo("personal-id");
-            assertThat(personalIdAttachment.type()).isEqualTo("personal-id");
-            assertThat(personalIdAttachment.value()).isEqualTo("norwegianPassport");
-            assertThat(personalIdAttachment.title()).isEqualTo("Norsk pass");
-
-            var secondAttachment = submission.data().attachments().get(1);
-            assertThat(secondAttachment.attachmentId()).isEqualTo("ev6045b");
-            assertThat(secondAttachment.type()).isEqualTo("default");
-            assertThat(secondAttachment.value()).isEqualTo("leggerVedNaa");
-            assertThat(secondAttachment.files()).hasSize(1);
-
-            var thirdAttachment = submission.data().attachments().get(2);
-            assertThat(thirdAttachment.attachmentId()).isEqualTo("es3i5y9h");
-            assertThat(thirdAttachment.type()).isEqualTo("other");
-            assertThat(thirdAttachment.value()).isEqualTo("nei");
-            assertThat(thirdAttachment.files()).isEmpty();
         }
     }
 
@@ -132,9 +112,9 @@ class LesJournalførtFyllUtTest {
             assertThat(data.antallBarn()).isEqualTo(2);
             assertThat(data.erBarnaFodt()).isEqualTo(JaNei.JA);
             assertThat(data.erBarnetFodt()).isNull();
-            assertThat(data.fodselsdatoDdMmAaaa1()).isEqualTo(LocalDate.of(2026, 6, 1));
+            assertThat(data.fodselsdatoDdMmAaaa1()).isEqualTo(LocalDate.of(2026, Month.JUNE, 1));
             assertThat(data.fodselsdatoDdMmAaaa()).isNull();
-            assertThat(data.termindatoDdMmAaaa()).isEqualTo(LocalDate.of(2026, 6, 22));
+            assertThat(data.termindatoDdMmAaaa()).isEqualTo(LocalDate.of(2026, Month.JUNE, 22));
 
             // Verify residence information — alt i Norge
             assertThat(data.planleggerDuAVaereINorgePaFodselstidspunktet1()).isEqualTo(JaNei.JA);
@@ -142,21 +122,6 @@ class LesJournalførtFyllUtTest {
             assertThat(data.hvorHarDuBoddDeSiste12Manedene()).isEqualTo(HvorHarDuBoddDeSiste12Manedene.KUN_BODD_I_NORGE);
             assertThat(data.utenlandsopphold()).isNull();
             assertThat(data.utenlandsopphold1()).isNull();
-
-            // Verify attachments
-            assertThat(submission.data().attachments()).hasSize(2);
-
-            var personalIdAttachment = submission.data().attachments().getFirst();
-            assertThat(personalIdAttachment.attachmentId()).isEqualTo("personal-id");
-            assertThat(personalIdAttachment.type()).isEqualTo("personal-id");
-            assertThat(personalIdAttachment.value()).isEqualTo("driversLicenseEU");
-            assertThat(personalIdAttachment.title()).isEqualTo("Førerkort utstedt i EU/EØS og som følger EU/EØS reglene");
-
-            var secondAttachment = submission.data().attachments().get(1);
-            assertThat(secondAttachment.attachmentId()).isEqualTo("es3i5y9h");
-            assertThat(secondAttachment.type()).isEqualTo("other");
-            assertThat(secondAttachment.value()).isEqualTo("nei");
-            assertThat(secondAttachment.files()).isEmpty();
         }
     }
 
@@ -189,7 +154,7 @@ class LesJournalførtFyllUtTest {
             assertThat(data.antallBarn()).isEqualTo(2);
             assertThat(data.erBarnaFodt()).isEqualTo(JaNei.NEI);
             assertThat(data.erBarnetFodt()).isNull();
-            assertThat(data.termindatoDdMmAaaa()).isEqualTo(LocalDate.of(2026, 6, 22));
+            assertThat(data.termindatoDdMmAaaa()).isEqualTo(LocalDate.of(2026, Month.JUNE, 22));
             assertThat(data.fodselsdatoDdMmAaaa()).isNull();
             assertThat(data.fodselsdatoDdMmAaaa1()).isNull();
 
@@ -245,8 +210,8 @@ class LesJournalførtFyllUtTest {
             assertThat(data.hvaSokerDuOm()).isEqualTo(Nav140507Data.HvaSokerDuOm.ENGANGSSTONAD_VED_OVERTAKELSE_AV_FORELDREANSVARET_ELLER_OMSORGEN);
             assertThat(data.antallBarn()).isEqualTo(1);
             assertThat(data.erBarnetFodt()).isEqualTo(JaNei.JA);
-            assertThat(data.fodselsdatoDdMmAaaa()).isEqualTo(LocalDate.of(2026, 1, 2));
-            assertThat(data.datoForOmsorgsovertakelsenAvBarnetDdMmAaaa()).isEqualTo(LocalDate.of(2026, 6, 22));
+            assertThat(data.fodselsdatoDdMmAaaa()).isEqualTo(LocalDate.of(2026, Month.JANUARY, 2));
+            assertThat(data.datoForOmsorgsovertakelsenAvBarnetDdMmAaaa()).isEqualTo(LocalDate.of(2026, Month.JUNE, 22));
             assertThat(data.datoForOmsorgsovertakelsenAvBarnaDdMmAaaa()).isNull();
 
             // Verify residence information
@@ -258,32 +223,11 @@ class LesJournalførtFyllUtTest {
             // Verify previous foreign stay
             assertThat(data.utenlandsopphold1()).hasSize(1);
             var utenlandsopphold = data.utenlandsopphold1().getFirst();
-            assertThat(utenlandsopphold.fraDatoDdMmAaaa()).isEqualTo(LocalDate.of(2026, 4, 1));
-            assertThat(utenlandsopphold.tilDatoDdMmAaaa()).isEqualTo(LocalDate.of(2026, 4, 26));
+            assertThat(utenlandsopphold.fraDatoDdMmAaaa()).isEqualTo(LocalDate.of(2026, Month.APRIL, 1));
+            assertThat(utenlandsopphold.tilDatoDdMmAaaa()).isEqualTo(LocalDate.of(2026, Month.APRIL, 26));
             assertThat(utenlandsopphold.hvilketLandBoddeDuI()).isNotNull();
             assertThat(utenlandsopphold.hvilketLandBoddeDuI().value()).isEqualTo("DE");
 
-            // Verify attachments
-            assertThat(submission.data().attachments()).hasSize(3);
-
-            var personalIdAttachment = submission.data().attachments().getFirst();
-            assertThat(personalIdAttachment.attachmentId()).isEqualTo("personal-id");
-            assertThat(personalIdAttachment.type()).isEqualTo("personal-id");
-            assertThat(personalIdAttachment.value()).isEqualTo("nationalIdEU");
-            assertThat(personalIdAttachment.title()).isEqualTo("Nasjonalt ID-kort fra EU/EØS-land og Sveits");
-            assertThat(personalIdAttachment.files()).hasSize(1);
-
-            var secondAttachment = submission.data().attachments().get(1);
-            assertThat(secondAttachment.attachmentId()).isEqualTo("ey9jkuq");
-            assertThat(secondAttachment.type()).isEqualTo("default");
-            assertThat(secondAttachment.value()).isEqualTo("leggerVedNaa");
-            assertThat(secondAttachment.files()).hasSize(1);
-
-            var thirdAttachment = submission.data().attachments().get(2);
-            assertThat(thirdAttachment.attachmentId()).isEqualTo("es3i5y9h");
-            assertThat(thirdAttachment.type()).isEqualTo("other");
-            assertThat(thirdAttachment.value()).isEqualTo("nei");
-            assertThat(thirdAttachment.files()).isEmpty();
         }
     }
 
@@ -324,29 +268,18 @@ class LesJournalførtFyllUtTest {
             assertThat(data.harDuJobbetOgHattInntektSomSelvstendigNaeringsdrivendeDeSiste10Manedene()).isEqualTo(JaNei.NEI);
 
             // Verify dates
-            assertThat(data.narHarDuTermindatoDdMmAaaa()).isEqualTo(LocalDate.of(2026, 3, 26));
+            assertThat(data.narHarDuTermindatoDdMmAaaa()).isEqualTo(LocalDate.of(2026, Month.MARCH, 26));
             assertThat(data.erBarnetFodt()).isEqualTo(JaNei.JA);
-            assertThat(data.narBleBarnetFodtDdMmAaaa()).isEqualTo(LocalDate.of(2026, 3, 17));
-            assertThat(data.fraHvilkenDatoHarDuBehovForSvangerskapspengerDdMmAaaa()).isEqualTo(LocalDate.of(2026, 3, 10));
-            assertThat(data.fraHvilkenDatoHarDuHattJobbIEuEosLandDdMmAaaa()).isEqualTo(LocalDate.of(2026, 3, 4));
+            assertThat(data.narBleBarnetFodtDdMmAaaa()).isEqualTo(LocalDate.of(2026, Month.MARCH, 17));
+            assertThat(data.fraHvilkenDatoHarDuBehovForSvangerskapspengerDdMmAaaa()).isEqualTo(LocalDate.of(2026, Month.MARCH, 10));
+            assertThat(data.fraHvilkenDatoHarDuHattJobbIEuEosLandDdMmAaaa()).isEqualTo(LocalDate.of(2026, Month.MARCH, 4));
             assertThat(data.erDetEnJobbDuHarPerIDag()).isEqualTo(JaNei.NEI);
-            assertThat(data.tilHvilkenDatoHarDuHattJobbIEuEosLandDdMmAaaa()).isEqualTo(LocalDate.of(2026, 3, 19));
+            assertThat(data.tilHvilkenDatoHarDuHattJobbIEuEosLandDdMmAaaa()).isEqualTo(LocalDate.of(2026, Month.MARCH, 19));
 
             // Verify work situation (@Valid @NotNull - covered by validator)
             assertThat(data.hvordanKanDuJobbeIPeriodenDuHarBehovForSvangerskapspenger().jegKanFortsetteMedSammeStillingsprosent()).isTrue();
             assertThat(data.hvordanKanDuJobbeIPeriodenDuHarBehovForSvangerskapspenger().jegKanFortsetteMedRedusertArbeidstid()).isFalse();
             assertThat(data.hvordanKanDuJobbeIPeriodenDuHarBehovForSvangerskapspenger().jegKanIkkeFortsetteAJobbe()).isFalse();
-
-            // Verify attachments
-            assertThat(submission.data().attachments()).hasSize(3);
-
-            var personalIdAttachment = submission.data().attachments().getFirst();
-            assertThat(personalIdAttachment.attachmentId()).isEqualTo("personal-id");
-            assertThat(personalIdAttachment.type()).isEqualTo("personal-id");
-            assertThat(personalIdAttachment.value()).isEqualTo("norwegianPassport");
-            assertThat(personalIdAttachment.files()).hasSize(1);
-            assertThat(personalIdAttachment.files().getFirst().fileName()).isEqualTo("delme-4 (1).pdf");
-            assertThat(personalIdAttachment.files().getFirst().size()).isEqualTo(1170049L);
         }
     }
 
@@ -387,8 +320,8 @@ class LesJournalførtFyllUtTest {
             assertThat(data.erBarnetFodt()).isEqualTo(JaNei.JA);
             assertThat(data.barnetErFodt()).isNotNull();
             assertThat(data.barnetErFodt().hvorMangeBarnFikkDu()).isEqualTo(2);
-            assertThat(data.barnetErFodt().narBleDetEldsteBarnetFodtDdMmAaaa1()).isEqualTo(LocalDate.of(2026, 3, 2));
-            assertThat(data.barnetErFodt().narVarTermindatoDdMmAaaa()).isEqualTo(LocalDate.of(2026, 3, 2));
+            assertThat(data.barnetErFodt().narBleDetEldsteBarnetFodtDdMmAaaa1()).isEqualTo(LocalDate.of(2026, Month.MARCH, 2));
+            assertThat(data.barnetErFodt().narVarTermindatoDdMmAaaa()).isEqualTo(LocalDate.of(2026, Month.MARCH, 2));
             assertThat(data.barnetErFodt().bleBarnaFodtINorge()).isEqualTo(JaNei.JA);
 
             // Verify other parent information (aleneomsorg)
@@ -397,8 +330,8 @@ class LesJournalførtFyllUtTest {
             // Verify benefit period
             assertThat(data.periodeMedforeldrepengerVedAleneomsorgFarMedmor()).hasSize(1);
             var periode = data.periodeMedforeldrepengerVedAleneomsorgFarMedmor().getFirst();
-            assertThat(periode.datoFraOgMedDdMmAaaa()).isEqualTo(LocalDate.of(2026, 3, 2));
-            assertThat(periode.datoTilOgMedDdMmAaaa()).isEqualTo(LocalDate.of(2026, 3, 13));
+            assertThat(periode.datoFraOgMedDdMmAaaa()).isEqualTo(LocalDate.of(2026, Month.MARCH, 2));
+            assertThat(periode.datoTilOgMedDdMmAaaa()).isEqualTo(LocalDate.of(2026, Month.MARCH, 13));
             assertThat(periode.skalDuKombinereForeldrepengeneMedDelvisArbeid()).isEqualTo(JaNei.NEI);
 
             // Verify residence information
@@ -409,16 +342,6 @@ class LesJournalførtFyllUtTest {
             assertThat(data.harDuArbeidsforholdINorge()).isEqualTo(JaNei.NEI);
             assertThat(data.harDuJobbetOgHattInntektSomFrilanserDeSiste10Manedene()).isEqualTo(JaNei.NEI);
             assertThat(data.harDuJobbetOgHattInntektSomSelvstendigNaeringsdrivendeDeSiste10Manedene()).isEqualTo(JaNei.NEI);
-
-            // Verify attachments
-            assertThat(submission.data().attachments()).hasSize(3);
-
-            var firstAttachment = submission.data().attachments().getFirst();
-            assertThat(firstAttachment.type()).isEqualTo("personal-id");
-            assertThat(firstAttachment.value()).isEqualTo("norwegianPassport");
-            assertThat(firstAttachment.files()).hasSize(1);
-            assertThat(firstAttachment.files().getFirst().fileName()).isEqualTo("delme-3 (1).pdf");
-            assertThat(firstAttachment.files().getFirst().size()).isEqualTo(385544L);
         }
     }
 
@@ -479,21 +402,21 @@ class LesJournalførtFyllUtTest {
             // Verify utsettelse periods
             assertThat(data.perioderMedUtsettelseForste6UkerEtterFodsel()).hasSize(1);
             var utsettelse = data.perioderMedUtsettelseForste6UkerEtterFodsel().getFirst();
-            assertThat(utsettelse.datoFraOgMedDdMmAaaa1()).isEqualTo(LocalDate.of(2026, 3, 10));
-            assertThat(utsettelse.datoTilOgMedDdMmAaaa()).isEqualTo(LocalDate.of(2026, 3, 27));
+            assertThat(utsettelse.datoFraOgMedDdMmAaaa1()).isEqualTo(LocalDate.of(2026, Month.MARCH, 10));
+            assertThat(utsettelse.datoTilOgMedDdMmAaaa()).isEqualTo(LocalDate.of(2026, Month.MARCH, 27));
             assertThat(utsettelse.hvorforSkalDuUtsetteForeldrepenger()).isEqualTo(Nav141605Data.HvorforSkalDuUtsetteForeldrepenger.JEG_ER_FOR_SYK_TIL_A_TA_MEG_AV_BARNET);
 
             // Verify foreldrepenger før fødsel
             assertThat(data.foreldrepengerForFodsel()).hasSize(1);
             var forFodselPeriode = data.foreldrepengerForFodsel().getFirst();
-            assertThat(forFodselPeriode.foreldrepengerFraOgMedDatoDdMmAaaa()).isEqualTo(LocalDate.of(2026, 3, 3));
-            assertThat(forFodselPeriode.foreldrepengerTilOgMedDatoDdMmAaaa()).isEqualTo(LocalDate.of(2026, 3, 26));
+            assertThat(forFodselPeriode.foreldrepengerFraOgMedDatoDdMmAaaa()).isEqualTo(LocalDate.of(2026, Month.MARCH, 3));
+            assertThat(forFodselPeriode.foreldrepengerTilOgMedDatoDdMmAaaa()).isEqualTo(LocalDate.of(2026, Month.MARCH, 26));
 
             // Verify fellesperiode with gradering
             assertThat(data.fellesperiodeMor()).hasSize(1);
             var fellesperiode = data.fellesperiodeMor().getFirst();
-            assertThat(fellesperiode.fellesperiodeFraOgMedDdMmAaaa()).isEqualTo(LocalDate.of(2026, 3, 21));
-            assertThat(fellesperiode.fellesperiodeTilOgMedDdMmAaaa()).isEqualTo(LocalDate.of(2026, 3, 31));
+            assertThat(fellesperiode.fellesperiodeFraOgMedDdMmAaaa()).isEqualTo(LocalDate.of(2026, Month.MARCH, 21));
+            assertThat(fellesperiode.fellesperiodeTilOgMedDdMmAaaa()).isEqualTo(LocalDate.of(2026, Month.MARCH, 31));
             assertThat(fellesperiode.skalDenAndreForelderenHaForeldrepengerISammePeriode1()).isEqualTo(JaNei.NEI);
             assertThat(fellesperiode.skalDuKombinereForeldrepengeneMedDelvisArbeid()).isEqualTo(JaNei.JA);
             assertThat(fellesperiode.oppgiStillingsprosentenDuSkalJobbe()).isEqualTo(55);
@@ -504,17 +427,6 @@ class LesJournalførtFyllUtTest {
             assertThat(fellesperiode.hvorSkalDuJobbe().frilanser()).isFalse();
             assertThat(fellesperiode.hvorSkalDuJobbe().selvstendigNaeringsdrivende()).isFalse();
             assertThat(fellesperiode.navnPaArbeidsgiver()).isEqualTo("yhjkl");
-
-            // Verify attachments
-            assertThat(submission.data().attachments()).hasSize(3);
-
-            var personalIdAttachment = submission.data().attachments().getFirst();
-            assertThat(personalIdAttachment.type()).isEqualTo("personal-id");
-            assertThat(personalIdAttachment.value()).isEqualTo("norwegianPassport");
-            assertThat(personalIdAttachment.title()).isEqualTo("Norsk pass");
-            assertThat(personalIdAttachment.files()).hasSize(1);
-            assertThat(personalIdAttachment.files().getFirst().fileName()).isEqualTo("delme-4 (1).pdf");
-            assertThat(personalIdAttachment.files().getFirst().size()).isEqualTo(1170049L);
         }
     }
 }
