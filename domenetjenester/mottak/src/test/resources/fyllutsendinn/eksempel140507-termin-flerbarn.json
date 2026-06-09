@@ -1,0 +1,44 @@
+{
+  "language": "nb",
+  "formRevision": 9,
+  "data": {
+    "data": {
+      "fornavnSoker": "Uavhengig",
+      "etternavnSoker": "Pleie",
+      "fodselsnummerDNummerSoker": "09489530233",
+      "hvaSokerDuOm": "engangsstonadVedFodsel",
+      "antallBarn": 2,
+      "erBarnaFodt": "nei",
+      "termindatoDdMmAaaa": "2026-06-22",
+      "planleggerDuAVaereINorgePaFodselstidspunktet1": "ja",
+      "hvorSkalDuBoDeNeste12Manedene": "kunBoINorge",
+      "hvorHarDuBoddDeSiste12Manedene": "kunBoddINorge"
+    },
+    "attachments": [
+      {
+        "attachmentId": "personal-id",
+        "navId": "personal-id",
+        "type": "personal-id",
+        "value": "driversLicense",
+        "title": "Norsk førerkort utstedt fra og med 01.01.1998",
+        "files": [
+          {
+            "fileId": "713c0f02-256c-48d2-9886-9829deccefaf",
+            "attachmentId": "personal-id",
+            "innsendingId": "c4bd5c62-0697-4f47-b50d-8029ddcaadce",
+            "fileName": "sun_microsystems.png",
+            "size": 29261
+          }
+        ]
+      },
+      {
+        "attachmentId": "es3i5y9h",
+        "navId": "es3i5y9h",
+        "type": "other",
+        "value": "nei",
+        "files": []
+      }
+    ],
+    "selfDeclaration": true
+  }
+}

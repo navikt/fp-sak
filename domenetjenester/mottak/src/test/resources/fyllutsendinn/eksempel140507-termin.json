@@ -1,35 +1,43 @@
 {
   "language": "nb",
+  "formRevision": 9,
   "data": {
     "data": {
-      "jegHarLestOgForstattDetSomStarPaNavNoRettogplikt": true,
-      "deOpplysningerJegHarOppgittErRiktigeOgJegHarIkkeHoldtTilbakeOpplysningerSomHarBetydningForMinRettTilEngangsstonad": true,
-      "fornavnSoker": "Iherdig",
-      "etternavnSoker": "Hestedrosje",
-      "fodselsnummerDNummerSoker": "08480594097",
+      "fornavnSoker": "Lun",
+      "etternavnSoker": "Medisin",
+      "fodselsnummerDNummerSoker": "13426124836",
       "hvaSokerDuOm": "engangsstonadVedFodsel",
-      "narErBarnetFodt": "fremITid",
       "antallBarn": 1,
-      "termindatoDdMmAaaa": "2026-05-17",
+      "erBarnetFodt": "nei",
+      "termindatoDdMmAaaa": "2026-06-30",
       "planleggerDuAVaereINorgePaFodselstidspunktet1": "ja",
-      "hvorSkalDuBoDeNeste12Manedene": "kunBoINorge",
+      "hvorSkalDuBoDeNeste12Manedene": "boIUtlandetHeltEllerDelvis",
       "hvorHarDuBoddDeSiste12Manedene": "kunBoddINorge",
-      "harDuTilleggsopplysningerSomErRelevantForSoknaden": "nei"
+      "utenlandsopphold": [
+        {
+          "fraDatoDdMmAaaa": "2026-07-13",
+          "tilDatoDdMmAaaa": "2026-07-19",
+          "hvilketLandSkalDuBoI": {
+            "value": "SE",
+            "label": "Sverige"
+          }
+        }
+      ]
     },
     "attachments": [
       {
         "attachmentId": "personal-id",
         "navId": "personal-id",
         "type": "personal-id",
-        "value": "driversLicense",
-        "title": "Norsk førerkort utstedt fra og med 01.01.1998",
+        "value": "norwegianPassport",
+        "title": "Norsk pass",
         "files": [
           {
-            "fileId": "c2275d71-53ed-4466-b391-36f1c9456f40",
+            "fileId": "859cf065-d023-44d5-b431-e769b4adc35a",
             "attachmentId": "personal-id",
-            "innsendingId": "c2aecbfd-e1e9-40cb-a2b5-27e496949425",
-            "fileName": "microsystems.png",
-            "size": 29263
+            "innsendingId": "21a55009-0651-40c6-b703-38294f6ef570",
+            "fileName": "sun_microsystems.png",
+            "size": 29260
           }
         ]
       },
@@ -40,11 +48,11 @@
         "value": "leggerVedNaa",
         "files": [
           {
-            "fileId": "746cb5f9-7faa-48ac-8ce3-e00ea7e360e1",
+            "fileId": "9f694733-6fa2-40e9-85ed-a6c19aae63ee",
             "attachmentId": "ev6045b",
-            "innsendingId": "c2aecbfd-e1e9-40cb-a2b5-27e496949425",
-            "fileName": "Screenshot 2025-10-31 at 11.27.58.png",
-            "size": 89099
+            "innsendingId": "21a55009-0651-40c6-b703-38294f6ef570",
+            "fileName": "sun_microsystems.png",
+            "size": 29260
           }
         ]
       },
@@ -55,6 +63,7 @@
         "value": "nei",
         "files": []
       }
-    ]
+    ],
+    "selfDeclaration": true
   }
 }

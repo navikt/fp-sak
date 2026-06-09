@@ -33,7 +33,7 @@ class LesJournalførtFyllUtTest {
 
     @Test
     void les_engangsstonad_fodsel_eksempel140507_termin() throws Exception {
-        // eksempel140507-termin.json - Engangsstønad ved fødsel (fremtidig fødsel)
+        // eksempel140507-termin.json - Engangsstønad ved fødsel (fremtidig fødsel, planlagt utenlandsopphold)
         try (var inputStream = getClass().getResourceAsStream("/fyllutsendinn/eksempel140507-termin.json")) {
             FormSubmission<Nav140507Data> submission = DefaultJsonMapper.getJsonMapper()
                 .readerFor(new TypeReference<FormSubmission<Nav140507Data>>() {})
@@ -50,31 +50,35 @@ class LesJournalførtFyllUtTest {
             var data = submission.data().data();
             assertThat(data).isInstanceOf(Nav140507Data.class);
 
-            // Verify confirmations
-            assertThat(data.jegHarLestOgForstattDetSomStarPaNavNoRettogplikt()).isTrue();
-            assertThat(data.deOpplysningerJegHarOppgittErRiktigeOgJegHarIkkeHoldtTilbakeOpplysningerSomHarBetydningForMinRettTilEngangsstonad()).isTrue();
-
             // Verify personal information
-            assertThat(data.fornavnSoker()).isEqualTo("Iherdig");
-            assertThat(data.etternavnSoker()).isEqualTo("Hestedrosje");
-            assertThat(data.fodselsnummerDNummerSoker()).isEqualTo("08480594097");
+            assertThat(data.fornavnSoker()).isEqualTo("Lun");
+            assertThat(data.etternavnSoker()).isEqualTo("Medisin");
+            assertThat(data.fodselsnummerDNummerSoker()).isEqualTo("13426124836");
 
             // Verify what is being applied for
             assertThat(data.hvaSokerDuOm()).isEqualTo(Nav140507Data.HvaSokerDuOm.ENGANGSSTONAD_VED_FODSEL);
-            assertThat(data.narErBarnetFodt()).isEqualTo(Nav140507Data.NarErBarnetFodt.FREM_I_TID);
+            assertThat(data.erBarnetFodt()).isEqualTo(JaNei.NEI);
+            assertThat(data.erBarnaFodt()).isNull();
             assertThat(data.antallBarn()).isEqualTo(1);
-            assertThat(data.termindatoDdMmAaaa()).isEqualTo(LocalDate.of(2026, 5, 17));
+            assertThat(data.termindatoDdMmAaaa()).isEqualTo(LocalDate.of(2026, 6, 30));
 
-            // Verify optional lists absent from JSON
-            assertThat(data.leggTilBarnetEllerBarnasFodselsdato()).isNull();
-            assertThat(data.utenlandsopphold()).isNull();
+            // Verify optional fields absent from JSON
+            assertThat(data.fodselsdatoDdMmAaaa()).isNull();
+            assertThat(data.fodselsdatoDdMmAaaa1()).isNull();
             assertThat(data.utenlandsopphold1()).isNull();
 
             // Verify residence information
             assertThat(data.planleggerDuAVaereINorgePaFodselstidspunktet1()).isEqualTo(JaNei.JA);
-            assertThat(data.hvorSkalDuBoDeNeste12Manedene()).isEqualTo(HvorSkalDuBoDeNeste12Manedene.KUN_BO_I_NORGE);
+            assertThat(data.hvorSkalDuBoDeNeste12Manedene()).isEqualTo(HvorSkalDuBoDeNeste12Manedene.BO_I_UTLANDET_HELT_ELLER_DELVIS);
             assertThat(data.hvorHarDuBoddDeSiste12Manedene()).isEqualTo(HvorHarDuBoddDeSiste12Manedene.KUN_BODD_I_NORGE);
-            assertThat(data.harDuTilleggsopplysningerSomErRelevantForSoknaden()).isEqualTo(JaNei.NEI);
+
+            // Verify planned foreign stay
+            assertThat(data.utenlandsopphold()).hasSize(1);
+            var utenlandsopphold = data.utenlandsopphold().getFirst();
+            assertThat(utenlandsopphold.fraDatoDdMmAaaa()).isEqualTo(LocalDate.of(2026, 7, 13));
+            assertThat(utenlandsopphold.tilDatoDdMmAaaa()).isEqualTo(LocalDate.of(2026, 7, 19));
+            assertThat(utenlandsopphold.hvilketLandSkalDuBoI()).isNotNull();
+            assertThat(utenlandsopphold.hvilketLandSkalDuBoI().value()).isEqualTo("SE");
 
             // Verify attachments
             assertThat(submission.data().attachments()).hasSize(3);
@@ -82,19 +86,14 @@ class LesJournalførtFyllUtTest {
             var personalIdAttachment = submission.data().attachments().getFirst();
             assertThat(personalIdAttachment.attachmentId()).isEqualTo("personal-id");
             assertThat(personalIdAttachment.type()).isEqualTo("personal-id");
-            assertThat(personalIdAttachment.value()).isEqualTo("driversLicense");
-            assertThat(personalIdAttachment.title()).isEqualTo("Norsk førerkort utstedt fra og med 01.01.1998");
-            assertThat(personalIdAttachment.files()).hasSize(1);
-            assertThat(personalIdAttachment.files().getFirst().fileName()).isEqualTo("microsystems.png");
-            assertThat(personalIdAttachment.files().getFirst().size()).isEqualTo(29263L);
+            assertThat(personalIdAttachment.value()).isEqualTo("norwegianPassport");
+            assertThat(personalIdAttachment.title()).isEqualTo("Norsk pass");
 
             var secondAttachment = submission.data().attachments().get(1);
             assertThat(secondAttachment.attachmentId()).isEqualTo("ev6045b");
             assertThat(secondAttachment.type()).isEqualTo("default");
             assertThat(secondAttachment.value()).isEqualTo("leggerVedNaa");
             assertThat(secondAttachment.files()).hasSize(1);
-            assertThat(secondAttachment.files().getFirst().fileName()).isEqualTo("Screenshot 2025-10-31 at 11.27.58.png");
-            assertThat(secondAttachment.files().getFirst().size()).isEqualTo(89099L);
 
             var thirdAttachment = submission.data().attachments().get(2);
             assertThat(thirdAttachment.attachmentId()).isEqualTo("es3i5y9h");
@@ -106,8 +105,8 @@ class LesJournalførtFyllUtTest {
 
     @Test
     void les_engangsstonad_fodsel_eksempel140507_fodsel() throws Exception {
-        // eksempel140507-fodsel.json - Engangsstønad ved fødsel (allerede født, utenlandsopphold)
-        try (var inputStream = getClass().getResourceAsStream("/fyllutsendinn/eksempel140507-fodsel.json")) {
+        // eksempel140507-fodsel-flerbarn.json - Engangsstønad ved fødsel (flere barn allerede født, fodselsdatoDdMmAaaa1)
+        try (var inputStream = getClass().getResourceAsStream("/fyllutsendinn/eksempel140507-fodsel-flerbarn.json")) {
             FormSubmission<Nav140507Data> submission = DefaultJsonMapper.getJsonMapper()
                 .readerFor(new TypeReference<FormSubmission<Nav140507Data>>() {})
                 .readValue(inputStream);
@@ -123,24 +122,132 @@ class LesJournalførtFyllUtTest {
             var data = submission.data().data();
             assertThat(data).isInstanceOf(Nav140507Data.class);
 
-            // Verify confirmations
-            assertThat(data.jegHarLestOgForstattDetSomStarPaNavNoRettogplikt()).isTrue();
-            assertThat(data.deOpplysningerJegHarOppgittErRiktigeOgJegHarIkkeHoldtTilbakeOpplysningerSomHarBetydningForMinRettTilEngangsstonad()).isTrue();
+            // Verify personal information
+            assertThat(data.fornavnSoker()).isEqualTo("Fredelig");
+            assertThat(data.etternavnSoker()).isEqualTo("Båt");
+            assertThat(data.fodselsnummerDNummerSoker()).isEqualTo("08449546491");
+
+            // Verify what is being applied for — flere barn, så "barna"-variantene er satt
+            assertThat(data.hvaSokerDuOm()).isEqualTo(Nav140507Data.HvaSokerDuOm.ENGANGSSTONAD_VED_FODSEL);
+            assertThat(data.antallBarn()).isEqualTo(2);
+            assertThat(data.erBarnaFodt()).isEqualTo(JaNei.JA);
+            assertThat(data.erBarnetFodt()).isNull();
+            assertThat(data.fodselsdatoDdMmAaaa1()).isEqualTo(LocalDate.of(2026, 6, 1));
+            assertThat(data.fodselsdatoDdMmAaaa()).isNull();
+            assertThat(data.termindatoDdMmAaaa()).isEqualTo(LocalDate.of(2026, 6, 22));
+
+            // Verify residence information — alt i Norge
+            assertThat(data.planleggerDuAVaereINorgePaFodselstidspunktet1()).isEqualTo(JaNei.JA);
+            assertThat(data.hvorSkalDuBoDeNeste12Manedene()).isEqualTo(HvorSkalDuBoDeNeste12Manedene.KUN_BO_I_NORGE);
+            assertThat(data.hvorHarDuBoddDeSiste12Manedene()).isEqualTo(HvorHarDuBoddDeSiste12Manedene.KUN_BODD_I_NORGE);
+            assertThat(data.utenlandsopphold()).isNull();
+            assertThat(data.utenlandsopphold1()).isNull();
+
+            // Verify attachments
+            assertThat(submission.data().attachments()).hasSize(2);
+
+            var personalIdAttachment = submission.data().attachments().getFirst();
+            assertThat(personalIdAttachment.attachmentId()).isEqualTo("personal-id");
+            assertThat(personalIdAttachment.type()).isEqualTo("personal-id");
+            assertThat(personalIdAttachment.value()).isEqualTo("driversLicenseEU");
+            assertThat(personalIdAttachment.title()).isEqualTo("Førerkort utstedt i EU/EØS og som følger EU/EØS reglene");
+
+            var secondAttachment = submission.data().attachments().get(1);
+            assertThat(secondAttachment.attachmentId()).isEqualTo("es3i5y9h");
+            assertThat(secondAttachment.type()).isEqualTo("other");
+            assertThat(secondAttachment.value()).isEqualTo("nei");
+            assertThat(secondAttachment.files()).isEmpty();
+        }
+    }
+
+    @Test
+    void les_engangsstonad_fodsel_eksempel140507_termin_flerbarn() throws Exception {
+        // eksempel140507-termin-flerbarn.json - Engangsstønad ved fødsel (flere barn, fremtidig fødsel)
+        try (var inputStream = getClass().getResourceAsStream("/fyllutsendinn/eksempel140507-termin-flerbarn.json")) {
+            FormSubmission<Nav140507Data> submission = DefaultJsonMapper.getJsonMapper()
+                .readerFor(new TypeReference<FormSubmission<Nav140507Data>>() {})
+                .readValue(inputStream);
+
+            assertThat(submission).isNotNull();
+            assertThat(submission.language()).isEqualTo("nb");
+            assertThat(submission.data()).isNotNull();
+
+            assertThat(VALIDATOR.validate(submission.data().data())).isEmpty();
+            assertThat(VALIDATOR.validate(submission.data().attachments())).isEmpty();
+
+            // Verify data is correct type
+            var data = submission.data().data();
+            assertThat(data).isInstanceOf(Nav140507Data.class);
 
             // Verify personal information
-            assertThat(data.fornavnSoker()).isEqualTo("Tørr");
-            assertThat(data.etternavnSoker()).isEqualTo("Telegram");
-            assertThat(data.fodselsnummerDNummerSoker()).isEqualTo("04410577041");
+            assertThat(data.fornavnSoker()).isEqualTo("Uavhengig");
+            assertThat(data.etternavnSoker()).isEqualTo("Pleie");
+            assertThat(data.fodselsnummerDNummerSoker()).isEqualTo("09489530233");
 
-            // Verify what is being applied for
+            // Verify what is being applied for — flere barn, ikke født ennå
             assertThat(data.hvaSokerDuOm()).isEqualTo(Nav140507Data.HvaSokerDuOm.ENGANGSSTONAD_VED_FODSEL);
-            assertThat(data.narErBarnetFodt()).isEqualTo(Nav140507Data.NarErBarnetFodt.TILBAKE_I_TID);
             assertThat(data.antallBarn()).isEqualTo(2);
-            assertThat(data.termindatoDdMmAaaa()).isNull();
+            assertThat(data.erBarnaFodt()).isEqualTo(JaNei.NEI);
+            assertThat(data.erBarnetFodt()).isNull();
+            assertThat(data.termindatoDdMmAaaa()).isEqualTo(LocalDate.of(2026, 6, 22));
+            assertThat(data.fodselsdatoDdMmAaaa()).isNull();
+            assertThat(data.fodselsdatoDdMmAaaa1()).isNull();
 
-            // Verify birth dates list
-            assertThat(data.leggTilBarnetEllerBarnasFodselsdato()).hasSize(1);
-            assertThat(data.leggTilBarnetEllerBarnasFodselsdato().getFirst().fodselsdatoDdMmAaaa()).isEqualTo(LocalDate.of(2026, 4, 1));
+            // Verify residence information — alt i Norge
+            assertThat(data.planleggerDuAVaereINorgePaFodselstidspunktet1()).isEqualTo(JaNei.JA);
+            assertThat(data.hvorSkalDuBoDeNeste12Manedene()).isEqualTo(HvorSkalDuBoDeNeste12Manedene.KUN_BO_I_NORGE);
+            assertThat(data.hvorHarDuBoddDeSiste12Manedene()).isEqualTo(HvorHarDuBoddDeSiste12Manedene.KUN_BODD_I_NORGE);
+            assertThat(data.utenlandsopphold()).isNull();
+            assertThat(data.utenlandsopphold1()).isNull();
+
+            // Verify attachments
+            assertThat(submission.data().attachments()).hasSize(2);
+
+            var personalIdAttachment = submission.data().attachments().getFirst();
+            assertThat(personalIdAttachment.attachmentId()).isEqualTo("personal-id");
+            assertThat(personalIdAttachment.type()).isEqualTo("personal-id");
+            assertThat(personalIdAttachment.value()).isEqualTo("driversLicense");
+            assertThat(personalIdAttachment.title()).isEqualTo("Norsk førerkort utstedt fra og med 01.01.1998");
+
+            var secondAttachment = submission.data().attachments().get(1);
+            assertThat(secondAttachment.attachmentId()).isEqualTo("es3i5y9h");
+            assertThat(secondAttachment.type()).isEqualTo("other");
+            assertThat(secondAttachment.value()).isEqualTo("nei");
+            assertThat(secondAttachment.files()).isEmpty();
+        }
+    }
+
+    @Test
+    void les_engangsstonad_fodsel_eksempel140507_omsorg() throws Exception {
+        // eksempel140507-omsorg.json - Engangsstønad ved overtakelse av omsorg (barnet født, tidligere utenlandsopphold)
+        try (var inputStream = getClass().getResourceAsStream("/fyllutsendinn/eksempel140507-omsorg.json")) {
+            FormSubmission<Nav140507Data> submission = DefaultJsonMapper.getJsonMapper()
+                .readerFor(new TypeReference<FormSubmission<Nav140507Data>>() {})
+                .readValue(inputStream);
+
+            assertThat(submission).isNotNull();
+            assertThat(submission.language()).isEqualTo("nb");
+            assertThat(submission.data()).isNotNull();
+
+            assertThat(VALIDATOR.validate(submission.data().data())).isEmpty();
+            assertThat(VALIDATOR.validate(submission.data().attachments())).isEmpty();
+
+            // Verify data is correct type
+            var data = submission.data().data();
+            assertThat(data).isInstanceOf(Nav140507Data.class);
+
+            // Verify personal information
+            assertThat(data.fornavnSoker()).isEqualTo("Livlig");
+            assertThat(data.etternavnSoker()).isEqualTo("Kutte");
+            assertThat(data.fodselsnummerDNummerSoker()).isEqualTo("13499539279");
+
+            // Verify what is being applied for — overtakelse av omsorg, ett barn født
+            assertThat(data.hvaSokerDuOm()).isEqualTo(Nav140507Data.HvaSokerDuOm.ENGANGSSTONAD_VED_OVERTAKELSE_AV_FORELDREANSVARET_ELLER_OMSORGEN);
+            assertThat(data.antallBarn()).isEqualTo(1);
+            assertThat(data.erBarnetFodt()).isEqualTo(JaNei.JA);
+            assertThat(data.fodselsdatoDdMmAaaa()).isEqualTo(LocalDate.of(2026, 1, 2));
+            assertThat(data.datoForOmsorgsovertakelsenAvBarnetDdMmAaaa()).isEqualTo(LocalDate.of(2026, 6, 22));
+            assertThat(data.datoForOmsorgsovertakelsenAvBarnaDdMmAaaa()).isNull();
 
             // Verify residence information
             assertThat(data.planleggerDuAVaereINorgePaFodselstidspunktet1()).isEqualTo(JaNei.JA);
@@ -151,15 +258,13 @@ class LesJournalførtFyllUtTest {
             // Verify previous foreign stay
             assertThat(data.utenlandsopphold1()).hasSize(1);
             var utenlandsopphold = data.utenlandsopphold1().getFirst();
-            assertThat(utenlandsopphold.fraDatoDdMmAaaa()).isEqualTo(LocalDate.of(2025, 12, 1));
-            assertThat(utenlandsopphold.tilDatoDdMmAaaa()).isEqualTo(LocalDate.of(2025, 12, 31));
+            assertThat(utenlandsopphold.fraDatoDdMmAaaa()).isEqualTo(LocalDate.of(2026, 4, 1));
+            assertThat(utenlandsopphold.tilDatoDdMmAaaa()).isEqualTo(LocalDate.of(2026, 4, 26));
             assertThat(utenlandsopphold.hvilketLandBoddeDuI()).isNotNull();
-            assertThat(utenlandsopphold.hvilketLandBoddeDuI().value()).isEqualTo("SE");
-
-            assertThat(data.harDuTilleggsopplysningerSomErRelevantForSoknaden()).isEqualTo(JaNei.NEI);
+            assertThat(utenlandsopphold.hvilketLandBoddeDuI().value()).isEqualTo("DE");
 
             // Verify attachments
-            assertThat(submission.data().attachments()).hasSize(2);
+            assertThat(submission.data().attachments()).hasSize(3);
 
             var personalIdAttachment = submission.data().attachments().getFirst();
             assertThat(personalIdAttachment.attachmentId()).isEqualTo("personal-id");
@@ -167,14 +272,18 @@ class LesJournalførtFyllUtTest {
             assertThat(personalIdAttachment.value()).isEqualTo("nationalIdEU");
             assertThat(personalIdAttachment.title()).isEqualTo("Nasjonalt ID-kort fra EU/EØS-land og Sveits");
             assertThat(personalIdAttachment.files()).hasSize(1);
-            assertThat(personalIdAttachment.files().getFirst().fileName()).isEqualTo("Screenshot 2025-10-31 at 11.24.04.png");
-            assertThat(personalIdAttachment.files().getFirst().size()).isEqualTo(73409L);
 
             var secondAttachment = submission.data().attachments().get(1);
-            assertThat(secondAttachment.attachmentId()).isEqualTo("es3i5y9h");
-            assertThat(secondAttachment.type()).isEqualTo("other");
-            assertThat(secondAttachment.value()).isEqualTo("nei");
-            assertThat(secondAttachment.files()).isEmpty();
+            assertThat(secondAttachment.attachmentId()).isEqualTo("ey9jkuq");
+            assertThat(secondAttachment.type()).isEqualTo("default");
+            assertThat(secondAttachment.value()).isEqualTo("leggerVedNaa");
+            assertThat(secondAttachment.files()).hasSize(1);
+
+            var thirdAttachment = submission.data().attachments().get(2);
+            assertThat(thirdAttachment.attachmentId()).isEqualTo("es3i5y9h");
+            assertThat(thirdAttachment.type()).isEqualTo("other");
+            assertThat(thirdAttachment.value()).isEqualTo("nei");
+            assertThat(thirdAttachment.files()).isEmpty();
         }
     }
 

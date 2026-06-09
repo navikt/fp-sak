@@ -12,24 +12,23 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 /** NAV 14-05.07 – Søknad om engangsstønad ved fødsel */
 public record Nav140507Data(
-    @NotNull Boolean jegHarLestOgForstattDetSomStarPaNavNoRettogplikt,
     @NotNull String fornavnSoker,
     @NotNull String etternavnSoker,
     @NotNull String fodselsnummerDNummerSoker,
     @NotNull HvaSokerDuOm hvaSokerDuOm,
-    @NotNull NarErBarnetFodt narErBarnetFodt,
     @NotNull @Min(1) @Max(9) Integer antallBarn,
-    List<@Valid LeggTilBarnetEllerBarnasFodselsdatoRow> leggTilBarnetEllerBarnasFodselsdato,
+    JaNei erBarnetFodt,
+    LocalDate fodselsdatoDdMmAaaa,
+    JaNei erBarnaFodt,
+    LocalDate fodselsdatoDdMmAaaa1,
     LocalDate termindatoDdMmAaaa,
     LocalDate datoForOmsorgsovertakelsenAvBarnetDdMmAaaa,
+    LocalDate datoForOmsorgsovertakelsenAvBarnaDdMmAaaa,
     @NotNull JaNei planleggerDuAVaereINorgePaFodselstidspunktet1,
     @NotNull HvorSkalDuBoDeNeste12Manedene hvorSkalDuBoDeNeste12Manedene,
     List<@Valid UtenlandsoppholdRow> utenlandsopphold,
     @NotNull HvorHarDuBoddDeSiste12Manedene hvorHarDuBoddDeSiste12Manedene,
-    List<@Valid Utenlandsopphold1Row> utenlandsopphold1,
-    @NotNull JaNei harDuTilleggsopplysningerSomErRelevantForSoknaden,
-    String tilleggsopplysninger,
-    @NotNull Boolean deOpplysningerJegHarOppgittErRiktigeOgJegHarIkkeHoldtTilbakeOpplysningerSomHarBetydningForMinRettTilEngangsstonad
+    List<@Valid Utenlandsopphold1Row> utenlandsopphold1
 ) {
 
     public enum HvaSokerDuOm {
@@ -37,16 +36,6 @@ public record Nav140507Data(
         ENGANGSSTONAD_VED_FODSEL,
         @JsonProperty("engangsstonadVedOvertakelseAvForeldreansvaretEllerOmsorgen")
         ENGANGSSTONAD_VED_OVERTAKELSE_AV_FORELDREANSVARET_ELLER_OMSORGEN;
-    }
-
-    public enum NarErBarnetFodt {
-        @JsonProperty("tilbakeITid")
-        TILBAKE_I_TID,
-        @JsonProperty("fremITid")
-        FREM_I_TID;
-    }
-
-    public record LeggTilBarnetEllerBarnasFodselsdatoRow(LocalDate fodselsdatoDdMmAaaa) {
     }
 
     public record UtenlandsoppholdRow(

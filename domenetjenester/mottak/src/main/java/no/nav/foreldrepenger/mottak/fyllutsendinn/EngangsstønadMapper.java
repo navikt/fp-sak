@@ -1,7 +1,6 @@
 package no.nav.foreldrepenger.mottak.fyllutsendinn;
 
 import java.time.LocalDate;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
@@ -53,14 +52,14 @@ public final class EngangsstønadMapper {
     }
 
     private static void mapTerminOgFødsel(Nav140507Data data, PapirsoknadEngangsstonadMellomlagreDto dto) {
-        var erFødt = data.narErBarnetFodt() == Nav140507Data.NarErBarnetFodt.TILBAKE_I_TID;
+        var erFødt = erBarnFødt(data) == JaNei.JA;
         dto.setErBarnetFødt(erFødt);
         dto.setAntallBarn(data.antallBarn());
+        dto.setTermindato(data.termindatoDdMmAaaa());
 
         if (erFødt) {
-            firstFødselsdato(data).ifPresent(dto::setFødselsdato);
+            fødselsdato(data).ifPresent(dto::setFødselsdato);
         } else {
-            dto.setTermindato(data.termindatoDdMmAaaa());
             dto.setAntallBarnFraTerminbekreftelse(data.antallBarn());
         }
     }
@@ -91,22 +90,36 @@ public final class EngangsstønadMapper {
         if (data.hvaSokerDuOm() != Nav140507Data.HvaSokerDuOm.ENGANGSSTONAD_VED_OVERTAKELSE_AV_FORELDREANSVARET_ELLER_OMSORGEN) {
             return;
         }
-        var fødselsdatoer = Optional.ofNullable(data.leggTilBarnetEllerBarnasFodselsdato()).orElseGet(List::of).stream()
-            .map(Nav140507Data.LeggTilBarnetEllerBarnasFodselsdatoRow::fodselsdatoDdMmAaaa)
-            .toList();
+        var fødselsdatoer = fødselsdato(data).map(List::of).orElseGet(List::of);
         dto.setOmsorg(new PapirsoknadMellomlagreDto.OmsorgFormValues(
             data.antallBarn(),
             fødselsdatoer,
-            data.datoForOmsorgsovertakelsenAvBarnetDdMmAaaa(),
+            omsorgsovertakelsesdato(data),
             null, // ankomstdato — ikke i kildeskjema
             null  // erEktefellesBarn — ikke i kildeskjema
         ));
     }
 
-    private static Optional<LocalDate> firstFødselsdato(Nav140507Data data) {
-        return Optional.ofNullable(data.leggTilBarnetEllerBarnasFodselsdato()).orElseGet(List::of).stream()
-            .map(Nav140507Data.LeggTilBarnetEllerBarnasFodselsdatoRow::fodselsdatoDdMmAaaa)
-            .min(Comparator.naturalOrder());
+    private static boolean flereBarn(Nav140507Data data) {
+        return data.antallBarn() != null && data.antallBarn() > 1;
+    }
+
+    private static JaNei erBarnFødt(Nav140507Data data) {
+        return flereBarn(data)
+            ? Optional.ofNullable(data.erBarnaFodt()).orElse(data.erBarnetFodt())
+            : Optional.ofNullable(data.erBarnetFodt()).orElse(data.erBarnaFodt());
+    }
+
+    private static Optional<LocalDate> fødselsdato(Nav140507Data data) {
+        return flereBarn(data)
+            ? Optional.ofNullable(data.fodselsdatoDdMmAaaa1()).or(() -> Optional.ofNullable(data.fodselsdatoDdMmAaaa()))
+            : Optional.ofNullable(data.fodselsdatoDdMmAaaa()).or(() -> Optional.ofNullable(data.fodselsdatoDdMmAaaa1()));
+    }
+
+    private static LocalDate omsorgsovertakelsesdato(Nav140507Data data) {
+        return flereBarn(data)
+            ? Optional.ofNullable(data.datoForOmsorgsovertakelsenAvBarnaDdMmAaaa()).orElse(data.datoForOmsorgsovertakelsenAvBarnetDdMmAaaa())
+            : Optional.ofNullable(data.datoForOmsorgsovertakelsenAvBarnetDdMmAaaa()).orElse(data.datoForOmsorgsovertakelsenAvBarnaDdMmAaaa());
     }
 
     private static String mapLand(Landvalg landvalg) {

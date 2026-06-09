@@ -1,0 +1,45 @@
+{
+  "language": "nb",
+  "formRevision": 9,
+  "data": {
+    "data": {
+      "fornavnSoker": "Fredelig",
+      "etternavnSoker": "Båt",
+      "fodselsnummerDNummerSoker": "08449546491",
+      "hvaSokerDuOm": "engangsstonadVedFodsel",
+      "antallBarn": 2,
+      "erBarnaFodt": "ja",
+      "fodselsdatoDdMmAaaa1": "2026-06-01",
+      "termindatoDdMmAaaa": "2026-06-22",
+      "planleggerDuAVaereINorgePaFodselstidspunktet1": "ja",
+      "hvorSkalDuBoDeNeste12Manedene": "kunBoINorge",
+      "hvorHarDuBoddDeSiste12Manedene": "kunBoddINorge"
+    },
+    "attachments": [
+      {
+        "attachmentId": "personal-id",
+        "navId": "personal-id",
+        "type": "personal-id",
+        "value": "driversLicenseEU",
+        "title": "Førerkort utstedt i EU/EØS og som følger EU/EØS reglene",
+        "files": [
+          {
+            "fileId": "8ed9b6b9-e21f-4d7b-b732-8e2e4b5ee832",
+            "attachmentId": "personal-id",
+            "innsendingId": "cd16f392-015b-4780-bb30-64870386328b",
+            "fileName": "sun_microsystems.png",
+            "size": 29260
+          }
+        ]
+      },
+      {
+        "attachmentId": "es3i5y9h",
+        "navId": "es3i5y9h",
+        "type": "other",
+        "value": "nei",
+        "files": []
+      }
+    ],
+    "selfDeclaration": true
+  }
+}

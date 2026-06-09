@@ -3,6 +3,9 @@ package no.nav.foreldrepenger.mottak.fyllutsendinn;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.LocalDate;
+import java.time.Month;
+
+import no.nav.foreldrepenger.behandlingslager.geografisk.Landkoder;
 
 import org.junit.jupiter.api.Test;
 
@@ -29,9 +32,97 @@ class EngangsstønadMapperTest {
 
         // Termin — ikke født ennå
         assertThat(dto.getErBarnetFødt()).isFalse();
-        assertThat(dto.getTermindato()).isEqualTo(LocalDate.of(2026, 5, 17));
+        assertThat(dto.getTermindato()).isEqualTo(LocalDate.of(2026, Month.JUNE, 30));
         assertThat(dto.getAntallBarnFraTerminbekreftelse()).isEqualTo(1);
         assertThat(dto.getAntallBarn()).isEqualTo(1);
+        assertThat(dto.getFødselsdato()).isNull();
+
+        // Opphold — bor i Norge nå, planlegger utenlandsopphold neste 12 mnd
+        assertThat(dto.getOppholdINorge()).isTrue();
+        assertThat(dto.getOppholdSisteTolvINorge()).isTrue();
+        assertThat(dto.getOppholdNesteTolvINorge()).isFalse();
+        assertThat(dto.getTidligereOppholdUtenlands()).isNull();
+        assertThat(dto.getFremtidigeOppholdUtenlands()).hasSize(1);
+        var fremtidig = dto.getFremtidigeOppholdUtenlands().getFirst();
+        assertThat(fremtidig.land()).isEqualTo(Landkoder.SWE.getKode());
+        assertThat(fremtidig.periodeFom()).isEqualTo(LocalDate.of(2026, Month.JULY, 13));
+        assertThat(fremtidig.periodeTom()).isEqualTo(LocalDate.of(2026, Month.JULY, 19));
+
+        // Ingen omsorg ved fødsel
+        assertThat(dto.getOmsorg()).isNull();
+    }
+
+    @Test
+    void skal_mappe_fødsel_ett_barn_til_mellomlagre_dto() throws Exception {
+        var data = lesNav140507("eksempel140507-fodsel.json");
+
+        var dto = EngangsstønadMapper.tilMellomlagreDto(data);
+
+        // Metadata
+        assertThat(dto.getFagsakYtelseType()).isEqualTo(FagsakYtelseType.ENGANGSTØNAD);
+        assertThat(dto.getFamilieHendelseType()).isEqualTo(FamilieHendelseType.FØDSEL);
+
+        // Fødsel — flere barn født, fødselsdato hentes fra fodselsdatoDdMmAaaa1
+        assertThat(dto.getErBarnetFødt()).isTrue();
+        assertThat(dto.getFødselsdato()).isEqualTo(LocalDate.of(2026, Month.JUNE, 1));
+        assertThat(dto.getAntallBarn()).isEqualTo(1);
+        assertThat(dto.getTermindato()).isEqualTo(LocalDate.of(2026, Month.JUNE, 15));
+
+        // Opphold — alt i Norge
+        assertThat(dto.getOppholdINorge()).isTrue();
+        assertThat(dto.getOppholdSisteTolvINorge()).isTrue();
+        assertThat(dto.getOppholdNesteTolvINorge()).isFalse();
+        assertThat(dto.getTidligereOppholdUtenlands()).isNull();
+        assertThat(dto.getFremtidigeOppholdUtenlands()).hasSize(1);
+        assertThat(dto.getFremtidigeOppholdUtenlands().getFirst().land()).isEqualTo(Landkoder.ESP.getKode());
+
+        // Ingen omsorg ved fødsel
+        assertThat(dto.getOmsorg()).isNull();
+    }
+
+
+    @Test
+    void skal_mappe_fødsel_flere_barn_til_mellomlagre_dto() throws Exception {
+        var data = lesNav140507("eksempel140507-fodsel-flerbarn.json");
+
+        var dto = EngangsstønadMapper.tilMellomlagreDto(data);
+
+        // Metadata
+        assertThat(dto.getFagsakYtelseType()).isEqualTo(FagsakYtelseType.ENGANGSTØNAD);
+        assertThat(dto.getFamilieHendelseType()).isEqualTo(FamilieHendelseType.FØDSEL);
+
+        // Fødsel — flere barn født, fødselsdato hentes fra fodselsdatoDdMmAaaa1
+        assertThat(dto.getErBarnetFødt()).isTrue();
+        assertThat(dto.getFødselsdato()).isEqualTo(LocalDate.of(2026, Month.JUNE, 1));
+        assertThat(dto.getAntallBarn()).isEqualTo(2);
+        assertThat(dto.getTermindato()).isEqualTo(LocalDate.of(2026, Month.JUNE, 22));
+
+        // Opphold — alt i Norge
+        assertThat(dto.getOppholdINorge()).isTrue();
+        assertThat(dto.getOppholdSisteTolvINorge()).isTrue();
+        assertThat(dto.getOppholdNesteTolvINorge()).isTrue();
+        assertThat(dto.getTidligereOppholdUtenlands()).isNull();
+        assertThat(dto.getFremtidigeOppholdUtenlands()).isNull();
+
+        // Ingen omsorg ved fødsel
+        assertThat(dto.getOmsorg()).isNull();
+    }
+
+    @Test
+    void skal_mappe_termin_flere_barn_til_mellomlagre_dto() throws Exception {
+        var data = lesNav140507("eksempel140507-termin-flerbarn.json");
+
+        var dto = EngangsstønadMapper.tilMellomlagreDto(data);
+
+        // Metadata
+        assertThat(dto.getFagsakYtelseType()).isEqualTo(FagsakYtelseType.ENGANGSTØNAD);
+        assertThat(dto.getFamilieHendelseType()).isEqualTo(FamilieHendelseType.FØDSEL);
+
+        // Termin — flere barn, ikke født ennå (erBarnaFodt = nei)
+        assertThat(dto.getErBarnetFødt()).isFalse();
+        assertThat(dto.getTermindato()).isEqualTo(LocalDate.of(2026, Month.JUNE, 22));
+        assertThat(dto.getAntallBarnFraTerminbekreftelse()).isEqualTo(2);
+        assertThat(dto.getAntallBarn()).isEqualTo(2);
         assertThat(dto.getFødselsdato()).isNull();
 
         // Opphold — alt i Norge
@@ -46,33 +137,32 @@ class EngangsstønadMapperTest {
     }
 
     @Test
-    void skal_mappe_fødsel_med_utenlandsopphold_til_mellomlagre_dto() throws Exception {
-        var data = lesNav140507("eksempel140507-fodsel.json");
+    void skal_mappe_omsorgsovertakelse_til_mellomlagre_dto() throws Exception {
+        var data = lesNav140507("eksempel140507-omsorg.json");
 
         var dto = EngangsstønadMapper.tilMellomlagreDto(data);
 
-        // Metadata
+        // Metadata — overtakelse av omsorg mappes til adopsjon
         assertThat(dto.getFagsakYtelseType()).isEqualTo(FagsakYtelseType.ENGANGSTØNAD);
-        assertThat(dto.getFamilieHendelseType()).isEqualTo(FamilieHendelseType.FØDSEL);
+        assertThat(dto.getFamilieHendelseType()).isEqualTo(FamilieHendelseType.ADOPSJON);
 
-        // Fødsel — barnet er født
+        // Barnet er født
         assertThat(dto.getErBarnetFødt()).isTrue();
-        assertThat(dto.getFødselsdato()).isEqualTo(LocalDate.of(2026, 4, 1));
-        assertThat(dto.getAntallBarn()).isEqualTo(2);
-        assertThat(dto.getTermindato()).isNull();
+        assertThat(dto.getFødselsdato()).isEqualTo(LocalDate.of(2026, Month.JANUARY, 2));
+        assertThat(dto.getAntallBarn()).isEqualTo(1);
+        assertThat(dto.getTermindato()).isEqualTo(LocalDate.of(2026, Month.JUNE, 22));
 
-        // Opphold — bodd i utlandet siste 12 mnd
-        assertThat(dto.getOppholdINorge()).isTrue();
+        // Omsorg
+        assertThat(dto.getOmsorg()).isNotNull();
+        assertThat(dto.getOmsorg().antallBarn()).isEqualTo(1);
+        assertThat(dto.getOmsorg().fødselsdato()).containsExactly(LocalDate.of(2026, Month.JANUARY, 2));
+        assertThat(dto.getOmsorg().omsorgsovertakelsesdato()).isEqualTo(LocalDate.of(2026, Month.JUNE, 22));
+
+        // Opphold — bodd i utlandet siste 12 mnd, skal bo i Norge neste 12 mnd
         assertThat(dto.getOppholdSisteTolvINorge()).isFalse();
-        assertThat(dto.getOppholdNesteTolvINorge()).isTrue();
-
-        // Tidligere utenlandsopphold
         assertThat(dto.getTidligereOppholdUtenlands()).hasSize(1);
-        var opphold = dto.getTidligereOppholdUtenlands().getFirst();
-        assertThat(opphold.land()).isEqualTo("SWE");
-        assertThat(opphold.periodeFom()).isEqualTo(LocalDate.of(2025, 12, 1));
-        assertThat(opphold.periodeTom()).isEqualTo(LocalDate.of(2025, 12, 31));
-
+        assertThat(dto.getTidligereOppholdUtenlands().getFirst().land()).isEqualTo(Landkoder.DEU.getKode());
+        assertThat(dto.getOppholdNesteTolvINorge()).isTrue();
         assertThat(dto.getFremtidigeOppholdUtenlands()).isNull();
     }
 
