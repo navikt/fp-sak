@@ -89,6 +89,7 @@ public class AksjonspunktKodeDefinisjon {
     public static final String AVKLAR_LØPENDE_OMSORG = "5061";
 
     public static final String MANUELL_KONTROLL_AV_BESTEBEREGNING_KODE = "5062";
+    public static final String MANUELL_KONTROLL_AAP_KOMBINERT_ATFL_KODE = "5104";
 
     public static final String OVERSTYRING_AV_AVKLART_STARTDATO_KODE = "6045";
     public static final String OVERSTYRING_FAKTA_UTTAK_KODE = "6065";

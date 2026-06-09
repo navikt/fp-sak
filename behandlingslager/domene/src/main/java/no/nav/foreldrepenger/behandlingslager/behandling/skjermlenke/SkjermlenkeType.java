@@ -24,6 +24,7 @@ public enum SkjermlenkeType implements Kodeverdi, DatabaseKode {
     BESTEBEREGNING("BESTEBEREGNING", "Besteberegning"),
     FAKTA_FOR_OMSORG("FAKTA_FOR_OMSORG", "Fakta om omsorg"),
     FAKTA_FOR_OPPTJENING("FAKTA_FOR_OPPTJENING", "Fakta om opptjening"),
+    FAKTA_OM_ARBEIDSAVKLARINGSPENGER("FAKTA_OM_ARBEIDSAVKLARINGSPENGER", "Fakta om arbeidsavklaringspenger"),
     FAKTA_OM_ARBEIDSFORHOLD("FAKTA_OM_ARBEIDSFORHOLD", "Fakta om arbeidsforhold"),
     FAKTA_OM_ARBEIDSFORHOLD_INNTEKTSMELDING("FAKTA_OM_ARBEIDSFORHOLD_INNTEKTSMELDING", "Fakta om arbeid og inntekt"),
     FAKTA_OM_ARBEIDSFORHOLD_PERMISJON("FAKTA_OM_ARBEIDSFORHOLD_PERMISJON", "Fakta om arbeidsforhold med permisjon uten sluttdato"),
