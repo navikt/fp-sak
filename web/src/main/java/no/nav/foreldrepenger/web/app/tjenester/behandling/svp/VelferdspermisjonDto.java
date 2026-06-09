@@ -16,23 +16,20 @@ import no.nav.foreldrepenger.validering.ValidKodeverk;
 
 public class VelferdspermisjonDto {
 
-    @JsonProperty("permisjonFom") @NotNull
+    @NotNull
     private LocalDate permisjonFom;
-    @JsonProperty("permisjonTom")
     private LocalDate permisjonTom;
-    @JsonProperty("permisjonsprosent") @NotNull
+    @NotNull
     @DecimalMin("0.00")
     @DecimalMax("100.00")
     private BigDecimal permisjonsprosent;
     @ValidKodeverk
-    @JsonProperty("type") @NotNull
+    @NotNull
     private PermisjonsbeskrivelseType type;
-    @JsonProperty("erGyldig")
     private Boolean erGyldig;
-    @JsonProperty("internArbeidsforholdId")
     private UUID internArbeidsforholdId;
 
-    public VelferdspermisjonDto(){
+    public VelferdspermisjonDto() {
         // Jackson
     }
 
