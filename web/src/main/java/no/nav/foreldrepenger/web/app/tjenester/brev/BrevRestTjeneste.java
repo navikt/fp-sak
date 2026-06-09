@@ -1,5 +1,7 @@
 package no.nav.foreldrepenger.web.app.tjenester.brev;
 
+import static no.nav.foreldrepenger.behandlingslager.behandling.dokument.DokumentMalType.INNSYN_SVAR;
+
 import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
@@ -76,7 +78,7 @@ public class BrevRestTjeneste {
     private static final String HENT_OVERSTYRT_VEDTAKSBREV_PART_PATH = "/hent-overstyrt-vedtaksbrev";
     public static final String HENT_OVERSTYRT_VEDTAKSBREV_PATH = BASE_PATH + HENT_OVERSTYRT_VEDTAKSBREV_PART_PATH;
     private static final Set<DokumentMalType> BREV_SOM_FORHÅNDSVISES_MED_FRITEKST_UTEN_HTML_REDIGERING = Set.of(DokumentMalType.KLAGE_OVERSENDT,
-        DokumentMalType.KLAGE_OMGJORT);
+        DokumentMalType.KLAGE_OMGJORT, INNSYN_SVAR);
 
     private DokumentForhåndsvisningTjeneste dokumentForhåndsvisningTjeneste;
     private DokumentBestillerTjeneste dokumentBestillerTjeneste;
