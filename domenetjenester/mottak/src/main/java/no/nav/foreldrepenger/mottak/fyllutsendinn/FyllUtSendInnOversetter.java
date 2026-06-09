@@ -92,9 +92,7 @@ public class FyllUtSendInnOversetter {
         var originalDokumentId = dokumenter.stream()
             .filter(d -> d.getTilgjengeligSom().contains(VariantFormat.ORIGINAL))
             .findFirst().map(ArkivDokument::getDokumentId);
-        return originalDokumentId.map(did -> dokumentArkivTjeneste.hentDokument(journalpostId, did))
-            .map(DokumentRespons::innhold)
-            .map(String::new)
+        return originalDokumentId.map(did -> dokumentArkivTjeneste.hentStrukturertDokument(journalpostId, did))
             .map(String::trim)
             .filter(s -> s.startsWith("{"));
     }
