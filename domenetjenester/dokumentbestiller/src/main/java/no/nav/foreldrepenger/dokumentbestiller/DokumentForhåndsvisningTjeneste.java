@@ -146,7 +146,6 @@ public class DokumentForhåndsvisningTjeneste extends AbstractDokumentBestillerT
             new Saksnummer(bestilling.saksnummer().getVerdi()),
             mapDokumentMal(bestillingDokumentMal),
             mapRevurderignÅrsak(bestilling.revurderingÅrsak()),
-            null,
             bestilling.fritekst()
         );
     }
