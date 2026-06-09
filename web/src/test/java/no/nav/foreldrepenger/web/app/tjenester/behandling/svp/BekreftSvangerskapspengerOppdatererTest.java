@@ -119,7 +119,7 @@ class BekreftSvangerskapspengerOppdatererTest {
         var dto = byggDto(BEHOV_FRA_DATO, TERMINDATO,
             svpGrunnlag.getOpprinneligeTilrettelegginger().getTilretteleggingListe().get(0).getId(),
             true,
-            new VelferdspermisjonDto(permisjonFom, permisjonTom, BigDecimal.valueOf(100), PermisjonsbeskrivelseType.VELFERDSPERMISJON, false),
+            new VelferdspermisjonDto(permisjonFom, permisjonTom, BigDecimal.valueOf(100), PermisjonsbeskrivelseType.VELFERDSPERMISJON, false, null),
             null,
             List.of(new SvpTilretteleggingDatoDto(BEHOV_FRA_DATO.plusWeeks(1), TilretteleggingType.INGEN_TILRETTELEGGING, null)),
             null);
@@ -135,10 +135,10 @@ class BekreftSvangerskapspengerOppdatererTest {
 
         assertThat(overstyringer).hasSize(1);
 
-        assertThat(overstyringer.get(0).getBekreftetPermisjon()).isPresent();
-        assertThat(overstyringer.get(0).getBekreftetPermisjon().get().getStatus()).isEqualTo(BekreftetPermisjonStatus.IKKE_BRUK_PERMISJON);
-        assertThat(overstyringer.get(0).getArbeidsgiver().getIdentifikator()).isEqualTo(ARBEIDSGIVER_IDENT);
-        assertThat(overstyringer.get(0).getArbeidsforholdRef()).isEqualTo(INTERN_ARBEIDSFORHOLD_REF);
+        assertThat(overstyringer.getFirst().getBekreftetPermisjon()).isPresent();
+        assertThat(overstyringer.getFirst().getBekreftetPermisjon().get().getStatus()).isEqualTo(BekreftetPermisjonStatus.IKKE_BRUK_PERMISJON);
+        assertThat(overstyringer.getFirst().getArbeidsgiver().getIdentifikator()).isEqualTo(ARBEIDSGIVER_IDENT);
+        assertThat(overstyringer.getFirst().getArbeidsforholdRef()).isEqualTo(INTERN_ARBEIDSFORHOLD_REF);
     }
 
     @Test
@@ -152,7 +152,7 @@ class BekreftSvangerskapspengerOppdatererTest {
         var svpGrunnlag = byggSøknadsgrunnlag(behandling, true, false);
         //endrer
         var dto = byggDto(BEHOV_FRA_DATO, TERMINDATO,
-            svpGrunnlag.getOpprinneligeTilrettelegginger().getTilretteleggingListe().get(0).getId(),
+            svpGrunnlag.getOpprinneligeTilrettelegginger().getTilretteleggingListe().getFirst().getId(),
             true, null, null,
             List.of(new SvpTilretteleggingDatoDto(TLR_FRA_2, TilretteleggingType.INGEN_TILRETTELEGGING, null, null, SvpTilretteleggingFomKilde.REGISTRERT_AV_SAKSBEHANDLER,
                     null),
@@ -177,7 +177,7 @@ class BekreftSvangerskapspengerOppdatererTest {
 
         var svpGrunnlag = byggSøknadsgrunnlag(behandling, true, false);
         var dto = byggDto(BEHOV_FRA_DATO, TERMINDATO,
-            svpGrunnlag.getOpprinneligeTilrettelegginger().getTilretteleggingListe().get(0).getId(),
+            svpGrunnlag.getOpprinneligeTilrettelegginger().getTilretteleggingListe().getFirst().getId(),
             false,
             null,
             INTERN_ARBEIDSFORHOLD_REF,
@@ -201,7 +201,7 @@ class BekreftSvangerskapspengerOppdatererTest {
 
         var svpGrunnlag = byggSøknadsgrunnlag(behandling, true, false);
         var dto = byggDto(BEHOV_FRA_DATO.minusDays(1), TERMINDATO,
-            svpGrunnlag.getOpprinneligeTilrettelegginger().getTilretteleggingListe().get(0).getId(),
+            svpGrunnlag.getOpprinneligeTilrettelegginger().getTilretteleggingListe().getFirst().getId(),
             true, null, null,
             List.of(new SvpTilretteleggingDatoDto(TLR_FRA_2, TilretteleggingType.INGEN_TILRETTELEGGING, null),
                 new SvpTilretteleggingDatoDto(BEHOV_FRA_DATO, TilretteleggingType.DELVIS_TILRETTELEGGING, BigDecimal.valueOf(50))),
@@ -224,7 +224,7 @@ class BekreftSvangerskapspengerOppdatererTest {
         var svpGrunnlag = byggSøknadsgrunnlag(behandling, true, false);
         //endrer
         var dto = byggDto(BEHOV_FRA_DATO, TERMINDATO,
-            svpGrunnlag.getOpprinneligeTilrettelegginger().getTilretteleggingListe().get(0).getId(),
+            svpGrunnlag.getOpprinneligeTilrettelegginger().getTilretteleggingListe().getFirst().getId(),
             true, null, null,
             List.of(new SvpTilretteleggingDatoDto(TLR_FRA_2, TilretteleggingType.INGEN_TILRETTELEGGING, null),
                 new SvpTilretteleggingDatoDto(BEHOV_FRA_DATO, TilretteleggingType.DELVIS_TILRETTELEGGING, BigDecimal.valueOf(50), null, SvpTilretteleggingFomKilde.SØKNAD,
@@ -248,7 +248,7 @@ class BekreftSvangerskapspengerOppdatererTest {
 
         var svpGrunnlag = byggSøknadsgrunnlag(behandling, true, true);
         var dto = byggDto(BEHOV_FRA_DATO, LocalDate.now().plusDays(40),
-            svpGrunnlag.getOpprinneligeTilrettelegginger().getTilretteleggingListe().get(0).getId(),
+            svpGrunnlag.getOpprinneligeTilrettelegginger().getTilretteleggingListe().getFirst().getId(),
             true, null, null,
             List.of(new SvpTilretteleggingDatoDto(TLR_FRA_2, TilretteleggingType.INGEN_TILRETTELEGGING, null),
             new SvpTilretteleggingDatoDto(BEHOV_FRA_DATO, TilretteleggingType.DELVIS_TILRETTELEGGING, BigDecimal.valueOf(50))),
@@ -270,7 +270,7 @@ class BekreftSvangerskapspengerOppdatererTest {
 
         var svpGrunnlag = byggSøknadsgrunnlag(behandling, true, false);
         var dto = byggDto(BEHOV_FRA_DATO, LocalDate.now().plusDays(40),
-            svpGrunnlag.getOpprinneligeTilrettelegginger().getTilretteleggingListe().get(0).getId(),
+            svpGrunnlag.getOpprinneligeTilrettelegginger().getTilretteleggingListe().getFirst().getId(),
             true, null, null,
             List.of(new SvpTilretteleggingDatoDto(TLR_FRA_2, TilretteleggingType.INGEN_TILRETTELEGGING, null),
                 new SvpTilretteleggingDatoDto(BEHOV_FRA_DATO, TilretteleggingType.DELVIS_TILRETTELEGGING, BigDecimal.valueOf(50))),
@@ -309,7 +309,7 @@ class BekreftSvangerskapspengerOppdatererTest {
 
         var svpGrunnlag = byggSøknadsgrunnlag(behandling, false, false);
         var dto = byggDto(BEHOV_FRA_DATO, TERMINDATO,
-            svpGrunnlag.getOpprinneligeTilrettelegginger().getTilretteleggingListe().get(0).getId(), false,
+            svpGrunnlag.getOpprinneligeTilrettelegginger().getTilretteleggingListe().getFirst().getId(), false,
             null, INTERN_ARBEIDSFORHOLD_REF,
             List.of(new SvpTilretteleggingDatoDto(BEHOV_FRA_DATO.plusWeeks(1), TilretteleggingType.DELVIS_TILRETTELEGGING, null)),
             null);
