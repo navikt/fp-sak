@@ -248,7 +248,7 @@ public class BrevRestTjeneste {
     }
 
     private static DokumentMalType utledDokumentMapTypeForhåndsvisning(ForhåndsvisDokumentDto forhåndsvisDto) {
-        if (forhåndsvisDto.fritekst() != null) {
+        if (forhåndsvisDto.fritekst() != null && forhåndsvisDto.dokumentMal() != null) { //Endring i beregning i vedtakspanelet har fritekst uten dokumentmal
             return BREV_SOM_FORHÅNDSVISES_MED_FRITEKST_UTEN_HTML_REDIGERING
                 .contains(forhåndsvisDto.dokumentMal()) ? forhåndsvisDto.dokumentMal() : DokumentMalType.FRITEKST_HTML;
         }

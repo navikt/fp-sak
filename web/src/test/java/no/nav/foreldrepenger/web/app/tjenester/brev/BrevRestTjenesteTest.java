@@ -197,6 +197,25 @@ class BrevRestTjenesteTest {
     }
 
     @Test
+    void forhåndsvis_med_fritekst_uten_dokumentmal_sender_null_dokumentmal_videre() {
+        var behandlingUuid = UUID.randomUUID();
+        var behandling = mock(Behandling.class);
+        var pdf = "pdf".getBytes();
+        when(behandling.getSaksnummer()).thenReturn(new Saksnummer("9999"));
+        when(behandlingRepository.hentBehandling(behandlingUuid)).thenReturn(behandling);
+        when(dokumentForhåndsvisningTjenesteMock.forhåndsvisDokument(any())).thenReturn(pdf);
+        var dto = new ForhåndsvisDokumentDto(behandlingUuid, null, null, false, "fritekst");
+
+        var respons = brevRestTjeneste.forhåndsvisDokument(dto);
+
+        var captor = ArgumentCaptor.forClass(DokumentForhandsvisning.class);
+        verify(dokumentForhåndsvisningTjenesteMock).forhåndsvisDokument(captor.capture());
+        assertThat(captor.getValue().dokumentMal()).isNull();
+        assertThat(captor.getValue().fritekst()).isEqualTo("fritekst");
+        assertThat(respons.getStatus()).isEqualTo(200);
+    }
+
+    @Test
     void hent_overstyrt_vedtaksbrev_returnerer_pdf_fra_mellomlagring() {
         var behandlingUuid = UUID.randomUUID();
         var pdf = "pdf".getBytes();
