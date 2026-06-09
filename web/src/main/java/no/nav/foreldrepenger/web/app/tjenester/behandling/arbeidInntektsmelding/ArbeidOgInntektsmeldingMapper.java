@@ -22,6 +22,7 @@ import no.nav.foreldrepenger.domene.arbeidInntektsmelding.dto.InntektDto;
 import no.nav.foreldrepenger.domene.arbeidInntektsmelding.dto.InntektsmeldingDto;
 import no.nav.foreldrepenger.domene.arbeidInntektsmelding.dto.InntektspostDto;
 import no.nav.foreldrepenger.domene.arbeidInntektsmelding.dto.NaturalYtelseDto;
+import no.nav.foreldrepenger.domene.arbeidInntektsmelding.dto.PermisjonDto;
 import no.nav.foreldrepenger.domene.arbeidInntektsmelding.dto.PermisjonOgMangelDto;
 import no.nav.foreldrepenger.domene.arbeidInntektsmelding.dto.RefusjonDto;
 import no.nav.foreldrepenger.domene.arbeidsforhold.impl.AksjonspunktÅrsak;
@@ -164,6 +165,7 @@ public class ArbeidOgInntektsmeldingMapper {
                 mangelInntektsmelding.orElse(null),
                 vurdering.map(ArbeidsforholdValg::getVurdering).orElse(legacyVurdering.orElse(null)),
                 mapPermisjonOgMangel(ya, stp, mangelPermisjon.orElse(null), overstyringer).orElse(null),
+                mapPermisjoner(ya),
                 vurdering.map(ArbeidsforholdValg::getBegrunnelse).orElse(legacyBegrunnelse.orElse(null))));
     }
 
@@ -192,6 +194,16 @@ public class ArbeidOgInntektsmeldingMapper {
 
     private static Optional<PermisjonOgMangelDto> mapPermisjonOgMangel(Yrkesaktivitet ya, LocalDate stp, AksjonspunktÅrsak årsak,  List<ArbeidsforholdOverstyring> overstyringAvPermisjon) {
         return HåndterePermisjoner.hentPermisjonOgMangel(ya, stp, årsak, utledBekreftetStatus(ya.getArbeidsforholdRef(), overstyringAvPermisjon) );
+    }
+
+    private static List<PermisjonDto> mapPermisjoner(Yrkesaktivitet ya) {
+        return ya.getPermisjon().stream()
+            .map(p -> new PermisjonDto(
+                p.getFraOgMed(),
+                p.getTilOgMed(),
+                p.getProsentsats().getVerdi(),
+                p.getPermisjonsbeskrivelseType()))
+            .toList();
     }
 
     private static BekreftetPermisjonStatus utledBekreftetStatus(InternArbeidsforholdRef internArbeidsforholdRef, List<ArbeidsforholdOverstyring> overstyringer) {
@@ -308,6 +320,7 @@ public class ArbeidOgInntektsmeldingMapper {
             null,
             utledSaksbehandlerVurderingOmManueltArbeidsforhold(mangel),
             null,
+            List.of(),
             overstyring.getBegrunnelse());
     }
 

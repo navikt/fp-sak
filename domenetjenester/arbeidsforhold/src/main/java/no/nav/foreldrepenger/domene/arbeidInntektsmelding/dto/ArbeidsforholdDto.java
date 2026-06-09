@@ -2,7 +2,9 @@ package no.nav.foreldrepenger.domene.arbeidInntektsmelding.dto;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.List;
 
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.arbeidsforhold.ArbeidsforholdKomplettVurderingType;
@@ -17,4 +19,5 @@ public record ArbeidsforholdDto(@NotNull String arbeidsgiverIdent,
                                 AksjonspunktÅrsak årsak,
                                 ArbeidsforholdKomplettVurderingType saksbehandlersVurdering,
                                 PermisjonOgMangelDto permisjonOgMangel,
+                                @NotNull List<@Valid PermisjonDto> permisjoner,
                                 String begrunnelse){}
