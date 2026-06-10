@@ -15,8 +15,6 @@ import java.util.stream.Collectors;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
-import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -27,12 +25,16 @@ import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAkt�
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
+import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.OrgNummer;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.OrganisasjonsNummerValidator;
+import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
+import no.nav.foreldrepenger.domene.arbeidsforhold.InntektsmeldingTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsforhold.impl.InntektsmeldingRegisterTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsgiver.ArbeidsgiverTjeneste;
 import no.nav.foreldrepenger.domene.iay.modell.Inntektsmelding;
 import no.nav.foreldrepenger.domene.iay.modell.NaturalYtelse;
+import no.nav.foreldrepenger.domene.iay.modell.YrkesaktivitetFilter;
 import no.nav.foreldrepenger.domene.typer.Beløp;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
@@ -49,6 +51,8 @@ public class FpInntektsmeldingTjeneste {
     private HistorikkinnslagRepository historikkRepo;
     private ArbeidsgiverTjeneste arbeidsgiverTjeneste;
     private InntektsmeldingRegisterTjeneste inntektsmeldingRegisterTjeneste;
+    private InntektsmeldingTjeneste inntektsmeldingTjeneste;
+    private InntektArbeidYtelseTjeneste iayTjeneste;
 
     private static final Logger LOG = LoggerFactory.getLogger(FpInntektsmeldingTjeneste.class);
 
@@ -62,13 +66,17 @@ public class FpInntektsmeldingTjeneste {
                                      SkjæringstidspunktTjeneste skjæringstidspunktTjeneste,
                                      HistorikkinnslagRepository historikkRepo,
                                      ArbeidsgiverTjeneste arbeidsgiverTjeneste,
-                                     InntektsmeldingRegisterTjeneste inntektsmeldingRegisterTjeneste) {
+                                     InntektsmeldingRegisterTjeneste inntektsmeldingRegisterTjeneste,
+                                     InntektsmeldingTjeneste inntektsmeldingTjeneste,
+                                     InntektArbeidYtelseTjeneste iayTjeneste) {
         this.klient = klient;
         this.prosessTaskTjeneste = prosessTaskTjeneste;
         this.skjæringstidspunktTjeneste = skjæringstidspunktTjeneste;
         this.historikkRepo = historikkRepo;
         this.arbeidsgiverTjeneste = arbeidsgiverTjeneste;
         this.inntektsmeldingRegisterTjeneste = inntektsmeldingRegisterTjeneste;
+        this.inntektsmeldingTjeneste = inntektsmeldingTjeneste;
+        this.iayTjeneste = iayTjeneste;
     }
 
     public void lagTaskForespørAlleInntektsmeldinger(BehandlingReferanse ref) {
@@ -233,6 +241,32 @@ public class FpInntektsmeldingTjeneste {
         taskdata.setProperty(LukkForespørslerImTask.STATUS, status.name());
         taskdata.setProperty(LukkForespørslerImTask.SAK_NUMMER, behandling.getSaksnummer().getVerdi());
         prosessTaskTjeneste.lagre(taskdata);
+    }
+
+    public boolean erArbeidsgiverIGrunnlag(BehandlingReferanse ref, Skjæringstidspunkt stp, String orgnummer) {
+        return iayTjeneste.finnGrunnlag(ref.behandlingId()).map(grunnlag -> {
+            var filter = new YrkesaktivitetFilter(grunnlag.getArbeidsforholdInformasjon(), grunnlag.getAktørArbeidFraRegister(ref.aktørId()))
+                .etter(stp.getUtledetSkjæringstidspunkt());
+            return filter.getYrkesaktiviteter().stream()
+                .filter(y -> y.getArbeidsgiver() != null && y.getArbeidsgiver().getErVirksomhet())
+                .anyMatch(y -> orgnummer.equals(y.getArbeidsgiver().getOrgnr()));
+        }).orElse(false);
+    }
+
+    public void opprettForespørselOgLukkHvisMottatt(BehandlingReferanse ref, Skjæringstidspunkt stp, String orgnummer) {
+        var arbeidsgiver = Arbeidsgiver.virksomhet(new OrgNummer(orgnummer));
+        lagForespørselForBestemtArbeidsgiver(ref, stp, arbeidsgiver);
+
+        var erMottatt = inntektsmeldingTjeneste
+            .hentInntektsmeldinger(ref, stp.getUtledetSkjæringstidspunkt())
+            .stream()
+            .anyMatch(im -> im.getArbeidsgiver().equals(arbeidsgiver));
+
+        if (erMottatt) {
+            LOG.info("FpInntektsmeldingTjeneste:opprettForespørselOgLukkHvisMottatt: Inntektsmelding er allerede mottatt for sak {} og orgnummer {}, lukker forespørsel",
+                ref.saksnummer(), tilMaskertNummer(orgnummer));
+            lukkForespørsel(ref.saksnummer().getVerdi(), orgnummer);
+        }
     }
 
     public void lukkForespørsel(String saksnummer, String orgnummer) {
