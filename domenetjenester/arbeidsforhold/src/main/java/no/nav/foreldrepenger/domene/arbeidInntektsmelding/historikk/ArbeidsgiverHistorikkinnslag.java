@@ -17,9 +17,7 @@ class ArbeidsgiverHistorikkinnslag {
     static String lagArbeidsgiverHistorikkinnslagTekst(ArbeidsgiverOpplysninger arbeidsgiverOpplysninger, Optional<EksternArbeidsforholdRef> eksternRef) {
         Objects.requireNonNull(arbeidsgiverOpplysninger, "arbeidsgiverOpplysninger");
         var tekst = lagTekstForArbeidsgiver(arbeidsgiverOpplysninger);
-        return eksternRef
-            .map(ref -> tekst + " ..." + sisteFireTegn(ref.getReferanse()))
-            .orElse(tekst);
+        return eksternRef.map(ref -> tekst + " ..." + sisteFireTegn(ref.getReferanse())).orElse(tekst);
     }
 
     private static String sisteFireTegn(String referanse) {
@@ -30,9 +28,7 @@ class ArbeidsgiverHistorikkinnslag {
         if (OrgNummer.KUNSTIG_ORG.equals(opplysninger.getIdentifikator())) {
             return opplysninger.getNavn();
         }
-        var identifikator = opplysninger.getFødselsdato() != null
-            ? format(opplysninger.getFødselsdato())
-            : opplysninger.getIdentifikator();
+        var identifikator = opplysninger.getFødselsdato() != null ? format(opplysninger.getFødselsdato()) : opplysninger.getIdentifikator();
         return opplysninger.getNavn() + " (" + identifikator + ")";
     }
 }
