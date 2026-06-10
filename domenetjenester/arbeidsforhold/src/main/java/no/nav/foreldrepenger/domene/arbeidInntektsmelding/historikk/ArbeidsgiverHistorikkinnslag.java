@@ -12,42 +12,27 @@ import no.nav.foreldrepenger.domene.typer.EksternArbeidsforholdRef;
 class ArbeidsgiverHistorikkinnslag {
 
     private ArbeidsgiverHistorikkinnslag() {
-        // Skjuler default konstruktør
     }
 
-    public static String lagArbeidsgiverHistorikkinnslagTekst(ArbeidsgiverOpplysninger arbeidsgiverOpplysninger, Optional<EksternArbeidsforholdRef> eksternArbeidsforholdRef) {
+    static String lagArbeidsgiverHistorikkinnslagTekst(ArbeidsgiverOpplysninger arbeidsgiverOpplysninger, Optional<EksternArbeidsforholdRef> eksternRef) {
         Objects.requireNonNull(arbeidsgiverOpplysninger, "arbeidsgiverOpplysninger");
-        var tekstForArbeidsgiver = lagTekstForArbeidsgiver(arbeidsgiverOpplysninger);
-        return eksternArbeidsforholdRef.map(ref -> lagTekstMedArbeidsgiverOgArbeidforholdRef(tekstForArbeidsgiver, ref))
-            .orElse(tekstForArbeidsgiver);
+        var tekst = lagTekstForArbeidsgiver(arbeidsgiverOpplysninger);
+        return eksternRef
+            .map(ref -> tekst + " ..." + sisteFireTegn(ref.getReferanse()))
+            .orElse(tekst);
     }
 
-    private static String lagTekstMedArbeidsgiverOgArbeidforholdRef(String tekstForArbeidsgiver, EksternArbeidsforholdRef eksternArbeidsforholdRef) {
-        var sb = new StringBuilder(tekstForArbeidsgiver);
-        var referanse = eksternArbeidsforholdRef.getReferanse();
-        var sisteFireTegnIRef = referanse.length() < 4 ? referanse : referanse.substring(referanse.length() - 4);
-        return sb.append(" ...").append(sisteFireTegnIRef).toString();
+    private static String sisteFireTegn(String referanse) {
+        return referanse.length() < 4 ? referanse : referanse.substring(referanse.length() - 4);
     }
 
     private static String lagTekstForArbeidsgiver(ArbeidsgiverOpplysninger opplysninger) {
-        var sb = new StringBuilder();
-        var arbeidsgiverNavn = opplysninger.getNavn();
-        sb.append(arbeidsgiverNavn);
-
-        // Ved kunstig orgnr er det ikke noe orgnr å vise, da det ikke betyr noe for saksbehandler
         if (OrgNummer.KUNSTIG_ORG.equals(opplysninger.getIdentifikator())) {
-            return sb.toString();
+            return opplysninger.getNavn();
         }
-
-        String identifikator;
-        if (opplysninger.getFødselsdato() != null) {
-            identifikator = format(opplysninger.getFødselsdato());
-        } else {
-            identifikator = opplysninger.getIdentifikator();
-        }
-
-        return sb.append(" (")
-            .append(identifikator)
-            .append(")").toString();
+        var identifikator = opplysninger.getFødselsdato() != null
+            ? format(opplysninger.getFødselsdato())
+            : opplysninger.getIdentifikator();
+        return opplysninger.getNavn() + " (" + identifikator + ")";
     }
 }
