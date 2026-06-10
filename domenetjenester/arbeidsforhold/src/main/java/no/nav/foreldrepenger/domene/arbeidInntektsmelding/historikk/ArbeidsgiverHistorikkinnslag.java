@@ -9,12 +9,13 @@ import no.nav.foreldrepenger.behandlingslager.virksomhet.OrgNummer;
 import no.nav.foreldrepenger.domene.arbeidsgiver.ArbeidsgiverOpplysninger;
 import no.nav.foreldrepenger.domene.typer.EksternArbeidsforholdRef;
 
-class ArbeidsgiverHistorikkinnslag {
+public class ArbeidsgiverHistorikkinnslag {
 
     private ArbeidsgiverHistorikkinnslag() {
     }
 
-    static String lagArbeidsgiverHistorikkinnslagTekst(ArbeidsgiverOpplysninger arbeidsgiverOpplysninger, Optional<EksternArbeidsforholdRef> eksternRef) {
+    public static String lagArbeidsgiverHistorikkinnslagTekst(ArbeidsgiverOpplysninger arbeidsgiverOpplysninger,
+                                                              Optional<EksternArbeidsforholdRef> eksternRef) {
         Objects.requireNonNull(arbeidsgiverOpplysninger, "arbeidsgiverOpplysninger");
         var tekst = lagTekstForArbeidsgiver(arbeidsgiverOpplysninger);
         return eksternRef.map(ref -> tekst + " ..." + sisteFireTegn(ref.getReferanse())).orElse(tekst);

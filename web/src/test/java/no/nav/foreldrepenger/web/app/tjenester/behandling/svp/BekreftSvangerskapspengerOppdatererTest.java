@@ -89,7 +89,7 @@ class BekreftSvangerskapspengerOppdatererTest {
             inntektArbeidYtelseTjeneste);
         lenient().when(arbeidsgiverTjeneste.hent(any())).thenReturn(new ArbeidsgiverOpplysninger("123", "Arbeidsgiver"));
         var bekreftSvangerskapspengerHistorikkinnslagTjeneste = new BekreftSvangerskapspengerHistorikkinnslagTjeneste(
-            arbeidsgiverTjeneste, repositoryProvider.getHistorikkinnslagRepository());
+            arbeidsgiverTjeneste, repositoryProvider.getHistorikkinnslagRepository(), inntektArbeidYtelseTjeneste);
         oppdaterer = new BekreftSvangerskapspengerOppdaterer(grunnlagProvider, inntektArbeidYtelseTjeneste, stønadsperioderInnhenterMock, arbeidsforholdAdministrasjonTjeneste,
             repositoryProvider.getBehandlingRepository(), mock(OpplysningsPeriodeTjeneste.class), bekreftSvangerskapspengerHistorikkinnslagTjeneste);
     }

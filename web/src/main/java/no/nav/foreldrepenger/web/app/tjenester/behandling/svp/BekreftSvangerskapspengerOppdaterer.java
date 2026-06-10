@@ -39,6 +39,7 @@ import no.nav.foreldrepenger.domene.arbeidsforhold.impl.ArbeidsforholdAdministra
 import no.nav.foreldrepenger.domene.iay.modell.ArbeidsforholdInformasjonBuilder;
 import no.nav.foreldrepenger.domene.iay.modell.ArbeidsforholdOverstyringBuilder;
 import no.nav.foreldrepenger.domene.iay.modell.BekreftetPermisjon;
+import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlag;
 import no.nav.foreldrepenger.domene.iay.modell.Permisjon;
 import no.nav.foreldrepenger.domene.iay.modell.Yrkesaktivitet;
 import no.nav.foreldrepenger.domene.iay.modell.YrkesaktivitetFilter;
@@ -94,23 +95,6 @@ public class BekreftSvangerskapspengerOppdaterer implements AksjonspunktOppdater
                 && yaPerm.getProsentsats().getVerdi().compareTo(bekreftetPerm.getPermisjonsprosent()) == 0 && Objects.equals(
                 yaPerm.getPermisjonsbeskrivelseType(), bekreftetPerm.getType()))
             .findFirst();
-    }
-
-    private static void setKildeForOppholdsperioderSomErLagtTil(SvpTilretteleggingEntitet eksisterendeTilrettelegging,
-                                                                SvpTilretteleggingEntitet nyTilrettelegging) {
-        var eksisterendeOpphold = eksisterendeTilrettelegging.getAvklarteOpphold();
-        var nyeOpphold = nyTilrettelegging.getAvklarteOpphold();
-        var lagtTilOppholdListe = nyeOpphold.stream()
-            .filter(nyttOpphold -> eksisterendeOpphold.stream().noneMatch(eksisterende -> erLikeUtenKilde(eksisterende, nyttOpphold)))
-            .toList();
-        // TODO: vurder ren equalssjekk og sette kilde i frontend ved oppdateringer
-        lagtTilOppholdListe.forEach(nyttOpphold -> nyttOpphold.setKilde(SvpOppholdKilde.REGISTRERT_AV_SAKSBEHANDLER));
-    }
-
-    // frontend sender ikke oppdateringer på kilde per nå
-    private static boolean erLikeUtenKilde(SvpAvklartOpphold a, SvpAvklartOpphold b) {
-        return Objects.equals(a.getOppholdÅrsak(), b.getOppholdÅrsak()) && Objects.equals(a.getFom(), b.getFom()) && Objects.equals(a.getTom(),
-            b.getTom());
     }
 
     static Optional<LocalDate> getFødselsdato(FamilieHendelseGrunnlagEntitet familieHendelseGrunnlag) {
@@ -240,9 +224,9 @@ public class BekreftSvangerskapspengerOppdaterer implements AksjonspunktOppdater
         }
     }
 
-    List<TilretteleggingEndringStatus> oppdaterTilrettelegging(BekreftSvangerskapspengerDto dto,
-                                                               Behandling behandling,
-                                                               List<SvpTilretteleggingEntitet> eksisterendeTilrettelegginger) {
+    List<TilretteleggingEndring> oppdaterTilrettelegging(BekreftSvangerskapspengerDto dto,
+                                                         Behandling behandling,
+                                                         List<SvpTilretteleggingEntitet> eksisterendeTilrettelegginger) {
         var endredeTilretteleginger = dto.getBekreftetSvpArbeidsforholdList();
         validerTilrettelegginger(endredeTilretteleginger, eksisterendeTilrettelegginger);
 
@@ -250,9 +234,9 @@ public class BekreftSvangerskapspengerOppdaterer implements AksjonspunktOppdater
             .map(tilrettelegging -> mapTilrettelegging(tilrettelegging, eksisterendeTilrettelegginger))
             .toList();
 
-        if (tilretteleggingErEndretMap.stream().anyMatch(TilretteleggingEndringStatus::erEndret)) {
+        if (tilretteleggingErEndretMap.stream().anyMatch(TilretteleggingEndring::skalOppdateres)) {
 
-            var nyTilrettelegginger = tilretteleggingErEndretMap.stream().map(TilretteleggingEndringStatus::nyTilrettelegging).toList();
+            var nyTilrettelegginger = tilretteleggingErEndretMap.stream().map(TilretteleggingEndring::nyTilrettelegging).toList();
             svangerskapspengerRepository.lagreOverstyrtGrunnlag(behandling, nyTilrettelegginger);
 
             // behov fra dato er stp i saken tidlig i prosessen, og benyttes som start dato når det sjekkes om det finnes en relevant neste sak. Dersom denne endres må utledning av neste sak gjøres på nytt.
@@ -328,36 +312,30 @@ public class BekreftSvangerskapspengerOppdaterer implements AksjonspunktOppdater
         return tilretteleggingFOM.stream().sorted(Comparator.comparing(SvpAvklartOpphold::getFom)).toList();
     }
 
-    private TilretteleggingEndringStatus mapTilrettelegging(BekreftTilrettelegging arbeidsforholdDto,
-                                                            List<SvpTilretteleggingEntitet> eksisterendeTilrettelegingerListe) {
-        SvpTilretteleggingEntitet eksisterendeTilrettelegging;
-        // TODO sjekk på om den er splittet
-        if (arbeidsforholdDto.getTilretteleggingId() == null) {
-            var tilretteleggingerHosSammeAG = eksisterendeTilrettelegingerListe.stream()
-                .filter(til -> arbeidsforholdDto.getArbeidsgiverReferanse()
-                    .equals(til.getArbeidsgiver().map(Arbeidsgiver::getIdentifikator).orElse(null)))
-                .toList();
-            if (tilretteleggingerHosSammeAG.size() > 1) {
-                throw new TekniskException("FP-564313",
-                    "Forventet å finne akkurat en tilrettelegging hos arbeidsgiver, men fant " + tilretteleggingerHosSammeAG.size());
-            }
-            eksisterendeTilrettelegging = tilretteleggingerHosSammeAG.getFirst();
+    private TilretteleggingEndring mapTilrettelegging(BekreftTilrettelegging bekreftetTilrettelegging,
+                                                      List<SvpTilretteleggingEntitet> eksisterendeTilrettelegingerListe) {
+        var tilretteleggingerHosSammeAG = eksisterendeTilrettelegingerListe.stream()
+            .filter(til -> bekreftetTilrettelegging.getArbeidsgiverReferanse()
+                .equals(til.getArbeidsgiver().map(Arbeidsgiver::getIdentifikator).orElse(null)))
+            .toList();
 
-        } else {
-            eksisterendeTilrettelegging = finnEksisterendeTilretteleggingForId(eksisterendeTilrettelegingerListe,
-                arbeidsforholdDto.getTilretteleggingId());
-        }
-        var nyTilrettelegging = mapNyTilrettelegging(arbeidsforholdDto, eksisterendeTilrettelegging);
+        var eksisterendeTilrettelegging =
+            bekreftetTilrettelegging.getTilretteleggingId() == null ? tilretteleggingerHosSammeAG.getFirst() : finnEksisterendeTilretteleggingForId(
+                eksisterendeTilrettelegingerListe, bekreftetTilrettelegging.getTilretteleggingId());
 
-        if (erTilretteleggingEndret(eksisterendeTilrettelegging, nyTilrettelegging)) {
-            // Ble gjort i tidligere opprettHistorikkInnslagForEndringer.
-            // Mapping til nyTilrettelegging (mapNyTilrettelegging) bruker REGISTRERT_AV_SAKSBEHANDLER hvis kilde er null.
-            // Kanskje overflødig hvis ikke en annen kilde er eksplisitt spesifisert. TODO: Gjennomgang av de som jobber med det og eventuelt fjern
-            setKildeForOppholdsperioderSomErLagtTil(eksisterendeTilrettelegging, nyTilrettelegging);
-            return new TilretteleggingEndringStatus(true, nyTilrettelegging, eksisterendeTilrettelegging);
+        var nyTilrettelegging = mapNyTilretteleggingFraGammel(bekreftetTilrettelegging, eksisterendeTilrettelegging);
+
+        if (nyTilrettelegging.getId() == null && tilretteleggingerHosSammeAG.size() > 1) {
+            return TilretteleggingEndring.reverserSplitt(nyTilrettelegging, tilretteleggingerHosSammeAG);
+
+        } else if (nyTilrettelegging.getId() == null && tilretteleggingerHosSammeAG.size() == 1) {
+            return TilretteleggingEndring.splitt(nyTilrettelegging);
+
+        } else if (erTilretteleggingEndret(eksisterendeTilrettelegging, nyTilrettelegging)) {
+            return TilretteleggingEndring.endret(nyTilrettelegging, eksisterendeTilrettelegging);
         }
 
-        return new TilretteleggingEndringStatus(false, eksisterendeTilrettelegging, eksisterendeTilrettelegging);
+        return TilretteleggingEndring.uendret(eksisterendeTilrettelegging);
     }
 
     private SvpTilretteleggingEntitet finnEksisterendeTilretteleggingForId(List<SvpTilretteleggingEntitet> eksisterendeTilrettelegingerListe,
@@ -369,22 +347,22 @@ public class BekreftSvangerskapspengerOppdaterer implements AksjonspunktOppdater
                 "Finner ikke eksisterende tilrettelegging på svangerskapspengergrunnlag med identifikator: " + tilretteleggingId));
     }
 
-    private SvpTilretteleggingEntitet mapNyTilrettelegging(BekreftTilrettelegging arbeidsforholdDto,
-                                                           SvpTilretteleggingEntitet eksisterendeTilrettelegging) {
+    private SvpTilretteleggingEntitet mapNyTilretteleggingFraGammel(BekreftTilrettelegging bekreftetTilrettelegging,
+                                                                    SvpTilretteleggingEntitet eksisterendeTilrettelegging) {
         var nyTilretteleggingEntitetBuilder = new SvpTilretteleggingEntitet.Builder().medArbeidType(eksisterendeTilrettelegging.getArbeidType())
             .medArbeidsgiver(eksisterendeTilrettelegging.getArbeidsgiver().orElse(null))
             .medOpplysningerOmRisikofaktorer(eksisterendeTilrettelegging.getOpplysningerOmRisikofaktorer().orElse(null))
             .medOpplysningerOmTilretteleggingstiltak(eksisterendeTilrettelegging.getOpplysningerOmTilretteleggingstiltak().orElse(null))
             .medKopiertFraTidligereBehandling(eksisterendeTilrettelegging.getKopiertFraTidligereBehandling())
             .medMottattTidspunkt(eksisterendeTilrettelegging.getMottattTidspunkt())
-            .medInternArbeidsforholdRef(InternArbeidsforholdRef.ref(arbeidsforholdDto.getInternArbeidsforholdReferanse()))
-            .medBehovForTilretteleggingFom(arbeidsforholdDto.getTilretteleggingBehovFom())
-            .medBegrunnelse(arbeidsforholdDto.getBegrunnelse())
-            .medSkalBrukes(arbeidsforholdDto.getSkalBrukes());
+            .medInternArbeidsforholdRef(InternArbeidsforholdRef.ref(bekreftetTilrettelegging.getInternArbeidsforholdReferanse()))
+            .medBehovForTilretteleggingFom(bekreftetTilrettelegging.getTilretteleggingBehovFom())
+            .medBegrunnelse(bekreftetTilrettelegging.getBegrunnelse())
+            .medSkalBrukes(bekreftetTilrettelegging.getSkalBrukes());
 
         //nye tilrettelegging-fra-datoer per arbeidsforhold
-        for (var datoDto : arbeidsforholdDto.getTilretteleggingDatoer()) {
-            if (arbeidsforholdDto.getSkalBrukes() && delvisTilretteleggingUtenStillingsprosentOgIkkeOverstyrt(datoDto)) {
+        for (var datoDto : bekreftetTilrettelegging.getTilretteleggingDatoer()) {
+            if (bekreftetTilrettelegging.getSkalBrukes() && delvisTilretteleggingUtenStillingsprosentOgIkkeOverstyrt(datoDto)) {
                 throw new FunksjonellException("FP-128763", "Verken arbeidsprosent eller overstyrt utbetalingsgrad opgitt ved delvis tilrettelegging",
                     "Fyll ut enten arbeidsprosent eller endre oppgitt utbetalingsgrad");
             }
@@ -400,8 +378,8 @@ public class BekreftSvangerskapspengerOppdaterer implements AksjonspunktOppdater
             nyTilretteleggingEntitetBuilder.medTilretteleggingFom(nyTilretteleggingFOM);
         }
 
-        if (arbeidsforholdDto.getAvklarteOppholdPerioder() != null) {
-            arbeidsforholdDto.getAvklarteOppholdPerioder()
+        if (bekreftetTilrettelegging.getAvklarteOppholdPerioder() != null) {
+            bekreftetTilrettelegging.getAvklarteOppholdPerioder()
                 .stream()
                 .filter(oppholdDto -> !oppholdDto.forVisning()) //Vi viser opphold fra IM - disse skal ikke lagres i grunnlaget
                 .forEach(oppholdDto -> {
