@@ -362,7 +362,7 @@ public class ForvaltningBehandlingRestTjeneste {
         var ref = BehandlingReferanse.fra(behandling);
         var stp = skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandling.getId());
         if (!erArbeidsgiverIGrunnlag(ref, stp, dto.getOrgnummer())) {
-            LOG.info("Orgnummer finnes ikke i IAY-grunnlaget for behandling {}", dto.getBehandlingUuid());
+            LOG.info("Orgnummer {} finnes ikke i IAY-grunnlaget for behandling {}", OrgNummer.tilMaskertNummer(dto.getOrgnummer()), dto.getBehandlingUuid());
             return Response.status(Response.Status.BAD_REQUEST).build();
         }
         opprettForespørselOgLukkHvisMottatt(ref, stp, dto.getOrgnummer());
