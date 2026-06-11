@@ -390,7 +390,7 @@ public class ForvaltningBehandlingRestTjeneste {
 
         if (erMottatt) {
             LOG.info("ForvaltningBehandlingRestTjeneste: Inntektsmelding er allerede mottatt for sak {} og orgnummer {}, lukker forespørsel",
-                ref.saksnummer(), orgnummer);
+                ref.saksnummer(), OrgNummer.tilMaskertNummer(orgnummer));
             fpInntektsmeldingTjeneste.lukkForespørsel(ref.saksnummer().getVerdi(), orgnummer);
         }
     }
