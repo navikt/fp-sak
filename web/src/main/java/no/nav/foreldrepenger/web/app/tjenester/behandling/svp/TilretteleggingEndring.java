@@ -14,8 +14,7 @@ public record TilretteleggingEndring(EndringType endringType,
         return new TilretteleggingEndring(EndringType.SPLITT, splittesTil, List.of());
     }
 
-    public static TilretteleggingEndring reverserSplitt(SvpTilretteleggingEntitet reverseresTil,
-                                                        List<SvpTilretteleggingEntitet> reverseresFra) {
+    public static TilretteleggingEndring reverserSplitt(SvpTilretteleggingEntitet reverseresTil, List<SvpTilretteleggingEntitet> reverseresFra) {
         return new TilretteleggingEndring(EndringType.REVERSER_SPLITT, reverseresTil, reverseresFra);
     }
 
@@ -32,11 +31,11 @@ public record TilretteleggingEndring(EndringType endringType,
     }
 
     public boolean erNy() {
-        return this.nyTilrettelegging.getId() == null;
+        return this.endringType == EndringType.SPLITT || this.endringType == EndringType.REVERSER_SPLITT;
     }
 
-    public Optional<SvpTilretteleggingEntitet> getGammelTilrettelegging() {
-        return erNy() ? Optional.empty() : Optional.of(gammelTilrettelegging().getFirst());
+    public Optional<SvpTilretteleggingEntitet> getEndretFra() {
+        return this.erNy() ? Optional.empty() : Optional.of(gammelTilrettelegging().getFirst());
     }
 
     enum EndringType {

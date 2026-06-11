@@ -121,7 +121,7 @@ public class BekreftSvangerskapspengerOppdaterer implements AksjonspunktOppdater
         var termindatoEndret = oppdaterFamiliehendelse(ref, dto, familieHendelseGrunnlag);
         var endredeTilrettelegginger = oppdaterTilrettelegging(dto, behandling, eksisterendeTilretteleginger);
         oppdaterPermisjonVedBehov(dto, param);
-        if (termindatoEndret || !endredeTilrettelegginger.isEmpty()) {
+        if (termindatoEndret || endredeTilrettelegginger.stream().anyMatch(TilretteleggingEndring::skalOppdateres)) {
             bekreftSvangerskapspengerHistorikkinnslagTjeneste.lagHistorikkinnslagVedEndring(ref, dto, familieHendelseGrunnlag,
                 endredeTilrettelegginger);
             var sistefikspunkt = opplysningsPeriodeTjeneste.utledFikspunktForRegisterInnhenting(behandling.getId(), ref.fagsakYtelseType());
@@ -244,10 +244,8 @@ public class BekreftSvangerskapspengerOppdaterer implements AksjonspunktOppdater
             if (BehandlingType.FØRSTEGANGSSØKNAD.equals(behandling.getType()) && erFørsteBehovFraDatoEndret) {
                 stønadsperioderInnhenter.innhentNesteSak(behandling);
             }
-
-            return tilretteleggingErEndretMap;
         }
-        return List.of();
+        return tilretteleggingErEndretMap;
     }
 
     private boolean endretFørsteBehovFra(List<BekreftTilrettelegging> bekreftedeArbeidsforholdDtoer,
@@ -325,10 +323,10 @@ public class BekreftSvangerskapspengerOppdaterer implements AksjonspunktOppdater
 
         var nyTilrettelegging = mapNyTilretteleggingFraGammel(bekreftetTilrettelegging, eksisterendeTilrettelegging);
 
-        if (nyTilrettelegging.getId() == null && tilretteleggingerHosSammeAG.size() > 1) {
+        if (bekreftetTilrettelegging.getTilretteleggingId() == null && tilretteleggingerHosSammeAG.size() > 1) {
             return TilretteleggingEndring.reverserSplitt(nyTilrettelegging, tilretteleggingerHosSammeAG);
 
-        } else if (nyTilrettelegging.getId() == null && tilretteleggingerHosSammeAG.size() == 1) {
+        } else if (bekreftetTilrettelegging.getTilretteleggingId() == null && tilretteleggingerHosSammeAG.size() == 1) {
             return TilretteleggingEndring.splitt(nyTilrettelegging);
 
         } else if (erTilretteleggingEndret(eksisterendeTilrettelegging, nyTilrettelegging)) {

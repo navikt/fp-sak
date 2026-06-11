@@ -74,21 +74,22 @@ public class BekreftSvangerskapspengerHistorikkinnslagTjeneste {
             .toList();
 
         if (!antallSplittedeTilrettelegginger.isEmpty()) {
-            builder.addLinje(String.format("Tilrettelegging er blitt splittet fra 1 til %s tilrettelegginger", antallSplittedeTilrettelegginger));
+            builder.addLinje(
+                String.format("Tilrettelegging er blitt splittet fra 1 til %s tilrettelegginger", antallSplittedeTilrettelegginger.size()));
         }
         endredeTilrettelegginger.stream()
-                .filter(et -> et.endringType() == TilretteleggingEndring.EndringType.REVERSER_SPLITT)
-                .forEach(et -> builder.addLinje(
-                        String.format("Splittet tilrettelegging er reversert fra %s tilrettelegginger til 1", et.gammelTilrettelegging().size())));
+            .filter(et -> et.endringType() == TilretteleggingEndring.EndringType.REVERSER_SPLITT)
+            .forEach(et -> builder.addLinje(
+                String.format("Splittet tilrettelegging er reversert fra %s tilrettelegginger til 1", et.gammelTilrettelegging().size())));
 
         endredeTilrettelegginger.stream()
             .filter(TilretteleggingEndring::skalOppdateres)
             .map(endring -> opprettHistorikkinnslagForTilretteleggingsperiode(endring, arbeidsforholdInformasjon))
             .forEach(t -> {
-            builder.addLinje(HistorikkinnslagLinjeBuilder.LINJESKIFT);
-            t.forEach(builder::addLinje);
-            builder.addLinje(HistorikkinnslagLinjeBuilder.LINJESKIFT);
-        });
+                builder.addLinje(HistorikkinnslagLinjeBuilder.LINJESKIFT);
+                t.forEach(builder::addLinje);
+                builder.addLinje(HistorikkinnslagLinjeBuilder.LINJESKIFT);
+            });
 
         builder.addLinje(dto.getBegrunnelse());
         historikkinnslagRepository.lagre(builder.build());
@@ -96,7 +97,7 @@ public class BekreftSvangerskapspengerHistorikkinnslagTjeneste {
 
     private List<HistorikkinnslagLinjeBuilder> opprettHistorikkinnslagForTilretteleggingsperiode(TilretteleggingEndring endringStatus,
                                                                                                  Optional<ArbeidsforholdInformasjon> arbeidsforholdInformasjon) {
-        var eksisterendeTilrettelegging = endringStatus.getGammelTilrettelegging();
+        var eksisterendeTilrettelegging = endringStatus.getEndretFra();
         var nyTilrettelegging = endringStatus.nyTilrettelegging();
 
         var endredeLinjer = new ArrayList<HistorikkinnslagLinjeBuilder>();
@@ -118,20 +119,20 @@ public class BekreftSvangerskapspengerHistorikkinnslagTjeneste {
         // Oppholdsperioder
         var eksisterendeOpphold = eksisterendeTilrettelegging.map(SvpTilretteleggingEntitet::getAvklarteOpphold).orElse(List.of());
         var nyeOpphold = nyTilrettelegging.getAvklarteOpphold();
-        var fjernetOppholdListe = eksisterendeOpphold.stream().filter(eksisterende -> nyeOpphold.stream().noneMatch(nyttOpphold -> erLikeUtenKilde(nyttOpphold, eksisterende)))
+        var fjernetOppholdListe = eksisterendeOpphold.stream()
+            .filter(eksisterende -> nyeOpphold.stream().noneMatch(nyttOpphold -> erLikeUtenKilde(nyttOpphold, eksisterende)))
             .toList();
         var lagtTilOppholdListe = nyeOpphold.stream()
             .filter(nyttOpphold -> eksisterendeOpphold.stream().noneMatch(eksisterende -> erLikeUtenKilde(eksisterende, nyttOpphold)))
             .toList();
 
-        fjernetListe.forEach(fomFjernet -> endredeLinjer.add(
-            tekst(String.format("Periode med %s er fjernet", formaterForHistorikk(fomFjernet)))));
+        fjernetListe.forEach(fomFjernet -> endredeLinjer.add(tekst(String.format("Periode med %s er fjernet", formaterForHistorikk(fomFjernet)))));
         fjernetOppholdListe.forEach(fjernetOpphold -> endredeLinjer.add(
-            tekst(String.format("Periode med __opphold__ %s er fjernet", formatterOppholdDetaljerForHistorikk(fjernetOpphold)))));
+            tekst(String.format("Periode med %s er fjernet", formatterOppholdDetaljerForHistorikk(fjernetOpphold)))));
 
-        lagtTilListe.forEach(fomLagtTil -> endredeLinjer.add(tekst(String.format("Lagt til %s ", formaterForHistorikk(fomLagtTil)))));
+        lagtTilListe.forEach(fomLagtTil -> endredeLinjer.add(tekst(String.format("Periode med %s er lagt til", formaterForHistorikk(fomLagtTil)))));
         lagtTilOppholdListe.forEach(lagtTilOpphold -> endredeLinjer.add(
-            tekst(String.format("Lagt til nytt __opphold__ %s", formatterOppholdDetaljerForHistorikk(lagtTilOpphold)))));
+            tekst(String.format("Periode med %s er lagt til", formatterOppholdDetaljerForHistorikk(lagtTilOpphold)))));
         return endredeLinjer;
     }
 
@@ -160,9 +161,9 @@ public class BekreftSvangerskapspengerHistorikkinnslagTjeneste {
             case SYKEPENGER -> "Sykepenger 100%";
             case FERIE -> "Ferie";
         };
-        return SvpOppholdKilde.SØKNAD.equals(opphold.getKilde())
-            ? String.format("__%s__ med __%s__ og kilde søknad", format(opphold.getTidsperiode()), oppholdÅrsakTekst)
-            : String.format("__%s__ med __%s__", format(opphold.getTidsperiode()), oppholdÅrsakTekst);
+        var tidsperiode = format(opphold.getTidsperiode());
+        var tekst = String.format("__%s (%s)__", oppholdÅrsakTekst, tidsperiode);
+        return SvpOppholdKilde.SØKNAD.equals(opphold.getKilde()) ? tekst + " fra søknad" : tekst;
     }
 
     private String formaterForHistorikk(TilretteleggingFOM fom) {
