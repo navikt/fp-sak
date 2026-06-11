@@ -213,10 +213,8 @@ class RegisterdataEndringshåndtererTest extends EntityManagerAwareTest {
 
     private RegisterdataEndringshåndterer lagRegisterdataEndringshåndterer() {
 
-        var durationInstance = "PT10H";
         return new RegisterdataEndringshåndterer(
             repositoryProvider,
-            durationInstance,
             endringskontroller,
             endringsresultatSjekker,
             familieHendelseTjeneste,

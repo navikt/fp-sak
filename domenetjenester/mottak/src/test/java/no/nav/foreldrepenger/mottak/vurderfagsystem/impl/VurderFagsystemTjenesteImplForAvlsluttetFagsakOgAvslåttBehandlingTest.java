@@ -58,9 +58,7 @@ class VurderFagsystemTjenesteImplForAvlsluttetFagsakOgAvslåttBehandlingTest ext
         var mottattDokumentPersisterer = new MottattDokumentPersisterer(BehandlingEventPubliserer.NULL_EVENT_PUB);
 
         behandlingRepositoryProvider = new BehandlingRepositoryProvider(getEntityManager());
-        var mottatteDokumentTjeneste = new MottatteDokumentTjeneste(FRIST_INNSENDING_PERIODE,
-            mottattDokumentPersisterer,
-                mottatteDokumentRepository, behandlingRepositoryProvider);
+        var mottatteDokumentTjeneste = new MottatteDokumentTjeneste(mottattDokumentPersisterer, mottatteDokumentRepository, behandlingRepositoryProvider);
 
         var familieTjeneste = new FamilieHendelseTjeneste(null, behandlingRepositoryProvider.getFamilieHendelseRepository());
         var fagsakRelasjonTjeneste = new FagsakRelasjonTjeneste(behandlingRepositoryProvider);

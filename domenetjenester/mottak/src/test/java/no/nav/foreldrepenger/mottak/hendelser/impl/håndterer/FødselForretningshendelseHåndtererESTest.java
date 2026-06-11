@@ -11,7 +11,6 @@ import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 import java.time.LocalDate;
-import java.time.Period;
 import java.util.List;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -71,7 +70,7 @@ class FødselForretningshendelseHåndtererESTest {
     void setUp() {
         håndtererFelles = new ForretningshendelseHåndtererFelles(historikkinnslagTjeneste, kompletthetskontroller,
             behandlingProsesseringTjeneste, behandlingsoppretter, familieHendelseTjeneste, personinfoAdapter, køKontroller);
-        håndterer = new FødselForretningshendelseHåndtererImpl(håndtererFelles, Period.ofDays(60), skjæringstidspunktTjeneste, beregningRepository);
+        håndterer = new FødselForretningshendelseHåndtererImpl(håndtererFelles, skjæringstidspunktTjeneste, beregningRepository);
     }
 
     @Test
@@ -101,7 +100,7 @@ class FødselForretningshendelseHåndtererESTest {
 
         håndtererFelles = new ForretningshendelseHåndtererFelles(historikkinnslagTjeneste, kompletthetskontroller, behandlingProsesseringTjeneste, behandlingsoppretter,
             new FamilieHendelseTjeneste(null, scenario.mockBehandlingRepositoryProvider().getFamilieHendelseRepository()), personinfoAdapter, køKontroller);
-        håndterer = new FødselForretningshendelseHåndtererImpl(håndtererFelles, Period.ofDays(60), skjæringstidspunktTjeneste, beregningRepository);
+        håndterer = new FødselForretningshendelseHåndtererImpl(håndtererFelles, skjæringstidspunktTjeneste, beregningRepository);
 
         when(personinfoAdapter.innhentAlleFødteForBehandlingIntervaller(any(), any(), any())).thenReturn(List.of(lagBarn(fødselsdato).build(),lagBarn(fødselsdato).build()));
 

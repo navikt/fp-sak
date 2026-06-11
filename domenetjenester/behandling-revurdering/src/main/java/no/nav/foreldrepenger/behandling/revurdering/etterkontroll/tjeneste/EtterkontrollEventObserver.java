@@ -27,32 +27,25 @@ import no.nav.foreldrepenger.behandlingslager.etterkontroll.Etterkontroll;
 import no.nav.foreldrepenger.behandlingslager.etterkontroll.EtterkontrollRepository;
 import no.nav.foreldrepenger.behandlingslager.etterkontroll.KontrollType;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
-import no.nav.foreldrepenger.konfig.KonfigVerdi;
 
 @ApplicationScoped
 public class EtterkontrollEventObserver {
 
     private static final Logger LOG = LoggerFactory.getLogger(EtterkontrollEventObserver.class);
 
+    private static final Period ETTERKONTROLL_DAGER_TILBAKE = Period.ofDays(60);
+
     private EtterkontrollRepository etterkontrollRepository;
     private FamilieHendelseRepository familieHendelseRepository;
-    private Period etterkontrollTidTilbake;
 
     public EtterkontrollEventObserver() {
         // Cool Devices Installed
     }
 
-    /**
-     * @param etterkontrollTidTilbake - Tid etter innvilgelsesdato før en fagsak
-     *                                vurderes for etterkontroll
-     */
     @Inject
-    public EtterkontrollEventObserver(EtterkontrollRepository etterkontrollRepository,
-            FamilieHendelseRepository familieHendelseRepository,
-            @KonfigVerdi(value = "etterkontroll.tid.tilbake", defaultVerdi = "P60D") Period etterkontrollTidTilbake) {
+    public EtterkontrollEventObserver(EtterkontrollRepository etterkontrollRepository, FamilieHendelseRepository familieHendelseRepository) {
         this.etterkontrollRepository = etterkontrollRepository;
         this.familieHendelseRepository = familieHendelseRepository;
-        this.etterkontrollTidTilbake = etterkontrollTidTilbake;
     }
 
     public void observerFamiliehendelseEvent(@Observes FamiliehendelseEvent event) {
@@ -87,7 +80,7 @@ public class EtterkontrollEventObserver {
 
     private void markerForEtterkontroll(Behandling behandling, FamilieHendelseGrunnlagEntitet grunnlag) {
         skalEtterkontrolleresMedDato(behandling, grunnlag).ifPresent(ekDato -> {
-            var ekTid = ekDato.plus(etterkontrollTidTilbake).atStartOfDay();
+            var ekTid = ekDato.plus(ETTERKONTROLL_DAGER_TILBAKE).atStartOfDay();
             var ekListe = etterkontrollRepository.finnEtterkontrollForFagsak(behandling.getFagsakId(), KontrollType.MANGLENDE_FØDSEL);
             if (ekListe.isEmpty()) {
                 var etterkontroll = new Etterkontroll.Builder(behandling.getFagsakId())

@@ -3,7 +3,6 @@ package no.nav.foreldrepenger.domene.registerinnhenting;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.temporal.TemporalAmount;
 import java.util.Optional;
 
 import jakarta.enterprise.context.ApplicationScoped;
@@ -26,7 +25,6 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.hendelser.StartpunktType;
 import no.nav.foreldrepenger.domene.registerinnhenting.impl.Endringskontroller;
 import no.nav.foreldrepenger.familiehendelse.FamilieHendelseTjeneste;
-import no.nav.foreldrepenger.konfig.KonfigVerdi;
 
 /**
  * Oppdaterer registeropplysninger for engangsstønader og skrur behandlingsprosessen tilbake
@@ -36,8 +34,8 @@ import no.nav.foreldrepenger.konfig.KonfigVerdi;
 public class RegisterdataEndringshåndterer {
 
     private static final Logger LOG = LoggerFactory.getLogger(RegisterdataEndringshåndterer.class);
+    private static final Duration OPPDATER_ETTER_TID = Duration.ofHours(10);
 
-    private TemporalAmount oppdatereRegisterdataTidspunkt;
     private BehandlingRepository behandlingRepository;
     private BehandlingsresultatRepository behandlingsresultatRepository;
     private Endringskontroller endringskontroller;
@@ -47,7 +45,6 @@ public class RegisterdataEndringshåndterer {
 
     @Inject
     public RegisterdataEndringshåndterer( BehandlingRepositoryProvider repositoryProvider,
-                                          @KonfigVerdi(value = "oppdatere.registerdata.tidspunkt", defaultVerdi = "PT10H") String oppdaterRegisterdataEtterPeriode,
                                           Endringskontroller endringskontroller,
                                           EndringsresultatSjekker endringsresultatSjekker,
                                           FamilieHendelseTjeneste familieHendelseTjeneste,
@@ -59,9 +56,6 @@ public class RegisterdataEndringshåndterer {
         this.endringsresultatSjekker = endringsresultatSjekker;
         this.behandlingÅrsakTjeneste = behandlingÅrsakTjeneste;
         this.familieHendelseTjeneste = familieHendelseTjeneste;
-        if (oppdaterRegisterdataEtterPeriode != null) {
-            this.oppdatereRegisterdataTidspunkt = Duration.parse(oppdaterRegisterdataEtterPeriode);
-        }
     }
 
     RegisterdataEndringshåndterer() {
@@ -75,11 +69,7 @@ public class RegisterdataEndringshåndterer {
         }
         var midnatt = LocalDate.now().atStartOfDay();
         var opplysningerOppdatertTidspunkt = behandlingRepository.hentSistOppdatertTidspunkt(behandling.getId());
-        if (oppdatereRegisterdataTidspunkt == null) {
-            // konfig-verdien er ikke satt
-            return erOpplysningerOppdatertTidspunktFør(midnatt, opplysningerOppdatertTidspunkt);
-        }
-        var nårOppdatereRegisterdata = LocalDateTime.now().minus(oppdatereRegisterdataTidspunkt);
+        var nårOppdatereRegisterdata = LocalDateTime.now().minus(OPPDATER_ETTER_TID);
         if (nårOppdatereRegisterdata.isAfter(midnatt)) {
             // konfigverdien er etter midnatt, da skal midnatt gjelde
             return erOpplysningerOppdatertTidspunktFør(midnatt, opplysningerOppdatertTidspunkt);

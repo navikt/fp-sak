@@ -6,7 +6,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.time.LocalDate;
-import java.time.Period;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -50,8 +49,7 @@ class RegistrerSøknadStegTest extends EntityManagerAwareTest {
         behandlingRepository = new BehandlingRepository(getEntityManager());
         fagsakRepository = new FagsakRepository(getEntityManager());
         mottatteDokumentRepository = new MottatteDokumentRepository(getEntityManager());
-        mottatteDokumentTjeneste = new MottatteDokumentTjeneste(Period.ofWeeks(6), null, mottatteDokumentRepository,
-                new BehandlingRepositoryProvider(getEntityManager()));
+        mottatteDokumentTjeneste = new MottatteDokumentTjeneste(null, mottatteDokumentRepository, new BehandlingRepositoryProvider(getEntityManager()));
         steg = new RegistrerSøknadSteg(behandlingRepository, mottatteDokumentTjeneste, mock(RegistrerFagsakEgenskaper.class),
             null, kompletthetsjekker, mock(FyllUtSendInnOversetter.class));
         when(kompletthetsjekker.vurderSøknadMottatt(any())).thenReturn(KompletthetResultat.oppfylt());

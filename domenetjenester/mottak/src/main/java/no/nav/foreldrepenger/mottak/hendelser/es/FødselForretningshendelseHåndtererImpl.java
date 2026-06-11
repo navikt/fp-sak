@@ -12,7 +12,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.EngangsstønadBeregningRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.hendelser.ForretningshendelseType;
-import no.nav.foreldrepenger.konfig.KonfigVerdi;
 import no.nav.foreldrepenger.mottak.hendelser.ForretningshendelseHåndterer;
 import no.nav.foreldrepenger.mottak.hendelser.ForretningshendelsestypeRef;
 import no.nav.foreldrepenger.mottak.hendelser.håndterer.ForretningshendelseHåndtererFelles;
@@ -23,22 +22,18 @@ import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 @FagsakYtelseTypeRef(FagsakYtelseType.ENGANGSTØNAD)
 public class FødselForretningshendelseHåndtererImpl implements ForretningshendelseHåndterer {
 
-    private ForretningshendelseHåndtererFelles forretningshendelseHåndtererFelles;
-    private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
-    private Period pdlRegistreringsTidsrom;
-    private EngangsstønadBeregningRepository engangsstønadBeregningRepository;
+    private static final Period REGULERINGSVINDU = Period.ofDays(60); // Se etterkontrollvindu - EK vil fange opp øvrige tilfelle
+
+    private final ForretningshendelseHåndtererFelles forretningshendelseHåndtererFelles;
+    private final SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
+    private final EngangsstønadBeregningRepository engangsstønadBeregningRepository;
 
 
-    /**
-     * @param pdlRegistreringsTidsrom - Periode før termin hvor dødfødsel kan være registrert i PDL
-     */
     @Inject
     public FødselForretningshendelseHåndtererImpl(ForretningshendelseHåndtererFelles forretningshendelseHåndtererFelles,
-                                                  @KonfigVerdi(value = "etterkontroll.tid.tilbake", defaultVerdi = "P60D") Period pdlRegistreringsTidsrom,
                                                   SkjæringstidspunktTjeneste skjæringstidspunktTjeneste,
                                                   EngangsstønadBeregningRepository engangsstønadBeregningRepository) {
         this.forretningshendelseHåndtererFelles = forretningshendelseHåndtererFelles;
-        this.pdlRegistreringsTidsrom = pdlRegistreringsTidsrom;
         this.skjæringstidspunktTjeneste = skjæringstidspunktTjeneste;
         this.engangsstønadBeregningRepository = engangsstønadBeregningRepository;
     }
@@ -61,6 +56,6 @@ public class FødselForretningshendelseHåndtererImpl implements Forretningshend
         var stp = skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandling.getId()).getUtledetSkjæringstidspunkt();
         var idag = LocalDate.now().minusDays(1);
         // Gjelder terminsøknader pluss intervall. Øvrige tilfelle fanges opp i etterkontroll.
-        return idag.isBefore(stp.plus(pdlRegistreringsTidsrom)) && engangsstønadBeregningRepository.skalReberegne(behandling.getId(), idag);
+        return idag.isBefore(stp.plus(REGULERINGSVINDU)) && engangsstønadBeregningRepository.skalReberegne(behandling.getId(), idag);
     }
 }
