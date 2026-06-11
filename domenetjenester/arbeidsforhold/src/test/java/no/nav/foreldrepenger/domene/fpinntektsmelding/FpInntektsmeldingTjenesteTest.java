@@ -1,8 +1,6 @@
 package no.nav.foreldrepenger.domene.fpinntektsmelding;
 
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -29,21 +27,12 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
-import no.nav.foreldrepenger.behandlingslager.virksomhet.ArbeidType;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Virksomhet;
-import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
-import no.nav.foreldrepenger.domene.arbeidsforhold.InntektsmeldingTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsforhold.impl.InntektsmeldingRegisterTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsgiver.ArbeidsgiverTjeneste;
-import no.nav.foreldrepenger.domene.iay.modell.AktivitetsAvtaleBuilder;
-import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseAggregatBuilder;
-import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlagBuilder;
 import no.nav.foreldrepenger.domene.iay.modell.InntektsmeldingBuilder;
 import no.nav.foreldrepenger.domene.iay.modell.Refusjon;
-import no.nav.foreldrepenger.domene.iay.modell.VersjonType;
-import no.nav.foreldrepenger.domene.iay.modell.YrkesaktivitetBuilder;
-import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.Beløp;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
@@ -67,23 +56,11 @@ class FpInntektsmeldingTjenesteTest {
     private ArbeidsgiverTjeneste arbeidsgiverTjeneste;
     @Mock
     private InntektsmeldingRegisterTjeneste inntektsmeldingRegisterTjeneste;
-    @Mock
-    private InntektsmeldingTjeneste inntektsmeldingTjeneste;
-    @Mock
-    private InntektArbeidYtelseTjeneste iayTjeneste;
     private FpInntektsmeldingTjeneste fpInntektsmeldingTjeneste;
-
-    private static final String ORGNUMMER = "999999999";
-    private static final AktørId AKTØR_ID = new AktørId("9999999999999");
 
     @BeforeEach
     void setup() {
-        fpInntektsmeldingTjeneste = new FpInntektsmeldingTjeneste(klient, taskTjeneste, skjæringstidspunktTjeneste, historikkRepository, arbeidsgiverTjeneste, inntektsmeldingRegisterTjeneste, inntektsmeldingTjeneste, iayTjeneste);
-    }
-
-    private BehandlingReferanse lagBehandlingRef() {
-        return new BehandlingReferanse(new Saksnummer("1234"), 1234L, FagsakYtelseType.FORELDREPENGER, 4321L, UUID.randomUUID(),
-            BehandlingStatus.UTREDES, BehandlingType.FØRSTEGANGSSØKNAD, 5432L, AKTØR_ID, RelasjonsRolleType.MORA);
+        fpInntektsmeldingTjeneste = new FpInntektsmeldingTjeneste(klient, taskTjeneste, skjæringstidspunktTjeneste, historikkRepository, arbeidsgiverTjeneste, inntektsmeldingRegisterTjeneste);
     }
 
     @Test
@@ -301,85 +278,6 @@ class FpInntektsmeldingTjenesteTest {
 
         // Assert
         verify(historikkRepository, times(0)).lagre(any());
-    }
-
-    @Test
-    void erArbeidsgiverIGrunnlag_returnerer_false_når_grunnlag_mangler() {
-        var ref = lagBehandlingRef();
-        var stpp = Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(LocalDate.of(2024, 9, 1)).build();
-        when(iayTjeneste.finnGrunnlag(ref.behandlingId())).thenReturn(Optional.empty());
-
-        assertThat(fpInntektsmeldingTjeneste.erArbeidsgiverIGrunnlag(ref, stpp, ORGNUMMER)).isFalse();
-    }
-
-    @Test
-    void erArbeidsgiverIGrunnlag_returnerer_false_når_orgnummer_ikke_finnes_i_grunnlag() {
-        var stp = LocalDate.of(2024, 9, 1);
-        var ref = lagBehandlingRef();
-        var stpp = Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(stp).build();
-        var annetOrgnummer = "123456789";
-        var grunnlag = lagIayGrunnlagMedYrkesaktivitet(annetOrgnummer, stp);
-        when(iayTjeneste.finnGrunnlag(ref.behandlingId())).thenReturn(Optional.of(grunnlag));
-
-        assertThat(fpInntektsmeldingTjeneste.erArbeidsgiverIGrunnlag(ref, stpp, ORGNUMMER)).isFalse();
-    }
-
-    @Test
-    void erArbeidsgiverIGrunnlag_returnerer_true_når_orgnummer_finnes_i_grunnlag() {
-        var stp = LocalDate.of(2024, 9, 1);
-        var ref = lagBehandlingRef();
-        var stpp = Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(stp).build();
-        var grunnlag = lagIayGrunnlagMedYrkesaktivitet(ORGNUMMER, stp);
-        when(iayTjeneste.finnGrunnlag(ref.behandlingId())).thenReturn(Optional.of(grunnlag));
-
-        assertThat(fpInntektsmeldingTjeneste.erArbeidsgiverIGrunnlag(ref, stpp, ORGNUMMER)).isTrue();
-    }
-
-    private no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlag lagIayGrunnlagMedYrkesaktivitet(String orgnummer, LocalDate stp) {
-        var aggregatBuilder = InntektArbeidYtelseAggregatBuilder.oppdatere(Optional.empty(), VersjonType.REGISTER);
-        var arbBuilder = aggregatBuilder.getAktørArbeidBuilder(AKTØR_ID);
-        // AktivitetsAvtale uten prosentsats = ansettelsesperiode, som spenner over STP
-        var ansettelsesperiode = AktivitetsAvtaleBuilder.ny()
-            .medPeriode(DatoIntervallEntitet.fraOgMed(stp.minusYears(1)));
-        arbBuilder.leggTilYrkesaktivitet(YrkesaktivitetBuilder.oppdatere(Optional.empty())
-            .medArbeidsgiver(Arbeidsgiver.virksomhet(orgnummer))
-            .medArbeidType(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD)
-            .leggTilAktivitetsAvtale(ansettelsesperiode));
-        aggregatBuilder.leggTilAktørArbeid(arbBuilder);
-        return InntektArbeidYtelseGrunnlagBuilder.nytt().medData(aggregatBuilder).build();
-    }
-
-    @Test
-    void opprettForespørselOgLukkHvisMottatt_skal_ikke_lukke_forespørsel_når_im_ikke_er_mottatt() {
-        var stp = LocalDate.of(2024, 9, 1);
-        var ref = lagBehandlingRef();
-        var stpp = Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(stp).medFørsteUttaksdato(stp).build();
-        when(klient.opprettForespørsel(any())).thenReturn(new OpprettForespørselResponsNy(
-            List.of(new OpprettForespørselResponsNy.OrganisasjonsnummerMedStatus(new OrganisasjonsnummerDto(ORGNUMMER), OpprettForespørselResponsNy.ForespørselResultat.FORESPØRSEL_OPPRETTET))));
-        when(arbeidsgiverTjeneste.hentVirksomhet(ORGNUMMER)).thenReturn(Virksomhet.getBuilder().medOrgnr(ORGNUMMER).medNavn("Testbedrift").build());
-        when(inntektsmeldingTjeneste.hentInntektsmeldinger(any(), any())).thenReturn(Collections.emptyList());
-
-        fpInntektsmeldingTjeneste.opprettForespørselOgLukkHvisMottatt(ref, stpp, ORGNUMMER);
-
-        verify(klient, times(1)).opprettForespørsel(any());
-        verify(klient, never()).lukkForespørsel(any());
-    }
-
-    @Test
-    void opprettForespørselOgLukkHvisMottatt_skal_lukke_forespørsel_når_im_er_mottatt() {
-        var stp = LocalDate.of(2024, 9, 1);
-        var ref = lagBehandlingRef();
-        var stpp = Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(stp).medFørsteUttaksdato(stp).build();
-        var mottattIM = InntektsmeldingBuilder.builder().medArbeidsgiver(Arbeidsgiver.virksomhet(ORGNUMMER)).medBeløp(BigDecimal.valueOf(5000)).build();
-        when(klient.opprettForespørsel(any())).thenReturn(new OpprettForespørselResponsNy(
-            List.of(new OpprettForespørselResponsNy.OrganisasjonsnummerMedStatus(new OrganisasjonsnummerDto(ORGNUMMER), OpprettForespørselResponsNy.ForespørselResultat.FORESPØRSEL_OPPRETTET))));
-        when(arbeidsgiverTjeneste.hentVirksomhet(ORGNUMMER)).thenReturn(Virksomhet.getBuilder().medOrgnr(ORGNUMMER).medNavn("Testbedrift").build());
-        when(inntektsmeldingTjeneste.hentInntektsmeldinger(any(), any())).thenReturn(List.of(mottattIM));
-
-        fpInntektsmeldingTjeneste.opprettForespørselOgLukkHvisMottatt(ref, stpp, ORGNUMMER);
-
-        verify(klient, times(1)).opprettForespørsel(any());
-        verify(klient, times(1)).lukkForespørsel(any());
     }
 
 }

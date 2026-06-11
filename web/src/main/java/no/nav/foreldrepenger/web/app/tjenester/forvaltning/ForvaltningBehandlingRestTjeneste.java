@@ -40,8 +40,13 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.Vedtaksbrev;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakStatus;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
+import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
+import no.nav.foreldrepenger.behandlingslager.virksomhet.OrgNummer;
 import no.nav.foreldrepenger.behandlingsprosess.prosessering.task.HenleggBehandlingTask;
+import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
+import no.nav.foreldrepenger.domene.arbeidsforhold.InntektsmeldingTjeneste;
 import no.nav.foreldrepenger.domene.fpinntektsmelding.FpInntektsmeldingTjeneste;
+import no.nav.foreldrepenger.domene.iay.modell.YrkesaktivitetFilter;
 import no.nav.foreldrepenger.domene.typer.JournalpostId;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.mottak.dokumentmottak.impl.HåndterMottattDokumentTask;
@@ -78,6 +83,8 @@ public class ForvaltningBehandlingRestTjeneste {
     private BehandlingsresultatRepository behandlingsresultatRepository;
     private FpInntektsmeldingTjeneste fpInntektsmeldingTjeneste;
     private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
+    private InntektArbeidYtelseTjeneste iayTjeneste;
+    private InntektsmeldingTjeneste inntektsmeldingTjeneste;
 
     @Inject
     public ForvaltningBehandlingRestTjeneste(ForvaltningBerørtBehandlingTjeneste forvaltningBerørtBehandlingTjeneste,
@@ -87,7 +94,9 @@ public class ForvaltningBehandlingRestTjeneste {
                                              SvangerskapspengerRepository svangerskapspengerRepository,
                                              BehandlingsresultatRepository behandlingsresultatRepository,
                                              FpInntektsmeldingTjeneste fpInntektsmeldingTjeneste,
-                                             SkjæringstidspunktTjeneste skjæringstidspunktTjeneste) {
+                                             SkjæringstidspunktTjeneste skjæringstidspunktTjeneste,
+                                             InntektArbeidYtelseTjeneste iayTjeneste,
+                                             InntektsmeldingTjeneste inntektsmeldingTjeneste) {
         this.fagsakRepository = repositoryProvider.getFagsakRepository();
         this.behandlingRepository = repositoryProvider.getBehandlingRepository();
         this.mottatteDokumentRepository = repositoryProvider.getMottatteDokumentRepository();
@@ -98,6 +107,8 @@ public class ForvaltningBehandlingRestTjeneste {
         this.behandlingsresultatRepository = behandlingsresultatRepository;
         this.fpInntektsmeldingTjeneste = fpInntektsmeldingTjeneste;
         this.skjæringstidspunktTjeneste = skjæringstidspunktTjeneste;
+        this.iayTjeneste = iayTjeneste;
+        this.inntektsmeldingTjeneste = inntektsmeldingTjeneste;
     }
 
     public ForvaltningBehandlingRestTjeneste() {
@@ -350,12 +361,38 @@ public class ForvaltningBehandlingRestTjeneste {
         }
         var ref = BehandlingReferanse.fra(behandling);
         var stp = skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandling.getId());
-        if (!fpInntektsmeldingTjeneste.erArbeidsgiverIGrunnlag(ref, stp, dto.getOrgnummer())) {
+        if (!erArbeidsgiverIGrunnlag(ref, stp, dto.getOrgnummer())) {
             LOG.info("Orgnummer finnes ikke i IAY-grunnlaget for behandling {}", dto.getBehandlingUuid());
             return Response.status(Response.Status.BAD_REQUEST).build();
         }
-        fpInntektsmeldingTjeneste.opprettForespørselOgLukkHvisMottatt(ref, stp, dto.getOrgnummer());
+        opprettForespørselOgLukkHvisMottatt(ref, stp, dto.getOrgnummer());
         return Response.ok().build();
+    }
+
+    private boolean erArbeidsgiverIGrunnlag(BehandlingReferanse ref, no.nav.foreldrepenger.behandling.Skjæringstidspunkt stp, String orgnummer) {
+        return iayTjeneste.finnGrunnlag(ref.behandlingId()).map(grunnlag -> {
+            var filter = new YrkesaktivitetFilter(grunnlag.getArbeidsforholdInformasjon(), grunnlag.getAktørArbeidFraRegister(ref.aktørId()))
+                .etter(stp.getUtledetSkjæringstidspunkt());
+            return filter.getYrkesaktiviteter().stream()
+                .filter(y -> y.getArbeidsgiver() != null && y.getArbeidsgiver().getErVirksomhet())
+                .anyMatch(y -> orgnummer.equals(y.getArbeidsgiver().getOrgnr()));
+        }).orElse(false);
+    }
+
+    private void opprettForespørselOgLukkHvisMottatt(BehandlingReferanse ref, no.nav.foreldrepenger.behandling.Skjæringstidspunkt stp, String orgnummer) {
+        var arbeidsgiver = Arbeidsgiver.virksomhet(new OrgNummer(orgnummer));
+        fpInntektsmeldingTjeneste.lagForespørselForBestemtArbeidsgiver(ref, stp, arbeidsgiver);
+
+        var erMottatt = inntektsmeldingTjeneste
+            .hentInntektsmeldinger(ref, stp.getUtledetSkjæringstidspunkt())
+            .stream()
+            .anyMatch(im -> im.getArbeidsgiver().equals(arbeidsgiver));
+
+        if (erMottatt) {
+            LOG.info("ForvaltningBehandlingRestTjeneste: Inntektsmelding er allerede mottatt for sak {} og orgnummer {}, lukker forespørsel",
+                ref.saksnummer(), orgnummer);
+            fpInntektsmeldingTjeneste.lukkForespørsel(ref.saksnummer().getVerdi(), orgnummer);
+        }
     }
 
 }
