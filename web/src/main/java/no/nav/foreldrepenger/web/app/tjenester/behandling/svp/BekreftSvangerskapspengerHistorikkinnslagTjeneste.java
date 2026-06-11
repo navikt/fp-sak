@@ -6,9 +6,11 @@ import static no.nav.foreldrepenger.web.app.tjenester.behandling.svp.BekreftSvan
 import static no.nav.foreldrepenger.web.app.tjenester.behandling.svp.BekreftSvangerskapspengerOppdaterer.getTermindato;
 
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -63,18 +65,19 @@ public class BekreftSvangerskapspengerHistorikkinnslagTjeneste {
             .addLinje(fraTilEquals("Termindato", getTermindato(familieHendelseGrunnlag, ref), dto.getTermindato()))
             .addLinje(fraTilEquals("Fødselsdato", getFødselsdato(familieHendelseGrunnlag).orElse(null), dto.getFødselsdato()));
 
-        var antallSplittedeTilrettelegginger = endredeTilrettelegginger.stream()
+        endredeTilrettelegginger.stream()
             .filter(et -> et.endringType() == TilretteleggingEndring.EndringType.SPLITT)
-            .toList();
+            .collect(Collectors.groupingBy(et -> arbeidsgiverNøkkel(et.nyTilrettelegging()), LinkedHashMap::new, Collectors.toList()))
+            .values()
+            .forEach(splittetForArbeidsgiver -> builder.addLinje(
+                String.format("Tilrettelegging for %s er blitt splittet fra 1 til %s tilrettelegginger",
+                    lagArbeidsgiverNavn(splittetForArbeidsgiver.getFirst().nyTilrettelegging()), splittetForArbeidsgiver.size())));
 
-        if (!antallSplittedeTilrettelegginger.isEmpty()) {
-            builder.addLinje(
-                String.format("Tilrettelegging er blitt splittet fra 1 til %s tilrettelegginger", antallSplittedeTilrettelegginger.size()));
-        }
         endredeTilrettelegginger.stream()
             .filter(et -> et.endringType() == TilretteleggingEndring.EndringType.REVERSER_SPLITT)
             .forEach(et -> builder.addLinje(
-                String.format("Splittet tilrettelegging er reversert fra %s tilrettelegginger til 1", et.gammelTilrettelegging().size())));
+                String.format("Splittet tilrettelegging for %s er reversert fra %s tilrettelegginger til 1",
+                    lagArbeidsgiverNavn(et.nyTilrettelegging()), et.gammelTilrettelegging().size())));
 
         endredeTilrettelegginger.stream()
             .filter(TilretteleggingEndring::skalOppdateres)
@@ -140,6 +143,19 @@ public class BekreftSvangerskapspengerHistorikkinnslagTjeneste {
         } else {
             return tilretteleggingEntitet.getArbeidType().getNavn();
         }
+    }
+
+    private String lagArbeidsgiverNavn(SvpTilretteleggingEntitet tilretteleggingEntitet) {
+        return tilretteleggingEntitet.getArbeidsgiver()
+            .map(arbeidsgiver -> ArbeidsgiverHistorikkinnslag.lagArbeidsgiverHistorikkinnslagTekst(arbeidsgiverTjeneste.hent(arbeidsgiver),
+                Optional.empty()))
+            .orElseGet(() -> tilretteleggingEntitet.getArbeidType().getNavn());
+    }
+
+    private String arbeidsgiverNøkkel(SvpTilretteleggingEntitet tilretteleggingEntitet) {
+        return tilretteleggingEntitet.getArbeidsgiver()
+            .map(Arbeidsgiver::getIdentifikator)
+            .orElseGet(() -> tilretteleggingEntitet.getArbeidType().getKode());
     }
 
     private Optional<EksternArbeidsforholdRef> finnEksternArbeidsforholdRef(SvpTilretteleggingEntitet tilrettelegging,

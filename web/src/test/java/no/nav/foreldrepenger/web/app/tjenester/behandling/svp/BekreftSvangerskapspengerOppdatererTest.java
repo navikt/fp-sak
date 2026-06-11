@@ -315,7 +315,7 @@ class BekreftSvangerskapspengerOppdatererTest {
         var historikkinnslag = repositoryProvider.getHistorikkinnslagRepository().hent(behandling.getSaksnummer()).getFirst();
         var tekstLinjer = historikkinnslag.getTekstLinjer().stream().filter(Objects::nonNull).toList();
         assertThat(tekstLinjer).containsExactly(
-            "Tilrettelegging er blitt splittet fra 1 til 2 tilrettelegginger.",
+            "Tilrettelegging for Arbeidsgiver (123) er blitt splittet fra 1 til 2 tilrettelegginger.",
             "Arbeidsgiver (123) ...0001.",
             "__Tilrettelegging skal brukes__ er satt til __Ja__.",
             "__Tilrettelegging er nødvendig fra og med__ er satt til __" + dato(BEHOV_FRA_DATO) + "__.",
@@ -361,7 +361,7 @@ class BekreftSvangerskapspengerOppdatererTest {
         var historikkinnslag = repositoryProvider.getHistorikkinnslagRepository().hent(behandling.getSaksnummer()).getFirst();
         var tekstLinjer = historikkinnslag.getTekstLinjer().stream().filter(Objects::nonNull).toList();
         assertThat(tekstLinjer).containsExactly(
-            "Splittet tilrettelegging er reversert fra 2 tilrettelegginger til 1.",
+            "Splittet tilrettelegging for Arbeidsgiver (123) er reversert fra 2 tilrettelegginger til 1.",
             "Arbeidsgiver (123).",
             "__Tilrettelegging skal brukes__ er satt til __Ja__.",
             "__Tilrettelegging er nødvendig fra og med__ er satt til __" + dato(BEHOV_FRA_DATO) + "__.",

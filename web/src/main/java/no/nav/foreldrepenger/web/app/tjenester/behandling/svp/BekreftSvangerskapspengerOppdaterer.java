@@ -315,8 +315,8 @@ public class BekreftSvangerskapspengerOppdaterer implements AksjonspunktOppdater
     private TilretteleggingEndring mapTilrettelegging(BekreftTilrettelegging bekreftetTilrettelegging,
                                                       List<SvpTilretteleggingEntitet> eksisterendeTilrettelegingerListe) {
         var tilretteleggingerHosSammeAG = eksisterendeTilrettelegingerListe.stream()
-            .filter(til -> bekreftetTilrettelegging.getArbeidsgiverReferanse()
-                .equals(til.getArbeidsgiver().map(Arbeidsgiver::getIdentifikator).orElse(null)))
+            .filter(til -> Objects.equals(bekreftetTilrettelegging.getArbeidsgiverReferanse(),
+                til.getArbeidsgiver().map(Arbeidsgiver::getIdentifikator).orElse(null)))
             .toList();
 
         var eksisterendeTilrettelegging =
