@@ -5,7 +5,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.Month;
-import java.time.Period;
 
 import jakarta.persistence.EntityManager;
 
@@ -54,8 +53,7 @@ class EtterkontrollEventObserverTest {
         repositoryProvider = new BehandlingRepositoryProvider(entityManager);
         etterkontrollRepository = new EtterkontrollRepository(entityManager);
         familieHendelseRepository = new FamilieHendelseRepository(entityManager);
-        etterkontrollEventObserver = new EtterkontrollEventObserver(etterkontrollRepository, familieHendelseRepository,
-                Period.parse("P60D"));
+        etterkontrollEventObserver = new EtterkontrollEventObserver(etterkontrollRepository, familieHendelseRepository);
     }
 
     @Test

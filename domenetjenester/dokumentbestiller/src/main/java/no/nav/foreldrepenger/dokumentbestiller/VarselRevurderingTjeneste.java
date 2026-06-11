@@ -13,22 +13,19 @@ import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Venteårsa
 import no.nav.foreldrepenger.behandlingslager.behandling.dokument.DokumentMalType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingsprosess.prosessering.BehandlingProsesseringTjeneste;
-import no.nav.foreldrepenger.konfig.KonfigVerdi;
 
 @ApplicationScoped
 public class VarselRevurderingTjeneste {
 
-    private Period defaultVenteFrist;
+    private static final Period VENTEFRIST = Period.ofWeeks(4);
     private BehandlingProsesseringTjeneste behandlingProsesseringTjeneste;
     private DokumentBestillerTjeneste dokumentBestillerTjeneste;
     private BehandlingRepository behandlingRepository;
 
     @Inject
-    public VarselRevurderingTjeneste(@KonfigVerdi(value = "behandling.default.ventefrist.periode", defaultVerdi = "P4W") Period defaultVenteFrist,
-                                     BehandlingProsesseringTjeneste behandlingProsesseringTjeneste,
+    public VarselRevurderingTjeneste(BehandlingProsesseringTjeneste behandlingProsesseringTjeneste,
                                      DokumentBestillerTjeneste dokumentBestillerTjeneste,
                                      BehandlingRepository behandlingRepository) {
-        this.defaultVenteFrist = defaultVenteFrist;
         this.behandlingProsesseringTjeneste = behandlingProsesseringTjeneste;
         this.dokumentBestillerTjeneste = dokumentBestillerTjeneste;
         this.behandlingRepository = behandlingRepository;
@@ -56,7 +53,7 @@ public class VarselRevurderingTjeneste {
     }
 
     private LocalDateTime bestemFristForBehandlingVent(LocalDate frist) {
-        return frist != null ? LocalDateTime.of(frist, LocalDateTime.now().toLocalTime()) : LocalDateTime.now().plus(defaultVenteFrist);
+        return frist != null ? LocalDateTime.of(frist, LocalDateTime.now().toLocalTime()) : LocalDateTime.now().plus(VENTEFRIST);
     }
 
     private Venteårsak fraDto(String kode) {

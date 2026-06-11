@@ -7,7 +7,6 @@ import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.verify;
 
 import java.time.LocalDate;
-import java.time.Period;
 
 import jakarta.inject.Inject;
 
@@ -59,7 +58,6 @@ class BehandlingsutredningTjenesteTest {
                 .thenReturn(new OrganisasjonsEnhet("1234", "Testlokasjon"));
 
         behandlingsutredningTjeneste = new BehandlingsutredningTjeneste(
-                Period.parse("P4W"),
                 repositoryProvider,
                 behandlendeEnhetTjeneste,
                 behandlingProsesseringTjeneste);

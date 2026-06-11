@@ -7,7 +7,6 @@ import static org.mockito.Mockito.when;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.Optional;
 
 import org.junit.jupiter.api.Test;
 
@@ -20,8 +19,6 @@ import no.nav.foreldrepenger.domene.typer.AktørId;
 
 class RegisterdataInnhenterTest {
 
-    private final String durationInstance = "PT10H";
-
     @Test
     void skal_innhente_registeropplysninger_på_nytt_når_det_ble_hentet_inn_i_går() {
         // Arrange
@@ -31,7 +28,7 @@ class RegisterdataInnhenterTest {
         var behandling = scenario.lagMocked();
 
         // Act
-        var registerdataEndringshåndterer = lagRegisterdataInnhenter(scenario, durationInstance);
+        var registerdataEndringshåndterer = lagRegisterdataInnhenter(scenario);
         Boolean harHentetInn = registerdataEndringshåndterer.skalInnhenteRegisteropplysningerPåNytt(behandling);
 
         // Assert
@@ -47,7 +44,7 @@ class RegisterdataInnhenterTest {
         var behandling = scenario.lagMocked();
 
         // Act
-        var registerdataEndringshåndterer = lagRegisterdataInnhenter(scenario, durationInstance);
+        var registerdataEndringshåndterer = lagRegisterdataInnhenter(scenario);
         Boolean harHentetInn = registerdataEndringshåndterer.skalInnhenteRegisteropplysningerPåNytt(behandling);
 
         // Assert
@@ -63,62 +60,7 @@ class RegisterdataInnhenterTest {
         var behandling = scenario.lagMocked();
 
         // Act
-        var registerdataEndringshåndterer = lagRegisterdataInnhenter(scenario, durationInstance);
-        Boolean harHentetInn = registerdataEndringshåndterer.skalInnhenteRegisteropplysningerPåNytt(behandling);
-
-        // Assert
-        assertThat(harHentetInn).isFalse();
-    }
-
-    @Test
-    void skal_innhente_registeropplysninger_ut_ifra_midnatt_når_konfigurasjonsverdien_mangler() {
-        // Arrange
-        var midnatt = LocalDateTime.now().withHour(0).withMinute(0).withSecond(0).withNano(0);
-
-        var scenario = ScenarioMorSøkerEngangsstønad
-            .forFødsel()
-            .medOpplysningerOppdatertTidspunkt(midnatt.minusMinutes(1));
-        var behandling = scenario.lagMocked();
-        var registerdataEndringshåndterer = lagRegisterdataInnhenter(scenario, null);
-
-        // Act
-        Boolean harHentetInn = registerdataEndringshåndterer.skalInnhenteRegisteropplysningerPåNytt(behandling);
-
-        // Assert
-        assertThat(harHentetInn).isTrue();
-    }
-
-    @Test
-    void skal_innhente_registeropplysninger_mellom_midnatt_og_klokken_3_men_ikke_ellers_grunnet_konfigverdien() {
-        // Arrange
-        var midnatt = LocalDate.now().atStartOfDay();
-        var opplysningerOppdatertTidspunkt = midnatt.minusHours(1); // en time før midnatt
-
-        var scenario = ScenarioMorSøkerEngangsstønad
-            .forFødsel()
-            .medOpplysningerOppdatertTidspunkt(opplysningerOppdatertTidspunkt);
-
-        var registerdataOppdatererEngangsstønad = lagRegisterdataInnhenter(scenario, "PT3H");
-
-        // Act
-        Boolean skalInnhente = registerdataOppdatererEngangsstønad.erOpplysningerOppdatertTidspunktFør(midnatt,
-            Optional.of(opplysningerOppdatertTidspunkt));
-
-        // Assert
-        assertThat(skalInnhente).isTrue();
-    }
-
-    @Test
-    void skal_ikke_innhente_opplysninger_på_nytt_selvom_det_ble_hentet_inn_i_går_fordi_konfigverdien_er_mer_enn_midnatt() {
-        // Arrange
-        var scenario = ScenarioMorSøkerEngangsstønad
-            .forFødsel()
-            .medOpplysningerOppdatertTidspunkt(LocalDateTime.now().minusHours(20));
-        var behandling = scenario.lagMocked();
-
-        var registerdataEndringshåndterer = lagRegisterdataInnhenter(scenario, "PT30H");
-
-        // Act
+        var registerdataEndringshåndterer = lagRegisterdataInnhenter(scenario);
         Boolean harHentetInn = registerdataEndringshåndterer.skalInnhenteRegisteropplysningerPåNytt(behandling);
 
         // Assert
@@ -145,15 +87,14 @@ class RegisterdataInnhenterTest {
         assertThat(deser.innleggelsesPerioder().get(0).fom()).isEqualTo(LocalDate.of(2021,5,3));
     }
 
-    private RegisterdataEndringshåndterer lagRegisterdataInnhenter(AbstractTestScenario<?> scenario, String durationInstance) {
+    private RegisterdataEndringshåndterer lagRegisterdataInnhenter(AbstractTestScenario<?> scenario) {
         var repositoryProvider = scenario.mockBehandlingRepositoryProvider();
-        return lagRegisterdataOppdaterer(repositoryProvider, durationInstance);
+        return lagRegisterdataOppdaterer(repositoryProvider);
     }
 
-    private RegisterdataEndringshåndterer lagRegisterdataOppdaterer(BehandlingRepositoryProvider repositoryProvider,
-                                                                    String durationInstance) {
+    private RegisterdataEndringshåndterer lagRegisterdataOppdaterer(BehandlingRepositoryProvider repositoryProvider) {
         var endringskontroller = mock(Endringskontroller.class);
         when(endringskontroller.erRegisterinnhentingPassert(any())).thenReturn(Boolean.TRUE);
-        return new RegisterdataEndringshåndterer(repositoryProvider, durationInstance, endringskontroller, null, null, null);
+        return new RegisterdataEndringshåndterer(repositoryProvider, endringskontroller, null, null, null);
     }
 }

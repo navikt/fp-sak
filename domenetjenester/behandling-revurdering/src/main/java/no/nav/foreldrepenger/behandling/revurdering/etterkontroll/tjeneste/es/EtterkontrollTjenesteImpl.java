@@ -23,13 +23,12 @@ import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.Terminb
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtakRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingsprosess.prosessering.BehandlingProsesseringTjeneste;
-import no.nav.foreldrepenger.konfig.KonfigVerdi;
 
 @ApplicationScoped
 @FagsakYtelseTypeRef(FagsakYtelseType.ENGANGSTØNAD)
 public class EtterkontrollTjenesteImpl implements EtterkontrollTjeneste {
 
-    private Period pdlRegistreringsTidsrom;
+    private static final Period PDL_TIDSROM = Period.ofWeeks(11); // Håndtere fødsler uke 26-29 spesielt
     private RevurderingTjeneste revurderingTjeneste;
 
     private BehandlingVedtakRepository behandlingVedtakRepository;
@@ -43,9 +42,7 @@ public class EtterkontrollTjenesteImpl implements EtterkontrollTjeneste {
     public EtterkontrollTjenesteImpl(BehandlingVedtakRepository vedtakRepository,
             EngangsstønadBeregningRepository esBeregningRepository,
             BehandlingProsesseringTjeneste behandlingProsesseringTjeneste,
-            @FagsakYtelseTypeRef(FagsakYtelseType.ENGANGSTØNAD) RevurderingTjeneste revurderingTjeneste,
-            @KonfigVerdi(value = "etterkontroll.pdlregistrering.periode", defaultVerdi = "P11W") Period pdlRegistreringsTidsrom) {
-        this.pdlRegistreringsTidsrom = pdlRegistreringsTidsrom;
+            @FagsakYtelseTypeRef(FagsakYtelseType.ENGANGSTØNAD) RevurderingTjeneste revurderingTjeneste) {
         this.behandlingVedtakRepository = vedtakRepository;
         this.revurderingTjeneste = revurderingTjeneste;
         this.esBeregningRepository = esBeregningRepository;
@@ -89,7 +86,7 @@ public class EtterkontrollTjenesteImpl implements EtterkontrollTjeneste {
 
         var termindato = grunnlag.getGjeldendeTerminbekreftelse().map(TerminbekreftelseEntitet::getTermindato);
         if (termindato.isPresent()) {
-            var tidligstePDLRegistreringsDato = termindato.get().minus(pdlRegistreringsTidsrom);
+            var tidligstePDLRegistreringsDato = termindato.get().minus(PDL_TIDSROM);
             var vedtak = behandlingVedtakRepository.hentForBehandling(behandling.getId());
             var vedtaksDato = vedtak.getVedtaksdato();
             if (vedtaksDato.isBefore(tidligstePDLRegistreringsDato)) {

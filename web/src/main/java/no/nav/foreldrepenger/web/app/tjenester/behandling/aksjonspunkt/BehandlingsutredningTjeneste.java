@@ -19,7 +19,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingsprosess.prosessering.BehandlingProsesseringTjeneste;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
-import no.nav.foreldrepenger.konfig.KonfigVerdi;
 import no.nav.foreldrepenger.produksjonsstyring.behandlingenhet.BehandlendeEnhetTjeneste;
 import no.nav.vedtak.exception.FunksjonellException;
 import no.nav.vedtak.sikkerhet.kontekst.KontekstHolder;
@@ -27,7 +26,7 @@ import no.nav.vedtak.sikkerhet.kontekst.KontekstHolder;
 @ApplicationScoped
 public class BehandlingsutredningTjeneste {
 
-    private Period defaultVenteFrist;
+    private static final Period VENTEFRIST = Period.ofWeeks(4);
     private BehandlingRepository behandlingRepository;
     private BehandlingProsesseringTjeneste behandlingProsesseringTjeneste;
     private BehandlendeEnhetTjeneste behandlendeEnhetTjeneste;
@@ -37,11 +36,9 @@ public class BehandlingsutredningTjeneste {
     }
 
     @Inject
-    public BehandlingsutredningTjeneste(@KonfigVerdi(value = "behandling.default.ventefrist.periode", defaultVerdi = "P4W") Period defaultVenteFrist,
-                                        BehandlingRepositoryProvider behandlingRepositoryProvider,
+    public BehandlingsutredningTjeneste(BehandlingRepositoryProvider behandlingRepositoryProvider,
                                         BehandlendeEnhetTjeneste behandlendeEnhetTjeneste,
                                         BehandlingProsesseringTjeneste behandlingProsesseringTjeneste) {
-        this.defaultVenteFrist = defaultVenteFrist;
         Objects.requireNonNull(behandlingRepositoryProvider, "behandlingRepositoryProvider");
         this.behandlingRepository = behandlingRepositoryProvider.getBehandlingRepository();
         this.behandlingProsesseringTjeneste = behandlingProsesseringTjeneste;
@@ -93,7 +90,7 @@ public class BehandlingsutredningTjeneste {
     private LocalDateTime bestemFristForBehandlingVent(LocalDate frist) {
         return frist != null
             ? LocalDateTime.of(frist, LocalDateTime.now().toLocalTime())
-            : LocalDateTime.now().plus(defaultVenteFrist);
+            : LocalDateTime.now().plus(VENTEFRIST);
     }
 
     public void byttBehandlendeEnhet(Long behandlingId, OrganisasjonsEnhet enhet, String begrunnelse, HistorikkAktør aktør) {

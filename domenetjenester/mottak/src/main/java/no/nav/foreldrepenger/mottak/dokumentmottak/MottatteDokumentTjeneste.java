@@ -21,7 +21,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.MottatteDoku
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtak;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.Avslagsårsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
-import no.nav.foreldrepenger.konfig.KonfigVerdi;
 import no.nav.foreldrepenger.mottak.dokumentpersiterer.SøknadUtsettelseUttakDato;
 import no.nav.foreldrepenger.mottak.dokumentpersiterer.impl.MottattDokumentPersisterer;
 import no.nav.foreldrepenger.mottak.dokumentpersiterer.impl.søknad.v3.EndringUtsettelseUttak;
@@ -30,7 +29,7 @@ import no.nav.foreldrepenger.mottak.dokumentpersiterer.impl.søknad.v3.SøknadWr
 @ApplicationScoped
 public class MottatteDokumentTjeneste {
 
-    private Period fristForInnsendingAvDokumentasjon;
+    private static final Period FRIST_INNSENDING_ETTER_AVSLAG = Period.ofWeeks(6);
 
     private MottattDokumentPersisterer mottattDokumentPersisterer;
     private MottatteDokumentRepository mottatteDokumentRepository;
@@ -40,16 +39,10 @@ public class MottatteDokumentTjeneste {
         // for CDI proxy
     }
 
-    /**
-     *
-     * @param fristForInnsendingAvDokumentasjon - Frist i uker fom siste vedtaksdato
-     */
     @Inject
-    public MottatteDokumentTjeneste(@KonfigVerdi(value = "sak.frist.innsending.dok", defaultVerdi = "P6W") Period fristForInnsendingAvDokumentasjon,
-                                    MottattDokumentPersisterer mottattDokumentPersisterer,
+    public MottatteDokumentTjeneste(MottattDokumentPersisterer mottattDokumentPersisterer,
                                     MottatteDokumentRepository mottatteDokumentRepository,
                                     BehandlingRepositoryProvider behandlingRepositoryProvider) {
-        this.fristForInnsendingAvDokumentasjon = fristForInnsendingAvDokumentasjon;
         this.mottattDokumentPersisterer = mottattDokumentPersisterer;
         this.mottatteDokumentRepository = mottatteDokumentRepository;
         this.behandlingRepositoryProvider = behandlingRepositoryProvider;
@@ -122,7 +115,7 @@ public class MottatteDokumentTjeneste {
         var behandlingOptional = behandlingRepositoryProvider.getBehandlingRepository().finnSisteAvsluttedeIkkeHenlagteBehandling(sak.getId());
         return behandlingOptional.flatMap(b -> behandlingRepositoryProvider.getBehandlingVedtakRepository().hentForBehandlingHvisEksisterer(b.getId()))
             .map(BehandlingVedtak::getVedtaksdato)
-            .map(dato -> dato.isBefore(LocalDate.now().minus(fristForInnsendingAvDokumentasjon))).orElse(Boolean.FALSE);
+            .map(dato -> dato.isBefore(LocalDate.now().minus(FRIST_INNSENDING_ETTER_AVSLAG))).orElse(Boolean.FALSE);
     }
 
     private boolean erAvsluttetPgaManglendeDokumentasjon(Behandling behandling) {

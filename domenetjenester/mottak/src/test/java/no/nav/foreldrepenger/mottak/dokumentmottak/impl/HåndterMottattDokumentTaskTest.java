@@ -6,7 +6,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
 import java.time.LocalDate;
-import java.time.Period;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -52,11 +51,9 @@ class HåndterMottattDokumentTaskTest extends EntityManagerAwareTest {
     public void before() {
         var entityManager = getEntityManager();
         var mottatteDokumentRepository = new MottatteDokumentRepository(entityManager);
-        var fristInnsendingPeriode = Period.ofWeeks(6);
         innhentDokumentTjeneste = mock(InnhentDokumentTjeneste.class);
         var repositoryProvider = new BehandlingRepositoryProvider(entityManager);
-        mottatteDokumentTjeneste = new MottatteDokumentTjeneste(fristInnsendingPeriode, mottattDokumentPersisterer,
-            mottatteDokumentRepository, repositoryProvider);
+        mottatteDokumentTjeneste = new MottatteDokumentTjeneste(mottattDokumentPersisterer, mottatteDokumentRepository, repositoryProvider);
         håndterMottattDokumentTask = new HåndterMottattDokumentTask(innhentDokumentTjeneste, mottattDokumentPersisterer,
             mottatteDokumentTjeneste, repositoryProvider);
         fagsakRepository = new FagsakRepository(entityManager);
