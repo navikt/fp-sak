@@ -78,7 +78,7 @@ public class BestillDokumentTask implements ProsessTaskHandler {
                 return mellomlagringRepository.hentMellomlagring(bestiltEntitet.getBehandlingDokument().getBehandlingId(),
                         mellomlagringType)
                     .map(MellomlagringEntitet::getInnhold)
-                    .orElseThrow(() -> new IllegalStateException("Fant ikke mellomlagring for FRITEKST_HTML bestilling"));
+                    .orElse(null); //TODO palfi, kast heller exception når alle med gammel overstyring (BEHANDLING_DOKUMENT) er bestilt
             }
         }
         return prosessTaskData.getPayloadAsString();
