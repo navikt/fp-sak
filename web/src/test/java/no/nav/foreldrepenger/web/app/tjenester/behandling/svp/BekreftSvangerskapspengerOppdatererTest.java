@@ -178,8 +178,8 @@ class BekreftSvangerskapspengerOppdatererTest {
         assertThat(tekstLinjer).containsExactly(
             "__Termindato__ er endret fra " + dato(DEFAULT_TERMINDATO) + " til __" + dato(TERMINDATO) + "__.",
             "Arbeidsgiver (123).",
-            "Periode med __Delvis tilrettelegging__ fra og med __" + dato(BEHOV_FRA_DATO) + "__ med stillingsprosent __50__ er fjernet.",
-            "Periode med __Delvis tilrettelegging__ fra og med __" + dato(BEHOV_FRA_DATO) + "__ med stillingsprosent __60__ er lagt til.",
+            "Periode med __Delvis tilrettelegging__ fra og med __" + dato(BEHOV_FRA_DATO) + "__ med arbeidsprosent __50__ er fjernet.",
+            "Periode med __Delvis tilrettelegging__ fra og med __" + dato(BEHOV_FRA_DATO) + "__ med arbeidsprosent __60__ er lagt til.",
             "Velbegrunnet begrunnelse.");
     }
 
@@ -319,7 +319,7 @@ class BekreftSvangerskapspengerOppdatererTest {
             "Arbeidsgiver (123) ...0001.",
             "__Tilrettelegging skal brukes__ er satt til __Ja__.",
             "__Tilrettelegging er nødvendig fra og med__ er satt til __" + dato(BEHOV_FRA_DATO) + "__.",
-            "Periode med __Delvis tilrettelegging__ fra og med __" + dato(BEHOV_FRA_DATO) + "__ med stillingsprosent __50__ er lagt til.",
+            "Periode med __Delvis tilrettelegging__ fra og med __" + dato(BEHOV_FRA_DATO) + "__ med arbeidsprosent __50__ er lagt til.",
             "Arbeidsgiver (123) ...0002.",
             "__Tilrettelegging skal brukes__ er satt til __Ja__.",
             "__Tilrettelegging er nødvendig fra og med__ er satt til __" + dato(BEHOV_FRA_DATO) + "__.",
@@ -365,7 +365,7 @@ class BekreftSvangerskapspengerOppdatererTest {
             "Arbeidsgiver (123).",
             "__Tilrettelegging skal brukes__ er satt til __Ja__.",
             "__Tilrettelegging er nødvendig fra og med__ er satt til __" + dato(BEHOV_FRA_DATO) + "__.",
-            "Periode med __Delvis tilrettelegging__ fra og med __" + dato(BEHOV_FRA_DATO) + "__ med stillingsprosent __50__ er lagt til.",
+            "Periode med __Delvis tilrettelegging__ fra og med __" + dato(BEHOV_FRA_DATO) + "__ med arbeidsprosent __50__ er lagt til.",
             "Velbegrunnet begrunnelse.");
     }
 
