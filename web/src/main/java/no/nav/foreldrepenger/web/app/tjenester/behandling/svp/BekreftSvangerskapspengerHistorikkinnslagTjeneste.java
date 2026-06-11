@@ -26,11 +26,10 @@ import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.SvpTilr
 import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.TilretteleggingFOM;
 import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.TilretteleggingType;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
-import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
+import no.nav.foreldrepenger.domene.arbeidInntektsmelding.historikk.ArbeidsgiverHistorikkinnslag;
 import no.nav.foreldrepenger.domene.arbeidsgiver.ArbeidsgiverTjeneste;
 import no.nav.foreldrepenger.domene.iay.modell.ArbeidsforholdInformasjon;
-import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlag;
-import no.nav.foreldrepenger.domene.arbeidInntektsmelding.historikk.ArbeidsgiverHistorikkinnslag;
+import no.nav.foreldrepenger.domene.iay.modell.ArbeidsforholdReferanse;
 import no.nav.foreldrepenger.domene.typer.EksternArbeidsforholdRef;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 
@@ -39,7 +38,6 @@ public class BekreftSvangerskapspengerHistorikkinnslagTjeneste {
 
     private ArbeidsgiverTjeneste arbeidsgiverTjeneste;
     private HistorikkinnslagRepository historikkinnslagRepository;
-    private InntektArbeidYtelseTjeneste inntektArbeidYtelseTjeneste;
 
     BekreftSvangerskapspengerHistorikkinnslagTjeneste() {
         //CDI
@@ -47,20 +45,16 @@ public class BekreftSvangerskapspengerHistorikkinnslagTjeneste {
 
     @Inject
     public BekreftSvangerskapspengerHistorikkinnslagTjeneste(ArbeidsgiverTjeneste arbeidsgiverTjeneste,
-                                                             HistorikkinnslagRepository historikkinnslagRepository,
-                                                             InntektArbeidYtelseTjeneste inntektArbeidYtelseTjeneste) {
+                                                             HistorikkinnslagRepository historikkinnslagRepository) {
         this.arbeidsgiverTjeneste = arbeidsgiverTjeneste;
         this.historikkinnslagRepository = historikkinnslagRepository;
-        this.inntektArbeidYtelseTjeneste = inntektArbeidYtelseTjeneste;
     }
 
     public void lagHistorikkinnslagVedEndring(BehandlingReferanse ref,
                                               BekreftSvangerskapspengerDto dto,
                                               FamilieHendelseGrunnlagEntitet familieHendelseGrunnlag,
-                                              List<TilretteleggingEndring> endredeTilrettelegginger) {
-
-        var arbeidsforholdInformasjon = inntektArbeidYtelseTjeneste.finnGrunnlag(ref.behandlingId())
-            .flatMap(InntektArbeidYtelseGrunnlag::getArbeidsforholdInformasjon);
+                                              List<TilretteleggingEndring> endredeTilrettelegginger,
+                                              Optional<ArbeidsforholdInformasjon> arbeidsforholdInformasjon) {
 
         var builder = new Historikkinnslag.Builder().medAktør(HistorikkAktør.SAKSBEHANDLER)
             .medFagsakId(ref.fagsakId())
@@ -153,7 +147,10 @@ public class BekreftSvangerskapspengerHistorikkinnslagTjeneste {
                                                                             Optional<ArbeidsforholdInformasjon> arbeidsforholdInformasjon) {
         return tilrettelegging.getInternArbeidsforholdRef()
             .filter(InternArbeidsforholdRef::gjelderForSpesifiktArbeidsforhold)
-            .flatMap(internRef -> arbeidsforholdInformasjon.map(ai -> ai.finnEkstern(arbeidsgiver, internRef)));
+            .flatMap(internRef -> arbeidsforholdInformasjon.flatMap(ai -> ai.getArbeidsforholdReferanser().stream()
+                .filter(ref -> arbeidsgiver.equals(ref.getArbeidsgiver()) && internRef.equals(ref.getInternReferanse()))
+                .map(ArbeidsforholdReferanse::getEksternReferanse)
+                .findFirst()));
     }
 
     private String formatterOppholdDetaljerForHistorikk(SvpAvklartOpphold opphold) {

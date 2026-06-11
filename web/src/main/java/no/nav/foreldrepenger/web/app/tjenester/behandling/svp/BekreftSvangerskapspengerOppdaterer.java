@@ -122,8 +122,10 @@ public class BekreftSvangerskapspengerOppdaterer implements AksjonspunktOppdater
         var endredeTilrettelegginger = oppdaterTilrettelegging(dto, behandling, eksisterendeTilretteleginger);
         oppdaterPermisjonVedBehov(dto, param);
         if (termindatoEndret || endredeTilrettelegginger.stream().anyMatch(TilretteleggingEndring::skalOppdateres)) {
+            var arbeidsforholdInformasjon = inntektArbeidYtelseTjeneste.finnGrunnlag(ref.behandlingId())
+                .flatMap(InntektArbeidYtelseGrunnlag::getArbeidsforholdInformasjon);
             bekreftSvangerskapspengerHistorikkinnslagTjeneste.lagHistorikkinnslagVedEndring(ref, dto, familieHendelseGrunnlag,
-                endredeTilrettelegginger);
+                endredeTilrettelegginger, arbeidsforholdInformasjon);
             var sistefikspunkt = opplysningsPeriodeTjeneste.utledFikspunktForRegisterInnhenting(behandling.getId(), ref.fagsakYtelseType());
             if (Objects.equals(forrigeFikspunkt, sistefikspunkt)) {
                 return OppdateringResultat.utenTransisjon().medTotrinn().build();
