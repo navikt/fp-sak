@@ -6,7 +6,7 @@ import java.util.Optional;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
-import no.nav.folketrygdloven.kalkulus.response.v1.beregningsgrunnlag.gui.BeregningsgrunnlagDto;
+import no.nav.folketrygdloven.kalkulus.response.beregningsgrunnlag.gui.BeregningsgrunnlagDto;
 import no.nav.foreldrepenger.kalkulus.kontrakt.request.EnkelBeregnRequestDto;
 import no.nav.foreldrepenger.kalkulus.kontrakt.request.EnkelFpkalkulusRequestDto;
 
