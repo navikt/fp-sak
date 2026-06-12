@@ -325,6 +325,9 @@ public class BekreftSvangerskapspengerOppdaterer implements AksjonspunktOppdater
 
         var nyTilrettelegging = mapNyTilretteleggingFraGammel(bekreftetTilrettelegging, eksisterendeTilrettelegging);
 
+        // En tilrettelegging uten id betyr enten en splitt eller en sammenslåing (reversering av splitt).
+        // Hvilket case det er avgjøres av hvor mange tilrettelegginger som finnes hos samme arbeidsgiver fra før:
+        // flere eksisterende => sammenslåing, kun én eksisterende => splitt.
         if (bekreftetTilrettelegging.getTilretteleggingId() == null && tilretteleggingerHosSammeAG.size() > 1) {
             return TilretteleggingEndring.reverserSplitt(nyTilrettelegging, tilretteleggingerHosSammeAG);
 
