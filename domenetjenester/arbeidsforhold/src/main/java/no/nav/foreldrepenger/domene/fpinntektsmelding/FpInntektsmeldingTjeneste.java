@@ -15,8 +15,6 @@ import java.util.stream.Collectors;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
-import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -27,6 +25,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAkt√
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
+import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.OrgNummer;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.OrganisasjonsNummerValidator;
 import no.nav.foreldrepenger.domene.arbeidsforhold.impl.InntektsmeldingRegisterTjeneste;

@@ -14,8 +14,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 
-import no.nav.foreldrepenger.domene.typer.Beløp;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -36,6 +34,7 @@ import no.nav.foreldrepenger.domene.arbeidsgiver.ArbeidsgiverTjeneste;
 import no.nav.foreldrepenger.domene.iay.modell.InntektsmeldingBuilder;
 import no.nav.foreldrepenger.domene.iay.modell.Refusjon;
 import no.nav.foreldrepenger.domene.typer.AktørId;
+import no.nav.foreldrepenger.domene.typer.Beløp;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
@@ -61,7 +60,7 @@ class FpInntektsmeldingTjenesteTest {
 
     @BeforeEach
     void setup() {
-        fpInntektsmeldingTjeneste = new FpInntektsmeldingTjeneste(klient, taskTjeneste, skjæringstidspunktTjeneste,  historikkRepository, arbeidsgiverTjeneste, inntektsmeldingRegisterTjeneste);
+        fpInntektsmeldingTjeneste = new FpInntektsmeldingTjeneste(klient, taskTjeneste, skjæringstidspunktTjeneste, historikkRepository, arbeidsgiverTjeneste, inntektsmeldingRegisterTjeneste);
     }
 
     @Test
