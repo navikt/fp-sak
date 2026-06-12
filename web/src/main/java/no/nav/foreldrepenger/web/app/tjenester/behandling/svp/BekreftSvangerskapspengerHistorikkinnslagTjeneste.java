@@ -76,7 +76,7 @@ public class BekreftSvangerskapspengerHistorikkinnslagTjeneste {
         endredeTilrettelegginger.stream()
             .filter(et -> et.endringType() == TilretteleggingEndring.EndringType.REVERSER_SPLITT)
             .forEach(et -> builder.addLinje(
-                String.format("Splittet tilrettelegging for %s er reversert fra %s tilrettelegginger til 1",
+                String.format("Splittet tilrettelegging for %s er slått sammen fra %s tilrettelegginger til 1",
                     lagArbeidsgiverNavn(et.nyTilrettelegging()), et.gammelTilrettelegging().size())));
 
         endredeTilrettelegginger.stream()
