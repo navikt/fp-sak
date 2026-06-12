@@ -22,7 +22,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.beregning.Inntektskateg
 
 class SvangerskapFeriepengeKvoteBeregnerTest {
     private static final LocalDate FØRSTE_UTTAK = LocalDate.of(2022,7,1);
-    private final SvangerskapFeriepengeKvoteBeregner beregner = new SvangerskapFeriepengeKvoteBeregner(64);
 
     @Test
     void skal_beregne_maks_kvote_når_ingen_dager_brukt() {
@@ -31,7 +30,7 @@ class SvangerskapFeriepengeKvoteBeregnerTest {
         lagTYPeriode(dagerEtter(0), dagerEtter(64), bgr, true);
 
         // Act
-        var resultat = beregner.beregn(bgr, Collections.emptyList());
+        var resultat = SvangerskapFeriepengeKvoteBeregner.beregn(bgr, Collections.emptyList());
 
         // Assert
         assertThat(resultat)
@@ -49,7 +48,7 @@ class SvangerskapFeriepengeKvoteBeregnerTest {
         lagTYPeriode(dagerFør(50), dagerFør(30), tidligereYtelse, false);
 
         // Act
-        var resultat = beregner.beregn(nyYtelse, List.of(lagBrR(tidligereYtelse)));
+        var resultat = SvangerskapFeriepengeKvoteBeregner.beregn(nyYtelse, List.of(lagBrR(tidligereYtelse)));
 
         // Assert
         assertThat(resultat)
@@ -68,7 +67,7 @@ class SvangerskapFeriepengeKvoteBeregnerTest {
         var ferie = lagFPPeriode(dagerEtter(50), dagerEtter(60));
 
         // Act
-        var resultat = beregner.beregn(nyYtelse, List.of(lagBrR(tidligereYtelse, ferie)));
+        var resultat = SvangerskapFeriepengeKvoteBeregner.beregn(nyYtelse, List.of(lagBrR(tidligereYtelse, ferie)));
 
         // Assert
         assertThat(resultat)
@@ -87,7 +86,7 @@ class SvangerskapFeriepengeKvoteBeregnerTest {
         var ferie = lagFPPeriode(dagerFør(50), dagerFør(40));
 
         // Act
-        var resultat = beregner.beregn(nyYtelse, List.of(lagBrR(tidligereYtelse, ferie)));
+        var resultat = SvangerskapFeriepengeKvoteBeregner.beregn(nyYtelse, List.of(lagBrR(tidligereYtelse, ferie)));
 
         // Assert
         assertThat(resultat)
@@ -109,7 +108,7 @@ class SvangerskapFeriepengeKvoteBeregnerTest {
         var ferie2 = lagFPPeriode(dagerFør(30), dagerFør(20));
 
         // Act
-        var resultat = beregner.beregn(nyYtelse, List.of(lagBrR(tidligereYtelse1, ferie1), lagBrR(tidligereYtelse2, ferie2)));
+        var resultat = SvangerskapFeriepengeKvoteBeregner.beregn(nyYtelse, List.of(lagBrR(tidligereYtelse1, ferie1), lagBrR(tidligereYtelse2, ferie2)));
 
         // Assert
         assertThat(resultat)
@@ -134,7 +133,7 @@ class SvangerskapFeriepengeKvoteBeregnerTest {
         var ferie3 = lagFPPeriode(dagerFør(15), dagerFør(10));
 
         // Act
-        var resultat = beregner.beregn(nyYtelse, List.of(lagBrR(tidligereYtelse1, ferie1), lagBrR(tidligereYtelse2, ferie2), lagBrR(tidligereYtelse3, ferie3)));
+        var resultat = SvangerskapFeriepengeKvoteBeregner.beregn(nyYtelse, List.of(lagBrR(tidligereYtelse1, ferie1), lagBrR(tidligereYtelse2, ferie2), lagBrR(tidligereYtelse3, ferie3)));
 
         // Assert
         assertThat(resultat)
@@ -153,7 +152,7 @@ class SvangerskapFeriepengeKvoteBeregnerTest {
         var ferie1 = lagFPPeriode(dagerFør(150), dagerFør(100));
 
         // Act
-        var resultat = beregner.beregn(nyYtelse, List.of(lagBrR(tidligereYtelse1, ferie1)));
+        var resultat = SvangerskapFeriepengeKvoteBeregner.beregn(nyYtelse, List.of(lagBrR(tidligereYtelse1, ferie1)));
 
         // Assert
         assertThat(resultat).isEmpty();
@@ -176,7 +175,7 @@ class SvangerskapFeriepengeKvoteBeregnerTest {
         var ferie3 = lagFPPeriode(dagerFør(15), dagerFør(10));
 
         // Act
-        var resultat = beregner.beregn(nyYtelse, List.of(lagBrR(tidligereYtelse1, ferie1), lagBrR(tidligereYtelse2, ferie2), lagBrR(tidligereYtelse3, ferie3)));
+        var resultat = SvangerskapFeriepengeKvoteBeregner.beregn(nyYtelse, List.of(lagBrR(tidligereYtelse1, ferie1), lagBrR(tidligereYtelse2, ferie2), lagBrR(tidligereYtelse3, ferie3)));
 
         // Assert
         assertThat(resultat)
@@ -196,7 +195,7 @@ class SvangerskapFeriepengeKvoteBeregnerTest {
         var ferie = lagFPPeriode(dagerFør(50), dagerFør(20)); // Ferieperiode dekker opphold i ytelsen
 
         // Act
-        var resultat = beregner.beregn(nyYtelse, List.of(lagBrR(tidligereYtelse, ferie)));
+        var resultat = SvangerskapFeriepengeKvoteBeregner.beregn(nyYtelse, List.of(lagBrR(tidligereYtelse, ferie)));
 
         // Assert
         assertThat(resultat)
@@ -224,7 +223,7 @@ class SvangerskapFeriepengeKvoteBeregnerTest {
 
         // Act
         Exception exception = assertThrows(IllegalStateException.class,
-            () -> beregner.beregn(nyYtelse, List.of(lagBrR(tidligereYtelse1, ferie1), lagBrR(tidligereYtelse2, ferie2))));
+            () -> SvangerskapFeriepengeKvoteBeregner.beregn(nyYtelse, List.of(lagBrR(tidligereYtelse1, ferie1), lagBrR(tidligereYtelse2, ferie2))));
 
         var forventetFeilmelding = "Brukte feriedager overstiger kvote! Tidligere saker må revurderes først. Brukte feriedager var 68";
 
