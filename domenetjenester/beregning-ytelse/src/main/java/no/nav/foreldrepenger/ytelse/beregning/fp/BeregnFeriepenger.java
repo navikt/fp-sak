@@ -10,8 +10,8 @@ import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
-import no.nav.foreldrepenger.konfig.KonfigVerdi;
 import no.nav.foreldrepenger.ytelse.beregning.BeregnFeriepengerTjeneste;
+import no.nav.foreldrepenger.ytelse.beregning.Feriepengedager;
 import no.nav.foreldrepenger.ytelse.beregning.adapter.MapInputFraVLTilRegelGrunnlag;
 
 @FagsakYtelseTypeRef(FagsakYtelseType.FORELDREPENGER)
@@ -22,16 +22,13 @@ public class BeregnFeriepenger extends BeregnFeriepengerTjeneste {
         //CDI
     }
 
-    /**
-     * @param antallDagerFeriepenger - Antall dager i feriepengerperioden for foreldrepenger ved 100% dekningsgrad
-     */
     @Inject
     public BeregnFeriepenger(BehandlingRepositoryProvider repositoryProvider,
                              MapInputFraVLTilRegelGrunnlag inputTjeneste,
                              FagsakRelasjonTjeneste fagsakRelasjonTjeneste,
-                             DekningsgradTjeneste dekningsgradTjeneste,
-                             @KonfigVerdi(value = "fp.antall.dager.feriepenger", defaultVerdi = "60") int antallDagerFeriepenger) {
-        super(repositoryProvider, inputTjeneste, fagsakRelasjonTjeneste, dekningsgradTjeneste, antallDagerFeriepenger);
+                             DekningsgradTjeneste dekningsgradTjeneste) {
+        super(repositoryProvider, inputTjeneste, fagsakRelasjonTjeneste, dekningsgradTjeneste,
+            Feriepengedager.forYtelse(FagsakYtelseType.FORELDREPENGER));
     }
 
     @Override

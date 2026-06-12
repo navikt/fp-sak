@@ -65,7 +65,7 @@ class BeregnFeriepengerTjenesteTest {
         Mockito.when(inputTjeneste.arbeidstakerVedSkjæringstidspunkt(any())).thenReturn(true);
         fagsakRelasjonTjeneste = new FagsakRelasjonTjeneste(repositoryProvider);
         var dekningsgradTjeneste = new DekningsgradTjeneste(repositoryProvider.getYtelsesFordelingRepository());
-        tjeneste = new BeregnFeriepenger(repositoryProvider, inputTjeneste, fagsakRelasjonTjeneste, dekningsgradTjeneste, 60);
+        tjeneste = new BeregnFeriepenger(repositoryProvider, inputTjeneste, fagsakRelasjonTjeneste, dekningsgradTjeneste);
     }
 
     @Test
