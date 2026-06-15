@@ -229,25 +229,25 @@ public class BekreftSvangerskapspengerOppdaterer implements AksjonspunktOppdater
     List<TilretteleggingEndring> oppdaterTilrettelegging(BekreftSvangerskapspengerDto dto,
                                                          Behandling behandling,
                                                          List<SvpTilretteleggingEntitet> eksisterendeTilrettelegginger) {
-        var endredeTilretteleginger = dto.getBekreftetSvpArbeidsforholdList();
-        validerTilrettelegginger(endredeTilretteleginger, eksisterendeTilrettelegginger);
+        var bekreftedeTilrettelegginger = dto.getBekreftetSvpArbeidsforholdList();
+        validerTilrettelegginger(bekreftedeTilrettelegginger, eksisterendeTilrettelegginger);
 
-        var tilretteleggingErEndretMap = endredeTilretteleginger.stream()
+        var endredeTilrettelegginger = bekreftedeTilrettelegginger.stream()
             .map(tilrettelegging -> mapTilrettelegging(tilrettelegging, eksisterendeTilrettelegginger))
             .toList();
 
-        if (tilretteleggingErEndretMap.stream().anyMatch(TilretteleggingEndring::skalOppdateres)) {
+        if (endredeTilrettelegginger.stream().anyMatch(TilretteleggingEndring::skalOppdateres)) {
 
-            var nyTilrettelegginger = tilretteleggingErEndretMap.stream().map(TilretteleggingEndring::nyTilrettelegging).toList();
+            var nyTilrettelegginger = endredeTilrettelegginger.stream().map(TilretteleggingEndring::nyTilrettelegging).toList();
             svangerskapspengerRepository.lagreOverstyrtGrunnlag(behandling, nyTilrettelegginger);
 
             // behov fra dato er stp i saken tidlig i prosessen, og benyttes som start dato når det sjekkes om det finnes en relevant neste sak. Dersom denne endres må utledning av neste sak gjøres på nytt.
-            var erFørsteBehovFraDatoEndret = endretFørsteBehovFra(endredeTilretteleginger, eksisterendeTilrettelegginger);
+            var erFørsteBehovFraDatoEndret = endretFørsteBehovFra(bekreftedeTilrettelegginger, eksisterendeTilrettelegginger);
             if (BehandlingType.FØRSTEGANGSSØKNAD.equals(behandling.getType()) && erFørsteBehovFraDatoEndret) {
                 stønadsperioderInnhenter.innhentNesteSak(behandling);
             }
         }
-        return tilretteleggingErEndretMap;
+        return endredeTilrettelegginger;
     }
 
     private boolean endretFørsteBehovFra(List<BekreftTilrettelegging> bekreftedeArbeidsforholdDtoer,
@@ -325,9 +325,12 @@ public class BekreftSvangerskapspengerOppdaterer implements AksjonspunktOppdater
 
         var nyTilrettelegging = mapNyTilretteleggingFraGammel(bekreftetTilrettelegging, eksisterendeTilrettelegging);
 
-        // En tilrettelegging uten id betyr enten en splitt eller en sammenslåing (reversering av splitt).
-        // Hvilket case det er avgjøres av hvor mange tilrettelegginger som finnes hos samme arbeidsgiver fra før:
-        // flere eksisterende => sammenslåing, kun én eksisterende => splitt.
+        /**
+         * En tilrettelegging uten id betyr enten en splitt eller en sammenslåing (reversering av splitt).
+         * Det avgjøres om det er splitt eller sammenslåing basert på hvor mange eksisterende tilrettelegginger som finnes hos samme arbeidsgiver:
+         *  - flere eksisterende hos samme arbeidsgiver => sammenslåing,
+         *  - kun én eksisterende => splitt.
+         */
         if (bekreftetTilrettelegging.getTilretteleggingId() == null && tilretteleggingerHosSammeAG.size() > 1) {
             return TilretteleggingEndring.reverserSplitt(nyTilrettelegging, tilretteleggingerHosSammeAG);
 
