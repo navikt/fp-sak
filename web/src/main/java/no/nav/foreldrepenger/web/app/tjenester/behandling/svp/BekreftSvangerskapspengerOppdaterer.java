@@ -115,12 +115,18 @@ public class BekreftSvangerskapspengerOppdaterer implements AksjonspunktOppdater
         verifiserUnikeDatoer(dto);
         var ref = param.getRef();
         var behandling = behandlingRepository.hentBehandling(ref.behandlingId());
-        var eksisterendeTilretteleginger = hentGjeldendeTilrettelegginger(behandling);
+        var eksisterendeTilrettelegginger = hentGjeldendeTilrettelegginger(behandling);
         var familieHendelseGrunnlag = familieHendelseRepository.hentAggregat(ref.behandlingId());
         var forrigeFikspunkt = opplysningsPeriodeTjeneste.utledFikspunktForRegisterInnhenting(behandling.getId(), ref.fagsakYtelseType());
         var termindatoEndret = oppdaterFamiliehendelse(ref, dto, familieHendelseGrunnlag);
-        var endredeTilrettelegginger = oppdaterTilrettelegging(dto, behandling, eksisterendeTilretteleginger);
+
+        validerTilrettelegginger(dto.getBekreftetSvpArbeidsforholdList(), eksisterendeTilrettelegginger);
+
+        var endredeTilrettelegginger = mapEndredeTilrettelegginger(dto, eksisterendeTilrettelegginger);
+
+        oppdaterTilrettelegging(endredeTilrettelegginger, behandling);
         oppdaterPermisjonVedBehov(dto, param);
+
         if (termindatoEndret || endredeTilrettelegginger.stream().anyMatch(TilretteleggingEndring::skalOppdateres)) {
             var arbeidsforholdInformasjon = inntektArbeidYtelseTjeneste.finnGrunnlag(ref.behandlingId())
                 .flatMap(InntektArbeidYtelseGrunnlag::getArbeidsforholdInformasjon);
@@ -226,15 +232,16 @@ public class BekreftSvangerskapspengerOppdaterer implements AksjonspunktOppdater
         }
     }
 
-    List<TilretteleggingEndring> oppdaterTilrettelegging(BekreftSvangerskapspengerDto dto,
-                                                         Behandling behandling,
-                                                         List<SvpTilretteleggingEntitet> eksisterendeTilrettelegginger) {
-        var bekreftedeTilrettelegginger = dto.getBekreftetSvpArbeidsforholdList();
-        validerTilrettelegginger(bekreftedeTilrettelegginger, eksisterendeTilrettelegginger);
+    List<TilretteleggingEndring> mapEndredeTilrettelegginger(BekreftSvangerskapspengerDto dto,
+                                                             List<SvpTilretteleggingEntitet> eksisterendeTilrettelegginger) {
 
-        var endredeTilrettelegginger = bekreftedeTilrettelegginger.stream()
+        return dto.getBekreftetSvpArbeidsforholdList()
+            .stream()
             .map(tilrettelegging -> mapTilrettelegging(tilrettelegging, eksisterendeTilrettelegginger))
             .toList();
+    }
+
+    void oppdaterTilrettelegging(List<TilretteleggingEndring> endredeTilrettelegginger, Behandling behandling) {
 
         if (endredeTilrettelegginger.stream().anyMatch(TilretteleggingEndring::skalOppdateres)) {
 
@@ -242,21 +249,23 @@ public class BekreftSvangerskapspengerOppdaterer implements AksjonspunktOppdater
             svangerskapspengerRepository.lagreOverstyrtGrunnlag(behandling, nyTilrettelegginger);
 
             // behov fra dato er stp i saken tidlig i prosessen, og benyttes som start dato når det sjekkes om det finnes en relevant neste sak. Dersom denne endres må utledning av neste sak gjøres på nytt.
-            var erFørsteBehovFraDatoEndret = endretFørsteBehovFra(bekreftedeTilrettelegginger, eksisterendeTilrettelegginger);
+            var erFørsteBehovFraDatoEndret = endretFørsteBehovFra(endredeTilrettelegginger);
             if (BehandlingType.FØRSTEGANGSSØKNAD.equals(behandling.getType()) && erFørsteBehovFraDatoEndret) {
                 stønadsperioderInnhenter.innhentNesteSak(behandling);
             }
         }
-        return endredeTilrettelegginger;
     }
 
-    private boolean endretFørsteBehovFra(List<BekreftTilrettelegging> bekreftedeArbeidsforholdDtoer,
-                                         List<SvpTilretteleggingEntitet> tilretteleggingerUfiltrert) {
-        var førsteBehovFraDatoNy = bekreftedeArbeidsforholdDtoer.stream()
-            .map(BekreftTilrettelegging::getTilretteleggingBehovFom)
+    private boolean endretFørsteBehovFra(List<TilretteleggingEndring> endredeTilrettelegginger) {
+
+        var førsteBehovFraDatoNy = endredeTilrettelegginger.stream()
+            .map(TilretteleggingEndring::nyTilrettelegging)
+            .map(SvpTilretteleggingEntitet::getBehovForTilretteleggingFom)
             .min(Comparator.naturalOrder())
             .orElse(Tid.TIDENES_ENDE);
-        var førsteBehovFraDatoGammel = tilretteleggingerUfiltrert.stream()
+        var førsteBehovFraDatoGammel = endredeTilrettelegginger.stream()
+            .map(TilretteleggingEndring::gammelTilrettelegging)
+            .flatMap(Collection::stream)
             .map(SvpTilretteleggingEntitet::getBehovForTilretteleggingFom)
             .min(Comparator.naturalOrder())
             .orElse(Tid.TIDENES_ENDE);
