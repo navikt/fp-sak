@@ -220,14 +220,25 @@ class SvangerskapspengerTjenesteTest {
         assertThat(resultat.get()).isEqualByComparingTo(forventetStillingsprosent);
     }
 
+    private Yrkesaktivitet lagYrkesaktivitet(List<AktivitetsAvtaleBuilder> aktivitetsAvtale,
+                                             Arbeidsgiver arbeidsgiver, InternArbeidsforholdRef ref, List<Permisjon> permisjoner) {
+        var builder = YrkesaktivitetBuilder.oppdatere(Optional.empty())
+            .medArbeidsforholdId(ref)
+            .medArbeidsgiver(arbeidsgiver)
+            .medArbeidType(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD);
+        aktivitetsAvtale.forEach(builder::leggTilAktivitetsAvtale);
+        permisjoner.forEach(builder::leggTilPermisjon);
+        return builder.build();
+    }
+
     @Test
     public void skal_vurdere_splitt_av_arbeidsforholdet() {
         var arbeidsgiver = Arbeidsgiver.virksomhet("123456789");
 
         var avtaler1 = List.of(AktivitetsAvtaleBuilder.ny()
-                .medPeriode(DatoIntervallEntitet.fraOgMed(FØRSTE_FRA_DATO_TILR.minusYears(1).minusWeeks(1))));
+            .medPeriode(DatoIntervallEntitet.fraOgMed(FØRSTE_FRA_DATO_TILR.minusYears(1).minusWeeks(1))));
         var avtaler2 = List.of(AktivitetsAvtaleBuilder.ny()
-                .medPeriode(DatoIntervallEntitet.fraOgMed(FØRSTE_FRA_DATO_TILR.minusYears(1))));
+            .medPeriode(DatoIntervallEntitet.fraOgMed(FØRSTE_FRA_DATO_TILR.minusYears(1))));
 
         var ref1 = InternArbeidsforholdRef.nyRef();
         var ref2 = InternArbeidsforholdRef.nyRef();
@@ -327,16 +338,5 @@ class SvangerskapspengerTjenesteTest {
             .medArbeidsforholdId(internRef)
             .medArbeidsgiver(Arbeidsgiver.virksomhet(orgnr))
             .build();
-    }
-
-    private Yrkesaktivitet lagYrkesaktivitet(List<AktivitetsAvtaleBuilder> aktivitetsAvtale,
-                                             Arbeidsgiver arbeidsgiver, InternArbeidsforholdRef ref, List<Permisjon> permisjoner) {
-        var builder = YrkesaktivitetBuilder.oppdatere(Optional.empty())
-            .medArbeidsforholdId(ref)
-            .medArbeidsgiver(arbeidsgiver)
-            .medArbeidType(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD);
-        aktivitetsAvtale.forEach(builder::leggTilAktivitetsAvtale);
-        permisjoner.forEach(builder::leggTilPermisjon);
-        return builder.build();
     }
 }

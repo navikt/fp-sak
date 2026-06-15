@@ -10,8 +10,10 @@ import static org.mockito.Mockito.mock;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 import jakarta.persistence.EntityManager;
@@ -48,6 +50,7 @@ import no.nav.foreldrepenger.domene.arbeidsforhold.impl.ArbeidsforholdAdministra
 import no.nav.foreldrepenger.domene.arbeidsgiver.ArbeidsgiverOpplysninger;
 import no.nav.foreldrepenger.domene.arbeidsgiver.ArbeidsgiverTjeneste;
 import no.nav.foreldrepenger.domene.iay.modell.AktivitetsAvtaleBuilder;
+import no.nav.foreldrepenger.domene.iay.modell.ArbeidsforholdInformasjonBuilder;
 import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseAggregatBuilder;
 import no.nav.foreldrepenger.domene.iay.modell.Permisjon;
 import no.nav.foreldrepenger.domene.iay.modell.VersjonType;
@@ -57,6 +60,7 @@ import no.nav.foreldrepenger.domene.iay.modell.kodeverk.BekreftetPermisjonStatus
 import no.nav.foreldrepenger.domene.iay.modell.kodeverk.PermisjonsbeskrivelseType;
 import no.nav.foreldrepenger.domene.registerinnhenting.StønadsperioderInnhenter;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
+import no.nav.foreldrepenger.domene.typer.EksternArbeidsforholdRef;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 import no.nav.foreldrepenger.skjæringstidspunkt.OpplysningsPeriodeTjeneste;
 import no.nav.vedtak.exception.FunksjonellException;
@@ -68,7 +72,10 @@ class BekreftSvangerskapspengerOppdatererTest {
     private static final LocalDate BEHOV_FRA_DATO = LocalDate.now();
     private static final LocalDate TLR_FRA_2 = LocalDate.now().plusMonths(1);
     private static final LocalDate TERMINDATO = LocalDate.now().plusMonths(5);
+    private static final LocalDate DEFAULT_TERMINDATO = LocalDate.now().plusDays(40);
+    private static final DateTimeFormatter DATO_FORMAT = DateTimeFormatter.ofPattern("dd.MM.yyyy");
     public static final String ARBEIDSGIVER_IDENT = "12378694712";
+    public static final String ARBEIDSGIVER_IDENT_2 = "999999999";
     public static final InternArbeidsforholdRef INTERN_ARBEIDSFORHOLD_REF = InternArbeidsforholdRef.nyRef();
     public static final InternArbeidsforholdRef INTERN_ARBEIDSFORHOLD_REF2 = InternArbeidsforholdRef.nyRef();
     private final InntektArbeidYtelseTjeneste inntektArbeidYtelseTjeneste = new AbakusInMemoryInntektArbeidYtelseTjeneste();
@@ -117,7 +124,7 @@ class BekreftSvangerskapspengerOppdatererTest {
         var svpGrunnlag = byggSøknadsgrunnlag(behandling, false, false);
 
         var dto = byggDto(BEHOV_FRA_DATO, TERMINDATO,
-            svpGrunnlag.getOpprinneligeTilrettelegginger().getTilretteleggingListe().get(0).getId(),
+            svpGrunnlag.getOpprinneligeTilrettelegginger().getTilretteleggingListe().getFirst().getId(),
             true,
             new VelferdspermisjonDto(permisjonFom, permisjonTom, BigDecimal.valueOf(100), PermisjonsbeskrivelseType.VELFERDSPERMISJON, false),
             null,
@@ -135,10 +142,10 @@ class BekreftSvangerskapspengerOppdatererTest {
 
         assertThat(overstyringer).hasSize(1);
 
-        assertThat(overstyringer.get(0).getBekreftetPermisjon()).isPresent();
-        assertThat(overstyringer.get(0).getBekreftetPermisjon().get().getStatus()).isEqualTo(BekreftetPermisjonStatus.IKKE_BRUK_PERMISJON);
-        assertThat(overstyringer.get(0).getArbeidsgiver().getIdentifikator()).isEqualTo(ARBEIDSGIVER_IDENT);
-        assertThat(overstyringer.get(0).getArbeidsforholdRef()).isEqualTo(INTERN_ARBEIDSFORHOLD_REF);
+        assertThat(overstyringer.getFirst().getBekreftetPermisjon()).isPresent();
+        assertThat(overstyringer.getFirst().getBekreftetPermisjon().get().getStatus()).isEqualTo(BekreftetPermisjonStatus.IKKE_BRUK_PERMISJON);
+        assertThat(overstyringer.getFirst().getArbeidsgiver().getIdentifikator()).isEqualTo(ARBEIDSGIVER_IDENT);
+        assertThat(overstyringer.getFirst().getArbeidsforholdRef()).isEqualTo(INTERN_ARBEIDSFORHOLD_REF);
     }
 
     @Test
@@ -152,7 +159,7 @@ class BekreftSvangerskapspengerOppdatererTest {
         var svpGrunnlag = byggSøknadsgrunnlag(behandling, true, false);
         //endrer
         var dto = byggDto(BEHOV_FRA_DATO, TERMINDATO,
-            svpGrunnlag.getOpprinneligeTilrettelegginger().getTilretteleggingListe().get(0).getId(),
+            svpGrunnlag.getOpprinneligeTilrettelegginger().getTilretteleggingListe().getFirst().getId(),
             true, null, null,
             List.of(new SvpTilretteleggingDatoDto(TLR_FRA_2, TilretteleggingType.INGEN_TILRETTELEGGING, null, null, SvpTilretteleggingFomKilde.REGISTRERT_AV_SAKSBEHANDLER,
                     null),
@@ -165,6 +172,15 @@ class BekreftSvangerskapspengerOppdatererTest {
         var resultat = oppdaterer.oppdater(dto, param);
 
         assertThat(resultat.kreverTotrinnsKontroll()).isTrue();
+
+        var historikkinnslag = repositoryProvider.getHistorikkinnslagRepository().hent(behandling.getSaksnummer()).getFirst();
+        var tekstLinjer = historikkinnslag.getTekstLinjer().stream().filter(Objects::nonNull).toList();
+        assertThat(tekstLinjer).containsExactly(
+            "__Termindato__ er endret fra " + dato(DEFAULT_TERMINDATO) + " til __" + dato(TERMINDATO) + "__.",
+            "Arbeidsgiver (123).",
+            "Periode med __Delvis tilrettelegging__ fra og med __" + dato(BEHOV_FRA_DATO) + "__ med arbeidsprosent __50__ er fjernet.",
+            "Periode med __Delvis tilrettelegging__ fra og med __" + dato(BEHOV_FRA_DATO) + "__ med arbeidsprosent __60__ er lagt til.",
+            "Velbegrunnet begrunnelse.");
     }
 
     @Test
@@ -177,7 +193,7 @@ class BekreftSvangerskapspengerOppdatererTest {
 
         var svpGrunnlag = byggSøknadsgrunnlag(behandling, true, false);
         var dto = byggDto(BEHOV_FRA_DATO, TERMINDATO,
-            svpGrunnlag.getOpprinneligeTilrettelegginger().getTilretteleggingListe().get(0).getId(),
+            svpGrunnlag.getOpprinneligeTilrettelegginger().getTilretteleggingListe().getFirst().getId(),
             false,
             null,
             INTERN_ARBEIDSFORHOLD_REF,
@@ -189,6 +205,14 @@ class BekreftSvangerskapspengerOppdatererTest {
         var resultat = oppdaterer.oppdater(dto, param);
 
         assertThat(resultat.kreverTotrinnsKontroll()).isTrue();
+
+        var historikkinnslag = repositoryProvider.getHistorikkinnslagRepository().hent(behandling.getSaksnummer()).getFirst();
+        var tekstLinjer = historikkinnslag.getTekstLinjer().stream().filter(Objects::nonNull).toList();
+        assertThat(tekstLinjer).containsExactly(
+            "__Termindato__ er endret fra " + dato(DEFAULT_TERMINDATO) + " til __" + dato(TERMINDATO) + "__.",
+            "Arbeidsgiver (123).",
+            "__Tilrettelegging skal brukes__ er endret fra Ja til __Nei__.",
+            "Velbegrunnet begrunnelse.");
     }
 
     @Test
@@ -201,7 +225,7 @@ class BekreftSvangerskapspengerOppdatererTest {
 
         var svpGrunnlag = byggSøknadsgrunnlag(behandling, true, false);
         var dto = byggDto(BEHOV_FRA_DATO.minusDays(1), TERMINDATO,
-            svpGrunnlag.getOpprinneligeTilrettelegginger().getTilretteleggingListe().get(0).getId(),
+            svpGrunnlag.getOpprinneligeTilrettelegginger().getTilretteleggingListe().getFirst().getId(),
             true, null, null,
             List.of(new SvpTilretteleggingDatoDto(TLR_FRA_2, TilretteleggingType.INGEN_TILRETTELEGGING, null),
                 new SvpTilretteleggingDatoDto(BEHOV_FRA_DATO, TilretteleggingType.DELVIS_TILRETTELEGGING, BigDecimal.valueOf(50))),
@@ -211,6 +235,14 @@ class BekreftSvangerskapspengerOppdatererTest {
         var resultat = oppdaterer.oppdater(dto, param);
 
         assertThat(resultat.kreverTotrinnsKontroll()).isTrue();
+
+        var historikkinnslag = repositoryProvider.getHistorikkinnslagRepository().hent(behandling.getSaksnummer()).getFirst();
+        var tekstLinjer = historikkinnslag.getTekstLinjer().stream().filter(Objects::nonNull).toList();
+        assertThat(tekstLinjer).containsExactly(
+            "__Termindato__ er endret fra " + dato(DEFAULT_TERMINDATO) + " til __" + dato(TERMINDATO) + "__.",
+            "Arbeidsgiver (123).",
+            "__Tilrettelegging er nødvendig fra og med__ er endret fra " + dato(BEHOV_FRA_DATO) + " til __" + dato(BEHOV_FRA_DATO.minusDays(1)) + "__.",
+            "Velbegrunnet begrunnelse.");
     }
 
     @Test
@@ -222,9 +254,9 @@ class BekreftSvangerskapspengerOppdatererTest {
         inntektArbeidYtelseTjeneste.lagreIayAggregat(behandling.getId(), register);
 
         var svpGrunnlag = byggSøknadsgrunnlag(behandling, true, false);
-        //endrer
+        // endrer
         var dto = byggDto(BEHOV_FRA_DATO, TERMINDATO,
-            svpGrunnlag.getOpprinneligeTilrettelegginger().getTilretteleggingListe().get(0).getId(),
+            svpGrunnlag.getOpprinneligeTilrettelegginger().getTilretteleggingListe().getFirst().getId(),
             true, null, null,
             List.of(new SvpTilretteleggingDatoDto(TLR_FRA_2, TilretteleggingType.INGEN_TILRETTELEGGING, null),
                 new SvpTilretteleggingDatoDto(BEHOV_FRA_DATO, TilretteleggingType.DELVIS_TILRETTELEGGING, BigDecimal.valueOf(50), null, SvpTilretteleggingFomKilde.SØKNAD,
@@ -237,7 +269,106 @@ class BekreftSvangerskapspengerOppdatererTest {
         var resultat = oppdaterer.oppdater(dto, param);
 
         assertThat(resultat.kreverTotrinnsKontroll()).isTrue();
+
+        var historikkinnslag = repositoryProvider.getHistorikkinnslagRepository().hent(behandling.getSaksnummer()).getFirst();
+        var tekstLinjer = historikkinnslag.getTekstLinjer().stream().filter(Objects::nonNull).toList();
+        assertThat(tekstLinjer).containsExactly(
+            "__Termindato__ er endret fra " + dato(DEFAULT_TERMINDATO) + " til __" + dato(TERMINDATO) + "__.",
+            "Arbeidsgiver (123).",
+            "Periode med __Sykepenger 100% (" + dato(BEHOV_FRA_DATO) + " - " + dato(BEHOV_FRA_DATO.plusWeeks(1)) + ")__ er lagt til.",
+            "Periode med __Ferie (" + dato(TLR_FRA_2) + " - " + dato(TLR_FRA_2.plusWeeks(3)) + ")__ er lagt til.",
+            "Velbegrunnet begrunnelse.");
     }
+
+    @Test
+    void skal_lage_historikkinnslag_ved_splitt_av_tilrettelegging_i_to() {
+        var behandling = behandlingMedTilretteleggingAP();
+
+        var register = InntektArbeidYtelseAggregatBuilder.oppdatere(Optional.empty(), VersjonType.REGISTER);
+        inntektArbeidYtelseTjeneste.lagreIayAggregat(behandling.getId(), register);
+        lagreEksternReferanser(behandling);
+
+        // én tilrettelegging hos arbeidsgiver som skal splittes + én uendret tilrettelegging hos en annen arbeidsgiver
+        var tilretteleggingSomSplittes = byggTilrettelegging(ARBEIDSGIVER_IDENT, null,
+            opprettTilretteleggingFom(BEHOV_FRA_DATO, 0, TilretteleggingType.INGEN_TILRETTELEGGING, LocalDate.now().minusDays(1)));
+        var uendretTilrettelegging = byggTilrettelegging(ARBEIDSGIVER_IDENT_2, null,
+            opprettTilretteleggingFom(BEHOV_FRA_DATO, 0, TilretteleggingType.INGEN_TILRETTELEGGING, LocalDate.now().minusDays(1)));
+        var grunnlag = lagreGrunnlag(behandling, List.of(tilretteleggingSomSplittes, uendretTilrettelegging));
+
+        var arbeidsforhold1 = byggArbeidsforholdDto(ARBEIDSGIVER_IDENT, null, INTERN_ARBEIDSFORHOLD_REF, true,
+            List.of(new SvpTilretteleggingDatoDto(BEHOV_FRA_DATO, TilretteleggingType.DELVIS_TILRETTELEGGING, BigDecimal.valueOf(50))));
+        var arbeidsforhold2 = byggArbeidsforholdDto(ARBEIDSGIVER_IDENT, null, INTERN_ARBEIDSFORHOLD_REF2, true,
+            List.of(new SvpTilretteleggingDatoDto(BEHOV_FRA_DATO, TilretteleggingType.INGEN_TILRETTELEGGING, null)));
+        var uendretArbeidsforhold = byggArbeidsforholdDto(ARBEIDSGIVER_IDENT_2, finnTilretteleggingId(grunnlag, ARBEIDSGIVER_IDENT_2), null, true,
+            List.of(new SvpTilretteleggingDatoDto(BEHOV_FRA_DATO, TilretteleggingType.INGEN_TILRETTELEGGING, null)));
+
+        var dto = new BekreftSvangerskapspengerDto("Velbegrunnet begrunnelse");
+        dto.setTermindato(DEFAULT_TERMINDATO);
+        dto.setBekreftetSvpArbeidsforholdList(List.of(arbeidsforhold1, arbeidsforhold2, uendretArbeidsforhold));
+
+        var param = new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling), dto);
+
+        var resultat = oppdaterer.oppdater(dto, param);
+
+        assertThat(resultat.kreverTotrinnsKontroll()).isTrue();
+
+        var historikkinnslag = repositoryProvider.getHistorikkinnslagRepository().hent(behandling.getSaksnummer()).getFirst();
+        var tekstLinjer = historikkinnslag.getTekstLinjer().stream().filter(Objects::nonNull).toList();
+        assertThat(tekstLinjer).containsExactly(
+            "Tilrettelegging for Arbeidsgiver (123) er blitt splittet fra 1 til 2 tilrettelegginger.",
+            "Arbeidsgiver (123) ...0001.",
+            "__Tilrettelegging skal brukes__ er satt til __Ja__.",
+            "__Tilrettelegging er nødvendig fra og med__ er satt til __" + dato(BEHOV_FRA_DATO) + "__.",
+            "Periode med __Delvis tilrettelegging__ fra og med __" + dato(BEHOV_FRA_DATO) + "__ med arbeidsprosent __50__ er lagt til.",
+            "Arbeidsgiver (123) ...0002.",
+            "__Tilrettelegging skal brukes__ er satt til __Ja__.",
+            "__Tilrettelegging er nødvendig fra og med__ er satt til __" + dato(BEHOV_FRA_DATO) + "__.",
+            "Periode med __Ingen tilrettelegging__ fra og med __" + dato(BEHOV_FRA_DATO) + "__ er lagt til.",
+            "Velbegrunnet begrunnelse.");
+    }
+
+    @Test
+    void skal_lage_historikkinnslag_ved_reversering_av_splitt_til_én() {
+        var behandling = behandlingMedTilretteleggingAP();
+
+        var register = InntektArbeidYtelseAggregatBuilder.oppdatere(Optional.empty(), VersjonType.REGISTER);
+        inntektArbeidYtelseTjeneste.lagreIayAggregat(behandling.getId(), register);
+
+        // to eksisterende tilrettelegginger hos samme arbeidsgiver som skal slås sammen + én uendret tilrettelegging hos en annen arbeidsgiver
+        var tilrettelegging1 = byggTilrettelegging(ARBEIDSGIVER_IDENT, INTERN_ARBEIDSFORHOLD_REF,
+            opprettTilretteleggingFom(BEHOV_FRA_DATO, 50, TilretteleggingType.DELVIS_TILRETTELEGGING, LocalDate.now().minusDays(1)));
+        var tilrettelegging2 = byggTilrettelegging(ARBEIDSGIVER_IDENT, INTERN_ARBEIDSFORHOLD_REF2,
+            opprettTilretteleggingFom(BEHOV_FRA_DATO, 0, TilretteleggingType.INGEN_TILRETTELEGGING, LocalDate.now().minusDays(1)));
+        var uendretTilrettelegging = byggTilrettelegging(ARBEIDSGIVER_IDENT_2, null,
+            opprettTilretteleggingFom(BEHOV_FRA_DATO, 0, TilretteleggingType.INGEN_TILRETTELEGGING, LocalDate.now().minusDays(1)));
+        var grunnlag = lagreGrunnlag(behandling, List.of(tilrettelegging1, tilrettelegging2, uendretTilrettelegging));
+
+        var arbeidsforhold = byggArbeidsforholdDto(ARBEIDSGIVER_IDENT, null, null, true,
+            List.of(new SvpTilretteleggingDatoDto(BEHOV_FRA_DATO, TilretteleggingType.DELVIS_TILRETTELEGGING, BigDecimal.valueOf(50))));
+        var uendretArbeidsforhold = byggArbeidsforholdDto(ARBEIDSGIVER_IDENT_2, finnTilretteleggingId(grunnlag, ARBEIDSGIVER_IDENT_2), null, true,
+            List.of(new SvpTilretteleggingDatoDto(BEHOV_FRA_DATO, TilretteleggingType.INGEN_TILRETTELEGGING, null)));
+
+        var dto = new BekreftSvangerskapspengerDto("Velbegrunnet begrunnelse");
+        dto.setTermindato(DEFAULT_TERMINDATO);
+        dto.setBekreftetSvpArbeidsforholdList(List.of(arbeidsforhold, uendretArbeidsforhold));
+
+        var param = new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling), dto);
+
+        var resultat = oppdaterer.oppdater(dto, param);
+
+        assertThat(resultat.kreverTotrinnsKontroll()).isTrue();
+
+        var historikkinnslag = repositoryProvider.getHistorikkinnslagRepository().hent(behandling.getSaksnummer()).getFirst();
+        var tekstLinjer = historikkinnslag.getTekstLinjer().stream().filter(Objects::nonNull).toList();
+        assertThat(tekstLinjer).containsExactly(
+            "Splittet tilrettelegging for Arbeidsgiver (123) er slått sammen fra 2 tilrettelegginger til 1.",
+            "Arbeidsgiver (123).",
+            "__Tilrettelegging skal brukes__ er satt til __Ja__.",
+            "__Tilrettelegging er nødvendig fra og med__ er satt til __" + dato(BEHOV_FRA_DATO) + "__.",
+            "Periode med __Delvis tilrettelegging__ fra og med __" + dato(BEHOV_FRA_DATO) + "__ med arbeidsprosent __50__ er lagt til.",
+            "Velbegrunnet begrunnelse.");
+    }
+
     @Test
     void ikke_totrinn_hvis_ingen_endring() {
         var behandling = behandlingMedTilretteleggingAP();
@@ -248,7 +379,7 @@ class BekreftSvangerskapspengerOppdatererTest {
 
         var svpGrunnlag = byggSøknadsgrunnlag(behandling, true, true);
         var dto = byggDto(BEHOV_FRA_DATO, LocalDate.now().plusDays(40),
-            svpGrunnlag.getOpprinneligeTilrettelegginger().getTilretteleggingListe().get(0).getId(),
+            svpGrunnlag.getOpprinneligeTilrettelegginger().getTilretteleggingListe().getFirst().getId(),
             true, null, null,
             List.of(new SvpTilretteleggingDatoDto(TLR_FRA_2, TilretteleggingType.INGEN_TILRETTELEGGING, null),
             new SvpTilretteleggingDatoDto(BEHOV_FRA_DATO, TilretteleggingType.DELVIS_TILRETTELEGGING, BigDecimal.valueOf(50))),
@@ -270,7 +401,7 @@ class BekreftSvangerskapspengerOppdatererTest {
 
         var svpGrunnlag = byggSøknadsgrunnlag(behandling, true, false);
         var dto = byggDto(BEHOV_FRA_DATO, LocalDate.now().plusDays(40),
-            svpGrunnlag.getOpprinneligeTilrettelegginger().getTilretteleggingListe().get(0).getId(),
+            svpGrunnlag.getOpprinneligeTilrettelegginger().getTilretteleggingListe().getFirst().getId(),
             true, null, null,
             List.of(new SvpTilretteleggingDatoDto(TLR_FRA_2, TilretteleggingType.INGEN_TILRETTELEGGING, null),
                 new SvpTilretteleggingDatoDto(BEHOV_FRA_DATO, TilretteleggingType.DELVIS_TILRETTELEGGING, BigDecimal.valueOf(50))),
@@ -318,6 +449,10 @@ class BekreftSvangerskapspengerOppdatererTest {
         assertDoesNotThrow(() -> oppdaterer.oppdater(dto, param));
     }
 
+    private static String dato(LocalDate dato) {
+        return dato.format(DATO_FORMAT);
+    }
+
     private Behandling behandlingMedTilretteleggingAP() {
         var scenario = ScenarioMorSøkerSvangerskapspenger.forSvangerskapspenger();
         scenario.leggTilAksjonspunkt(AksjonspunktDefinisjon.VURDER_SVP_TILRETTELEGGING,
@@ -330,13 +465,13 @@ class BekreftSvangerskapspengerOppdatererTest {
         SvpTilretteleggingEntitet tilrettelegging;
 
         if (flereFoms) {
-            var tilr2Fom1 = opprettTilrFom(BEHOV_FRA_DATO, 50, TilretteleggingType.DELVIS_TILRETTELEGGING, LocalDate.now().minusDays(1));
-            var tilr2Fom2 = opprettTilrFom(TLR_FRA_2, 0, TilretteleggingType.INGEN_TILRETTELEGGING, LocalDate.now());
+            var tilr2Fom1 = opprettTilretteleggingFom(BEHOV_FRA_DATO, 50, TilretteleggingType.DELVIS_TILRETTELEGGING, LocalDate.now().minusDays(1));
+            var tilr2Fom2 = opprettTilretteleggingFom(TLR_FRA_2, 0, TilretteleggingType.INGEN_TILRETTELEGGING, LocalDate.now());
 
             var tilrBuilder = new SvpTilretteleggingEntitet.Builder().medBehovForTilretteleggingFom(BEHOV_FRA_DATO)
                 .medTilretteleggingFraDatoer(List.of(tilr2Fom1, tilr2Fom2))
                 .medArbeidType(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD)
-                .medArbeidsgiver(Arbeidsgiver.virksomhet("123456789"))
+                .medArbeidsgiver(Arbeidsgiver.virksomhet(ARBEIDSGIVER_IDENT))
                 .medMottattTidspunkt(LocalDateTime.now())
                 .medKopiertFraTidligereBehandling(false);
             if (medAvklartOpphold){
@@ -346,12 +481,12 @@ class BekreftSvangerskapspengerOppdatererTest {
             }
             tilrettelegging = tilrBuilder.build();
         } else {
-            var tilr1Fom = opprettTilrFom(BEHOV_FRA_DATO, 0, TilretteleggingType.INGEN_TILRETTELEGGING, LocalDate.now().minusDays(1));
+            var tilr1Fom = opprettTilretteleggingFom(BEHOV_FRA_DATO, 0, TilretteleggingType.INGEN_TILRETTELEGGING, LocalDate.now().minusDays(1));
 
            var tilrBuilder  = new SvpTilretteleggingEntitet.Builder().medBehovForTilretteleggingFom(BEHOV_FRA_DATO)
                 .medTilretteleggingFraDatoer(List.of(tilr1Fom))
                 .medArbeidType(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD)
-                .medArbeidsgiver(Arbeidsgiver.virksomhet("987654321"))
+                .medArbeidsgiver(Arbeidsgiver.virksomhet(ARBEIDSGIVER_IDENT))
                 .medMottattTidspunkt(LocalDateTime.now())
                 .medKopiertFraTidligereBehandling(false);
 
@@ -378,7 +513,7 @@ class BekreftSvangerskapspengerOppdatererTest {
                 .build();
     }
 
-    private TilretteleggingFOM opprettTilrFom(LocalDate fraDato, long stilingsprosent, TilretteleggingType type, LocalDate tidligsMottattDato) {
+    private TilretteleggingFOM opprettTilretteleggingFom(LocalDate fraDato, long stilingsprosent, TilretteleggingType type, LocalDate tidligsMottattDato) {
         var tilretteleggingFomBuilder = new TilretteleggingFOM.Builder()
             .medFomDato(fraDato)
             .medTilretteleggingType(type)
@@ -419,6 +554,61 @@ class BekreftSvangerskapspengerOppdatererTest {
 
         dto.setBekreftetSvpArbeidsforholdList(List.of(arbeidsforholdDto));
         return dto;
+    }
+
+    private void lagreEksternReferanser(Behandling behandling) {
+        var arbeidsgiver = Arbeidsgiver.virksomhet(ARBEIDSGIVER_IDENT);
+        var informasjon = ArbeidsforholdInformasjonBuilder.oppdatere(Optional.empty());
+        informasjon.leggTil(arbeidsgiver, INTERN_ARBEIDSFORHOLD_REF, EksternArbeidsforholdRef.ref("ARBEIDSFORHOLD-0001"));
+        informasjon.leggTil(arbeidsgiver, INTERN_ARBEIDSFORHOLD_REF2, EksternArbeidsforholdRef.ref("ARBEIDSFORHOLD-0002"));
+        inntektArbeidYtelseTjeneste.lagreOverstyrtArbeidsforhold(behandling.getId(), informasjon);
+    }
+
+    private BekreftTilrettelegging byggArbeidsforholdDto(String arbeidsgiverReferanse,
+                                                         Long tilretteleggingId,
+                                                         InternArbeidsforholdRef internArbeidsforholdRef,
+                                                         boolean skalBrukes,
+                                                         List<SvpTilretteleggingDatoDto> tilretteleggingDatoer) {
+        var arbeidsforholdDto = new BekreftTilrettelegging();
+        arbeidsforholdDto.setTilretteleggingBehovFom(BEHOV_FRA_DATO);
+        arbeidsforholdDto.setTilretteleggingDatoer(tilretteleggingDatoer);
+        arbeidsforholdDto.setArbeidsgiverReferanse(arbeidsgiverReferanse);
+        arbeidsforholdDto.setInternArbeidsforholdReferanse(
+            internArbeidsforholdRef == null ? null : internArbeidsforholdRef.getUUIDReferanse());
+        arbeidsforholdDto.setTilretteleggingId(tilretteleggingId);
+        arbeidsforholdDto.setSkalBrukes(skalBrukes);
+        return arbeidsforholdDto;
+    }
+
+    private SvpTilretteleggingEntitet byggTilrettelegging(String arbeidsgiverIdent,
+                                                          InternArbeidsforholdRef internArbeidsforholdRef,
+                                                          TilretteleggingFOM tilretteleggingFom) {
+        var builder = new SvpTilretteleggingEntitet.Builder().medBehovForTilretteleggingFom(BEHOV_FRA_DATO)
+            .medTilretteleggingFraDatoer(List.of(tilretteleggingFom))
+            .medArbeidType(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD)
+            .medArbeidsgiver(Arbeidsgiver.virksomhet(arbeidsgiverIdent))
+            .medMottattTidspunkt(LocalDateTime.now())
+            .medKopiertFraTidligereBehandling(false);
+        if (internArbeidsforholdRef != null) {
+            builder.medInternArbeidsforholdRef(internArbeidsforholdRef);
+        }
+        return builder.build();
+    }
+
+    private SvpGrunnlagEntitet lagreGrunnlag(Behandling behandling, List<SvpTilretteleggingEntitet> tilrettelegginger) {
+        var svpGrunnlag = new SvpGrunnlagEntitet.Builder().medBehandlingId(behandling.getId())
+            .medOpprinneligeTilrettelegginger(tilrettelegginger)
+            .build();
+        grunnlagProvider.getSvangerskapspengerRepository().lagreOgFlush(svpGrunnlag);
+        return svpGrunnlag;
+    }
+
+    private Long finnTilretteleggingId(SvpGrunnlagEntitet grunnlag, String arbeidsgiverIdent) {
+        return grunnlag.getOpprinneligeTilrettelegginger().getTilretteleggingListe().stream()
+            .filter(t -> t.getArbeidsgiver().map(Arbeidsgiver::getIdentifikator).orElse("").equals(arbeidsgiverIdent))
+            .findFirst()
+            .orElseThrow()
+            .getId();
     }
 
     private Permisjon byggPermisjon(LocalDate permisjonFom, LocalDate permisjonTom) {
