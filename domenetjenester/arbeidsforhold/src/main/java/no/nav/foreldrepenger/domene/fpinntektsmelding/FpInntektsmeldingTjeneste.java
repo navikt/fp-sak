@@ -35,6 +35,7 @@ import no.nav.foreldrepenger.domene.iay.modell.NaturalYtelse;
 import no.nav.foreldrepenger.domene.typer.Beløp;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
+import no.nav.vedtak.felles.prosesstask.api.ProsessTaskGruppe;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 import no.nav.vedtak.felles.prosesstask.api.TaskType;
 import no.nav.vedtak.konfig.Tid;
@@ -76,6 +77,22 @@ public class FpInntektsmeldingTjeneste {
 
     public void lagTaskForespørBestemtInntektsmelding(BehandlingReferanse ref, String orgnummer) {
         lagTask(ref, orgnummer);
+    }
+
+    public void lagTaskForespørOgLukkBestemtInntektsmelding(Behandling behandling, String orgnummer) {
+        var forespørselTask = ProsessTaskData.forTaskType(TaskType.forProsessTask(FpinntektsmeldingTask.class));
+        forespørselTask.setProperty(FpinntektsmeldingTask.ORGNUMMER, orgnummer);
+
+        var lukkTask = ProsessTaskData.forTaskType(TaskType.forProsessTask(LukkForespørslerImTask.class));
+        lukkTask.setProperty(LukkForespørslerImTask.ORG_NUMMER, orgnummer);
+        lukkTask.setProperty(LukkForespørslerImTask.STATUS, ForespørselStatus.UTFØRT.name());
+        lukkTask.setProperty(LukkForespørslerImTask.SAK_NUMMER, behandling.getSaksnummer().getVerdi());
+
+        var taskGruppe = new ProsessTaskGruppe();
+        taskGruppe.addNesteSekvensiell(forespørselTask);
+        taskGruppe.addNesteSekvensiell(lukkTask);
+        taskGruppe.setBehandling(behandling.getSaksnummer().getVerdi(), behandling.getFagsakId(), behandling.getId());
+        prosessTaskTjeneste.lagre(taskGruppe);
     }
 
     private void lagTask(BehandlingReferanse ref, String orgnummer) {

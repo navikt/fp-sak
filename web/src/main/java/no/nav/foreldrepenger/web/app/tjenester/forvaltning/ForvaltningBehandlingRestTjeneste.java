@@ -348,7 +348,7 @@ public class ForvaltningBehandlingRestTjeneste {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     @Operation(description = "Opprett forespørsel om inntektsmelding i fp-inntektsmelding for en behandling og et orgnummer. Lukker eksisterende forespørsel automatisk hvis inntektsmelding allerede er mottatt.", tags = "FORVALTNING-behandling", responses = {
-        @ApiResponse(responseCode = "200", description = "Forespørsel opprettet."),
+        @ApiResponse(responseCode = "200", description = "Forespørsel opprettet.", content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = String.class))),
         @ApiResponse(responseCode = "400", description = "Oppgitt behandlingUuid er ukjent, eller orgnummer er ikke en del av behandlingen."),
         @ApiResponse(responseCode = "500", description = "Feilet pga ukjent feil.")
     })
@@ -365,7 +365,18 @@ public class ForvaltningBehandlingRestTjeneste {
             LOG.info("Orgnummer {} finnes ikke i IAY-grunnlaget for behandling {}", OrgNummer.tilMaskertNummer(dto.getOrgnummer()), dto.getBehandlingUuid());
             return Response.status(Response.Status.BAD_REQUEST).build();
         }
-        opprettForespørselOgLukkHvisMottatt(ref, stp, dto.getOrgnummer());
+        var arbeidsgiver = Arbeidsgiver.virksomhet(new OrgNummer(dto.getOrgnummer()));
+        var erMottatt = inntektsmeldingTjeneste
+            .hentInntektsmeldinger(ref, stp.getUtledetSkjæringstidspunkt())
+            .stream()
+            .anyMatch(im -> im.getArbeidsgiver().equals(arbeidsgiver));
+        if (erMottatt) {
+            LOG.info("ForvaltningBehandlingRestTjeneste: Inntektsmelding er allerede mottatt for sak {} og orgnummer {}, oppretter tasks for å opprette og lukke forespørsel i sekvens",
+                ref.saksnummer(), OrgNummer.tilMaskertNummer(dto.getOrgnummer()));
+            fpInntektsmeldingTjeneste.lagTaskForespørOgLukkBestemtInntektsmelding(behandling, dto.getOrgnummer());
+        } else {
+            fpInntektsmeldingTjeneste.lagTaskForespørBestemtInntektsmelding(ref, dto.getOrgnummer());
+        }
         return Response.ok().build();
     }
 
@@ -377,22 +388,6 @@ public class ForvaltningBehandlingRestTjeneste {
                 .filter(y -> y.getArbeidsgiver() != null && y.getArbeidsgiver().getErVirksomhet())
                 .anyMatch(y -> orgnummer.equals(y.getArbeidsgiver().getOrgnr()));
         }).orElse(false);
-    }
-
-    private void opprettForespørselOgLukkHvisMottatt(BehandlingReferanse ref, no.nav.foreldrepenger.behandling.Skjæringstidspunkt stp, String orgnummer) {
-        var arbeidsgiver = Arbeidsgiver.virksomhet(new OrgNummer(orgnummer));
-        fpInntektsmeldingTjeneste.lagForespørselForBestemtArbeidsgiver(ref, stp, arbeidsgiver);
-
-        var erMottatt = inntektsmeldingTjeneste
-            .hentInntektsmeldinger(ref, stp.getUtledetSkjæringstidspunkt())
-            .stream()
-            .anyMatch(im -> im.getArbeidsgiver().equals(arbeidsgiver));
-
-        if (erMottatt) {
-            LOG.info("ForvaltningBehandlingRestTjeneste: Inntektsmelding er allerede mottatt for sak {} og orgnummer {}, lukker forespørsel",
-                ref.saksnummer(), OrgNummer.tilMaskertNummer(orgnummer));
-            fpInntektsmeldingTjeneste.lukkForespørsel(ref.saksnummer().getVerdi(), orgnummer);
-        }
     }
 
 }
