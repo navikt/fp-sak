@@ -352,10 +352,9 @@ public class BrevRestTjeneste {
         }
     }
 
-    public record BrevHtmlDto( //TODO palfi bruk kodeverk
-                               @Valid @NotNull UUID behandlingUuid,
-                               @ValidKodeverk DokumentMalType dokumentMal,
-                               @ValidKodeverk RevurderingVarslingÅrsak revurderingÅrsak) {
+    public record BrevHtmlDto(@Valid @NotNull UUID behandlingUuid,
+                              @ValidKodeverk DokumentMalType dokumentMal,
+                              @ValidKodeverk RevurderingVarslingÅrsak revurderingÅrsak) {
     }
 
     public static class BrevHtmlAbacSupplier implements Function<Object, AbacDataAttributter> {

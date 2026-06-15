@@ -353,9 +353,6 @@ public final class UttakEnumMapper {
         if (PeriodeResultatÅrsak.GRADERING_FORELDREPENGER_KUN_FAR_HAR_RETT.equals(periodeResultatÅrsak)) {
             return FastsattUttakPeriode.ResultatÅrsak.INNVILGET_GRADERING_FORELDREPENGER_KUN_FAR_HAR_RETT;
         }
-        if (PeriodeResultatÅrsak.SØKNADSFRIST.equals(periodeResultatÅrsak)) {
-            return FastsattUttakPeriode.ResultatÅrsak.IKKE_OPPFYLT_SØKNADSFRIST;
-        }
         return FastsattUttakPeriode.ResultatÅrsak.ANNET;
     }
 
