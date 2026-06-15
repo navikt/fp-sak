@@ -79,6 +79,9 @@ public class FpInntektsmeldingTjeneste {
         lagTask(ref, orgnummer);
     }
 
+    //Denne brukes av opprettForespørsel i ForvaltningBehandlingRestTjeneste dersom det av en eller annen grunn ikke er opprettet
+    //forespørsel på en behandling. I disse tilfellene kan im allerede være mottatt (før altinn2 ble stengt).
+    // Det er ikke et vanlig case og koden bør ikke brukes i andre tilfeller
     public void lagTaskForespørOgLukkBestemtInntektsmelding(Behandling behandling, String orgnummer) {
         var forespørselTask = ProsessTaskData.forTaskType(TaskType.forProsessTask(FpinntektsmeldingTask.class));
         forespørselTask.setProperty(FpinntektsmeldingTask.ORGNUMMER, orgnummer);

@@ -348,7 +348,7 @@ public class ForvaltningBehandlingRestTjeneste {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     @Operation(description = "Opprett forespørsel om inntektsmelding i fp-inntektsmelding for en behandling og et orgnummer. Lukker eksisterende forespørsel automatisk hvis inntektsmelding allerede er mottatt.", tags = "FORVALTNING-behandling", responses = {
-        @ApiResponse(responseCode = "200", description = "Forespørsel opprettet.", content = @Content(mediaType = MediaType.APPLICATION_JSON, schema = @Schema(implementation = String.class))),
+        @ApiResponse(responseCode = "200", description = "Forespørsel opprettet."),
         @ApiResponse(responseCode = "400", description = "Oppgitt behandlingUuid er ukjent, eller orgnummer er ikke en del av behandlingen."),
         @ApiResponse(responseCode = "500", description = "Feilet pga ukjent feil.")
     })
