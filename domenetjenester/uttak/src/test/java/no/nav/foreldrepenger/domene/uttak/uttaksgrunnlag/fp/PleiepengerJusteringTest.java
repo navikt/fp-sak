@@ -1,6 +1,13 @@
 package no.nav.foreldrepenger.domene.uttak.uttaksgrunnlag.fp;
 
 import static java.time.LocalDate.of;
+import static no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType.FARA;
+import static no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType.MORA;
+import static no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.Rettighetstype.ALENEOMSORG;
+import static no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.Rettighetstype.BARE_FAR_RETT;
+import static no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.Rettighetstype.BEGGE_RETT;
+import static no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeType.FEDREKVOTE;
+import static no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeType.FORELDREPENGER;
 import static no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeType.MØDREKVOTE;
 import static no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.UtsettelseÅrsak.INSTITUSJON_BARN;
 import static no.nav.foreldrepenger.domene.uttak.uttaksgrunnlag.fp.JusterFordelingTjeneste.flyttFraHelgTilFredag;
@@ -16,6 +23,7 @@ import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.FordelingPeriodeKilde;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeBuilder;
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeEntitet;
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Fagsystem;
 import no.nav.foreldrepenger.behandlingslager.ytelse.RelatertYtelseType;
 import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseAggregatBuilder;
@@ -56,7 +64,7 @@ class PleiepengerJusteringTest {
             .medPeriode(of(2019, 12, 10), of(2020, 4, 1))
             .medPeriodeType(MØDREKVOTE)
             .build();
-        var resultat = PleiepengerJustering.juster(aktørId, iay, List.of(mødrekvote), mødrekvote.getFom(), null);
+        var resultat = justerMorBeggeRett(aktørId, iay, mødrekvote, mødrekvote.getFom());
 
         assertThat(resultat).hasSize(5);
         assertThat(resultat.get(0).isUtsettelse()).isFalse();
@@ -103,7 +111,7 @@ class PleiepengerJusteringTest {
             .medPeriode(of(2019, 12, 10), of(2020, 4, 1))
             .medPeriodeType(MØDREKVOTE)
             .build();
-        var resultat = PleiepengerJustering.juster(aktørId, iay, List.of(mødrekvote), mødrekvote.getFom(), null);
+        var resultat = justerMorBeggeRett(aktørId, iay, mødrekvote, mødrekvote.getFom());
 
         assertThat(resultat).hasSize(1);
         assertThat(resultat.get(0).isUtsettelse()).isFalse();
@@ -128,7 +136,7 @@ class PleiepengerJusteringTest {
             .medPeriode(of(2019, 12, 10), of(2020, 4, 1))
             .medPeriodeType(MØDREKVOTE)
             .build();
-        var resultat = PleiepengerJustering.juster(aktørId, iay, List.of(mødrekvote), mødrekvote.getFom(), null);
+        var resultat = justerMorBeggeRett(aktørId, iay, mødrekvote, mødrekvote.getFom());
 
         assertThat(resultat).hasSize(1);
         assertThat(resultat.get(0).isUtsettelse()).isFalse();
@@ -153,7 +161,7 @@ class PleiepengerJusteringTest {
             .medPeriode(of(2019, 12, 10), of(2020, 4, 1))
             .medPeriodeType(MØDREKVOTE)
             .build();
-        var resultat = PleiepengerJustering.juster(aktørId, iay, List.of(mødrekvote), mødrekvote.getFom(), null);
+        var resultat = justerMorBeggeRett(aktørId, iay, mødrekvote, mødrekvote.getFom());
 
         assertThat(resultat).hasSize(3);
         assertThat(resultat.get(0).isUtsettelse()).isFalse();
@@ -189,7 +197,8 @@ class PleiepengerJusteringTest {
             .medPeriodeType(MØDREKVOTE)
             .medMottattDato(vedtakTidspunkt.plusWeeks(1).toLocalDate())
             .build();
-        var resultat = PleiepengerJustering.juster(aktørId, iay, List.of(mødrekvote1, mødrekvoteFraEndringssøknad), mødrekvote1.getFom(), null);
+        var resultat = PleiepengerJustering.juster(aktørId, MORA, iay, List.of(mødrekvote1, mødrekvoteFraEndringssøknad), mødrekvote1.getFom(),
+            null, BEGGE_RETT);
 
         assertThat(resultat).hasSize(3);
         assertThat(resultat.get(0).isUtsettelse()).isFalse();
@@ -209,7 +218,8 @@ class PleiepengerJusteringTest {
         var pleiepengerUtsettelser = List.of(pleiepengerFørFp, pleiepengerEtterFp, pleiepengerIFp1, pleiepengerIFp2);
         var foreldrepenger = List.of(
             OppgittPeriodeBuilder.ny().medPeriodeType(MØDREKVOTE).medPeriode(of(2021, 1, 1), of(2021, 3, 3)).build());
-        var resultat = PleiepengerJustering.combine(pleiepengerUtsettelser, foreldrepenger, of(2021, 1, 1), null);
+        var resultat = PleiepengerJustering.combine(pleiepengerUtsettelser, foreldrepenger,
+            of(2021, 1, 1), null, BEGGE_RETT, MORA);
         assertThat(resultat).hasSize(5);
         assertThat(resultat.get(0).getFom()).isEqualTo(of(2021, 1, 1));
         assertThat(resultat.get(0).getTom()).isEqualTo(of(2021, 1, 14));
@@ -242,7 +252,7 @@ class PleiepengerJusteringTest {
             .medPeriode(pleiepengerInterval.getFomDato().plusWeeks(1), pleiepengerInterval.getTomDato().minusWeeks(1))
             .medPeriodeType(MØDREKVOTE)
             .build();
-        var resultat = PleiepengerJustering.juster(aktørId, iay, List.of(mødrekvote), mødrekvote.getFom(), null);
+        var resultat = justerMorBeggeRett(aktørId, iay, mødrekvote, mødrekvote.getFom());
 
         assertThat(resultat).hasSize(1);
         assertThat(resultat.get(0).isUtsettelse()).isTrue();
@@ -268,7 +278,8 @@ class PleiepengerJusteringTest {
             .medPeriode(of(2020, 1, 15), of(2020, 2, 1))
             .medPeriodeType(MØDREKVOTE)
             .build();
-        var resultat = PleiepengerJustering.juster(aktørId, iay, List.of(mødrekvote1, mødrekvote2), mødrekvote1.getFom(), null);
+        var resultat = PleiepengerJustering.juster(aktørId, MORA, iay, List.of(mødrekvote1, mødrekvote2), mødrekvote1.getFom(),
+            null, BEGGE_RETT);
 
         assertThat(resultat).hasSize(1);
         assertThat(resultat.get(0).isUtsettelse()).isTrue();
@@ -297,7 +308,7 @@ class PleiepengerJusteringTest {
             .medPeriode(of(2021, 8, 23), of(2021, 10, 1))
             .medPeriodeType(MØDREKVOTE)
             .build();
-        var resultat = PleiepengerJustering.juster(aktørId, iay, List.of(mødrekvote), mødrekvote.getFom(), null);
+        var resultat = justerMorBeggeRett(aktørId, iay, mødrekvote, mødrekvote.getFom());
 
         assertThat(resultat).hasSize(2);
         assertThat(resultat.get(0).isUtsettelse()).isTrue();
@@ -318,7 +329,8 @@ class PleiepengerJusteringTest {
             .medUtbetalingsgradProsent(BigDecimal.TEN)
             .build());
         var iay = iay(aktørId, ytelseBuilder);
-        var resultat = PleiepengerJustering.juster(aktørId, iay, List.of(), of(2020, 1, 1), null);
+        var resultat = PleiepengerJustering.juster(aktørId, MORA, iay, List.of(), of(2020, 1, 1),
+            null, BEGGE_RETT);
 
         assertThat(resultat).isEmpty();
     }
@@ -342,7 +354,8 @@ class PleiepengerJusteringTest {
             .medPeriode(of(2020, 1, 1), of(2020, 5, 5))
             .medPeriodeType(MØDREKVOTE)
             .build();
-        var resultat = PleiepengerJustering.juster(aktørId, iay, List.of(mødrekvote1, mødrekvote2), mødrekvote1.getFom(), null);
+        var resultat = PleiepengerJustering.juster(aktørId, MORA, iay, List.of(mødrekvote1, mødrekvote2), mødrekvote1.getFom(),
+            null, BEGGE_RETT);
 
         assertThat(resultat).hasSize(2);
         assertThat(resultat.get(0).getFom()).isEqualTo(mødrekvote1.getFom());
@@ -366,7 +379,7 @@ class PleiepengerJusteringTest {
             .medPeriode(of(2025, 2, 1), of(2025, 4, 1))
             .medPeriodeType(MØDREKVOTE)
             .build();
-        var resultat = PleiepengerJustering.juster(aktørId, iay, List.of(mødrekvote), fødselsdato, null);
+        var resultat = justerMorBeggeRett(aktørId, iay, mødrekvote, fødselsdato);
 
         assertThat(resultat).hasSize(2);
         assertThat(resultat.get(0).isUtsettelse()).isTrue();
@@ -379,6 +392,107 @@ class PleiepengerJusteringTest {
         assertThat(resultat.get(1).getFom()).isEqualTo(mødrekvote.getFom());
         assertThat(resultat.get(1).getTom()).isEqualTo(mødrekvote.getTom());
         assertThat(resultat.get(1).getPeriodeType()).isEqualTo(MØDREKVOTE);
+    }
+
+    private static List<OppgittPeriodeEntitet> justerMorBeggeRett(AktørId aktørId,
+                                                                  InntektArbeidYtelseGrunnlag iay,
+                                                                  OppgittPeriodeEntitet mødrekvote,
+                                                                  LocalDate fødselsdato) {
+        return PleiepengerJustering.juster(aktørId, MORA, iay, List.of(mødrekvote), fødselsdato, null, BEGGE_RETT);
+    }
+
+    @Test
+    void skal_ikke_opprette_utsettelse_for_far_begge_rett_før_familiehendelse() {
+        var aktørId = AktørId.dummy();
+        var fødselsdato = of(2025, 1, 4);
+        var uttakStart = fødselsdato.plusWeeks(10);
+        var uttakTom = uttakStart.plusDays(6);
+        var ytelseBuilder = pleiepengerFraK9();
+        var pleiepengerInterval = DatoIntervallEntitet.fraOgMedTilOgMed(fødselsdato, fødselsdato.plusWeeks(2));
+        ytelseBuilder.medYtelseAnvist(ytelseBuilder.getAnvistBuilder()
+            .medAnvistPeriode(pleiepengerInterval)
+            .medUtbetalingsgradProsent(BigDecimal.TEN)
+            .build());
+        var iay = iay(aktørId, ytelseBuilder);
+        var fedrekvote = OppgittPeriodeBuilder.ny()
+            .medPeriode(uttakStart, uttakTom)
+            .medPeriodeType(FEDREKVOTE)
+            .build();
+        var resultat = PleiepengerJustering.juster(aktørId, FARA, iay, List.of(fedrekvote), fødselsdato, null,
+            BEGGE_RETT);
+
+        assertThat(resultat).hasSize(1);
+
+        assertThat(resultat.get(0).isUtsettelse()).isFalse();
+        assertThat(resultat.get(0).getFom()).isEqualTo(fedrekvote.getFom());
+        assertThat(resultat.get(0).getTom()).isEqualTo(fedrekvote.getTom());
+        assertThat(resultat.get(0).getPeriodeType()).isEqualTo(FEDREKVOTE);
+    }
+
+    @Test
+    void skal_opprette_utsettelse_for_bfhr_før_startdato() {
+        var aktørId = AktørId.dummy();
+        var fødselsdato = of(2025, 1, 4);
+        var uttakStart = fødselsdato.plusWeeks(10);
+        var uttakTom = uttakStart.plusDays(6);
+        var ytelseBuilder = pleiepengerFraK9();
+        var pleiepengerInterval = DatoIntervallEntitet.fraOgMedTilOgMed(fødselsdato, fødselsdato.plusWeeks(2));
+        ytelseBuilder.medYtelseAnvist(ytelseBuilder.getAnvistBuilder()
+            .medAnvistPeriode(pleiepengerInterval)
+            .medUtbetalingsgradProsent(BigDecimal.TEN)
+            .build());
+        var iay = iay(aktørId, ytelseBuilder);
+        var fedrekvote = OppgittPeriodeBuilder.ny()
+            .medPeriode(uttakStart, uttakTom)
+            .medPeriodeType(FORELDREPENGER)
+            .build();
+        var resultat = PleiepengerJustering.juster(aktørId, FARA, iay, List.of(fedrekvote), fødselsdato, null,
+            BARE_FAR_RETT);
+
+        assertThat(resultat).hasSize(2);
+        assertThat(resultat.get(0).isUtsettelse()).isTrue();
+        assertThat(resultat.get(0).getFom()).isEqualTo(pleiepengerInterval.getFomDato());
+        assertThat(resultat.get(0).getTom()).isEqualTo(pleiepengerInterval.getTomDato());
+        assertThat(resultat.get(0).getÅrsak()).isEqualTo(INSTITUSJON_BARN);
+        assertThat(resultat.get(0).getPeriodeKilde()).isEqualTo(FordelingPeriodeKilde.ANDRE_NAV_VEDTAK);
+
+        assertThat(resultat.get(1).isUtsettelse()).isFalse();
+        assertThat(resultat.get(1).getFom()).isEqualTo(fedrekvote.getFom());
+        assertThat(resultat.get(1).getTom()).isEqualTo(fedrekvote.getTom());
+        assertThat(resultat.get(1).getPeriodeType()).isEqualTo(FORELDREPENGER);
+    }
+
+    @Test
+    void skal_opprette_utsettelse_for_far_aleneomsorg_før_startdato() {
+        var aktørId = AktørId.dummy();
+        var fødselsdato = of(2025, 1, 4);
+        var uttakStart = fødselsdato.plusWeeks(10);
+        var uttakTom = uttakStart.plusDays(6);
+        var ytelseBuilder = pleiepengerFraK9();
+        var pleiepengerInterval = DatoIntervallEntitet.fraOgMedTilOgMed(fødselsdato, fødselsdato.plusWeeks(2));
+        ytelseBuilder.medYtelseAnvist(ytelseBuilder.getAnvistBuilder()
+            .medAnvistPeriode(pleiepengerInterval)
+            .medUtbetalingsgradProsent(BigDecimal.TEN)
+            .build());
+        var iay = iay(aktørId, ytelseBuilder);
+        var fedrekvote = OppgittPeriodeBuilder.ny()
+            .medPeriode(uttakStart, uttakTom)
+            .medPeriodeType(FORELDREPENGER)
+            .build();
+        var resultat = PleiepengerJustering.juster(aktørId, FARA, iay, List.of(fedrekvote), fødselsdato, null,
+            ALENEOMSORG);
+
+        assertThat(resultat).hasSize(2);
+        assertThat(resultat.get(0).isUtsettelse()).isTrue();
+        assertThat(resultat.get(0).getFom()).isEqualTo(pleiepengerInterval.getFomDato());
+        assertThat(resultat.get(0).getTom()).isEqualTo(pleiepengerInterval.getTomDato());
+        assertThat(resultat.get(0).getÅrsak()).isEqualTo(INSTITUSJON_BARN);
+        assertThat(resultat.get(0).getPeriodeKilde()).isEqualTo(FordelingPeriodeKilde.ANDRE_NAV_VEDTAK);
+
+        assertThat(resultat.get(1).isUtsettelse()).isFalse();
+        assertThat(resultat.get(1).getFom()).isEqualTo(fedrekvote.getFom());
+        assertThat(resultat.get(1).getTom()).isEqualTo(fedrekvote.getTom());
+        assertThat(resultat.get(1).getPeriodeType()).isEqualTo(FORELDREPENGER);
     }
 
     @Test
@@ -403,7 +517,8 @@ class PleiepengerJusteringTest {
             .medPeriode(of(2025, 9, 1), of(2025, 12, 1))
             .medPeriodeType(MØDREKVOTE)
             .build();
-        var resultat = PleiepengerJustering.juster(aktørId, iay, List.of(mødrekvote), fødselsdato, endringsdato);
+        var resultat = PleiepengerJustering.juster(aktørId, MORA, iay, List.of(mødrekvote), fødselsdato, endringsdato,
+            BEGGE_RETT);
 
         // Pleiepenger før endringsdato skal filtreres bort, kun perioden etter endringsdato skal bli utsettelse
         assertThat(resultat).hasSize(2);

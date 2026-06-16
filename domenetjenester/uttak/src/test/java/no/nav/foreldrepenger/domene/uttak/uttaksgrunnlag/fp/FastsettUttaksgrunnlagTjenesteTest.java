@@ -24,6 +24,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.AvklarteUttakDatoerEntitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.OppgittRettighetEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittFordelingEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.OppholdÅrsak;
 import no.nav.foreldrepenger.behandlingslager.uttak.PeriodeResultatType;
@@ -63,11 +64,11 @@ class FastsettUttaksgrunnlagTjenesteTest {
                 .build();
         var oppgittFordelingForrigeBehandling = new OppgittFordelingEntitet(List.of(periode), true);
 
-        var førstegangsbehandlingScenario = ScenarioFarSøkerForeldrepenger.forFødsel();
+        var førstegangsbehandlingScenario = scenarioFar();
         førstegangsbehandlingScenario.medFordeling(oppgittFordelingForrigeBehandling);
         var førstegangsbehandling = førstegangsbehandlingScenario.lagre(repositoryProvider);
 
-        var revurdering = ScenarioFarSøkerForeldrepenger.forFødsel();
+        var revurdering = scenarioFar();
         revurdering.medOriginalBehandling(førstegangsbehandling, BehandlingÅrsakType.RE_OPPLYSNINGER_OM_OPPTJENING);
         revurdering.medFordeling(new OppgittFordelingEntitet(Collections.emptyList(), true));
 
@@ -116,7 +117,7 @@ class FastsettUttaksgrunnlagTjenesteTest {
                 .build();
         var fordeling = new OppgittFordelingEntitet(List.of(periode), true);
 
-        var behandling = ScenarioFarSøkerForeldrepenger.forFødsel()
+        var behandling = scenarioFar()
             .medFordeling(fordeling)
             .lagre(repositoryProvider);
 
@@ -146,7 +147,7 @@ class FastsettUttaksgrunnlagTjenesteTest {
         var avklarteUttakDatoer = new AvklarteUttakDatoerEntitet.Builder()
             .medOpprinneligEndringsdato(førsteUttaksdato)
             .build();
-        var behandling = ScenarioFarSøkerForeldrepenger.forFødsel()
+        var behandling = scenarioMorFødsel()
             .medFordeling(fordeling)
             .medJustertFordeling(justertFordeling)
             .medAvklarteUttakDatoer(avklarteUttakDatoer)
@@ -182,7 +183,7 @@ class FastsettUttaksgrunnlagTjenesteTest {
         var avklarteUttakDatoer = new AvklarteUttakDatoerEntitet.Builder()
             .medOpprinneligEndringsdato(LocalDate.of(2020, 10, 10))
             .build();
-        var behandling = ScenarioFarSøkerForeldrepenger.forFødsel()
+        var behandling = scenarioMorFødsel()
             .medFordeling(fordeling)
             .medJustertFordeling(justertFordeling)
             .medAvklarteUttakDatoer(avklarteUttakDatoer)
@@ -208,7 +209,7 @@ class FastsettUttaksgrunnlagTjenesteTest {
                 .build();
         var fordeling = new OppgittFordelingEntitet(List.of(periode), true);
 
-        var førstegangsbehandlingScenario = ScenarioFarSøkerForeldrepenger.forFødsel();
+        var førstegangsbehandlingScenario = scenarioMorFødsel();
         førstegangsbehandlingScenario.medFordeling(fordeling);
 
         var behandling = førstegangsbehandlingScenario.lagre(repositoryProvider);
@@ -237,7 +238,7 @@ class FastsettUttaksgrunnlagTjenesteTest {
         var uttaksperiodeFørstegang = new UttakResultatPeriodeEntitet.Builder(termindato1, termindato1.plusWeeks(10))
             .medResultatType(PeriodeResultatType.INNVILGET, PeriodeResultatÅrsak.KVOTE_ELLER_OVERFØRT_KVOTE)
             .build();
-        var førstegangsbehandling = ScenarioMorSøkerForeldrepenger.forFødsel()
+        var førstegangsbehandling = scenarioMorFødsel()
             .medFordeling(fordeling1)
             .medUttak(new UttakResultatPerioderEntitet().leggTilPeriode(uttaksperiodeFørstegang))
             .lagre(repositoryProvider);
@@ -247,7 +248,7 @@ class FastsettUttaksgrunnlagTjenesteTest {
             ny().medPeriode(LocalDate.of(2024, 7, 12), LocalDate.of(2024, 11, 14)).medPeriodeType(FELLESPERIODE).build(),
             ny().medPeriode(LocalDate.of(2024, 11, 15), LocalDate.of(2025, 2, 11)).medPeriodeType(MØDREKVOTE).build()
         ), true);
-        var revurdering = ScenarioMorSøkerForeldrepenger.forFødsel()
+        var revurdering = scenarioMorFødsel()
             .medOriginalBehandling(førstegangsbehandling, BehandlingÅrsakType.RE_ENDRING_FRA_BRUKER)
             .medFordeling(fordeling2)
             .lagre(repositoryProvider);
@@ -280,7 +281,7 @@ class FastsettUttaksgrunnlagTjenesteTest {
         var uttaksperiodeFørstegang = new UttakResultatPeriodeEntitet.Builder(termindato1, termindato1.plusWeeks(10))
             .medResultatType(PeriodeResultatType.INNVILGET, PeriodeResultatÅrsak.KVOTE_ELLER_OVERFØRT_KVOTE)
             .build();
-        var førstegangsbehandling = ScenarioMorSøkerForeldrepenger.forFødsel()
+        var førstegangsbehandling = scenarioMorFødsel()
             .medFordeling(fordeling1)
             .medUttak(new UttakResultatPerioderEntitet().leggTilPeriode(uttaksperiodeFørstegang))
             .lagre(repositoryProvider);
@@ -290,7 +291,7 @@ class FastsettUttaksgrunnlagTjenesteTest {
             ny().medPeriode(LocalDate.of(2024, 7, 12), LocalDate.of(2024, 11, 14)).medPeriodeType(FELLESPERIODE).build(),
             ny().medPeriode(LocalDate.of(2024, 11, 15), LocalDate.of(2025, 2, 11)).medPeriodeType(MØDREKVOTE).build()
         ), true);
-        var revurdering = ScenarioMorSøkerForeldrepenger.forFødsel()
+        var revurdering = scenarioMorFødsel()
             .medOriginalBehandling(førstegangsbehandling, BehandlingÅrsakType.RE_ENDRING_FRA_BRUKER)
             .medFordeling(fordeling2)
             .lagre(repositoryProvider);
@@ -334,7 +335,7 @@ class FastsettUttaksgrunnlagTjenesteTest {
                 .build();
         var fordeling = new OppgittFordelingEntitet(List.of(periode1, opphold2, opphold3, opphold1, periode2), true);
 
-        var scenario = ScenarioFarSøkerForeldrepenger.forFødsel().medFordeling(fordeling);
+        var scenario = scenarioMorFødsel().medFordeling(fordeling);
 
         var behandling = scenario.lagre(repositoryProvider);
 
@@ -364,7 +365,7 @@ class FastsettUttaksgrunnlagTjenesteTest {
                 .build();
         var fordeling = new OppgittFordelingEntitet(List.of(søknadsperiode), true);
 
-        var scenario = ScenarioMorSøkerForeldrepenger.forAdopsjon().medFordeling(fordeling);
+        var scenario = scenarioMorAdopsjon().medFordeling(fordeling);
 
         var behandling = scenario.lagre(repositoryProvider);
 
@@ -407,7 +408,7 @@ class FastsettUttaksgrunnlagTjenesteTest {
                 .build();
         var fordeling = new OppgittFordelingEntitet(List.of(periode1, opphold2, opphold1, periode2), true);
 
-        var scenario = ScenarioFarSøkerForeldrepenger.forFødsel().medFordeling(fordeling);
+        var scenario = scenarioMorFødsel().medFordeling(fordeling);
 
         var behandling = scenario.lagre(repositoryProvider);
 
@@ -436,7 +437,7 @@ class FastsettUttaksgrunnlagTjenesteTest {
             .build();
         var fordeling = new OppgittFordelingEntitet(List.of(mødrekvote, fellesperiode), true);
 
-        var førstegangsbehandlingScenario = ScenarioFarSøkerForeldrepenger.forFødsel();
+        var førstegangsbehandlingScenario = scenarioFar();
         førstegangsbehandlingScenario.medFordeling(fordeling);
 
         var behandling = førstegangsbehandlingScenario.lagre(repositoryProvider);
@@ -467,12 +468,12 @@ class FastsettUttaksgrunnlagTjenesteTest {
             .medResultatType(PeriodeResultatType.INNVILGET, PeriodeResultatÅrsak.KVOTE_ELLER_OVERFØRT_KVOTE)
             .build();
         var uttak = new UttakResultatPerioderEntitet().leggTilPeriode(uttaksperiode);
-        var førstegangsbehandlingScenario = ScenarioMorSøkerForeldrepenger.forFødsel()
+        var førstegangsbehandlingScenario = scenarioMorFødsel()
             .medUttak(uttak)
             .medFordeling(fordeling);
         var behandling = førstegangsbehandlingScenario.lagre(repositoryProvider);
 
-        var revurdering = ScenarioMorSøkerForeldrepenger.forFødsel()
+        var revurdering = scenarioMorFødsel()
             .medOriginalBehandling(behandling, BehandlingÅrsakType.RE_VEDTAK_PLEIEPENGER)
             .medFordeling(fordeling)
             .lagre(repositoryProvider);
@@ -509,12 +510,12 @@ class FastsettUttaksgrunnlagTjenesteTest {
             .medPeriodeSoknad(new UttakResultatPeriodeSøknadEntitet()) //Har periodesøknad, men ikke mottattdato
             .build();
         var uttak = new UttakResultatPerioderEntitet().leggTilPeriode(pleiepengerUtenMottattDato);
-        var førstegangsbehandlingScenario = ScenarioMorSøkerForeldrepenger.forFødsel()
+        var førstegangsbehandlingScenario = scenarioMorFødsel()
             .medUttak(uttak)
             .medFordeling(fordeling);
         var pleiepengerBehandling = førstegangsbehandlingScenario.lagre(repositoryProvider);
 
-        var revurdering = ScenarioMorSøkerForeldrepenger.forFødsel()
+        var revurdering = scenarioMorFødsel()
             .medOriginalBehandling(pleiepengerBehandling, BehandlingÅrsakType.RE_ENDRING_FRA_BRUKER)
             .medFordeling(fordeling)
             .lagre(repositoryProvider);
@@ -528,5 +529,21 @@ class FastsettUttaksgrunnlagTjenesteTest {
         when(endringsdatoRevurderingUtleder.utledEndringsdato(input)).thenReturn(fødselsdato);
 
         assertThatCode(() -> tjeneste.fastsettUttaksgrunnlag(input)).doesNotThrowAnyException();
+    }
+
+    private static ScenarioFarSøkerForeldrepenger scenarioFar() {
+        return ScenarioFarSøkerForeldrepenger.forFødsel().medOppgittRettighet(oppgittRettighetBeggeRett());
+    }
+
+    private static ScenarioMorSøkerForeldrepenger scenarioMorFødsel() {
+        return ScenarioMorSøkerForeldrepenger.forFødsel().medOppgittRettighet(oppgittRettighetBeggeRett());
+    }
+
+    private static ScenarioMorSøkerForeldrepenger scenarioMorAdopsjon() {
+        return ScenarioMorSøkerForeldrepenger.forAdopsjon().medOppgittRettighet(oppgittRettighetBeggeRett());
+    }
+
+    private static OppgittRettighetEntitet oppgittRettighetBeggeRett() {
+        return new OppgittRettighetEntitet(true, false, false, false, false);
     }
 }

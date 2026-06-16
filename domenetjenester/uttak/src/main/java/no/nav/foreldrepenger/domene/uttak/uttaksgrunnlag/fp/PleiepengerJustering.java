@@ -12,6 +12,8 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.Rettighetstype;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.FordelingPeriodeKilde;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeEntitet;
@@ -36,10 +38,12 @@ final class PleiepengerJustering {
     }
 
     static List<OppgittPeriodeEntitet> juster(AktørId aktørId,
+                                              RelasjonsRolleType relasjonsRolleType,
                                               InntektArbeidYtelseGrunnlag inntektArbeidYtelseGrunnlag,
                                               List<OppgittPeriodeEntitet> oppgittePerioder,
                                               LocalDate familieHendelseDato,
-                                              LocalDate endringsdatoRevurdering) {
+                                              LocalDate endringsdatoRevurdering,
+                                              Rettighetstype rettighetstype) {
         if (oppgittePerioder.isEmpty()) {
             LOG.info("Oppgitte perioder er empty. Justerer ikke for pleiepenger");
             return oppgittePerioder;
@@ -59,7 +63,7 @@ final class PleiepengerJustering {
             LOG.info("Behandlingen har vedtak om pleiepenger. Oppretter utsettelser");
         }
 
-        return combine(pleiepengerUtsettelser, oppgittePerioder, familieHendelseDato, endringsdatoRevurdering);
+        return combine(pleiepengerUtsettelser, oppgittePerioder, familieHendelseDato, endringsdatoRevurdering, rettighetstype, relasjonsRolleType);
     }
 
     static List<LocalDateSegment<PleiepengerUtsettelse>> pleiepengerUtsettelser(AktørId aktørId, InntektArbeidYtelseGrunnlag inntektArbeidYtelseGrunnlag) {
@@ -76,21 +80,21 @@ final class PleiepengerJustering {
     static List<OppgittPeriodeEntitet> combine(List<LocalDateSegment<PleiepengerUtsettelse>> pleiepengerUtsettelser,
                                                List<OppgittPeriodeEntitet> foreldrepenger,
                                                LocalDate familieHendelseDato,
-                                               LocalDate endringsdatoRevurdering) {
+                                               LocalDate endringsdatoRevurdering,
+                                               Rettighetstype rettighetstype,
+                                               RelasjonsRolleType relasjonsRolleType) {
         var foreldrepengerTimeline = oppgittPeriodeTimeline(foreldrepenger);
         var pleiepengerTimeline = new LocalDateTimeline<>(pleiepengerUtsettelser, PleiepengerJustering::slåSammenOverlappendePleiepenger);
         var førsteSøkteDag = foreldrepengerTimeline.getMinLocalDate();
         var sisteSøkteDag = foreldrepengerTimeline.getMaxLocalDate();
-        var tidligsteStartdato = familieHendelseDato.isBefore(førsteSøkteDag) ? familieHendelseDato : førsteSøkteDag;
-        // Ved revurdering: perioder før endringsdato håndteres av prepend fra original behandling
-        var startdato = endringsdatoRevurdering != null && endringsdatoRevurdering.isAfter(tidligsteStartdato)
-            ? endringsdatoRevurdering : tidligsteStartdato;
+        var tidligstDagForUtsettelse = utledTidligstDagForUtsettelse(familieHendelseDato, endringsdatoRevurdering, førsteSøkteDag, rettighetstype,
+            relasjonsRolleType);
         var fellesTimeline = foreldrepengerTimeline.union(pleiepengerTimeline,
             (interval, fp, pp) -> {
                 if (pp == null) {
                     return copy(interval, fp.getValue());
                 }
-                if (interval.getTomDato().isBefore(startdato) || interval.getFomDato().isAfter(sisteSøkteDag)) {
+                if (interval.getTomDato().isBefore(tidligstDagForUtsettelse) || interval.getFomDato().isAfter(sisteSøkteDag)) {
                     return null;
                 }
                 if (fp != null) {
@@ -113,6 +117,25 @@ final class PleiepengerJustering {
             .filter(p -> Virkedager.beregnAntallVirkedager(p.getFom(), p.getTom()) > 0)
             .toList();
         return slåSammenLikePerioder(combined);
+    }
+
+    private static LocalDate utledTidligstDagForUtsettelse(LocalDate familieHendelseDato,
+                                                           LocalDate endringsdatoRevurdering,
+                                                           LocalDate førsteSøkteDag,
+                                                           Rettighetstype rettighetstype,
+                                                           RelasjonsRolleType relasjonsRolleType) {
+        var farOgBeggeRett = rettighetstype == Rettighetstype.BEGGE_RETT && relasjonsRolleType.erFarEllerMedMor();
+        LocalDate tidligsteStartdato;
+        if (farOgBeggeRett) {
+            //Går ut i fra at prematurukene trekkes i mors behandling
+            tidligsteStartdato = førsteSøkteDag;
+        } else if (familieHendelseDato.isBefore(førsteSøkteDag)) {
+            tidligsteStartdato = familieHendelseDato;
+        } else {
+            tidligsteStartdato = førsteSøkteDag;
+        }
+        // Ved revurdering: perioder før endringsdato håndteres av prepend fra original behandling
+        return endringsdatoRevurdering != null && endringsdatoRevurdering.isAfter(tidligsteStartdato) ? endringsdatoRevurdering : tidligsteStartdato;
     }
 
     private static LocalDateSegment<OppgittPeriodeEntitet> copy(LocalDateInterval interval, OppgittPeriodeEntitet eksisterende) {
