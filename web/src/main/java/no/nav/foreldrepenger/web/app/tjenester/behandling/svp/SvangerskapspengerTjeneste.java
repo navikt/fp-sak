@@ -292,11 +292,10 @@ public class SvangerskapspengerTjeneste {
         finnEksternRef(svpTilrettelegging, arbeidsforholdInformasjon).ifPresent(arbeidsforholdDto::setEksternArbeidsforholdReferanse);
         arbeidsforholdDto.setKanTilrettelegges(erTilgjengeligForBeregning(svpTilrettelegging, registerFilter));
 
-        if (!Environment.current().isProd()) {
-            var vurdereSplittAvArbeidsforholdet = utledOmDetSkalVurderesSplittAvArbeidsforholdet(svpTilrettelegging, registerFilter,
-                skjæringstidspunkt, inntektsmeldinger);
-            arbeidsforholdDto.setSkalVurdereSplittAvArbeidsforholdet(vurdereSplittAvArbeidsforholdet);
-        }
+        var vurdereSplittAvArbeidsforholdet = utledOmDetSkalVurderesSplittAvArbeidsforholdet(svpTilrettelegging, registerFilter,
+            skjæringstidspunkt, inntektsmeldinger);
+        arbeidsforholdDto.setSkalVurdereSplittAvArbeidsforholdet(vurdereSplittAvArbeidsforholdet);
+
         return arbeidsforholdDto;
     }
 
