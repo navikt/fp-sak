@@ -18,6 +18,7 @@ import org.slf4j.LoggerFactory;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.AvklarteUttakDatoerEntitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.Rettighetstype;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelseFordelingAggregat;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelsesFordelingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittFordelingEntitet;
@@ -101,7 +102,8 @@ public class FastsettUttaksgrunnlagTjeneste {
         }
         justertePerioder = slåSammenLikePerioder(justertePerioder);
         justertePerioder = fjernOppholdsperioderTilSluttForSammenhengendeUttak(justertePerioder);
-        justertePerioder = leggTilUtsettelserForPleiepenger(input, justertePerioder, endringsdatoRevurdering);
+        justertePerioder = leggTilUtsettelserForPleiepenger(input, justertePerioder, endringsdatoRevurdering,
+            ytelseFordelingAggregat.getGjeldendeRettighetstype(input.getBehandlingReferanse().relasjonRolle()));
         return new OppgittFordelingEntitet(kopier(justertePerioder), fordeling.getErAnnenForelderInformert(), fordeling.ønskerJustertVedFødsel());
     }
 
@@ -122,10 +124,15 @@ public class FastsettUttaksgrunnlagTjeneste {
         return fpGrunnlag.getFamilieHendelser().gjelderTerminFødsel();
     }
 
-    private List<OppgittPeriodeEntitet> leggTilUtsettelserForPleiepenger(UttakInput input, List<OppgittPeriodeEntitet> perioder, LocalDate endringsdatoRevurdering) {
+    private List<OppgittPeriodeEntitet> leggTilUtsettelserForPleiepenger(UttakInput input,
+                                                                         List<OppgittPeriodeEntitet> perioder,
+                                                                         LocalDate endringsdatoRevurdering,
+                                                                         Rettighetstype rettighetstype) {
         var fpGrunnlag = (ForeldrepengerGrunnlag) input.getYtelsespesifiktGrunnlag();
         var familieHendelseDato = fpGrunnlag.getFamilieHendelser().getGjeldendeFamilieHendelse().getFamilieHendelseDato();
-        return PleiepengerJustering.juster(input.getBehandlingReferanse().aktørId(), input.getIayGrunnlag(), perioder, familieHendelseDato, endringsdatoRevurdering);
+        var behandlingReferanse = input.getBehandlingReferanse();
+        return PleiepengerJustering.juster(behandlingReferanse.aktørId(), behandlingReferanse.relasjonRolle(), input.getIayGrunnlag(),
+            perioder, familieHendelseDato, endringsdatoRevurdering, rettighetstype);
     }
 
     private List<OppgittPeriodeEntitet> fjernOppholdsperioderTilSluttForSammenhengendeUttak(List<OppgittPeriodeEntitet> perioder) {

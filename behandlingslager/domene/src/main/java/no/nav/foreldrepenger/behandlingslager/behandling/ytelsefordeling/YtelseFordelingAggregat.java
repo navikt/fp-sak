@@ -173,6 +173,13 @@ public class YtelseFordelingAggregat {
         return Optional.ofNullable(getSakskompleksDekningsgrad()).orElse(getOppgittDekningsgrad());
     }
 
+    /**
+     * Forenklet versjon, ser ikke på annen parts vedtak og uføre
+     */
+    public Rettighetstype getGjeldendeRettighetstype(RelasjonsRolleType relasjonsRolleType) {
+        return getGjeldendeRettighetstype(false, relasjonsRolleType, null);
+    }
+
     public Rettighetstype getGjeldendeRettighetstype(boolean annenpartHarForeldrepengerUtbetaling,
                                                      RelasjonsRolleType relasjonsRolleType,
                                                      UføretrygdGrunnlagEntitet uføretrygdGrunnlag) {
