@@ -2,19 +2,14 @@ package no.nav.foreldrepenger.økonomistøtte.queue.config;
 
 import java.sql.SQLException;
 
-import javax.sql.DataSource;
-
-import jakarta.annotation.Resource;
 import jakarta.enterprise.context.ApplicationScoped;
 
 import no.nav.foreldrepenger.felles.jms.precond.PreconditionChecker;
 import no.nav.foreldrepenger.felles.jms.precond.PreconditionCheckerResult;
+import no.nav.vedtak.felles.jpa.jdbc.DataSourceHolder;
 
 @ApplicationScoped
 public class DatabasePreconditionChecker implements PreconditionChecker {
-
-    @Resource(mappedName = "jdbc/defaultDS")
-    private DataSource dataSource;
 
     DatabasePreconditionChecker() {
         // for CDI proxy
@@ -22,9 +17,8 @@ public class DatabasePreconditionChecker implements PreconditionChecker {
 
     @Override
     public PreconditionCheckerResult check() {
-        try (var ignored = dataSource.getConnection()) {
-            // Connection pool validerer connections for oss, så trenger ikke gjøre noen spørring her (ønsker
-            // bare å se om db er tilgjengelig)
+        try (var _ = DataSourceHolder.getDataSource().getConnection()) {
+            // Connection pool validerer connections for oss - ikke behov for spørring her (ønsker bare å se om db er tilgjengelig)
             return PreconditionCheckerResult.fullfilled();
         } catch (SQLException e) {
             return PreconditionCheckerResult.notFullfilled(e.getMessage());

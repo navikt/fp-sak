@@ -6,7 +6,7 @@
     <parent>
         <groupId>no.nav.foreldrepenger.felles</groupId>
         <artifactId>fp-parent-app</artifactId>
-        <version>5.3.4</version>
+        <version>5.3.5</version>
     </parent>
 
     <groupId>no.nav.foreldrepenger</groupId>
@@ -25,7 +25,7 @@
     </modules>
 
     <properties>
-        <!-- generelle verktøy og regel-repositories -->
+        <!-- regel-repositories -->
         <fp-tidsserie.version>2.7.4</fp-tidsserie.version>
         <fp-nare.version>2.6.4</fp-nare.version>
         <fp-inngangsvilkar.version>1.1.4</fp-inngangsvilkar.version>
@@ -34,17 +34,19 @@
         <fp-stonadskonto.version>2.1.1</fp-stonadskonto.version>
         <svp-uttak.version>2.4.8</svp-uttak.version>
         <fp-ytelse-beregn.version>1.0.4</fp-ytelse-beregn.version>
+        <!-- kontrakter -->
+        <fp-kontrakter.version>9.4.37</fp-kontrakter.version>
+        <abakus-kontrakt.version>2.4.1</abakus-kontrakt.version>
         <fpkalkulus.kontrakt.version>1.0.5</fpkalkulus.kontrakt.version>
-
-        <felles.version>7.8.3</felles.version>
+        <!-- generelle verktøy -->
+        <felles.version>7.8.4</felles.version>
         <prosesstask.version>5.2.7</prosesstask.version>
         <openapi-spec-utils.version>2.1.0</openapi-spec-utils.version>
-        <fp-kontrakter.version>9.4.36</fp-kontrakter.version>
-        <abakus-kontrakt.version>2.4.1</abakus-kontrakt.version>
-
+        <!-- sonar -->
         <sonar.moduleKey>${project.artifactId}</sonar.moduleKey>
         <sonar.projectName>fp-sak</sonar.projectName>
         <sonar.projectKey>navikt_fp-sak</sonar.projectKey>
+
     </properties>
 
     <!-- NB: Unngå å put scope (test, provided) i dependency management. Det har uheldige virkninger ved bruk av import og
@@ -441,11 +443,6 @@
         <dependency>
             <groupId>com.zaxxer</groupId>
             <artifactId>HikariCP</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.eclipse.jetty.ee11</groupId>
-            <artifactId>jetty-ee11-plus</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>

@@ -20,7 +20,6 @@ import jakarta.persistence.EntityManagerFactory;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToMany;
-import jakarta.persistence.Persistence;
 import jakarta.persistence.Table;
 import jakarta.persistence.metamodel.Attribute;
 import jakarta.persistence.metamodel.Type;
@@ -32,6 +31,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 
 import no.nav.foreldrepenger.dbstoette.JpaExtension;
+import no.nav.vedtak.felles.jpa.EntityManagerProducer;
 
 /**
  * Sjekker alle entiteter er mappet korrekt. Ligger i web slik at den fanger
@@ -40,10 +40,7 @@ import no.nav.foreldrepenger.dbstoette.JpaExtension;
 @ExtendWith(JpaExtension.class)
 class EntityTest {
 
-    private static final EntityManagerFactory entityManagerFactory;
-    static {
-        entityManagerFactory = Persistence.createEntityManagerFactory("pu-default");
-    }
+    private static final EntityManagerFactory entityManagerFactory = EntityManagerProducer.getEntityManagerFactory();
 
     private EntityManager em = entityManagerFactory.createEntityManager();
 

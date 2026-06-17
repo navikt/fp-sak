@@ -9,11 +9,9 @@ import javax.sql.DataSource;
 
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import org.testcontainers.oracle.OracleContainer;
-import org.testcontainers.utility.DockerImageName;
-import org.testcontainers.utility.MountableFile;
 
 import no.nav.foreldrepenger.dbstoette.TestDatabaseInit;
+import no.nav.vedtak.felles.jpa.NamingStandard;
 
 /**
  * Tester at alle migreringer følger standarder for navn og god praksis.
@@ -32,12 +30,8 @@ class SjekkDbStrukturTest {
 
     @BeforeAll
     static void setup() {
-        schema = TestDatabaseInit.DEFAULT_DS_SCHEMA;
-        var testDatabase = new OracleContainer(DockerImageName.parse(TestDatabaseInit.TEST_DB_CONTAINER))
-            .withCopyFileToContainer(MountableFile.forHostPath(TestDatabaseInit.DB_SETUP_SCRIPT_PATH), "/docker-entrypoint-initdb.d/init.sql")
-            .withReuse(true);
-        testDatabase.start();
-        ds = TestDatabaseInit.settOppDatasourceOgMigrer(testDatabase.getJdbcUrl(), "fpsak", "fpsak", schema);
+        schema = NamingStandard.DEFAULT_DATA_SOURCE;
+        ds = TestDatabaseInit.getDataSource();
     }
 
     @Test
