@@ -26,11 +26,9 @@ import no.nav.foreldrepenger.behandlingslager.geografisk.Språkkode;
 import no.nav.foreldrepenger.dokumentarkiv.ArkivDokument;
 import no.nav.foreldrepenger.dokumentarkiv.ArkivJournalPost;
 import no.nav.foreldrepenger.dokumentarkiv.DokumentArkivTjeneste;
-import no.nav.foreldrepenger.dokumentarkiv.DokumentRespons;
 import no.nav.foreldrepenger.domene.json.StandardJsonConfig;
 import no.nav.foreldrepenger.domene.person.PersoninfoAdapter;
 import no.nav.foreldrepenger.domene.typer.JournalpostId;
-import no.nav.foreldrepenger.konfig.Environment;
 import no.nav.foreldrepenger.mottak.fyllutsendinn.kilde.FormSubmission;
 import no.nav.foreldrepenger.mottak.fyllutsendinn.kilde.Nav140507Data;
 import no.nav.vedtak.mapper.json.DefaultJsonMapper;
@@ -39,7 +37,6 @@ import no.nav.vedtak.mapper.json.DefaultJsonMapper;
 public class FyllUtSendInnOversetter {
 
     private static final Logger LOG = LoggerFactory.getLogger(FyllUtSendInnOversetter.class);
-    private static final Environment ENV = Environment.current();
 
     private MellomlagringRepository mellomlagringRepository;
     private DokumentArkivTjeneste dokumentArkivTjeneste;
@@ -59,7 +56,7 @@ public class FyllUtSendInnOversetter {
     }
 
     public void finnOgMellomlagreFyllUtSøknad(Behandling behandling, MottattDokument mottattDokument) {
-        if (!DokumentTypeId.SØKNAD_ENGANGSSTØNAD_FØDSEL.equals(mottattDokument.getDokumentType()) || ENV.isProd()) {
+        if (!DokumentTypeId.SØKNAD_ENGANGSSTØNAD_FØDSEL.equals(mottattDokument.getDokumentType())) {
             return;
         }
         try {
@@ -80,6 +77,7 @@ public class FyllUtSendInnOversetter {
                 .medInnhold(DefaultJsonMapper.toJson(mellomlagringDto))
                 .build();
             mellomlagringRepository.lagreOgFlush(mellomlagring);
+            LOG.info("Mottok FyllUtSendInn ES for sak {}", behandling.getSaksnummer().getVerdi());
         } catch (Exception e) {
             LOG.warn("Feil ved oversetting og lagring av fyllut-json for journalpost {}", mottattDokument.getJournalpostId(), e);
         }
