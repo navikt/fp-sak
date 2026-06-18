@@ -29,6 +29,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import no.nav.foreldrepenger.dbstoette.JpaExtension;
+import no.nav.vedtak.felles.jpa.NamingStandard;
+import no.nav.vedtak.felles.jpa.jdbc.DataSourceHolder;
 
 /**
  * Denne testen rapporterer kun tabeller og kolonner som ikke er mappet i
@@ -55,10 +57,10 @@ class RapporterUnmappedKolonnerIDatabaseTest {
         Map<String, Object> configuration = new HashMap<>();
 
         configuration.put("hibernate.integrator_provider",
-                (IntegratorProvider) () -> Collections.singletonList(
-                        MetadataExtractorIntegrator.INSTANCE));
+            (IntegratorProvider) () -> Collections.singletonList(MetadataExtractorIntegrator.INSTANCE));
+        configuration.put("jakarta.persistence.nonJtaDataSource", DataSourceHolder.getDataSource());
 
-        entityManagerFactory = Persistence.createEntityManagerFactory("pu-default", configuration);
+        entityManagerFactory = Persistence.createEntityManagerFactory(NamingStandard.DEFAULT_PERSISTENCE_UNIT, configuration);
     }
 
     @AfterAll
@@ -73,8 +75,7 @@ class RapporterUnmappedKolonnerIDatabaseTest {
         var groupingBy = Collectors.groupingBy((Object[] cols) -> ((String) cols[0]).toUpperCase(), TreeMap::new,
                 Collectors.mapping((Object[] cols) -> ((String) cols[1]).toUpperCase(), Collectors.toCollection(TreeSet::new)));
 
-        var em = entityManagerFactory.createEntityManager();
-        try {
+        try (var em = entityManagerFactory.createEntityManager()){
             if (namespace == null) {
                 return (NavigableMap<String, Set<String>>) em
                         .createNativeQuery(
@@ -92,8 +93,6 @@ class RapporterUnmappedKolonnerIDatabaseTest {
                     .filter(filterHte)
                     .filter(filterSchemaVer)
                     .collect(groupingBy);
-        } finally {
-            em.close();
         }
     }
 

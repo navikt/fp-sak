@@ -13,7 +13,6 @@ import java.util.stream.Collectors;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.EntityManagerFactory;
-import jakarta.persistence.Persistence;
 import jakarta.persistence.metamodel.Type;
 
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -22,16 +21,13 @@ import org.junit.jupiter.params.provider.MethodSource;
 
 import no.nav.foreldrepenger.behandlingslager.diff.IndexKey;
 import no.nav.foreldrepenger.dbstoette.JpaExtension;
+import no.nav.vedtak.felles.jpa.EntityManagerProducer;
 
 /** Lagt til web for å sjekke orm filer fra alle moduler. */
 @ExtendWith(JpaExtension.class)
 class SjekkCollectionsOrderedIEntiteterTest {
 
-    private static final EntityManagerFactory entityManagerFactory;
-
-    static {
-        entityManagerFactory = Persistence.createEntityManagerFactory("pu-default");
-    }
+    private static final EntityManagerFactory entityManagerFactory = EntityManagerProducer.getEntityManagerFactory();
 
     private static Collection<Class<?>> parameters() {
 

@@ -3,8 +3,7 @@ package no.nav.foreldrepenger.web.server.jetty;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.naming.NamingException;
-import javax.sql.DataSource;
+import no.nav.vedtak.log.metrics.MetricsUtil;
 
 import org.eclipse.jetty.ee11.cdi.CdiDecoratingListener;
 import org.eclipse.jetty.ee11.cdi.CdiServletContainerInitializer;
@@ -13,7 +12,6 @@ import org.eclipse.jetty.ee11.servlet.ServletContextHandler;
 import org.eclipse.jetty.ee11.servlet.ServletHolder;
 import org.eclipse.jetty.ee11.servlet.security.ConstraintMapping;
 import org.eclipse.jetty.ee11.servlet.security.ConstraintSecurityHandler;
-import org.eclipse.jetty.plus.jndi.EnvEntry;
 import org.eclipse.jetty.security.Constraint;
 import org.eclipse.jetty.server.Connector;
 import org.eclipse.jetty.server.ForwardedRequestCustomizer;
@@ -22,8 +20,6 @@ import org.eclipse.jetty.server.HttpConnectionFactory;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
 import org.eclipse.jetty.server.handler.ContextHandler;
-import org.flywaydb.core.Flyway;
-import org.flywaydb.core.api.FlywayException;
 import org.glassfish.jersey.servlet.ServletContainer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,6 +31,10 @@ import no.nav.foreldrepenger.web.app.konfig.EksternApiConfig;
 import no.nav.foreldrepenger.web.app.konfig.ForvaltningApiConfig;
 import no.nav.foreldrepenger.web.app.konfig.InternalApiConfig;
 import no.nav.foreldrepenger.web.app.tjenester.ServiceStarterListener;
+import no.nav.vedtak.felles.jpa.NamingStandard;
+import no.nav.vedtak.felles.jpa.flyway.FlywayUtil;
+import no.nav.vedtak.felles.jpa.jdbc.DataSourceHolder;
+import no.nav.vedtak.felles.jpa.jdbc.DatasourceUtil;
 
 public class JettyServer {
 
@@ -62,12 +62,12 @@ public class JettyServer {
         konfigurerLogging();
         konfigurerSystembruker();
 
+        migrerDatabase(NamingStandard.DEFAULT_DATA_SOURCE);
+        migrerDatabase("dvhDS");
+
         // Sett System.setProperty("task.manager.runner.threads", 10); til å endre antal prosesstask tråder. Default 10.
         // `maxPoolSize` bør være satt minst til verdien av `task.manager.runner.threads` + 1 + antall connections man ønsker.
-        // `minIdle` sørger for at det alltid er en tilkobling klar når alle 10 prosesstask-trådene samtidig trenger en connection.
-        settJdniOppslag(DatasourceUtil.createDatasource("defaultDS", 30, 10));
-        migrerDatabase("defaultDS");
-        migrerDatabase("dvhDS");
+        createDatasource(NamingStandard.DEFAULT_DATA_SOURCE, 30);
 
         start();
     }
@@ -79,6 +79,7 @@ public class JettyServer {
     private void konfigurerLogging() {
         SLF4JBridgeHandler.removeHandlersForRootLogger();
         SLF4JBridgeHandler.install();
+        MetricsUtil.scrape(); // TODO: erstatt med kommende init
     }
 
     /* Brukes kun for å kunne samhandle med Økonomi via JMS */
@@ -93,23 +94,29 @@ public class JettyServer {
         }
     }
 
-    private static void settJdniOppslag(DataSource dataSource) throws NamingException {
-        new EnvEntry("jdbc/defaultDS", dataSource);
+    protected void migrerDatabase(String schemaName) {
+        var jdbc = hentEllerBeregnVerdiHvisMangler(schemaName + ".url",schemaName + "config", "jdbc_url");
+        var username = hentEllerBeregnVerdiHvisMangler(schemaName + ".username", schemaName, "username");
+        var password = hentEllerBeregnVerdiHvisMangler(schemaName + ".password", schemaName, "password");
+        try (var dataSource = FlywayUtil.createMigrationDataSource(jdbc, username, password)) {
+            FlywayUtil.migrateLegacyOracle(dataSource, "classpath:" + NamingStandard.DEFAULT_MIGRATION_ROOT + schemaName);
+        }
     }
 
-    protected void migrerDatabase(String schemaName) {
-        try (var dataSource = DatasourceUtil.createDatasource(schemaName, 3, 1)) {
-            Flyway.configure()
-                .dataSource(dataSource)
-                .locations("classpath:/db/migration/" + schemaName)
-                .table("schema_version")
-                .baselineOnMigrate(true)
-                .load()
-                .migrate();
-        } catch (FlywayException e) {
-            LOG.error("Feil under migrering av databasen.");
-            throw e;
+    static void createDatasource(String schemaName, int maxPoolSize) {
+        var jdbc = hentEllerBeregnVerdiHvisMangler(schemaName + ".url",schemaName + "config", "jdbc_url");
+        var username = hentEllerBeregnVerdiHvisMangler(schemaName + ".username", schemaName, "username");
+        var password = hentEllerBeregnVerdiHvisMangler(schemaName + ".password", schemaName, "password");
+        var dataSource = DatasourceUtil.oracleDataSource(jdbc, username, password, maxPoolSize);
+        DataSourceHolder.initialize(dataSource);
+    }
+
+    /* Denne gir lazy loading og feiler ikke ved lokalt kjøring uten vault mount */
+    private static String hentEllerBeregnVerdiHvisMangler(String key, String mappeNavn, String filNavn) {
+        if (ENV.getProperty(key) == null) {
+            System.getProperties().computeIfAbsent(key, _ -> VaultUtil.lesFilVerdi(mappeNavn, filNavn));
         }
+        return ENV.getRequiredProperty(key);
     }
 
     private void start() throws Exception {
