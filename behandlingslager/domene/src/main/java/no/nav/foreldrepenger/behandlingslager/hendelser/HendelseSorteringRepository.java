@@ -1,7 +1,6 @@
 package no.nav.foreldrepenger.behandlingslager.hendelser;
 
 import java.util.Collection;
-import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -16,7 +15,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.Relasj
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakStatus;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.domene.typer.AktørId;
-import no.nav.foreldrepenger.domene.typer.Saksnummer;
 
 @ApplicationScoped
 public class HendelseSorteringRepository {
@@ -43,34 +41,6 @@ public class HendelseSorteringRepository {
         var resultater = Stream.concat(resultat1.stream(), resultat2.stream());
 
         return resultater.collect(Collectors.toSet());
-    }
-
-    public Collection<AktørId> hentEksisterendeAktørIderMedHistoriskSak(Set<AktørId> aktørIdSet) {
-        if (aktørIdSet.isEmpty()) {
-            return List.of();
-        }
-
-        return entityManager.createQuery("""
-                select b.aktørId from Bruker b
-                inner join Fagsak f on b = f.navBruker
-                where b.aktørId in (:aktørIds)
-                """, AktørId.class)
-            .setParameter("aktørIds", aktørIdSet)
-            .getResultList();
-    }
-
-    public Collection<Saksnummer> hentSakerForAktørIder(Set<AktørId> aktørIdSet) {
-        if (aktørIdSet.isEmpty()) {
-            return List.of();
-        }
-
-        return entityManager.createQuery("""
-                select f.saksnummer from Bruker b
-                inner join Fagsak f on b = f.navBruker
-                where b.aktørId in (:aktørIds)
-                """, Saksnummer.class)
-            .setParameter("aktørIds", aktørIdSet)
-            .getResultList();
     }
 
     private TypedQuery<AktørId> getAktørIderMedRelevantSak(Set<AktørId> aktørIdSet) {
