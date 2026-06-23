@@ -144,7 +144,8 @@ public class PersonopplysningXmlTjenesteImpl extends PersonopplysningXmlTjeneste
         var kontrakt = personopplysningObjectFactory.createYtelseStorrelse();
         domene.getOrgnr().flatMap(virksomhetTjeneste::finnOrganisasjon)
             .ifPresent(virksomhet -> kontrakt.setVirksomhet(tilVirksomhet(virksomhet)));
-        kontrakt.setBeloep(VedtakXmlUtil.lagDecimalOpplysning(domene.getBeløp().getVerdi()));
+        Optional.ofNullable(domene.getBeløp().getVerdi())
+            .ifPresent(v -> kontrakt.setBeloep(VedtakXmlUtil.lagDecimalOpplysning(v)));
         kontrakt.setHyppighet(VedtakXmlUtil.lagKodeverksOpplysning(domene.getHyppighet()));
         return kontrakt;
     }
