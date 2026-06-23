@@ -39,7 +39,7 @@
         <abakus-kontrakt.version>2.4.1</abakus-kontrakt.version>
         <fpkalkulus.kontrakt.version>1.0.5</fpkalkulus.kontrakt.version>
         <!-- generelle verktøy -->
-        <felles.version>7.8.4</felles.version>
+        <felles.version>7.8.5</felles.version>
         <prosesstask.version>5.2.7</prosesstask.version>
         <openapi-spec-utils.version>2.1.0</openapi-spec-utils.version>
         <!-- sonar -->
