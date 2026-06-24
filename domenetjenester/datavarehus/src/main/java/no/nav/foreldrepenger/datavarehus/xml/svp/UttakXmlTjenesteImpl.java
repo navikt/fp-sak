@@ -3,6 +3,7 @@ package no.nav.foreldrepenger.datavarehus.xml.svp;
 import java.time.LocalDate;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -98,7 +99,9 @@ public class UttakXmlTjenesteImpl {
             var delvisTilretteleggingFom = VedtakXmlUtil.lagDateOpplysning(delvisTilretteleggingFomOptional.get().getFomDato());
             delvisTilretteleggingFom.ifPresent(kontrakt::setDelvisTilretteleggingFom);
 
-            kontrakt.setStillingsprosent(VedtakXmlUtil.lagDecimalOpplysning(delvisTilretteleggingFomOptional.get().getStillingsprosent()));
+            Optional.ofNullable(delvisTilretteleggingFomOptional.get().getStillingsprosent())
+                .map(VedtakXmlUtil::lagDecimalOpplysning)
+                .ifPresent(kontrakt::setStillingsprosent);
         }
 
         var slutteArbeidFomOptional = svpTilrettelegging.getTilretteleggingFOMListe().stream().filter(tl -> tl.getType().equals(TilretteleggingType.INGEN_TILRETTELEGGING)).map(TilretteleggingFOM::getFomDato).max(LocalDate::compareTo);
