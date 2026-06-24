@@ -115,6 +115,9 @@ public class VedtakXmlUtil {
     }
 
     public static DecimalOpplysning lagDecimalOpplysning(BigDecimal value) {
+        if (value == null) {
+            throw new IllegalArgumentException("VedtakXmlUtil: value kan ikke være null");
+        }
         var decimalOpplysning = fellesObjectFactory.createDecimalOpplysning();
         decimalOpplysning.setValue(value);
         return decimalOpplysning;
