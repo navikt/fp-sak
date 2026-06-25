@@ -98,7 +98,8 @@ public class UttakXmlTjenesteImpl {
             var delvisTilretteleggingFom = VedtakXmlUtil.lagDateOpplysning(delvisTilretteleggingFomOptional.get().getFomDato());
             delvisTilretteleggingFom.ifPresent(kontrakt::setDelvisTilretteleggingFom);
 
-            kontrakt.setStillingsprosent(VedtakXmlUtil.lagDecimalOpplysning(delvisTilretteleggingFomOptional.get().getStillingsprosent()));
+            delvisTilretteleggingFomOptional.map(TilretteleggingFOM::getStillingsprosent)
+                .map(VedtakXmlUtil::lagDecimalOpplysning).ifPresent(kontrakt::setStillingsprosent);
         }
 
         var slutteArbeidFomOptional = svpTilrettelegging.getTilretteleggingFOMListe().stream().filter(tl -> tl.getType().equals(TilretteleggingType.INGEN_TILRETTELEGGING)).map(TilretteleggingFOM::getFomDato).max(LocalDate::compareTo);
