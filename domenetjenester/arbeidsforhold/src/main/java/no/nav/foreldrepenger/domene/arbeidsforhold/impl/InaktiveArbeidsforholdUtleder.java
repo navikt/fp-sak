@@ -32,11 +32,15 @@ import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * Tjeneste som skal utlede om en arbeidsgiver er inaktiv eller ikke,
  * for å filtrere ut unødvendige arbeidsforhold fra å kreve inntektsmelding.
  */
 public class InaktiveArbeidsforholdUtleder {
+    private static final Logger LOG = LoggerFactory.getLogger(InaktiveArbeidsforholdUtleder.class);
     private static final Set<RelatertYtelseType> YTELSER_SOM_IKKE_PÅVIRKER_IM = Set.of(RelatertYtelseType.ARBEIDSAVKLARINGSPENGER, RelatertYtelseType.DAGPENGER);
     private static final int AKTIVE_MÅNEDER_FØR_STP = 4;
     private static final int NYOPPSTARTEDE_ARBEIDSFORHOLD_ALDER_I_MND = 4;
@@ -79,15 +83,22 @@ public class InaktiveArbeidsforholdUtleder {
             return false;
         }
         if (erNyoppstartet(arbeidsgiverSomSjekkes, inntektArbeidYtelseGrunnlag.get(), søkerAktørId, stp)) {
+            LOG.info("Arbeidsforhold hos {} er nyoppstartet (< {} mnd før stp {}), regnes som aktivt", arbeidsgiverSomSjekkes, NYOPPSTARTEDE_ARBEIDSFORHOLD_ALDER_I_MND, stp);
             return false;
         }
         if (harMottattIMFraAG(arbeidsgiverSomSjekkes, inntektArbeidYtelseGrunnlag.get())) {
+            LOG.info("Har mottatt inntektsmelding fra {}, regnes som aktivt", arbeidsgiverSomSjekkes);
             return false;
         }
         if (harHattYtelseForArbeidsgiver(arbeidsgiverSomSjekkes, inntektArbeidYtelseGrunnlag.get(), søkerAktørId, stp, saksnummer)) {
+            LOG.info("Har hatt ytelse for arbeidsgiver {} i perioden {} mnd før stp {}, regnes som aktivt", arbeidsgiverSomSjekkes, AKTIVE_MÅNEDER_FØR_STP, stp);
             return false;
         }
-        return !harHattInntektIPeriode(arbeidsgiverSomSjekkes, inntektArbeidYtelseGrunnlag.get(), søkerAktørId, stp);
+        var harInntekt = harHattInntektIPeriode(arbeidsgiverSomSjekkes, inntektArbeidYtelseGrunnlag.get(), søkerAktørId, stp);
+        if (!harInntekt) {
+            LOG.info("Arbeidsforhold hos {} regnes som inaktivt: ikke nyoppstartet, ingen IM, ingen ytelse, ingen inntekt siste {} mnd før stp {}", arbeidsgiverSomSjekkes, AKTIVE_MÅNEDER_FØR_STP, stp);
+        }
+        return !harInntekt;
     }
 
     private static boolean erIPermisjonPåStp(Arbeidsgiver arbeidsgiver,
@@ -164,7 +175,7 @@ public class InaktiveArbeidsforholdUtleder {
     private static boolean harYtelseForArbeidsforholdIPeriode(Ytelse ytelse, DatoIntervallEntitet periode, Arbeidsgiver arbeidsgiver) {
         var overlappendeAnvisninger = ytelse.getYtelseAnvist()
             .stream()
-            .filter(ya -> periode.inkluderer(ya.getAnvistFOM()) || periode.inkluderer(ya.getAnvistTOM()))
+            .filter(ya -> periode.overlapper(DatoIntervallEntitet.fraOgMedTilOgMed(ya.getAnvistFOM(), ya.getAnvistTOM())))
             .toList();
         if (overlappendeAnvisninger.isEmpty()) {
             return false;
