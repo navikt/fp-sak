@@ -160,7 +160,7 @@ public class KodeverkFraKalkulusMapper {
             case FASTSATT_INN -> BeregningsgrunnlagTilstand.FASTSATT_INN;
             case FASTSATT -> BeregningsgrunnlagTilstand.FASTSATT;
             case UDEFINERT -> BeregningsgrunnlagTilstand.UDEFINERT;
-            case VURDERT_TILKOMMET_INNTEKT, VURDERT_TILKOMMET_INNTEKT_UT -> throw new IllegalArgumentException(ukjentKodeFeil("BeregningsgrunnlagTilstand", beregningsgrunnlagTilstand.getKode()));
+            case VURDERT_TILKOMMET_INNTEKT, VURDERT_TILKOMMET_INNTEKT_UT, FASTSATT_INNTEKTSGRADERING -> throw new IllegalArgumentException(ukjentKodeFeil("BeregningsgrunnlagTilstand", beregningsgrunnlagTilstand.getKode()));
         };
     }
 
