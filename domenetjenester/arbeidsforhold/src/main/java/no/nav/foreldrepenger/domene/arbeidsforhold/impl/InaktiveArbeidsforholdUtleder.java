@@ -164,7 +164,7 @@ public class InaktiveArbeidsforholdUtleder {
     private static boolean harYtelseForArbeidsforholdIPeriode(Ytelse ytelse, DatoIntervallEntitet periode, Arbeidsgiver arbeidsgiver) {
         var overlappendeAnvisninger = ytelse.getYtelseAnvist()
             .stream()
-            .filter(ya -> periode.inkluderer(ya.getAnvistFOM()) || periode.inkluderer(ya.getAnvistTOM()))
+            .filter(ya -> periode.overlapper(DatoIntervallEntitet.fraOgMedTilOgMed(ya.getAnvistFOM(), ya.getAnvistTOM())))
             .toList();
         if (overlappendeAnvisninger.isEmpty()) {
             return false;
