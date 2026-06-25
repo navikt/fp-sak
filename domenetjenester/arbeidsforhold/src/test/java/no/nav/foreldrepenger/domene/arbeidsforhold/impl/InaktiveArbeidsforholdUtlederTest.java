@@ -255,6 +255,28 @@ class InaktiveArbeidsforholdUtlederTest {
         assertThat(aktiveArbeidsforhold.values().stream()).containsExactly(Set.of(internRef1, internRef2));
     }
 
+    @Test
+    void arbeidsforhold_aktivt_ytelse_strekker_seg_forbi_4_mnd_periode() {
+        // Arrange
+        var arbeidsgiver = arbeidsgiver("999999999");
+        var arbeidsgiverMedYtelse = arbeidsgiver("999999999");
+        var internRef1 = InternArbeidsforholdRef.nyRef();
+        var arbeidsforholdÅsjekke = Map.of(arbeidsgiver, Set.of(internRef1));
+        lagYtelse(arbeidsgiverMedYtelse, STP.minusMonths(10), STP.plusDays(1), RelatertYtelseType.SVANGERSKAPSPENGER);
+        lagArbeid(arbeidsgiver, STP.minusYears(2), false, internRef1);
+        var scenario = IAYScenarioBuilder.morSøker(FagsakYtelseType.FORELDREPENGER)
+            .medBruker(AKTØR);
+        var behandling = scenario.lagMocked();
+        var behandlingReferanse = BehandlingReferanse.fra(behandling);
+
+        // Act
+        var aktiveArbeidsforhold = InaktiveArbeidsforholdUtleder.finnKunAktive(arbeidsforholdÅsjekke, Optional.ofNullable(byggIAY()), behandlingReferanse, skjæringstidspunkt);
+
+        // Assert
+        assertThat(aktiveArbeidsforhold).hasSize(1);
+        assertThat(aktiveArbeidsforhold.values().stream()).containsExactly(Set.of(internRef1));
+    }
+
     private void lagIM(Arbeidsgiver arbeidsgiver) {
         var im = InntektsmeldingBuilder.builder()
             .medArbeidsgiver(arbeidsgiver)
