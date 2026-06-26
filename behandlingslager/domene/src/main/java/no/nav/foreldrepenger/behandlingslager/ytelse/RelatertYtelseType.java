@@ -16,7 +16,7 @@ public enum RelatertYtelseType implements Kodeverdi {
     SVANGERSKAPSPENGER("SVP", "Svangerskapspenger"),
     FORELDREPENGER("FP", "Foreldrepenger"),
     ENGANGSTØNAD("ES", "Engangsstønad"),
-    FRISINN("FRISINN", "FRISINN"),
+    FRISINN("FRISINN", "Frisinn"),
     PLEIEPENGER_SYKT_BARN("PSB", "Pleiepenger sykt barn"),
     PLEIEPENGER_NÆRSTÅENDE("PPN", "Pleiepenger nærstående"),
     OMSORGSPENGER("OMP", "Omsorgspenger"),
