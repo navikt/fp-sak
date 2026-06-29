@@ -1,15 +1,14 @@
 package no.nav.foreldrepenger.domene.arbeidsforhold.impl;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
@@ -51,26 +50,32 @@ public class InaktiveArbeidsforholdUtleder {
     public static Map<Arbeidsgiver, Set<InternArbeidsforholdRef>> finnKunAktive(Map<Arbeidsgiver, Set<InternArbeidsforholdRef>> påkrevdeInntektsmeldinger,
                                                                                 Optional<InntektArbeidYtelseGrunnlag> inntektArbeidYtelseGrunnlag,
                                                                                 BehandlingReferanse referanse, Skjæringstidspunkt stp) {
-        Map<Arbeidsgiver, Set<InternArbeidsforholdRef>> kunAktiveArbeidsforhold = new HashMap<>();
-
         var utledetStp = stp.getUtledetSkjæringstidspunkt();
-        påkrevdeInntektsmeldinger.forEach((key, value) -> {
-            var erInaktivt = erInaktivt(key, inntektArbeidYtelseGrunnlag, referanse.aktørId(), utledetStp,
-                referanse.saksnummer());
-            if (!erInaktivt) {
-                List<InternArbeidsforholdRef> aktiveArbeidsforholdsRef = new ArrayList<>();
-                //Sjekker om hvert arbeidsforhold under virksomheten har registrert permisjon som overlapper skjæringstidspunkt. Fjerne de som har det
-                value.forEach(internArbeidsforholdRef-> {
-                    if (!erIPermisjonPåStp(key, internArbeidsforholdRef, inntektArbeidYtelseGrunnlag, referanse.aktørId(), utledetStp)) {
-                        aktiveArbeidsforholdsRef.add(internArbeidsforholdRef);
-                    }
-                });
-                if (!aktiveArbeidsforholdsRef.isEmpty()) {
-                    kunAktiveArbeidsforhold.put(key, new HashSet<>(aktiveArbeidsforholdsRef));
-                }
+
+        var aktiveArbeidsforhold = påkrevdeInntektsmeldinger.entrySet().stream()
+            .filter(e -> !erInaktivt(e.getKey(), inntektArbeidYtelseGrunnlag, referanse.aktørId(), utledetStp, referanse.saksnummer()))
+            .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+
+        if (aktiveArbeidsforhold.isEmpty()) {
+            LOG.info("INAKTIV_ARB_UTLEDER: Alle arbeidsforhold var inaktive, returnerer tom liste");
+            return aktiveArbeidsforhold;
+        }
+
+        Map<Arbeidsgiver, Set<InternArbeidsforholdRef>> aktiveArbeidsforholdUtenPermisjon = new HashMap<>();
+        //Sjekker om hvert arbeidsforhold under virksomheten har registrert permisjon som overlapper skjæringstidspunkt. Fjerne de som har det
+        aktiveArbeidsforhold.forEach((key, value) -> {
+            var utenPermisjon = value.stream()
+                .filter(ref -> !erIPermisjonPåStp(key, ref, inntektArbeidYtelseGrunnlag, referanse.aktørId(), utledetStp))
+                .collect(Collectors.toSet());
+            if (!utenPermisjon.isEmpty()) {
+                aktiveArbeidsforholdUtenPermisjon.put(key, utenPermisjon);
             }
         });
-        return kunAktiveArbeidsforhold;
+        if (aktiveArbeidsforholdUtenPermisjon.isEmpty()) {
+            LOG.info("INAKTIV_ARB_UTLEDER: Finnes ingen aktive arbeidsforhold uten permisjon, returnerer istedenfor aktive arbeidsforhold med permisjon");
+            return aktiveArbeidsforhold;
+        }
+        return aktiveArbeidsforholdUtenPermisjon;
     }
 
 
@@ -83,20 +88,20 @@ public class InaktiveArbeidsforholdUtleder {
             return false;
         }
         if (erNyoppstartet(arbeidsgiverSomSjekkes, inntektArbeidYtelseGrunnlag.get(), søkerAktørId, stp)) {
-            LOG.info("Arbeidsforhold hos {} er nyoppstartet (< {} mnd før stp {}), regnes som aktivt", arbeidsgiverSomSjekkes, NYOPPSTARTEDE_ARBEIDSFORHOLD_ALDER_I_MND, stp);
+            LOG.info("INAKTIV_ARB_UTLEDER: Arbeidsforhold hos {} er nyoppstartet (< {} mnd før stp {}), regnes som aktivt", arbeidsgiverSomSjekkes, NYOPPSTARTEDE_ARBEIDSFORHOLD_ALDER_I_MND, stp);
             return false;
         }
         if (harMottattIMFraAG(arbeidsgiverSomSjekkes, inntektArbeidYtelseGrunnlag.get())) {
-            LOG.info("Har mottatt inntektsmelding fra {}, regnes som aktivt", arbeidsgiverSomSjekkes);
+            LOG.info("INAKTIV_ARB_UTLEDER: Har mottatt inntektsmelding fra {}, regnes som aktivt", arbeidsgiverSomSjekkes);
             return false;
         }
         if (harHattYtelseForArbeidsgiver(arbeidsgiverSomSjekkes, inntektArbeidYtelseGrunnlag.get(), søkerAktørId, stp, saksnummer)) {
-            LOG.info("Har hatt ytelse for arbeidsgiver {} i perioden {} mnd før stp {}, regnes som aktivt", arbeidsgiverSomSjekkes, AKTIVE_MÅNEDER_FØR_STP, stp);
+            LOG.info("INAKTIV_ARB_UTLEDER: Har hatt ytelse for arbeidsgiver {} i perioden {} mnd før stp {}, regnes som aktivt", arbeidsgiverSomSjekkes, AKTIVE_MÅNEDER_FØR_STP, stp);
             return false;
         }
         var harInntekt = harHattInntektIPeriode(arbeidsgiverSomSjekkes, inntektArbeidYtelseGrunnlag.get(), søkerAktørId, stp);
         if (!harInntekt) {
-            LOG.info("Arbeidsforhold hos {} regnes som inaktivt: ikke nyoppstartet, ingen IM, ingen ytelse, ingen inntekt siste {} mnd før stp {}", arbeidsgiverSomSjekkes, AKTIVE_MÅNEDER_FØR_STP, stp);
+            LOG.info("INAKTIV_ARB_UTLEDER: Arbeidsforhold hos {} regnes som inaktivt: ikke nyoppstartet, ingen IM, ingen ytelse, ingen inntekt siste {} mnd før stp {}", arbeidsgiverSomSjekkes, AKTIVE_MÅNEDER_FØR_STP, stp);
         }
         return !harInntekt;
     }
