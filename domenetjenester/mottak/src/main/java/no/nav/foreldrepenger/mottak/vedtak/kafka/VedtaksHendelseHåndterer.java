@@ -30,6 +30,7 @@ import no.nav.foreldrepenger.domene.json.StandardJsonConfig;
 import no.nav.foreldrepenger.domene.tid.VirkedagUtil;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
+import no.nav.foreldrepenger.konfig.Environment;
 import no.nav.foreldrepenger.konfig.KonfigVerdi;
 import no.nav.foreldrepenger.mottak.vedtak.overlapp.HåndterOverlappPleiepengerTask;
 import no.nav.foreldrepenger.mottak.vedtak.overlapp.LoggOverlappEksterneYtelserTjeneste;
@@ -48,6 +49,7 @@ public class VedtaksHendelseHåndterer implements KafkaMessageHandler.KafkaStrin
 
     private static final Logger LOG = LoggerFactory.getLogger(VedtaksHendelseHåndterer.class);
     private static final String GROUP_ID = "fpsak-vedtakfattet";  // Hold konstant pga offset commit !!
+    private static final Environment ENV = Environment.current();
 
     private static final Set<FagsakYtelseType> VURDER_OVERLAPP = Set.of(FagsakYtelseType.FORELDREPENGER, FagsakYtelseType.SVANGERSKAPSPENGER);
     private static final Set<Ytelser> EKSTERNE_HÅNDTERES = Set.of(Ytelser.PLEIEPENGER_SYKT_BARN,
@@ -154,11 +156,12 @@ public class VedtaksHendelseHåndterer implements KafkaMessageHandler.KafkaStrin
 
     private void opprettHåndterOverlappTaskPleiepenger(Fagsak f, String callId) {
         // Kjøretidspunkt tidlig neste virkedag slik at OS har fordøyd oppdrag fra K9Sak men ikke utbetalt ennå
-        var nesteFormiddag = LocalDateTime.of(VirkedagUtil.fomVirkedag(LocalDate.now().plusDays(1)), LocalTime.of(7, 35, 1));
+        // Gi abakus tid til å konsumere samme hendelse så det finnes et grunnlag å hente opp.
+        // Setter til 5 sek for autotest
+        var kjøretidspunkt = ENV.isLocal() ? LocalDateTime.now().plusSeconds(5) : LocalDateTime.of(VirkedagUtil.fomVirkedag(LocalDate.now().plusDays(1)), LocalTime.of(7, 35, 1));
         var prosessTaskData = ProsessTaskData.forProsessTask(HåndterOverlappPleiepengerTask.class);
         prosessTaskData.setFagsak(f.getSaksnummer().getVerdi(), f.getId());
-        // Gi abakus tid til å konsumere samme hendelse så det finnes et grunnlag å hente opp.
-        prosessTaskData.setNesteKjøringEtter(nesteFormiddag);
+        prosessTaskData.setNesteKjøringEtter(kjøretidspunkt);
         prosessTaskData.setCallId(callId + "_" + f.getId());
         taskTjeneste.lagre(prosessTaskData);
     }
