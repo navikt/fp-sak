@@ -226,7 +226,9 @@ class InaktiveArbeidsforholdUtlederTest {
         var aktiveArbeidsforhold = InaktiveArbeidsforholdUtleder.finnKunAktive(arbeidsforholdÅsjekke, Optional.ofNullable(byggIAY()), behandlingReferanse, skjæringstidspunkt);
 
         // Assert
-        assertThat(aktiveArbeidsforhold).isEmpty();
+        assertThat(aktiveArbeidsforhold)
+            .hasSize(1)
+            .containsValue(Set.of(internRef1MedPermisjon, internRef2MedPermisjon));
     }
 
     @Test
