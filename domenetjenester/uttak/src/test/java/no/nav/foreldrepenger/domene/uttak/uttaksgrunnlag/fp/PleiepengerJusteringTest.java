@@ -533,6 +533,43 @@ class PleiepengerJusteringTest {
         assertThat(resultat.get(1).getPeriodeType()).isEqualTo(MØDREKVOTE);
     }
 
+    @Test
+    void skal_klippe_pleiepengersegment_som_krysser_endringsdato_ved_revurdering() {
+        var aktørId = AktørId.dummy();
+        var fødselsdato = of(2025, 1, 4);
+        var endringsdato = of(2025, 5, 2);
+        var ytelseBuilder = pleiepengerFraK9();
+        // Ett sammenhengende segment som krysser endringsdato
+        var pleiepengerOverEndringsdato = DatoIntervallEntitet.fraOgMedTilOgMed(of(2025, 5, 1), of(2025, 5, 5));
+        ytelseBuilder.medYtelseAnvist(ytelseBuilder.getAnvistBuilder()
+            .medAnvistPeriode(pleiepengerOverEndringsdato)
+            .medUtbetalingsgradProsent(BigDecimal.TEN)
+            .build());
+        var iay = iay(aktørId, ytelseBuilder);
+        var mødrekvote = OppgittPeriodeBuilder.ny()
+            .medPeriode(of(2025, 5, 1), of(2025, 5, 31))
+            .medPeriodeType(MØDREKVOTE)
+            .build();
+
+        var resultat = PleiepengerJustering.juster(aktørId, MORA, iay, List.of(mødrekvote), fødselsdato, endringsdato, BEGGE_RETT);
+
+        // Forventning: dag før endringsdato skal ikke opprettes som utsettelse ved revurdering
+        assertThat(resultat).hasSize(3);
+        assertThat(resultat.get(0).isUtsettelse()).isFalse();
+        assertThat(resultat.get(0).getFom()).isEqualTo(of(2025, 5, 1));
+        assertThat(resultat.get(0).getTom()).isEqualTo(endringsdato.minusDays(1));
+
+        assertThat(resultat.get(1).isUtsettelse()).isTrue();
+        assertThat(resultat.get(1).getFom()).isEqualTo(endringsdato);
+        assertThat(resultat.get(1).getTom()).isEqualTo(pleiepengerOverEndringsdato.getTomDato());
+        assertThat(resultat.get(1).getÅrsak()).isEqualTo(INSTITUSJON_BARN);
+
+        assertThat(resultat.get(2).isUtsettelse()).isFalse();
+        assertThat(resultat.get(2).getFom()).isEqualTo(pleiepengerOverEndringsdato.getTomDato().plusDays(1));
+        assertThat(resultat.get(2).getTom()).isEqualTo(mødrekvote.getTom());
+        assertThat(resultat.get(2).getPeriodeType()).isEqualTo(MØDREKVOTE);
+    }
+
     private InntektArbeidYtelseGrunnlag iay(AktørId aktørId, YtelseBuilder ytelseBuilder) {
         return InntektArbeidYtelseGrunnlagBuilder.nytt()
             .medData(InntektArbeidYtelseAggregatBuilder.oppdatere(Optional.empty(), VersjonType.REGISTER)

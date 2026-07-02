@@ -8,6 +8,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Stream;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -84,11 +85,12 @@ final class PleiepengerJustering {
                                                Rettighetstype rettighetstype,
                                                RelasjonsRolleType relasjonsRolleType) {
         var foreldrepengerTimeline = oppgittPeriodeTimeline(foreldrepenger);
-        var pleiepengerTimeline = new LocalDateTimeline<>(pleiepengerUtsettelser, PleiepengerJustering::slåSammenOverlappendePleiepenger);
         var førsteSøkteDag = foreldrepengerTimeline.getMinLocalDate();
         var sisteSøkteDag = foreldrepengerTimeline.getMaxLocalDate();
         var tidligstDagForUtsettelse = utledTidligstDagForUtsettelse(familieHendelseDato, endringsdatoRevurdering, førsteSøkteDag, rettighetstype,
             relasjonsRolleType);
+        var kliptePleiepengerUtsettelser = klippPleiepengerUtsettelser(pleiepengerUtsettelser, tidligstDagForUtsettelse, sisteSøkteDag);
+        var pleiepengerTimeline = new LocalDateTimeline<>(kliptePleiepengerUtsettelser, PleiepengerJustering::slåSammenOverlappendePleiepenger);
         var fellesTimeline = foreldrepengerTimeline.union(pleiepengerTimeline,
             (interval, fp, pp) -> {
                 if (pp == null) {
@@ -117,6 +119,22 @@ final class PleiepengerJustering {
             .filter(p -> Virkedager.beregnAntallVirkedager(p.getFom(), p.getTom()) > 0)
             .toList();
         return slåSammenLikePerioder(combined);
+    }
+
+    // Klipper hvert pleiepengersegment til [tidligstDagForUtsettelse, sisteSøkteDag] før union med foreldrepenger.
+    // Uten klipping vil et segment som krysser en grense bli tatt med i sin helhet, slik at f.eks. dagen før
+    // endringsdato lekker inn som utsettelse ved revurdering.
+    // Grensen er tidligstDagForUtsettelse - ikke endringsdatoRevurdering direkte - fordi den datoen allerede
+    // samler alle nedre grenser: familiehendelse/førsteSøkteDag for førstegangsbehandling, og endringsdato kun
+    // når den ligger etter startdato ved revurdering (se utledTidligstDagForUtsettelse).
+    private static List<LocalDateSegment<PleiepengerUtsettelse>> klippPleiepengerUtsettelser(List<LocalDateSegment<PleiepengerUtsettelse>> pleiepengerUtsettelser,
+                                                                                             LocalDate tidligstDagForUtsettelse,
+                                                                                             LocalDate sisteSøkteDag) {
+        return pleiepengerUtsettelser.stream().flatMap(pp -> {
+            var fom = pp.getFom().isBefore(tidligstDagForUtsettelse) ? tidligstDagForUtsettelse : pp.getFom();
+            var tom = pp.getTom().isAfter(sisteSøkteDag) ? sisteSøkteDag : pp.getTom();
+            return !fom.isAfter(tom) ? Stream.of(new LocalDateSegment<>(fom, tom, pp.getValue())) : Stream.empty();
+        }).toList();
     }
 
     private static LocalDate utledTidligstDagForUtsettelse(LocalDate familieHendelseDato,
