@@ -23,7 +23,7 @@ class FagsakEgenskapRepositoryTest extends EntityManagerAwareTest {
     @BeforeEach
     void setUp() {
         fagsakRepository = new FagsakRepository(getEntityManager());
-        fagsakEgenskapRepository = new FagsakEgenskapRepository(getEntityManager());
+        fagsakEgenskapRepository = new FagsakEgenskapRepository(getEntityManager(), new FagsakLåsRepository(getEntityManager()));
     }
 
 

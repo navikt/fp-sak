@@ -21,15 +21,18 @@ public class FagsakEgenskapRepository {
     private static final String FAGSAK_QP = "fagsak";
 
     private EntityManager entityManager;
+    private FagsakLåsRepository fagsakLåsRepository;
 
     protected FagsakEgenskapRepository() {
         // for CDI proxy
     }
 
     @Inject
-    public FagsakEgenskapRepository(EntityManager entityManager) {
+    public FagsakEgenskapRepository(EntityManager entityManager, FagsakLåsRepository fagsakLåsRepository) {
         Objects.requireNonNull(entityManager, "entityManager");
+        Objects.requireNonNull(fagsakLåsRepository, "fagsakLåsRepository");
         this.entityManager = entityManager;
+        this.fagsakLåsRepository = fagsakLåsRepository;
     }
 
     public <E extends Enum<E>> Optional<E> finnEgenskapVerdi(long fagsakId, EgenskapNøkkel nøkkel, Class<E> enumCls) {
@@ -43,6 +46,10 @@ public class FagsakEgenskapRepository {
     }
 
     public void lagreUtlandDokumentasjonStatus(long fagsakId, UtlandDokumentasjonStatus verdi) {
+        // Tar lås på fagsaken slik at samtidige kall (f.eks. fra flere behandlinger/prosesstasker på samme fagsak) blir
+        // serialisert. Uten denne låsen kan to transaksjoner begge lese "ingen aktiv egenskap" og begge sette inn en
+        // rad, slik at vi ender opp med duplikate aktive rader i FAGSAK_EGENSKAP.
+        fagsakLåsRepository.taLås(fagsakId);
         if (finnEgenskapMedGittVerdi(fagsakId, verdi).isEmpty()) {
             var lagres = finnEgenskaper(fagsakId, verdi.getNøkkel()).stream().findFirst().orElseGet(() -> new FagsakEgenskap(fagsakId, verdi));
             lagres.setEgenskapVerdi(verdi);
@@ -99,6 +106,9 @@ public class FagsakEgenskapRepository {
 
     private void lagreFagsakMarkering(long fagsakId, FagsakMarkering verdi) {
         Objects.requireNonNull(verdi);
+        // Se kommentar i lagreUtlandDokumentasjonStatus - låsen forhindrer at to samtidige kall begge oppretter
+        // en aktiv egenskaprad med samme verdi.
+        fagsakLåsRepository.taLås(fagsakId);
         var eksisterende = finnEgenskapMedGittVerdi(fagsakId, verdi);
         if (eksisterende.isEmpty()) {
             lagreFagsakEgenskap(fagsakId, verdi);
@@ -107,6 +117,7 @@ public class FagsakEgenskapRepository {
 
     public void fjernFagsakMarkering(long fagsakId, FagsakMarkering verdi) {
         Objects.requireNonNull(verdi);
+        fagsakLåsRepository.taLås(fagsakId);
         var eksisterende = finnEgenskapMedGittVerdi(fagsakId, verdi);
         eksisterende.ifPresent(this::fjernFagsakEgenskap);
     }
