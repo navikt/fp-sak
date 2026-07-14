@@ -11,6 +11,8 @@ import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Venteårsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.dokument.DokumentMalType;
+import no.nav.foreldrepenger.behandlingslager.behandling.dokument.MellomlagringRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.dokument.MellomlagringType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingsprosess.prosessering.BehandlingProsesseringTjeneste;
 
@@ -21,14 +23,17 @@ public class VarselRevurderingTjeneste {
     private BehandlingProsesseringTjeneste behandlingProsesseringTjeneste;
     private DokumentBestillerTjeneste dokumentBestillerTjeneste;
     private BehandlingRepository behandlingRepository;
+    private MellomlagringRepository mellomlagringRepository;
 
     @Inject
     public VarselRevurderingTjeneste(BehandlingProsesseringTjeneste behandlingProsesseringTjeneste,
                                      DokumentBestillerTjeneste dokumentBestillerTjeneste,
-                                     BehandlingRepository behandlingRepository) {
+                                     BehandlingRepository behandlingRepository,
+                                     MellomlagringRepository mellomlagringRepository) {
         this.behandlingProsesseringTjeneste = behandlingProsesseringTjeneste;
         this.dokumentBestillerTjeneste = dokumentBestillerTjeneste;
         this.behandlingRepository = behandlingRepository;
+        this.mellomlagringRepository = mellomlagringRepository;
     }
 
     VarselRevurderingTjeneste() {
@@ -36,10 +41,15 @@ public class VarselRevurderingTjeneste {
     }
 
     public void bestillVarselRevurdering(BehandlingReferanse ref, VarselRevurderingAksjonspunktDto adapter) {
+        var harRedigertBrev = mellomlagringRepository.harMellomlagring(ref.behandlingId(),
+            MellomlagringType.fraDokumentMalType(DokumentMalType.VARSEL_OM_REVURDERING));
+        var dokumentMal = harRedigertBrev ? DokumentMalType.FRITEKST_HTML : DokumentMalType.VARSEL_OM_REVURDERING;
+        var journalførSom = harRedigertBrev ? DokumentMalType.VARSEL_OM_REVURDERING : null;
         var dokumentBestilling = DokumentBestilling.builder()
             .medBehandlingUuid(ref.behandlingUuid())
             .medSaksnummer(ref.saksnummer())
-            .medDokumentMal(DokumentMalType.VARSEL_OM_REVURDERING)
+            .medDokumentMal(dokumentMal)
+            .medJournalførSom(journalførSom)
             .build();
         dokumentBestillerTjeneste.bestillDokument(dokumentBestilling);
         settBehandlingPaVent(ref, adapter.frist(), fraDto(adapter.venteÅrsakKode()));
