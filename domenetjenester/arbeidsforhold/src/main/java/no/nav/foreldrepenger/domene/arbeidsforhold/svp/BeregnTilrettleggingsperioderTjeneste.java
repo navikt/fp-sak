@@ -20,6 +20,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.Familie
 import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.SvangerskapspengerRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.tilrettelegging.SvpGrunnlagEntitet;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.ArbeidType;
+import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.iay.modell.AktørArbeid;
 import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlag;
@@ -74,8 +75,11 @@ public class BeregnTilrettleggingsperioderTjeneste {
         var termindato = finnTermindato(behandlingReferanse.behandlingId());
         var grunnlag = iayTjeneste.finnGrunnlag(behandlingReferanse.behandlingId());
 
-        var filter = grunnlag
-                .map(g -> new YrkesaktivitetFilter(g.getArbeidsforholdInformasjon(), finnSaksbehandletEllerRegister(aktørId, g)))
+        var saksbehandletFilter = grunnlag
+                .map(g -> new YrkesaktivitetFilter(g.getArbeidsforholdInformasjon(), finnSaksbehandletVersjon(aktørId, g)))
+                .orElse(YrkesaktivitetFilter.EMPTY);
+        var registerFilter = grunnlag
+                .map(g -> new YrkesaktivitetFilter(g.getArbeidsforholdInformasjon(), g.getAktørArbeidFraRegister(aktørId)))
                 .orElse(YrkesaktivitetFilter.EMPTY);
 
         // beregner i henhold til stillingsprosent på arbeidsforholdene i Aa-reg
@@ -83,20 +87,29 @@ public class BeregnTilrettleggingsperioderTjeneste {
                 .filter(tilrettelegging -> tilrettelegging.getArbeidsgiver().isPresent()
                         && ArbeidType.ORDINÆRT_ARBEIDSFORHOLD.equals(tilrettelegging.getArbeidType()))
                 .map(a -> {
-                    var aktivitetsAvtalerForArbeid = filter.getAktivitetsAvtalerForArbeid(a.getArbeidsgiver().get(),
-                            a.getInternArbeidsforholdRef().isPresent() ? a.getInternArbeidsforholdRef().get() : InternArbeidsforholdRef.nullRef(),
-                            a.getBehovForTilretteleggingFom());
+                    var arbeidsgiver = a.getArbeidsgiver().get();
+                    var internArbeidsforholdRef = a.getInternArbeidsforholdRef().orElse(InternArbeidsforholdRef.nullRef());
+                    var behovForTilretteleggingFom = a.getBehovForTilretteleggingFom();
+
+                    var filter = velgFilter(saksbehandletFilter, registerFilter, arbeidsgiver, internArbeidsforholdRef);
+
+                    var aktivitetsAvtalerForArbeid = filter.getAktivitetsAvtalerForArbeid(arbeidsgiver, internArbeidsforholdRef,
+                            behovForTilretteleggingFom);
                     Collection<Permisjon> velferdspermisjonerForArbeid = filter
-                            .getPermisjonerForArbeid(a.getArbeidsgiver().get(),
-                                    a.getInternArbeidsforholdRef().isPresent() ? a.getInternArbeidsforholdRef().get()
-                                            : InternArbeidsforholdRef.nullRef(),
-                                    a.getBehovForTilretteleggingFom())
+                            .getPermisjonerForArbeid(arbeidsgiver, internArbeidsforholdRef, behovForTilretteleggingFom)
                             .stream()
                             .filter(p -> PermisjonsbeskrivelseType.VELFERDSPERMISJONER.contains(p.getPermisjonsbeskrivelseType()))
                             .toList();
 
-                    LOG.info("Beregner utbetalingsgrad for arbeidsgiver {} med disse aktivitetene: {}",
-                        tilMaskertNummer(a.getArbeidsgiver().get().getOrgnr()), aktivitetsAvtalerForArbeid);
+                    if (aktivitetsAvtalerForArbeid.isEmpty()) {
+                        LOG.warn(
+                            "Fant ingen aktivitetsavtaler for arbeidsgiver {} verken i saksbehandlet eller register-grunnlag."
+                                + " Kan skyldes feil/manglende data i registrene.",
+                            tilMaskertNummer(arbeidsgiver.getOrgnr()));
+                    } else {
+                        LOG.info("Beregner utbetalingsgrad for arbeidsgiver {} med disse aktivitetene: {}",
+                            tilMaskertNummer(arbeidsgiver.getOrgnr()), aktivitetsAvtalerForArbeid);
+                    }
                     return UtbetalingsgradBeregner.beregn(aktivitetsAvtalerForArbeid, a, termindato, velferdspermisjonerForArbeid);
                 })
                 .collect(Collectors.toList());
@@ -117,12 +130,19 @@ public class BeregnTilrettleggingsperioderTjeneste {
     }
 
 
-    private Optional<AktørArbeid> finnSaksbehandletEllerRegister(AktørId aktørId, InntektArbeidYtelseGrunnlag g) {
-        if (g.harBlittSaksbehandlet()) {
-            return g.getSaksbehandletVersjon()
-                    .flatMap(aggregat -> aggregat.getAktørArbeid().stream().filter(aa -> aa.getAktørId().equals(aktørId)).findFirst());
-        }
-        return g.getAktørArbeidFraRegister(aktørId);
+    private Optional<AktørArbeid> finnSaksbehandletVersjon(AktørId aktørId, InntektArbeidYtelseGrunnlag g) {
+        return g.getSaksbehandletVersjon()
+                .flatMap(aggregat -> aggregat.getAktørArbeid().stream().filter(aa -> aa.getAktørId().equals(aktørId)).findFirst());
+    }
+
+    //Bruker saksbehandlet-filteret dersom orgnummeret det skal beregnes utbetalingsgrad for finnes der, ellers registerfilteret.
+    private YrkesaktivitetFilter velgFilter(YrkesaktivitetFilter saksbehandletFilter,
+                                           YrkesaktivitetFilter registerFilter,
+                                           Arbeidsgiver arbeidsgiver,
+                                           InternArbeidsforholdRef internArbeidsforholdRef) {
+        var finnesISaksbehandletVersjon = saksbehandletFilter.getAlleYrkesaktiviteter().stream()
+                .anyMatch(yrkesaktivitet -> yrkesaktivitet.gjelderFor(arbeidsgiver, internArbeidsforholdRef));
+        return finnesISaksbehandletVersjon ? saksbehandletFilter : registerFilter;
     }
 
     private LocalDate finnTermindato(Long behandlingId) {
