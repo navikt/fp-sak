@@ -42,6 +42,7 @@ import no.nav.vedtak.konfig.Tid;
 class BeregnTilrettleggingsperioderTjenesteTest {
 
     private static final String ARBEIDSGIVER_ORGNR = KUNSTIG_ORG;
+    private static final String ANNEN_ARBEIDSGIVER_ORGNR = "999999999";
     public static final InternArbeidsforholdRef ARB_1 = InternArbeidsforholdRef.namedRef("arb1");
     public static final InternArbeidsforholdRef ARB_2 = InternArbeidsforholdRef.namedRef("arb2");
 
@@ -186,6 +187,90 @@ class BeregnTilrettleggingsperioderTjenesteTest {
         assertThat(arb1Periode2.getUtbetalingsgrad()).isEqualByComparingTo(BigDecimal.valueOf(37.50));
     }
 
+    @Test
+    void skal_falle_tilbake_til_registerdata_når_saksbehandlet_versjon_mangler_arbeidsgiveren_tilretteleggingen_gjelder_for() {
+        var scenario = IAYScenarioBuilder.morSøker(FagsakYtelseType.FORELDREPENGER);
+        var behandling = scenario.lagre(iayRepositoryProvider);
+        var termindato = LocalDate.now().plusDays(22);
+        var jordmorsdato = LocalDate.now().minusDays(10);
+        var delvisTilrettelegging = LocalDate.now();
+        var terminMinus3UkerOg1Dag = termindato.minusWeeks(3).minusDays(1);
+        lagreSøknad(behandling, termindato, LocalDate.now());
+
+        var svpGrunnlag = new SvpGrunnlagEntitet.Builder()
+                .medBehandlingId(behandling.getId())
+                .medOpprinneligeTilrettelegginger(List
+                        .of(opprettTilrettelegging(jordmorsdato, delvisTilrettelegging, BigDecimal.valueOf(40), InternArbeidsforholdRef.nullRef())))
+                .build();
+
+        svangerskapspengerRepository.lagreOgFlush(svpGrunnlag);
+        var behandlingReferanse = BehandlingReferanse.fra(behandling);
+
+        var registerBuilder = iayTjeneste.opprettBuilderForRegister(behandling.getId());
+        lagAktørArbeid(registerBuilder, behandlingReferanse.aktørId(), LocalDate.now().minusYears(1), LocalDate.now().plusYears(1));
+        iayTjeneste.lagreIayAggregat(behandling.getId(), registerBuilder);
+
+        // Saksbehandlet versjon finnes, men mangler arbeidsforhold for arbeidsgiveren tilretteleggingen faktisk gjelder for
+        var saksbehandletBuilder = iayTjeneste.opprettBuilderForSaksbehandlet(behandling.getId());
+        lagAktørArbeidForArbeidsgiver(saksbehandletBuilder, behandlingReferanse.aktørId(), ANNEN_ARBEIDSGIVER_ORGNR, LocalDate.now().minusYears(1),
+                LocalDate.now().plusYears(1));
+        iayTjeneste.lagreIayAggregat(behandling.getId(), saksbehandletBuilder);
+
+        var tilretteleggingMedUtbelingsgrad = tjeneste.beregnPerioder(behandlingReferanse);
+
+        assertThat(tilretteleggingMedUtbelingsgrad).hasSize(1);
+        var periode1 = tilretteleggingMedUtbelingsgrad.get(0).getPeriodeMedUtbetalingsgrad().get(0);
+        var periode2 = tilretteleggingMedUtbelingsgrad.get(0).getPeriodeMedUtbetalingsgrad().get(1);
+
+        assertThat(periode1.getPeriode()).isEqualTo(DatoIntervallEntitet.fraOgMedTilOgMed(jordmorsdato, delvisTilrettelegging.minusDays(1)));
+        assertThat(periode2.getPeriode()).isEqualTo(DatoIntervallEntitet.fraOgMedTilOgMed(delvisTilrettelegging, terminMinus3UkerOg1Dag));
+        assertThat(periode1.getUtbetalingsgrad()).isEqualByComparingTo(BigDecimal.valueOf(100));
+        assertThat(periode2.getUtbetalingsgrad()).isEqualByComparingTo(BigDecimal.valueOf(50));
+    }
+
+    @Test
+    void skal_bruke_saksbehandlet_versjon_når_arbeidsgiveren_finnes_der_selv_om_register_har_data_om_arbeidsgiver() {
+        var scenario = IAYScenarioBuilder.morSøker(FagsakYtelseType.FORELDREPENGER);
+        var behandling = scenario.lagre(iayRepositoryProvider);
+        var termindato = LocalDate.now().plusDays(22);
+        var jordmorsdato = LocalDate.now().minusDays(10);
+        var delvisTilrettelegging = LocalDate.now();
+        var terminMinus3UkerOg1Dag = termindato.minusWeeks(3).minusDays(1);
+        lagreSøknad(behandling, termindato, LocalDate.now());
+
+        var svpGrunnlag = new SvpGrunnlagEntitet.Builder()
+                .medBehandlingId(behandling.getId())
+                .medOpprinneligeTilrettelegginger(List
+                        .of(opprettTilrettelegging(jordmorsdato, delvisTilrettelegging, BigDecimal.valueOf(40), InternArbeidsforholdRef.nullRef())))
+                .build();
+
+        svangerskapspengerRepository.lagreOgFlush(svpGrunnlag);
+        var behandlingReferanse = BehandlingReferanse.fra(behandling);
+
+        // Registeret har data for arbeidsgiveren med stillingsprosent 80, men saksbehandlet versjon skal ha forrang
+        var registerBuilder = iayTjeneste.opprettBuilderForRegister(behandling.getId());
+        lagAktørArbeid(registerBuilder, behandlingReferanse.aktørId(), LocalDate.now().minusYears(1), LocalDate.now().plusYears(1));
+        iayTjeneste.lagreIayAggregat(behandling.getId(), registerBuilder);
+
+        var saksbehandletBuilder = iayTjeneste.opprettBuilderForSaksbehandlet(behandling.getId());
+        lagAktørArbeidForArbeidsgiver(saksbehandletBuilder, behandlingReferanse.aktørId(), ARBEIDSGIVER_ORGNR, LocalDate.now().minusYears(1),
+                LocalDate.now().plusYears(1), BigDecimal.valueOf(100));
+        iayTjeneste.lagreIayAggregat(behandling.getId(), saksbehandletBuilder);
+
+        var tilretteleggingMedUtbelingsgrad = tjeneste.beregnPerioder(behandlingReferanse);
+
+        assertThat(tilretteleggingMedUtbelingsgrad).hasSize(1);
+        var periode1 = tilretteleggingMedUtbelingsgrad.get(0).getPeriodeMedUtbetalingsgrad().get(0);
+        var periode2 = tilretteleggingMedUtbelingsgrad.get(0).getPeriodeMedUtbetalingsgrad().get(1);
+
+        assertThat(periode1.getPeriode()).isEqualTo(DatoIntervallEntitet.fraOgMedTilOgMed(jordmorsdato, delvisTilrettelegging.minusDays(1)));
+        assertThat(periode2.getPeriode()).isEqualTo(DatoIntervallEntitet.fraOgMedTilOgMed(delvisTilrettelegging, terminMinus3UkerOg1Dag));
+        assertThat(periode1.getUtbetalingsgrad()).isEqualByComparingTo(BigDecimal.valueOf(100));
+        // Stillingsprosent 100 (saksbehandlet) og delvis tilrettelegging 40 gir (100-40)/100*100 = 60,
+        // mens registerets stillingsprosent på 80 ville gitt 50. Bekrefter at saksbehandlet-versjonen brukes.
+        assertThat(periode2.getUtbetalingsgrad()).isEqualByComparingTo(BigDecimal.valueOf(60));
+    }
+
     private SvpTilretteleggingEntitet opprettTilrettelegging(LocalDate jordmorsdato, LocalDate delvis, BigDecimal stillingsprosent,
             InternArbeidsforholdRef ref) {
         return new SvpTilretteleggingEntitet.Builder()
@@ -241,6 +326,39 @@ class BeregnTilrettleggingsperioderTjenesteTest {
 
         var prosent = yrkesaktivitetBuilder.getAktivitetsAvtaleBuilder(DatoIntervallEntitet.fraOgMedTilOgMed(fom, tom), false);
         prosent.medProsentsats(BigDecimal.valueOf(80));
+
+        yrkesaktivitetBuilder
+                .leggTilAktivitetsAvtale(aktivitetsAvtale)
+                .leggTilAktivitetsAvtale(prosent)
+                .medArbeidType(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD)
+                .medArbeidsgiver(arbeidsgiver);
+
+        aktørArbeidBuilder.leggTilYrkesaktivitet(yrkesaktivitetBuilder);
+        inntektArbeidYtelseAggregatBuilder.leggTilAktørArbeid(aktørArbeidBuilder);
+    }
+
+    private void lagAktørArbeidForArbeidsgiver(InntektArbeidYtelseAggregatBuilder inntektArbeidYtelseAggregatBuilder, AktørId aktørId,
+            String orgnr, LocalDate fom, LocalDate tom) {
+        lagAktørArbeidForArbeidsgiver(inntektArbeidYtelseAggregatBuilder, aktørId, orgnr, fom, tom, BigDecimal.valueOf(80));
+    }
+
+    private void lagAktørArbeidForArbeidsgiver(InntektArbeidYtelseAggregatBuilder inntektArbeidYtelseAggregatBuilder, AktørId aktørId,
+            String orgnr, LocalDate fom, LocalDate tom, BigDecimal stillingsprosent) {
+        var aktørArbeidBuilder = inntektArbeidYtelseAggregatBuilder
+                .getAktørArbeidBuilder(aktørId);
+
+        var opptjeningsnøkkel = Opptjeningsnøkkel.forOrgnummer(orgnr);
+        var arbeidsgiver = Arbeidsgiver.virksomhet(orgnr);
+
+        var yrkesaktivitetBuilder = aktørArbeidBuilder.getYrkesaktivitetBuilderForNøkkelAvType(opptjeningsnøkkel,
+                ArbeidType.ORDINÆRT_ARBEIDSFORHOLD);
+        var aktivitetsAvtaleBuilder = yrkesaktivitetBuilder
+                .getAktivitetsAvtaleBuilder(DatoIntervallEntitet.fraOgMedTilOgMed(fom, tom), true);
+
+        var aktivitetsAvtale = aktivitetsAvtaleBuilder.medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(fom, tom));
+
+        var prosent = yrkesaktivitetBuilder.getAktivitetsAvtaleBuilder(DatoIntervallEntitet.fraOgMedTilOgMed(fom, tom), false);
+        prosent.medProsentsats(stillingsprosent);
 
         yrkesaktivitetBuilder
                 .leggTilAktivitetsAvtale(aktivitetsAvtale)
