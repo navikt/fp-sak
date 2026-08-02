@@ -51,7 +51,7 @@ public class SøknadDataFraTidligereVedtakTjeneste {
             forrigeUttak.getGjeldendePerioder().getPerioder().stream()
                 .anyMatch(p -> p.getAktiviteter().stream().map(UttakResultatPeriodeAktivitetEntitet::getTrekkonto).anyMatch(UttakPeriodeType.FORELDREPENGER::equals));
         // Skal ikke legge inn fri utsettelse for å markere start på endring i søknaden for førstegangsbehandlinger eller BFHR
-        var beholdSenestePeriode = !behandling.erRevurdering() || foreldrepenger && !RelasjonsRolleType.MORA.equals(behandling.getRelasjonsRolleType());
+        var beholdSenestePeriode = !behandling.erRevurdering() || (foreldrepenger && !RelasjonsRolleType.MORA.equals(behandling.getRelasjonsRolleType()));
         return VedtaksperiodeFilter.filtrerVekkPerioderSomErLikeInnvilgetUttak(behandling.getId(), nysøknad, forrigeUttak, beholdSenestePeriode);
     }
 

@@ -5,6 +5,9 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,6 +17,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeType;
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.OppholdÅrsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.UtsettelseÅrsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.Årsak;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.SamtidigUttaksprosent;
@@ -27,10 +31,13 @@ import no.nav.foreldrepenger.skjæringstidspunkt.overganger.UtsettelseCore2021;
 import no.nav.fpsak.tidsserie.LocalDateInterval;
 import no.nav.fpsak.tidsserie.LocalDateSegment;
 import no.nav.fpsak.tidsserie.LocalDateTimeline;
+import no.nav.fpsak.tidsserie.StandardCombinators;
 
 public final class VedtaksperiodeFilter {
 
     private static final Logger LOG = LoggerFactory.getLogger(VedtaksperiodeFilter.class);
+
+    private static final Set<UtsettelseÅrsak> UTS_14_11 = Set.of(UtsettelseÅrsak.SYKDOM, UtsettelseÅrsak.INSTITUSJON_BARN, UtsettelseÅrsak.INSTITUSJON_SØKER);
 
     private VedtaksperiodeFilter() {
     }
@@ -107,32 +114,56 @@ public final class VedtaksperiodeFilter {
     }
 
     private static LocalDate finnTidligsteUlikhetSøknadUttak(List<OppgittPeriodeEntitet> nysøknad, UttakResultatEntitet uttakResultatFraForrigeBehandling) {
-        // Tidslinje og tidligste/seneste dato fra ny søknad
-        var tidligsteFom = nysøknad.stream().map(OppgittPeriodeEntitet::getFom).min(Comparator.naturalOrder()).orElseThrow();
-        var segmenterSøknad = nysøknad.stream().map(VedtaksperiodeFilter::segmentForOppgittPeriode).toList();
-        var tidslinjeSammenlignSøknad =  new LocalDateTimeline<>(segmenterSøknad);
+        // Tidslinje fra ny søknad
+        var tidslinjeSøknad =  nysøknad.stream().map(VedtaksperiodeFilter::segmentForOppgittPeriode)
+            .collect(Collectors.collectingAndThen(Collectors.toList(), LocalDateTimeline::new));
+        var søknadPaddingPeriode = segmentForOppgittPeriode(lagFriUtsettelse(tidslinjeSøknad.getMinLocalDate(), tidslinjeSøknad.getMaxLocalDate()));
+        var paddingSøknad = new LocalDateTimeline<>(List.of(søknadPaddingPeriode));
+        var tidslinjeSøknadPadded = tidslinjeSøknad.combine(paddingSøknad, StandardCombinators::coalesceLeftHandSide, LocalDateTimeline.JoinStyle.CROSS_JOIN);
 
-        // Tidslinje for innvilgete peridoder fra forrige uttaksresultat - kun fom tidligstedato
-        var gjeldendeVedtaksperioder = opprettOppgittePerioderKunInnvilget(uttakResultatFraForrigeBehandling, tidligsteFom);
-        var segmenterVedtak = gjeldendeVedtaksperioder.stream().map(VedtaksperiodeFilter::segmentForOppgittPeriode).toList();
-        // Ser kun på perioder fom tidligsteFom fra søknad.
-        var tidslinjeSammenlignVedtak =  new LocalDateTimeline<>(segmenterVedtak).intersection(new LocalDateInterval(tidligsteFom, LocalDateInterval.TIDENES_ENDE));
+        // Tidslinje for innvilgete peridoder fra forrige uttaksresultat
+        var tidslinjeVedtak = opprettOppgittePerioderKunInnvilget(uttakResultatFraForrigeBehandling).stream().map(VedtaksperiodeFilter::segmentForOppgittPeriode)
+            .collect(Collectors.collectingAndThen(Collectors.toList(), LocalDateTimeline::new))
+            .intersection(søknadPaddingPeriode.getLocalDateInterval());
 
         // Finner segmenter der de to tidslinjene (søknad vs vedtakFomTidligsteDatoSøknad) er ulike
-        var ulike = tidslinjeSammenlignSøknad.combine(tidslinjeSammenlignVedtak, (i, l, r) -> new LocalDateSegment<>(i, !Objects.equals(l ,r)), LocalDateTimeline.JoinStyle.CROSS_JOIN)
-            .filterValue(v -> v);
+        var ulike = tidslinjeSøknadPadded.combine(tidslinjeVedtak, VedtaksperiodeFilter::ekvivalentSøknadVedtak, LocalDateTimeline.JoinStyle.CROSS_JOIN)
+            .filterValue(v -> !v);
 
         // Første segment med ulikhet
-        return ulike.getLocalDateIntervals().stream().map(LocalDateInterval::getFomDato).min(Comparator.naturalOrder()).orElse(null);
+        return ulike.getLocalDateIntervals().stream().map(LocalDateInterval::getFomDato).min(Comparator.naturalOrder()).orElse(null); // TODO vurder helgejustering til mandag
     }
 
-    private static List<OppgittPeriodeEntitet> opprettOppgittePerioderKunInnvilget(UttakResultatEntitet uttakResultatFraForrigeBehandling, LocalDate perioderFom) {
+    private static LocalDateSegment<Boolean> ekvivalentSøknadVedtak(LocalDateInterval i,
+                                                             LocalDateSegment<SammenligningPeriodeForOppgitt> søknad,
+                                                             LocalDateSegment<SammenligningPeriodeForOppgitt> vedtak) {
+        var søknadVerdi = Optional.ofNullable(søknad).map(LocalDateSegment::getValue).orElse(null);
+        var vedtakVerdi = Optional.ofNullable(vedtak).map(LocalDateSegment::getValue).orElse(null);
+        if (UtsettelseCore2021.kreverSammenhengendeUttak(i.getFomDato()) || !kanIgnorerePeriode(søknadVerdi) || !kanIgnorerePeriode(vedtakVerdi)) {
+            return new LocalDateSegment<>(i, Objects.equals(søknadVerdi, vedtakVerdi));
+        } else {
+            return new LocalDateSegment<>(i, true);
+        }
+    }
+
+    private static boolean kanIgnorerePeriode(SammenligningPeriodeForOppgitt periode) {
+        if (periode == null || periode.årsak() instanceof OppholdÅrsak) {
+            return true;
+        } else if (periode.årsak() instanceof UtsettelseÅrsak utsettelse) {
+            // TODO: gjennomgå logikk. Nå er det fokus på BFHR (morsaktivitet) og 3 årsaker (uansett første 6u eller senere)
+            // Selvbetjening bør tillate sykdom/institusjon kun for mor/6u og BFHR - ellers bare arbeid/ferie/fri
+            return !UTS_14_11.contains(utsettelse) && !MorsAktivitet.forventerDokumentasjon(periode.morsAktivitet());
+        } else {
+            return false;
+        }
+    }
+
+    private static List<OppgittPeriodeEntitet> opprettOppgittePerioderKunInnvilget(UttakResultatEntitet uttakResultatFraForrigeBehandling) {
         return uttakResultatFraForrigeBehandling.getGjeldendePerioder()
             .getPerioder()
             .stream()
-            .filter(UttakResultatPeriodeEntitet::isInnvilget)
-            .filter(p -> !p.getTom().isBefore(perioderFom))
-            .filter(p -> p.getPeriodeSøknad().isPresent()) // Tja - ta med evt utsettelse pleiepenger?
+            .filter(UttakResultatPeriodeEntitet::isInnvilget) // TODO vurder om avslått (utsettelse) bør med - hjelper på sykdom etter 6u.
+            .filter(p -> p.getPeriodeSøknad().isPresent()) // TODO vurder om disse bør med. Når mangler det periodeSøknad?
             .filter(p -> !p.getTidsperiode().erHelg())
             .map(VedtaksperioderHelper::konverter)
             .toList();
