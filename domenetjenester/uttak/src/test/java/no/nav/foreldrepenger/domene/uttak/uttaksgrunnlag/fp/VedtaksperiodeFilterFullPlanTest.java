@@ -367,10 +367,9 @@ class VedtaksperiodeFilterFullPlanTest {
         }
 
         @Test
-        void innvilget_vedtaksperiode_uten_periodesoknad_blir_et_hull_og_gir_falsk_endring() {
-            // Til forskjell fra de to over er dette en reell falsk positiv: perioden er innvilget og
-            // presenteres for bruker, men filtreres bort av opprettOppgittePerioderKunInnvilget fordi
-            // VedtaksperioderHelper.konverter krever periodeSøknad. Planen gjentar den uendret.
+        void innvilget_vedtaksperiode_uten_periodesoknad_tas_med_riktig_endring() {
+            // En periode er innvilget manuelt uten søknad (typisk manglende søkt).
+            // Planen gjentar den uendret og utvider med ekstra dager.
             var systemFom = LocalDate.of(2024, 2, 1);
             var systemTom = LocalDate.of(2024, 2, 15);
             var vedtak = List.of(
@@ -380,8 +379,7 @@ class VedtaksperiodeFilterFullPlanTest {
                 vedtaksperiode(systemTom.plusDays(1), MK_TOM, UttakPeriodeType.MØDREKVOTE, PeriodeResultatType.INNVILGET, true),
                 vedtaksperiode(FP_FOM, FP_TOM, UttakPeriodeType.FELLESPERIODE, PeriodeResultatType.INNVILGET, true));
 
-            // MÅLBILDE: HALE_FOM - krever at perioder uten periodeSøknad projiseres fra resultatet
-            assertThat(endringsdato(planMedHale(), uttak(vedtak), false)).isEqualTo(systemFom);
+            assertThat(endringsdato(planMedHale(), uttak(vedtak), false)).isEqualTo(HALE_FOM);
         }
     }
 

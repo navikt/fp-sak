@@ -31,7 +31,6 @@ import no.nav.foreldrepenger.skjæringstidspunkt.overganger.UtsettelseCore2021;
 import no.nav.fpsak.tidsserie.LocalDateInterval;
 import no.nav.fpsak.tidsserie.LocalDateSegment;
 import no.nav.fpsak.tidsserie.LocalDateTimeline;
-import no.nav.fpsak.tidsserie.StandardCombinators;
 
 public final class VedtaksperiodeFilter {
 
@@ -117,21 +116,20 @@ public final class VedtaksperiodeFilter {
         // Tidslinje fra ny søknad
         var tidslinjeSøknad =  nysøknad.stream().map(VedtaksperiodeFilter::segmentForOppgittPeriode)
             .collect(Collectors.collectingAndThen(Collectors.toList(), LocalDateTimeline::new));
-        var søknadPaddingPeriode = segmentForOppgittPeriode(lagFriUtsettelse(tidslinjeSøknad.getMinLocalDate(), tidslinjeSøknad.getMaxLocalDate()));
-        var paddingSøknad = new LocalDateTimeline<>(List.of(søknadPaddingPeriode));
-        var tidslinjeSøknadPadded = tidslinjeSøknad.combine(paddingSøknad, StandardCombinators::coalesceLeftHandSide, LocalDateTimeline.JoinStyle.CROSS_JOIN);
+        var søknadIntervall = new LocalDateInterval(tidslinjeSøknad.getMinLocalDate(), tidslinjeSøknad.getMaxLocalDate());
 
-        // Tidslinje for innvilgete peridoder fra forrige uttaksresultat
-        var tidslinjeVedtak = opprettOppgittePerioderKunInnvilget(uttakResultatFraForrigeBehandling).stream().map(VedtaksperiodeFilter::segmentForOppgittPeriode)
+        // Tidslinje for innvilgete peridoder fra forrige uttaksresultat - begrenset til søknadsintervallet.
+        var tidslinjeVedtak = opprettOppgittePerioderKunInnvilget(uttakResultatFraForrigeBehandling).stream()
+            .map(VedtaksperiodeFilter::segmentForOppgittPeriode)
             .collect(Collectors.collectingAndThen(Collectors.toList(), LocalDateTimeline::new))
-            .intersection(søknadPaddingPeriode.getLocalDateInterval());
+            .intersection(søknadIntervall);
 
         // Finner segmenter der de to tidslinjene (søknad vs vedtakFomTidligsteDatoSøknad) er ulike
-        var ulike = tidslinjeSøknadPadded.combine(tidslinjeVedtak, VedtaksperiodeFilter::ekvivalentSøknadVedtak, LocalDateTimeline.JoinStyle.CROSS_JOIN)
+        var ulike = tidslinjeSøknad.combine(tidslinjeVedtak, VedtaksperiodeFilter::ekvivalentSøknadVedtak, LocalDateTimeline.JoinStyle.CROSS_JOIN)
             .filterValue(v -> !v);
 
         // Første segment med ulikhet
-        return ulike.getLocalDateIntervals().stream().map(LocalDateInterval::getFomDato).min(Comparator.naturalOrder()).orElse(null); // TODO vurder helgejustering til mandag
+        return ulike.getLocalDateIntervals().stream().map(LocalDateInterval::getFomDato).min(Comparator.naturalOrder()).orElse(null);
     }
 
     private static LocalDateSegment<Boolean> ekvivalentSøknadVedtak(LocalDateInterval i,
@@ -162,7 +160,6 @@ public final class VedtaksperiodeFilter {
             .getPerioder()
             .stream()
             .filter(UttakResultatPeriodeEntitet::isInnvilget) // evt avslått utsettelse med dok må vurderes på nytt
-            .filter(p -> p.getPeriodeSøknad().isPresent()) // Tar ikke med manglende søkt - disse skal behandles
             .filter(p -> !p.getTidsperiode().erHelg())
             .map(VedtaksperioderHelper::konverter)
             .toList();
