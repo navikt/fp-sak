@@ -162,8 +162,8 @@ public final class VedtaksperiodeFilter {
         return uttakResultatFraForrigeBehandling.getGjeldendePerioder()
             .getPerioder()
             .stream()
-            .filter(UttakResultatPeriodeEntitet::isInnvilget) // TODO vurder om avslått (utsettelse) bør med - hjelper på sykdom etter 6u.
-            .filter(p -> p.getPeriodeSøknad().isPresent()) // TODO vurder om disse bør med. Når mangler det periodeSøknad?
+            .filter(UttakResultatPeriodeEntitet::isInnvilget) // evt avslått utsettelse med dok må vurderes på nytt
+            .filter(p -> p.getPeriodeSøknad().isPresent()) // Tar ikke med manglende søkt - disse skal behandles
             .filter(p -> !p.getTidsperiode().erHelg())
             .map(VedtaksperioderHelper::konverter)
             .toList();
