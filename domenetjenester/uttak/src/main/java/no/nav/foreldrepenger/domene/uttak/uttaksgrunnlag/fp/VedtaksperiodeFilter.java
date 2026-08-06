@@ -139,22 +139,21 @@ public final class VedtaksperiodeFilter {
                                                              LocalDateSegment<SammenligningPeriodeForOppgitt> vedtak) {
         var søknadVerdi = Optional.ofNullable(søknad).map(LocalDateSegment::getValue).orElse(null);
         var vedtakVerdi = Optional.ofNullable(vedtak).map(LocalDateSegment::getValue).orElse(null);
-        if (UtsettelseCore2021.kreverSammenhengendeUttak(i.getFomDato()) || !kanIgnorerePeriode(søknadVerdi) || !kanIgnorerePeriode(vedtakVerdi)) {
+        if (UtsettelseCore2021.kreverSammenhengendeUttak(i.getFomDato()) || skalVurderePeriode(søknadVerdi) || skalVurderePeriode(vedtakVerdi)) {
             return new LocalDateSegment<>(i, Objects.equals(søknadVerdi, vedtakVerdi));
         } else {
             return new LocalDateSegment<>(i, true);
         }
     }
 
-    private static boolean kanIgnorerePeriode(SammenligningPeriodeForOppgitt periode) {
+    private static boolean skalVurderePeriode(SammenligningPeriodeForOppgitt periode) {
         if (periode == null || periode.årsak() instanceof OppholdÅrsak) {
-            return true;
-        } else if (periode.årsak() instanceof UtsettelseÅrsak utsettelse) {
-            // TODO: gjennomgå logikk. Nå er det fokus på BFHR (morsaktivitet) og 3 årsaker (uansett første 6u eller senere)
-            // Selvbetjening bør tillate sykdom/institusjon kun for mor/6u og BFHR - ellers bare arbeid/ferie/fri
-            return !UTS_14_11.contains(utsettelse) && !MorsAktivitet.forventerDokumentasjon(periode.morsAktivitet());
-        } else {
             return false;
+        } else if (periode.årsak() instanceof UtsettelseÅrsak utsettelse) {
+            // Mor første 6 uker og BFHR (morsaktivitet) skal behandles. Selvbetjening støtter dette.
+            return UTS_14_11.contains(utsettelse) || MorsAktivitet.forventerDokumentasjon(periode.morsAktivitet());
+        } else {
+            return true;
         }
     }
 
