@@ -11,6 +11,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.Collections;
 import java.util.List;
@@ -28,8 +29,13 @@ import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.Oppgitt
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittFordelingEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.OppholdÅrsak;
 import no.nav.foreldrepenger.behandlingslager.uttak.PeriodeResultatType;
+import no.nav.foreldrepenger.behandlingslager.uttak.Utbetalingsgrad;
+import no.nav.foreldrepenger.behandlingslager.uttak.UttakArbeidType;
 import no.nav.foreldrepenger.behandlingslager.uttak.Uttaksperiodegrense;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.PeriodeResultatÅrsak;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.Trekkdager;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakAktivitetEntitet;
+import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPeriodeAktivitetEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPeriodeEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPeriodeSøknadEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPerioderEntitet;
@@ -45,6 +51,7 @@ import no.nav.foreldrepenger.domene.uttak.input.UttakInput;
 import no.nav.foreldrepenger.domene.uttak.testutilities.behandling.ScenarioFarSøkerForeldrepenger;
 import no.nav.foreldrepenger.domene.uttak.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
 import no.nav.foreldrepenger.domene.uttak.testutilities.behandling.UttakRepositoryStubProvider;
+import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.Virkedager;
 
 class FastsettUttaksgrunnlagTjenesteTest {
 
@@ -466,6 +473,13 @@ class FastsettUttaksgrunnlagTjenesteTest {
         var fordeling = new OppgittFordelingEntitet(List.of(mødrekvote1, mødrekvote2), true);
         var uttaksperiode = new UttakResultatPeriodeEntitet.Builder(mødrekvote1.getFom(), mødrekvote2.getTom())
             .medResultatType(PeriodeResultatType.INNVILGET, PeriodeResultatÅrsak.KVOTE_ELLER_OVERFØRT_KVOTE)
+            .build();
+        var uttakaktivitet =  new UttakAktivitetEntitet.Builder().medUttakArbeidType(UttakArbeidType.SELVSTENDIG_NÆRINGSDRIVENDE).build();
+        new UttakResultatPeriodeAktivitetEntitet.Builder(uttaksperiode, uttakaktivitet)
+            .medTrekkonto(MØDREKVOTE)
+            .medTrekkdager(new Trekkdager(Virkedager.beregnAntallVirkedager(uttaksperiode.getFom(), uttaksperiode.getTom())))
+            .medArbeidsprosent(BigDecimal.ZERO)
+            .medUtbetalingsgrad(Utbetalingsgrad.FULL)
             .build();
         var uttak = new UttakResultatPerioderEntitet().leggTilPeriode(uttaksperiode);
         var førstegangsbehandlingScenario = scenarioMorFødsel()

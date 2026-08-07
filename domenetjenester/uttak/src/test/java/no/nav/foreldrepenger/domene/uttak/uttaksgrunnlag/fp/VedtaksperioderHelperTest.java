@@ -26,7 +26,6 @@ import no.nav.foreldrepenger.behandlingslager.uttak.UttakArbeidType;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.MorsStillingsprosent;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.PeriodeResultatÅrsak;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.SamtidigUttaksprosent;
-import no.nav.foreldrepenger.behandlingslager.uttak.fp.StønadskontoType;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.Trekkdager;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakAktivitetEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatDokRegelEntitet;
@@ -622,7 +621,7 @@ class VedtaksperioderHelperTest {
     }
 
     @Test
-    void skal_ikke_ta_med_uttak_periode_som_ikke_er_knyttet_til_søknadsperiode() {
+    void skal_ta_med_uttak_periode_som_ikke_er_knyttet_til_søknadsperiode() {
         var uttakResultatPerioderEntitet = new UttakResultatPerioderEntitet();
         uttakResultatPerioderEntitet.leggTilPeriode(
             nyPeriode(PeriodeResultatType.INNVILGET, fødselsdato.minusWeeks(3), fødselsdato.minusDays(1),
@@ -637,11 +636,11 @@ class VedtaksperioderHelperTest {
         var perioder = VedtaksperioderHelper.opprettOppgittePerioder(uttakResultatEntitet, List.of(),
             fødselsdato.minusWeeks(3), false);
 
-        assertThat(perioder).hasSize(1);
+        assertThat(perioder).hasSize(2);
 
-        assertThat(perioder.get(0).getPeriodeType()).isEqualTo(UttakPeriodeType.MØDREKVOTE);
-        assertThat(perioder.get(0).getFom()).isEqualTo(fødselsdato);
-        assertThat(perioder.get(0).getTom()).isEqualTo(fødselsdato.plusWeeks(6).minusDays(1));
+        assertThat(perioder.getLast().getPeriodeType()).isEqualTo(UttakPeriodeType.MØDREKVOTE);
+        assertThat(perioder.getLast().getFom()).isEqualTo(fødselsdato);
+        assertThat(perioder.getLast().getTom()).isEqualTo(fødselsdato.plusWeeks(6).minusDays(1));
     }
 
     @Test

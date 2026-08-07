@@ -2,6 +2,7 @@ package no.nav.foreldrepenger.domene.uttak.uttaksgrunnlag.fp;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -73,7 +74,7 @@ public class VedtaksperioderHelper {
             .filter(p -> beholdAvslåttePerioderFrittUttak || UtsettelseCore2021.kreverSammenhengendeUttak(p) || !avslåttIngenTrekkdager(p))
             .filter(p -> !avslåttPgaAvTaptPeriodeTilAnnenpart(p))
             .filter(p -> filtrerFørsteSøknadsdato(p, førsteSøknadsdato))
-            .filter(VedtaksperioderHelper::erPeriodeFraSøknad)
+            .filter(p -> VedtaksperioderHelper.erPeriodeFraSøknad(p) || p.isInnvilget())
             .map(VedtaksperioderHelper::konverter)
             .flatMap(p -> klipp(p, fraDato, førsteSøknadsdato))
             .toList();
@@ -120,6 +121,7 @@ public class VedtaksperioderHelper {
 
     static OppgittPeriodeEntitet konverter(UttakResultatPeriodeEntitet up) {
         var samtidigUttaksprosent = finnSamtidigUttaksprosent(up).orElse(null);
+        var uttakOpprettet = Optional.ofNullable(up.getOpprettetTidspunkt()).map(LocalDateTime::toLocalDate).orElse(null);
         var builder = OppgittPeriodeBuilder.ny()
             .medPeriode(up.getTidsperiode().getFomDato(), up.getTidsperiode().getTomDato())
             .medPeriodeType(finnPeriodetype(up))
@@ -136,8 +138,8 @@ public class VedtaksperioderHelper {
         finnGradertArbeidsgiver(up).ifPresent(builder::medArbeidsgiver);
         finnOppholdsÅrsak(up).ifPresent(builder::medÅrsak);
         finnOverføringÅrsak(up).ifPresent(builder::medÅrsak);
-        builder.medMottattDato(up.getPeriodeSøknad().orElseThrow().getMottattDato());
-        builder.medTidligstMottattDato(up.getPeriodeSøknad().orElseThrow().getTidligstMottattDato().orElse(null));
+        builder.medMottattDato(up.getPeriodeSøknad().map(UttakResultatPeriodeSøknadEntitet::getMottattDato).orElse(uttakOpprettet));
+        builder.medTidligstMottattDato(up.getPeriodeSøknad().flatMap(UttakResultatPeriodeSøknadEntitet::getTidligstMottattDato).orElse(uttakOpprettet));
 
         return builder.build();
     }
