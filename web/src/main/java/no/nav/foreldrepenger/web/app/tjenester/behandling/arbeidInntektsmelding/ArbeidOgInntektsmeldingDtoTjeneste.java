@@ -21,6 +21,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.arbeidsforhold.Arbeidsf
 import no.nav.foreldrepenger.behandlingslager.behandling.arbeidsforhold.ArbeidsforholdValg;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.MottatteDokumentRepository;
+import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.dokumentarkiv.ArkivJournalPost;
 import no.nav.foreldrepenger.dokumentarkiv.DokumentArkivTjeneste;
 import no.nav.foreldrepenger.domene.arbeidInntektsmelding.ArbeidsforholdInntektsmeldingMangelTjeneste;
@@ -32,6 +33,7 @@ import no.nav.foreldrepenger.domene.arbeidInntektsmelding.dto.InntektDto;
 import no.nav.foreldrepenger.domene.arbeidInntektsmelding.dto.InntektsmeldingDto;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektsmeldingTjeneste;
+import no.nav.foreldrepenger.domene.arbeidsforhold.impl.InntektsmeldingRegisterTjeneste;
 import no.nav.foreldrepenger.domene.iay.modell.AktørArbeid;
 import no.nav.foreldrepenger.domene.iay.modell.ArbeidsforholdInformasjon;
 import no.nav.foreldrepenger.domene.iay.modell.ArbeidsforholdReferanse;
@@ -53,6 +55,7 @@ public class ArbeidOgInntektsmeldingDtoTjeneste {
     private DokumentArkivTjeneste dokumentArkivTjeneste;
     private ArbeidsforholdInntektsmeldingMangelTjeneste arbeidsforholdInntektsmeldingMangelTjeneste;
     private BehandlingRepository behandlingRepository;
+    private InntektsmeldingRegisterTjeneste inntektsmeldingRegisterTjeneste;
 
     ArbeidOgInntektsmeldingDtoTjeneste() {
         // CDI
@@ -64,13 +67,15 @@ public class ArbeidOgInntektsmeldingDtoTjeneste {
                                               InntektsmeldingTjeneste inntektsmeldingTjeneste,
                                               DokumentArkivTjeneste dokumentArkivTjeneste,
                                               ArbeidsforholdInntektsmeldingMangelTjeneste arbeidsforholdInntektsmeldingMangelTjeneste,
-                                              BehandlingRepository behandlingRepository) {
+                                              BehandlingRepository behandlingRepository,
+                                              InntektsmeldingRegisterTjeneste inntektsmeldingRegisterTjeneste) {
         this.inntektArbeidYtelseTjeneste = inntektArbeidYtelseTjeneste;
         this.mottatteDokumentRepository = mottatteDokumentRepository;
         this.inntektsmeldingTjeneste = inntektsmeldingTjeneste;
         this.dokumentArkivTjeneste = dokumentArkivTjeneste;
         this.arbeidsforholdInntektsmeldingMangelTjeneste = arbeidsforholdInntektsmeldingMangelTjeneste;
         this.behandlingRepository = behandlingRepository;
+        this.inntektsmeldingRegisterTjeneste = inntektsmeldingRegisterTjeneste;
     }
 
     public Optional<ArbeidOgInntektsmeldingDto> lagDto(BehandlingReferanse referanse, Skjæringstidspunkt skjæringstidspunkt) {
@@ -85,7 +90,7 @@ public class ArbeidOgInntektsmeldingDtoTjeneste {
         }
         var saksbehandlersVurderinger = arbeidsforholdInntektsmeldingMangelTjeneste.hentArbeidsforholdValgForSak(referanse);
         var inntektsmeldinger = hentInntektsmeldingerForIayGrunnlag(iayGrunnlag, referanse, skjæringstidspunkt.getUtledetSkjæringstidspunkt(), mangler, saksbehandlersVurderinger);
-        var arbeidsforhold = mapArbeidsforhold(iayGrunnlag, referanse, skjæringstidspunkt.getUtledetSkjæringstidspunkt(), mangler, saksbehandlersVurderinger);
+        var arbeidsforhold = mapArbeidsforhold(iayGrunnlag, referanse, skjæringstidspunkt, skjæringstidspunkt.getUtledetSkjæringstidspunkt(), mangler, saksbehandlersVurderinger);
         var inntekter = mapInntekter(iayGrunnlag, referanse, skjæringstidspunkt.getUtledetSkjæringstidspunkt());
         return Optional.of(new ArbeidOgInntektsmeldingDto(inntektsmeldinger, arbeidsforhold, inntekter, skjæringstidspunkt.getUtledetSkjæringstidspunkt()));
     }
@@ -116,6 +121,7 @@ public class ArbeidOgInntektsmeldingDtoTjeneste {
 
     private List<ArbeidsforholdDto> mapArbeidsforhold(InntektArbeidYtelseGrunnlag iayGrunnlag,
                                                       BehandlingReferanse behandlingReferanse,
+                                                      Skjæringstidspunkt skjæringstidspunkt,
                                                       LocalDate stp,
                                                       List<ArbeidsforholdMangel> mangler,
                                                       List<ArbeidsforholdValg> saksbehandlersVurderinger) {
@@ -125,8 +131,12 @@ public class ArbeidOgInntektsmeldingDtoTjeneste {
         var referanser = iayGrunnlag.getArbeidsforholdInformasjon()
             .map(ArbeidsforholdInformasjon::getArbeidsforholdReferanser)
             .orElse(Collections.emptyList());
+
+        var inaktiveArbeidsgivere = inntektsmeldingRegisterTjeneste.hentArbeidsgivereFiltrertUtSomInaktive(behandlingReferanse, skjæringstidspunkt);
+        var permisjonArbeidsgivere = inntektsmeldingRegisterTjeneste.hentArbeidsgivereFiltrertUtPgaPermisjon(behandlingReferanse, skjæringstidspunkt);
+
         var arbeidsforholdFraRegister = ArbeidOgInntektsmeldingMapper.mapArbeidsforhold(filter, referanser,
-            stp, mangler, saksbehandlersVurderinger, iayGrunnlag.getArbeidsforholdOverstyringer());
+            stp, mangler, saksbehandlersVurderinger, iayGrunnlag.getArbeidsforholdOverstyringer(), inaktiveArbeidsgivere, permisjonArbeidsgivere);
         var arbeidsforholdFraOverstyringer = ArbeidOgInntektsmeldingMapper.mapManueltOpprettedeArbeidsforhold(
             iayGrunnlag.getArbeidsforholdOverstyringer(), referanser, mangler);
 

@@ -83,6 +83,39 @@ public class InntektsmeldingRegisterTjeneste {
         return aktiveArbeidsforholdFilter(referanse, stp, inntektArbeidYtelseGrunnlag, filtrertHvisSvp);
     }
 
+    /**
+     * Returnerer arbeidsgivere som ble filtrert ut av {@link InaktiveArbeidsforholdUtleder} —
+     * dvs. arbeidsforhold det ikke ble bestilt inntektsmelding for fordi de regnes som inaktive (ingen inntekt siste 4 mnd).
+     * Inkluderer IKKE arbeidsforhold som ble filtrert ut pga. permisjon — se {@link #hentArbeidsgivereFiltrertUtPgaPermisjon}.
+     */
+    public Set<Arbeidsgiver> hentArbeidsgivereFiltrertUtSomInaktive(BehandlingReferanse referanse, Skjæringstidspunkt stp) {
+        Objects.requireNonNull(referanse, VALID_REF);
+        var inntektArbeidYtelseGrunnlag = inntektArbeidYtelseTjeneste.finnGrunnlag(referanse.behandlingId());
+        var påkrevdeFørFilter = søknadsFilter(referanse, utledPåkrevdeInntektsmeldingerFraGrunnlag(referanse, stp, inntektArbeidYtelseGrunnlag));
+        var påkrevdeEtterInaktivFilter = InaktiveArbeidsforholdUtleder.finnKunAktiveUtenPermisjonsjekk(påkrevdeFørFilter, inntektArbeidYtelseGrunnlag, referanse, stp);
+        return påkrevdeFørFilter.keySet().stream()
+            .filter(ag -> !påkrevdeEtterInaktivFilter.containsKey(ag))
+            .collect(Collectors.toSet());
+    }
+
+    /**
+     * Returnerer arbeidsgivere som ble filtrert ut av permisjon-sjekken i {@link InaktiveArbeidsforholdUtleder} —
+     * dvs. arbeidsforhold med 100% permisjon som overlapper skjæringstidspunktet, der minst ett annet arbeidsforhold
+     * ikke er på permisjon (sikkerhetsventilen i {@link InaktiveArbeidsforholdUtleder#finnKunAktive}).
+     */
+    public Set<Arbeidsgiver> hentArbeidsgivereFiltrertUtPgaPermisjon(BehandlingReferanse referanse, Skjæringstidspunkt stp) {
+        Objects.requireNonNull(referanse, VALID_REF);
+        var inntektArbeidYtelseGrunnlag = inntektArbeidYtelseTjeneste.finnGrunnlag(referanse.behandlingId());
+        var påkrevdeFørFilter = søknadsFilter(referanse, utledPåkrevdeInntektsmeldingerFraGrunnlag(referanse, stp, inntektArbeidYtelseGrunnlag));
+        // Kun inaktiv-filter (uten permisjon) — utgangspunkt for permisjon-diff
+        var etterInaktivFilter = InaktiveArbeidsforholdUtleder.finnKunAktiveUtenPermisjonsjekk(påkrevdeFørFilter, inntektArbeidYtelseGrunnlag, referanse, stp);
+        // Fullt filter (inaktiv + permisjon, med sikkerhetsventil)
+        var etterFulltFilter = aktiveArbeidsforholdFilter(referanse, stp, inntektArbeidYtelseGrunnlag, etterInaktivFilter);
+        return etterInaktivFilter.keySet().stream()
+            .filter(ag -> !etterFulltFilter.containsKey(ag))
+            .collect(Collectors.toSet());
+    }
+
     private Map<Arbeidsgiver, Set<InternArbeidsforholdRef>> utledPåkrevdeInntektsmeldingerFraGrunnlag(BehandlingReferanse referanse,
                                                                                                       Skjæringstidspunkt skjæringstidspunkt, Optional<InntektArbeidYtelseGrunnlag> inntektArbeidYtelseGrunnlag) {
         Map<Arbeidsgiver, Set<InternArbeidsforholdRef>> påkrevdeInntektsmeldinger = new HashMap<>();

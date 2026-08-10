@@ -133,9 +133,11 @@ public class ArbeidOgInntektsmeldingMapper {
                                                             LocalDate stp,
                                                             List<ArbeidsforholdMangel> mangler,
                                                             List<ArbeidsforholdValg> saksbehandlersVurderingAvMangler,
-                                                            List<ArbeidsforholdOverstyring> overstyringer) {
+                                                            List<ArbeidsforholdOverstyring> overstyringer,
+                                                            Set<Arbeidsgiver> inaktiveArbeidsgivere,
+                                                            Set<Arbeidsgiver> permisjonArbeidsgivere) {
         List<ArbeidsforholdDto> dtoer = new ArrayList<>();
-        filter.getYrkesaktiviteter().forEach(ya -> mapTilArbeidsforholdDto(arbeidsforholdReferanser, stp, ya, mangler, saksbehandlersVurderingAvMangler, overstyringer).ifPresent(dtoer::add));
+        filter.getYrkesaktiviteter().forEach(ya -> mapTilArbeidsforholdDto(arbeidsforholdReferanser, stp, ya, mangler, saksbehandlersVurderingAvMangler, overstyringer, inaktiveArbeidsgivere, permisjonArbeidsgivere).ifPresent(dtoer::add));
         return dtoer;
     }
 
@@ -144,9 +146,13 @@ public class ArbeidOgInntektsmeldingMapper {
                                                                Yrkesaktivitet ya,
                                                                List<ArbeidsforholdMangel> alleIdentifiserteMangler,
                                                                List<ArbeidsforholdValg> saksbehandlersVurderingAvMangler,
-                                                               List<ArbeidsforholdOverstyring> overstyringer) {
+                                                               List<ArbeidsforholdOverstyring> overstyringer,
+                                                               Set<Arbeidsgiver> inaktiveArbeidsgivere,
+                                                               Set<Arbeidsgiver> permisjonArbeidsgivere) {
         var ansettelsesperiode = finnRelevantAnsettelsesperiode(ya, stp, finnOverstyring(ya.getArbeidsgiver(), ya.getArbeidsforholdRef(), overstyringer));
-        var mangelInntektsmelding =  finnIdentifisertInntektsmeldingMangel(ya.getArbeidsgiver(), ya.getArbeidsforholdRef(), alleIdentifiserteMangler);
+        var mangelInntektsmelding = finnIdentifisertInntektsmeldingMangel(ya.getArbeidsgiver(), ya.getArbeidsforholdRef(), alleIdentifiserteMangler)
+            .or(() -> inaktiveArbeidsgivere.contains(ya.getArbeidsgiver()) ? Optional.of(AksjonspunktÅrsak.INAKTIVT_ARBEIDSFORHOLD) : Optional.empty())
+            .or(() -> permisjonArbeidsgivere.contains(ya.getArbeidsgiver()) ? Optional.of(AksjonspunktÅrsak.PERMISJON) : Optional.empty());
         var mangelPermisjon = finnIdentifisertMangelPermisjon(ya.getArbeidsgiver(), ya.getArbeidsforholdRef(), alleIdentifiserteMangler);
         var vurdering = finnSaksbehandlersVurderingAvMangel(ya.getArbeidsgiver(), ya.getArbeidsforholdRef(), saksbehandlersVurderingAvMangler);
 

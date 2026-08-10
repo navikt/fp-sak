@@ -143,6 +143,170 @@ class InntektsmeldingRegisterTjenesteFpTest {
     }
 
     @Test
+    void krever_ikke_inntektsmelding_for_ett_av_tre_arbeidsforhold_pga_permisjon() {
+        // Arrange: AG har 3 arbeidsforhold; 1 er på 100% permisjon, 2 er aktive
+        var skjæringstidspunkt = Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(SKJÆRINGSTIDSPUNKT).build();
+        var arbeidsgiver = Arbeidsgiver.virksomhet("123456789");
+        var ref1 = InternArbeidsforholdRef.nyRef();
+        var ref2 = InternArbeidsforholdRef.nyRef();
+        var refMedPermisjon = InternArbeidsforholdRef.nyRef();
+        var aktivitetsAvtale = lagAktivitetsAvtaleBuilder(SKJÆRINGSTIDSPUNKT.minusYears(1), null);
+        var permisjon = byggPermisjon(SKJÆRINGSTIDSPUNKT.minusDays(2), SKJÆRINGSTIDSPUNKT.plusMonths(2), PermisjonsbeskrivelseType.ANNEN_PERMISJON_IKKE_LOVFESTET, BigDecimal.valueOf(100));
+        var yrkesaktivitet1 = lagYrkesaktivitetBuilder(List.of(aktivitetsAvtale), arbeidsgiver, ref1, List.of());
+        var yrkesaktivitet2 = lagYrkesaktivitetBuilder(List.of(aktivitetsAvtale), arbeidsgiver, ref2, List.of());
+        var yrkesaktivitet3 = lagYrkesaktivitetBuilder(List.of(), arbeidsgiver, refMedPermisjon, List.of(permisjon));
+
+        lagArbeid(List.of(yrkesaktivitet1, yrkesaktivitet2, yrkesaktivitet3));
+        lagInntekt(arbeidsgiver, SKJÆRINGSTIDSPUNKT.minusMonths(12), 12);
+        var grunnlag = byggIAY(inntektArbeidYtelseAggregatBuilder, Collections.emptyList(), arbeidBuilder, inntektBuilder, ytelseBuilder);
+
+        when(inntektArbeidYtelseTjeneste.finnGrunnlag(behandlingReferanse.behandlingId())).thenReturn(Optional.of(grunnlag));
+        when(inntektsmeldingTjeneste.hentInntektsmeldinger(behandlingReferanse, skjæringstidspunkt.getUtledetSkjæringstidspunkt())).thenReturn(Collections.emptyList());
+
+        var manglendeInntektsmeldinger = inntektsmeldingRegisterTjeneste.utledManglendeInntektsmeldingerFraGrunnlag(behandlingReferanse, skjæringstidspunkt);
+
+        // Assert: kun de to uten permisjon krever inntektsmelding
+        assertThat(manglendeInntektsmeldinger).hasSize(1);
+        assertThat(manglendeInntektsmeldinger.keySet().stream().findFirst()).isEqualTo(Optional.of(arbeidsgiver));
+        assertThat(manglendeInntektsmeldinger.get(arbeidsgiver)).containsExactlyInAnyOrder(ref1, ref2);
+    }
+
+    @Test
+    void krever_ikke_inntektsmelding_for_to_av_tre_arbeidsforhold_pga_permisjon() {
+        // Arrange: AG har 3 arbeidsforhold; 2 er på 100% permisjon, 1 er aktivt
+        var skjæringstidspunkt = Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(SKJÆRINGSTIDSPUNKT).build();
+        var arbeidsgiver = Arbeidsgiver.virksomhet("123456789");
+        var ref1 = InternArbeidsforholdRef.nyRef();
+        var refMedPermisjon1 = InternArbeidsforholdRef.nyRef();
+        var refMedPermisjon2 = InternArbeidsforholdRef.nyRef();
+        var aktivitetsAvtale = lagAktivitetsAvtaleBuilder(SKJÆRINGSTIDSPUNKT.minusYears(1), null);
+        var permisjon = byggPermisjon(SKJÆRINGSTIDSPUNKT.minusDays(2), SKJÆRINGSTIDSPUNKT.plusMonths(2), PermisjonsbeskrivelseType.ANNEN_PERMISJON_IKKE_LOVFESTET, BigDecimal.valueOf(100));
+        var yrkesaktivitet1 = lagYrkesaktivitetBuilder(List.of(aktivitetsAvtale), arbeidsgiver, ref1, List.of());
+        var yrkesaktivitet2 = lagYrkesaktivitetBuilder(List.of(), arbeidsgiver, refMedPermisjon1, List.of(permisjon));
+        var yrkesaktivitet3 = lagYrkesaktivitetBuilder(List.of(), arbeidsgiver, refMedPermisjon2, List.of(permisjon));
+
+        lagArbeid(List.of(yrkesaktivitet1, yrkesaktivitet2, yrkesaktivitet3));
+        lagInntekt(arbeidsgiver, SKJÆRINGSTIDSPUNKT.minusMonths(12), 12);
+        var grunnlag = byggIAY(inntektArbeidYtelseAggregatBuilder, Collections.emptyList(), arbeidBuilder, inntektBuilder, ytelseBuilder);
+
+        when(inntektArbeidYtelseTjeneste.finnGrunnlag(behandlingReferanse.behandlingId())).thenReturn(Optional.of(grunnlag));
+        when(inntektsmeldingTjeneste.hentInntektsmeldinger(behandlingReferanse, skjæringstidspunkt.getUtledetSkjæringstidspunkt())).thenReturn(Collections.emptyList());
+
+        var manglendeInntektsmeldinger = inntektsmeldingRegisterTjeneste.utledManglendeInntektsmeldingerFraGrunnlag(behandlingReferanse, skjæringstidspunkt);
+
+        // Assert: kun det ene uten permisjon krever inntektsmelding
+        assertThat(manglendeInntektsmeldinger).hasSize(1);
+        assertThat(manglendeInntektsmeldinger.get(arbeidsgiver)).containsExactly(ref1);
+    }
+
+    @Test
+    void hent_arbeidsgivere_filtrert_ut_pga_permisjon_returnerer_ag_der_alle_refs_er_paa_permisjon() {
+        // Arrange: AG1 har kun 1 ref på 100% permisjon, AG2 er aktivt — AG1 skal returneres
+        var skjæringstidspunkt = Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(SKJÆRINGSTIDSPUNKT).build();
+        var agMedPermisjon = Arbeidsgiver.virksomhet("111111111");
+        var agUtenPermisjon = Arbeidsgiver.virksomhet("222222222");
+        var refPermisjon = InternArbeidsforholdRef.nyRef();
+        var refAktiv = InternArbeidsforholdRef.nyRef();
+        var aktivitetsAvtale = lagAktivitetsAvtaleBuilder(SKJÆRINGSTIDSPUNKT.minusYears(1), null);
+        var aktivitetsAvtale2 = lagAktivitetsAvtaleBuilder(SKJÆRINGSTIDSPUNKT.minusYears(1), null);
+        var permisjon = byggPermisjon(SKJÆRINGSTIDSPUNKT.minusDays(2), SKJÆRINGSTIDSPUNKT.plusMonths(2), PermisjonsbeskrivelseType.ANNEN_PERMISJON_IKKE_LOVFESTET, BigDecimal.valueOf(100));
+
+        lagArbeid(List.of(
+            lagYrkesaktivitetBuilder(List.of(aktivitetsAvtale), agMedPermisjon, refPermisjon, List.of(permisjon)),
+            lagYrkesaktivitetBuilder(List.of(aktivitetsAvtale2), agUtenPermisjon, refAktiv, List.of())
+        ));
+        lagInntekt(agMedPermisjon, SKJÆRINGSTIDSPUNKT.minusMonths(12), 12);
+        lagInntekt(agUtenPermisjon, SKJÆRINGSTIDSPUNKT.minusMonths(12), 12);
+        var grunnlag = byggIAY(inntektArbeidYtelseAggregatBuilder, Collections.emptyList(), arbeidBuilder, inntektBuilder, ytelseBuilder);
+
+        when(inntektArbeidYtelseTjeneste.finnGrunnlag(behandlingReferanse.behandlingId())).thenReturn(Optional.of(grunnlag));
+
+        var filtrertePgaPermisjon = inntektsmeldingRegisterTjeneste.hentArbeidsgivereFiltrertUtPgaPermisjon(behandlingReferanse, skjæringstidspunkt);
+
+        // Assert: kun AG med alle refs på permisjon rapporteres
+        assertThat(filtrertePgaPermisjon).containsExactly(agMedPermisjon);
+    }
+
+    @Test
+    void hent_arbeidsgivere_filtrert_ut_pga_permisjon_ikke_filtrert_naar_kun_en_av_refs_er_paa_permisjon() {
+        // Arrange: AG har 2 refs; 1 på permisjon, 1 aktiv — AG er fortsatt med (1 ref fjernes, ikke AG)
+        var skjæringstidspunkt = Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(SKJÆRINGSTIDSPUNKT).build();
+        var arbeidsgiver = Arbeidsgiver.virksomhet("123456789");
+        var ref1 = InternArbeidsforholdRef.nyRef();
+        var refMedPermisjon = InternArbeidsforholdRef.nyRef();
+        var aktivitetsAvtale = lagAktivitetsAvtaleBuilder(SKJÆRINGSTIDSPUNKT.minusYears(1), null);
+        var permisjon = byggPermisjon(SKJÆRINGSTIDSPUNKT.minusDays(2), SKJÆRINGSTIDSPUNKT.plusMonths(2), PermisjonsbeskrivelseType.ANNEN_PERMISJON_IKKE_LOVFESTET, BigDecimal.valueOf(100));
+
+        lagArbeid(List.of(
+            lagYrkesaktivitetBuilder(List.of(aktivitetsAvtale), arbeidsgiver, ref1, List.of()),
+            lagYrkesaktivitetBuilder(List.of(), arbeidsgiver, refMedPermisjon, List.of(permisjon))
+        ));
+        lagInntekt(arbeidsgiver, SKJÆRINGSTIDSPUNKT.minusMonths(12), 12);
+        var grunnlag = byggIAY(inntektArbeidYtelseAggregatBuilder, Collections.emptyList(), arbeidBuilder, inntektBuilder, ytelseBuilder);
+
+        when(inntektArbeidYtelseTjeneste.finnGrunnlag(behandlingReferanse.behandlingId())).thenReturn(Optional.of(grunnlag));
+
+        var filtrertePgaPermisjon = inntektsmeldingRegisterTjeneste.hentArbeidsgivereFiltrertUtPgaPermisjon(behandlingReferanse, skjæringstidspunkt);
+
+        // Assert: AG er ikke helt filtrert ut (kun én ref fjernes)
+        assertThat(filtrertePgaPermisjon).isEmpty();
+    }
+
+    @Test
+    void hent_arbeidsgivere_filtrert_ut_som_inaktive_returnerer_ag_uten_inntekt() {
+        // Arrange: AG1 mangler inntekt siste 4 mnd (inaktiv), AG2 er aktiv
+        var skjæringstidspunkt = Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(SKJÆRINGSTIDSPUNKT).build();
+        var agInaktiv = Arbeidsgiver.virksomhet("111111111");
+        var agAktiv = Arbeidsgiver.virksomhet("222222222");
+        var refInaktiv = InternArbeidsforholdRef.nyRef();
+        var refAktiv = InternArbeidsforholdRef.nyRef();
+        var gammelAvtale = lagAktivitetsAvtaleBuilder(SKJÆRINGSTIDSPUNKT.minusYears(3), null);
+        var aktivAvtale = lagAktivitetsAvtaleBuilder(SKJÆRINGSTIDSPUNKT.minusYears(1), null);
+
+        lagArbeid(List.of(
+            lagYrkesaktivitetBuilder(List.of(gammelAvtale), agInaktiv, refInaktiv, List.of()),
+            lagYrkesaktivitetBuilder(List.of(aktivAvtale), agAktiv, refAktiv, List.of())
+        ));
+        // Kun agAktiv har inntekt siste 4 mnd
+        lagInntekt(agAktiv, SKJÆRINGSTIDSPUNKT.minusMonths(12), 12);
+        var grunnlag = byggIAY(inntektArbeidYtelseAggregatBuilder, Collections.emptyList(), arbeidBuilder, inntektBuilder, ytelseBuilder);
+
+        when(inntektArbeidYtelseTjeneste.finnGrunnlag(behandlingReferanse.behandlingId())).thenReturn(Optional.of(grunnlag));
+
+        var filtrerteSomInaktive = inntektsmeldingRegisterTjeneste.hentArbeidsgivereFiltrertUtSomInaktive(behandlingReferanse, skjæringstidspunkt);
+
+        // Assert: kun den inaktive AG returneres
+        assertThat(filtrerteSomInaktive).containsExactly(agInaktiv);
+    }
+
+    @Test
+    void hent_arbeidsgivere_filtrert_ut_som_inaktive_inkluderer_ikke_ag_filtrert_pga_permisjon() {
+        // Arrange: AG1 er aktiv men har kun en ref på permisjon (filtreres av permisjon, ikke inaktivitet)
+        var skjæringstidspunkt = Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(SKJÆRINGSTIDSPUNKT).build();
+        var agMedPermisjon = Arbeidsgiver.virksomhet("111111111");
+        var agAktiv = Arbeidsgiver.virksomhet("222222222");
+        var refPermisjon = InternArbeidsforholdRef.nyRef();
+        var refAktiv = InternArbeidsforholdRef.nyRef();
+        var aktivitetsAvtale = lagAktivitetsAvtaleBuilder(SKJÆRINGSTIDSPUNKT.minusYears(1), null);
+        var permisjon = byggPermisjon(SKJÆRINGSTIDSPUNKT.minusDays(2), SKJÆRINGSTIDSPUNKT.plusMonths(2), PermisjonsbeskrivelseType.ANNEN_PERMISJON_IKKE_LOVFESTET, BigDecimal.valueOf(100));
+
+        lagArbeid(List.of(
+            lagYrkesaktivitetBuilder(List.of(), agMedPermisjon, refPermisjon, List.of(permisjon)),
+            lagYrkesaktivitetBuilder(List.of(aktivitetsAvtale), agAktiv, refAktiv, List.of())
+        ));
+        lagInntekt(agMedPermisjon, SKJÆRINGSTIDSPUNKT.minusMonths(12), 12);
+        lagInntekt(agAktiv, SKJÆRINGSTIDSPUNKT.minusMonths(12), 12);
+        var grunnlag = byggIAY(inntektArbeidYtelseAggregatBuilder, Collections.emptyList(), arbeidBuilder, inntektBuilder, ytelseBuilder);
+
+        when(inntektArbeidYtelseTjeneste.finnGrunnlag(behandlingReferanse.behandlingId())).thenReturn(Optional.of(grunnlag));
+
+        var filtrerteSomInaktive = inntektsmeldingRegisterTjeneste.hentArbeidsgivereFiltrertUtSomInaktive(behandlingReferanse, skjæringstidspunkt);
+
+        // Assert: AG med permisjon er aktiv (ikke inaktiv), så den inkluderes ikke her
+        assertThat(filtrerteSomInaktive).isEmpty();
+    }
+
+    @Test
     void ett_arbeidsforhold_har_100_prosent_permisjon_vi_ikke_bryr_oss_om_og_inntektsmelding_kreves() {
         var skjæringstidspunkt = Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(SKJÆRINGSTIDSPUNKT).build();
         var arbeidsgiver = Arbeidsgiver.virksomhet("123456789");

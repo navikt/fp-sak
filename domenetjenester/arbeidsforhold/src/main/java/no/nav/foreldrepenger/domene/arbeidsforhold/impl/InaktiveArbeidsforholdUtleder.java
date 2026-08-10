@@ -47,6 +47,19 @@ public class InaktiveArbeidsforholdUtleder {
     private InaktiveArbeidsforholdUtleder() {
     }
 
+    /**
+     * Filtrerer kun på inaktivitet (ingen inntekt siste 4 mnd). Permisjon-filteret inngår ikke her.
+     * Brukes for å skille mellom INAKTIVT_ARBEIDSFORHOLD og PERMISJON som årsak i frontend-DTO.
+     */
+    public static Map<Arbeidsgiver, Set<InternArbeidsforholdRef>> finnKunAktiveUtenPermisjonsjekk(Map<Arbeidsgiver, Set<InternArbeidsforholdRef>> påkrevdeInntektsmeldinger,
+                                                                                                   Optional<InntektArbeidYtelseGrunnlag> inntektArbeidYtelseGrunnlag,
+                                                                                                   BehandlingReferanse referanse, Skjæringstidspunkt stp) {
+        var utledetStp = stp.getUtledetSkjæringstidspunkt();
+        return påkrevdeInntektsmeldinger.entrySet().stream()
+            .filter(e -> !erInaktivt(e.getKey(), inntektArbeidYtelseGrunnlag, referanse.aktørId(), utledetStp, referanse.saksnummer()))
+            .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+    }
+
     public static Map<Arbeidsgiver, Set<InternArbeidsforholdRef>> finnKunAktive(Map<Arbeidsgiver, Set<InternArbeidsforholdRef>> påkrevdeInntektsmeldinger,
                                                                                 Optional<InntektArbeidYtelseGrunnlag> inntektArbeidYtelseGrunnlag,
                                                                                 BehandlingReferanse referanse, Skjæringstidspunkt stp) {
