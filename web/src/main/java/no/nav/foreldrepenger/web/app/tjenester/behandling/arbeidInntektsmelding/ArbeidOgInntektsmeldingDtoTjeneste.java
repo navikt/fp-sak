@@ -132,11 +132,11 @@ public class ArbeidOgInntektsmeldingDtoTjeneste {
             .map(ArbeidsforholdInformasjon::getArbeidsforholdReferanser)
             .orElse(Collections.emptyList());
 
-        var inaktiveArbeidsgivere = inntektsmeldingRegisterTjeneste.hentArbeidsgivereFiltrertUtSomInaktive(behandlingReferanse, skjæringstidspunkt);
-        var permisjonArbeidsgivere = inntektsmeldingRegisterTjeneste.hentArbeidsgivereFiltrertUtPgaPermisjon(behandlingReferanse, skjæringstidspunkt);
+        var arbeidsgivereFiltrertUt = inntektsmeldingRegisterTjeneste.hentArbeidsgivereFiltrertUtSomInaktiveEllerPgaPermisjon(behandlingReferanse, skjæringstidspunkt);
 
         var arbeidsforholdFraRegister = ArbeidOgInntektsmeldingMapper.mapArbeidsforhold(filter, referanser,
-            stp, mangler, saksbehandlersVurderinger, iayGrunnlag.getArbeidsforholdOverstyringer(), inaktiveArbeidsgivere, permisjonArbeidsgivere);
+            stp, mangler, saksbehandlersVurderinger, iayGrunnlag.getArbeidsforholdOverstyringer(),
+            arbeidsgivereFiltrertUt.inaktive(), arbeidsgivereFiltrertUt.permisjon());
         var arbeidsforholdFraOverstyringer = ArbeidOgInntektsmeldingMapper.mapManueltOpprettedeArbeidsforhold(
             iayGrunnlag.getArbeidsforholdOverstyringer(), referanser, mangler);
 

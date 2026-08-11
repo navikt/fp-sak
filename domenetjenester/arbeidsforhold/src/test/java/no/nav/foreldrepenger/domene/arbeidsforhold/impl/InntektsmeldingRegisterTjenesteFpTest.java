@@ -221,10 +221,10 @@ class InntektsmeldingRegisterTjenesteFpTest {
 
         when(inntektArbeidYtelseTjeneste.finnGrunnlag(behandlingReferanse.behandlingId())).thenReturn(Optional.of(grunnlag));
 
-        var filtrertePgaPermisjon = inntektsmeldingRegisterTjeneste.hentArbeidsgivereFiltrertUtPgaPermisjon(behandlingReferanse, skjæringstidspunkt);
+        var filtrertePgaPermisjon = inntektsmeldingRegisterTjeneste.hentArbeidsgivereFiltrertUtSomInaktiveEllerPgaPermisjon(behandlingReferanse, skjæringstidspunkt);
 
         // Assert: kun AG med alle refs på permisjon rapporteres
-        assertThat(filtrertePgaPermisjon).containsExactly(agMedPermisjon);
+        assertThat(filtrertePgaPermisjon.permisjon()).containsExactly(agMedPermisjon);
     }
 
     @Test
@@ -246,10 +246,10 @@ class InntektsmeldingRegisterTjenesteFpTest {
 
         when(inntektArbeidYtelseTjeneste.finnGrunnlag(behandlingReferanse.behandlingId())).thenReturn(Optional.of(grunnlag));
 
-        var filtrertePgaPermisjon = inntektsmeldingRegisterTjeneste.hentArbeidsgivereFiltrertUtPgaPermisjon(behandlingReferanse, skjæringstidspunkt);
+        var filtrertePgaPermisjon = inntektsmeldingRegisterTjeneste.hentArbeidsgivereFiltrertUtSomInaktiveEllerPgaPermisjon(behandlingReferanse, skjæringstidspunkt);
 
         // Assert: AG er ikke helt filtrert ut (kun én ref fjernes)
-        assertThat(filtrertePgaPermisjon).isEmpty();
+        assertThat(filtrertePgaPermisjon.permisjon()).isEmpty();
     }
 
     @Test
@@ -273,10 +273,10 @@ class InntektsmeldingRegisterTjenesteFpTest {
 
         when(inntektArbeidYtelseTjeneste.finnGrunnlag(behandlingReferanse.behandlingId())).thenReturn(Optional.of(grunnlag));
 
-        var filtrerteSomInaktive = inntektsmeldingRegisterTjeneste.hentArbeidsgivereFiltrertUtSomInaktive(behandlingReferanse, skjæringstidspunkt);
+        var filtrerteSomInaktive = inntektsmeldingRegisterTjeneste.hentArbeidsgivereFiltrertUtSomInaktiveEllerPgaPermisjon(behandlingReferanse, skjæringstidspunkt);
 
         // Assert: kun den inaktive AG returneres
-        assertThat(filtrerteSomInaktive).containsExactly(agInaktiv);
+        assertThat(filtrerteSomInaktive.inaktive()).containsExactly(agInaktiv);
     }
 
     @Test
@@ -300,10 +300,10 @@ class InntektsmeldingRegisterTjenesteFpTest {
 
         when(inntektArbeidYtelseTjeneste.finnGrunnlag(behandlingReferanse.behandlingId())).thenReturn(Optional.of(grunnlag));
 
-        var filtrerteSomInaktive = inntektsmeldingRegisterTjeneste.hentArbeidsgivereFiltrertUtSomInaktive(behandlingReferanse, skjæringstidspunkt);
+        var filtrerteSomInaktive = inntektsmeldingRegisterTjeneste.hentArbeidsgivereFiltrertUtSomInaktiveEllerPgaPermisjon(behandlingReferanse, skjæringstidspunkt);
 
         // Assert: AG med permisjon er aktiv (ikke inaktiv), så den inkluderes ikke her
-        assertThat(filtrerteSomInaktive).isEmpty();
+        assertThat(filtrerteSomInaktive.inaktive()).isEmpty();
     }
 
     @Test
