@@ -83,28 +83,6 @@ public class InntektsmeldingRegisterTjeneste {
         return aktiveArbeidsforholdFilter(referanse, stp, inntektArbeidYtelseGrunnlag, filtrertHvisSvp);
     }
 
-    /**
-     * Returnerer arbeidsgivere filtrert ut som inaktive, og arbeidsgivere filtrert ut pga. permisjon.
-     */
-    public ArbeidsgivereFiltrertUt hentArbeidsgivereFiltrertUtSomInaktiveEllerPgaPermisjon(BehandlingReferanse referanse, Skjæringstidspunkt stp) {
-        Objects.requireNonNull(referanse, VALID_REF);
-        var inntektArbeidYtelseGrunnlag = inntektArbeidYtelseTjeneste.finnGrunnlag(referanse.behandlingId());
-        var påkrevdeFørFilter = søknadsFilter(referanse, utledPåkrevdeInntektsmeldingerFraGrunnlag(referanse, stp, inntektArbeidYtelseGrunnlag));
-        var etterInaktivFilter = InaktiveArbeidsforholdUtleder.finnKunAktiveUtenPermisjonsjekk(påkrevdeFørFilter, inntektArbeidYtelseGrunnlag, referanse, stp);
-        var etterFulltFilter = aktiveArbeidsforholdFilter(referanse, stp, inntektArbeidYtelseGrunnlag, etterInaktivFilter);
-
-        var inaktive = påkrevdeFørFilter.keySet().stream()
-            .filter(ag -> !etterInaktivFilter.containsKey(ag))
-            .collect(Collectors.toSet());
-        var permisjon = etterInaktivFilter.keySet().stream()
-            .filter(ag -> !etterFulltFilter.containsKey(ag))
-            .collect(Collectors.toSet());
-        return new ArbeidsgivereFiltrertUt(inaktive, permisjon);
-    }
-
-    public record ArbeidsgivereFiltrertUt(Set<Arbeidsgiver> inaktive, Set<Arbeidsgiver> permisjon) {
-    }
-
     private Map<Arbeidsgiver, Set<InternArbeidsforholdRef>> utledPåkrevdeInntektsmeldingerFraGrunnlag(BehandlingReferanse referanse,
                                                                                                       Skjæringstidspunkt skjæringstidspunkt, Optional<InntektArbeidYtelseGrunnlag> inntektArbeidYtelseGrunnlag) {
         Map<Arbeidsgiver, Set<InternArbeidsforholdRef>> påkrevdeInntektsmeldinger = new HashMap<>();

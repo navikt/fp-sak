@@ -160,7 +160,7 @@ class ArbeidOgInntektsmeldingMapperTest {
 
         //Act
         var arbeidsforholdDto = ArbeidOgInntektsmeldingMapper.mapTilArbeidsforholdDto(arbeidsforholdReferanser, stp, yrkesaktivitet, mangler,
-            Collections.emptyList(), Collections.emptyList(), Set.of(), Set.of()).orElse(null);
+            Collections.emptyList(), Collections.emptyList(), Optional.empty(), null, null).orElse(null);
 
         //Assert
         assertThat(arbeidsforholdDto).isNotNull();
@@ -200,7 +200,7 @@ class ArbeidOgInntektsmeldingMapperTest {
 
         //Act
         var arbeidsforholdDto = ArbeidOgInntektsmeldingMapper.mapTilArbeidsforholdDto(arbeidsforholdReferanser, SKJÆRINGSTIDSPUNKT,
-            yrkesaktivitetBuilder.build(), Collections.emptyList(), Collections.emptyList(), Collections.emptyList(), Set.of(), Set.of()).orElse(null);
+            yrkesaktivitetBuilder.build(), Collections.emptyList(), Collections.emptyList(), Collections.emptyList(), Optional.empty(), null, null).orElse(null);
 
         //Assert
         assertThat(arbeidsforholdDto).isNotNull();
@@ -233,7 +233,7 @@ class ArbeidOgInntektsmeldingMapperTest {
 
         //Act
         var arbeidsforholdDto = ArbeidOgInntektsmeldingMapper.mapTilArbeidsforholdDto(arbeidsforholdReferanser, SKJÆRINGSTIDSPUNKT,
-            yrkesaktivitetBuilder.build(), Collections.emptyList(), Collections.emptyList(), Collections.emptyList(), Set.of(), Set.of()).orElse(null);
+            yrkesaktivitetBuilder.build(), Collections.emptyList(), Collections.emptyList(), Collections.emptyList(), Optional.empty(), null, null).orElse(null);
 
         //Assert
         assertThat(arbeidsforholdDto).isNotNull();
@@ -267,7 +267,7 @@ class ArbeidOgInntektsmeldingMapperTest {
 
         //Act
         var arbeidsforholdDto = ArbeidOgInntektsmeldingMapper.mapTilArbeidsforholdDto(arbeidsforholdReferanser, stp, yrkesaktivitet, mangler,
-            Collections.emptyList(), overstyring, Set.of(), Set.of()).orElse(null);
+            Collections.emptyList(), overstyring, Optional.empty(), null, null).orElse(null);
 
         //Assert
         assertThat(arbeidsforholdDto).isNotNull();
@@ -295,7 +295,7 @@ class ArbeidOgInntektsmeldingMapperTest {
 
         //Act
         var arbeidsforholdDto = ArbeidOgInntektsmeldingMapper.mapTilArbeidsforholdDto(arbeidsforholdReferanser, stp, yrkesaktivitet,
-            Collections.emptyList(), Collections.emptyList(), Collections.emptyList(), Set.of(), Set.of()).orElse(null);
+            Collections.emptyList(), Collections.emptyList(), Collections.emptyList(), Optional.empty(), null, null).orElse(null);
 
         //Assert
         assertThat(arbeidsforholdDto).isNotNull();
@@ -309,7 +309,9 @@ class ArbeidOgInntektsmeldingMapperTest {
     }
 
     @Test
-    void mapping_av_inaktivt_arbeidsforhold_setter_korrekt_årsak() {
+    void mapping_av_arbeidsforhold_uten_iay_grunnlag_har_ingen_inaktiv_årsak() {
+        // Mapperen delegerer inaktivitets-/permisjonsvurdering til InaktiveArbeidsforholdUtleder (se InaktiveArbeidsforholdUtlederTest
+        // for dekning av selve utledningen). Her verifiserer vi kun at mapperen kobler riktig felt (inaktivÅrsak) på DTO-en.
         //Arrange
         var arbeidsforholdId = InternArbeidsforholdRef.nyRef();
         var arbeidsforholdReferanse = arbeidsforholdId.getReferanse();
@@ -329,39 +331,11 @@ class ArbeidOgInntektsmeldingMapperTest {
         //Act
         var arbeidsforholdDto = ArbeidOgInntektsmeldingMapper.mapTilArbeidsforholdDto(arbeidsforholdReferanser, SKJÆRINGSTIDSPUNKT,
             yrkesaktivitetBuilder.build(), Collections.emptyList(), Collections.emptyList(), Collections.emptyList(),
-            Set.of(arbeidsgiver), Set.of()).orElse(null);
+            Optional.empty(), null, null).orElse(null);
 
         //Assert
         assertThat(arbeidsforholdDto).isNotNull();
-        assertThat(arbeidsforholdDto.årsak()).isEqualTo(AksjonspunktÅrsak.INAKTIVT_ARBEIDSFORHOLD);
-    }
-
-    @Test
-    void mapping_av_arbeidsforhold_med_permisjon_på_stp_setter_korrekt_årsak() {
-        //Arrange
-        var arbeidsforholdId = InternArbeidsforholdRef.nyRef();
-        var arbeidsforholdReferanse = arbeidsforholdId.getReferanse();
-        var orgnr = "910909091";
-        var arbeidsgiver = Arbeidsgiver.virksomhet(orgnr);
-
-        var yrkesaktivitetBuilder = YrkesaktivitetBuilder.oppdatere(Optional.empty());
-        var ansettelsesperiode = yrkesaktivitetBuilder.getAktivitetsAvtaleBuilder()
-            .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(SKJÆRINGSTIDSPUNKT.minusYears(2), Tid.TIDENES_ENDE));
-        yrkesaktivitetBuilder.medArbeidType(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD)
-            .medArbeidsgiver(arbeidsgiver)
-            .medArbeidsforholdId(arbeidsforholdId)
-            .leggTilAktivitetsAvtale(ansettelsesperiode);
-
-        var arbeidsforholdReferanser = List.of(lagReferanser(arbeidsgiver, arbeidsforholdId, arbeidsforholdReferanse));
-
-        //Act
-        var arbeidsforholdDto = ArbeidOgInntektsmeldingMapper.mapTilArbeidsforholdDto(arbeidsforholdReferanser, SKJÆRINGSTIDSPUNKT,
-            yrkesaktivitetBuilder.build(), Collections.emptyList(), Collections.emptyList(), Collections.emptyList(),
-            Set.of(), Set.of(arbeidsgiver)).orElse(null);
-
-        //Assert
-        assertThat(arbeidsforholdDto).isNotNull();
-        assertThat(arbeidsforholdDto.årsak()).isEqualTo(AksjonspunktÅrsak.PERMISJON);
+        assertThat(arbeidsforholdDto.inaktivÅrsak()).isNull();
     }
 
     private Inntekt lagInntekter(YearMonth fom, YearMonth tom, String orgnr) {

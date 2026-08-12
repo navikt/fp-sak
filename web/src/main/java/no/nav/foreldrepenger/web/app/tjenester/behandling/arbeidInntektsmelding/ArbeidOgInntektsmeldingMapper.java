@@ -26,12 +26,15 @@ import no.nav.foreldrepenger.domene.arbeidInntektsmelding.dto.PermisjonDto;
 import no.nav.foreldrepenger.domene.arbeidInntektsmelding.dto.PermisjonOgMangelDto;
 import no.nav.foreldrepenger.domene.arbeidInntektsmelding.dto.RefusjonDto;
 import no.nav.foreldrepenger.domene.arbeidsforhold.impl.AksjonspunktÅrsak;
+import no.nav.foreldrepenger.domene.arbeidsforhold.impl.InaktivArbeidsforholdÅrsak;
+import no.nav.foreldrepenger.domene.arbeidsforhold.impl.InaktiveArbeidsforholdUtleder;
 import no.nav.foreldrepenger.domene.iay.modell.AktivitetsAvtale;
 import no.nav.foreldrepenger.domene.iay.modell.ArbeidsforholdOverstyring;
 import no.nav.foreldrepenger.domene.iay.modell.ArbeidsforholdOverstyrtePerioder;
 import no.nav.foreldrepenger.domene.iay.modell.ArbeidsforholdReferanse;
 import no.nav.foreldrepenger.domene.iay.modell.BekreftetPermisjon;
 import no.nav.foreldrepenger.domene.iay.modell.Inntekt;
+import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlag;
 import no.nav.foreldrepenger.domene.iay.modell.InntektFilter;
 import no.nav.foreldrepenger.domene.iay.modell.Inntektsmelding;
 import no.nav.foreldrepenger.domene.iay.modell.Inntektspost;
@@ -42,9 +45,11 @@ import no.nav.foreldrepenger.domene.iay.modell.YrkesaktivitetFilter;
 import no.nav.foreldrepenger.domene.iay.modell.kodeverk.ArbeidsforholdHandlingType;
 import no.nav.foreldrepenger.domene.iay.modell.kodeverk.BekreftetPermisjonStatus;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
+import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.Beløp;
 import no.nav.foreldrepenger.domene.typer.EksternArbeidsforholdRef;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
+import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.domene.typer.Stillingsprosent;
 import no.nav.foreldrepenger.mottak.dokumentpersiterer.impl.inntektsmelding.KontaktinformasjonIM;
 import no.nav.vedtak.konfig.Tid;
@@ -134,10 +139,11 @@ public class ArbeidOgInntektsmeldingMapper {
                                                             List<ArbeidsforholdMangel> mangler,
                                                             List<ArbeidsforholdValg> saksbehandlersVurderingAvMangler,
                                                             List<ArbeidsforholdOverstyring> overstyringer,
-                                                            Set<Arbeidsgiver> inaktiveArbeidsgivere,
-                                                            Set<Arbeidsgiver> permisjonArbeidsgivere) {
+                                                            Optional<InntektArbeidYtelseGrunnlag> iayGrunnlag,
+                                                            AktørId aktørId,
+                                                            Saksnummer saksnummer) {
         List<ArbeidsforholdDto> dtoer = new ArrayList<>();
-        filter.getYrkesaktiviteter().forEach(ya -> mapTilArbeidsforholdDto(arbeidsforholdReferanser, stp, ya, mangler, saksbehandlersVurderingAvMangler, overstyringer, inaktiveArbeidsgivere, permisjonArbeidsgivere).ifPresent(dtoer::add));
+        filter.getYrkesaktiviteter().forEach(ya -> mapTilArbeidsforholdDto(arbeidsforholdReferanser, stp, ya, mangler, saksbehandlersVurderingAvMangler, overstyringer, iayGrunnlag, aktørId, saksnummer).ifPresent(dtoer::add));
         return dtoer;
     }
 
@@ -147,14 +153,14 @@ public class ArbeidOgInntektsmeldingMapper {
                                                                List<ArbeidsforholdMangel> alleIdentifiserteMangler,
                                                                List<ArbeidsforholdValg> saksbehandlersVurderingAvMangler,
                                                                List<ArbeidsforholdOverstyring> overstyringer,
-                                                               Set<Arbeidsgiver> inaktiveArbeidsgivere,
-                                                               Set<Arbeidsgiver> permisjonArbeidsgivere) {
+                                                               Optional<InntektArbeidYtelseGrunnlag> iayGrunnlag,
+                                                               AktørId aktørId,
+                                                               Saksnummer saksnummer) {
         var ansettelsesperiode = finnRelevantAnsettelsesperiode(ya, stp, finnOverstyring(ya.getArbeidsgiver(), ya.getArbeidsforholdRef(), overstyringer));
-        var mangelInntektsmelding = finnIdentifisertInntektsmeldingMangel(ya.getArbeidsgiver(), ya.getArbeidsforholdRef(), alleIdentifiserteMangler)
-            .or(() -> inaktiveArbeidsgivere.contains(ya.getArbeidsgiver()) ? Optional.of(AksjonspunktÅrsak.INAKTIVT_ARBEIDSFORHOLD) : Optional.empty())
-            .or(() -> permisjonArbeidsgivere.contains(ya.getArbeidsgiver()) ? Optional.of(AksjonspunktÅrsak.PERMISJON) : Optional.empty());
+        var mangelInntektsmelding = finnIdentifisertInntektsmeldingMangel(ya.getArbeidsgiver(), ya.getArbeidsforholdRef(), alleIdentifiserteMangler);
         var mangelPermisjon = finnIdentifisertMangelPermisjon(ya.getArbeidsgiver(), ya.getArbeidsforholdRef(), alleIdentifiserteMangler);
         var vurdering = finnSaksbehandlersVurderingAvMangel(ya.getArbeidsgiver(), ya.getArbeidsforholdRef(), saksbehandlersVurderingAvMangler);
+        var inaktivÅrsak = utledInaktivÅrsak(ya, stp, iayGrunnlag, aktørId, saksnummer);
 
         // Vurdering og begrunnelse for gammelt aksjonspunkt (5080) der saksbehandler hadde flere valgmuligheter vi må kunne støtte readonly visning for
         var legacyVurdering = finnOverstyring(ya.getArbeidsgiver(), ya.getArbeidsforholdRef(), overstyringer)
@@ -172,7 +178,27 @@ public class ArbeidOgInntektsmeldingMapper {
                 vurdering.map(ArbeidsforholdValg::getVurdering).orElse(legacyVurdering.orElse(null)),
                 mapPermisjonOgMangel(ya, stp, mangelPermisjon.orElse(null), overstyringer).orElse(null),
                 mapPermisjoner(ya),
-                vurdering.map(ArbeidsforholdValg::getBegrunnelse).orElse(legacyBegrunnelse.orElse(null))));
+                vurdering.map(ArbeidsforholdValg::getBegrunnelse).orElse(legacyBegrunnelse.orElse(null)),
+                inaktivÅrsak.orElse(null)));
+    }
+
+    // Delegerer til InaktiveArbeidsforholdUtleder for selve vurderingen av inaktivitet/permisjon
+    private static Optional<InaktivArbeidsforholdÅrsak> utledInaktivÅrsak(Yrkesaktivitet ya,
+                                                                          LocalDate stp,
+                                                                          Optional<InntektArbeidYtelseGrunnlag> iayGrunnlag,
+                                                                          AktørId aktørId,
+                                                                          Saksnummer saksnummer) {
+        var arbeidsgiver = ya.getArbeidsgiver();
+        if (arbeidsgiver == null) {
+            return Optional.empty();
+        }
+        if (InaktiveArbeidsforholdUtleder.erInaktivt(arbeidsgiver, iayGrunnlag, aktørId, stp, saksnummer)) {
+            return Optional.of(InaktivArbeidsforholdÅrsak.INAKTIVT_ARBEIDSFORHOLD);
+        }
+        if (InaktiveArbeidsforholdUtleder.erIPermisjonPåStp(arbeidsgiver, ya.getArbeidsforholdRef(), iayGrunnlag, aktørId, stp)) {
+            return Optional.of(InaktivArbeidsforholdÅrsak.PERMISJON);
+        }
+        return Optional.empty();
     }
 
     private static Optional<ArbeidsforholdOverstyring> finnOverstyring(Arbeidsgiver arbeidsgiver,
@@ -327,7 +353,8 @@ public class ArbeidOgInntektsmeldingMapper {
             utledSaksbehandlerVurderingOmManueltArbeidsforhold(mangel),
             null,
             List.of(),
-            overstyring.getBegrunnelse());
+            overstyring.getBegrunnelse(),
+            null);
     }
 
     private static ArbeidsforholdKomplettVurderingType utledSaksbehandlerVurderingOmManueltArbeidsforhold(Optional<AksjonspunktÅrsak> mangel) {
