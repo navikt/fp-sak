@@ -20,22 +20,28 @@ import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.OrgNummer;
 import no.nav.foreldrepenger.domene.arbeidInntektsmelding.ArbeidsforholdMangel;
 import no.nav.foreldrepenger.domene.arbeidsforhold.impl.AksjonspunktÅrsak;
+import no.nav.foreldrepenger.domene.arbeidsforhold.impl.InaktivArbeidsforholdÅrsak;
 import no.nav.foreldrepenger.domene.iay.modell.ArbeidsforholdOverstyringBuilder;
 import no.nav.foreldrepenger.domene.iay.modell.ArbeidsforholdReferanse;
 import no.nav.foreldrepenger.domene.iay.modell.BekreftetPermisjon;
 import no.nav.foreldrepenger.domene.iay.modell.Inntekt;
+import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseAggregatBuilder;
+import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlagBuilder;
 import no.nav.foreldrepenger.domene.iay.modell.InntektBuilder;
 import no.nav.foreldrepenger.domene.iay.modell.InntektFilter;
 import no.nav.foreldrepenger.domene.iay.modell.Inntektsmelding;
 import no.nav.foreldrepenger.domene.iay.modell.InntektsmeldingBuilder;
 import no.nav.foreldrepenger.domene.iay.modell.InntektspostBuilder;
+import no.nav.foreldrepenger.domene.iay.modell.VersjonType;
 import no.nav.foreldrepenger.domene.iay.modell.YrkesaktivitetBuilder;
 import no.nav.foreldrepenger.domene.iay.modell.kodeverk.BekreftetPermisjonStatus;
 import no.nav.foreldrepenger.domene.iay.modell.kodeverk.InntektsKilde;
 import no.nav.foreldrepenger.domene.iay.modell.kodeverk.PermisjonsbeskrivelseType;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
+import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.EksternArbeidsforholdRef;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
+import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.mottak.dokumentpersiterer.impl.inntektsmelding.KontaktinformasjonIM;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.AktivitetIdentifikator;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.ArbeidsgiverIdentifikator;
@@ -311,7 +317,8 @@ class ArbeidOgInntektsmeldingMapperTest {
     @Test
     void mapping_av_arbeidsforhold_uten_iay_grunnlag_har_ingen_inaktiv_årsak() {
         // Mapperen delegerer inaktivitets-/permisjonsvurdering til InaktiveArbeidsforholdUtleder (se InaktiveArbeidsforholdUtlederTest
-        // for dekning av selve utledningen). Her verifiserer vi kun at mapperen kobler riktig felt (inaktivÅrsak) på DTO-en.
+        // for dekning av selve utledningen av grensetilfeller). Denne testen dekker kun default-caset når det ikke finnes noe
+        // IAY-grunnlag å vurdere mot (feltet er da null fra før, så testen bekrefter at mapperen ikke feilaktig setter en verdi).
         //Arrange
         var arbeidsforholdId = InternArbeidsforholdRef.nyRef();
         var arbeidsforholdReferanse = arbeidsforholdId.getReferanse();
@@ -336,6 +343,83 @@ class ArbeidOgInntektsmeldingMapperTest {
         //Assert
         assertThat(arbeidsforholdDto).isNotNull();
         assertThat(arbeidsforholdDto.inaktivÅrsak()).isNull();
+    }
+
+    @Test
+    void mapping_av_gammelt_arbeidsforhold_uten_inntekt_gir_inaktiv_årsak() {
+        // Bygger et reelt IAY-grunnlag der arbeidsforholdet er gammelt og uten inntekt/ytelse/IM,
+        // slik at vi verifiserer at mapperen faktisk kobler resultatet fra InaktiveArbeidsforholdUtleder på DTO-en (ikke bare default-verdien).
+        //Arrange
+        var aktørId = new AktørId("9999999999999");
+        var saksnummer = new Saksnummer("123456789");
+        var arbeidsforholdId = InternArbeidsforholdRef.nyRef();
+        var arbeidsforholdReferanse = arbeidsforholdId.getReferanse();
+        var arbeidsgiver = Arbeidsgiver.virksomhet("910909090");
+
+        var yrkesaktivitetBuilder = YrkesaktivitetBuilder.oppdatere(Optional.empty());
+        var ansettelsesperiode = yrkesaktivitetBuilder.getAktivitetsAvtaleBuilder()
+            .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(SKJÆRINGSTIDSPUNKT.minusYears(2), Tid.TIDENES_ENDE));
+        yrkesaktivitetBuilder.medArbeidType(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD)
+            .medArbeidsgiver(arbeidsgiver)
+            .medArbeidsforholdId(arbeidsforholdId)
+            .leggTilAktivitetsAvtale(ansettelsesperiode);
+
+        var data = InntektArbeidYtelseAggregatBuilder.oppdatere(Optional.empty(),
+            VersjonType.REGISTER);
+        data.leggTilAktørArbeid(data.getAktørArbeidBuilder(aktørId).leggTilYrkesaktivitet(yrkesaktivitetBuilder));
+        var grunnlag = InntektArbeidYtelseGrunnlagBuilder.nytt().medData(data).build();
+
+        var arbeidsforholdReferanser = List.of(lagReferanser(arbeidsgiver, arbeidsforholdId, arbeidsforholdReferanse));
+
+        //Act
+        var arbeidsforholdDto = ArbeidOgInntektsmeldingMapper.mapTilArbeidsforholdDto(arbeidsforholdReferanser, SKJÆRINGSTIDSPUNKT,
+            yrkesaktivitetBuilder.build(), Collections.emptyList(), Collections.emptyList(), Collections.emptyList(),
+            Optional.of(grunnlag), aktørId, saksnummer).orElse(null);
+
+        //Assert
+        assertThat(arbeidsforholdDto).isNotNull();
+        assertThat(arbeidsforholdDto.inaktivÅrsak()).isEqualTo(InaktivArbeidsforholdÅrsak.INAKTIVT_ARBEIDSFORHOLD);
+    }
+
+    @Test
+    void mapping_av_nyoppstartet_arbeidsforhold_med_permisjon_gir_permisjon_årsak() {
+        // Bygger et reelt IAY-grunnlag der arbeidsforholdet er nyoppstartet (regnes derfor ikke som inaktivt) men har
+        // registrert permisjon som overlapper skjæringstidspunktet, for å verifiere at mapperen kobler PERMISJON riktig.
+        //Arrange
+        var aktørId = new AktørId("9999999999999");
+        var saksnummer = new Saksnummer("123456789");
+        var arbeidsforholdId = InternArbeidsforholdRef.nyRef();
+        var arbeidsforholdReferanse = arbeidsforholdId.getReferanse();
+        var arbeidsgiver = Arbeidsgiver.virksomhet("910909090");
+
+        var yrkesaktivitetBuilder = YrkesaktivitetBuilder.oppdatere(Optional.empty());
+        var ansettelsesperiode = yrkesaktivitetBuilder.getAktivitetsAvtaleBuilder()
+            .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(SKJÆRINGSTIDSPUNKT.minusMonths(2), Tid.TIDENES_ENDE));
+        yrkesaktivitetBuilder.medArbeidType(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD)
+            .medArbeidsgiver(arbeidsgiver)
+            .medArbeidsforholdId(arbeidsforholdId)
+            .leggTilAktivitetsAvtale(ansettelsesperiode)
+            .leggTilPermisjon(YrkesaktivitetBuilder.nyPermisjonBuilder()
+                .medPeriode(SKJÆRINGSTIDSPUNKT.minusMonths(1), SKJÆRINGSTIDSPUNKT.plusDays(20))
+                .medProsentsats(BigDecimal.valueOf(100))
+                .medPermisjonsbeskrivelseType(PermisjonsbeskrivelseType.VELFERDSPERMISJON)
+                .build());
+
+        var data = InntektArbeidYtelseAggregatBuilder.oppdatere(Optional.empty(),
+            VersjonType.REGISTER);
+        data.leggTilAktørArbeid(data.getAktørArbeidBuilder(aktørId).leggTilYrkesaktivitet(yrkesaktivitetBuilder));
+        var grunnlag = InntektArbeidYtelseGrunnlagBuilder.nytt().medData(data).build();
+
+        var arbeidsforholdReferanser = List.of(lagReferanser(arbeidsgiver, arbeidsforholdId, arbeidsforholdReferanse));
+
+        //Act
+        var arbeidsforholdDto = ArbeidOgInntektsmeldingMapper.mapTilArbeidsforholdDto(arbeidsforholdReferanser, SKJÆRINGSTIDSPUNKT,
+            yrkesaktivitetBuilder.build(), Collections.emptyList(), Collections.emptyList(), Collections.emptyList(),
+            Optional.of(grunnlag), aktørId, saksnummer).orElse(null);
+
+        //Assert
+        assertThat(arbeidsforholdDto).isNotNull();
+        assertThat(arbeidsforholdDto.inaktivÅrsak()).isEqualTo(InaktivArbeidsforholdÅrsak.PERMISJON);
     }
 
     private Inntekt lagInntekter(YearMonth fom, YearMonth tom, String orgnr) {
