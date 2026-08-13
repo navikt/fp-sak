@@ -14,6 +14,9 @@ import no.nav.foreldrepenger.behandlingslager.virksomhet.ArbeidType;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
+import no.nav.fpsak.tidsserie.LocalDateSegment;
+import no.nav.fpsak.tidsserie.LocalDateTimeline;
+import no.nav.fpsak.tidsserie.StandardCombinators;
 
 public class Yrkesaktivitet implements IndexKey {
 
@@ -150,6 +153,24 @@ public class Yrkesaktivitet implements IndexKey {
                 .stream()
                 .filter(AktivitetsAvtale::erAnsettelsesPeriode)
                 .anyMatch(aa -> aa.getPeriode().inkluderer(dato));
+    }
+
+    /**
+     * Tidslinje som viser om personen var ansatt (yrkesaktiv) i en gitt periode.
+     * OBS: Tar ikke hensyn til eventuelle permisjoner
+     * <p>
+     * Alle ansettelsesperioder slås sammen (overlappende og tilstøtende perioder blir til ett
+     * sammenhengende segment) og får verdi {@code true}. Perioder som ikke er dekket av tidslinjen
+     * regnes som at personen ikke var i arbeid (implisitt {@code false}).
+     *
+     * @return {@link LocalDateTimeline} med {@link Boolean} true for perioder personen var ansatt
+     */
+    public LocalDateTimeline<Boolean> getAnsettelsestidslinje() {
+        var alleAnsettelsesperioder = getAlleAktivitetsAvtaler().stream()
+            .filter(AktivitetsAvtale::erAnsettelsesPeriode)
+            .map(aa -> new LocalDateSegment<>(aa.getPeriode().getFomDato(), aa.getPeriode().getTomDato(), Boolean.TRUE))
+            .toList();
+        return new LocalDateTimeline<>(alleAnsettelsesperioder, StandardCombinators::alwaysTrueForMatch).compress();
     }
 
     /**
