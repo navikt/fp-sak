@@ -276,7 +276,7 @@ public class FordelRestTjeneste {
     @Produces(MediaType.APPLICATION_JSON)
     @Operation(description = "Returnerer informasjon om sak til fpinntektsmelding for å avgjøre om innsending av inntektsmelding er tillatt", tags = "fordel")
     @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK, sporingslogg = false)
-    public Response  infoOmSakForInntektsmelding(@TilpassetAbacAttributt(supplierClass = SakInntektsmeldingDtoAbacDataSupplier.class) @Parameter(description = "AktørId") @Valid SakInntektsmeldingDto sakInntektsmeldingDto) {
+    public Response infoOmSakForInntektsmelding(@TilpassetAbacAttributt(supplierClass = SakInntektsmeldingDtoAbacDataSupplier.class) @Parameter(description = "AktørId") @Valid SakInntektsmeldingDto sakInntektsmeldingDto) {
         ensureCallId();
         if (!AktørId.erGyldigAktørId(sakInntektsmeldingDto.bruker().aktørId())) {
             throw new IllegalArgumentException("Oppgitt aktørId er ikke en gyldig ident.");
@@ -287,7 +287,28 @@ public class FordelRestTjeneste {
             .filter(sak -> !sak.getStatus().equals(FagsakStatus.AVSLUTTET) && ytelseDetSjekkesMot.equals(sak.getYtelseType()))
             .map(sak -> hentInfoOmSakIntektsmelding(sak.getId()))
             .findFirst()
-            .orElse(new InfoOmSakInntektsmeldingResponse(StatusSakInntektsmelding.INGEN_BEHANDLING, Tid.TIDENES_ENDE, Tid.TIDENES_ENDE));
+            .orElse(new InfoOmSakInntektsmeldingResponse(StatusSakInntektsmelding.INGEN_BEHANDLING, Tid.TIDENES_ENDE, Tid.TIDENES_ENDE, null));
+
+        return Response.ok(infoOmSakIMResponse).build();
+    }
+
+    @POST
+    @Path("/inntektsmeldingSaksoversikt")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    @Operation(description = "Returnerer informasjon om alle saker som er åpne for innsending av inntektsmelding", tags = "fordel")
+    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK, sporingslogg = false)
+    public Response hentSakerÅpneForMottakAvInntektsmelding(@TilpassetAbacAttributt(supplierClass = SakInntektsmeldingDtoAbacDataSupplier.class) @Valid SakInntektsmeldingDto sakInntektsmeldingDto) {
+        ensureCallId();
+        if (!AktørId.erGyldigAktørId(sakInntektsmeldingDto.bruker().aktørId())) {
+            throw new IllegalArgumentException("Oppgitt aktørId er ikke en gyldig ident.");
+        }
+        var søkersFagsaker = fagsakTjeneste.finnFagsakerForAktør(new AktørId(sakInntektsmeldingDto.bruker().aktørId()));
+        var ytelseDetSjekkesMot = sakInntektsmeldingDto.ytelse().equals(SakInntektsmeldingDto.YtelseType.FORELDREPENGER) ? FagsakYtelseType.FORELDREPENGER : FagsakYtelseType.SVANGERSKAPSPENGER;
+        var infoOmSakIMResponse = søkersFagsaker.stream()
+            .filter(sak -> !sak.getStatus().equals(FagsakStatus.AVSLUTTET) && ytelseDetSjekkesMot.equals(sak.getYtelseType()))
+            .map(sak -> hentInfoOmSakIntektsmelding(sak.getId()))
+            .toList();
 
         return Response.ok(infoOmSakIMResponse).build();
     }
@@ -303,7 +324,7 @@ public class FordelRestTjeneste {
     private InfoOmSakInntektsmeldingResponse hentInfoOmSakIntektsmelding(Long fagsakId) {
         return behandlingRepository.hentSisteYtelsesBehandlingForFagsakId(fagsakId)
             .map(this::mapInfoOmSakInntektsmelding)
-            .orElseGet(() -> new InfoOmSakInntektsmeldingResponse(StatusSakInntektsmelding.INGEN_BEHANDLING, Tid.TIDENES_ENDE, Tid.TIDENES_ENDE));
+            .orElseGet(() -> new InfoOmSakInntektsmeldingResponse(StatusSakInntektsmelding.INGEN_BEHANDLING, Tid.TIDENES_ENDE, Tid.TIDENES_ENDE, null));
     }
 
     private InfoOmSakInntektsmeldingResponse mapInfoOmSakInntektsmelding(Behandling behandling) {
@@ -323,7 +344,7 @@ public class FordelRestTjeneste {
         }
 
         return new InfoOmSakInntektsmeldingResponse(inntektsmeldingStatusSak, førsteUttaksdato.orElse(Tid.TIDENES_ENDE),
-            skjæringstidspunkter.getSkjæringstidspunktHvisUtledet().orElse(Tid.TIDENES_ENDE));
+            skjæringstidspunkter.getSkjæringstidspunktHvisUtledet().orElse(Tid.TIDENES_ENDE), behandling.getSaksnummer().getVerdi());
     }
 
      StatusSakInntektsmelding mapInntektsmeldingStatusSak(Set<AksjonspunktDefinisjon> aksjonspunkterIkkeKlarForInntektsmelding) {
@@ -363,10 +384,8 @@ public class FordelRestTjeneste {
         }
     }
 
-    public record SakInntektsmeldingResponse(boolean søkerHarSak){}
-
     public record InfoOmSakInntektsmeldingResponse(StatusSakInntektsmelding statusInntektsmelding, LocalDate førsteUttaksdato,
-                                                   LocalDate skjæringstidspunkt) {}
+                                                   LocalDate skjæringstidspunkt, String saksnummer) {}
 
     public record SakInntektsmeldingDto(@NotNull @Valid AktørIdDto bruker, @NotNull @Valid YtelseType ytelse){
         protected enum YtelseType {

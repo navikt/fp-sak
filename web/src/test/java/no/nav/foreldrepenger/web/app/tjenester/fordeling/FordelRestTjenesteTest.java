@@ -35,6 +35,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.Familie
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
+import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakStatus;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Språkkode;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
@@ -206,6 +207,7 @@ class FordelRestTjenesteTest {
         var førsteUttaksdato = LocalDate.now().minusWeeks(5);
         var skjæringstidspunkter = Skjæringstidspunkt.builder().medFørsteUttaksdato(førsteUttaksdato).medUtledetSkjæringstidspunkt(førsteUttaksdato).build();
         when(behandlingRepositoryMock.hentSisteYtelsesBehandlingForFagsakId(1L)).thenReturn(Optional.of(b1));
+        when(b1.getSaksnummer()).thenReturn(saknr);
         when(a1.getAksjonspunktDefinisjon()).thenReturn(AksjonspunktDefinisjon.VENT_PGA_FOR_TIDLIG_SØKNAD);
         when(a1.getStatus()).thenReturn(AksjonspunktStatus.OPPRETTET);
         when(b1.getAksjonspunkter()).thenReturn(Set.of(a1));
@@ -232,6 +234,7 @@ class FordelRestTjenesteTest {
         var b1 = mock(Behandling.class);
         var a1 = mock(Aksjonspunkt.class);
         when(behandlingRepositoryMock.hentSisteYtelsesBehandlingForFagsakId(1L)).thenReturn(Optional.of(b1));
+        when(b1.getSaksnummer()).thenReturn(saknr);
         when(a1.getStatus()).thenReturn(AksjonspunktStatus.UTFØRT);
         when(b1.getAksjonspunkter()).thenReturn(Set.of(a1));
         when(behandlingRepositoryProviderMock.getBehandlingRepository()).thenReturn(behandlingRepositoryMock);
@@ -278,6 +281,7 @@ class FordelRestTjenesteTest {
         var a1 = mock(Aksjonspunkt.class);
 
         when(behandlingRepositoryMock.hentSisteYtelsesBehandlingForFagsakId(1L)).thenReturn(Optional.of(b1));
+        when(b1.getSaksnummer()).thenReturn(saknr);
         when(a1.getAksjonspunktDefinisjon()).thenReturn(AksjonspunktDefinisjon.REGISTRER_PAPIRSØKNAD_FORELDREPENGER);
         when(a1.getStatus()).thenReturn(AksjonspunktStatus.OPPRETTET);
         when(b1.getAksjonspunkter()).thenReturn(Set.of(a1));
@@ -305,6 +309,7 @@ class FordelRestTjenesteTest {
         var a2 = mock(Aksjonspunkt.class);
         var førsteUttaksdato = LocalDate.now().minusWeeks(2);
         when(behandlingRepositoryMock.hentSisteYtelsesBehandlingForFagsakId(1L)).thenReturn(Optional.of(b1));
+        when(b1.getSaksnummer()).thenReturn(saknr);
         when(a1.getAksjonspunktDefinisjon()).thenReturn(AksjonspunktDefinisjon.VURDER_FAKTA_FOR_ATFL_SN);
         when(a1.getStatus()).thenReturn(AksjonspunktStatus.OPPRETTET);
         when(a2.getStatus()).thenReturn(AksjonspunktStatus.UTFØRT);
@@ -321,5 +326,69 @@ class FordelRestTjenesteTest {
         assertThat(response).isNotNull();
         assertThat(response.statusInntektsmelding()).isEqualTo(FordelRestTjeneste.StatusSakInntektsmelding.ÅPEN_FOR_BEHANDLING);
         assertThat(response.førsteUttaksdato()).isEqualTo(førsteUttaksdato);
+    }
+
+    @Test
+    void skal_returnere_alle_åpne_saker_for_inntektsmelding() {
+        var førsteSaksnummer = new Saksnummer("TEST4");
+        var andreSaksnummer = new Saksnummer("TEST5");
+        var førsteFagsak = opprettFagsak(1L, førsteSaksnummer);
+        var andreFagsak = opprettFagsak(2L, andreSaksnummer);
+        var avsluttetFagsak = opprettFagsak(3L, new Saksnummer("TEST6"));
+        avsluttetFagsak.setStatus(FagsakStatus.AVSLUTTET);
+        var fagsakForAnnenYtelse = opprettFagsak(4L, new Saksnummer("TEST7"), FagsakYtelseType.SVANGERSKAPSPENGER);
+        var førsteBehandling = opprettBehandling(1L, førsteSaksnummer);
+        var andreBehandling = opprettBehandling(2L, andreSaksnummer);
+        var førsteUttaksdato = LocalDate.of(2025, 8, 8);
+        var andreUttaksdato = LocalDate.of(2025, 9, 1);
+
+        when(behandlingRepositoryProviderMock.getBehandlingRepository()).thenReturn(behandlingRepositoryMock);
+        when(fagsakTjenesteMock.finnFagsakerForAktør(any(AktørId.class))).thenReturn(
+            List.of(førsteFagsak, andreFagsak, avsluttetFagsak, fagsakForAnnenYtelse));
+        when(behandlingRepositoryMock.hentSisteYtelsesBehandlingForFagsakId(1L)).thenReturn(Optional.of(førsteBehandling));
+        when(behandlingRepositoryMock.hentSisteYtelsesBehandlingForFagsakId(2L)).thenReturn(Optional.of(andreBehandling));
+        when(skjæringstidspunktTjenesteMock.getSkjæringstidspunkter(1L)).thenReturn(skjæringstidspunkt(førsteUttaksdato));
+        when(skjæringstidspunktTjenesteMock.getSkjæringstidspunkter(2L)).thenReturn(skjæringstidspunkt(andreUttaksdato));
+
+        var tjeneste = new FordelRestTjeneste(null, fagsakTjenesteMock, null, behandlingRepositoryProviderMock, null, null, skjæringstidspunktTjenesteMock);
+
+        var result = tjeneste.hentSakerÅpneForMottakAvInntektsmelding(new FordelRestTjeneste.SakInntektsmeldingDto(
+            new FordelRestTjeneste.AktørIdDto(AKTØR_ID_MOR.getId()), FordelRestTjeneste.SakInntektsmeldingDto.YtelseType.FORELDREPENGER));
+
+        assertThat(result.getStatus()).isEqualTo(200);
+        assertThat((List<?>) result.getEntity())
+            .extracting(response -> ((FordelRestTjeneste.InfoOmSakInntektsmeldingResponse) response).saksnummer())
+            .containsExactly(førsteSaksnummer.getVerdi(), andreSaksnummer.getVerdi());
+        assertThat((List<?>) result.getEntity())
+            .extracting(response -> ((FordelRestTjeneste.InfoOmSakInntektsmeldingResponse) response).førsteUttaksdato())
+            .containsExactly(førsteUttaksdato, andreUttaksdato);
+        assertThat((List<?>) result.getEntity())
+            .extracting(response -> ((FordelRestTjeneste.InfoOmSakInntektsmeldingResponse) response).statusInntektsmelding())
+            .containsOnly(FordelRestTjeneste.StatusSakInntektsmelding.ÅPEN_FOR_BEHANDLING);
+    }
+
+    private Fagsak opprettFagsak(Long id, Saksnummer saksnummer) {
+        return opprettFagsak(id, saksnummer, FagsakYtelseType.FORELDREPENGER);
+    }
+
+    private Fagsak opprettFagsak(Long id, Saksnummer saksnummer, FagsakYtelseType ytelseType) {
+        var fagsak = Fagsak.opprettNy(ytelseType, NavBruker.opprettNy(AKTØR_ID_MOR, Språkkode.NB), saksnummer);
+        fagsak.setId(id);
+        return fagsak;
+    }
+
+    private Behandling opprettBehandling(Long id, Saksnummer saksnummer) {
+        var behandling = mock(Behandling.class);
+        when(behandling.getId()).thenReturn(id);
+        when(behandling.getSaksnummer()).thenReturn(saksnummer);
+        when(behandling.getAksjonspunkter()).thenReturn(Set.of());
+        return behandling;
+    }
+
+    private Skjæringstidspunkt skjæringstidspunkt(LocalDate førsteUttaksdato) {
+        return Skjæringstidspunkt.builder()
+            .medFørsteUttaksdato(førsteUttaksdato)
+            .medUtledetSkjæringstidspunkt(førsteUttaksdato)
+            .build();
     }
 }
