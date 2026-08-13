@@ -211,11 +211,20 @@ public class InntektsmeldingRegisterTjeneste {
     }
 
     private boolean harRelevantAnsettelsesperiodeSomDekkerAngittDato(YrkesaktivitetFilter filter, Yrkesaktivitet yrkesaktivitet, LocalDate dato) {
-        if (yrkesaktivitet.erArbeidsforhold()) {
-            var ansettelsesPerioder = filter.getAnsettelsesPerioder(yrkesaktivitet);
-            return ansettelsesPerioder.stream().anyMatch(avtale -> avtale.getPeriode().inkluderer(dato));
+        if (!yrkesaktivitet.erArbeidsforhold()) {
+            return false;
         }
-        return false;
+        var ansettelsesPerioder = filter.getAnsettelsesPerioder(yrkesaktivitet);
+        var jobberPåStp = ansettelsesPerioder.stream().anyMatch(avtale -> avtale.getPeriode().inkluderer(dato));
+        if (jobberPåStp) {
+            return true;
+        }
+        var jobberDagenFørStp = ansettelsesPerioder.stream().anyMatch(avtale -> avtale.getPeriode().inkluderer(dato.minusDays(1)));
+        return jobberDagenFørStp && filter.getAlleYrkesaktiviteter().stream()
+            .filter(Yrkesaktivitet::erArbeidsforhold)
+            .filter(aktivitet -> Objects.equals(aktivitet.getArbeidsgiver(), yrkesaktivitet.getArbeidsgiver()))
+            .flatMap(aktivitet -> filter.getAnsettelsesPerioder(aktivitet).stream())
+            .anyMatch(avtale -> avtale.getPeriode().getFomDato().equals(dato));
     }
 
     /**
