@@ -4,7 +4,6 @@ import java.time.LocalDate;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -106,7 +105,7 @@ public class InaktiveArbeidsforholdUtleder {
         return !harInntekt;
     }
 
-    private static boolean erIPermisjonPåStp(Arbeidsgiver arbeidsgiver,
+    public static boolean erIPermisjonPåStp(Arbeidsgiver arbeidsgiver,
                                              InternArbeidsforholdRef ref,
                                              Optional<InntektArbeidYtelseGrunnlag> inntektArbeidYtelseGrunnlag,
                                              AktørId søkerAktørId,

@@ -208,6 +208,58 @@ class InaktiveArbeidsforholdUtlederTest {
     }
 
     @Test
+    void ett_av_tre_arbeidsforhold_er_inaktivt_pga_permisjon() {
+        // Arrange
+        var arbeidsgiver = arbeidsgiver("999999999");
+        var internRef1 = InternArbeidsforholdRef.nyRef();
+        var internRef2 = InternArbeidsforholdRef.nyRef();
+        var internRefMedPermisjon = InternArbeidsforholdRef.nyRef();
+        var arbeidsforholdÅsjekke = Map.of(arbeidsgiver, Set.of(internRef1, internRef2, internRefMedPermisjon));
+        lagIM(arbeidsgiver);
+        lagArbeid(arbeidsgiver, STP.minusYears(2), false, internRef1);
+        lagArbeid(arbeidsgiver, STP.minusYears(2), false, internRef2);
+        lagArbeid(arbeidsgiver, STP.minusYears(2), true, internRefMedPermisjon);
+        var scenario = IAYScenarioBuilder.morSøker(FagsakYtelseType.FORELDREPENGER)
+            .medBruker(AKTØR);
+        var behandling = scenario.lagMocked();
+        var behandlingReferanse = BehandlingReferanse.fra(behandling);
+
+        // Act
+        var aktiveArbeidsforhold = InaktiveArbeidsforholdUtleder.finnKunAktive(arbeidsforholdÅsjekke, Optional.ofNullable(byggIAY()), behandlingReferanse, skjæringstidspunkt);
+
+        // Assert — kun de to uten permisjon beholdes
+        assertThat(aktiveArbeidsforhold)
+            .hasSize(1)
+            .containsValue(Set.of(internRef1, internRef2));
+    }
+
+    @Test
+    void to_av_tre_arbeidsforhold_er_inaktive_pga_permisjon() {
+        // Arrange
+        var arbeidsgiver = arbeidsgiver("999999999");
+        var internRef1 = InternArbeidsforholdRef.nyRef();
+        var internRefMedPermisjon1 = InternArbeidsforholdRef.nyRef();
+        var internRefMedPermisjon2 = InternArbeidsforholdRef.nyRef();
+        var arbeidsforholdÅsjekke = Map.of(arbeidsgiver, Set.of(internRef1, internRefMedPermisjon1, internRefMedPermisjon2));
+        lagIM(arbeidsgiver);
+        lagArbeid(arbeidsgiver, STP.minusYears(2), false, internRef1);
+        lagArbeid(arbeidsgiver, STP.minusYears(2), true, internRefMedPermisjon1);
+        lagArbeid(arbeidsgiver, STP.minusYears(2), true, internRefMedPermisjon2);
+        var scenario = IAYScenarioBuilder.morSøker(FagsakYtelseType.FORELDREPENGER)
+            .medBruker(AKTØR);
+        var behandling = scenario.lagMocked();
+        var behandlingReferanse = BehandlingReferanse.fra(behandling);
+
+        // Act
+        var aktiveArbeidsforhold = InaktiveArbeidsforholdUtleder.finnKunAktive(arbeidsforholdÅsjekke, Optional.ofNullable(byggIAY()), behandlingReferanse, skjæringstidspunkt);
+
+        // Assert — kun det ene uten permisjon beholdes
+        assertThat(aktiveArbeidsforhold)
+            .hasSize(1)
+            .containsValue(Set.of(internRef1));
+    }
+
+    @Test
     void alle_arbeidsforhold_er_inaktive_for_arbeidsgiver_pga_permisjon() {
         // Arrange
         var arbeidsgiver = arbeidsgiver("999999999");
