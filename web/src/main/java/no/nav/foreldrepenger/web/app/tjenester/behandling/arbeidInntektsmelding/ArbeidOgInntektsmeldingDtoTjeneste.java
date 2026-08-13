@@ -125,8 +125,10 @@ public class ArbeidOgInntektsmeldingDtoTjeneste {
         var referanser = iayGrunnlag.getArbeidsforholdInformasjon()
             .map(ArbeidsforholdInformasjon::getArbeidsforholdReferanser)
             .orElse(Collections.emptyList());
+
         var arbeidsforholdFraRegister = ArbeidOgInntektsmeldingMapper.mapArbeidsforhold(filter, referanser,
-            stp, mangler, saksbehandlersVurderinger, iayGrunnlag.getArbeidsforholdOverstyringer());
+            stp, mangler, saksbehandlersVurderinger, iayGrunnlag.getArbeidsforholdOverstyringer(),
+            Optional.of(iayGrunnlag), behandlingReferanse.aktørId(), behandlingReferanse.saksnummer());
         var arbeidsforholdFraOverstyringer = ArbeidOgInntektsmeldingMapper.mapManueltOpprettedeArbeidsforhold(
             iayGrunnlag.getArbeidsforholdOverstyringer(), referanser, mangler);
 

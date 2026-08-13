@@ -9,6 +9,7 @@ import jakarta.validation.constraints.NotNull;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.arbeidsforhold.ArbeidsforholdKomplettVurderingType;
 import no.nav.foreldrepenger.domene.arbeidsforhold.impl.AksjonspunktÅrsak;
+import no.nav.foreldrepenger.domene.arbeidsforhold.impl.InaktivArbeidsforholdÅrsak;
 
 public record ArbeidsforholdDto(@NotNull String arbeidsgiverIdent,
                                 String internArbeidsforholdId,
@@ -20,4 +21,5 @@ public record ArbeidsforholdDto(@NotNull String arbeidsgiverIdent,
                                 ArbeidsforholdKomplettVurderingType saksbehandlersVurdering,
                                 PermisjonOgMangelDto permisjonOgMangel,
                                 @NotNull List<@Valid PermisjonDto> permisjoner,
-                                String begrunnelse){}
+                                String begrunnelse,
+                                InaktivArbeidsforholdÅrsak inaktivÅrsak){}
