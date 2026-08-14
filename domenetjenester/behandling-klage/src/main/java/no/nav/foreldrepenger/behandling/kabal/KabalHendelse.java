@@ -15,7 +15,7 @@ public record KabalHendelse(UUID eventId,
         BEHANDLING_FEILREGISTRERT, KLAGEBEHANDLING_AVSLUTTET,
         ANKEBEHANDLING_OPPRETTET, ANKE_I_TRYGDERETTENBEHANDLING_OPPRETTET, ANKEBEHANDLING_AVSLUTTET,
         BEHANDLING_ETTER_TRYGDERETTEN_OPPHEVET_AVSLUTTET,
-        OMGJOERINGSKRAVBEHANDLING_AVSLUTTET
+        OMGJOERINGSKRAVBEHANDLING_AVSLUTTET, GJENOPPTAKSBEHANDLING_AVSLUTTET
     }
 
     public record BehandlingDetaljer(AvsluttetDetaljer klagebehandlingAvsluttet,
@@ -24,7 +24,8 @@ public record KabalHendelse(UUID eventId,
                                      AvsluttetDetaljer ankebehandlingAvsluttet,
                                      AvsluttetDetaljer behandlingEtterTrygderettenOpphevetAvsluttet,
                                      AvsluttetDetaljer omgjoeringskravbehandlingAvsluttet,
-                                     BehandlingFeilregistrertDetaljer behandlingFeilregistrert) {}
+                                     BehandlingFeilregistrertDetaljer behandlingFeilregistrert,
+                                     AvsluttetDetaljer gjenopptaksbehandlingAvsluttet) {}
 
     public record AnkebehandlingOpprettetDetaljer(LocalDateTime mottattKlageinstans) {}
 

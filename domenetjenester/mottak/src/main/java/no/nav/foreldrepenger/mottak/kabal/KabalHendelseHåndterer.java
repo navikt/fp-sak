@@ -45,6 +45,7 @@ public class KabalHendelseHåndterer implements KafkaMessageHandler.KafkaStringM
     private static final String KABAL = "KABAL";
     private static final String VKY_DELVIS_TEKST = "Vedtaket er delvis omgjort i ankebehandling og sendt Trygderetten. Opprett en ny behandling for det som allerede er omgjort.";
     private static final String VKY_OMGJØRINGSKRAV_TEKST = "Vedtaket er omgjort av Nav klageinstans etter Fvl 35. Opprett en ny behandling.";
+    private static final String VKY_GJENOPPTAK_TEKST = "Vedtaket er omgjort etter begjæring om gjenopptak. Opprett en ny behandling.";
 
     private static final Set<KabalHendelse.BehandlingType> IKKE_RELEVANTE_FEILREGISTRERINGER = Set.of(
         KabalHendelse.BehandlingType.OMGJOERINGSKRAV, KabalHendelse.BehandlingType.BEGJAERING_OM_GJENOPPTAK,
@@ -107,6 +108,10 @@ public class KabalHendelseHåndterer implements KafkaMessageHandler.KafkaStringM
         // Håndter omgjøringskrav avsluttet. Omgjøringskrav har en kildereferanse hos oss, men ingen matchende behandling
         if (KabalHendelse.BehandlingEventType.OMGJOERINGSKRAVBEHANDLING_AVSLUTTET.equals(mottattHendelse.type())) {
             opprettVurderKonsekvens(behandling, VKY_OMGJØRINGSKRAV_TEKST);
+            return;
+        }
+        if (KabalHendelse.BehandlingEventType.GJENOPPTAKSBEHANDLING_AVSLUTTET.equals(mottattHendelse.type())) {
+            opprettVurderKonsekvens(behandling, VKY_GJENOPPTAK_TEKST);
             return;
         }
 
