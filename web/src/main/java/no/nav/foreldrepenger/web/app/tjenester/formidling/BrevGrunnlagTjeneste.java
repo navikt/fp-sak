@@ -242,7 +242,8 @@ class BrevGrunnlagTjeneste {
         var automatiskBehandlet = !behandling.isToTrinnsBehandling() || behandlingType == BrevGrunnlagDto.BehandlingType.KLAGE;
         var familieHendelse = finnFamilieHendelse(behandling.getId()).orElse(null);
         var originalBehandling = behandling.getOriginalBehandlingId().map(this::finnOriginalBehandling).orElse(null);
-        var behandlingsresultat = finnBehandlingsresultat(behandling).orElse(null);
+        var stp = finnSkjæringstidspunktForBehandling(behandling);
+        var behandlingsresultat = finnBehandlingsresultat(behandling, stp).orElse(null);
         var behandlingÅrsakTyper = finnBehandlingÅrsakTyper(behandling);
         var førsteSøknadMottattDato = finnFørsteSøknadMottattDato(behandling.getFagsak()).orElse(null);
         var sisteSøknadMottattDato = finnSisteSøknadMottattDato(behandling.getFagsak()).orElse(null);
@@ -253,7 +254,6 @@ class BrevGrunnlagTjeneste {
         var klageBehandling = finnKlageBehandling(behandling).orElse(null);
         var innsynBehandling = finnInnsynBehandling(behandling).orElse(null);
 
-        var stp = finnSkjæringstidspunktForBehandling(behandling);
         var tilkjentYtelse = stp.flatMap(_ -> finnTilkjentYtelse(behandling)).orElse(null);
         var inntektsmeldingerStatus = stp.flatMap(skjæringstidspunkt -> finnInntektsmeldingerStatus(ref, skjæringstidspunkt)).orElse(null);
         var inntektsmeldinger = stp.map(s -> finnInntektsmeldinger(behandling, s)).orElse(List.of());
@@ -588,15 +588,18 @@ class BrevGrunnlagTjeneste {
         return behandling.getBehandlingÅrsaker().stream().map(EnumMapper::mapBehandlingÅrsakType).toList();
     }
 
-    private Optional<BrevGrunnlagDto.Behandlingsresultat> finnBehandlingsresultat(Behandling behandling) {
+    private Optional<BrevGrunnlagDto.Behandlingsresultat> finnBehandlingsresultat(Behandling behandling,
+                                                                                  Optional<Skjæringstidspunkt> skjæringstidspunkt) {
         return behandlingsresultatRepository.hentHvisEksisterer(behandling.getId()).map(behandlingsresultat -> {
             var medlemskapOpphørsårsak = finnMedlemskapOpphørsÅrsak(behandling).orElse(null);
             var medlemskapFom = medlemTjeneste.hentMedlemFomDato(behandling.getId()).orElse(null);
             var behandlingResultatType = mapBehandlingResultatType(behandlingsresultat.getBehandlingResultatType());
             var avslagsårsak = behandlingsresultat.getAvslagsårsak() == null ? null : behandlingsresultat.getAvslagsårsak().getKode();
             var fritekst = finnFritekst(behandling).orElse(null);
-            var stp = finnSkjæringstidspunktForBehandling(behandling).map(
-                s -> new BrevGrunnlagDto.Behandlingsresultat.Skjæringstidspunkt(s.getUtledetSkjæringstidspunkt(), s.utenMinsterett())).orElse(null);
+            var stp = skjæringstidspunkt
+                .flatMap(s -> s.getSkjæringstidspunktHvisUtledet()
+                    .map(dato -> new BrevGrunnlagDto.Behandlingsresultat.Skjæringstidspunkt(dato, s.utenMinsterett())))
+                .orElse(null);
             var endretDekningsgrad = dekningsgradTjeneste.behandlingHarEndretDekningsgrad(BehandlingReferanse.fra(behandling));
             var opphørsdato = finnOpphørsdato(behandling).orElse(null);
             var konsekvenserForYtelsen = finnKonsekvenserForYtelsen(behandlingsresultat);
