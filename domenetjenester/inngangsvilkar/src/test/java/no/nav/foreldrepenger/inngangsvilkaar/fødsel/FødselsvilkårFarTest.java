@@ -27,12 +27,13 @@ import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.Avklart
 import no.nav.foreldrepenger.behandlingslager.geografisk.Landkoder;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioFarSøkerForeldrepenger;
 import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
-import no.nav.foreldrepenger.domene.json.StandardJsonConfig;
 import no.nav.foreldrepenger.domene.personopplysning.PersonopplysningTjeneste;
 import no.nav.foreldrepenger.domene.typer.AktørId;
+import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.fødsel.FødselsvilkårGrunnlag;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 import no.nav.foreldrepenger.skjæringstidspunkt.fp.SkjæringstidspunktTjenesteImpl;
 import no.nav.foreldrepenger.skjæringstidspunkt.overganger.MinsterettBehandling2022;
+import no.nav.vedtak.mapper.json.DefaultJsonMapper;
 
 class FødselsvilkårFarTest extends EntityManagerAwareTest {
 
@@ -64,8 +65,8 @@ class FødselsvilkårFarTest extends EntityManagerAwareTest {
         // Act
         var data = new InngangsvilkårFødselFar(oversetter, skjæringstidspunktTjeneste).vurderVilkår(lagRef(behandling));
 
-        var jsonNode = StandardJsonConfig.fromJsonAsTree(data.regelInput());
-        var soekersKjonn = jsonNode.get("soekersKjonn").asText();
+        var grunnlag =  DefaultJsonMapper.fromJson(data.regelInput(), FødselsvilkårGrunnlag.class);
+        var soekersKjonn = grunnlag.søkersKjønn().name();
 
         // Assert
         assertThat(data.vilkårType()).isEqualTo(VilkårType.FØDSELSVILKÅRET_FAR_MEDMOR);
@@ -86,8 +87,8 @@ class FødselsvilkårFarTest extends EntityManagerAwareTest {
         // Act
         var data = new InngangsvilkårFødselFar(oversetter, skjæringstidspunktTjeneste).vurderVilkår(lagRef(behandling));
 
-        var jsonNode = StandardJsonConfig.fromJsonAsTree(data.regelInput());
-        var soekersKjonn = jsonNode.get("soekersKjonn").asText();
+        var grunnlag =  DefaultJsonMapper.fromJson(data.regelInput(), FødselsvilkårGrunnlag.class);
+        var soekersKjonn = grunnlag.søkersKjønn().name();
 
         // Assert
         assertThat(data.vilkårType()).isEqualTo(VilkårType.FØDSELSVILKÅRET_FAR_MEDMOR);
