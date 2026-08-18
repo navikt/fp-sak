@@ -24,7 +24,9 @@ import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspun
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.VurderÅrsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.dokument.BehandlingDokumentEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.dokument.BehandlingDokumentRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.dokument.MellomlagringEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.dokument.MellomlagringRepository;
+import no.nav.foreldrepenger.behandlingslager.behandling.dokument.MellomlagringType;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
@@ -122,7 +124,7 @@ class ForeslåOgFatteVedtakAksjonspunktTest extends EntityManagerAwareTest {
         var behandlingDokument = behandlingDokumentRepository.hentHvisEksisterer(behandling.getId());
         assertThat(behandlingDokument).isPresent();
         assertThat(behandlingDokument.get().getVedtakFritekst()).isNull();
-        assertThat(behandlingDokument.get().getOverstyrtBrevFritekstHtml()).isEqualTo(FRITEKST);
+        assertThat(hentMellomlagring(behandling)).isEqualTo(FRITEKST);
 
         var behandlingsresultat = behandlingsresultatRepository.hent(behandling.getId());
         assertThat(behandlingsresultat.getVedtaksbrev()).isEqualTo(Vedtaksbrev.FRITEKST);
@@ -134,6 +136,11 @@ class ForeslåOgFatteVedtakAksjonspunktTest extends EntityManagerAwareTest {
             .isTrue();
     }
 
+    private String hentMellomlagring(Behandling behandling) {
+        return mellomlagringRepository.hentMellomlagring(behandling.getId(), MellomlagringType.VEDTAKSBREV)
+            .map(MellomlagringEntitet::getInnhold)
+            .orElse(null);
+    }
 
     @Test
     void foreslå_vedtak_med_automatisk_brev_skal_fjerne_gammel_overstyring_men_ikke_utfyllende_tekst_og_heller_ikke_behandling_totrinn() {
@@ -150,7 +157,7 @@ class ForeslåOgFatteVedtakAksjonspunktTest extends EntityManagerAwareTest {
         // Assert
         var behandlingDokument = behandlingDokumentRepository.hentHvisEksisterer(behandlingTidligerOverstyrt.getId());
         assertThat(behandlingDokument).isPresent();
-        assertThat(behandlingDokument.get().getOverstyrtBrevFritekstHtml()).isNull();
+        assertThat(hentMellomlagring(behandlingTidligerOverstyrt)).isNull();
         assertThat(behandlingDokument.get().getVedtakFritekst()).isEqualTo(dto.getBegrunnelse()); // Utfyllende tekst for automatisk vedtaksbrev
 
         var behandlingsresultat = behandlingsresultatRepository.hent(behandlingTidligerOverstyrt.getId());
@@ -179,7 +186,7 @@ class ForeslåOgFatteVedtakAksjonspunktTest extends EntityManagerAwareTest {
         // Assert
         var behandlingDokument = behandlingDokumentRepository.hentHvisEksisterer(behandling.getId());
         assertThat(behandlingDokument).isPresent();
-        assertThat(behandlingDokument.get().getOverstyrtBrevFritekstHtml()).isNull();
+        assertThat(hentMellomlagring(behandling)).isNull();
         assertThat(behandlingDokument.get().getVedtakFritekst()).isNull();
 
         var behandlingsresultat = behandlingsresultatRepository.hent(behandling.getId());
@@ -201,7 +208,7 @@ class ForeslåOgFatteVedtakAksjonspunktTest extends EntityManagerAwareTest {
         // Assert
         var behandlingDokument = behandlingDokumentRepository.hentHvisEksisterer(behandling.getId());
         assertThat(behandlingDokument).isPresent();
-        assertThat(behandlingDokument.get().getOverstyrtBrevFritekstHtml()).isNull();
+        assertThat(hentMellomlagring(behandling)).isNull();
         assertThat(behandlingDokument.get().getVedtakFritekst()).isEqualTo(dto.getBegrunnelse()); // Utfyllende tekst for automatisk vedtaksbrev skal ikke fjernes
 
         var behandlingsresultat = behandlingsresultatRepository.hent(behandling.getId());
@@ -269,7 +276,7 @@ class ForeslåOgFatteVedtakAksjonspunktTest extends EntityManagerAwareTest {
         // Assert
         var behandlingDokument = behandlingDokumentRepository.hentHvisEksisterer(behandlingTidligerOverstyrt.getId());
         assertThat(behandlingDokument).isPresent();
-        assertThat(behandlingDokument.get().getOverstyrtBrevFritekstHtml()).isNull();
+        assertThat(hentMellomlagring(behandlingTidligerOverstyrt)).isNull();
         assertThat(behandlingDokument.get().getVedtakFritekst()).isNull();
 
         var behandlingsresultat = behandlingsresultatRepository.hent(behandlingTidligerOverstyrt.getId());
@@ -354,9 +361,12 @@ class ForeslåOgFatteVedtakAksjonspunktTest extends EntityManagerAwareTest {
 
         var eksisterendeDok = BehandlingDokumentEntitet.Builder.ny()
             .medBehandling(behandling.getId())
-            .medOverstyrtBrevFritekstHtml(redigertBrev)
+            .medUtfyllendeTekstAutomatiskVedtaksbrev(redigertBrev)
             .build();
         behandlingDokumentRepository.lagreOgFlush(eksisterendeDok);
+        if (redigertBrev != null) {
+            mellomlagringRepository.lagreEllerOppdater(behandling.getId(), MellomlagringType.VEDTAKSBREV, redigertBrev);
+        }
         return behandling;
     }
 }

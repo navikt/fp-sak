@@ -13,13 +13,4 @@ class BehandlingDokumentEntitetTest {
 
         assertDoesNotThrow(ny::build);
     }
-
-    @Test
-    void bygger_med_html_fritekst() {
-        var ny = BehandlingDokumentEntitet.Builder.ny();
-        ny.medBehandling(123L);
-        ny.medOverstyrtBrevFritekstHtml("<p>html</p>");
-
-        assertDoesNotThrow(ny::build);
-    }
 }
