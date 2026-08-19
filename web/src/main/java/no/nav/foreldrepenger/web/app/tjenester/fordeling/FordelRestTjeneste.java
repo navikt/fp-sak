@@ -271,28 +271,6 @@ public class FordelRestTjeneste {
     }
 
     @POST
-    @Path("/infoOmSakInntektsmelding")
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
-    @Operation(description = "Returnerer informasjon om sak til fpinntektsmelding for å avgjøre om innsending av inntektsmelding er tillatt", tags = "fordel")
-    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK, sporingslogg = false)
-    public Response infoOmSakForInntektsmelding(@TilpassetAbacAttributt(supplierClass = SakInntektsmeldingDtoAbacDataSupplier.class) @Parameter(description = "AktørId") @Valid SakInntektsmeldingDto sakInntektsmeldingDto) {
-        ensureCallId();
-        if (!AktørId.erGyldigAktørId(sakInntektsmeldingDto.bruker().aktørId())) {
-            throw new IllegalArgumentException("Oppgitt aktørId er ikke en gyldig ident.");
-        }
-        var søkersFagsaker = fagsakTjeneste.finnFagsakerForAktør(new AktørId(sakInntektsmeldingDto.bruker().aktørId()));
-        var ytelseDetSjekkesMot = sakInntektsmeldingDto.ytelse().equals(SakInntektsmeldingDto.YtelseType.FORELDREPENGER) ? FagsakYtelseType.FORELDREPENGER : FagsakYtelseType.SVANGERSKAPSPENGER;
-        var infoOmSakIMResponse = søkersFagsaker.stream()
-            .filter(sak -> !sak.getStatus().equals(FagsakStatus.AVSLUTTET) && ytelseDetSjekkesMot.equals(sak.getYtelseType()))
-            .map(sak -> hentInfoOmSakIntektsmelding(sak.getId()))
-            .findFirst()
-            .orElse(new InfoOmSakInntektsmeldingResponse(StatusSakInntektsmelding.INGEN_BEHANDLING, Tid.TIDENES_ENDE, Tid.TIDENES_ENDE, null));
-
-        return Response.ok(infoOmSakIMResponse).build();
-    }
-
-    @POST
     @Path("/inntektsmeldingSaksoversikt")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
