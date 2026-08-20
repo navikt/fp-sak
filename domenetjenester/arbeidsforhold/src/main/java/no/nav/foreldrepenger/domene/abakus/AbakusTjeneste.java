@@ -19,11 +19,6 @@ import jakarta.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectReader;
-import com.fasterxml.jackson.databind.ObjectWriter;
-import com.fasterxml.jackson.databind.json.JsonMapper;
-
 import no.nav.abakus.iaygrunnlag.UuidDto;
 import no.nav.abakus.iaygrunnlag.arbeidsforhold.v1.ArbeidsforholdDto;
 import no.nav.abakus.iaygrunnlag.inntektsmelding.v1.InntektsmeldingerDto;
@@ -52,6 +47,10 @@ import no.nav.vedtak.felles.integrasjon.rest.RestRequest;
 import no.nav.vedtak.felles.integrasjon.rest.TokenFlow;
 import no.nav.vedtak.konfig.Tid;
 import no.nav.vedtak.mapper.json.DefaultJsonMapper;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.ObjectReader;
+import tools.jackson.databind.ObjectWriter;
+import tools.jackson.databind.json.JsonMapper;
 
 @ApplicationScoped
 @RestClientConfig(tokenConfig = TokenFlow.ADAPTIVE, application = FpApplication.FPABAKUS, scopesProperty = "abakus.scopes")
@@ -116,7 +115,7 @@ public class AbakusTjeneste {
             var json = iayJsonWriter.writeValueAsString(request);
 
             return hentFraAbakus(endpoint, responseHandler, json);
-        } catch (JsonProcessingException e) {
+        } catch (JacksonException e) {
             throw feilVedJsonParsing(e.getMessage());
         } catch (IOException e) {
             throw feilVedKallTilAbakus(e.getMessage());
@@ -144,7 +143,7 @@ public class AbakusTjeneste {
                 return Collections.emptyList();
             }
             return Arrays.asList(arbeidsforhold);
-        } catch (JsonProcessingException e) {
+        } catch (JacksonException e) {
             throw feilVedJsonParsing(e.getMessage());
         } catch (IOException e) {
             throw feilVedKallTilAbakus(e.getMessage());
@@ -180,7 +179,7 @@ public class AbakusTjeneste {
                 return Collections.emptyList();
             }
             return Arrays.asList(ytelser);
-        } catch (JsonProcessingException e) {
+        } catch (JacksonException e) {
             throw feilVedJsonParsing(e.getMessage());
         } catch (IOException e) {
             throw feilVedKallTilAbakus(e.getMessage());

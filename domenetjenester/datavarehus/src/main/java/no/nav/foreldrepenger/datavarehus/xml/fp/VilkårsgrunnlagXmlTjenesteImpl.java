@@ -18,7 +18,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.datavarehus.xml.VedtakXmlUtil;
 import no.nav.foreldrepenger.datavarehus.xml.VilkårsgrunnlagXmlTjeneste;
-import no.nav.foreldrepenger.domene.json.StandardJsonConfig;
 import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.RegelKjønn;
 import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.RegelSøkerRolle;
 import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.adopsjon.AdopsjonsvilkårGrunnlag;
@@ -29,6 +28,8 @@ import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.opptjening.Opptjeningsv
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 import no.nav.vedtak.felles.xml.vedtak.vilkaarsgrunnlag.fp.v2.ObjectFactory;
 import no.nav.vedtak.felles.xml.vedtak.vilkaarsgrunnlag.v2.Vilkaarsgrunnlag;
+import no.nav.vedtak.mapper.json.DefaultJson2Mapper;
+import no.nav.vedtak.mapper.json.DefaultJsonMapper;
 
 @FagsakYtelseTypeRef(FagsakYtelseType.FORELDREPENGER)
 @ApplicationScoped
@@ -73,8 +74,7 @@ public class VilkårsgrunnlagXmlTjenesteImpl extends VilkårsgrunnlagXmlTjeneste
             return vilkårgrunnlag;
         }
 
-        var grunnlagForVilkår = StandardJsonConfig.fromJson(
-            vilkårFraBehandling.getRegelInput(), AdopsjonsvilkårGrunnlag.class);
+        var grunnlagForVilkår = DefaultJsonMapper.fromJson(vilkårFraBehandling.getRegelInput(), AdopsjonsvilkårGrunnlag.class);
 
         if (RegelKjønn.KVINNE.equals(grunnlagForVilkår.søkersKjønn())) {
             vilkårgrunnlag.setSoekersKjoenn(VedtakXmlUtil.lagKodeverksOpplysning(NavBrukerKjønn.KVINNE));
@@ -94,8 +94,7 @@ public class VilkårsgrunnlagXmlTjenesteImpl extends VilkårsgrunnlagXmlTjeneste
         if (vilkårFraBehandling.getRegelInput() == null) {
             return vilkårgrunnlagFødselForeldrepenger;
         }
-        var grunnlagForVilkår = StandardJsonConfig.fromJson(
-            vilkårFraBehandling.getRegelInput(), FødselsvilkårGrunnlag.class);
+        var grunnlagForVilkår = DefaultJsonMapper.fromJson(vilkårFraBehandling.getRegelInput(), FødselsvilkårGrunnlag.class);
 
         vilkårgrunnlagFødselForeldrepenger.setSokersKjoenn(VedtakXmlUtil.lagStringOpplysning(grunnlagForVilkår.søkersKjønn().name()));
         vilkårgrunnlagFødselForeldrepenger.setAntallBarn(VedtakXmlUtil.lagIntOpplysning(grunnlagForVilkår.antallBarn()));
@@ -126,10 +125,7 @@ public class VilkårsgrunnlagXmlTjenesteImpl extends VilkårsgrunnlagXmlTjeneste
         if (vilkårFraBehandling.getRegelInput() == null) {
             return vilkårgrunnlag;
         }
-        var grunnlagForVilkår = StandardJsonConfig.fromJson(
-            vilkårFraBehandling.getRegelInput(),
-            MedlemskapsvilkårGrunnlagV1.class
-        );
+        var grunnlagForVilkår = DefaultJsonMapper.fromJson(vilkårFraBehandling.getRegelInput(), MedlemskapsvilkårGrunnlagV1.class);
         vilkårgrunnlag.setErBrukerBorgerAvEUEOS(VedtakXmlUtil.lagBooleanOpplysning(grunnlagForVilkår.brukerBorgerAvEUEOS()));
         vilkårgrunnlag.setHarBrukerLovligOppholdINorge(VedtakXmlUtil.lagBooleanOpplysning(grunnlagForVilkår.brukerAvklartLovligOppholdINorge()));
         vilkårgrunnlag.setHarBrukerOppholdsrett(VedtakXmlUtil.lagBooleanOpplysning(grunnlagForVilkår.brukerAvklartOppholdsrett()));
@@ -150,10 +146,8 @@ public class VilkårsgrunnlagXmlTjenesteImpl extends VilkårsgrunnlagXmlTjeneste
             return vilkårgrunnlag;
         }
 
-        var opptjeningsgrunnlag = StandardJsonConfig.fromJson(
-            vilkårFraBehandling.getRegelInput(),
-            Opptjeningsgrunnlag.class
-        );
+        // Inntil vi har tidsserie med Jackson3
+        var opptjeningsgrunnlag = DefaultJson2Mapper.fromJson(vilkårFraBehandling.getRegelInput(), Opptjeningsgrunnlag.class);
         var opptjeningsparametre = OpptjeningsvilkårParametre.opptjeningsparametreForeldrepenger();
 
         if (opptjeningsgrunnlag != null) {

@@ -10,8 +10,6 @@ import jakarta.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBrukerKjønn;
 import no.nav.foreldrepenger.behandlingslager.aktør.PersoninfoKjønn;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
@@ -26,12 +24,12 @@ import no.nav.foreldrepenger.behandlingslager.geografisk.Språkkode;
 import no.nav.foreldrepenger.dokumentarkiv.ArkivDokument;
 import no.nav.foreldrepenger.dokumentarkiv.ArkivJournalPost;
 import no.nav.foreldrepenger.dokumentarkiv.DokumentArkivTjeneste;
-import no.nav.foreldrepenger.domene.json.StandardJsonConfig;
 import no.nav.foreldrepenger.domene.person.PersoninfoAdapter;
 import no.nav.foreldrepenger.domene.typer.JournalpostId;
 import no.nav.foreldrepenger.mottak.fyllutsendinn.kilde.FormSubmission;
 import no.nav.foreldrepenger.mottak.fyllutsendinn.kilde.Nav140507Data;
 import no.nav.vedtak.mapper.json.DefaultJsonMapper;
+import tools.jackson.core.type.TypeReference;
 
 @ApplicationScoped
 public class FyllUtSendInnOversetter {
@@ -64,7 +62,7 @@ public class FyllUtSendInnOversetter {
             if (originalDokument.isEmpty()) {
                 return;
             }
-            var esFødsel = StandardJsonConfig.fromJson(originalDokument.get(), new TypeReference<FormSubmission<Nav140507Data>>() {});
+            var esFødsel = DefaultJsonMapper.fromJson(originalDokument.get(), new TypeReference<FormSubmission<Nav140507Data>>() {});
             // Skjemaspesifikke data
             var mellomlagringDto = EngangsstønadMapper.tilMellomlagreDto(esFødsel.data().data());
             // Data fra bruker, dokument og form-wrapper

@@ -1,6 +1,5 @@
 package no.nav.foreldrepenger.web.app.tjenester.registrering.dto;
 
-import java.io.IOException;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
@@ -10,14 +9,13 @@ import jakarta.validation.constraints.Digits;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.JsonDeserializer;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeType;
 import no.nav.foreldrepenger.validering.ValidKodeverk;
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.JsonParser;
+import tools.jackson.databind.DeserializationContext;
+import tools.jackson.databind.annotation.JsonDeserialize;
+import tools.jackson.databind.deser.std.StdDeserializer;
 
 public class GraderingDto {
 
@@ -37,7 +35,7 @@ public class GraderingDto {
     @DecimalMax("100.00")
     @DecimalMin("0.00")
     @Digits(integer = 3, fraction = 2)
-    @JsonDeserialize(using = BigDecimalSerializer.class)
+    @JsonDeserialize(using = BigDecimalDeserializer.class)
     private BigDecimal prosentandelArbeid;
 
     private Boolean skalGraderes;
@@ -49,7 +47,7 @@ public class GraderingDto {
     @DecimalMax("100.00")
     @DecimalMin("0.00")
     @Digits(integer = 3, fraction = 2)
-    @JsonDeserialize(using = BigDecimalSerializer.class)
+    @JsonDeserialize(using = BigDecimalDeserializer.class)
     private BigDecimal samtidigUttaksprosent;
 
     private boolean flerbarnsdager;
@@ -150,13 +148,19 @@ public class GraderingDto {
         this.flerbarnsdager = flerbarnsdager;
     }
 
-    public static class BigDecimalSerializer extends JsonDeserializer<BigDecimal> {
+    public static class BigDecimalDeserializer extends StdDeserializer<BigDecimal> {
+
+        public BigDecimalDeserializer() {
+            super(BigDecimal.class);
+        }
 
         @Override
-        public BigDecimal deserialize(JsonParser jp, DeserializationContext deserializationContext) throws IOException {
-            var oc = jp.getCodec();
-            JsonNode node = oc.readTree(jp);
-            return new BigDecimal(node.asText().replace(',', '.'));
+        public BigDecimal deserialize(JsonParser jp, DeserializationContext deserializationContext) throws JacksonException {
+            var text = jp.getString();
+            if (text == null || text.isEmpty()) {
+                return null;
+            }
+            return new BigDecimal(text.replace(',', '.'));
         }
     }
 

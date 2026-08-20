@@ -10,8 +10,6 @@ import jakarta.validation.Validator;
 
 import org.junit.jupiter.api.Test;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-
 import no.nav.foreldrepenger.mottak.fyllutsendinn.kilde.FormSubmission;
 import no.nav.foreldrepenger.mottak.fyllutsendinn.kilde.HvorHarDuBoddDeSiste12Manedene;
 import no.nav.foreldrepenger.mottak.fyllutsendinn.kilde.HvorSkalDuBoDeNeste12Manedene;
@@ -21,6 +19,7 @@ import no.nav.foreldrepenger.mottak.fyllutsendinn.kilde.Nav140507Data;
 import no.nav.foreldrepenger.mottak.fyllutsendinn.kilde.Nav140509Data;
 import no.nav.foreldrepenger.mottak.fyllutsendinn.kilde.Nav141605Data;
 import no.nav.vedtak.mapper.json.DefaultJsonMapper;
+import tools.jackson.core.type.TypeReference;
 
 class LesJournalførtFyllUtTest {
 

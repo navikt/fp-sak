@@ -16,7 +16,6 @@ import org.junit.jupiter.api.Test;
 import no.nav.folketrygdloven.kalkulus.kodeverk.BeregningsgrunnlagTilstand;
 import no.nav.folketrygdloven.kalkulus.kodeverk.OpptjeningAktivitetType;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
-import no.nav.foreldrepenger.domene.json.StandardJsonConfig;
 import no.nav.foreldrepenger.domene.modell.BeregningAktivitet;
 import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagAktivitetStatus;
 import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagPeriode;
@@ -33,6 +32,7 @@ import no.nav.foreldrepenger.kalkulus.kontrakt.response.beregningsgrunnlag.detal
 import no.nav.foreldrepenger.kalkulus.kontrakt.typer.Beløp;
 import no.nav.foreldrepenger.kalkulus.kontrakt.typer.InternArbeidsforholdRefDto;
 import no.nav.foreldrepenger.kalkulus.kontrakt.typer.Periode;
+import no.nav.vedtak.mapper.json.DefaultJsonMapper;
 
 class KalkulusTilFpsakMapperTest {
 
@@ -385,8 +385,8 @@ class KalkulusTilFpsakMapperTest {
                  },
                  "beregningsgrunnlagTilstand": "FASTSATT"
              }
-             """;
-        return StandardJsonConfig.fromJson(json, BeregningsgrunnlagGrunnlagDto.class);
+            """;
+        return DefaultJsonMapper.fromJson(json, BeregningsgrunnlagGrunnlagDto.class);
     }
 
 }
