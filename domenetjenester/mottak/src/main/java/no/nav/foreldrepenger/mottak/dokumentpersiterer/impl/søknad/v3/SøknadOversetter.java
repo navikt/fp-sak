@@ -178,12 +178,12 @@ public class SøknadOversetter implements MottattDokumentOversetter<SøknadWrapp
         if (wrapper.getOmYtelse() != null) {
             new MedlemskapOversetter(medlemskapRepository).byggMedlemskap(wrapper, ref.behandlingId(), mottattDato);
         }
+        var relasjonsRolleType = utledRolle(ref.fagsakYtelseType(), wrapper.getBruker(), ref.saksnummer(), ref.aktørId());
         lagreAnnenPart(wrapper, ref);
-        byggYtelsesSpesifikkeFelter(wrapper, behandling);
+        byggYtelsesSpesifikkeFelter(wrapper, behandling, relasjonsRolleType);
         new OpptjeningOversetter(virksomhetTjeneste, iayTjeneste).byggOpptjeningsspesifikkeFelter(wrapper, behandling);
         new FamilieHendelseOversetter(familieHendelseRepository).oversettPersisterFamilieHendelse(wrapper, behandling, søknadBuilder);
         søknadBuilder.medErEndringssøknad(false);
-        var relasjonsRolleType = utledRolle(ref.fagsakYtelseType(), wrapper.getBruker(), ref.saksnummer(), ref.aktørId());
         var søknad = søknadBuilder.medRelasjonsRolleType(relasjonsRolleType).build();
         søknadRepository.lagreOgFlush(behandling, søknad);
         fagsakRepository.oppdaterRelasjonsRolle(ref.fagsakId(), søknad.getRelasjonsRolleType());
@@ -234,11 +234,12 @@ public class SøknadOversetter implements MottattDokumentOversetter<SøknadWrapp
     }
 
     private void byggYtelsesSpesifikkeFelter(SøknadWrapper skjemaWrapper,
-                                             Behandling behandling) {
+                                             Behandling behandling,
+                                             RelasjonsRolleType relasjonsRolleType) {
         var søknadMottattDato = skjemaWrapper.getSkjema().getMottattDato();
         if (skjemaWrapper.getOmYtelse() instanceof Foreldrepenger omYtelse) {
             new ForeldrepengerUttakOversetter(ytelsesFordelingRepository, virksomhetTjeneste, personinfoAdapter, søknadDataFraTidligereVedtakTjeneste)
-                .oversettForeldrepengerSøknad(omYtelse, behandling, søknadMottattDato);
+                .oversettForeldrepengerSøknad(omYtelse, behandling, søknadMottattDato, relasjonsRolleType);
         } else if (skjemaWrapper.getOmYtelse() instanceof Svangerskapspenger svangerskapspenger) {
             new TilretteleggingOversetter(svangerskapspengerRepository, virksomhetTjeneste, personinfoAdapter)
                 .oversettOgLagreTilretteleggingOgVurderEksisterende(svangerskapspenger, behandling, søknadMottattDato);

@@ -5,11 +5,16 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
+import java.util.Set;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
+import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.MorsAktivitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.OppgittRettighetEntitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.Rettighetstype;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelsesFordelingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.GraderingAktivitetType;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittFordelingEntitet;
@@ -27,6 +32,7 @@ import no.nav.foreldrepenger.domene.person.PersoninfoAdapter;
 import no.nav.foreldrepenger.domene.typer.PersonIdent;
 import no.nav.foreldrepenger.mottak.dokumentpersiterer.SøknadDataFraTidligereVedtakTjeneste;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.Virkedager;
+import no.nav.foreldrepenger.skjæringstidspunkt.overganger.UtsettelseCore2021;
 import no.nav.vedtak.felles.xml.soeknad.endringssoeknad.v3.Endringssoeknad;
 import no.nav.vedtak.felles.xml.soeknad.foreldrepenger.v3.Foreldrepenger;
 import no.nav.vedtak.felles.xml.soeknad.kodeverk.v3.MorsAktivitetsTyper;
@@ -40,6 +46,8 @@ import no.nav.vedtak.felles.xml.soeknad.uttak.v3.Uttaksperiode;
 import no.nav.vedtak.felles.xml.soeknad.uttak.v3.Virksomhet;
 
 public class ForeldrepengerUttakOversetter  {
+
+    private static final Logger LOG = LoggerFactory.getLogger(ForeldrepengerUttakOversetter.class);
 
     private final VirksomhetTjeneste virksomhetTjeneste;
     private final YtelsesFordelingRepository ytelsesFordelingRepository;
@@ -58,35 +66,42 @@ public class ForeldrepengerUttakOversetter  {
 
 
     void oversettForeldrepengerEndringssøknad(Endringssoeknad omYtelse,
-                                                              Behandling behandling,
-                                                              LocalDate mottattDato) {
+                                              Behandling behandling,
+                                              LocalDate mottattDato) {
         var fordeling = omYtelse.getFordeling();
         var perioder = fordeling.getPerioder();
         var annenForelderErInformert = fordeling.isAnnenForelderErInformert();
         var ønskerJustertVedFødsel = fordeling.isOenskerJustertVedFoedsel();
+        var rettighetstype = behandling.getOriginalBehandlingId()
+            .map(ob -> ytelsesFordelingRepository.hentAggregat(ob).getGjeldendeRettighetstype(behandling.getRelasjonsRolleType()))
+            .orElseThrow();
         var yfBuilder = ytelsesFordelingRepository.opprettBuilder(behandling.getId())
-            .medOppgittFordeling(lagOppgittFordeling(behandling, perioder, annenForelderErInformert, mottattDato, ønskerJustertVedFødsel));
+            .medOppgittFordeling(lagOppgittFordeling(behandling, perioder, annenForelderErInformert, mottattDato, ønskerJustertVedFødsel,
+                rettighetstype));
         ytelsesFordelingRepository.lagre(behandling.getId(), yfBuilder.build());
     }
 
     void oversettForeldrepengerSøknad(Foreldrepenger omYtelse,
-                                             Behandling behandling,
-                                              LocalDate søknadMottattDato) {
+                                      Behandling behandling,
+                                      LocalDate søknadMottattDato,
+                                      RelasjonsRolleType relasjonsRolleType) {
+        var oppgittRettighet = oversettRettighet(omYtelse);
         var yfBuilder = ytelsesFordelingRepository.opprettBuilder(behandling.getId())
-            .medOppgittFordeling(oversettFordeling(behandling, omYtelse, søknadMottattDato));
+            .medOppgittFordeling(oversettFordeling(behandling, omYtelse, søknadMottattDato,
+                oppgittRettighet.rettighetstype(relasjonsRolleType)))
+            .medOppgittRettighet(oppgittRettighet);
         if (!behandling.erRevurdering()) {
             yfBuilder.medOppgittDekningsgrad(oversettDekningsgrad(omYtelse))
                 .medSakskompleksDekningsgrad(null);
         }
-        oversettRettighet(omYtelse).ifPresent(yfBuilder::medOppgittRettighet);
         ytelsesFordelingRepository.lagre(behandling.getId(), yfBuilder.build());
     }
 
-    private Optional<OppgittRettighetEntitet> oversettRettighet(Foreldrepenger omYtelse) {
-        return Optional.ofNullable(omYtelse.getRettigheter())
-            .map(rettigheter -> new OppgittRettighetEntitet(rettigheter.isHarAnnenForelderRett(), rettigheter.isHarAleneomsorgForBarnet(),
-                    harOppgittUføreEllerPerioderMedAktivitetUføre(omYtelse, rettigheter.isHarMorUforetrygd()), rettigheter.isHarAnnenForelderTilsvarendeRettEOS(),
-                rettigheter.isHarAnnenForelderOppholdtSegIEOS()));
+    private OppgittRettighetEntitet oversettRettighet(Foreldrepenger omYtelse) {
+        var rettigheter = omYtelse.getRettigheter();
+        return new OppgittRettighetEntitet(rettigheter.isHarAnnenForelderRett(), rettigheter.isHarAleneomsorgForBarnet(),
+            harOppgittUføreEllerPerioderMedAktivitetUføre(omYtelse, rettigheter.isHarMorUforetrygd()), rettigheter.isHarAnnenForelderTilsvarendeRettEOS(),
+            rettigheter.isHarAnnenForelderOppholdtSegIEOS());
     }
 
     // TODO: Avklare med AP om dette er rett måte å serve rettighet??? Info må uansett sjekke oppgitt fordeling for eldre tilfelle (med mindre vi kjører DB-oppdatering)
@@ -104,24 +119,28 @@ public class ForeldrepengerUttakOversetter  {
 
     private OppgittFordelingEntitet oversettFordeling(Behandling behandling,
                                                       Foreldrepenger omYtelse,
-                                                      LocalDate mottattDato) {
+                                                      LocalDate mottattDato,
+                                                      Rettighetstype rettighetstype) {
         var oppgittePerioder = new ArrayList<>(omYtelse.getFordeling().getPerioder());
         var annenForelderErInformert = omYtelse.getFordeling().isAnnenForelderErInformert();
         var ønskerJustertVedFødsel = omYtelse.getFordeling().isOenskerJustertVedFoedsel();
-        return lagOppgittFordeling(behandling, oppgittePerioder, annenForelderErInformert, mottattDato, ønskerJustertVedFødsel);
+        return lagOppgittFordeling(behandling, oppgittePerioder, annenForelderErInformert, mottattDato, ønskerJustertVedFødsel,
+            rettighetstype);
     }
 
     private OppgittFordelingEntitet lagOppgittFordeling(Behandling behandling,
                                                         List<LukketPeriodeMedVedlegg> perioder,
                                                         boolean annenForelderErInformert,
                                                         LocalDate mottattDatoFraSøknad,
-                                                        Boolean ønskerJustertVedFødsel) {
+                                                        Boolean ønskerJustertVedFødsel,
+                                                        Rettighetstype rettighetstype) {
 
-        var oppgittPerioder = perioder.stream()
+        var kandidatperioder = perioder.stream()
             .filter(this::positiveDager)
             .map(this::oversettPeriode)
             .filter(this::inneholderVirkedager)
             .toList();
+        var oppgittPerioder = filtrerPerioderSomSkalSaksbehandles(kandidatperioder, rettighetstype);
         var filtrertPerioder = søknadDataFraTidligereVedtakTjeneste.filtrerVekkPerioderSomErLikeInnvilgetUttak(behandling, oppgittPerioder);
         var perioderMedTidligstMottatt = søknadDataFraTidligereVedtakTjeneste.oppdaterTidligstMottattDato(behandling, mottattDatoFraSøknad, filtrertPerioder);
         var perioderMedGodkjentVurdering = søknadDataFraTidligereVedtakTjeneste.oppdaterMedGodkjenteDokumentasjonsVurderinger(behandling, perioderMedTidligstMottatt);
@@ -129,6 +148,32 @@ public class ForeldrepengerUttakOversetter  {
             throw new IllegalArgumentException("Fordelingen må inneholde perioder med minst en virkedag");
         }
         return new OppgittFordelingEntitet(perioderMedGodkjentVurdering, annenForelderErInformert, Objects.equals(ønskerJustertVedFødsel, true));
+    }
+
+    static List<OppgittPeriodeEntitet> filtrerPerioderSomSkalSaksbehandles(List<OppgittPeriodeEntitet> perioder,
+                                                                           Rettighetstype rettighetstype) {
+        if (Set.of(Rettighetstype.BARE_FAR_RETT, Rettighetstype.BARE_FAR_RETT_MOR_UFØR).contains(rettighetstype)) {
+            return perioder;
+        }
+        var førsteFom = perioder.stream().map(OppgittPeriodeEntitet::getFom).min(LocalDate::compareTo);
+        var filtrertePerioder = perioder.stream()
+            .filter(periode -> skalSaksbehandles(periode, førsteFom.filter(periode.getFom()::equals).isPresent()))
+            .toList();
+        if (filtrertePerioder.isEmpty()) {
+            LOG.warn("Planperiodefilteret fjernet alle {} kandidatperioder. Beholder kandidatperiodene slik at søknaden kan saksbehandles videre.",
+                perioder.size());
+            return perioder;
+        }
+        return filtrertePerioder;
+    }
+
+    private static boolean skalSaksbehandles(OppgittPeriodeEntitet oppgittPeriode, boolean erFørsteSøknadsperiode) {
+        if (UtsettelseCore2021.kreverSammenhengendeUttak(oppgittPeriode) ||
+            (!oppgittPeriode.isUtsettelse() && !oppgittPeriode.isOpphold())) {
+            return true;
+        }
+        return (erFørsteSøknadsperiode && UtsettelseÅrsak.FRI.equals(oppgittPeriode.getÅrsak()))
+            || UtsettelseÅrsak.UTS_14_11.contains(oppgittPeriode.getÅrsak());
     }
 
     private boolean inneholderVirkedager(List<OppgittPeriodeEntitet> perioder) {

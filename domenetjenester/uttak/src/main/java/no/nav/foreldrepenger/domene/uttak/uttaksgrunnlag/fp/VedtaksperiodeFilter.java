@@ -1,12 +1,13 @@
 package no.nav.foreldrepenger.domene.uttak.uttaksgrunnlag.fp;
 
+import static no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.UtsettelseÅrsak.UTS_14_11;
+
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
@@ -35,8 +36,6 @@ import no.nav.fpsak.tidsserie.LocalDateTimeline;
 public final class VedtaksperiodeFilter {
 
     private static final Logger LOG = LoggerFactory.getLogger(VedtaksperiodeFilter.class);
-
-    private static final Set<UtsettelseÅrsak> UTS_14_11 = Set.of(UtsettelseÅrsak.SYKDOM, UtsettelseÅrsak.INSTITUSJON_BARN, UtsettelseÅrsak.INSTITUSJON_SØKER);
 
     private VedtaksperiodeFilter() {
     }

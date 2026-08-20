@@ -2,6 +2,7 @@ package no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak
 
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Set;
 
 import com.fasterxml.jackson.annotation.JsonValue;
 
@@ -20,6 +21,8 @@ public enum UtsettelseÅrsak implements Årsak {
     private static final Map<String, UtsettelseÅrsak> KODER = new LinkedHashMap<>();
 
     public static final String DISKRIMINATOR = "UTSETTELSE_AARSAK_TYPE";
+
+    public static final Set<UtsettelseÅrsak> UTS_14_11 = Set.of(UtsettelseÅrsak.SYKDOM, UtsettelseÅrsak.INSTITUSJON_BARN, UtsettelseÅrsak.INSTITUSJON_SØKER);
 
     static {
         for (var v : values()) {
