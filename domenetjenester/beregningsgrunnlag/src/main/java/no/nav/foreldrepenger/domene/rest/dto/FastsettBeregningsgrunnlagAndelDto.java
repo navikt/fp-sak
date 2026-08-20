@@ -5,13 +5,15 @@ import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 
-import no.nav.foreldrepenger.behandlingslager.behandling.beregning.AktivitetStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.Inntektskategori;
-import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.OpptjeningAktivitetType;
 import no.nav.foreldrepenger.validering.ValidKodeverk;
 
-public class FastsettBeregningsgrunnlagAndelDto extends RedigerbarAndelDto {
+public class FastsettBeregningsgrunnlagAndelDto {
 
+    @Min(0)
+    @Max(Long.MAX_VALUE)
+    private Long andelsnr;
+    private Boolean lagtTilAvSaksbehandler;
     @Valid
     @NotNull
     private FastsatteVerdierDto fastsatteVerdier;
@@ -28,22 +30,12 @@ public class FastsettBeregningsgrunnlagAndelDto extends RedigerbarAndelDto {
         // Jackson
     }
 
-    public FastsettBeregningsgrunnlagAndelDto(Boolean nyAndel,
-                                              String arbeidsgiverId,
-                                              String internArbeidsforholdId,
-                                              Long andelsnr,
-                                              Boolean lagtTilAvSaksbehandler,
-                                              AktivitetStatus aktivitetStatus,
-                                              OpptjeningAktivitetType arbeidsforholdType,
-                                              FastsatteVerdierDto fastsatteVerdier,
-                                              Inntektskategori forrigeInntektskategori,
-                                              Integer forrigeRefusjonPrÅr,
-                                              Integer forrigeArbeidsinntektPrÅr) {
-        super(nyAndel, arbeidsgiverId, internArbeidsforholdId, andelsnr, lagtTilAvSaksbehandler, aktivitetStatus, arbeidsforholdType);
-        this.fastsatteVerdier = fastsatteVerdier;
-        this.forrigeInntektskategori = forrigeInntektskategori;
-        this.forrigeRefusjonPrÅr = forrigeRefusjonPrÅr;
-        this.forrigeArbeidsinntektPrÅr = forrigeArbeidsinntektPrÅr;
+    public Long getAndelsnr() {
+        return andelsnr;
+    }
+
+    public Boolean getLagtTilAvSaksbehandler() {
+        return lagtTilAvSaksbehandler;
     }
 
     public FastsatteVerdierDto getFastsatteVerdier() {

@@ -30,7 +30,6 @@ import no.nav.foreldrepenger.domene.rest.dto.FastsettMånedsinntektUtenInntektsm
 import no.nav.foreldrepenger.domene.rest.dto.FastsettMånedsinntektUtenInntektsmeldingDto;
 import no.nav.foreldrepenger.domene.rest.dto.InntektPrAndelDto;
 import no.nav.foreldrepenger.domene.rest.dto.MottarYtelseDto;
-import no.nav.foreldrepenger.domene.rest.dto.RedigerbarAndelDto;
 import no.nav.foreldrepenger.domene.rest.dto.RefusjonskravPrArbeidsgiverVurderingDto;
 import no.nav.foreldrepenger.domene.rest.dto.VurderATogFLiSammeOrganisasjonAndelDto;
 import no.nav.foreldrepenger.domene.rest.dto.VurderATogFLiSammeOrganisasjonDto;
@@ -48,7 +47,6 @@ import no.nav.foreldrepenger.domene.rest.dto.fordeling.FordelBeregningsgrunnlagA
 import no.nav.foreldrepenger.domene.rest.dto.fordeling.FordelBeregningsgrunnlagDto;
 import no.nav.foreldrepenger.domene.rest.dto.fordeling.FordelBeregningsgrunnlagPeriodeDto;
 import no.nav.foreldrepenger.domene.rest.dto.fordeling.FordelFastsatteVerdierDto;
-import no.nav.foreldrepenger.domene.rest.dto.fordeling.FordelRedigerbarAndelDto;
 import no.nav.foreldrepenger.kalkulus.kontrakt.request.håndtering.fakta.FaktaOmBeregningTilfelleDto;
 
 
@@ -387,7 +385,7 @@ public class OppdatererDtoMapper {
     }
 
     private static no.nav.foreldrepenger.kalkulus.kontrakt.request.håndtering.fordeling.FordelRedigerbarAndelDto mapTilFordelRedigerbarAndelDto(
-        FordelRedigerbarAndelDto redigerbarAndel) {
+        FordelBeregningsgrunnlagAndelDto redigerbarAndel) {
         return new no.nav.foreldrepenger.kalkulus.kontrakt.request.håndtering.fordeling.FordelRedigerbarAndelDto(
             redigerbarAndel.getAndelsnr(),
             redigerbarAndel.getArbeidsgiverId(),
@@ -397,7 +395,7 @@ public class OppdatererDtoMapper {
             );
     }
 
-    private static no.nav.foreldrepenger.kalkulus.kontrakt.request.håndtering.fakta.RedigerbarAndelDto mapTilRedigerbarAndelDto(RedigerbarAndelDto redigerbarAndel) {
+    private static no.nav.foreldrepenger.kalkulus.kontrakt.request.håndtering.fakta.RedigerbarAndelDto mapTilRedigerbarAndelDto(FastsettBeregningsgrunnlagAndelDto redigerbarAndel) {
         return new no.nav.foreldrepenger.kalkulus.kontrakt.request.håndtering.fakta.RedigerbarAndelDto(
             redigerbarAndel.getAndelsnr(),
             redigerbarAndel.getLagtTilAvSaksbehandler());
