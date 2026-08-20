@@ -196,7 +196,7 @@ public class OppdatererDtoMapper {
 
     private static no.nav.foreldrepenger.kalkulus.kontrakt.request.håndtering.fakta.FastsettMånedsinntektUtenInntektsmeldingDto mapFastsattUtenInntektsmeldingDto(
         FastsettMånedsinntektUtenInntektsmeldingDto fastsattUtenInntektsmelding) {
-        return new no.nav.foreldrepenger.kalkulus.kontrakt.request.håndtering.fakta.FastsettMånedsinntektUtenInntektsmeldingDto(mapFastsattUtenInntektsmeldingAndelListe(fastsattUtenInntektsmelding.getAndelListe()));
+        return new no.nav.foreldrepenger.kalkulus.kontrakt.request.håndtering.fakta.FastsettMånedsinntektUtenInntektsmeldingDto(mapFastsattUtenInntektsmeldingAndelListe(fastsattUtenInntektsmelding.andelListe()));
     }
 
     private static List<no.nav.foreldrepenger.kalkulus.kontrakt.request.håndtering.fakta.FastsettMånedsinntektUtenInntektsmeldingAndelDto> mapFastsattUtenInntektsmeldingAndelListe(List<FastsettMånedsinntektUtenInntektsmeldingAndelDto> andelListe) {
