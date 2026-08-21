@@ -11,6 +11,8 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 
+import no.nav.foreldrepenger.kalkulus.kontrakt.response.beregningsgrunnlag.detaljert.BeregningsgrunnlagAktivitetStatusDto;
+
 import org.junit.jupiter.api.Test;
 
 import no.nav.folketrygdloven.kalkulus.kodeverk.BeregningsgrunnlagTilstand;
@@ -47,7 +49,7 @@ class KalkulusTilFpsakMapperTest {
         assertThat(domenebg.getSkjæringstidspunkt()).isEqualTo(kontraktbg.getSkjæringstidspunkt());
         assertThat(domenebg.getGrunnbeløp().getVerdi()).isEqualTo(kontraktbg.getGrunnbeløp().verdi());
         assertThat(domenebg.getAktivitetStatuser().stream().map(BeregningsgrunnlagAktivitetStatus::getAktivitetStatus))
-            .containsAll(kontraktbg.getAktivitetStatuser().stream().map(KodeverkFraKalkulusMapper::mapAktivitetstatus).toList());
+            .containsAll(kontraktbg.getAktivitetStatuserMedHjemmel().stream().map(BeregningsgrunnlagAktivitetStatusDto::getAktivitetStatus).map(KodeverkFraKalkulusMapper::mapAktivitetstatus).toList());
         assertThat(domenebg.getBeregningsgrunnlagPerioder()).hasSameSizeAs(kontraktbg.getBeregningsgrunnlagPerioder());
         assertPerioder(domenebg.getBeregningsgrunnlagPerioder().stream()
             .sorted(Comparator.comparing(bgp -> bgp.getPeriode().getFomDato())).toList(), kontraktbg.getBeregningsgrunnlagPerioder().stream()
@@ -99,7 +101,7 @@ class KalkulusTilFpsakMapperTest {
         assertThat(domenebg.getSkjæringstidspunkt()).isEqualTo(kontraktbg.getSkjæringstidspunkt());
         assertThat(domenebg.getGrunnbeløp().getVerdi()).isEqualTo(kontraktbg.getGrunnbeløp().verdi());
         assertThat(domenebg.getAktivitetStatuser().stream().map(BeregningsgrunnlagAktivitetStatus::getAktivitetStatus))
-            .containsAll(kontraktbg.getAktivitetStatuser().stream().map(KodeverkFraKalkulusMapper::mapAktivitetstatus).toList());
+            .containsAll(kontraktbg.getAktivitetStatuserMedHjemmel().stream().map(BeregningsgrunnlagAktivitetStatusDto::getAktivitetStatus).map(KodeverkFraKalkulusMapper::mapAktivitetstatus).toList());
         assertThat(domenebg.getBeregningsgrunnlagPerioder()).hasSameSizeAs(kontraktbg.getBeregningsgrunnlagPerioder());
         assertPerioder(domenebg.getBeregningsgrunnlagPerioder().stream()
             .sorted(Comparator.comparing(bgp -> bgp.getPeriode().getFomDato())).toList(), kontraktbg.getBeregningsgrunnlagPerioder().stream()
