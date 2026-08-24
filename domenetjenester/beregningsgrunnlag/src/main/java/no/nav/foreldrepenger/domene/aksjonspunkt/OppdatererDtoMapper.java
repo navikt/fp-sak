@@ -360,7 +360,8 @@ public class OppdatererDtoMapper {
 
     private static no.nav.foreldrepenger.kalkulus.kontrakt.request.håndtering.fakta.FastsettBeregningsgrunnlagAndelDto mapFastsettBeregningsgrunnlagPeriodeAndelDto(FastsettBeregningsgrunnlagAndelDto fastsettBeregningsgrunnlagAndelDto) {
         return new no.nav.foreldrepenger.kalkulus.kontrakt.request.håndtering.fakta.FastsettBeregningsgrunnlagAndelDto(
-            mapTilRedigerbarAndelDto(fastsettBeregningsgrunnlagAndelDto),
+            fastsettBeregningsgrunnlagAndelDto.getAndelsnr(),
+            fastsettBeregningsgrunnlagAndelDto.getLagtTilAvSaksbehandler(),
             mapTilFastsatteVerdier(fastsettBeregningsgrunnlagAndelDto.getFastsatteVerdier()),
             fastsettBeregningsgrunnlagAndelDto.getForrigeInntektskategori() == null ? null : Inntektskategori.fraKode(fastsettBeregningsgrunnlagAndelDto.getForrigeInntektskategori().getKode()),
             fastsettBeregningsgrunnlagAndelDto.getForrigeRefusjonPrÅr(),
@@ -393,11 +394,5 @@ public class OppdatererDtoMapper {
             redigerbarAndel.getNyAndel(),
             redigerbarAndel.getKilde() == null ? AndelKilde.PROSESS_START : Arrays.stream(AndelKilde.values()).filter(v -> v.getKode().equals(redigerbarAndel.getKilde().getKode())).findFirst().orElse(AndelKilde.PROSESS_START)
             );
-    }
-
-    private static no.nav.foreldrepenger.kalkulus.kontrakt.request.håndtering.fakta.RedigerbarAndelDto mapTilRedigerbarAndelDto(FastsettBeregningsgrunnlagAndelDto redigerbarAndel) {
-        return new no.nav.foreldrepenger.kalkulus.kontrakt.request.håndtering.fakta.RedigerbarAndelDto(
-            redigerbarAndel.getAndelsnr(),
-            redigerbarAndel.getLagtTilAvSaksbehandler());
     }
 }
