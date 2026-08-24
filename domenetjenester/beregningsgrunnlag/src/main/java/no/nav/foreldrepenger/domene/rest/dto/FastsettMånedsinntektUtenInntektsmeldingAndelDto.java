@@ -26,10 +26,10 @@ public class FastsettMånedsinntektUtenInntektsmeldingAndelDto {
         // For Jackson
     }
 
-    public FastsettMånedsinntektUtenInntektsmeldingAndelDto(Long andelsnr, FastsatteVerdierDto fastsatteVerdier) {
+    public FastsettMånedsinntektUtenInntektsmeldingAndelDto(Long andelsnr, Integer fastsattBeløp, Inntektskategori inntektskategori) {
         this.andelsnr = andelsnr;
-        this.fastsattBeløp = fastsatteVerdier.getFastsattBeløp();
-        this.inntektskategori = fastsatteVerdier.getInntektskategori();
+        this.fastsattBeløp = fastsattBeløp;
+        this.inntektskategori = inntektskategori;
     }
 
     public Long getAndelsnr() {

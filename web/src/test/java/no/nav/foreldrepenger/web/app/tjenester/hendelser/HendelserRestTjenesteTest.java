@@ -25,7 +25,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import no.nav.foreldrepenger.behandlingslager.hendelser.HendelseSorteringRepository;
 import no.nav.foreldrepenger.behandlingslager.hendelser.HendelsemottakRepository;
 import no.nav.foreldrepenger.dbstoette.JpaExtension;
-import no.nav.foreldrepenger.domene.json.StandardJsonConfig;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.kontrakter.abonnent.v2.AktørIdDto;
 import no.nav.foreldrepenger.kontrakter.abonnent.v2.HendelseWrapperDto;
@@ -36,6 +35,7 @@ import no.nav.foreldrepenger.web.server.abac.AppAbacAttributtType;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 import no.nav.vedtak.felles.prosesstask.api.TaskType;
+import no.nav.vedtak.mapper.json.DefaultJsonMapper;
 
 @ExtendWith(MockitoExtension.class)
 @ExtendWith(JpaExtension.class)
@@ -74,7 +74,11 @@ class HendelserRestTjenesteTest {
         var tasks = captor.getAllValues();
         var task = tasks.stream().filter(d -> Objects.equals(HENDELSE_TASK, d.taskType())).findFirst().orElseThrow();
         assertThat(task.taskType()).isEqualTo(HENDELSE_TASK);
-        assertThat(task.getPayloadAsString()).isEqualTo(StandardJsonConfig.toJson(hendelse));
+        var payload = DefaultJsonMapper.fromJson(task.getPayloadAsString(), FødselHendelseDto.class);
+        assertThat(payload.getFødselsdato()).isEqualTo(hendelse.getFødselsdato());
+        assertThat(payload.getHendelsetype()).isEqualTo(hendelse.getHendelsetype());
+        assertThat(payload.getId()).isEqualTo(hendelse.getId());
+        assertThat(payload.getAlleAktørId()).containsAll(hendelse.getAlleAktørId());
         assertThat(task.getPropertyValue(KlargjørHendelseTask.PROPERTY_UID)).isEqualTo(HENDELSE_ID);
         assertThat(task.getPropertyValue(KlargjørHendelseTask.PROPERTY_HENDELSE_TYPE)).isEqualTo("FØDSEL");
 
@@ -100,7 +104,11 @@ class HendelserRestTjenesteTest {
         var tasks = captor.getAllValues();
         var task = tasks.stream().filter(d -> Objects.equals(HENDELSE_TASK, d.taskType())).findFirst().orElseThrow();
         assertThat(task.taskType()).isEqualTo(HENDELSE_TASK);
-        assertThat(task.getPayloadAsString()).isEqualTo(StandardJsonConfig.toJson(hendelse));
+        var payload = DefaultJsonMapper.fromJson(task.getPayloadAsString(), DødfødselHendelseDto.class);
+        assertThat(payload.getDødfødselsdato()).isEqualTo(hendelse.getDødfødselsdato());
+        assertThat(payload.getHendelsetype()).isEqualTo(hendelse.getHendelsetype());
+        assertThat(payload.getId()).isEqualTo(hendelse.getId());
+        assertThat(payload.getAlleAktørId()).containsAll(hendelse.getAlleAktørId());
         assertThat(task.getPropertyValue(KlargjørHendelseTask.PROPERTY_UID)).isEqualTo(HENDELSE_ID);
         assertThat(task.getPropertyValue(KlargjørHendelseTask.PROPERTY_HENDELSE_TYPE)).isEqualTo("DØDFØDSEL");
 

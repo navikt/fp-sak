@@ -104,26 +104,14 @@ public abstract class AbstractVedtaksbrevOverstyringshåndterer {
 
     private void verifiserBehandlingDokumentInneholderRedigertBrev(Long behandlingId) {
         var harMellomlagring = mellomlagringRepository.harMellomlagring(behandlingId, MellomlagringType.VEDTAKSBREV);
-        var harGammelOverstyring = behandlingDokumentRepository.hentHvisEksisterer(behandlingId)
-            .map(d -> d.getOverstyrtBrevFritekstHtml() != null).orElse(false);
-        if (!harMellomlagring && !harGammelOverstyring) {
+        if (!harMellomlagring) {
             throw new TekniskException("FP-666916", "Foreslå vedtaksteget har sendt at brev skal overstyres til beslutter men det foreligger ingen overstyring!");
         }
     }
 
     private void fjernEksisterendeRedigertEllerOverstyrBrevHvisEksisterer(Behandling behandling) {
         var behandlingId = behandling.getId();
-        // Fjern fra ny mellomlagring-tabell
         mellomlagringRepository.fjernMellomlagring(behandlingId, MellomlagringType.VEDTAKSBREV);
-        // Fjern fra gammel tabell
-        var eksisterendeBehandlingDokument = behandlingDokumentRepository.hentHvisEksisterer(behandlingId);
-        if (eksisterendeBehandlingDokument.isPresent() && erFritekst(eksisterendeBehandlingDokument.get())) {
-            var behandlingDokument = BehandlingDokumentEntitet.Builder.fraEksisterende(eksisterendeBehandlingDokument.get())
-                .medBehandling(behandlingId)
-                .medOverstyrtBrevFritekstHtml(null)
-                .build();
-            behandlingDokumentRepository.lagreOgFlush(behandlingDokument);
-        }
 
         var behandlingsresultatOpt = behandlingsresultatRepository.hentHvisEksisterer(behandlingId);
         if (behandlingsresultatOpt.isPresent() && Vedtaksbrev.FRITEKST.equals(behandlingsresultatOpt.get().getVedtaksbrev())) {
@@ -132,10 +120,6 @@ public abstract class AbstractVedtaksbrevOverstyringshåndterer {
                 .buildFor(behandling); // .buildFor oppdaterer også ES legacy BR hvis det foreligger.
             behandlingsresultatRepository.lagre(behandlingId, behandlingResultat);
         }
-    }
-
-    private static boolean erFritekst(BehandlingDokumentEntitet dok) {
-        return dok.getOverstyrtBrevFritekstHtml() != null;
     }
 
     private boolean skalFjerneUtfyllendeTekstForAutomatiskVedtaksbrev(Behandling behandling) {

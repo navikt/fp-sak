@@ -14,7 +14,7 @@ import org.slf4j.LoggerFactory;
 import no.nav.foreldrepenger.web.app.tjenester.vedtak.ytelseinfo.EksternDelingYtelseInfoRestTjeneste;
 import no.nav.foreldrepenger.web.server.abac.EksternPipRestTjeneste;
 import no.nav.vedtak.server.rest.AuthenticationFilter;
-import no.nav.vedtak.server.rest.FpRestJackson2Feature;
+import no.nav.vedtak.server.rest.FpRestJacksonFeature;
 
 @ApplicationPath(EksternApiConfig.API_URI)
 public class EksternApiConfig extends ResourceConfig {
@@ -27,7 +27,7 @@ public class EksternApiConfig extends ResourceConfig {
         setApplicationName(EksternApiConfig.class.getSimpleName());
         // Sikkerhet
         register(AuthenticationFilter.class);
-        register(FpRestJackson2Feature.class);
+        register(FpRestJacksonFeature.class);
 
         // REST
         registerClasses(getEksternalApplicationClasses());

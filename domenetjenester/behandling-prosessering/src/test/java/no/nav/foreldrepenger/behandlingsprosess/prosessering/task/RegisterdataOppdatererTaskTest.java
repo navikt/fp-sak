@@ -26,10 +26,10 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingL�
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerEngangsstønad;
 import no.nav.foreldrepenger.behandlingsprosess.prosessering.BehandlingProsesseringTjeneste;
-import no.nav.foreldrepenger.domene.json.StandardJsonConfig;
 import no.nav.foreldrepenger.domene.registerinnhenting.RegisterdataEndringshåndterer;
 import no.nav.foreldrepenger.produksjonsstyring.behandlingenhet.BehandlendeEnhetTjeneste;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
+import no.nav.vedtak.mapper.json.DefaultJsonMapper;
 
 @ExtendWith(MockitoExtension.class)
 class RegisterdataOppdatererTaskTest {
@@ -102,7 +102,7 @@ class RegisterdataOppdatererTaskTest {
             .leggTil(EndringsresultatSnapshot.utenSnapshot(PersonInformasjonEntitet.class));
         var prosessTaskData = ProsessTaskData.forProsessTask(RegisterdataOppdatererTask.class);
         prosessTaskData.setBehandling("123", 0L, behandlingId);
-        prosessTaskData.setPayload(StandardJsonConfig.toJson(snapshot));
+        prosessTaskData.setPayload(DefaultJsonMapper.toJson(snapshot));
 
         task.doTask(prosessTaskData);
 

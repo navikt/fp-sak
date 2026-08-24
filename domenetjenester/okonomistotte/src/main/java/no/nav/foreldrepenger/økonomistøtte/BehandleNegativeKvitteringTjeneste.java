@@ -6,9 +6,9 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.persistence.NoResultException;
 
-import no.nav.foreldrepenger.domene.json.StandardJsonConfig;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskStatus;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
+import no.nav.vedtak.mapper.json.DefaultJsonMapper;
 
 @ApplicationScoped
 public class BehandleNegativeKvitteringTjeneste {
@@ -41,7 +41,7 @@ public class BehandleNegativeKvitteringTjeneste {
 
                 var feil = new NegativeKvitteringFeil("Det finnes negativ kvittering for minst en av oppdragsmottakerne.");
 
-                prosessTaskData.setSisteFeil(StandardJsonConfig.toJson(feil));
+                prosessTaskData.setSisteFeil(DefaultJsonMapper.toJson(feil));
 
                 repository.lagre(prosessTaskData);
             }

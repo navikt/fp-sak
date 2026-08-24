@@ -6,17 +6,6 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
-public class FastsettMånedsinntektUtenInntektsmeldingDto {
+public record FastsettMånedsinntektUtenInntektsmeldingDto(@NotNull @Size(max = 100) List<@Valid FastsettMånedsinntektUtenInntektsmeldingAndelDto> andelListe) {
 
-    @NotNull
-    @Size(max = 100)
-    private List<@Valid FastsettMånedsinntektUtenInntektsmeldingAndelDto> andelListe;
-
-    public List<FastsettMånedsinntektUtenInntektsmeldingAndelDto> getAndelListe() {
-        return andelListe;
-    }
-
-    public void setAndelListe(List<FastsettMånedsinntektUtenInntektsmeldingAndelDto> andelListe) {
-        this.andelListe = andelListe;
-    }
 }

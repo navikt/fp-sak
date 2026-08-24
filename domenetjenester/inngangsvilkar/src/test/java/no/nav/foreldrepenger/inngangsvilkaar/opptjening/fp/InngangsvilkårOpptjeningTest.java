@@ -2,6 +2,8 @@ package no.nav.foreldrepenger.inngangsvilkaar.opptjening.fp;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import java.io.IOException;
+import java.net.URL;
 import java.time.LocalDate;
 import java.time.Period;
 
@@ -9,7 +11,6 @@ import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallType;
-import no.nav.foreldrepenger.domene.json.StandardJsonConfig;
 import no.nav.foreldrepenger.inngangsvilkaar.RegelResultatOversetter;
 import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.InngangsvilkårRegler;
 import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.RegelYtelse;
@@ -17,14 +18,25 @@ import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.opptjening.Opptjeningsg
 import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.opptjening.OpptjeningsvilkårResultat;
 import no.nav.fpsak.tidsserie.LocalDateInterval;
 import no.nav.fpsak.tidsserie.LocalDateTimeline;
+import no.nav.vedtak.exception.TekniskException;
+import no.nav.vedtak.mapper.json.DefaultJson2Mapper;
 
 class InngangsvilkårOpptjeningTest {
+
+    // Inntil vi har tidsserie med Jackson3
+    private static Opptjeningsgrunnlag fromJson(URL json) {
+        try {
+            return DefaultJson2Mapper.fromJson(json.openStream(), Opptjeningsgrunnlag.class);
+        } catch (IOException e) {
+            throw new TekniskException("FP-713328", "Fikk IO exception ved deserialisering av JSON", e);
+        }
+    }
 
     @Test
     void test_beregn_opptjening_fra_vilkår_input_data_som_gir_opptjening_P5M7D() {
         var resource = InngangsvilkårOpptjening.class.getResource("/opptjening/pkmantis-1050.json");
         assertThat(resource).isNotNull();
-        var grunnlag = StandardJsonConfig.fromJson(resource, Opptjeningsgrunnlag.class);
+        var grunnlag = fromJson(resource);
 
         var resultat = InngangsvilkårRegler.opptjening(RegelYtelse.FORELDREPENGER, grunnlag);
 
@@ -46,7 +58,7 @@ class InngangsvilkårOpptjeningTest {
     void ikke_duplikat_mellom_avslått_periode_og_mellomliggende() {
         var resource = InngangsvilkårOpptjening.class.getResource("/opptjening/ingen-mellomliggende.json");
         assertThat(resource).isNotNull();
-        var grunnlag = StandardJsonConfig.fromJson(resource, Opptjeningsgrunnlag.class);
+        var grunnlag = fromJson(resource);
 
         var resultat = InngangsvilkårRegler.opptjening(RegelYtelse.FORELDREPENGER, grunnlag);
 
@@ -64,7 +76,7 @@ class InngangsvilkårOpptjeningTest {
     void test_beregn_opptjening_fra_vilkår_input_data_som_gir_opptjening_P5M3D() {
         var resource = InngangsvilkårOpptjening.class.getResource("/opptjening/pkmantis-1050_2.json");
         assertThat(resource).isNotNull();
-        var grunnlag = StandardJsonConfig.fromJson(resource, Opptjeningsgrunnlag.class);
+        var grunnlag = fromJson(resource);
 
         var resultat = InngangsvilkårRegler.opptjening(RegelYtelse.FORELDREPENGER, grunnlag);
 
@@ -86,7 +98,7 @@ class InngangsvilkårOpptjeningTest {
     void test_beregn_opptjening_fra_vilkår_input_data_som_gir_opptjening_P9M18D() {
         var resource = InngangsvilkårOpptjening.class.getResource("/opptjening/fpfeil-1252.json");
         assertThat(resource).isNotNull();
-        var grunnlag = StandardJsonConfig.fromJson(resource, Opptjeningsgrunnlag.class);
+        var grunnlag = fromJson(resource);
 
         var resultat = InngangsvilkårRegler.opptjening(RegelYtelse.FORELDREPENGER, grunnlag);
 
@@ -109,7 +121,7 @@ class InngangsvilkårOpptjeningTest {
     void test_frilans_underkjent_med_utlandsk_arbeidshold() {
         var resource = InngangsvilkårOpptjening.class.getResource("/opptjening/pfp-6475.json");
         assertThat(resource).isNotNull();
-        var grunnlag = StandardJsonConfig.fromJson(resource, Opptjeningsgrunnlag.class);
+        var grunnlag = fromJson(resource);
 
         var resultat = InngangsvilkårRegler.opptjening(RegelYtelse.FORELDREPENGER, grunnlag);
 
@@ -126,7 +138,7 @@ class InngangsvilkårOpptjeningTest {
     void test_beregn_opptjening_fra_vilkår_input_data_som_gir_opptjening_P7M18D_med_utlandsk_arbeidshold() {
         var resource = InngangsvilkårOpptjening.class.getResource("/opptjening/pk-53505_1.json");
         assertThat(resource).isNotNull();
-        var grunnlag = StandardJsonConfig.fromJson(resource, Opptjeningsgrunnlag.class);
+        var grunnlag = fromJson(resource);
 
         var resultat = InngangsvilkårRegler.opptjening(RegelYtelse.FORELDREPENGER, grunnlag);
 
@@ -149,7 +161,7 @@ class InngangsvilkårOpptjeningTest {
     void test_beregn_opptjening_fra_vilkår_input_data_som_gir_opptjening_med_utlandsk_arbeidshold_før_norsk_P4M() {
         var resource = InngangsvilkårOpptjening.class.getResource("/opptjening/pk-53505_2.json");
         assertThat(resource).isNotNull();
-        var grunnlag = StandardJsonConfig.fromJson(resource, Opptjeningsgrunnlag.class);
+        var grunnlag = fromJson(resource);
 
         var resultat = InngangsvilkårRegler.opptjening(RegelYtelse.FORELDREPENGER, grunnlag);
 
@@ -173,7 +185,7 @@ class InngangsvilkårOpptjeningTest {
     void test_beregn_opptjening_fra_vilkår_input_data_som_gir_duplikate_perioder() {
         var resource = InngangsvilkårOpptjening.class.getResource("/opptjening/opptjening-feil.json");
         assertThat(resource).isNotNull();
-        var grunnlag = StandardJsonConfig.fromJson(resource, Opptjeningsgrunnlag.class);
+        var grunnlag = fromJson(resource);
 
         var resultat = InngangsvilkårRegler.opptjening(RegelYtelse.FORELDREPENGER, grunnlag);
 
@@ -197,7 +209,7 @@ class InngangsvilkårOpptjeningTest {
     void test_beregn_opptjening_fra_vilkår_input_data_som_gir_duplikate_perioder_2() {
         var resource = InngangsvilkårOpptjening.class.getResource("/opptjening/opptjening-feil_2.json");
         assertThat(resource).isNotNull();
-        var grunnlag = StandardJsonConfig.fromJson(resource, Opptjeningsgrunnlag.class);
+        var grunnlag = fromJson(resource);
 
         var resultat = InngangsvilkårRegler.opptjening(RegelYtelse.FORELDREPENGER, grunnlag);
 
@@ -221,7 +233,7 @@ class InngangsvilkårOpptjeningTest {
     void avslå_med_kun_utlandsk_arbeidshold_før_norsk() {
         var resource = InngangsvilkårOpptjening.class.getResource("/opptjening/pk-53505_3.json");
         assertThat(resource).isNotNull();
-        var grunnlag = StandardJsonConfig.fromJson(resource, Opptjeningsgrunnlag.class);
+        var grunnlag = fromJson(resource);
 
         var resultat = InngangsvilkårRegler.opptjening(RegelYtelse.FORELDREPENGER, grunnlag);
 
@@ -240,7 +252,7 @@ class InngangsvilkårOpptjeningTest {
     void oppfylt_med_nok_arbeid_frilans() {
         var resource = InngangsvilkårOpptjening.class.getResource("/opptjening/TFP-4174-nok-frilans.json");
         assertThat(resource).isNotNull();
-        var grunnlag = StandardJsonConfig.fromJson(resource, Opptjeningsgrunnlag.class);
+        var grunnlag = fromJson(resource);
 
         var resultat = InngangsvilkårRegler.opptjening(RegelYtelse.FORELDREPENGER, grunnlag);
 
@@ -262,7 +274,7 @@ class InngangsvilkårOpptjeningTest {
     void avslag_mangler_arbeid_frilans() {
         var resource = InngangsvilkårOpptjening.class.getResource("/opptjening/TFP-4174-mangler-frilans.json");
         assertThat(resource).isNotNull();
-        var grunnlag = StandardJsonConfig.fromJson(resource, Opptjeningsgrunnlag.class);
+        var grunnlag = fromJson(resource);
 
         var resultat = InngangsvilkårRegler.opptjening(RegelYtelse.FORELDREPENGER, grunnlag);
 
@@ -283,7 +295,7 @@ class InngangsvilkårOpptjeningTest {
     void aapen_frilans_mangler_maaned_deny() {
         var resource = InngangsvilkårOpptjening.class.getResource("/opptjening/TFP-4174-aapen-frilans-deny.json");
         assertThat(resource).isNotNull();
-        var grunnlag = StandardJsonConfig.fromJson(resource, Opptjeningsgrunnlag.class);
+        var grunnlag = fromJson(resource);
 
         var resultat = InngangsvilkårRegler.opptjening(RegelYtelse.FORELDREPENGER, grunnlag);
 

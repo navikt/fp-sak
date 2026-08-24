@@ -29,10 +29,6 @@ public class BehandlingDokumentEntitet extends BaseEntitet {
     private Long behandlingId;
 
     @Lob
-    @Column(name = "overstyrt_brev_fritekst_html")
-    private String overstyrtBrevFritekstHtml;
-
-    @Lob
     @Column(name = "vedtak_fritekst") // bør hete utfyllende tekst
     private String vedtakFritekst;
 
@@ -51,10 +47,6 @@ public class BehandlingDokumentEntitet extends BaseEntitet {
         return behandlingId;
     }
 
-    public String getOverstyrtBrevFritekstHtml() {
-        return overstyrtBrevFritekstHtml;
-    }
-
     public String getVedtakFritekst() {
         return vedtakFritekst;
     }
@@ -66,10 +58,6 @@ public class BehandlingDokumentEntitet extends BaseEntitet {
     public void leggTilBestiltDokument(BehandlingDokumentBestiltEntitet bestiltDokument) {
         Objects.requireNonNull(bestiltDokument, "bestiltDokument");
         bestilteDokumenter.add(bestiltDokument);
-    }
-
-    public boolean harFritekst() {
-        return getOverstyrtBrevFritekstHtml() != null || getVedtakFritekst() != null;
     }
 
     @Override
@@ -112,7 +100,6 @@ public class BehandlingDokumentEntitet extends BaseEntitet {
         public static BehandlingDokumentEntitet.Builder fraEksisterende(BehandlingDokumentEntitet behandlingDokument) {
             var builder = new Builder()
                 .medBehandling(behandlingDokument.getBehandlingId())
-                .medOverstyrtBrevFritekstHtml(behandlingDokument.getOverstyrtBrevFritekstHtml())
                 .medUtfyllendeTekstAutomatiskVedtaksbrev(behandlingDokument.getVedtakFritekst())
                 .medBestilteDokumenter(behandlingDokument.getBestilteDokumenter());
             builder.behandlingDokumentMal.id = behandlingDokument.id;
@@ -121,11 +108,6 @@ public class BehandlingDokumentEntitet extends BaseEntitet {
 
         public BehandlingDokumentEntitet.Builder medBehandling(Long behandlingId) {
             behandlingDokumentMal.behandlingId = behandlingId;
-            return this;
-        }
-
-        public BehandlingDokumentEntitet.Builder medOverstyrtBrevFritekstHtml(String overstyrtBrevFritekstHtml) {
-            behandlingDokumentMal.overstyrtBrevFritekstHtml = overstyrtBrevFritekstHtml;
             return this;
         }
 

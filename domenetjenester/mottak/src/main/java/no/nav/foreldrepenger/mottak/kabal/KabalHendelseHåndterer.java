@@ -24,13 +24,13 @@ import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.hendelser.HendelsemottakRepository;
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Fagsystem;
-import no.nav.foreldrepenger.domene.json.StandardJsonConfig;
 import no.nav.foreldrepenger.konfig.KonfigVerdi;
 import no.nav.foreldrepenger.produksjonsstyring.oppgavebehandling.task.OpprettOppgaveVurderKonsekvensTask;
 import no.nav.vedtak.felles.integrasjon.kafka.KafkaMessageHandler;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 import no.nav.vedtak.log.mdc.MDCOperations;
+import no.nav.vedtak.mapper.json.DefaultJsonMapper;
 
 /*
  * Dokumentasjon https://github.com/navikt/kabal-api/tree/main/docs/integrasjon
@@ -81,7 +81,7 @@ public class KabalHendelseHåndterer implements KafkaMessageHandler.KafkaStringM
     public void handleRecord(String key, String value) {
         KabalHendelse mottattHendelse;
         try {
-            mottattHendelse = StandardJsonConfig.fromJson(value, KabalHendelse.class);
+            mottattHendelse = DefaultJsonMapper.fromJson(value, KabalHendelse.class);
         } catch (Exception e) {
             LOG.error("KABAL har endret kontrakt uten forvarsel melding {}", value, e);
             return;

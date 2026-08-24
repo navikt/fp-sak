@@ -19,13 +19,13 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import no.nav.foreldrepenger.behandling.FagsakTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStatus;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerEngangsstønad;
-import no.nav.foreldrepenger.domene.json.StandardJsonConfig;
 import no.nav.foreldrepenger.produksjonsstyring.fagsakstatus.OppdaterFagsakStatusTjeneste;
 import no.nav.vedtak.hendelser.behandling.Behandlingstype;
 import no.nav.vedtak.hendelser.behandling.Hendelse;
 import no.nav.vedtak.hendelser.behandling.Kildesystem;
 import no.nav.vedtak.hendelser.behandling.Ytelse;
 import no.nav.vedtak.hendelser.behandling.v1.BehandlingHendelseV1;
+import no.nav.vedtak.mapper.json.DefaultJsonMapper;
 
 @ExtendWith(MockitoExtension.class)
 class BehandlingHendelseHåndtererTest {
@@ -63,7 +63,7 @@ class BehandlingHendelseHåndtererTest {
             .medBehandlingstype(Behandlingstype.TILBAKEBETALING)
             .build();
 
-        håndterer.handleRecord("key", StandardJsonConfig.toJson(hendelse));
+        håndterer.handleRecord("key", DefaultJsonMapper.toJson(hendelse));
 
         verify(fagsakStatusTjeneste).oppdaterFagsakNårBehandlingOpprettet(fagsak, null, BehandlingStatus.UTREDES);
     }
@@ -92,7 +92,7 @@ class BehandlingHendelseHåndtererTest {
             .medBehandlingstype(Behandlingstype.TILBAKEBETALING_REVURDERING)
             .build();
 
-        håndterer.handleRecord("key", StandardJsonConfig.toJson(hendelse));
+        håndterer.handleRecord("key", DefaultJsonMapper.toJson(hendelse));
 
         verify(fagsakStatusTjeneste).lagBehandlingAvsluttetTask(fagsak, null);
     }

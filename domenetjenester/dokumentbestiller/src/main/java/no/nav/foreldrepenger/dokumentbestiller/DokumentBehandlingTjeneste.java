@@ -193,20 +193,12 @@ public class DokumentBehandlingTjeneste {
     }
 
     public Optional<String> hentMellomlagretOverstyring(Long behandlingId) {
-        // Ny tabell først
         var mellomlagring = mellomlagringRepository.hentMellomlagring(behandlingId, MellomlagringType.VEDTAKSBREV);
-        if (mellomlagring.isPresent()) {
-            return mellomlagring.map(MellomlagringEntitet::getInnhold);
-        }
-        // Fallback til gammel tabell
-        return behandlingDokumentRepository.hentHvisEksisterer(behandlingId)
-            .map(BehandlingDokumentEntitet::getOverstyrtBrevFritekstHtml);
+        return mellomlagring.map(MellomlagringEntitet::getInnhold);
     }
 
     public boolean harMellomlagretOverstyring(Long behandlingId) {
-        return mellomlagringRepository.harMellomlagring(behandlingId, MellomlagringType.VEDTAKSBREV)
-            || behandlingDokumentRepository.hentHvisEksisterer(behandlingId)
-                .map(d -> d.getOverstyrtBrevFritekstHtml() != null).orElse(false);
+        return mellomlagringRepository.harMellomlagring(behandlingId, MellomlagringType.VEDTAKSBREV);
     }
 
     public boolean harRedigertVedtaksbrev(Long behandlingId) {
