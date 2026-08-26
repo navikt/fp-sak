@@ -8,7 +8,6 @@ import java.util.Optional;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.MorsAktivitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.DokumentasjonVurdering;
-import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittFordelingEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeType;
@@ -25,7 +24,6 @@ public class DokVurderingKopierer {
     }
 
     public static List<OppgittPeriodeEntitet> oppdaterMedDokumentasjonVurdering(List<OppgittPeriodeEntitet> nysøknad,
-                                                                                List<OppgittFordelingEntitet> tidligereFordelinger, // TODO: Fjern denne som settes bare i test..
                                                                                 Optional<UttakResultatEntitet> forrigeUttak) {
         if (nysøknad.isEmpty()) {
             return nysøknad;
@@ -34,13 +32,6 @@ public class DokVurderingKopierer {
         var tidligstedato = nysøknad.stream().map(OppgittPeriodeEntitet::getFom).min(Comparator.naturalOrder()).orElseThrow();
         var tidslinjeSammenlignNysøknad =  lagSammenligningTimeline(nysøknad);
         var nysøknadTidslinje = lagSøknadsTimeline(nysøknad);
-
-        for (var f : tidligereFordelinger) {
-            var perioder = perioderForFordeling(f.getPerioder(), tidligstedato);
-            if (!perioder.isEmpty()) {
-                nysøknadTidslinje = oppdaterDokumentasjonVurdering(nysøknadTidslinje, tidslinjeSammenlignNysøknad, perioder);
-            }
-        }
 
         // Vedtaksperioder fra forrige uttaksresultat - bruker sammenhengende = true for å få med avslåtte
         var perioderForrigeUttak = forrigeUttak
