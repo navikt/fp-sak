@@ -210,11 +210,11 @@ class BeregningKalkulus implements BeregningAPI {
     }
 
     private Optional<OppdaterBeregningsgrunnlagResultat> utførOppdatering(BehandlingReferanse referanse,
-                                                                          HåndterBeregningDto kalkulusDtoer) {
+                                                                          HåndterBeregningDto håndterBeregningDto) {
         var kobling = koblingRepository.hentKobling(referanse.behandlingId())
             .orElseThrow(() -> new IllegalStateException("Kan ikke løse aksjonspunkter i beregning uten først å ha opprettet kobling!"));
         var request = new EnkelHåndterBeregningRequestDto(kobling.getKoblingUuid(), new Saksnummer(referanse.saksnummer().getVerdi()),
-            kalkulusInputTjeneste.lagKalkulusInput(referanse), Collections.singletonList(kalkulusDtoer));
+            kalkulusInputTjeneste.lagKalkulusInput(referanse), håndterBeregningDto);
         var respons = klient.løsAvklaringsbehov(request);
         return Optional.of(MapEndringsresultat.mapFraOppdateringRespons(respons));
     }
