@@ -194,7 +194,10 @@ public class ForvaltningUttrekkRestTjeneste {
         var query = entityManager.createNativeQuery("""
             select a.behandling_id
             from aksjonspunkt a join behandling b on a.behandling_id = b.id join fagsak f on b.fagsak_id = f.id
-            where a.aksjonspunkt_def = '5043' and a.aksjonspunkt_status = 'OPPR' and b.behandling_type = 'BT-004' and f.ytelse_type = 'FP' and a.opprettet_tid > :fom
+            where a.aksjonspunkt_def = '5043' and a.aksjonspunkt_status = 'OPPR'
+            and b.behandling_type = 'BT-004' and f.ytelse_type = 'FP'
+            and a.opprettet_tid > :fom
+            and not exists (select * from aksjonspunkt where behandling_id = b.id and aksjonspunkt_status = 'UTFO' and aksjonspunkt_def < 7000)
             """)
             .setParameter("fom", LocalDate.of(2026, 4, 1).atStartOfDay());
         @SuppressWarnings("unchecked")
