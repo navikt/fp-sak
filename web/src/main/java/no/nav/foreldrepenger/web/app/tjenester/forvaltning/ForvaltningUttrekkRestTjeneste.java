@@ -184,9 +184,37 @@ public class ForvaltningUttrekkRestTjeneste {
         return Response.ok().build();
     }
 
+    @POST
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    @Operation(description = "Flytt søknadsfrist til registrerSøknad", tags = "FORVALTNING-uttrekk")
+    @Path("/flyttRevurderingSøknadsfristTilRegistrerSøknad")
+    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.DRIFT, sporingslogg = true)
+    public Response flyttBehandlingTilRegistrerSøknadSteg() {
+        var query = entityManager.createNativeQuery("""
+            select a.behandling_id
+            from aksjonspunkt a join behandling b on a.behandling_id = b.id join fagsak f on b.fagsak_id = f.id
+            where a.aksjonspunkt_def = '5043' and a.aksjonspunkt_status = 'OPPR' and b.behandling_type = 'BT-004' and f.ytelse_type = 'FP' and a.opprettet_tid > :fom
+            """)
+            .setParameter("fom", LocalDate.of(2026, 4, 1).atStartOfDay());
+        @SuppressWarnings("unchecked")
+        List<Number> resultatList = query.getResultList();
+        var åpneAksjonspunkt =  resultatList.stream().map(Number::longValue).toList();
+        var tasks = åpneAksjonspunkt.stream()
+            .map(this::lagFlyttBehandlingTilbakeTilStegTask)
+            .flatMap(Optional::stream)
+            .toList();
+        if (!tasks.isEmpty()) {
+            var gruppe = new ProsessTaskGruppe();
+            gruppe.addNesteParallell(tasks);
+            taskTjeneste.lagre(gruppe);
+        }
+        return Response.ok().build();
+    }
+
     private Optional<ProsessTaskData> lagFlyttBehandlingTilbakeTilStegTask(Long behandlingId) {
         var behandling = behandlingRepository.hentBehandling(behandlingId);
-        if (!BehandlingStegType.KONTROLLER_FAKTA_BEREGNING.equals(behandling.getAktivtBehandlingSteg())) {
+        if (!BehandlingStegType.SØKNADSFRIST_FORELDREPENGER.equals(behandling.getAktivtBehandlingSteg())) {
             return Optional.empty();
         }
 

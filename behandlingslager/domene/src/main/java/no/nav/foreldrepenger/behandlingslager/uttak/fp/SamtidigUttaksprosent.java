@@ -18,6 +18,7 @@ public class SamtidigUttaksprosent implements Comparable<SamtidigUttaksprosent> 
 
     public static final SamtidigUttaksprosent ZERO = new SamtidigUttaksprosent(0);
     public static final SamtidigUttaksprosent TEN = new SamtidigUttaksprosent(10);
+    public static final SamtidigUttaksprosent HUNDRED = new SamtidigUttaksprosent(100);
 
     @JsonValue
     @Column(name = "samtidig_uttaksprosent")
