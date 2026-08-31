@@ -1,5 +1,10 @@
 package no.nav.foreldrepenger.web.app.tjenester.forvaltning;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Optional;
+
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
@@ -10,23 +15,18 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelseFordelingAggregat;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelsesFordelingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittFordelingEntitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeEntitet;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakProsesstaskRekkefølge;
 import no.nav.foreldrepenger.behandlingslager.task.BehandlingProsessTask;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.FpUttakRepository;
 import no.nav.foreldrepenger.behandlingsprosess.prosessering.BehandlingProsesseringTjeneste;
-import no.nav.foreldrepenger.domene.uttak.UttakRepositoryProvider;
 import no.nav.foreldrepenger.domene.uttak.uttaksgrunnlag.fp.TidligstMottattOppdaterer;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Optional;
-
 @ApplicationScoped
-@ProsessTask(value = "migrering.tilbakeforbehandling", prioritet = 4, maxFailedRuns = 1)
+@ProsessTask(value = "migrering.oppdatertidligstmottatt", prioritet = 4, maxFailedRuns = 1)
 @FagsakProsesstaskRekkefølge(gruppeSekvens = false)
 public class OppdaterTidligstMottattForUttakTask extends BehandlingProsessTask {
 
@@ -65,7 +65,10 @@ public class OppdaterTidligstMottattForUttakTask extends BehandlingProsessTask {
         var eksisterendeAggregat = ytelsesFordelingRepository.hentAggregatHvisEksisterer(behandlingId)
             .orElseThrow(() -> new IllegalStateException("Forventer at det finnes en oppgitt fordeling for behandling " + behandlingId));
         var eksisterendeOppgittFordeling = eksisterendeAggregat.getOppgittFordeling();
-        var oppdatertOppgittePerioder = oppdaterTidligstMottattDato(behandling, behandling.getOpprettetDato().toLocalDate(), eksisterendeOppgittFordeling.getPerioder());
+        var perioderTilOppdatering = eksisterendeOppgittFordeling.getPerioder().stream()
+            .map(p -> OppgittPeriodeBuilder.fraEksisterende(p).build())
+            .toList();
+        var oppdatertOppgittePerioder = oppdaterTidligstMottattDato(behandling, behandling.getOpprettetDato().toLocalDate(), perioderTilOppdatering);
         var oppdatertOppgittFordeling = new OppgittFordelingEntitet(oppdatertOppgittePerioder, eksisterendeOppgittFordeling.getErAnnenForelderInformert(), eksisterendeOppgittFordeling.ønskerJustertVedFødsel());
         var builder = YtelseFordelingAggregat.Builder.oppdatere(Optional.of(eksisterendeAggregat))
             .medOppgittFordeling(oppdatertOppgittFordeling)
