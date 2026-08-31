@@ -184,6 +184,17 @@ public class ForvaltningUttrekkRestTjeneste {
         return Response.ok().build();
     }
 
+    private Optional<ProsessTaskData> lagFlyttBehandlingTilbakeTilStegTask(Long behandlingId) {
+        var behandling = behandlingRepository.hentBehandling(behandlingId);
+        if (!BehandlingStegType.KONTROLLER_FAKTA_BEREGNING.equals(behandling.getAktivtBehandlingSteg())) {
+            return Optional.empty();
+        }
+
+        var task = ProsessTaskData.forProsessTask(TilbakeføringTilStegTask.class);
+        task.setBehandling(behandling.getSaksnummer().getVerdi(), behandling.getFagsakId(), behandling.getId());
+        return Optional.of(task);
+    }
+
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
@@ -204,7 +215,7 @@ public class ForvaltningUttrekkRestTjeneste {
         List<Number> resultatList = query.getResultList();
         var åpneAksjonspunkt =  resultatList.stream().map(Number::longValue).toList();
         var tasks = åpneAksjonspunkt.stream()
-            .map(this::lagFlyttBehandlingTilbakeTilStegTask)
+            .map(this::lagFlyttBehandlingTilbakeTilUttakInngang)
             .flatMap(Optional::stream)
             .toList();
         if (!tasks.isEmpty()) {
@@ -215,13 +226,13 @@ public class ForvaltningUttrekkRestTjeneste {
         return Response.ok().build();
     }
 
-    private Optional<ProsessTaskData> lagFlyttBehandlingTilbakeTilStegTask(Long behandlingId) {
+    private Optional<ProsessTaskData> lagFlyttBehandlingTilbakeTilUttakInngang(Long behandlingId) {
         var behandling = behandlingRepository.hentBehandling(behandlingId);
         if (!BehandlingStegType.SØKNADSFRIST_FORELDREPENGER.equals(behandling.getAktivtBehandlingSteg())) {
             return Optional.empty();
         }
 
-        var task = ProsessTaskData.forProsessTask(TilbakeføringTilStegTask.class);
+        var task = ProsessTaskData.forProsessTask(OppdaterTidligstMottattForUttakTask.class);
         task.setBehandling(behandling.getSaksnummer().getVerdi(), behandling.getFagsakId(), behandling.getId());
         return Optional.of(task);
     }

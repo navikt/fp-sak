@@ -43,12 +43,12 @@ public class TilbakeføringTilStegTask extends BehandlingProsessTask {
         if (behandling.isBehandlingPåVent()) {
             prosesseringTjeneste.taBehandlingAvVent(behandling);
         }
-        prosesseringTjeneste.reposisjonerBehandlingTilbakeTil(behandling, lås, BehandlingStegType.REGISTRER_SØKNAD);
+        prosesseringTjeneste.reposisjonerBehandlingTilbakeTil(behandling, lås, BehandlingStegType.SIMULER_OPPDRAG);
         if (behandling.isBehandlingPåVent()) {
             prosesseringTjeneste.taBehandlingAvVent(behandling);
         }
         // fortsettBehandling dersom registerdata ikke trengs hentes på nytt, for nye registerdata bruk GjenopptaOppdaterFortsett
-        //prosesseringTjeneste.opprettTasksForGjenopptaOppdaterFortsett(behandling, LocalDateTime.now());
-        prosesseringTjeneste.opprettTasksForFortsettBehandling(behandling);
+        prosesseringTjeneste.opprettTasksForGjenopptaOppdaterFortsett(behandling, LocalDateTime.now());
+        //prosesseringTjeneste.opprettTasksForFortsettBehandling(behandling);
     }
 }
