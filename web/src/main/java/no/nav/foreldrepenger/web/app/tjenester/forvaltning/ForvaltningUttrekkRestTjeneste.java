@@ -210,7 +210,7 @@ public class ForvaltningUttrekkRestTjeneste {
             and a.opprettet_tid > :fom
             and not exists (select * from aksjonspunkt where behandling_id = b.id and aksjonspunkt_status = 'UTFO' and aksjonspunkt_def < 7000)
             """)
-            .setParameter("fom", LocalDate.of(2026, 4, 1).atStartOfDay());
+            .setParameter("fom", LocalDate.of(2024, 4, 1).atStartOfDay());
         @SuppressWarnings("unchecked")
         List<Number> resultatList = query.getResultList();
         var åpneAksjonspunkt =  resultatList.stream().map(Number::longValue).toList();
