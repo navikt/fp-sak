@@ -31,7 +31,7 @@ public class HindreTilbaketrekkNårAlleredeUtbetalt {
             .medRegelVersjon(beregningsgrunnlagTY.getRegelVersjon())
             .build();
 
-        for (var segment : tidslinje.toSegments()) {
+        for (var segment : tidslinje.segmenter()) {
             HindreTilbaketrekkBeregningsresultatPeriode.omfordelPeriodeVedBehov(utbetaltTY, segment, yrkesaktiviteter, skjæringstidspunkt);
         }
         return utbetaltTY;

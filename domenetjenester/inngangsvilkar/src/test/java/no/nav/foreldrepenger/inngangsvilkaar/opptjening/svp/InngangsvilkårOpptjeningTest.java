@@ -22,14 +22,14 @@ import no.nav.fpsak.tidsserie.LocalDateInterval;
 import no.nav.fpsak.tidsserie.LocalDateSegment;
 import no.nav.fpsak.tidsserie.LocalDateTimeline;
 import no.nav.vedtak.exception.TekniskException;
-import no.nav.vedtak.mapper.json.DefaultJson2Mapper;
+import no.nav.vedtak.mapper.json.DefaultJsonMapper;
 
 class InngangsvilkårOpptjeningTest {
 
     // Inntil vi har tidsserie med Jackson3
     private static Opptjeningsgrunnlag fromJson(URL json) {
         try {
-            return DefaultJson2Mapper.fromJson(json.openStream(), Opptjeningsgrunnlag.class);
+            return DefaultJsonMapper.fromJson(json.openStream(), Opptjeningsgrunnlag.class);
         } catch (IOException e) {
             throw new TekniskException("FP-713328", "Fikk IO exception ved deserialisering av JSON", e);
         }
