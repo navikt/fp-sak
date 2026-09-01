@@ -53,7 +53,7 @@ public class TidligstMottattOppdaterer {
             if (!perioder.isEmpty()) {
                 try {
                     nysøknadTidslinje = oppdaterTidligstMottattDato(nysøknadTidslinje, tidslinjeSammenlignNysøknad, perioder);
-                } catch (Exception e) {
+                } catch (Exception _) {
                     LOG.warn("TidligstMottatt: Feil ved sjekk av tidligere fordeling {} - se bort fra enkelttilfelle, varsle dersom mange", f.getId());
                 }
             }
@@ -68,7 +68,7 @@ public class TidligstMottattOppdaterer {
             nysøknadTidslinje = oppdaterTidligstMottattDato(nysøknadTidslinje, tidslinjeSammenlignNysøknad, perioderForrigeUttak);
         }
 
-        return nysøknadTidslinje.toSegments().stream().map(LocalDateSegment::getValue).filter(Objects::nonNull).toList();
+        return nysøknadTidslinje.segmenter().stream().map(LocalDateSegment::getValue).filter(Objects::nonNull).toList();
     }
 
     private static List<OppgittPeriodeEntitet> perioderForFordeling(List<OppgittPeriodeEntitet> fordeling, LocalDate mottattDato, LocalDate tidligstedato) {
@@ -104,7 +104,7 @@ public class TidligstMottattOppdaterer {
 
         var oppdatertTidslinje = tidslinje.combine(tidslinjeTidligstMottattForrigeSøknad,
             TidligstMottattOppdaterer::oppdaterMedTidligstMottatt, LocalDateTimeline.JoinStyle.LEFT_JOIN);
-        return new LocalDateTimeline<>(oppdatertTidslinje.toSegments(), TidligstMottattOppdaterer::oppgittPeriodeSplitter);
+        return new LocalDateTimeline<>(oppdatertTidslinje.segmenter(), TidligstMottattOppdaterer::oppgittPeriodeSplitter);
     }
 
     private static LocalDateTimeline<OppgittPeriodeEntitet> lagSøknadsTimeline(List<OppgittPeriodeEntitet> søknad) {
@@ -148,7 +148,9 @@ public class TidligstMottattOppdaterer {
 
     private record SammenligningPeriodeForMottatt(Årsak årsak, UttakPeriodeType periodeType, SamtidigUttaksprosent samtidigUttaksprosent, SammenligningGraderingForMottatt gradering) {
         SammenligningPeriodeForMottatt(OppgittPeriodeEntitet periode) {
-            this(periode.getÅrsak(), periode.isUtsettelse() ? UttakPeriodeType.UDEFINERT : periode.getPeriodeType(), periode.getSamtidigUttaksprosent(), periode.isGradert() ? new SammenligningGraderingForMottatt(periode) : null);
+            this(periode.getÅrsak(), periode.isUtsettelse() ? UttakPeriodeType.UDEFINERT : periode.getPeriodeType(),
+                Optional.ofNullable(periode.getSamtidigUttaksprosent()).orElse(SamtidigUttaksprosent.HUNDRED),
+                periode.isGradert() ? new SammenligningGraderingForMottatt(periode) : null);
         }
 
     }
