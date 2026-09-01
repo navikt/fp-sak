@@ -6,26 +6,17 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.MorsAktivitet;
-import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.GraderingAktivitetType;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeEntitet;
-import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeType;
-import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.OppholdÅrsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.UtsettelseÅrsak;
-import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.Årsak;
-import no.nav.foreldrepenger.behandlingslager.uttak.fp.SamtidigUttaksprosent;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPeriodeEntitet;
-import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.domene.tid.VirkedagUtil;
-import no.nav.foreldrepenger.domene.typer.Stillingsprosent;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.Virkedager;
 import no.nav.foreldrepenger.skjæringstidspunkt.overganger.UtsettelseCore2021;
 import no.nav.fpsak.tidsserie.LocalDateInterval;
@@ -35,8 +26,6 @@ import no.nav.fpsak.tidsserie.LocalDateTimeline;
 public final class VedtaksperiodeFilter {
 
     private static final Logger LOG = LoggerFactory.getLogger(VedtaksperiodeFilter.class);
-
-    private static final Set<UtsettelseÅrsak> UTS_14_11 = Set.of(UtsettelseÅrsak.SYKDOM, UtsettelseÅrsak.INSTITUSJON_BARN, UtsettelseÅrsak.INSTITUSJON_SØKER);
 
     private VedtaksperiodeFilter() {
     }
@@ -133,25 +122,16 @@ public final class VedtaksperiodeFilter {
     }
 
     private static LocalDateSegment<Boolean> ekvivalentSøknadVedtak(LocalDateInterval i,
-                                                             LocalDateSegment<SammenligningPeriodeForOppgitt> søknad,
-                                                             LocalDateSegment<SammenligningPeriodeForOppgitt> vedtak) {
+                                                              LocalDateSegment<OppgittPeriodeSammenligning.SøknadMotInnvilgetUttak> søknad,
+                                                              LocalDateSegment<OppgittPeriodeSammenligning.SøknadMotInnvilgetUttak> vedtak) {
         var søknadVerdi = Optional.ofNullable(søknad).map(LocalDateSegment::getValue).orElse(null);
         var vedtakVerdi = Optional.ofNullable(vedtak).map(LocalDateSegment::getValue).orElse(null);
-        if (UtsettelseCore2021.kreverSammenhengendeUttak(i.getFomDato()) || skalVurderePeriode(søknadVerdi) || skalVurderePeriode(vedtakVerdi)) {
+        if (UtsettelseCore2021.kreverSammenhengendeUttak(i.getFomDato())
+            || OppgittPeriodeSammenligning.kreverSaksbehandling(søknadVerdi)
+            || OppgittPeriodeSammenligning.kreverSaksbehandling(vedtakVerdi)) {
             return new LocalDateSegment<>(i, Objects.equals(søknadVerdi, vedtakVerdi));
         } else {
             return new LocalDateSegment<>(i, true);
-        }
-    }
-
-    private static boolean skalVurderePeriode(SammenligningPeriodeForOppgitt periode) {
-        if (periode == null || periode.årsak() instanceof OppholdÅrsak) {
-            return false;
-        } else if (periode.årsak() instanceof UtsettelseÅrsak utsettelse) {
-            // Mor første 6 uker og BFHR (morsaktivitet) skal behandles. Selvbetjening støtter dette.
-            return UTS_14_11.contains(utsettelse) || MorsAktivitet.forventerDokumentasjon(periode.morsAktivitet());
-        } else {
-            return true;
         }
     }
 
@@ -165,33 +145,19 @@ public final class VedtaksperiodeFilter {
             .toList();
     }
 
-    private static LocalDateSegment<SammenligningPeriodeForOppgitt> segmentForOppgittPeriode(OppgittPeriodeEntitet periode) {
+    private static LocalDateSegment<OppgittPeriodeSammenligning.SøknadMotInnvilgetUttak> segmentForOppgittPeriode(OppgittPeriodeEntitet periode) {
         var fom = VirkedagUtil.lørdagSøndagTilMandag(periode.getFom());
         var tom = VirkedagUtil.fredagLørdagTilSøndag(periode.getTom());
         if (fom.isAfter(tom)) {
             fom = periode.getFom();
         }
-        return new LocalDateSegment<>(fom, tom, new SammenligningPeriodeForOppgitt(periode));
+        return new LocalDateSegment<>(fom, tom, OppgittPeriodeSammenligning.forSøknadMotInnvilgetUttak(periode));
     }
 
     private static OppgittPeriodeEntitet knekkPeriodeReturnerFom(OppgittPeriodeEntitet periode, LocalDate fom) {
         return OppgittPeriodeBuilder.fraEksisterende(periode)
             .medPeriode(fom, periode.getTom())
             .build();
-    }
-
-    private record SammenligningPeriodeForOppgitt(Årsak årsak, UttakPeriodeType periodeType, SamtidigUttaksprosent samtidigUttaksprosent, SammenligningGraderingForOppgitt gradering, boolean flerbarnsdager, MorsAktivitet morsAktivitet) {
-        SammenligningPeriodeForOppgitt(OppgittPeriodeEntitet periode) {
-            this(periode.getÅrsak(), periode.getPeriodeType(),
-                Optional.ofNullable(periode.getSamtidigUttaksprosent()).orElse(SamtidigUttaksprosent.HUNDRED),
-                periode.isGradert() ? new SammenligningGraderingForOppgitt(periode) : null, periode.isFlerbarnsdager(), periode.getMorsAktivitet());
-        }
-    }
-
-    private record SammenligningGraderingForOppgitt(GraderingAktivitetType gradertAktivitet, Stillingsprosent arbeidsprosent, Arbeidsgiver arbeidsgiver) {
-        SammenligningGraderingForOppgitt(OppgittPeriodeEntitet periode) {
-            this(periode.getGraderingAktivitetType(), periode.getArbeidsprosentSomStillingsprosent(), periode.getArbeidsgiver());
-        }
     }
 
 }

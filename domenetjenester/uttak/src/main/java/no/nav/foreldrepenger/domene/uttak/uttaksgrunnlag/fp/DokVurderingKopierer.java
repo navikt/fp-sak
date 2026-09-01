@@ -6,12 +6,9 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
-import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.MorsAktivitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.DokumentasjonVurdering;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeEntitet;
-import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeType;
-import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.Årsak;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatEntitet;
 import no.nav.foreldrepenger.domene.tid.VirkedagUtil;
 import no.nav.fpsak.tidsserie.LocalDateInterval;
@@ -54,7 +51,7 @@ public class DokVurderingKopierer {
     }
 
     private static LocalDateTimeline<OppgittPeriodeEntitet> oppdaterDokumentasjonVurdering(LocalDateTimeline<OppgittPeriodeEntitet> tidslinje,
-                                                                                           LocalDateTimeline<SammenligningPeriodeForDokVurdering> sammenlignTidslinje,
+                                                                                           LocalDateTimeline<OppgittPeriodeSammenligning.Dokumentasjonsvurdering> sammenlignTidslinje,
                                                                                            List<OppgittPeriodeEntitet> perioder) {
         if (perioder.isEmpty()) {
             return tidslinje;
@@ -86,7 +83,7 @@ public class DokVurderingKopierer {
         return new LocalDateTimeline<>(nysøknadSegmenter, DokVurderingKopierer::oppgittPeriodeSplitter);
     }
 
-    private static LocalDateTimeline<SammenligningPeriodeForDokVurdering> lagSammenligningTimeline(List<OppgittPeriodeEntitet> søknad) {
+    private static LocalDateTimeline<OppgittPeriodeSammenligning.Dokumentasjonsvurdering> lagSammenligningTimeline(List<OppgittPeriodeEntitet> søknad) {
         return new LocalDateTimeline<>(fraOppgittePerioder(søknad));
     }
 
@@ -101,15 +98,15 @@ public class DokVurderingKopierer {
         return periode;
     }
 
-    private static LocalDateSegment<SammenligningPeriodeForDokVurdering> leftIfEqualsRight(LocalDateInterval dateInterval,
-                                                                                      LocalDateSegment<SammenligningPeriodeForDokVurdering> lhs,
-                                                                                      LocalDateSegment<SammenligningPeriodeForDokVurdering> rhs) {
+    private static LocalDateSegment<OppgittPeriodeSammenligning.Dokumentasjonsvurdering> leftIfEqualsRight(LocalDateInterval dateInterval,
+                                                                                                          LocalDateSegment<OppgittPeriodeSammenligning.Dokumentasjonsvurdering> lhs,
+                                                                                                          LocalDateSegment<OppgittPeriodeSammenligning.Dokumentasjonsvurdering> rhs) {
         return lhs != null && rhs != null && Objects.equals(lhs.getValue(), rhs.getValue()) ?
             new LocalDateSegment<>(dateInterval, lhs.getValue()) : null;
     }
 
-    private static List<LocalDateSegment<SammenligningPeriodeForDokVurdering>> fraOppgittePerioder(List<OppgittPeriodeEntitet> perioder) {
-        return perioder.stream().map(p -> new LocalDateSegment<>(p.getFom(), p.getTom(), new SammenligningPeriodeForDokVurdering(p))).toList();
+    private static List<LocalDateSegment<OppgittPeriodeSammenligning.Dokumentasjonsvurdering>> fraOppgittePerioder(List<OppgittPeriodeEntitet> perioder) {
+        return perioder.stream().map(p -> new LocalDateSegment<>(p.getFom(), p.getTom(), OppgittPeriodeSammenligning.forDokumentasjonsvurdering(p))).toList();
     }
 
     private static List<LocalDateSegment<DokumentasjonVurdering>> dokumentasjonVurderingFraOppgittePerioderJusterHelg(List<OppgittPeriodeEntitet> perioder) {
@@ -119,10 +116,4 @@ public class DokVurderingKopierer {
             .toList();
     }
 
-    private record SammenligningPeriodeForDokVurdering(Årsak årsak, UttakPeriodeType periodeType, MorsAktivitet morsAktivitet) {
-        SammenligningPeriodeForDokVurdering(OppgittPeriodeEntitet periode) {
-            this(periode.getÅrsak(), periode.isUtsettelse() ? UttakPeriodeType.UDEFINERT : periode.getPeriodeType(), periode.getMorsAktivitet());
-        }
-
-    }
 }

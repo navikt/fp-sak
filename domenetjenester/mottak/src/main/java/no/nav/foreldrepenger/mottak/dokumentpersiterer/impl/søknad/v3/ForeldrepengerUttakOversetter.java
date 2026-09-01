@@ -7,6 +7,9 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.MorsAktivitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.OppgittRettighetEntitet;
@@ -25,8 +28,10 @@ import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.domene.arbeidsgiver.VirksomhetTjeneste;
 import no.nav.foreldrepenger.domene.person.PersoninfoAdapter;
 import no.nav.foreldrepenger.domene.typer.PersonIdent;
+import no.nav.foreldrepenger.domene.uttak.uttaksgrunnlag.fp.OppgittPeriodeSammenligning;
 import no.nav.foreldrepenger.mottak.dokumentpersiterer.SøknadDataFraTidligereVedtakTjeneste;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.Virkedager;
+import no.nav.foreldrepenger.skjæringstidspunkt.overganger.UtsettelseCore2021;
 import no.nav.vedtak.felles.xml.soeknad.endringssoeknad.v3.Endringssoeknad;
 import no.nav.vedtak.felles.xml.soeknad.foreldrepenger.v3.Foreldrepenger;
 import no.nav.vedtak.felles.xml.soeknad.kodeverk.v3.MorsAktivitetsTyper;
@@ -40,6 +45,8 @@ import no.nav.vedtak.felles.xml.soeknad.uttak.v3.Uttaksperiode;
 import no.nav.vedtak.felles.xml.soeknad.uttak.v3.Virksomhet;
 
 public class ForeldrepengerUttakOversetter  {
+
+    private static final Logger LOG = LoggerFactory.getLogger(ForeldrepengerUttakOversetter.class);
 
     private final VirksomhetTjeneste virksomhetTjeneste;
     private final YtelsesFordelingRepository ytelsesFordelingRepository;
@@ -58,8 +65,8 @@ public class ForeldrepengerUttakOversetter  {
 
 
     void oversettForeldrepengerEndringssøknad(Endringssoeknad omYtelse,
-                                                              Behandling behandling,
-                                                              LocalDate mottattDato) {
+                                              Behandling behandling,
+                                              LocalDate mottattDato) {
         var fordeling = omYtelse.getFordeling();
         var perioder = fordeling.getPerioder();
         var annenForelderErInformert = fordeling.isAnnenForelderErInformert();
@@ -70,8 +77,8 @@ public class ForeldrepengerUttakOversetter  {
     }
 
     void oversettForeldrepengerSøknad(Foreldrepenger omYtelse,
-                                             Behandling behandling,
-                                              LocalDate søknadMottattDato) {
+                                      Behandling behandling,
+                                      LocalDate søknadMottattDato) {
         var yfBuilder = ytelsesFordelingRepository.opprettBuilder(behandling.getId())
             .medOppgittFordeling(oversettFordeling(behandling, omYtelse, søknadMottattDato));
         if (!behandling.erRevurdering()) {
@@ -85,7 +92,7 @@ public class ForeldrepengerUttakOversetter  {
     private Optional<OppgittRettighetEntitet> oversettRettighet(Foreldrepenger omYtelse) {
         return Optional.ofNullable(omYtelse.getRettigheter())
             .map(rettigheter -> new OppgittRettighetEntitet(rettigheter.isHarAnnenForelderRett(), rettigheter.isHarAleneomsorgForBarnet(),
-                    harOppgittUføreEllerPerioderMedAktivitetUføre(omYtelse, rettigheter.isHarMorUforetrygd()), rettigheter.isHarAnnenForelderTilsvarendeRettEOS(),
+                harOppgittUføreEllerPerioderMedAktivitetUføre(omYtelse, rettigheter.isHarMorUforetrygd()), rettigheter.isHarAnnenForelderTilsvarendeRettEOS(),
                 rettigheter.isHarAnnenForelderOppholdtSegIEOS()));
     }
 
@@ -117,18 +124,39 @@ public class ForeldrepengerUttakOversetter  {
                                                         LocalDate mottattDatoFraSøknad,
                                                         Boolean ønskerJustertVedFødsel) {
 
-        var oppgittPerioder = perioder.stream()
+        var kandidatperioder = perioder.stream()
             .filter(this::positiveDager)
             .map(this::oversettPeriode)
             .filter(this::inneholderVirkedager)
             .toList();
-        var filtrertPerioder = søknadDataFraTidligereVedtakTjeneste.filtrerVekkPerioderSomErLikeInnvilgetUttak(behandling, oppgittPerioder);
-        var perioderMedTidligstMottatt = søknadDataFraTidligereVedtakTjeneste.oppdaterTidligstMottattDato(behandling, mottattDatoFraSøknad, filtrertPerioder);
-        var perioderMedGodkjentVurdering = søknadDataFraTidligereVedtakTjeneste.oppdaterMedGodkjenteDokumentasjonsVurderinger(behandling, perioderMedTidligstMottatt);
-        if (!inneholderVirkedager(perioderMedGodkjentVurdering)) {
+        var oppgittPerioder = filtrerPerioderSomSkalSaksbehandles(kandidatperioder);
+        var sammenstiltePerioder = søknadDataFraTidligereVedtakTjeneste.sammenstillMedTidligereVedtak(behandling, mottattDatoFraSøknad, oppgittPerioder);
+        if (!inneholderVirkedager(sammenstiltePerioder)) {
             throw new IllegalArgumentException("Fordelingen må inneholde perioder med minst en virkedag");
         }
-        return new OppgittFordelingEntitet(perioderMedGodkjentVurdering, annenForelderErInformert, Objects.equals(ønskerJustertVedFødsel, true));
+        return new OppgittFordelingEntitet(sammenstiltePerioder, annenForelderErInformert, Objects.equals(ønskerJustertVedFødsel, true));
+    }
+
+    static List<OppgittPeriodeEntitet> filtrerPerioderSomSkalSaksbehandles(List<OppgittPeriodeEntitet> perioder) {
+        var førsteFom = perioder.stream().map(OppgittPeriodeEntitet::getFom).min(LocalDate::compareTo);
+        var filtrertePerioder = perioder.stream()
+            .filter(periode -> skalSaksbehandles(periode, førsteFom.filter(periode.getFom()::equals).isPresent()))
+            .toList();
+        if (filtrertePerioder.isEmpty()) {
+            LOG.warn("Planperiodefilteret fjernet alle {} kandidatperioder. Beholder kandidatperiodene slik at søknaden kan saksbehandles videre.",
+                perioder.size());
+            return perioder;
+        }
+        return filtrertePerioder;
+    }
+
+    private static boolean skalSaksbehandles(OppgittPeriodeEntitet oppgittPeriode, boolean erFørsteSøknadsperiode) {
+        if (UtsettelseCore2021.kreverSammenhengendeUttak(oppgittPeriode) ||
+            (!oppgittPeriode.isUtsettelse() && !oppgittPeriode.isOpphold())) {
+            return true;
+        }
+        return (erFørsteSøknadsperiode && UtsettelseÅrsak.FRI.equals(oppgittPeriode.getÅrsak()))
+            || OppgittPeriodeSammenligning.kreverSaksbehandling(oppgittPeriode);
     }
 
     private boolean inneholderVirkedager(List<OppgittPeriodeEntitet> perioder) {
