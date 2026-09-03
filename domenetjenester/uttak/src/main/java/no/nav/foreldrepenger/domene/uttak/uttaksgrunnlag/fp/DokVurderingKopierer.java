@@ -42,7 +42,7 @@ public class DokVurderingKopierer {
             nysøknadTidslinje = oppdaterDokumentasjonVurdering(nysøknadTidslinje, tidslinjeSammenlignNysøknad, filtrertForrigeUttak);
         }
 
-        return nysøknadTidslinje.toSegments().stream().map(LocalDateSegment::getValue).filter(Objects::nonNull).toList();
+        return nysøknadTidslinje.segmenter().stream().map(LocalDateSegment::getValue).filter(Objects::nonNull).toList();
     }
 
     private static List<OppgittPeriodeEntitet> perioderForFordeling(List<OppgittPeriodeEntitet> fordeling, LocalDate tidligstedato) {
@@ -78,7 +78,7 @@ public class DokVurderingKopierer {
 
         var oppdatertTidslinje = tidslinje.combine(tidslinjeVurderingForrigeSøknad,
             DokVurderingKopierer::oppdaterMedVurdering, LocalDateTimeline.JoinStyle.LEFT_JOIN);
-        return new LocalDateTimeline<>(oppdatertTidslinje.toSegments(), DokVurderingKopierer::oppgittPeriodeSplitter);
+        return new LocalDateTimeline<>(oppdatertTidslinje.segmenter(), DokVurderingKopierer::oppgittPeriodeSplitter);
     }
 
     private static LocalDateTimeline<OppgittPeriodeEntitet> lagSøknadsTimeline(List<OppgittPeriodeEntitet> søknad) {

@@ -186,8 +186,8 @@ public final class MapYrkesaktivitetTilOpptjeningsperiodeTjeneste {
     private static Stream<AktivitetsAvtale> knekkVedNullProsent(AktivitetsAvtale ansettelsesPeriode, LocalDateTimeline<AktivitetsAvtale> nullprosent) {
         var ansettelsesSegment = new LocalDateSegment<>(ansettelsesPeriode.getPeriode().getFomDato(), ansettelsesPeriode.getPeriode().getTomDato(), ansettelsesPeriode);
         var ansettelsesTidslinje = new LocalDateTimeline<>(List.of(ansettelsesSegment));
-        return Stream.concat(ansettelsesTidslinje.intersection(nullprosent).toSegments().stream(),
-                ansettelsesTidslinje.disjoint(nullprosent).toSegments().stream())
+        return Stream.concat(ansettelsesTidslinje.intersection(nullprosent).segmenter().stream(),
+                ansettelsesTidslinje.disjoint(nullprosent).segmenter().stream())
             .map(MapAnsettelsesPeriodeOgPermisjon::aktivitetsAvtaleFraSegment);
     }
 

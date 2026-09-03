@@ -64,7 +64,7 @@ class UtbetalingsgradBeregner {
         var ferdigKappet = aaregKombinertMedSøknad
                 .intersection(new LocalDateInterval(svpTilrettelegging.getBehovForTilretteleggingFom(), termindatoMinus3UkerOg1Dag));
 
-        var periodeMedUtbetalingsgrad = beholdUtbetalingsgradSelvOmArbeidFrafaller(ferdigKappet).toSegments()
+        var periodeMedUtbetalingsgrad = beholdUtbetalingsgradSelvOmArbeidFrafaller(ferdigKappet).segmenter()
                 .stream()
                 .map(s -> new PeriodeMedUtbetalingsgrad(DatoIntervallEntitet.fraOgMedTilOgMed(s.getFom(), s.getTom()), s.getValue()))
                 .toList();
@@ -223,7 +223,7 @@ class UtbetalingsgradBeregner {
 
     private static LocalDateTimeline<BigDecimal> beholdUtbetalingsgradSelvOmArbeidFrafaller(LocalDateTimeline<BigDecimal> ferdigBeregnetOgKappet) {
         List<LocalDateSegment<BigDecimal>> segmenter = new ArrayList<>();
-        var iterator = ferdigBeregnetOgKappet.toSegments().iterator();
+        var iterator = ferdigBeregnetOgKappet.segmenter().iterator();
 
         BigDecimal forrigeVerdi = null;
         while (iterator.hasNext()) {

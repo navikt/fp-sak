@@ -127,7 +127,7 @@ public class MapYtelseperioderTjeneste {
         var tidslinje = new LocalDateTimeline<>(ytelser.stream()
                 .map(s -> new LocalDateSegment<>(new LocalDateInterval(s.getPeriode().getFomDato(), s.getPeriode().getTomDato()), s))
                 .toList(), MapYtelseperioderTjeneste::slåSammenToSegment);
-        return tidslinje.compress((v1, v2) -> true, MapYtelseperioderTjeneste::slåSammenToSegment).toSegments().stream()
+        return tidslinje.compress((v1, v2) -> true, MapYtelseperioderTjeneste::slåSammenToSegment).segmenter().stream()
                 .map(LocalDateSegment::getValue)
                 .toList();
     }

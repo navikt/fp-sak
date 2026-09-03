@@ -92,7 +92,7 @@ class VurderUttakDokumentasjonOppdaterer implements AksjonspunktOppdaterer<Vurde
                 nyPeriode.medDokumentasjonVurdering(mapVurdering(vurdering.getValue()));
             }
             return new LocalDateSegment<>(datoInterval, nyPeriode.build());
-        }, LocalDateTimeline.JoinStyle.LEFT_JOIN).toSegments().stream().map(LocalDateSegment::getValue).toList();
+        }, LocalDateTimeline.JoinStyle.LEFT_JOIN).segmenter().stream().map(LocalDateSegment::getValue).toList();
 
         ytelseFordelingTjeneste.overstyrSøknadsperioder(behandlingId, nyFordeling);
         historikkinnslagTjeneste.opprettHistorikkinnslag(ref, dto.getBegrunnelse(), gjeldendePerioder, nyFordeling);
