@@ -128,7 +128,6 @@ public class VilkårsgrunnlagXmlTjenesteImpl extends VilkårsgrunnlagXmlTjeneste
         if (vilkårFraBehandling.getRegelInput() == null) {
             return vilkårgrunnlag;
         }
-        // Inntil vi har fp-inngangsvilår med Jackson3
         var grunnlagForVilkår = DefaultJsonMapper.fromJson(vilkårFraBehandling.getRegelInput(), FødselsvilkårGrunnlagLegacy.class);
 
         vilkårgrunnlag.setSokersKjoenn(VedtakXmlUtil.lagStringOpplysning(grunnlagForVilkår.søkersKjønn().name()));

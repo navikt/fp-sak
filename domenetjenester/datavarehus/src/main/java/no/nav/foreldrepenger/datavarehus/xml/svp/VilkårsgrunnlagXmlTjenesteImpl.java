@@ -120,7 +120,6 @@ public class VilkårsgrunnlagXmlTjenesteImpl extends VilkårsgrunnlagXmlTjeneste
             return vilkårgrunnlag;
         }
 
-        // Inntil vi har tidsserie med Jackson3
         var opptjeningsgrunnlag = DefaultJsonMapper.fromJson(vilkårFraBehandling.getRegelInput(), Opptjeningsgrunnlag.class);
         var opptjeningsparametre = OpptjeningsvilkårParametre.opptjeningsparametreSvangerskapspenger();
 
