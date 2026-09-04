@@ -35,7 +35,7 @@
         <svp-uttak.version>2.4.9</svp-uttak.version>
         <fp-ytelse-beregn.version>1.0.5</fp-ytelse-beregn.version>
         <!-- kontrakter -->
-        <fp-kontrakter.version>9.4.37</fp-kontrakter.version>
+        <fp-kontrakter.version>9.4.38</fp-kontrakter.version>
         <abakus-kontrakt.version>2.4.1</abakus-kontrakt.version>
         <fpkalkulus.kontrakt.version>1.2.1</fpkalkulus.kontrakt.version>
         <!-- generelle verktøy -->
