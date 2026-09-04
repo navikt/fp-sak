@@ -77,9 +77,6 @@ public class VurderFaresignalerOppdaterer implements AksjonspunktOppdaterer<Vurd
     }
 
     private String finnTekstForFaresignalVurdering(FaresignalVurdering faresignalVurdering) {
-        if (faresignalVurdering == null) {
-            return null;
-        }
-        return Objects.equals(faresignalVurdering, FaresignalVurdering.INGEN_INNVIRKNING) ? "Ingen innvirkning" : "Innvirkning";
+        return faresignalVurdering == null ? null : faresignalVurdering.getNavn();
     }
 }
