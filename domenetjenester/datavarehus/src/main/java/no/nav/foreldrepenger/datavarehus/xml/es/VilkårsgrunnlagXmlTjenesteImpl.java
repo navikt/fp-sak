@@ -23,7 +23,6 @@ import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.medlemskap.v1.Medlemska
 import no.nav.vedtak.felles.xml.vedtak.personopplysninger.es.v2.Adopsjon;
 import no.nav.vedtak.felles.xml.vedtak.vilkaarsgrunnlag.es.v2.ObjectFactory;
 import no.nav.vedtak.felles.xml.vedtak.vilkaarsgrunnlag.v2.Vilkaarsgrunnlag;
-import no.nav.vedtak.mapper.json.DefaultJson2Mapper;
 import no.nav.vedtak.mapper.json.DefaultJsonMapper;
 
 @FagsakYtelseTypeRef(FagsakYtelseType.ENGANGSTØNAD)
@@ -129,8 +128,7 @@ public class VilkårsgrunnlagXmlTjenesteImpl extends VilkårsgrunnlagXmlTjeneste
         if (vilkårFraBehandling.getRegelInput() == null) {
             return vilkårgrunnlag;
         }
-        // Inntil vi har fp-inngangsvilår med Jackson3
-        var grunnlagForVilkår = DefaultJson2Mapper.fromJson(vilkårFraBehandling.getRegelInput(), FødselsvilkårGrunnlagLegacy.class);
+        var grunnlagForVilkår = DefaultJsonMapper.fromJson(vilkårFraBehandling.getRegelInput(), FødselsvilkårGrunnlagLegacy.class);
 
         vilkårgrunnlag.setSokersKjoenn(VedtakXmlUtil.lagStringOpplysning(grunnlagForVilkår.søkersKjønn().name()));
         vilkårgrunnlag.setAntallBarn(VedtakXmlUtil.lagIntOpplysning(grunnlagForVilkår.antallBarn()));

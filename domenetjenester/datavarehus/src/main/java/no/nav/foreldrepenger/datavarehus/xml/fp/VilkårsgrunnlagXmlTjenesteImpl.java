@@ -28,7 +28,6 @@ import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.opptjening.Opptjeningsv
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 import no.nav.vedtak.felles.xml.vedtak.vilkaarsgrunnlag.fp.v2.ObjectFactory;
 import no.nav.vedtak.felles.xml.vedtak.vilkaarsgrunnlag.v2.Vilkaarsgrunnlag;
-import no.nav.vedtak.mapper.json.DefaultJson2Mapper;
 import no.nav.vedtak.mapper.json.DefaultJsonMapper;
 
 @FagsakYtelseTypeRef(FagsakYtelseType.FORELDREPENGER)
@@ -146,8 +145,7 @@ public class VilkårsgrunnlagXmlTjenesteImpl extends VilkårsgrunnlagXmlTjeneste
             return vilkårgrunnlag;
         }
 
-        // Inntil vi har tidsserie med Jackson3
-        var opptjeningsgrunnlag = DefaultJson2Mapper.fromJson(vilkårFraBehandling.getRegelInput(), Opptjeningsgrunnlag.class);
+        var opptjeningsgrunnlag = DefaultJsonMapper.fromJson(vilkårFraBehandling.getRegelInput(), Opptjeningsgrunnlag.class);
         var opptjeningsparametre = OpptjeningsvilkårParametre.opptjeningsparametreForeldrepenger();
 
         if (opptjeningsgrunnlag != null) {
