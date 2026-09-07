@@ -67,7 +67,8 @@ class VurderFaresignalerOppdatererTest extends EntityManagerAwareTest {
 
         assertThat(linjer).hasSize(2);
 
-        assertThat(linjer.get(0).getTekst()).contains("__Faresignaler__ er satt til __Innvirkning__");
+        assertThat(linjer.get(0).getTekst()).contains(
+            "__Faresignaler__ er satt til __" + FaresignalVurdering.INNVILGET_UENDRET.getNavn() + "__");
         assertThat(linjer.get(1).getTekst()).contains(dto.getBegrunnelse());
     }
 
@@ -86,7 +87,8 @@ class VurderFaresignalerOppdatererTest extends EntityManagerAwareTest {
 
         assertThat(linjer).hasSize(2);
 
-        assertThat(linjer.get(0).getTekst()).contains("Faresignaler", "Ingen innvirkning", "Innvirkning");
+        assertThat(linjer.get(0).getTekst()).contains("er endret fra " + FaresignalVurdering.INGEN_INNVIRKNING.getNavn()
+            + " til __" + FaresignalVurdering.INNVILGET_REDUSERT.getNavn() + "__");
         assertThat(linjer.get(1).getTekst()).contains(dto.getBegrunnelse());
     }
 
@@ -105,7 +107,8 @@ class VurderFaresignalerOppdatererTest extends EntityManagerAwareTest {
 
         assertThat(linjer).hasSize(2);
 
-        assertThat(linjer.get(0).getTekst()).contains("Faresignaler", "Ingen innvirkning", "Innvirkning");
+        assertThat(linjer.get(0).getTekst()).contains("er endret fra " + FaresignalVurdering.INNVIRKNING.getNavn()
+            + " til __" + FaresignalVurdering.INGEN_INNVIRKNING.getNavn() + "__");
         assertThat(linjer.get(1).getTekst()).contains(dto.getBegrunnelse());
     }
 
