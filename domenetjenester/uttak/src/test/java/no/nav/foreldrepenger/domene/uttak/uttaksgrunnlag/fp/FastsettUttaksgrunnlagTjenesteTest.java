@@ -28,6 +28,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.Avklart
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.OppgittRettighetEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittFordelingEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.OppholdÅrsak;
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.UtsettelseÅrsak;
 import no.nav.foreldrepenger.behandlingslager.uttak.PeriodeResultatType;
 import no.nav.foreldrepenger.behandlingslager.uttak.Utbetalingsgrad;
 import no.nav.foreldrepenger.behandlingslager.uttak.UttakArbeidType;
@@ -97,6 +98,76 @@ class FastsettUttaksgrunnlagTjenesteTest {
                 forrigeBehandlingFordeling.getOppgittFordeling().getPerioder());
         assertThat(resultat.getOppgittFordeling().getErAnnenForelderInformert()).isEqualTo(
                 forrigeBehandlingFordeling.getOppgittFordeling().getErAnnenForelderInformert());
+    }
+
+    @Test
+    void skal_relevansfiltrere_perioder_kopiert_fra_forrige_ytelsesfordeling() {
+        var fom = LocalDate.of(2024, 1, 8);
+        var uttak = ny().medPeriode(fom, fom.plusDays(4)).medPeriodeType(FELLESPERIODE).build();
+        var ferie = ny().medPeriode(fom.plusWeeks(1), fom.plusWeeks(1).plusDays(4)).medÅrsak(UtsettelseÅrsak.FERIE).build();
+        var førstegangsbehandling = scenarioFar()
+            .medFordeling(new OppgittFordelingEntitet(List.of(uttak, ferie), true))
+            .lagre(repositoryProvider);
+        var revurdering = scenarioFar()
+            .medOriginalBehandling(førstegangsbehandling, BehandlingÅrsakType.RE_OPPLYSNINGER_OM_OPPTJENING)
+            .medFordeling(new OppgittFordelingEntitet(Collections.emptyList(), true))
+            .lagre(repositoryProvider);
+        var familieHendelse = FamilieHendelse.forAdopsjonOmsorgsovertakelse(fom, List.of(), 0, null, false);
+        var fpGrunnlag = new ForeldrepengerGrunnlag()
+            .medFamilieHendelser(new FamilieHendelser().medSøknadHendelse(familieHendelse))
+            .medOriginalBehandling(new OriginalBehandling(førstegangsbehandling.getId(),
+                new FamilieHendelser().medBekreftetHendelse(FamilieHendelse.forFødsel(null, fom, List.of(new Barn()), 1))));
+
+        tjeneste.fastsettUttaksgrunnlag(lagInput(revurdering, fpGrunnlag));
+
+        var resultat = repositoryProvider.getYtelsesFordelingRepository().hentAggregat(revurdering.getId());
+        assertThat(resultat.getGjeldendeFordeling().getPerioder()).containsExactly(uttak);
+    }
+
+    @Test
+    void skal_relevansfiltrere_konverterte_perioder_fra_forrige_uttaksresultat() {
+        var fom = LocalDate.of(2024, 1, 8);
+        var vedtattFerie = lagInnvilgetUtsettelse(fom, UttakUtsettelseType.FERIE);
+        var vedtattUttak = lagInnvilgetUttak(fom.plusWeeks(1), fom.plusWeeks(2).minusDays(1));
+        var førstegangsbehandling = scenarioMorFødsel()
+            .medUttak(new UttakResultatPerioderEntitet().leggTilPeriode(vedtattFerie).leggTilPeriode(vedtattUttak))
+            .medFordeling(new OppgittFordelingEntitet(List.of(), true))
+            .lagre(repositoryProvider);
+        var revurdering = scenarioMorFødsel()
+            .medOriginalBehandling(førstegangsbehandling, BehandlingÅrsakType.RE_VEDTAK_PLEIEPENGER)
+            .medFordeling(new OppgittFordelingEntitet(List.of(), true))
+            .lagre(repositoryProvider);
+        var familieHendelse = FamilieHendelse.forFødsel(fom, fom, List.of(), 0);
+        var fpGrunnlag = new ForeldrepengerGrunnlag()
+            .medFamilieHendelser(new FamilieHendelser().medSøknadHendelse(familieHendelse));
+        var input = lagInput(revurdering, fpGrunnlag);
+        when(endringsdatoRevurderingUtleder.utledEndringsdato(input)).thenReturn(fom);
+
+        tjeneste.fastsettUttaksgrunnlag(input);
+
+        var perioder = repositoryProvider.getYtelsesFordelingRepository().hentAggregat(revurdering.getId())
+            .getGjeldendeFordeling().getPerioder();
+        assertThat(perioder).hasSize(2);
+        assertThat(perioder.get(0).getÅrsak()).isEqualTo(UtsettelseÅrsak.FRI);
+        assertThat(perioder.get(1).getPeriodeType()).isEqualTo(MØDREKVOTE);
+    }
+
+    @Test
+    void skal_ikke_relevansfiltrere_perioder_på_gjeldende_behandling() {
+        var fom = LocalDate.of(2024, 1, 8);
+        var uttak = ny().medPeriode(fom, fom.plusDays(4)).medPeriodeType(FELLESPERIODE).build();
+        var ferie = ny().medPeriode(fom.plusWeeks(1), fom.plusWeeks(1).plusDays(4)).medÅrsak(UtsettelseÅrsak.FERIE).build();
+        var fordeling = new OppgittFordelingEntitet(List.of(uttak, ferie), true);
+        var behandling = scenarioMorFødsel().medFordeling(fordeling).lagre(repositoryProvider);
+        var familieHendelse = FamilieHendelse.forFødsel(fom, fom, List.of(), 0);
+        var fpGrunnlag = new ForeldrepengerGrunnlag()
+            .medFamilieHendelser(new FamilieHendelser().medSøknadHendelse(familieHendelse));
+
+        tjeneste.fastsettUttaksgrunnlag(lagInput(behandling, fpGrunnlag));
+
+        var perioder = repositoryProvider.getYtelsesFordelingRepository().hentAggregat(behandling.getId())
+            .getGjeldendeFordeling().getPerioder();
+        assertThat(perioder).containsExactly(uttak, ferie);
     }
 
     private UttakInput lagInput(Behandling behandling, ForeldrepengerGrunnlag ytelsespesifiktGrunnlag) {
@@ -395,7 +466,7 @@ class FastsettUttaksgrunnlagTjenesteTest {
     }
 
     @Test
-    void skal_ikke_fjerne_oppholdsperioder() {
+    void skal_ikke_relevansfiltrere_oppholdsperioder_på_gjeldende_behandling() {
         var søknadFom = LocalDate.of(2022, 7, 31);
         var periode1 = ny()
                 .medPeriode(søknadFom, søknadFom.plusDays(10))
@@ -427,7 +498,7 @@ class FastsettUttaksgrunnlagTjenesteTest {
         var resultat = repositoryProvider.getYtelsesFordelingRepository().hentAggregat(behandling.getId());
 
         var oppgittePerioder = resultat.getGjeldendeFordeling().getPerioder();
-        assertThat(oppgittePerioder).hasSize(4);
+        assertThat(oppgittePerioder).containsExactly(periode1, opphold1, periode2, opphold2);
     }
 
     @Test
@@ -543,6 +614,35 @@ class FastsettUttaksgrunnlagTjenesteTest {
         when(endringsdatoRevurderingUtleder.utledEndringsdato(input)).thenReturn(fødselsdato);
 
         assertThatCode(() -> tjeneste.fastsettUttaksgrunnlag(input)).doesNotThrowAnyException();
+    }
+
+    private static UttakResultatPeriodeEntitet lagInnvilgetUtsettelse(LocalDate fom, UttakUtsettelseType type) {
+        var periode = new UttakResultatPeriodeEntitet.Builder(fom, fom.plusDays(4))
+            .medResultatType(PeriodeResultatType.INNVILGET, PeriodeResultatÅrsak.UTSETTELSE_GYLDIG_PGA_FERIE)
+            .medUtsettelseType(type)
+            .build();
+        new UttakResultatPeriodeAktivitetEntitet.Builder(periode,
+            new UttakAktivitetEntitet.Builder().medUttakArbeidType(UttakArbeidType.SELVSTENDIG_NÆRINGSDRIVENDE).build())
+            .medTrekkonto(MØDREKVOTE)
+            .medTrekkdager(Trekkdager.ZERO)
+            .medArbeidsprosent(BigDecimal.ZERO)
+            .medUtbetalingsgrad(Utbetalingsgrad.ZERO)
+            .build();
+        return periode;
+    }
+
+    private static UttakResultatPeriodeEntitet lagInnvilgetUttak(LocalDate fom, LocalDate tom) {
+        var periode = new UttakResultatPeriodeEntitet.Builder(fom, tom)
+            .medResultatType(PeriodeResultatType.INNVILGET, PeriodeResultatÅrsak.KVOTE_ELLER_OVERFØRT_KVOTE)
+            .build();
+        new UttakResultatPeriodeAktivitetEntitet.Builder(periode,
+            new UttakAktivitetEntitet.Builder().medUttakArbeidType(UttakArbeidType.SELVSTENDIG_NÆRINGSDRIVENDE).build())
+            .medTrekkonto(MØDREKVOTE)
+            .medTrekkdager(new Trekkdager(Virkedager.beregnAntallVirkedager(fom, tom)))
+            .medArbeidsprosent(BigDecimal.ZERO)
+            .medUtbetalingsgrad(Utbetalingsgrad.FULL)
+            .build();
+        return periode;
     }
 
     private static ScenarioFarSøkerForeldrepenger scenarioFar() {

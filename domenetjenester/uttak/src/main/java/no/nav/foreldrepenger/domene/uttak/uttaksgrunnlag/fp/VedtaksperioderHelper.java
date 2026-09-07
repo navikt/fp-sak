@@ -39,21 +39,27 @@ import no.nav.foreldrepenger.skjæringstidspunkt.overganger.UtsettelseCore2021;
 public class VedtaksperioderHelper {
 
     private VedtaksperioderHelper() {
-        //
+
     }
 
     public static List<OppgittPeriodeEntitet> opprettOppgittePerioder(UttakResultatEntitet uttakResultatFraForrigeBehandling,
                                                                       List<OppgittPeriodeEntitet> søknadsperioder,
                                                                       LocalDate fomDato,
                                                                       boolean beholdAvslåttePerioderFrittUttak) {
-        var førsteSøknadsdato = OppgittPeriodeUtil.finnFørsteSøknadsdato(søknadsperioder);
-        var vedtaksperioder = lagVedtaksperioder(uttakResultatFraForrigeBehandling,
-            fomDato, førsteSøknadsdato, beholdAvslåttePerioderFrittUttak);
+        var vedtaksperioder = opprettPerioderFraVedtak(uttakResultatFraForrigeBehandling, søknadsperioder, fomDato, beholdAvslåttePerioderFrittUttak);
 
         List<OppgittPeriodeEntitet> søknadOgVedtaksperioder = new ArrayList<>();
         søknadsperioder.forEach(op -> søknadOgVedtaksperioder.add(OppgittPeriodeBuilder.fraEksisterende(op).build()));
         søknadOgVedtaksperioder.addAll(vedtaksperioder);
         return OppgittPeriodeUtil.sorterEtterFom(søknadOgVedtaksperioder);
+    }
+
+    private static List<OppgittPeriodeEntitet> opprettPerioderFraVedtak(UttakResultatEntitet uttakResultatFraForrigeBehandling,
+                                                                        List<OppgittPeriodeEntitet> søknadsperioder,
+                                                                        LocalDate fomDato,
+                                                                        boolean beholdAvslåttePerioderFrittUttak) {
+        var førsteSøknadsdato = OppgittPeriodeUtil.finnFørsteSøknadsdato(søknadsperioder);
+        return lagVedtaksperioder(uttakResultatFraForrigeBehandling, fomDato, førsteSøknadsdato, beholdAvslåttePerioderFrittUttak);
     }
 
     public static boolean avslåttPgaAvTaptPeriodeTilAnnenpart(UttakResultatPeriodeEntitet periode) {

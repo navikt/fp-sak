@@ -176,6 +176,21 @@ class VedtaksperiodeFilterFullPlanTest {
     class UendretPrefiksMedNyHale {
 
         @Test
+        void arbeid_og_fri_er_like_når_perioden_ikke_krever_sammenhengende_uttak() {
+            var vedtak = List.of(
+                utsettelsesperiodeVedtak(FPFF_FOM, FPFF_TOM, UttakUtsettelseType.ARBEID),
+                vedtaksperiode(MK_FOM, MK_TOM, UttakPeriodeType.MØDREKVOTE, PeriodeResultatType.INNVILGET, true),
+                vedtaksperiode(FP_FOM, FP_TOM, UttakPeriodeType.FELLESPERIODE, PeriodeResultatType.INNVILGET, true));
+            var plan = List.of(
+                søktUtsettelse(FPFF_FOM, FPFF_TOM, UtsettelseÅrsak.FRI),
+                søkt(MK_FOM, MK_TOM, UttakPeriodeType.MØDREKVOTE),
+                søkt(FP_FOM, FP_TOM, UttakPeriodeType.FELLESPERIODE),
+                søkt(HALE_FOM, FP_TOM.plusWeeks(3), UttakPeriodeType.FELLESPERIODE));
+
+            assertThat(endringsdato(plan, uttak(vedtak), false)).isEqualTo(HALE_FOM);
+        }
+
+        @Test
         void ny_periode_bakerst_gir_endringsdato_fra_halen() {
             assertThat(endringsdato(planMedHale(), uttak(normaltVedtak()), false)).isEqualTo(HALE_FOM);
         }
@@ -229,6 +244,36 @@ class VedtaksperiodeFilterFullPlanTest {
                 søkt(MK_FOM, avslagFom.minusDays(1), UttakPeriodeType.MØDREKVOTE),
                 søkt(avslagTom.plusDays(1), MK_TOM, UttakPeriodeType.MØDREKVOTE),
                 søkt(FP_FOM, FP_TOM, UttakPeriodeType.FELLESPERIODE),
+                søkt(HALE_FOM, FP_TOM.plusWeeks(3), UttakPeriodeType.FELLESPERIODE));
+
+            assertThat(endringsdato(plan, uttak(vedtak), false)).isEqualTo(HALE_FOM);
+        }
+
+        @Test
+        void innvilget_ferie_i_vedtak_mot_hull_i_søknad_gir_ikke_endringsdato() {
+            var ferieTom = FP_FOM.plusDays(13);
+            var vedtak = List.of(
+                vedtaksperiode(MK_FOM, MK_TOM, UttakPeriodeType.MØDREKVOTE, PeriodeResultatType.INNVILGET, true),
+                utsettelsesperiodeVedtak(FP_FOM, ferieTom, UttakUtsettelseType.FERIE),
+                vedtaksperiode(ferieTom.plusDays(1), FP_TOM, UttakPeriodeType.FELLESPERIODE, PeriodeResultatType.INNVILGET, true));
+            var plan = List.of(
+                søkt(MK_FOM, MK_TOM, UttakPeriodeType.MØDREKVOTE),
+                søkt(ferieTom.plusDays(1), FP_TOM, UttakPeriodeType.FELLESPERIODE),
+                søkt(HALE_FOM, FP_TOM.plusWeeks(3), UttakPeriodeType.FELLESPERIODE));
+
+            assertThat(endringsdato(plan, uttak(vedtak), false)).isEqualTo(HALE_FOM);
+        }
+
+        @Test
+        void fri_i_søknad_mot_hull_i_vedtak_gir_ikke_endringsdato() {
+            var friTom = FP_FOM.plusDays(13);
+            var vedtak = List.of(
+                vedtaksperiode(MK_FOM, MK_TOM, UttakPeriodeType.MØDREKVOTE, PeriodeResultatType.INNVILGET, true),
+                vedtaksperiode(friTom.plusDays(1), FP_TOM, UttakPeriodeType.FELLESPERIODE, PeriodeResultatType.INNVILGET, true));
+            var plan = List.of(
+                søkt(MK_FOM, MK_TOM, UttakPeriodeType.MØDREKVOTE),
+                søktUtsettelse(FP_FOM, friTom, UtsettelseÅrsak.FRI),
+                søkt(friTom.plusDays(1), FP_TOM, UttakPeriodeType.FELLESPERIODE),
                 søkt(HALE_FOM, FP_TOM.plusWeeks(3), UttakPeriodeType.FELLESPERIODE));
 
             assertThat(endringsdato(plan, uttak(vedtak), false)).isEqualTo(HALE_FOM);
