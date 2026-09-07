@@ -102,8 +102,8 @@ public class DokVurderingKopierer {
     }
 
     private static LocalDateSegment<SammenligningPeriodeForDokVurdering> leftIfEqualsRight(LocalDateInterval dateInterval,
-                                                                                      LocalDateSegment<SammenligningPeriodeForDokVurdering> lhs,
-                                                                                      LocalDateSegment<SammenligningPeriodeForDokVurdering> rhs) {
+                                                                                           LocalDateSegment<SammenligningPeriodeForDokVurdering> lhs,
+                                                                                           LocalDateSegment<SammenligningPeriodeForDokVurdering> rhs) {
         return lhs != null && rhs != null && Objects.equals(lhs.getValue(), rhs.getValue()) ?
             new LocalDateSegment<>(dateInterval, lhs.getValue()) : null;
     }
@@ -123,6 +123,6 @@ public class DokVurderingKopierer {
         SammenligningPeriodeForDokVurdering(OppgittPeriodeEntitet periode) {
             this(periode.getÅrsak(), periode.isUtsettelse() ? UttakPeriodeType.UDEFINERT : periode.getPeriodeType(), periode.getMorsAktivitet());
         }
-
     }
+
 }
