@@ -87,8 +87,8 @@ class VurderFaresignalerOppdatererTest extends EntityManagerAwareTest {
 
         assertThat(linjer).hasSize(2);
 
-        assertThat(linjer.get(0).getTekst()).contains("Faresignaler", FaresignalVurdering.INGEN_INNVIRKNING.getNavn(),
-            FaresignalVurdering.INNVILGET_REDUSERT.getNavn());
+        assertThat(linjer.get(0).getTekst()).contains("er endret fra " + FaresignalVurdering.INGEN_INNVIRKNING.getNavn()
+            + " til __" + FaresignalVurdering.INNVILGET_REDUSERT.getNavn() + "__");
         assertThat(linjer.get(1).getTekst()).contains(dto.getBegrunnelse());
     }
 
@@ -107,8 +107,8 @@ class VurderFaresignalerOppdatererTest extends EntityManagerAwareTest {
 
         assertThat(linjer).hasSize(2);
 
-        assertThat(linjer.get(0).getTekst()).contains("Faresignaler", FaresignalVurdering.INNVIRKNING.getNavn(),
-            FaresignalVurdering.INGEN_INNVIRKNING.getNavn());
+        assertThat(linjer.get(0).getTekst()).contains("er endret fra " + FaresignalVurdering.INNVIRKNING.getNavn()
+            + " til __" + FaresignalVurdering.INGEN_INNVIRKNING.getNavn() + "__");
         assertThat(linjer.get(1).getTekst()).contains(dto.getBegrunnelse());
     }
 
