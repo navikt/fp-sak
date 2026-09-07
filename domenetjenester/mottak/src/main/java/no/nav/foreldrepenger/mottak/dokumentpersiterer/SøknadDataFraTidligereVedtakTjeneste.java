@@ -41,7 +41,15 @@ public class SøknadDataFraTidligereVedtakTjeneste {
         //CDI
     }
 
-    public List<OppgittPeriodeEntitet> filtrerVekkPerioderSomErLikeInnvilgetUttak(Behandling behandling, List<OppgittPeriodeEntitet> nysøknad) {
+    public List<OppgittPeriodeEntitet> sammenstillMedTidligereVedtak(Behandling behandling,
+                                                                    LocalDate mottattDato,
+                                                                    List<OppgittPeriodeEntitet> nysøknad) {
+        var perioderFraEndring = filtrerVekkPerioderSomErLikeInnvilgetUttak(behandling, nysøknad);
+        var perioderMedMottattDato = oppdaterTidligstMottattDato(behandling, mottattDato, perioderFraEndring);
+        return oppdaterMedGodkjenteDokumentasjonsVurderinger(behandling, perioderMedMottattDato);
+    }
+
+    private List<OppgittPeriodeEntitet> filtrerVekkPerioderSomErLikeInnvilgetUttak(Behandling behandling, List<OppgittPeriodeEntitet> nysøknad) {
         var forrigeUttak = behandling.getOriginalBehandlingId()
             .flatMap(uttakRepository::hentUttakResultatHvisEksisterer).orElse(null);
         if (nysøknad.isEmpty() || forrigeUttak == null || forrigeUttak.getGjeldendePerioder().getPerioder().isEmpty()) {
@@ -55,7 +63,7 @@ public class SøknadDataFraTidligereVedtakTjeneste {
         return VedtaksperiodeFilter.filtrerVekkPerioderSomErLikeInnvilgetUttak(behandling.getId(), nysøknad, forrigeUttak, beholdSenestePeriode);
     }
 
-    public List<OppgittPeriodeEntitet> oppdaterTidligstMottattDato(Behandling behandling, LocalDate mottattDato, List<OppgittPeriodeEntitet> nysøknad) {
+    private List<OppgittPeriodeEntitet> oppdaterTidligstMottattDato(Behandling behandling, LocalDate mottattDato, List<OppgittPeriodeEntitet> nysøknad) {
         if (nysøknad.isEmpty()) {
             return nysøknad;
         }
@@ -80,7 +88,7 @@ public class SøknadDataFraTidligereVedtakTjeneste {
             .map(YtelseFordelingAggregat::getGjeldendeFordeling);
     }
 
-    public List<OppgittPeriodeEntitet> oppdaterMedGodkjenteDokumentasjonsVurderinger(Behandling behandling, List<OppgittPeriodeEntitet> oppgittePerioderFraSøknad) {
+    private List<OppgittPeriodeEntitet> oppdaterMedGodkjenteDokumentasjonsVurderinger(Behandling behandling, List<OppgittPeriodeEntitet> oppgittePerioderFraSøknad) {
         if (oppgittePerioderFraSøknad.isEmpty() || RelasjonsRolleType.MORA.equals(behandling.getRelasjonsRolleType())) {
             return oppgittePerioderFraSøknad;
         }
