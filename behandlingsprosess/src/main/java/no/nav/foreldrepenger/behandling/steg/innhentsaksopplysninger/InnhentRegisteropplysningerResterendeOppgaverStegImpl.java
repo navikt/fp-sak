@@ -8,6 +8,7 @@ import static no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aks
 import java.time.LocalDate;
 import java.time.Period;
 import java.util.List;
+import java.util.Set;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -30,6 +31,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAkt�
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakEgenskapRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.egenskaper.FagsakMarkering;
+import no.nav.foreldrepenger.domene.fpinntektsmelding.FpInntektsmeldingTjeneste;
 import no.nav.foreldrepenger.domene.personopplysning.PersonopplysningTjeneste;
 import no.nav.foreldrepenger.familiehendelse.FamilieHendelseTjeneste;
 import no.nav.foreldrepenger.kompletthet.Kompletthetsjekker;
@@ -54,6 +56,7 @@ public class InnhentRegisteropplysningerResterendeOppgaverStegImpl implements Be
     private BehandlendeEnhetTjeneste enhetTjeneste;
     private FagsakEgenskapRepository fagsakEgenskapRepository;
     private EtterlysInntektsmeldingTjeneste etterlysInntektsmeldingTjeneste;
+    private FpInntektsmeldingTjeneste fpInntektsmeldingTjeneste;
 
     InnhentRegisteropplysningerResterendeOppgaverStegImpl() {
         // for CDI proxy
@@ -68,7 +71,8 @@ public class InnhentRegisteropplysningerResterendeOppgaverStegImpl implements Be
                                                                  Kompletthetsjekker kompletthetsjekker,
                                                                  FagsakEgenskapRepository fagsakEgenskapRepository,
                                                                  SkjæringstidspunktTjeneste skjæringstidspunktTjeneste,
-                                                                 EtterlysInntektsmeldingTjeneste etterlysInntektsmeldingTjeneste) {
+                                                                 EtterlysInntektsmeldingTjeneste etterlysInntektsmeldingTjeneste,
+                                                                 FpInntektsmeldingTjeneste fpInntektsmeldingTjeneste) {
         this.behandlingRepository = behandlingRepository;
         this.fagsakTjeneste = fagsakTjeneste;
         this.personopplysningTjeneste = personopplysningTjeneste;
@@ -78,6 +82,7 @@ public class InnhentRegisteropplysningerResterendeOppgaverStegImpl implements Be
         this.enhetTjeneste = enhetTjeneste;
         this.fagsakEgenskapRepository = fagsakEgenskapRepository;
         this.etterlysInntektsmeldingTjeneste = etterlysInntektsmeldingTjeneste;
+        this.fpInntektsmeldingTjeneste = fpInntektsmeldingTjeneste;
     }
 
     @Override
@@ -96,6 +101,7 @@ public class InnhentRegisteropplysningerResterendeOppgaverStegImpl implements Be
 
             var etterlysIM = kompletthetsjekker.vurderEtterlysningInntektsmelding(ref, skjæringstidspunkter);
             if (!etterlysIM.erOppfylt()) {
+                fpInntektsmeldingTjeneste.lagTaskForespørAlleInntektsmeldinger(BehandlingReferanse.fra(behandling));
                 etterlysInntektsmeldingTjeneste.etterlysInntektsmeldingHvisIkkeAlleredeSendt(ref); // Etterlys inntektsmelding alltid ved mangler!
                 // Utført på/etter frist antas automatisk gjenopptak.
                 if (!etterlysIM.erFristUtløpt()) {

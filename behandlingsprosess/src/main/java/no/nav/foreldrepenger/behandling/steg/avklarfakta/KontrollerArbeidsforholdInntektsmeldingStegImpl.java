@@ -18,6 +18,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.domene.arbeidInntektsmelding.ArbeidsforholdInntektsmeldingMangelTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsforhold.aksjonspunkt.AksjonspunktUtlederForArbeidsforholdInntektsmelding;
+import no.nav.foreldrepenger.domene.fpinntektsmelding.FpInntektsmeldingTjeneste;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 
 @BehandlingStegRef(BehandlingStegType.KONTROLLER_FAKTA_ARBEIDSFORHOLD_INNTEKTSMELDING)
@@ -30,6 +31,7 @@ class KontrollerArbeidsforholdInntektsmeldingStegImpl implements KontrollerArbei
     private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
     private AksjonspunktUtlederForArbeidsforholdInntektsmelding utleder;
     private ArbeidsforholdInntektsmeldingMangelTjeneste arbeidsforholdInntektsmeldingMangelTjeneste;
+    private FpInntektsmeldingTjeneste fpInntektsmeldingTjeneste;
 
     KontrollerArbeidsforholdInntektsmeldingStegImpl() {
         // for CDI proxy
@@ -39,11 +41,13 @@ class KontrollerArbeidsforholdInntektsmeldingStegImpl implements KontrollerArbei
     KontrollerArbeidsforholdInntektsmeldingStegImpl(BehandlingRepository behandlingRepository,
                                                     SkjæringstidspunktTjeneste skjæringstidspunktTjeneste,
                                                     AksjonspunktUtlederForArbeidsforholdInntektsmelding utleder,
-                                                    ArbeidsforholdInntektsmeldingMangelTjeneste arbeidsforholdInntektsmeldingMangelTjeneste) {
+                                                    ArbeidsforholdInntektsmeldingMangelTjeneste arbeidsforholdInntektsmeldingMangelTjeneste,
+                                                    FpInntektsmeldingTjeneste fpInntektsmeldingTjeneste) {
         this.behandlingRepository = behandlingRepository;
         this.skjæringstidspunktTjeneste = skjæringstidspunktTjeneste;
         this.utleder = utleder;
         this.arbeidsforholdInntektsmeldingMangelTjeneste = arbeidsforholdInntektsmeldingMangelTjeneste;
+        this.fpInntektsmeldingTjeneste = fpInntektsmeldingTjeneste;
     }
 
     @Override
@@ -58,6 +62,7 @@ class KontrollerArbeidsforholdInntektsmeldingStegImpl implements KontrollerArbei
         arbeidsforholdInntektsmeldingMangelTjeneste.ryddVekkUgyldigeArbeidsforholdoverstyringer(ref);
 
         List<AksjonspunktResultat> aksjonspuntker = new ArrayList<>(utleder.utledAksjonspunkterFor(new AksjonspunktUtlederInput(ref, skjæringstidspunkter)));
+        fpInntektsmeldingTjeneste.lagForespørselForAlleArbeidsgivere(ref, skjæringstidspunkter);
         return BehandleStegResultat.utførtMedAksjonspunktResultater(aksjonspuntker);
     }
 }

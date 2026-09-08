@@ -168,43 +168,36 @@ public class FpInntektsmeldingTjeneste {
         var førsteUttaksdato = stp.getFørsteUttaksdato();
         var agDto = new OrganisasjonsnummerDto(arbeidsgiver.getOrgnr());
 
-        var request = new OpprettForespørselRequest(new OpprettForespørselRequest.AktørIdDto(ref.aktørId().getId()), null, skjæringstidspunkt,
-            mapYtelsetype(ref.fagsakYtelseType()), new SaksnummerDto(ref.saksnummer().getVerdi()), førsteUttaksdato,
-            List.of(agDto));
-
-        sendRequest(ref, request);
+        var request = new OpprettEnForespørselRequest(new OpprettForespørselRequest.AktørIdDto(ref.aktørId().getId()), agDto, skjæringstidspunkt,
+            mapYtelsetype(ref.fagsakYtelseType()), new SaksnummerDto(ref.saksnummer().getVerdi()), førsteUttaksdato);
+        LOG.info("Sender kall til fpinntektsmelding om å opprette forespørsel for saksnummer {} med skjæringstidspunkt {}",
+            ref.saksnummer(), request.skjæringstidspunkt());
+        håndterRespons(ref, klient.opprettEnForespørsel(request), skjæringstidspunkt, førsteUttaksdato);
     }
 
     public void lagForespørselForAlleArbeidsgivere(BehandlingReferanse ref, Skjæringstidspunkt stp) {
-        var arbeidsgivereViManglerInntektsmeldingFra = inntektsmeldingRegisterTjeneste.utledManglendeInntektsmeldingerFraGrunnlag(ref, stp)
+        var arbeidsgivereViManglerInntektsmeldingFra = inntektsmeldingRegisterTjeneste.utledAllePåKrevdeInntektsmeldinger(ref, stp)
             .keySet()
             .stream()
             .filter(arbeidsgiver -> OrganisasjonsNummerValidator.erGyldig(arbeidsgiver.getOrgnr()))
             .map(arbeidsgiver -> new OrganisasjonsnummerDto(arbeidsgiver.getOrgnr()))
             .toList();
-        if (arbeidsgivereViManglerInntektsmeldingFra.isEmpty()) {
-            LOG.info("FpInntektsmeldingTjeneste:lagForespørsel: Ingen inntektsmeldinger mangler for sak {} og behandlingId {}", ref.saksnummer(),
-                ref.behandlingId());
-            return;
-        }
         var skjæringstidspunkt = stp.getUtledetSkjæringstidspunkt();
         var førsteUttaksdato = stp.getFørsteUttaksdato();
 
-        var request = new OpprettForespørselRequest(new OpprettForespørselRequest.AktørIdDto(ref.aktørId().getId()), null, skjæringstidspunkt,
+        var request = new OpprettFlereForespørslerRequest(new OpprettForespørselRequest.AktørIdDto(ref.aktørId().getId()), skjæringstidspunkt,
             mapYtelsetype(ref.fagsakYtelseType()), new SaksnummerDto(ref.saksnummer().getVerdi()), førsteUttaksdato,
             arbeidsgivereViManglerInntektsmeldingFra);
-
-        sendRequest(ref, request);
+        LOG.info(
+            "Sender komplett liste til fpinntektsmelding for saksnummer {} med skjæringstidspunkt {} for følgende organisasjonsnumre: {}",
+            ref.saksnummer(), request.skjæringstidspunkt(), request.organisasjonsnumre());
+        håndterRespons(ref, klient.opprettFlereForespørsler(request), skjæringstidspunkt, førsteUttaksdato);
     }
 
-    private void sendRequest(BehandlingReferanse ref,
-                             OpprettForespørselRequest request) {
-        LOG.info(
-            "Sender kall til fpinntektsmelding om å opprette forespørsel for saksnummer {} med skjæringstidspunkt {} for følgende organisasjonsnumre: {}",
-            ref.saksnummer(), request.skjæringstidspunkt(), request.organisasjonsnumre());
-
-        var opprettForespørselResponseNy = klient.opprettForespørsel(request);
-
+    private void håndterRespons(BehandlingReferanse ref,
+                               OpprettForespørselResponsNy opprettForespørselResponseNy,
+                               LocalDate skjæringstidspunkt,
+                               LocalDate førsteUttaksdato) {
         opprettForespørselResponseNy.organisasjonsnumreMedStatus().forEach(organisasjonsnummerMedStatus -> {
             var orgnr = organisasjonsnummerMedStatus.organisasjonsnummerDto().orgnr();
             if (organisasjonsnummerMedStatus.status().equals(OpprettForespørselResponsNy.ForespørselResultat.FORESPØRSEL_OPPRETTET)) {
@@ -213,7 +206,7 @@ public class FpInntektsmeldingTjeneste {
             } else {
                 if (LOG.isInfoEnabled()) {
                     LOG.info("Fpinntektsmelding har allerede oppgave på saksnummer: {} og orgnummer: {} på stp: {} og første uttaksdato: {}",
-                        ref.saksnummer(), tilMaskertNummer(orgnr), request.skjæringstidspunkt(), request.førsteUttaksdato());
+                        ref.saksnummer(), tilMaskertNummer(orgnr), skjæringstidspunkt, førsteUttaksdato);
                 }
             }
         });

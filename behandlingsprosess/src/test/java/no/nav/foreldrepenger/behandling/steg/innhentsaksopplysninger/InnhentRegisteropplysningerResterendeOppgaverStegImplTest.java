@@ -82,7 +82,8 @@ class InnhentRegisteropplysningerResterendeOppgaverStegImplTest {
             kompletthetsjekker,
             mock(FagsakEgenskapRepository.class),
             skjæringstidspunktTjeneste,
-            etterlysInntektsmeldingTjeneste
+            etterlysInntektsmeldingTjeneste,
+            null
         );
     }
 
