@@ -1,8 +1,8 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.tilbakekreving.aksjonspunkt;
 
 import static no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagLinjeBuilder.fraTilEquals;
+import static no.nav.foreldrepenger.behandlingslager.behandling.tilbakekreving.TilbakekrevingVidereBehandling.navnForHistorikk;
 
-import java.util.ArrayList;
 import java.util.Optional;
 
 import jakarta.enterprise.context.ApplicationScoped;
@@ -12,7 +12,6 @@ import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagLinjeBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.SkjermlenkeType;
 import no.nav.foreldrepenger.behandlingslager.behandling.tilbakekreving.TilbakekrevingValg;
 
@@ -31,25 +30,16 @@ public class TilbakekrevingvalgHistorikkinnslagBygger {
     }
 
     public void byggHistorikkinnslag(BehandlingReferanse ref, Optional<TilbakekrevingValg> forrigeValg, TilbakekrevingValg tilbakekrevingValg, String begrunnelse) {
-        var linjer = new ArrayList<HistorikkinnslagLinjeBuilder>();
-        if (tilbakekrevingValg.getErTilbakekrevingVilkårOppfylt() != null) {
-            var fraVerdi = forrigeValg.map(TilbakekrevingValg::getErTilbakekrevingVilkårOppfylt).orElse(null);
-            linjer.add(fraTilEquals("Er vilkårene for tilbakekreving oppfylt", fraVerdi, tilbakekrevingValg.getErTilbakekrevingVilkårOppfylt()));
-        }
-        if (tilbakekrevingValg.getGrunnerTilReduksjon() != null) {
-            var fraVerdi = forrigeValg.map(TilbakekrevingValg::getGrunnerTilReduksjon).orElse(null);
-            linjer.add(fraTilEquals("Er det særlige grunner til reduksjon", fraVerdi, tilbakekrevingValg.getGrunnerTilReduksjon()));
-        }
         var historikkinnslag = new Historikkinnslag.Builder()
             .medAktør(HistorikkAktør.SAKSBEHANDLER)
             .medFagsakId(ref.fagsakId())
             .medBehandlingId(ref.behandlingId())
             .medTittel(SkjermlenkeType.FAKTA_OM_SIMULERING)
-            .medLinjer(linjer)
-            .addLinje(fraTilEquals("Fastsett videre behandling", forrigeValg.map(TilbakekrevingValg::getVidereBehandling).orElse(null), tilbakekrevingValg.getVidereBehandling()))
+            .addLinje(fraTilEquals("Fastsett videre behandling",
+                forrigeValg.map(valg -> navnForHistorikk(valg.getVidereBehandling(), valg.getVarseltekst())).orElse(null),
+                navnForHistorikk(tilbakekrevingValg.getVidereBehandling(), tilbakekrevingValg.getVarseltekst())))
             .addLinje(begrunnelse)
             .build();
         historikkinnslagRepository.lagre(historikkinnslag);
-
     }
 }

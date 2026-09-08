@@ -7,6 +7,8 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.util.List;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
@@ -14,6 +16,8 @@ import org.mockito.ArgumentCaptor;
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.AksjonspunktOppdaterParameter;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagLinje;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.tilbakekreving.TilbakekrevingRepository;
@@ -57,6 +61,32 @@ class VurderFeilutbetalingOppdatererTest {
         assertThat(tilbakekrevingValg.getGrunnerTilReduksjon()).isNull();
         assertThat(tilbakekrevingValg.getVidereBehandling()).isEqualTo(TilbakekrevingVidereBehandling.OPPRETT_TILBAKEKREVING);
         assertThat(tilbakekrevingValg.getVarseltekst()).isEqualTo(varseltekst);
+    }
+
+    @Test
+    void skal_lage_historikkinnslag_med_varsel_når_varseltekst_er_satt() {
+        var dto = new VurderFeilutbetalingDto("lorem ipsum", TilbakekrevingVidereBehandling.OPPRETT_TILBAKEKREVING, "varsel");
+
+        oppdaterer.oppdater(dto, new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling), dto));
+
+        assertThat(historikkLinjer()).anyMatch(
+            linje -> linje.contains("__Fastsett videre behandling__ er satt til __Opprett tilbakekreving, send varsel__"));
+    }
+
+    @Test
+    void skal_lage_historikkinnslag_uten_varsel_når_varseltekst_mangler() {
+        var dto = new VurderFeilutbetalingDto("lorem ipsum", TilbakekrevingVidereBehandling.OPPRETT_TILBAKEKREVING, null);
+
+        oppdaterer.oppdater(dto, new AksjonspunktOppdaterParameter(BehandlingReferanse.fra(behandling), dto));
+
+        assertThat(historikkLinjer()).anyMatch(
+            linje -> linje.contains("__Fastsett videre behandling__ er satt til __Opprett tilbakekreving, ikke send varsel__"));
+    }
+
+    private List<String> historikkLinjer() {
+        var historikkCaptor = ArgumentCaptor.forClass(Historikkinnslag.class);
+        verify(historikkinnslagRepository).lagre(historikkCaptor.capture());
+        return historikkCaptor.getValue().getLinjer().stream().map(HistorikkinnslagLinje::getTekst).toList();
     }
 
     @Test
