@@ -271,6 +271,38 @@ class SøknadMapperFellesTest {
     }
 
     @Test
+    void testMapperMedlemskapFP_med_FremtidigUtenlandsopphold_uten_kjent_sluttdato() {
+
+        var land = "FRA";
+        var periodeFom = LocalDate.now().plusMonths(2);
+
+        var registreringEngangsstonadDto = new ManuellRegistreringEngangsstonadDto();
+        registreringEngangsstonadDto.setMottattDato(LocalDate.now());
+        registreringEngangsstonadDto.setHarFremtidigeOppholdUtenlands(true);
+        registreringEngangsstonadDto.setHarTidligereOppholdUtenlands(false);
+        registreringEngangsstonadDto.setOppholdINorge(true);
+        var utenlandsoppholdDto = new UtenlandsoppholdDto();
+        utenlandsoppholdDto.setPeriodeFom(periodeFom);
+        utenlandsoppholdDto.setPeriodeTom(null);
+        utenlandsoppholdDto.setLand(land);
+        registreringEngangsstonadDto.setFremtidigeOppholdUtenlands(singletonList(utenlandsoppholdDto));
+
+        var medlemskap = SøknadMapperFelles.mapMedlemskap(registreringEngangsstonadDto);
+
+        var alleOppholdUtlandet = medlemskap.getOppholdUtlandet();
+        assertThat(alleOppholdUtlandet)
+            .isNotNull()
+            .hasSize(1);
+
+        var oppholdUtlandet = alleOppholdUtlandet.get(0);
+        assertThat(oppholdUtlandet.getPeriode()).isNotNull();
+        assertThat(oppholdUtlandet.getPeriode().getFom()).isEqualTo(periodeFom);
+        assertThat(oppholdUtlandet.getPeriode().getTom())
+            .as("Elementet skal utelates fra XML-en når sluttdato er ukjent")
+            .isNull();
+    }
+
+    @Test
     void testMapperMedlemskapFP_med_TidligereUtenlandsopphold() {
 
         var land = "FRA";
