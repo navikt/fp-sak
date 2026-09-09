@@ -13,13 +13,11 @@ import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
 public enum TilbakekrevingVidereBehandling implements Kodeverdi, DatabaseKode {
 
     UDEFINIERT(STANDARDKODE_UDEFINERT, "Udefinert."),
-    OPPRETT_TILBAKEKREVING("TILBAKEKR_OPPRETT", "Opprett tilbakekreving, send varsel"),
+    OPPRETT_TILBAKEKREVING("TILBAKEKR_OPPRETT", "Opprett tilbakekreving"),
     IGNORER_TILBAKEKREVING("TILBAKEKR_IGNORER", "Feilutbetaling, avvent samordning"),
     INNTREKK("TILBAKEKR_INNTREKK", "Feilutbetalingen er trukket inn i annen utbetaling"),
     TILBAKEKR_OPPDATER("TILBAKEKR_OPPDATER", "Endringer vil oppdatere eksisterende feilutbetalte perioder og beløp."),
     ;
-
-    private static final String OPPRETT_TILBAKEKREVING_UTEN_VARSEL = "Opprett tilbakekreving, ikke send varsel";
 
     /**
      * OPPRETT_TILBAKEKREVING dekker to valg saksbehandler kan gjøre - med og uten varsel til bruker.
@@ -29,8 +27,9 @@ public enum TilbakekrevingVidereBehandling implements Kodeverdi, DatabaseKode {
         if (videreBehandling == null) {
             return null;
         }
-        if (OPPRETT_TILBAKEKREVING.equals(videreBehandling) && (varseltekst == null || varseltekst.isBlank())) {
-            return OPPRETT_TILBAKEKREVING_UTEN_VARSEL;
+        if (OPPRETT_TILBAKEKREVING.equals(videreBehandling)) {
+            var varselsuffiks = varseltekst == null || varseltekst.isBlank() ? ", ikke send varsel" : ", send varsel";
+            return videreBehandling.getNavn() + varselsuffiks;
         }
         return videreBehandling.getNavn();
     }
