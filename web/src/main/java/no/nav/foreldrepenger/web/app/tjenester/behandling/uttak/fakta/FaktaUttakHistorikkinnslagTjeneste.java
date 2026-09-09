@@ -14,8 +14,8 @@ import jakarta.inject.Inject;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagLinjeBuilder;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.SkjermlenkeType;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.MorsAktivitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeEntitet;
@@ -68,7 +68,7 @@ public class FaktaUttakHistorikkinnslagTjeneste {
         var diffTidslinje = new LocalDateTimeline<>(oppdaterteSegment).combine(new LocalDateTimeline<>(eksisterendeSegment),
             this::utledEndringForPerioder, LocalDateTimeline.JoinStyle.CROSS_JOIN);
 
-        return diffTidslinje.toSegments().stream()
+        return diffTidslinje.segmenter().stream()
             .filter(Objects::nonNull)
             .map(LocalDateSegment::getValue)
             .filter(Objects::nonNull)
@@ -99,7 +99,7 @@ public class FaktaUttakHistorikkinnslagTjeneste {
 
         return new LocalDateTimeline<>(etterSegment).combine(new LocalDateTimeline<>(førSegment),
             FaktaUttakHistorikkinnslagTjeneste::utledEndringDto, LocalDateTimeline.JoinStyle.CROSS_JOIN)
-            .toSegments().stream()
+            .segmenter().stream()
             .filter(Objects::nonNull)
             .map(LocalDateSegment::getValue)
             .filter(Objects::nonNull)

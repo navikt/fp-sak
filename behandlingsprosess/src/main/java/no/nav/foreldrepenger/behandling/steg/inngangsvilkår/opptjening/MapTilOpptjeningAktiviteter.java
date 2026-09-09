@@ -21,10 +21,10 @@ public class MapTilOpptjeningAktiviteter {
 
         List<OpptjeningAktivitet> opptjeningAktivitet = new ArrayList<>();
         for (var entry : perioder.entrySet()) {
-            for (var seg : entry.getValue().toSegments()) {
+            for (var seg : entry.getValue().segmenter()) {
                 var key = entry.getKey();
-                var aktType = OpptjeningAktivitetType.fraKode(key.getAktivitetType());
-                var aktivitetReferanse = key.getAktivitetReferanse();
+                var aktType = OpptjeningAktivitetType.fraKode(key.aktivitetType());
+                var aktivitetReferanse = key.aktivitetReferanse();
                 var refType = getAktivitetReferanseType(aktivitetReferanse, key);
 
                 var oppAkt = new OpptjeningAktivitet(seg.getFom(), seg.getTom(), aktType, klassifisering,
@@ -37,15 +37,15 @@ public class MapTilOpptjeningAktiviteter {
 
     private static ReferanseType getAktivitetReferanseType(String aktivitetReferanse, Aktivitet key) {
         if (aktivitetReferanse != null) {
-            if (key.getReferanseType() == Aktivitet.ReferanseType.ORGNR) {
+            if (key.referanseType() == Aktivitet.ReferanseType.ORGNR) {
                 return ReferanseType.ORG_NR;
             }
-            if (key.getReferanseType() == Aktivitet.ReferanseType.AKTØRID) {
+            if (key.referanseType() == Aktivitet.ReferanseType.AKTØRID) {
                 return ReferanseType.AKTØR_ID;
             }
             throw new IllegalArgumentException(
                     "Utvikler-feil: Mangler aktivitetReferanseType for aktivitetReferanse["
-                            + key.getReferanseType()
+                            + key.referanseType()
                             + "]: "
                             + aktivitetReferanse);
 

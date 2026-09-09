@@ -11,8 +11,8 @@
     "datoIntervall" : [ "2018-05-13", "2019-03-12" ],
     "aktivitet" : {
       "aktivitetType" : "FRILOPP",
-      "aktivitetReferanse" : null,
-      "referanseType" : null
+      "aktivitetReferanse" : "342352362",
+      "referanseType" : "ORGNR"
     },
     "vurderingsStatus" : "VURDERT_UNDERKJENT"
   } ],

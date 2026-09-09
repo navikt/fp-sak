@@ -5,6 +5,7 @@ import static no.nav.fpsak.tidsserie.LocalDateInterval.min;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 import org.slf4j.Logger;
@@ -75,7 +76,13 @@ class FarsJustering implements ForelderFødselJustering {
             if (bareEnPeriodeFraTermin) {
                 return true;
             }
-            LOG.warn("Kan ikke justere fars uttak rundt fødsel. Selv om bruker har søkt om justering!. Mulig feil eller usynk i søknadsdialogen");
+            var mottattDato = oppgittePerioder.stream()
+                .map(OppgittPeriodeEntitet::getMottattDato)
+                .filter(Objects::nonNull)
+                .min(LocalDate::compareTo)
+                .orElse(null);
+            LOG.warn("Kan ikke justere fars uttak rundt fødsel. Selv om bruker har søkt om justering!. "
+                + "Mulig feil eller usynk i søknadsdialogen. Søknad mottatt dato {}", mottattDato);
         }
         return false;
     }

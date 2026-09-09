@@ -196,23 +196,6 @@ class DokumentBehandlingTjenesteTest {
     }
 
     @Test
-    void skal_fallbacke_til_gammel_tabell_hvis_ikke_i_mellomlagring() {
-        // Arrange
-        var overstyrtBrev = "<div><h1>TITTELEN ER GOD</h1><p>body</p></div>";
-        behandling = scenario.lagre(repositoryProvider);
-        var behandlingDokumentBuilder = BehandlingDokumentEntitet.Builder.ny()
-            .medBehandling(behandling.getId())
-            .medOverstyrtBrevFritekstHtml(overstyrtBrev)
-            .medUtfyllendeTekstAutomatiskVedtaksbrev(VEDTAK_FRITEKST);
-        behandlingDokumentRepository.lagreOgFlush(behandlingDokumentBuilder.build());
-
-        // Assert - finner fra gammel tabell
-        var mellomlagretOverstyring = dokumentBehandlingTjeneste.hentMellomlagretOverstyring(behandling.getId());
-        assertThat(mellomlagretOverstyring).isPresent();
-        assertThat(mellomlagretOverstyring.get()).contains(overstyrtBrev);
-    }
-
-    @Test
     void harMellomlagretOverstyring_returnerer_true_for_ny_tabell() {
         behandling = scenario.lagre(repositoryProvider);
         mellomlagringRepository.lagreEllerOppdater(behandling.getId(), MellomlagringType.VEDTAKSBREV, "<p>vedtak</p>");

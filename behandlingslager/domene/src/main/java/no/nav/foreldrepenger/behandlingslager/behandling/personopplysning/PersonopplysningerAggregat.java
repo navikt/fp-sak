@@ -91,7 +91,7 @@ public class PersonopplysningerAggregat {
             var regTL = tilPersonstatusTidslinje(register);
             var ovsTL = tilPersonstatusTidslinje(overstyrt);
             return ovsTL.combine(regTL, StandardCombinators::coalesceLeftHandSide, LocalDateTimeline.JoinStyle.CROSS_JOIN).compress()
-                .toSegments().stream()
+                .segmenter().stream()
                 .map(s -> new PersonstatusIntervall(s.getFom(), s.getTom(), s.getValue()))
                 .toList();
         }

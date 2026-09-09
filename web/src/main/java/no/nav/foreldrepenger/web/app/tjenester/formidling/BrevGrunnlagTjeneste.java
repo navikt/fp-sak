@@ -651,12 +651,9 @@ class BrevGrunnlagTjeneste {
     }
 
     private Optional<BrevGrunnlagDto.Behandlingsresultat.Fritekst> finnFritekst(Behandling behandling) {
-        // Brødtekst: sjekk ny mellomlagring-tabell først, deretter gammel tabell
         var brødtekst = mellomlagringRepository.hentMellomlagring(behandling.getId(), MellomlagringType.VEDTAKSBREV)
             .map(MellomlagringEntitet::getInnhold)
-            .orElseGet(() -> behandlingDokumentRepository.hentHvisEksisterer(behandling.getId())
-                .map(BehandlingDokumentEntitet::getOverstyrtBrevFritekstHtml)
-                .orElse(null));
+            .orElse(null);
         var avslagsarsakFritekst = behandlingDokumentRepository.hentHvisEksisterer(behandling.getId())
             .map(BehandlingDokumentEntitet::getVedtakFritekst)
             .orElse(null);

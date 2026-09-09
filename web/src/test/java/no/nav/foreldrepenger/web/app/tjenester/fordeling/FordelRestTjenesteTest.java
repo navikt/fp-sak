@@ -218,9 +218,9 @@ class FordelRestTjenesteTest {
 
         var tjeneste = new FordelRestTjeneste(null, fagsakTjenesteMock, null, behandlingRepositoryProviderMock, null, sakInfoDtoTjenesteMock, skjæringstidspunktTjenesteMock);
 
-        var result = tjeneste.infoOmSakForInntektsmelding(new FordelRestTjeneste.SakInntektsmeldingDto(new FordelRestTjeneste.AktørIdDto(AKTØR_ID_MOR.getId()), FordelRestTjeneste.SakInntektsmeldingDto.YtelseType.FORELDREPENGER));
+        var result = tjeneste.hentSakerÅpneForMottakAvInntektsmelding(new FordelRestTjeneste.SakInntektsmeldingDto(new FordelRestTjeneste.AktørIdDto(AKTØR_ID_MOR.getId()), FordelRestTjeneste.SakInntektsmeldingDto.YtelseType.FORELDREPENGER));
 
-        var response = (FordelRestTjeneste.InfoOmSakInntektsmeldingResponse) result.getEntity();
+        var response = ((List<FordelRestTjeneste.InfoOmSakInntektsmeldingResponse>) result.getEntity()).getFirst();
         assertThat(response).isNotNull();
         assertThat(response.statusInntektsmelding()).isEqualTo(FordelRestTjeneste.StatusSakInntektsmelding.SØKT_FOR_TIDLIG);
         assertThat(response.førsteUttaksdato()).isEqualTo(førsteUttaksdato);
@@ -243,9 +243,9 @@ class FordelRestTjenesteTest {
 
         var tjeneste = new FordelRestTjeneste(null, fagsakTjenesteMock, null, behandlingRepositoryProviderMock, null, sakInfoDtoTjenesteMock, skjæringstidspunktTjenesteMock);
 
-        var result = tjeneste.infoOmSakForInntektsmelding(new FordelRestTjeneste.SakInntektsmeldingDto(new FordelRestTjeneste.AktørIdDto(AKTØR_ID_MOR.getId()), FordelRestTjeneste.SakInntektsmeldingDto.YtelseType.FORELDREPENGER));
+        var result = tjeneste.hentSakerÅpneForMottakAvInntektsmelding(new FordelRestTjeneste.SakInntektsmeldingDto(new FordelRestTjeneste.AktørIdDto(AKTØR_ID_MOR.getId()), FordelRestTjeneste.SakInntektsmeldingDto.YtelseType.FORELDREPENGER));
 
-        var response = (FordelRestTjeneste.InfoOmSakInntektsmeldingResponse) result.getEntity();
+        var response = ((List<FordelRestTjeneste.InfoOmSakInntektsmeldingResponse>) result.getEntity()).getFirst();
 
         assertThat(response).isNotNull();
         assertThat(response.statusInntektsmelding()).isEqualTo(FordelRestTjeneste.StatusSakInntektsmelding.ÅPEN_FOR_BEHANDLING);
@@ -264,12 +264,9 @@ class FordelRestTjenesteTest {
         when(behandlingRepositoryProviderMock.getBehandlingRepository()).thenReturn(behandlingRepositoryMock);
 
         var tjeneste = new FordelRestTjeneste(null, fagsakTjenesteMock, null, behandlingRepositoryProviderMock, null, sakInfoDtoTjenesteMock, skjæringstidspunktTjenesteMock);
-        var result = tjeneste.infoOmSakForInntektsmelding(new FordelRestTjeneste.SakInntektsmeldingDto(new FordelRestTjeneste.AktørIdDto(AKTØR_ID_MOR.getId()), FordelRestTjeneste.SakInntektsmeldingDto.YtelseType.SVANGERSKAPSPENGER));
+        var result = tjeneste.hentSakerÅpneForMottakAvInntektsmelding(new FordelRestTjeneste.SakInntektsmeldingDto(new FordelRestTjeneste.AktørIdDto(AKTØR_ID_MOR.getId()), FordelRestTjeneste.SakInntektsmeldingDto.YtelseType.SVANGERSKAPSPENGER));
 
-        var response = (FordelRestTjeneste.InfoOmSakInntektsmeldingResponse) result.getEntity();
-        assertThat(response).isNotNull();
-        assertThat(response.førsteUttaksdato()).isEqualTo(Tid.TIDENES_ENDE);
-        assertThat(response.statusInntektsmelding()).isEqualTo(FordelRestTjeneste.StatusSakInntektsmelding.INGEN_BEHANDLING);
+        assertThat((List<?>) result.getEntity()).isEmpty();
     }
 
     @Test
@@ -291,9 +288,9 @@ class FordelRestTjenesteTest {
 
         var tjeneste = new FordelRestTjeneste(null, fagsakTjenesteMock, null, behandlingRepositoryProviderMock, null, sakInfoDtoTjenesteMock, skjæringstidspunktTjenesteMock);
 
-        var result = tjeneste.infoOmSakForInntektsmelding(new FordelRestTjeneste.SakInntektsmeldingDto(new FordelRestTjeneste.AktørIdDto(AKTØR_ID_MOR.getId()), FordelRestTjeneste.SakInntektsmeldingDto.YtelseType.FORELDREPENGER));
+        var result = tjeneste.hentSakerÅpneForMottakAvInntektsmelding(new FordelRestTjeneste.SakInntektsmeldingDto(new FordelRestTjeneste.AktørIdDto(AKTØR_ID_MOR.getId()), FordelRestTjeneste.SakInntektsmeldingDto.YtelseType.FORELDREPENGER));
 
-        var response = (FordelRestTjeneste.InfoOmSakInntektsmeldingResponse) result.getEntity();
+        var response = ((List<FordelRestTjeneste.InfoOmSakInntektsmeldingResponse>) result.getEntity()).getFirst();
         assertThat(response).isNotNull();
         assertThat(response.statusInntektsmelding()).isEqualTo(FordelRestTjeneste.StatusSakInntektsmelding.PAPIRSØKNAD_IKKE_REGISTRERT);
         assertThat(response.førsteUttaksdato()).isEqualTo(Tid.TIDENES_ENDE);
@@ -320,9 +317,9 @@ class FordelRestTjenesteTest {
 
         var tjeneste = new FordelRestTjeneste(null, fagsakTjenesteMock, null, behandlingRepositoryProviderMock, null, sakInfoDtoTjenesteMock, skjæringstidspunktTjenesteMock);
 
-        var result = tjeneste.infoOmSakForInntektsmelding(new FordelRestTjeneste.SakInntektsmeldingDto(new FordelRestTjeneste.AktørIdDto(AKTØR_ID_MOR.getId()), FordelRestTjeneste.SakInntektsmeldingDto.YtelseType.FORELDREPENGER));
+        var result = tjeneste.hentSakerÅpneForMottakAvInntektsmelding(new FordelRestTjeneste.SakInntektsmeldingDto(new FordelRestTjeneste.AktørIdDto(AKTØR_ID_MOR.getId()), FordelRestTjeneste.SakInntektsmeldingDto.YtelseType.FORELDREPENGER));
 
-        var response = (FordelRestTjeneste.InfoOmSakInntektsmeldingResponse) result.getEntity();
+        var response = ((List<FordelRestTjeneste.InfoOmSakInntektsmeldingResponse>) result.getEntity()).getFirst();
         assertThat(response).isNotNull();
         assertThat(response.statusInntektsmelding()).isEqualTo(FordelRestTjeneste.StatusSakInntektsmelding.ÅPEN_FOR_BEHANDLING);
         assertThat(response.førsteUttaksdato()).isEqualTo(førsteUttaksdato);

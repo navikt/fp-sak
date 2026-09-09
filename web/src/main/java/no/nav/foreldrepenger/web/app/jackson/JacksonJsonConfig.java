@@ -2,10 +2,9 @@ package no.nav.foreldrepenger.web.app.jackson;
 
 import jakarta.ws.rs.ext.ContextResolver;
 
-import com.fasterxml.jackson.databind.json.JsonMapper;
-
 import no.nav.foreldrepenger.web.app.tjenester.RestImplementationClasses;
 import no.nav.vedtak.mapper.json.DefaultJsonMapper;
+import tools.jackson.databind.json.JsonMapper;
 
 public class JacksonJsonConfig implements ContextResolver<JsonMapper> {
 

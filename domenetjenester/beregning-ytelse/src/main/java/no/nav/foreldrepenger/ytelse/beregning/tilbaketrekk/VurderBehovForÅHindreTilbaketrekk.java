@@ -27,7 +27,7 @@ public class VurderBehovForÅHindreTilbaketrekk {
     static boolean skalVurdereTilbaketrekk(LocalDateTimeline<BRAndelSammenligning> brAndelTidslinje, Collection<Yrkesaktivitet> yrkesaktiviteter, LocalDate skjæringstidspunkt) {
 
         // hvis endring i totalDagsats
-        for (var segment : brAndelTidslinje.toSegments()) {
+        for (var segment : brAndelTidslinje.segmenter()) {
             var sammenligning = segment.getValue();
             var originaleAndeler = sammenligning.getForrigeAndeler();
             var revurderingAndeler = sammenligning.getBgAndeler();

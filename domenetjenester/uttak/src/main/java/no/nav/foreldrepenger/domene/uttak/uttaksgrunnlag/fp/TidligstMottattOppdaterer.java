@@ -9,17 +9,12 @@ import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.GraderingAktivitetType;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittFordelingEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeEntitet;
-import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeType;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.Årsak;
-import no.nav.foreldrepenger.behandlingslager.uttak.fp.SamtidigUttaksprosent;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatEntitet;
-import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.domene.tid.VirkedagUtil;
-import no.nav.foreldrepenger.domene.typer.Stillingsprosent;
 import no.nav.fpsak.tidsserie.LocalDateInterval;
 import no.nav.fpsak.tidsserie.LocalDateSegment;
 import no.nav.fpsak.tidsserie.LocalDateTimeline;
@@ -53,7 +48,7 @@ public class TidligstMottattOppdaterer {
             if (!perioder.isEmpty()) {
                 try {
                     nysøknadTidslinje = oppdaterTidligstMottattDato(nysøknadTidslinje, tidslinjeSammenlignNysøknad, perioder);
-                } catch (Exception e) {
+                } catch (Exception _) {
                     LOG.warn("TidligstMottatt: Feil ved sjekk av tidligere fordeling {} - se bort fra enkelttilfelle, varsle dersom mange", f.getId());
                 }
             }
@@ -68,7 +63,7 @@ public class TidligstMottattOppdaterer {
             nysøknadTidslinje = oppdaterTidligstMottattDato(nysøknadTidslinje, tidslinjeSammenlignNysøknad, perioderForrigeUttak);
         }
 
-        return nysøknadTidslinje.toSegments().stream().map(LocalDateSegment::getValue).filter(Objects::nonNull).toList();
+        return nysøknadTidslinje.segmenter().stream().map(LocalDateSegment::getValue).filter(Objects::nonNull).toList();
     }
 
     private static List<OppgittPeriodeEntitet> perioderForFordeling(List<OppgittPeriodeEntitet> fordeling, LocalDate mottattDato, LocalDate tidligstedato) {
@@ -104,7 +99,7 @@ public class TidligstMottattOppdaterer {
 
         var oppdatertTidslinje = tidslinje.combine(tidslinjeTidligstMottattForrigeSøknad,
             TidligstMottattOppdaterer::oppdaterMedTidligstMottatt, LocalDateTimeline.JoinStyle.LEFT_JOIN);
-        return new LocalDateTimeline<>(oppdatertTidslinje.toSegments(), TidligstMottattOppdaterer::oppgittPeriodeSplitter);
+        return new LocalDateTimeline<>(oppdatertTidslinje.segmenter(), TidligstMottattOppdaterer::oppgittPeriodeSplitter);
     }
 
     private static LocalDateTimeline<OppgittPeriodeEntitet> lagSøknadsTimeline(List<OppgittPeriodeEntitet> søknad) {
@@ -146,16 +141,9 @@ public class TidligstMottattOppdaterer {
             .toList();
     }
 
-    private record SammenligningPeriodeForMottatt(Årsak årsak, UttakPeriodeType periodeType, SamtidigUttaksprosent samtidigUttaksprosent, SammenligningGraderingForMottatt gradering) {
+    private record SammenligningPeriodeForMottatt(Årsak årsak) {
         SammenligningPeriodeForMottatt(OppgittPeriodeEntitet periode) {
-            this(periode.getÅrsak(), periode.isUtsettelse() ? UttakPeriodeType.UDEFINERT : periode.getPeriodeType(), periode.getSamtidigUttaksprosent(), periode.isGradert() ? new SammenligningGraderingForMottatt(periode) : null);
-        }
-
-    }
-
-    private record SammenligningGraderingForMottatt(GraderingAktivitetType graderingAktivitetType, Stillingsprosent arbeidsprosent, Arbeidsgiver arbeidsgiver) {
-        SammenligningGraderingForMottatt(OppgittPeriodeEntitet periode) {
-            this(periode.getGraderingAktivitetType(), periode.getArbeidsprosentSomStillingsprosent(), periode.getArbeidsgiver());
+            this(periode.getÅrsak());
         }
     }
 

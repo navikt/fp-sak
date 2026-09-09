@@ -90,7 +90,7 @@ public class SøknadDataFraTidligereVedtakTjeneste {
             .flatMap(uttakRepository::hentUttakResultatHvisEksisterer);
 
         // Kopier kun godkjent vurdering for søknadsperioder. Vedtaksperioder vil innholde alle vurderinger
-        return DokVurderingKopierer.oppdaterMedDokumentasjonVurdering(oppgittePerioderFraSøknad, List.of(), forrigeUttak);
+        return DokVurderingKopierer.oppdaterMedDokumentasjonVurdering(oppgittePerioderFraSøknad, forrigeUttak);
     }
 
 }

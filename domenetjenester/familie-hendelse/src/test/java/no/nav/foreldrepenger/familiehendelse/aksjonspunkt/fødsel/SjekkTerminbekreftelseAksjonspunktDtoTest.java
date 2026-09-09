@@ -6,8 +6,8 @@ import java.time.LocalDate;
 
 import org.junit.jupiter.api.Test;
 
-import no.nav.foreldrepenger.domene.json.StandardJsonConfig;
 import no.nav.foreldrepenger.familiehendelse.aksjonspunkt.fødsel.dto.SjekkTerminbekreftelseAksjonspunktDto;
+import no.nav.vedtak.mapper.json.DefaultJsonMapper;
 
 class SjekkTerminbekreftelseAksjonspunktDtoTest {
 
@@ -15,9 +15,9 @@ class SjekkTerminbekreftelseAksjonspunktDtoTest {
     void test_av_json_mapping() {
         var terminbekreftelseAksjonspunktDto = bekreftFødselAksjonspunktDto();
 
-        var json = StandardJsonConfig.toJson(terminbekreftelseAksjonspunktDto);
+        var json = DefaultJsonMapper.toJson(terminbekreftelseAksjonspunktDto);
 
-        var objektFraJson =  StandardJsonConfig.fromJson(json, SjekkTerminbekreftelseAksjonspunktDto.class);
+        var objektFraJson =  DefaultJsonMapper.fromJson(json, SjekkTerminbekreftelseAksjonspunktDto.class);
 
         assertThat(objektFraJson.getAntallBarn()).isEqualTo(terminbekreftelseAksjonspunktDto.getAntallBarn());
         assertThat(objektFraJson.getTermindato()).isEqualTo(terminbekreftelseAksjonspunktDto.getTermindato());

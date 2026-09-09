@@ -21,7 +21,7 @@ jobs:
     name: Build
     permissions:
       contents: read
-      packages: write
+      packages: read
       id-token: write
     uses: navikt/fp-gha-workflows/.github/workflows/build-app-no-db.yml@main
     with:
@@ -29,8 +29,6 @@ jobs:
       t-2c: '-T 2C' # default:
       build-image: ${{ github.ref_name == 'master' }} # default: true
       push-image: ${{ github.ref_name == 'master' }} # default: false
-      use-reader: true
-    secrets: inherit
 
   fpsak-tester:
     name: Fpsak tester
@@ -43,7 +41,6 @@ jobs:
     with:
       build-version: ${{ needs.build-app.outputs.build-version }}
       test-suite: fpsak
-    secrets: inherit
 
   verdikjede-tester:
     name: Verdikjedetester
@@ -56,7 +53,6 @@ jobs:
     with:
       build-version: ${{ needs.build-app.outputs.build-version }}
       test-suite: verdikjede
-    secrets: inherit
 
   notify:
     name: Notify
@@ -67,11 +63,13 @@ jobs:
       fpsak: ${{ needs.fpsak-tester.outputs.resultat }}
       verdikjede: ${{ needs.verdikjede-tester.outputs.resultat }}
       build-version: ${{ needs.build-app.outputs.build-version }}
-    secrets: inherit
+    secrets:
+      SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
 
   deploy-dev:
     name: Deploy dev
     permissions:
+      contents: read
       id-token: write
     if: github.ref_name == 'master'
     needs: [build-app, fpsak-tester, verdikjede-tester]
@@ -80,11 +78,11 @@ jobs:
       gar: true
       image: ${{ needs.build-app.outputs.build-version }}
       cluster: dev-fss
-    secrets: inherit
 
   deploy-prod:
     name: Deploy prod
     permissions:
+      contents: read
       id-token: write
     if: github.ref_name == 'master'
     needs: [build-app, fpsak-tester, verdikjede-tester, deploy-dev]
@@ -93,4 +91,3 @@ jobs:
       gar: true
       image: ${{ needs.build-app.outputs.build-version }}
       cluster: prod-fss
-    secrets: inherit

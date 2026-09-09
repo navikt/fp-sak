@@ -11,7 +11,6 @@ import org.slf4j.LoggerFactory;
 import no.nav.foreldrepenger.behandling.FagsakTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStatus;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakStatus;
-import no.nav.foreldrepenger.domene.json.StandardJsonConfig;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.konfig.KonfigVerdi;
 import no.nav.foreldrepenger.produksjonsstyring.fagsakstatus.OppdaterFagsakStatusTjeneste;
@@ -23,6 +22,7 @@ import no.nav.vedtak.hendelser.behandling.Kildesystem;
 import no.nav.vedtak.hendelser.behandling.v1.BehandlingHendelseV1;
 import no.nav.vedtak.log.mdc.MDCOperations;
 import no.nav.vedtak.log.util.LoggerUtils;
+import no.nav.vedtak.mapper.json.DefaultJsonMapper;
 
 @ApplicationScoped
 @ActivateRequestContext
@@ -52,7 +52,7 @@ public class BehandlingHendelseHåndterer implements KafkaMessageHandler.KafkaSt
     public void handleRecord(String key, String value) {
         // enhver exception ut fra denne metoden medfører at tråden som leser fra kafka gir opp og dør på seg.
         try {
-            var mottattHendelse = StandardJsonConfig.fromJson(value, BehandlingHendelse.class);
+            var mottattHendelse = DefaultJsonMapper.fromJson(value, BehandlingHendelse.class);
             if (Kildesystem.FPTILBAKE.equals(mottattHendelse.getKildesystem()) && mottattHendelse instanceof BehandlingHendelseV1 hendelseV1) {
                 setCallIdForHendelse(hendelseV1);
                 handleMessageIntern(hendelseV1);

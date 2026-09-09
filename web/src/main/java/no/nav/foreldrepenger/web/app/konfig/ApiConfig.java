@@ -19,8 +19,8 @@ import no.nav.vedtak.openapi.OpenApiUtils;
 import no.nav.vedtak.server.rest.AuthenticationFilter;
 import no.nav.vedtak.server.rest.GeneralRestExceptionMapper;
 import no.nav.vedtak.server.rest.ValidationExceptionMapper;
-import no.nav.vedtak.server.rest.jackson.Jackson2ExceptionMapper;
-import no.nav.vedtak.server.rest.jackson.Jackson2ProviderFeature;
+import no.nav.vedtak.server.rest.jackson.JacksonExceptionMapper;
+import no.nav.vedtak.server.rest.jackson.JacksonProviderFeature;
 
 @ApplicationPath(ApiConfig.API_URI)
 public class ApiConfig extends Application {
@@ -56,8 +56,8 @@ public class ApiConfig extends Application {
         }
         // Applikasjonsoppsett - her er FpRestJackson brutt opp pga JsonTypeName i ContextResolver
         classes.add(AuthenticationFilter.class);
-        classes.add(Jackson2ProviderFeature.class);
-        classes.add(Jackson2ExceptionMapper.class);
+        classes.add(JacksonProviderFeature.class);
+        classes.add(JacksonExceptionMapper.class);
         classes.add(JacksonJsonConfig.class); // Lokal ContextResolver pga AP-oppdaterere/JsonTypeName/JsonTypeinfo
         classes.add(ValidationExceptionMapper.class);
         classes.add(GeneralRestExceptionMapper.class);

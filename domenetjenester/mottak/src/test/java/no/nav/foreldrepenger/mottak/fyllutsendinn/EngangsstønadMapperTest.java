@@ -5,18 +5,16 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.time.LocalDate;
 import java.time.Month;
 
-import no.nav.foreldrepenger.behandlingslager.geografisk.Landkoder;
-
 import org.junit.jupiter.api.Test;
-
-import com.fasterxml.jackson.core.type.TypeReference;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseType;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
+import no.nav.foreldrepenger.behandlingslager.geografisk.Landkoder;
 import no.nav.foreldrepenger.mottak.fyllutsendinn.frontend.PapirsoknadMellomlagreDto;
 import no.nav.foreldrepenger.mottak.fyllutsendinn.kilde.FormSubmission;
 import no.nav.foreldrepenger.mottak.fyllutsendinn.kilde.Nav140507Data;
 import no.nav.vedtak.mapper.json.DefaultJsonMapper;
+import tools.jackson.core.type.TypeReference;
 
 class EngangsstønadMapperTest {
 

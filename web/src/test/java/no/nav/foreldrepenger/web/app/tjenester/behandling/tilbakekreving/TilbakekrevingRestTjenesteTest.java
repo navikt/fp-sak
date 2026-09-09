@@ -50,7 +50,7 @@ class TilbakekrevingRestTjenesteTest {
     @Test
     void skal_hentTilbakekrevingValg_når_tilbakekrevingsvalg_finnes() {
         when(tilbakekrevingRepository.hent(Mockito.any()))
-                .thenReturn(Optional.of(TilbakekrevingValg.medMulighetForInntrekk(true, true, TilbakekrevingVidereBehandling.INNTREKK)));
+                .thenReturn(Optional.of(new TilbakekrevingValg(true, true, TilbakekrevingVidereBehandling.INNTREKK, null)));
         var tilbakekrevingValgDto = tilbakekrevingRestTjeneste
                 .hentTilbakekrevingValg(new UuidDto("1098c6f4-4ae2-4794-8a23-9224675a1f99"));
         assertThat(tilbakekrevingValgDto).isNotNull();

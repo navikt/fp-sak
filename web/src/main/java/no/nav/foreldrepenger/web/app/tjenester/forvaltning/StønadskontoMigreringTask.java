@@ -15,14 +15,13 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjonRepository;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.Stønadskonto;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.StønadskontoType;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.Stønadskontoberegning;
-import no.nav.foreldrepenger.domene.json.StandardJsonConfig;
-import no.nav.foreldrepenger.stønadskonto.grensesnitt.Stønadsdager;
 import no.nav.foreldrepenger.stønadskonto.regelmodell.grunnlag.LegacyGrunnlagV0;
 import no.nav.foreldrepenger.stønadskonto.regelmodell.grunnlag.LegacyGrunnlagV1;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskHandler;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
+import no.nav.vedtak.mapper.json.DefaultJsonMapper;
 
 /*
  * Migreringspattern til senere bruk. Skal ikke kjøres på nytt. Bevares for pattern
@@ -92,13 +91,13 @@ class StønadskontoMigreringTask implements ProsessTaskHandler {
         if (input.contains("rettighetstype")) {
             return; // V2 - trenger ikke etterpopulere
         } else if (input.contains("familiehendelsesdato")) {
-            var grunnlag = StandardJsonConfig.fromJson(input, LegacyGrunnlagV0.class);
+            var grunnlag = DefaultJsonMapper.fromJson(input, LegacyGrunnlagV0.class);
             if (grunnlag.getAntallBarn() > 1) {
                 //etterpopuler(kontoberegning, StønadskontoType.TILLEGG_FLERBARN, dager);
                 endret = true;
             }
         } else {
-            var grunnlag = StandardJsonConfig.fromJson(input, LegacyGrunnlagV1.class);
+            var grunnlag = DefaultJsonMapper.fromJson(input, LegacyGrunnlagV1.class);
             if (grunnlag.getAntallBarn() > 1) {
                 //etterpopuler(kontoberegning, StønadskontoType.TILLEGG_FLERBARN, dager);
                 endret = true;

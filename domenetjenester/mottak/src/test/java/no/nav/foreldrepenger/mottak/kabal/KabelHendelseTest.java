@@ -2,19 +2,17 @@ package no.nav.foreldrepenger.mottak.kabal;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import java.io.IOException;
-
 import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandling.kabal.KabalHendelse;
 import no.nav.foreldrepenger.behandling.kabal.KabalUtfall;
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Fagsystem;
-import no.nav.foreldrepenger.domene.json.StandardJsonConfig;
+import no.nav.vedtak.mapper.json.DefaultJsonMapper;
 
 class KabelHendelseTest  {
 
     @Test
-    void kabalJsonParse() throws IOException {
+    void kabalJsonParse() {
         var payload = """
                 {
                     "eventId": "b79cae6f-4afc-4f51-9e0b-623bb53f1805",
@@ -33,7 +31,7 @@ class KabelHendelseTest  {
                 }
             """;
 
-        var hendelse = StandardJsonConfig.fromJson(payload, KabalHendelse.class);
+        var hendelse = DefaultJsonMapper.fromJson(payload, KabalHendelse.class);
 
         assertThat(hendelse.kilde()).isEqualTo(Fagsystem.FPSAK.getOffisiellKode());
         assertThat(hendelse.type()).isEqualTo(KabalHendelse.BehandlingEventType.KLAGEBEHANDLING_AVSLUTTET);

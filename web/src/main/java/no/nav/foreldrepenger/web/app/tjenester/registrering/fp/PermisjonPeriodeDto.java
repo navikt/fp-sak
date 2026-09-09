@@ -8,12 +8,11 @@ import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.Digits;
 import jakarta.validation.constraints.NotNull;
 
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.MorsAktivitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeType;
 import no.nav.foreldrepenger.validering.ValidKodeverk;
 import no.nav.foreldrepenger.web.app.tjenester.registrering.dto.GraderingDto;
+import tools.jackson.databind.annotation.JsonDeserialize;
 
 public class PermisjonPeriodeDto {
 
@@ -34,7 +33,7 @@ public class PermisjonPeriodeDto {
     @DecimalMax("100.00")
     @DecimalMin("0.00")
     @Digits(integer = 3, fraction = 2)
-    @JsonDeserialize(using = GraderingDto.BigDecimalSerializer.class)
+    @JsonDeserialize(using = GraderingDto.BigDecimalDeserializer.class)
     private BigDecimal samtidigUttaksprosent;
 
     private boolean flerbarnsdager;

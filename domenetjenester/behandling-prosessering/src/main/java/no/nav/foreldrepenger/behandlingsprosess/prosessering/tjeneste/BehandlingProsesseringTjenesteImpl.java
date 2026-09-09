@@ -29,7 +29,6 @@ import no.nav.foreldrepenger.behandlingsprosess.prosessering.task.FortsettBehand
 import no.nav.foreldrepenger.behandlingsprosess.prosessering.task.GjenopptaBehandlingTask;
 import no.nav.foreldrepenger.behandlingsprosess.prosessering.task.RegisterdataOppdatererTask;
 import no.nav.foreldrepenger.behandlingsprosess.prosessering.task.StartBehandlingTask;
-import no.nav.foreldrepenger.domene.json.StandardJsonConfig;
 import no.nav.foreldrepenger.domene.registerinnhenting.EndringsresultatSjekker;
 import no.nav.foreldrepenger.domene.registerinnhenting.RegisterdataEndringshåndterer;
 import no.nav.foreldrepenger.domene.registerinnhenting.task.InnhentIAYIAbakusTask;
@@ -42,6 +41,7 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskGruppe;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskStatus;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 import no.nav.vedtak.felles.prosesstask.api.TaskType;
+import no.nav.vedtak.mapper.json.DefaultJsonMapper;
 
 /**
  * Grensesnitt for å kjøre behandlingsprosess, herunder gjenopptak,
@@ -235,7 +235,7 @@ public class BehandlingProsesseringTjenesteImpl implements BehandlingProsesserin
             leggTilTasksForRegisterinnhenting(behandling, gruppe, nesteKjøringEtter, prioritet);
             var registerdataOppdatererTask = lagTaskData(TaskType.forProsessTask(RegisterdataOppdatererTask.class), behandling, nesteKjøringEtter, prioritet);
             var snapshot = endringsresultatSjekker.opprettEndringsresultatPåBehandlingsgrunnlagSnapshot(behandling.getId());
-            registerdataOppdatererTask.setPayload(StandardJsonConfig.toJson(snapshot));
+            registerdataOppdatererTask.setPayload(DefaultJsonMapper.toJson(snapshot));
             gruppe.addNesteSekvensiell(registerdataOppdatererTask);
         }
         var fortsettBehandlingTask = lagTaskData(TASK_FORTSETT, behandling, nesteKjøringEtter, prioritet);

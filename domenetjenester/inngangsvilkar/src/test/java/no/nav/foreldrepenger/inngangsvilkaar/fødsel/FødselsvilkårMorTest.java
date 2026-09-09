@@ -22,9 +22,10 @@ import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.AbstractT
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioFarSøkerEngangsstønad;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerEngangsstønad;
 import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
-import no.nav.foreldrepenger.domene.json.StandardJsonConfig;
 import no.nav.foreldrepenger.domene.personopplysning.PersonopplysningTjeneste;
 import no.nav.foreldrepenger.domene.typer.AktørId;
+import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.fødsel.FødselsvilkårGrunnlag;
+import no.nav.vedtak.mapper.json.DefaultJsonMapper;
 
 class FødselsvilkårMorTest extends EntityManagerAwareTest {
 
@@ -51,8 +52,8 @@ class FødselsvilkårMorTest extends EntityManagerAwareTest {
         // Act
         var data = new InngangsvilkårFødselMor(oversetter).vurderVilkår(lagRef(behandling));
 
-        var jsonNode =  StandardJsonConfig.fromJsonAsTree(data.regelInput());
-        var soekersKjonn = jsonNode.get("soekersKjonn").asText();
+        var grunnlag =  DefaultJsonMapper.fromJson(data.regelInput(), FødselsvilkårGrunnlag.class);
+        var soekersKjonn = grunnlag.søkersKjønn().name();
 
         // Assert
         assertThat(data.vilkårType()).isEqualTo(VilkårType.FØDSELSVILKÅRET_MOR);

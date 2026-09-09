@@ -10,7 +10,6 @@ import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårType;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallType;
-import no.nav.foreldrepenger.domene.json.StandardJsonConfig;
 import no.nav.foreldrepenger.inngangsvilkaar.RegelResultatOversetter;
 import no.nav.foreldrepenger.inngangsvilkaar.opptjening.fp.InngangsvilkårOpptjening;
 import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.InngangsvilkårRegler;
@@ -20,14 +19,15 @@ import no.nav.foreldrepenger.inngangsvilkaar.regelmodell.opptjening.Opptjeningsv
 import no.nav.fpsak.tidsserie.LocalDateInterval;
 import no.nav.fpsak.tidsserie.LocalDateSegment;
 import no.nav.fpsak.tidsserie.LocalDateTimeline;
+import no.nav.vedtak.mapper.json.DefaultJsonMapper;
 
 class InngangsvilkårOpptjeningTest {
 
     @Test
     void test_beregn_opptjening_fra_periode_over_mndskifte_godkjenn_antatt_case1() {
-        var resource = InngangsvilkårOpptjening.class.getResource("/opptjening/TFP-2566-wait-1.json");
-        assertThat(resource).isNotNull();
-        var grunnlag = StandardJsonConfig.fromJson(resource, Opptjeningsgrunnlag.class);
+        var resourceAsStream = InngangsvilkårOpptjening.class.getResourceAsStream("/opptjening/TFP-2566-wait-1.json");
+        assertThat(resourceAsStream).isNotNull();
+        var grunnlag = DefaultJsonMapper.fromJson(resourceAsStream, Opptjeningsgrunnlag.class);
 
         var resultat = InngangsvilkårRegler.opptjening(RegelYtelse.SVANGERSKAPSPENGER, grunnlag);
 
@@ -46,9 +46,9 @@ class InngangsvilkårOpptjeningTest {
 
     @Test
     void test_beregn_opptjening_fra_periode_over_mndskifte_godkjenn_antatt_case2() {
-        var resource = InngangsvilkårOpptjening.class.getResource("/opptjening/TFP-2566-wait.json");
-        assertThat(resource).isNotNull();
-        var grunnlag = StandardJsonConfig.fromJson(resource, Opptjeningsgrunnlag.class);
+        var resourceAsStream = InngangsvilkårOpptjening.class.getResourceAsStream("/opptjening/TFP-2566-wait.json");
+        assertThat(resourceAsStream).isNotNull();
+        var grunnlag = DefaultJsonMapper.fromJson(resourceAsStream, Opptjeningsgrunnlag.class);
 
         var resultat = InngangsvilkårRegler.opptjening(RegelYtelse.SVANGERSKAPSPENGER, grunnlag);
 
@@ -67,9 +67,9 @@ class InngangsvilkårOpptjeningTest {
 
     @Test
     void test_beregn_opptjening_fra_periode_over_mndskifte_avslag_case2() {
-        var resource = InngangsvilkårOpptjening.class.getResource("/opptjening/TFP-2566-deny.json");
-        assertThat(resource).isNotNull();
-        var grunnlag = StandardJsonConfig.fromJson(resource, Opptjeningsgrunnlag.class);
+        var resourceAsStream = InngangsvilkårOpptjening.class.getResourceAsStream("/opptjening/TFP-2566-deny.json");
+        assertThat(resourceAsStream).isNotNull();
+        var grunnlag = DefaultJsonMapper.fromJson(resourceAsStream, Opptjeningsgrunnlag.class);
 
         var resultat = InngangsvilkårRegler.opptjening(RegelYtelse.SVANGERSKAPSPENGER, grunnlag);
 
@@ -88,9 +88,9 @@ class InngangsvilkårOpptjeningTest {
 
     @Test
     void test_aktivitet_første_og_siste() {
-        var resource = InngangsvilkårOpptjening.class.getResource("/opptjening/TFP-2566-broken.json");
-        assertThat(resource).isNotNull();
-        var grunnlag = StandardJsonConfig.fromJson(resource, Opptjeningsgrunnlag.class);
+        var resourceAsStream = InngangsvilkårOpptjening.class.getResourceAsStream("/opptjening/TFP-2566-broken.json");
+        assertThat(resourceAsStream).isNotNull();
+        var grunnlag = DefaultJsonMapper.fromJson(resourceAsStream, Opptjeningsgrunnlag.class);
 
         var resultat = InngangsvilkårRegler.opptjening(RegelYtelse.SVANGERSKAPSPENGER, grunnlag);
 
@@ -111,9 +111,9 @@ class InngangsvilkårOpptjeningTest {
 
     @Test
     void test_beregn_opptjening_nok_aktivitet() {
-        var resource = InngangsvilkårOpptjening.class.getResource("/opptjening/TFP-2566-ok.json");
-        assertThat(resource).isNotNull();
-        var grunnlag = StandardJsonConfig.fromJson(resource, Opptjeningsgrunnlag.class);
+        var resourceAsStream = InngangsvilkårOpptjening.class.getResourceAsStream("/opptjening/TFP-2566-ok.json");
+        assertThat(resourceAsStream).isNotNull();
+        var grunnlag = DefaultJsonMapper.fromJson(resourceAsStream, Opptjeningsgrunnlag.class);
 
         var resultat = InngangsvilkårRegler.opptjening(RegelYtelse.SVANGERSKAPSPENGER, grunnlag);
 

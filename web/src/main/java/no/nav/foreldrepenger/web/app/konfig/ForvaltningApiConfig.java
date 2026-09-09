@@ -17,7 +17,7 @@ import no.nav.foreldrepenger.web.app.tjenester.RestImplementationClasses;
 import no.nav.vedtak.openapi.OpenApiUtils;
 import no.nav.vedtak.server.rest.AuthenticationFilter;
 import no.nav.vedtak.server.rest.ForvaltningAuthorizationFilter;
-import no.nav.vedtak.server.rest.FpRestJackson2Feature;
+import no.nav.vedtak.server.rest.FpRestJacksonFeature;
 
 @ApplicationPath(ForvaltningApiConfig.API_URI)
 public class ForvaltningApiConfig extends Application {
@@ -38,7 +38,7 @@ public class ForvaltningApiConfig extends Application {
         Set<Class<?>> classes = new HashSet<>();
         // Standard oppsett + tilgang: krav om autentisert og medlem av DRIFT
         classes.add(AuthenticationFilter.class);
-        classes.add(FpRestJackson2Feature.class);
+        classes.add(FpRestJacksonFeature.class);
         classes.add(ForvaltningAuthorizationFilter.class);
         // forvaltning/swagger
         classes.addAll(RestImplementationClasses.getForvaltningClasses());

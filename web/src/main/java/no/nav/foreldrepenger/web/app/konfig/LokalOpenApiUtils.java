@@ -16,7 +16,7 @@ import no.nav.openapi.spec.utils.openapi.NoJsonSubTypesAnnotationIntrospector;
 import no.nav.openapi.spec.utils.openapi.PrefixStrippingFQNTypeNameResolver;
 import no.nav.openapi.spec.utils.openapi.RefToClassLookup;
 import no.nav.openapi.spec.utils.openapi.RegisteredSubtypesModelConverter;
-import no.nav.vedtak.mapper.json.DefaultJsonMapper;
+import no.nav.vedtak.mapper.json.DefaultJson2Mapper;
 
 public class LokalOpenApiUtils {
 
@@ -44,8 +44,9 @@ public class LokalOpenApiUtils {
         ModelConverters.getInstance().addConverter(new EnumVarnamesConverter());
     }
 
+    // Inntil swagger moderniserer seg, vi velger en fork (vpelikh), eller vi finner noe annet (fx SmallRye OpenAPI)
     private static JsonMapper lagObjectMapperUtenJsonSubTypeAnnotasjoner() {
-        return DefaultJsonMapper.getJsonMapper().rebuild()
+        return DefaultJson2Mapper.getJsonMapper().rebuild()
             // OpenApi-spec som blir generert er ikke alltid konsekvent på rekkefølgen til properties.
             // Ved å skru på disse flaggene blir output deterministic og det blir enklere å se hva som faktisk er diff fra forrige typegenerering
             .enable(SerializationFeature.ORDER_MAP_ENTRIES_BY_KEYS)

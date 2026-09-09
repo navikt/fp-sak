@@ -44,8 +44,8 @@ class MapBRAndelSammenligningTidslinjeTest {
                 .opprettTidslinjeTest(Arrays.asList(periode, periode2, periode3), Arrays.asList(periode, periode2, periode3), dagensdato);
 
         // Assert
-        assertThat(tidslinje.toSegments()).hasSize(3);
-        var segmenter = new ArrayList<LocalDateSegment<BRAndelSammenligning>>(tidslinje.toSegments());
+        assertThat(tidslinje.segmenter()).hasSize(3);
+        var segmenter = new ArrayList<LocalDateSegment<BRAndelSammenligning>>(tidslinje.segmenter());
 
         assertSegment(segmenter.get(0), STP, STP.plusDays(15), Collections.singletonList(andel), Collections.emptyList());
         assertSegment(segmenter.get(1), STP.plusDays(16), STP.plusDays(29), Collections.singletonList(andel), Collections.emptyList());
@@ -68,8 +68,8 @@ class MapBRAndelSammenligningTidslinjeTest {
                 .opprettTidslinjeTest(Arrays.asList(periode, periode2, periode3), Arrays.asList(periode, periode2, periode3), dagensdato);
 
         // Assert
-        assertThat(tidslinje.toSegments()).hasSize(4);
-        var segmenter = new ArrayList<LocalDateSegment<BRAndelSammenligning>>(tidslinje.toSegments());
+        assertThat(tidslinje.segmenter()).hasSize(4);
+        var segmenter = new ArrayList<LocalDateSegment<BRAndelSammenligning>>(tidslinje.segmenter());
 
         assertSegment(segmenter.get(0), STP, STP.plusDays(15), Collections.singletonList(andel), Collections.singletonList(andel));
         assertSegment(segmenter.get(1), STP.plusDays(16), STP.plusDays(25), Collections.singletonList(andel), Collections.singletonList(andel));
@@ -105,8 +105,8 @@ class MapBRAndelSammenligningTidslinjeTest {
                         dagensdato);
 
         // Assert
-        assertThat(tidslinje.toSegments()).hasSize(4);
-        var segmenter = new ArrayList<LocalDateSegment<BRAndelSammenligning>>(tidslinje.toSegments());
+        assertThat(tidslinje.segmenter()).hasSize(4);
+        var segmenter = new ArrayList<LocalDateSegment<BRAndelSammenligning>>(tidslinje.segmenter());
 
         assertSegment(segmenter.get(0), STP, STP.plusDays(15), Collections.singletonList(nyAndel), Collections.singletonList(gammelAndel));
         assertSegment(segmenter.get(1), STP.plusDays(16), STP.plusDays(25), Arrays.asList(nyAndel, nyAndel2), Collections.singletonList(gammelAndel));

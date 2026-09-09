@@ -26,7 +26,6 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.hendelser.HendelsemottakRepository;
 import no.nav.foreldrepenger.behandlingslager.hendelser.MottattVedtak;
-import no.nav.foreldrepenger.domene.json.StandardJsonConfig;
 import no.nav.foreldrepenger.domene.tid.VirkedagUtil;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
@@ -41,6 +40,7 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 import no.nav.vedtak.log.mdc.MDCOperations;
 import no.nav.vedtak.log.util.LoggerUtils;
+import no.nav.vedtak.mapper.json.DefaultJsonMapper;
 
 @ApplicationScoped
 @ActivateRequestContext
@@ -88,7 +88,7 @@ public class VedtaksHendelseHåndterer implements KafkaMessageHandler.KafkaStrin
     public void handleRecord(String key, String value) {
         // enhver exception ut fra denne metoden medfører at tråden som leser fra kafka gir opp og dør på seg.
         try {
-            var mottattVedtak = StandardJsonConfig.fromJson(value, Ytelse.class);
+            var mottattVedtak = DefaultJsonMapper.fromJson(value, Ytelse.class);
             if (mottattVedtak != null) {
                 handleMessageIntern((YtelseV1) mottattVedtak);
             }

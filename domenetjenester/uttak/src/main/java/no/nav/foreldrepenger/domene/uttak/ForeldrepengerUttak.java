@@ -138,7 +138,7 @@ public class ForeldrepengerUttak implements Uttak {
         var originalTL = lagTidslinjeFraUttaksPerioder(original.getGjeldendePerioder(), true);
         var revurderingTL = lagTidslinjeFraUttaksPerioder(getGjeldendePerioder(), false);
         return revurderingTL.combine(originalTL, ForeldrepengerUttak::fjernLikePerioder, LocalDateTimeline.JoinStyle.CROSS_JOIN)
-            .toSegments()
+            .segmenter()
             .stream()
             .map(LocalDateSegment::getValue)
             .filter(Objects::nonNull)
