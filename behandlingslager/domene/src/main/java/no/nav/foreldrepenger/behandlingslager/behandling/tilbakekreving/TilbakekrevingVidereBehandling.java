@@ -13,11 +13,26 @@ import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
 public enum TilbakekrevingVidereBehandling implements Kodeverdi, DatabaseKode {
 
     UDEFINIERT(STANDARDKODE_UDEFINERT, "Udefinert."),
-    OPPRETT_TILBAKEKREVING("TILBAKEKR_OPPRETT", "Feilutbetaling med tilbakekreving"),
+    OPPRETT_TILBAKEKREVING("TILBAKEKR_OPPRETT", "Opprett tilbakekreving"),
     IGNORER_TILBAKEKREVING("TILBAKEKR_IGNORER", "Feilutbetaling, avvent samordning"),
     INNTREKK("TILBAKEKR_INNTREKK", "Feilutbetalingen er trukket inn i annen utbetaling"),
     TILBAKEKR_OPPDATER("TILBAKEKR_OPPDATER", "Endringer vil oppdatere eksisterende feilutbetalte perioder og beløp."),
     ;
+
+    /**
+     * OPPRETT_TILBAKEKREVING dekker to valg saksbehandler kan gjøre - med og uten varsel til bruker.
+     * Skillet ligger i om varseltekst er satt, ikke i selve kodeverdien.
+     */
+    public static String navnForHistorikk(TilbakekrevingVidereBehandling videreBehandling, String varseltekst) {
+        if (videreBehandling == null) {
+            return null;
+        }
+        if (OPPRETT_TILBAKEKREVING.equals(videreBehandling)) {
+            var varselsuffiks = varseltekst == null || varseltekst.isBlank() ? ", ikke send varsel" : ", send varsel";
+            return videreBehandling.getNavn() + varselsuffiks;
+        }
+        return videreBehandling.getNavn();
+    }
 
     private static final Map<String, TilbakekrevingVidereBehandling> KODER = new LinkedHashMap<>();
 
