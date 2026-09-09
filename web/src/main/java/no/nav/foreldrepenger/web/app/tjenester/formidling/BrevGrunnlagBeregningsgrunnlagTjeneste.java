@@ -216,7 +216,8 @@ public class BrevGrunnlagBeregningsgrunnlagTjeneste {
             andel.getBeregningsperiodeFom(),
             andel.getBeregningsperiodeTom(),
             arbeidsforholdDto.orElse(null),
-            erTilkommetAndel(andel.getKilde()));
+            erTilkommetAndel(andel.getKilde()),
+            andel.getOverstyrtPrÅr() != null ? andel.getOverstyrtPrÅr() : andel.getBeregnetPrÅr());
     }
 
     private Optional<FaktaAktør> finnFaktaavklaringForGrunnlag() {
