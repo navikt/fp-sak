@@ -31,12 +31,15 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
+import no.nav.foreldrepenger.behandlingslager.behandling.DokumentKategori;
+import no.nav.foreldrepenger.behandlingslager.behandling.DokumentTypeId;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.OverlappVedtak;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.OverlappVedtakRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakStatus;
+import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.domene.tid.TimestampConverter;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.mottak.vedtak.avstemming.VedtakAvstemPeriodeTask;
@@ -113,6 +116,48 @@ public class ForvaltningUttrekkRestTjeneste {
     }
 
     public record FagsakTreff(String saksnummer, Long fagsakId) {
+    }
+
+    @POST
+    @Produces(MediaType.APPLICATION_JSON)
+    @Operation(description = "Fyller ut dokumenttype for eldre mottatte dokumenter", tags = "FORVALTNING-uttrekk")
+    @Path("/backfillMottattDokumentType")
+    @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.DRIFT, sporingslogg = false)
+    public Response backfillMottattDokumentType() {
+        var antall = entityManager.createNativeQuery("""
+                update mottatt_dokument md
+                set type = case
+                    when md.journalpost_id = :klageEttersendelseJournalpost then :klageEttersendelse
+                    when md.dokument_kategori = :klageKategori then :klageDokument
+                    when md.dokument_kategori = :soknadKategori then (
+                        select case f.ytelse_type
+                            when :svp then :soknadSvp
+                            when :es then :soknadEs
+                            when :fp then :soknadFp
+                        end
+                        from fagsak f
+                        where f.id = md.fagsak_id
+                    )
+                end
+                where md.type = :udefinert
+                and md.dokument_kategori in (:klageKategori, :soknadKategori)
+                """)
+            .setParameter("klageEttersendelseJournalpost", "460399552")
+            .setParameter("klageEttersendelse", DokumentTypeId.KLAGE_ETTERSENDELSE.getKode())
+            .setParameter("klageKategori", DokumentKategori.KLAGE_ELLER_ANKE.getKode())
+            .setParameter("klageDokument", DokumentTypeId.KLAGE_DOKUMENT.getKode())
+            .setParameter("soknadKategori", DokumentKategori.SØKNAD.getKode())
+            .setParameter("svp", FagsakYtelseType.SVANGERSKAPSPENGER.getKode())
+            .setParameter("soknadSvp", DokumentTypeId.SØKNAD_SVANGERSKAPSPENGER.getKode())
+            .setParameter("es", FagsakYtelseType.ENGANGSTØNAD.getKode())
+            .setParameter("soknadEs", DokumentTypeId.SØKNAD_ENGANGSSTØNAD_FØDSEL.getKode())
+            .setParameter("fp", FagsakYtelseType.FORELDREPENGER.getKode())
+            .setParameter("soknadFp", DokumentTypeId.SØKNAD_FORELDREPENGER_FØDSEL.getKode())
+            .setParameter("udefinert", DokumentTypeId.UDEFINERT.getKode())
+            .executeUpdate();
+        entityManager.flush();
+
+        return Response.ok(antall).build();
     }
 
     @POST
