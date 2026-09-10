@@ -6,7 +6,6 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
-import no.nav.foreldrepenger.behandlingslager.behandling.DokumentKategori;
 import no.nav.foreldrepenger.behandlingslager.behandling.DokumentTypeId;
 import no.nav.foreldrepenger.behandlingslager.behandling.MottattDokument;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
@@ -37,7 +36,6 @@ public class DokumentRegistrererTjeneste {
                                                 String søknadsXml, DokumentTypeId dokumentTypeId, LocalDate mottattDato) {
         var dokument = new MottattDokument.Builder()
             .medDokumentType(dokumentTypeId)
-            .medDokumentKategori(DokumentKategori.SØKNAD)
             .medElektroniskRegistrert(false)
             .medMottattDato(mottattDato)
             .medXmlPayload(søknadsXml)

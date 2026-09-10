@@ -13,7 +13,6 @@ import jakarta.inject.Inject;
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
-import no.nav.foreldrepenger.behandlingslager.behandling.DokumentKategori;
 import no.nav.foreldrepenger.behandlingslager.behandling.DokumentTypeId;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.MottatteDokumentRepository;
@@ -65,9 +64,7 @@ public class KompletthetsjekkerSøknadTjeneste {
         var søknad = søknadRepository.hentSøknadHvisEksisterer(ref.behandlingId());
         var mottattSøknad = mottatteDokumentRepository.hentMottatteDokumentMedFagsakId(ref.fagsakId())
                 .stream()
-                .filter(mottattDokument ->
-                        DokumentTypeId.getSøknadTyper().contains(mottattDokument.getDokumentType()) ||
-                        DokumentKategori.SØKNAD.equals(mottattDokument.getDokumentKategori()))
+                .filter(mottattDokument -> DokumentTypeId.getSøknadTyper().contains(mottattDokument.getDokumentType()))
                 .findFirst();
         // sjekker på både søknad og mottatte dokumenter siden søknad ikke lagres med en gang
         return søknad.isPresent() || mottattSøknad.isPresent();

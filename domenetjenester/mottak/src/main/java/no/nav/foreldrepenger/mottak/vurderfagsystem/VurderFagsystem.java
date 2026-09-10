@@ -6,7 +6,6 @@ import java.util.List;
 import java.util.Optional;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingTema;
-import no.nav.foreldrepenger.behandlingslager.behandling.DokumentKategori;
 import no.nav.foreldrepenger.behandlingslager.behandling.DokumentTypeId;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
 import no.nav.foreldrepenger.domene.typer.AktørId;
@@ -36,7 +35,6 @@ public class VurderFagsystem {
     private AktørId annenPart;
 
     private DokumentTypeId dokumentTypeId;
-    private DokumentKategori dokumentKategori;
 
     private String virksomhetsnummer;
     private AktørId arbeidsgiverAktørId;
@@ -148,14 +146,6 @@ public class VurderFagsystem {
 
     public void setDokumentTypeId(DokumentTypeId dokumentTypeId) {
         this.dokumentTypeId = dokumentTypeId;
-    }
-
-    public DokumentKategori getDokumentKategori() {
-        return dokumentKategori == null ? DokumentKategori.UDEFINERT : dokumentKategori;
-    }
-
-    public void setDokumentKategori(DokumentKategori dokumentKategori) {
-        this.dokumentKategori = dokumentKategori;
     }
 
     public Optional<String> getVirksomhetsnummer() {
