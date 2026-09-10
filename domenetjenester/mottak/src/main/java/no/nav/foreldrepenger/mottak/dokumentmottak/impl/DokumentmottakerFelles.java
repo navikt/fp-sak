@@ -18,7 +18,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingsresultatRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
-import no.nav.foreldrepenger.behandlingslager.behandling.DokumentKategori;
 import no.nav.foreldrepenger.behandlingslager.behandling.DokumentTypeId;
 import no.nav.foreldrepenger.behandlingslager.behandling.MottattDokument;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Venteårsak;
@@ -107,8 +106,7 @@ public class DokumentmottakerFelles {
 
     void opprettHistorikk(Behandling behandling, MottattDokument mottattDokument) {
         var dokType = mottattDokument.getDokumentType();
-        if (dokType.erSøknadType() || dokType.erEndringsSøknadType() || DokumentTypeId.KLAGE_DOKUMENT.equals(dokType) ||
-            DokumentKategori.SØKNAD.equals(mottattDokument.getDokumentKategori())) {
+        if (dokType.erSøknadType() || dokType.erEndringsSøknadType() || DokumentTypeId.KLAGE_DOKUMENT.equals(dokType)) {
             historikkinnslagTjeneste.opprettHistorikkinnslag(behandling, mottattDokument.getJournalpostId(), mottattDokument.getElektroniskRegistrert(), false);
         } else {
             opprettHistorikkinnslagForVedlegg(behandling.getFagsak(), behandling, mottattDokument);
@@ -260,13 +258,12 @@ public class DokumentmottakerFelles {
 
     boolean harMottattSøknadTidligere(Long behandlingId) {
         return mottatteDokumentTjeneste.harMottattDokumentSet(behandlingId, DokumentTypeId.getSøknadTyper()) ||
-            mottatteDokumentTjeneste.harMottattDokumentSet(behandlingId, DokumentTypeId.getEndringSøknadTyper()) ||
-            mottatteDokumentTjeneste.harMottattDokumentKat(behandlingId, DokumentKategori.SØKNAD);
+            mottatteDokumentTjeneste.harMottattDokumentSet(behandlingId, DokumentTypeId.getEndringSøknadTyper());
     }
 
     boolean harFagsakMottattSøknadTidligere(Long fagsakId) {
         return mottatteDokumentTjeneste.hentMottatteDokumentFagsak(fagsakId).stream()
-            .anyMatch(d -> d.getDokumentType().erSøknadType() || DokumentKategori.SØKNAD.equals(d.getDokumentKategori()));
+            .anyMatch(d -> d.getDokumentType().erSøknadType());
     }
 
     void persisterDokumentinnhold(Behandling behandling, MottattDokument dokument) {

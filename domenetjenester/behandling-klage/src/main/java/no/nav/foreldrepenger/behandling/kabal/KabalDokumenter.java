@@ -12,7 +12,6 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
-import no.nav.foreldrepenger.behandlingslager.behandling.DokumentKategori;
 import no.nav.foreldrepenger.behandlingslager.behandling.DokumentTypeId;
 import no.nav.foreldrepenger.behandlingslager.behandling.MottattDokument;
 import no.nav.foreldrepenger.behandlingslager.behandling.dokument.BehandlingDokumentBestiltEntitet;
@@ -145,7 +144,7 @@ public class KabalDokumenter {
     }
 
     private Predicate<MottattDokument> erKlageEllerAnkeDokument() {
-        return d -> DokumentTypeId.KLAGE_DOKUMENT.equals(d.getDokumentType()) || DokumentKategori.KLAGE_ELLER_ANKE.equals(d.getDokumentKategori());
+        return d -> DokumentTypeId.KLAGE_DOKUMENT.equals(d.getDokumentType());
     }
 
     private Predicate<BehandlingDokumentBestiltEntitet> erKlageOversendtBrevSent() {

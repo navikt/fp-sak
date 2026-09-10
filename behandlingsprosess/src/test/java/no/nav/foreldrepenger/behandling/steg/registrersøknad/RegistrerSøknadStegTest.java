@@ -14,7 +14,6 @@ import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBruker;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
-import no.nav.foreldrepenger.behandlingslager.behandling.DokumentKategori;
 import no.nav.foreldrepenger.behandlingslager.behandling.DokumentTypeId;
 import no.nav.foreldrepenger.behandlingslager.behandling.MottattDokument;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
@@ -77,7 +76,6 @@ class RegistrerSøknadStegTest extends EntityManagerAwareTest {
                 .medBehandlingId(revurdering.getId())
                 .medDokumentType(DokumentTypeId.SØKNAD_FORELDREPENGER_FØDSEL)
                 .medMottattDato(LocalDate.now())
-                .medDokumentKategori(DokumentKategori.SØKNAD)
                 .build();
         mottatteDokumentRepository.lagre(mottattDokument);
 
@@ -109,7 +107,6 @@ class RegistrerSøknadStegTest extends EntityManagerAwareTest {
                 .medBehandlingId(revurdering.getId())
                 .medDokumentType(DokumentTypeId.SØKNAD_SVANGERSKAPSPENGER)
                 .medMottattDato(LocalDate.now())
-                .medDokumentKategori(DokumentKategori.SØKNAD)
                 .build();
         mottatteDokumentRepository.lagre(mottattDokument);
 

@@ -5,7 +5,6 @@ import java.time.LocalDateTime;
 
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBrukerKjønn;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
-import no.nav.foreldrepenger.behandlingslager.behandling.DokumentKategori;
 import no.nav.foreldrepenger.behandlingslager.behandling.DokumentTypeId;
 import no.nav.foreldrepenger.behandlingslager.behandling.MottattDokument;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
@@ -39,7 +38,6 @@ public class DokumentmottakTestUtil {
                                                   boolean elektroniskRegistrert, String journalpostId) {
         var builder = new MottattDokument.Builder();
         builder.medDokumentType(dokumentTypeId);
-        builder.medDokumentKategori(DokumentKategori.SØKNAD);
         builder.medMottattDato(mottattDato);
         builder.medXmlPayload(xml);
         builder.medElektroniskRegistrert(elektroniskRegistrert);

@@ -32,7 +32,6 @@ import no.nav.foreldrepenger.behandling.BehandlendeFagsystem;
 import no.nav.foreldrepenger.behandling.FagsakTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingTema;
-import no.nav.foreldrepenger.behandlingslager.behandling.DokumentKategori;
 import no.nav.foreldrepenger.behandlingslager.behandling.DokumentTypeId;
 import no.nav.foreldrepenger.behandlingslager.behandling.MottattDokument;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspunkt;
@@ -413,14 +412,9 @@ public class FordelRestTjeneste {
         v.setOpprettSakVedBehov(dto.isOpprettSakVedBehov());
         v.setBrukerRolle(mapBrukerRolle(dto.getBrukerRolle()));
         v.setDokumentTypeId(DokumentTypeId.UDEFINERT);
-        v.setDokumentKategori(DokumentKategori.UDEFINERT);
         if (dto.getDokumentTypeIdOffisiellKode() != null) {
             v.setDokumentTypeId(DokumentTypeId.finnForKodeverkEiersKode(dto.getDokumentTypeIdOffisiellKode()));
         }
-        if (dto.getDokumentKategoriOffisiellKode() != null) {
-            v.setDokumentKategori(DokumentKategori.finnForKodeverkEiersKode(dto.getDokumentKategoriOffisiellKode()));
-        }
-
         return v;
     }
 
@@ -448,11 +442,9 @@ public class FordelRestTjeneste {
     private MottattDokument mapTilMottattDokument(JournalpostMottakDto journalpostMottakDto, DokumentTypeId dokumentTypeId, Saksnummer saksnummer) {
         var fagsak = fagsakTjeneste.finnFagsakGittSaksnummer(saksnummer, false)
             .orElseThrow(() -> new IllegalStateException("Finner ingen fagsak for saksnummer " + saksnummer));
-        var dokumentKategori = utledDokumentKategori(journalpostMottakDto.getDokumentKategoriOffisiellKode(), dokumentTypeId);
 
         var builder = new MottattDokument.Builder().medJournalPostId(new JournalpostId(journalpostMottakDto.getJournalpostId()))
             .medDokumentType(dokumentTypeId)
-            .medDokumentKategori(dokumentKategori)
             .medMottattDato(journalpostMottakDto.getForsendelseMottatt().orElse(LocalDate.now()))
             .medMottattTidspunkt(journalpostMottakDto.getForsendelseMottattTidspunkt()
                 != null ? journalpostMottakDto.getForsendelseMottattTidspunkt() : LocalDateTime.now())
@@ -467,16 +459,6 @@ public class FordelRestTjeneste {
         }
 
         return builder.build();
-    }
-
-    private DokumentKategori utledDokumentKategori(String dokumentKategori, DokumentTypeId dokumentTypeId) {
-        if (DokumentTypeId.getSøknadTyper().contains(dokumentTypeId) || DokumentTypeId.getEndringSøknadTyper().contains(dokumentTypeId)) {
-            return DokumentKategori.SØKNAD;
-        }
-        if (DokumentTypeId.KLAGE_DOKUMENT.equals(dokumentTypeId)) {
-            return DokumentKategori.KLAGE_ELLER_ANKE;
-        }
-        return dokumentKategori != null ? DokumentKategori.finnForKodeverkEiersKode(dokumentKategori) : DokumentKategori.UDEFINERT;
     }
 
     public static class JournalpostMottakDtoAbacDataSupplier implements Function<Object, AbacDataAttributter> {
