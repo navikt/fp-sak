@@ -169,9 +169,7 @@ public class SøknadMapperFelles {
         nyttOpphold.setLand(getLandkode(utenlandsoppholdDto.getLand()));
         var periode = new Periode();
         periode.setFom(utenlandsoppholdDto.getPeriodeFom());
-        if (utenlandsoppholdDto.getPeriodeTom() != null) {
-            periode.setTom(utenlandsoppholdDto.getPeriodeTom());
-        }
+        periode.setTom(utenlandsoppholdDto.getPeriodeTom());
         nyttOpphold.setPeriode(periode);
         return nyttOpphold;
     }
