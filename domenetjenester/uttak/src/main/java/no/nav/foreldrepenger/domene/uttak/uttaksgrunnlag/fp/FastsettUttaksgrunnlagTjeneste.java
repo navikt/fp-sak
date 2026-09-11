@@ -4,6 +4,7 @@ import static no.nav.foreldrepenger.domene.uttak.uttaksgrunnlag.fp.OppgittPeriod
 import static no.nav.foreldrepenger.domene.uttak.uttaksgrunnlag.fp.VedtaksperioderHelper.klipp;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
@@ -192,7 +193,7 @@ public class FastsettUttaksgrunnlagTjeneste {
 
     private List<OppgittPeriodeEntitet> oppgittePerioderFraForrigeBehandling(Long forrigeBehandling) {
         var forrigeBehandlingYtelseFordeling = ytelsesFordelingRepository.hentAggregat(forrigeBehandling);
-        return forrigeBehandlingYtelseFordeling.getOppgittFordeling().getPerioder();
+        return filtrerKopiertePerioder(forrigeBehandlingYtelseFordeling.getOppgittFordeling().getPerioder());
     }
 
     private boolean behandlingHarUttaksresultat(Long forrigeBehandlingId) {
@@ -209,9 +210,20 @@ public class FastsettUttaksgrunnlagTjeneste {
                                                                              LocalDate endringsdato,
                                                                              Long forrigeBehandling) {
         LOG.info("Kopierer vedtaksperioder fom endringsdato {} {}", endringsdato, forrigeBehandling);
-        //Kopier vedtaksperioder fom endringsdato.
         var uttakResultatEntitet = fpUttakRepository.hentUttakResultat(forrigeBehandling);
-        return VedtaksperioderHelper.opprettOppgittePerioder(uttakResultatEntitet, oppgittePerioder, endringsdato, false);
+        var relevanteVedtaksperioder = VedtaksperioderHelper.opprettRelevantePerioderFraVedtak(uttakResultatEntitet, oppgittePerioder,
+            endringsdato, false);
+        var sammenstiltePerioder = new ArrayList<>(oppgittePerioder);
+        sammenstiltePerioder.addAll(relevanteVedtaksperioder);
+        return OppgittPeriodeUtil.sorterEtterFom(sammenstiltePerioder);
+    }
+
+    private List<OppgittPeriodeEntitet> filtrerKopiertePerioder(List<OppgittPeriodeEntitet> kopiertePerioder) {
+        var relevantePerioder = OppgittPeriodeRelevans.relevantePerioder(kopiertePerioder);
+        if (!kopiertePerioder.isEmpty() && relevantePerioder.isEmpty()) {
+            LOG.warn("Relevansfilteret fjernet alle kopierte perioder ved fastsetting av uttaksgrunnlag");
+        }
+        return relevantePerioder;
     }
 
     private List<OppgittPeriodeEntitet> kopier(List<OppgittPeriodeEntitet> perioder) {
