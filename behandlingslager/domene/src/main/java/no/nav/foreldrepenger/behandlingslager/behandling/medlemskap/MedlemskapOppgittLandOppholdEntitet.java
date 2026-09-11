@@ -104,10 +104,6 @@ public class MedlemskapOppgittLandOppholdEntitet extends BaseEntitet implements 
         this.land = land == null ? Landkoder.UDEFINERT : land;
     }
 
-    void setPeriode(LocalDate periodeFom, LocalDate periodeTom) {
-        this.periode = DatoIntervallEntitet.fraOgMedTilOgMed(periodeFom, periodeTom != null ? periodeTom : Tid.TIDENES_ENDE);
-    }
-
     void setTidligereOpphold(boolean tidligereOpphold) {
         this.tidligereOpphold = tidligereOpphold;
     }
