@@ -11,7 +11,6 @@ import jakarta.inject.Inject;
 
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
-import no.nav.foreldrepenger.behandlingslager.behandling.DokumentKategori;
 import no.nav.foreldrepenger.behandlingslager.behandling.DokumentTypeId;
 import no.nav.foreldrepenger.behandlingslager.behandling.MottattDokument;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
@@ -23,7 +22,7 @@ import no.nav.foreldrepenger.mottak.sakskompleks.KøKontroller;
 @Dependent
 public class InnhentDokumentTjeneste {
 
-    private static Map<DokumentTypeId, DokumentGruppe> DOKUMENTTYPE_TIL_GRUPPE = new EnumMap<>(DokumentTypeId.class);
+    private static final Map<DokumentTypeId, DokumentGruppe> DOKUMENTTYPE_TIL_GRUPPE = new EnumMap<>(DokumentTypeId.class);
     static {
         // Søknad
         DokumentTypeId.getSøknadTyper().forEach(v -> DOKUMENTTYPE_TIL_GRUPPE.put(v, DokumentGruppe.SØKNAD));
@@ -40,17 +39,11 @@ public class InnhentDokumentTjeneste {
         DOKUMENTTYPE_TIL_GRUPPE.put(DokumentTypeId.KLAGE_ETTERSENDELSE, DokumentGruppe.KLAGE);
     }
 
-    private static Map<DokumentKategori, DokumentGruppe> DOKUMENTKATEGORI_TIL_GRUPPE = new EnumMap<>(DokumentKategori.class);
-    static {
-        DOKUMENTKATEGORI_TIL_GRUPPE.put(DokumentKategori.SØKNAD, DokumentGruppe.SØKNAD);
-        DOKUMENTKATEGORI_TIL_GRUPPE.put(DokumentKategori.KLAGE_ELLER_ANKE, DokumentGruppe.KLAGE);
-    }
+    private final Instance<Dokumentmottaker> mottakere;
 
-    private Instance<Dokumentmottaker> mottakere;
+    private final FagsakRepository fagsakRepository;
 
-    private FagsakRepository fagsakRepository;
-
-    private KøKontroller køKontroller;
+    private final KøKontroller køKontroller;
 
     @Inject
     public InnhentDokumentTjeneste(BehandlingRepositoryProvider repositoryProvider,
@@ -65,9 +58,7 @@ public class InnhentDokumentTjeneste {
         var fagsak = fagsakRepository.finnEksaktFagsak(mottattDokument.getFagsakId());
         var dokumentTypeId = mottattDokument.getDokumentType();
 
-        var dokumentGruppe = brukDokumentKategori(dokumentTypeId, mottattDokument.getDokumentKategori()) ?
-            DOKUMENTKATEGORI_TIL_GRUPPE.getOrDefault(mottattDokument.getDokumentKategori(), DokumentGruppe.VEDLEGG) :
-            DOKUMENTTYPE_TIL_GRUPPE.getOrDefault(dokumentTypeId, DokumentGruppe.VEDLEGG);
+        var dokumentGruppe = DOKUMENTTYPE_TIL_GRUPPE.getOrDefault(dokumentTypeId, DokumentGruppe.VEDLEGG);
 
         var dokumentmottaker = finnMottaker(dokumentGruppe, fagsak.getYtelseType());
         if (dokumentmottaker.endringSomUtsetterStartdato(mottattDokument, fagsak)) {
@@ -95,10 +86,6 @@ public class InnhentDokumentTjeneste {
 
     private boolean skalMottasSomKøet(Fagsak fagsak) {
         return køKontroller.skalEvtNyBehandlingKøes(fagsak);
-    }
-
-    private boolean brukDokumentKategori(DokumentTypeId dokumentTypeId, DokumentKategori dokumentKategori) {
-        return DokumentTypeId.UDEFINERT.equals(dokumentTypeId) || DokumentKategori.SØKNAD.equals(dokumentKategori) && dokumentTypeId.erAnnenDokType();
     }
 
     private Dokumentmottaker finnMottaker(DokumentGruppe dokumentGruppe, FagsakYtelseType fagsakYtelseType) {

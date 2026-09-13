@@ -24,7 +24,6 @@ import no.nav.foreldrepenger.behandling.FagsakRelasjonTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingTema;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
-import no.nav.foreldrepenger.behandlingslager.behandling.DokumentKategori;
 import no.nav.foreldrepenger.behandlingslager.behandling.DokumentTypeId;
 import no.nav.foreldrepenger.behandlingslager.behandling.MottattDokument;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatEntitet;
@@ -486,8 +485,7 @@ public class VurderFagsystemFellesUtils {
     }
 
     public static boolean erSøknad(VurderFagsystem vurderFagsystem) {
-        return DokumentTypeId.getSøknadTyper().contains(vurderFagsystem.getDokumentTypeId()) || DokumentKategori.SØKNAD.equals(
-            vurderFagsystem.getDokumentKategori());
+        return DokumentTypeId.getSøknadTyper().contains(vurderFagsystem.getDokumentTypeId());
     }
 
     private BehandlingTema getBehandlingsTemaForFagsak(Fagsak s) {

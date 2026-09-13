@@ -17,7 +17,6 @@ import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 
 import io.swagger.v3.oas.annotations.Operation;
-import no.nav.foreldrepenger.behandlingslager.behandling.DokumentKategori;
 import no.nav.foreldrepenger.behandlingslager.behandling.DokumentTypeId;
 import no.nav.foreldrepenger.behandlingslager.behandling.MottattDokument;
 import no.nav.foreldrepenger.behandlingslager.behandling.SpesialBehandling;
@@ -107,7 +106,6 @@ public class ForvaltningSøknadRestTjeneste {
         opprettSakTjeneste.knyttSakOgJournalpost(fagsak.getSaksnummer(), journalpostId);
         var mottattDokument = new MottattDokument.Builder().medJournalPostId(journalpostId)
             .medDokumentType(dokumentTypeId)
-            .medDokumentKategori(DokumentKategori.SØKNAD)
             .medMottattDato(dto.getMottattDato())
             .medMottattTidspunkt(LocalDateTime.of(dto.getMottattDato(), LocalTime.now()))
             .medElektroniskRegistrert(false)
