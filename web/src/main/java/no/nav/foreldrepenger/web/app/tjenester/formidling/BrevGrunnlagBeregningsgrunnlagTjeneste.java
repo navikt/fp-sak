@@ -10,6 +10,7 @@ import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import no.nav.foreldrepenger.behandlingslager.behandling.beregning.AktivitetStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.OpptjeningAktivitetType;
 import no.nav.foreldrepenger.domene.modell.BGAndelArbeidsforhold;
 import no.nav.foreldrepenger.domene.modell.Beregningsgrunnlag;
@@ -19,11 +20,10 @@ import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagPeriode;
 import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagPrStatusOgAndel;
 import no.nav.foreldrepenger.domene.modell.FaktaAggregat;
 import no.nav.foreldrepenger.domene.modell.FaktaAktør;
-import no.nav.foreldrepenger.behandlingslager.behandling.beregning.AktivitetStatus;
+import no.nav.foreldrepenger.domene.modell.FaktaVurdering;
 import no.nav.foreldrepenger.domene.modell.kodeverk.AndelKilde;
 import no.nav.foreldrepenger.domene.modell.kodeverk.Hjemmel;
 import no.nav.foreldrepenger.domene.modell.kodeverk.PeriodeÅrsak;
-import no.nav.foreldrepenger.domene.modell.FaktaVurdering;
 import no.nav.foreldrepenger.domene.typer.Beløp;
 import no.nav.foreldrepenger.kontrakter.fpsak.beregningsgrunnlag.v2.BeregningsgrunnlagAndelDto;
 import no.nav.foreldrepenger.kontrakter.fpsak.beregningsgrunnlag.v2.BeregningsgrunnlagDto;
@@ -216,7 +216,8 @@ public class BrevGrunnlagBeregningsgrunnlagTjeneste {
             andel.getBeregningsperiodeFom(),
             andel.getBeregningsperiodeTom(),
             arbeidsforholdDto.orElse(null),
-            erTilkommetAndel(andel.getKilde()));
+            erTilkommetAndel(andel.getKilde()),
+            andel.getBesteberegnetPrÅr() != null ? andel.getBesteberegnetPrÅr(): andel.getOverstyrtPrÅr() != null ? andel.getOverstyrtPrÅr() : andel.getBeregnetPrÅr());
     }
 
     private Optional<FaktaAktør> finnFaktaavklaringForGrunnlag() {
