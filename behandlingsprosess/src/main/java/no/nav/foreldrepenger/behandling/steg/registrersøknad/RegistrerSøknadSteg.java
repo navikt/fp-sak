@@ -29,7 +29,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
-import no.nav.foreldrepenger.behandlingslager.behandling.DokumentKategori;
 import no.nav.foreldrepenger.behandlingslager.behandling.DokumentTypeId;
 import no.nav.foreldrepenger.behandlingslager.behandling.MottattDokument;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
@@ -169,19 +168,18 @@ public class RegistrerSøknadSteg implements BehandlingSteg {
     private boolean erUstrukturertEngangsstønadSøknad(MottattDokument dokument) {
         var dokumentTypeId = dokument.getDokumentType();
         return dokument.getPayloadXml() == null && (DokumentTypeId.SØKNAD_ENGANGSSTØNAD_ADOPSJON.equals(dokumentTypeId)
-            || DokumentTypeId.SØKNAD_ENGANGSSTØNAD_FØDSEL.equals(dokumentTypeId) || DokumentKategori.SØKNAD.equals(dokument.getDokumentKategori()));
+            || DokumentTypeId.SØKNAD_ENGANGSSTØNAD_FØDSEL.equals(dokumentTypeId));
     }
 
     private boolean erUstrukturertForeldrepengerSøknad(MottattDokument dokument) {
         var dokumentTypeId = dokument.getDokumentType();
         return dokument.getPayloadXml() == null && (DokumentTypeId.SØKNAD_FORELDREPENGER_ADOPSJON.equals(dokumentTypeId)
-            || DokumentTypeId.SØKNAD_FORELDREPENGER_FØDSEL.equals(dokumentTypeId) || DokumentKategori.SØKNAD.equals(dokument.getDokumentKategori()));
+            || DokumentTypeId.SØKNAD_FORELDREPENGER_FØDSEL.equals(dokumentTypeId));
     }
 
     private boolean erUstrukturertSvangerskapspengerSøknad(MottattDokument dokument) {
         var dokumentTypeId = dokument.getDokumentType();
-        return dokument.getPayloadXml() == null && (DokumentTypeId.SØKNAD_SVANGERSKAPSPENGER.equals(dokumentTypeId) || DokumentKategori.SØKNAD.equals(
-            dokument.getDokumentKategori()));
+        return dokument.getPayloadXml() == null && (DokumentTypeId.SØKNAD_SVANGERSKAPSPENGER.equals(dokumentTypeId));
     }
 
     private BehandleStegResultat evaluerSøknadMottattUoppfylt(Behandling behandling, BehandlingLås lås,

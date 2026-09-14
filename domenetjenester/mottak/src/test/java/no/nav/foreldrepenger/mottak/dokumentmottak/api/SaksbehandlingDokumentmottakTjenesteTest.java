@@ -14,7 +14,6 @@ import org.mockito.ArgumentCaptor;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
-import no.nav.foreldrepenger.behandlingslager.behandling.DokumentKategori;
 import no.nav.foreldrepenger.behandlingslager.behandling.DokumentTypeId;
 import no.nav.foreldrepenger.behandlingslager.behandling.MottattDokument;
 import no.nav.foreldrepenger.domene.typer.AktørId;
@@ -33,7 +32,6 @@ class SaksbehandlingDokumentmottakTjenesteTest {
     private static final Saksnummer SAKSNUMMER = new Saksnummer("9999");
     private static final JournalpostId JOURNALPOST_ID = new JournalpostId("2");
     private static final DokumentTypeId DOKUMENTTYPE = DokumentTypeId.SØKNAD_ENGANGSSTØNAD_FØDSEL;
-    private static final DokumentKategori DOKUMENTKATEGORI = DokumentKategori.SØKNAD;
     private static final LocalDate FORSENDELSE_MOTTATT = LocalDate.now();
     private static final Boolean ELEKTRONISK_SØKNAD = Boolean.TRUE;
     private static final String PAYLOAD_XML = "<test></test>";
@@ -56,7 +54,6 @@ class SaksbehandlingDokumentmottakTjenesteTest {
                 .medFagsakId(FAGSAK_ID)
                 .medJournalPostId(JOURNALPOST_ID)
                 .medDokumentType(DOKUMENTTYPE)
-                .medDokumentKategori(DOKUMENTKATEGORI)
                 .medMottattDato(FORSENDELSE_MOTTATT)
                 .medMottattTidspunkt(LocalDateTime.now())
                 .medElektroniskRegistrert(ELEKTRONISK_SØKNAD)
@@ -83,7 +80,6 @@ class SaksbehandlingDokumentmottakTjenesteTest {
                 .medFagsakId(FAGSAK_ID)
                 .medJournalPostId(null)
                 .medDokumentType(DOKUMENTTYPE)
-                .medDokumentKategori(DOKUMENTKATEGORI)
                 .medMottattDato(FORSENDELSE_MOTTATT)
                 .medMottattTidspunkt(LocalDateTime.now())
                 .medXmlPayload(PAYLOAD_XML)

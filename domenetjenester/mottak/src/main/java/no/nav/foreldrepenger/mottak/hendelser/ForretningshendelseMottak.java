@@ -4,6 +4,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -108,7 +109,10 @@ public class ForretningshendelseMottak {
             merkUtlandsSakerFlyttBehandlinger(fagsaker.getOrDefault(BehandlingÅrsakType.RE_HENDELSE_UTFLYTTING, List.of()), taskGruppe);
         }
         for (var entry : fagsaker.entrySet()) {
-            entry.getValue().forEach(fagsak -> taskGruppe.addNesteSekvensiell(opprettProsesstaskForFagsak(fagsak, hendelseType, entry.getKey())));
+            entry.getValue().stream()
+                .map(fagsak -> opprettProsesstaskForFagsak(fagsak, hendelseType, entry.getKey()))
+                .sorted(Comparator.comparing(ProsessTaskData::getNesteKjøringEtter)) // Unngå at den med 0 tidsoffsett ligger i sekvens etter den med offset
+                .forEach(taskGruppe::addNesteSekvensiell);
         }
         if (!taskGruppe.getTasks().isEmpty()) {
             taskTjeneste.lagre(taskGruppe);
