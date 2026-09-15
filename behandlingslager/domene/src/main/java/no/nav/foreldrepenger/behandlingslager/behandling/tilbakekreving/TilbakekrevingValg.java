@@ -18,10 +18,6 @@ public class TilbakekrevingValg {
         return new TilbakekrevingValg(null, null, videreBehandling, varseltekst);
     }
 
-    public static TilbakekrevingValg medMulighetForInntrekk(Boolean erTilbakekrevingVilkårOppfylt, Boolean grunnerTilReduksjon, TilbakekrevingVidereBehandling videreBehandling) {
-        return new TilbakekrevingValg(erTilbakekrevingVilkårOppfylt, grunnerTilReduksjon, videreBehandling, null);
-    }
-
     public static TilbakekrevingValg medAutomatiskInntrekk() {
         return new TilbakekrevingValg(null, null, TilbakekrevingVidereBehandling.INNTREKK, null);
     }

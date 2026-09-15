@@ -53,10 +53,6 @@ public class MottattDokument extends BaseEntitet {
     @Column(name="type", nullable = false)
     private DokumentTypeId dokumentTypeId = DokumentTypeId.UDEFINERT;
 
-    @Convert(converter = DokumentKategori.KodeverdiConverter.class)
-    @Column(name="dokument_kategori", nullable = false)
-    private DokumentKategori dokumentKategori = DokumentKategori.UDEFINERT;
-
     @Column(name = "behandling_id", updatable = false)
     private Long behandlingId;
 
@@ -89,7 +85,6 @@ public class MottattDokument extends BaseEntitet {
         this.forsendelseId = mottatteDokument.forsendelseId;
         this.journalEnhet = mottatteDokument.journalEnhet;
         this.dokumentTypeId = mottatteDokument.dokumentTypeId;
-        this.dokumentKategori = mottatteDokument.dokumentKategori;
         this.behandlingId = mottatteDokument.behandlingId;
         this.mottattDato = mottatteDokument.mottattDato;
         this.mottattTidspunkt = mottatteDokument.mottattTidspunkt;
@@ -109,10 +104,6 @@ public class MottattDokument extends BaseEntitet {
 
     public DokumentTypeId getDokumentType() {
         return dokumentTypeId;
-    }
-
-    public DokumentKategori getDokumentKategori() {
-        return dokumentKategori;
     }
 
     public Optional<String> getJournalEnhet() {
@@ -145,10 +136,6 @@ public class MottattDokument extends BaseEntitet {
 
     void setJournalpostId(JournalpostId journalpostId) {
         this.journalpostId = journalpostId;
-    }
-
-    void setDokumentKategori(DokumentKategori dokumentKategori) {
-        this.dokumentKategori = dokumentKategori;
     }
 
     void setBehandlingId(Long behandlingId) {
@@ -192,8 +179,7 @@ public class MottattDokument extends BaseEntitet {
     }
 
     public boolean erSøknadsDokument() {
-        return dokumentTypeId != null && (getDokumentType().erSøknadType() || getDokumentType().erEndringsSøknadType())
-            || DokumentKategori.SØKNAD.equals(dokumentKategori);
+        return dokumentTypeId != null && (getDokumentType().erSøknadType() || getDokumentType().erEndringsSøknadType());
     }
 
     public boolean erUstrukturertDokument() {
@@ -221,11 +207,6 @@ public class MottattDokument extends BaseEntitet {
 
         public Builder medDokumentType(DokumentTypeId dokumentTypeId) {
             mottatteDokumentMal.dokumentTypeId = dokumentTypeId == null ? DokumentTypeId.UDEFINERT : dokumentTypeId;
-            return this;
-        }
-
-        public Builder medDokumentKategori(DokumentKategori dokumentKategori) {
-            mottatteDokumentMal.dokumentKategori = dokumentKategori;
             return this;
         }
 
@@ -299,7 +280,6 @@ public class MottattDokument extends BaseEntitet {
             return false;
         }
         return Objects.equals(this.dokumentTypeId, other.dokumentTypeId)
-            && Objects.equals(this.dokumentKategori, other.dokumentKategori)
             && Objects.equals(this.journalpostId, other.journalpostId)
             && Objects.equals(this.xmlPayload, other.xmlPayload)
             && Objects.equals(this.elektroniskRegistrert, other.elektroniskRegistrert);
@@ -307,6 +287,6 @@ public class MottattDokument extends BaseEntitet {
 
     @Override
     public int hashCode() {
-        return Objects.hash(dokumentTypeId, dokumentKategori, journalpostId, xmlPayload, elektroniskRegistrert);
+        return Objects.hash(dokumentTypeId, journalpostId, xmlPayload, elektroniskRegistrert);
     }
 }

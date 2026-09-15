@@ -50,7 +50,8 @@ class TilbakekrevingRepositoryTest extends EntityManagerAwareTest {
         var valg1 = TilbakekrevingValg.utenMulighetForInntrekk(TilbakekrevingVidereBehandling.OPPRETT_TILBAKEKREVING, "Varseltekst");
         repository.lagre(behandling, valg1);
 
-        var valg2 = TilbakekrevingValg.medMulighetForInntrekk(true, false, TilbakekrevingVidereBehandling.INNTREKK);
+        // Feltene vilkårOppfylt/grunnerTilReduksjon skrives ikke lenger, men må fortsatt kunne leses for gamle rader
+        var valg2 = new TilbakekrevingValg(true, false, TilbakekrevingVidereBehandling.INNTREKK, null);
         repository.lagre(behandling, valg2);
 
         var lagretResultat = repository.hent(behandling.getId());

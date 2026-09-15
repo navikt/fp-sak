@@ -18,7 +18,6 @@ public class UtenlandsoppholdDto {
     @NotNull
     private LocalDate periodeFom;
 
-    @NotNull
     private LocalDate periodeTom;
 
     public String getLand() {

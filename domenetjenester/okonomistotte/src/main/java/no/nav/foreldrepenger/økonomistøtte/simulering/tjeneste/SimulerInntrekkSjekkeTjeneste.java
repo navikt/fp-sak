@@ -1,6 +1,7 @@
 package no.nav.foreldrepenger.økonomistøtte.simulering.tjeneste;
 
 import static no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagLinjeBuilder.fraTilEquals;
+import static no.nav.foreldrepenger.behandlingslager.behandling.tilbakekreving.TilbakekrevingVidereBehandling.navnForHistorikk;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -55,21 +56,21 @@ public class SimulerInntrekkSjekkeTjeneste {
 
             var simuleringResultatDto = simuleringIntegrasjonTjeneste.hentResultat(behandling.getId(), behandling.getUuid(), behandling.getSaksnummer().getVerdi());
             if (simuleringResultatDto.filter(SimuleringIntegrasjonTjeneste::harFeilutbetaling).isPresent()) {
-                tilbakekrevingRepository.lagre(behandling,
-                    TilbakekrevingValg.utenMulighetForInntrekk(TilbakekrevingVidereBehandling.OPPRETT_TILBAKEKREVING, null));
-                opprettHistorikkInnslag(behandling.getId(), behandling.getFagsakId());
+                var nyttValg = TilbakekrevingValg.utenMulighetForInntrekk(TilbakekrevingVidereBehandling.OPPRETT_TILBAKEKREVING, null);
+                tilbakekrevingRepository.lagre(behandling, nyttValg);
+                opprettHistorikkInnslag(behandling.getId(), behandling.getFagsakId(), nyttValg);
             }
         }
     }
 
-    private void opprettHistorikkInnslag(Long behandlingId, Long fagsakId) {
+    private void opprettHistorikkInnslag(Long behandlingId, Long fagsakId, TilbakekrevingValg nyttValg) {
         var historikkinnslag = new Historikkinnslag.Builder()
             .medAktør(HistorikkAktør.VEDTAKSLØSNINGEN)
             .medBehandlingId(behandlingId)
             .medFagsakId(fagsakId)
             .medTittel(SkjermlenkeType.FAKTA_OM_SIMULERING)
-            .addLinje(
-                fraTilEquals("Fastsett videre behandling", "Feilutbetalingen er trukket inn i annen utbetaling", "Feilutbetaling med tilbakekreving"))
+            .addLinje(fraTilEquals("Fastsett videre behandling", TilbakekrevingVidereBehandling.INNTREKK.getNavn(),
+                navnForHistorikk(nyttValg.getVidereBehandling(), nyttValg.getVarseltekst())))
             .build();
         historikkinnslagRepository.lagre(historikkinnslag);
     }

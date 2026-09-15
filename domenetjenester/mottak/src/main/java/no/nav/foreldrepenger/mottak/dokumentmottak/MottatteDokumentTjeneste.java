@@ -13,7 +13,6 @@ import jakarta.inject.Inject;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
-import no.nav.foreldrepenger.behandlingslager.behandling.DokumentKategori;
 import no.nav.foreldrepenger.behandlingslager.behandling.DokumentTypeId;
 import no.nav.foreldrepenger.behandlingslager.behandling.MottattDokument;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
@@ -80,10 +79,6 @@ public class MottatteDokumentTjeneste {
 
     public boolean harMottattDokumentSet(Long behandlingId, Set<DokumentTypeId> dokumentTypeIdSet) {
         return hentMottatteDokument(behandlingId).stream().anyMatch(dok -> dokumentTypeIdSet.contains(dok.getDokumentType()));
-    }
-
-    public boolean harMottattDokumentKat(Long behandlingId, DokumentKategori dokumentKategori) {
-        return hentMottatteDokument(behandlingId).stream().anyMatch(dok -> dokumentKategori.equals(dok.getDokumentKategori()));
     }
 
     public List<MottattDokument> hentMottatteDokumentVedlegg(Long behandlingId) {
