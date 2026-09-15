@@ -21,6 +21,7 @@ import no.nav.foreldrepenger.behandlingslager.diff.IndexKey;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Landkoder;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.vedtak.felles.jpa.converters.BooleanToStringConverter;
+import no.nav.vedtak.konfig.Tid;
 
 /**
  * Entitetsklasse for opphold.
@@ -103,10 +104,6 @@ public class MedlemskapOppgittLandOppholdEntitet extends BaseEntitet implements 
         this.land = land == null ? Landkoder.UDEFINERT : land;
     }
 
-    void setPeriode(LocalDate periodeFom, LocalDate periodeTom) {
-        this.periode = DatoIntervallEntitet.fraOgMedTilOgMed(periodeFom, periodeTom);
-    }
-
     void setTidligereOpphold(boolean tidligereOpphold) {
         this.tidligereOpphold = tidligereOpphold;
     }
@@ -156,7 +153,7 @@ public class MedlemskapOppgittLandOppholdEntitet extends BaseEntitet implements 
         }
 
         public Builder medPeriode(LocalDate periodeStartdato, LocalDate periodeSluttdato) {
-            oppholdMal.periode = DatoIntervallEntitet.fraOgMedTilOgMed(periodeStartdato, periodeSluttdato);
+            oppholdMal.periode = DatoIntervallEntitet.fraOgMedTilOgMed(periodeStartdato, periodeSluttdato != null ? periodeSluttdato : Tid.TIDENES_ENDE);
             return this;
         }
 
