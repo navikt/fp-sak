@@ -28,6 +28,7 @@ import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
@@ -222,7 +223,11 @@ class FpInntektsmeldingTjenesteTest {
         fpInntektsmeldingTjeneste.lagForespørselForAlleArbeidsgivere(behandlingRef, stpp);
 
         // Assert
-        verify(historikkRepository, times(1)).lagre(any());
+        var captor = ArgumentCaptor.forClass(Historikkinnslag.class);
+        verify(historikkRepository).lagre(captor.capture());
+        var historikkinnslag = captor.getValue();
+        assertThat(historikkinnslag.getTittel()).isEqualTo("Forespørsel om inntektsmelding");
+        assertThat(historikkinnslag.getTekstLinjer()).anySatisfy(linje -> assertThat(linje).isEqualTo("Testbedrift (999999999)."));
     }
 
     @Test
@@ -242,7 +247,7 @@ class FpInntektsmeldingTjenesteTest {
         fpInntektsmeldingTjeneste.lagForespørselForBestemtArbeidsgiver(behandlingRef, stpp, virksomhet);
 
         // Assert
-        verify(historikkRepository, times(1)).lagre(any());
+        verify(historikkRepository).lagre(any());
     }
     @Test
     void skal_opprette_historikkinnslag_for_flere() {
@@ -266,7 +271,10 @@ class FpInntektsmeldingTjenesteTest {
         fpInntektsmeldingTjeneste.lagForespørselForAlleArbeidsgivere(behandlingRef, stpp);
 
         // Assert
-        verify(historikkRepository, times(2)).lagre(any());
+        var captor = ArgumentCaptor.forClass(Historikkinnslag.class);
+        verify(historikkRepository).lagre(captor.capture());
+        var tekstLinjer = captor.getValue().getTekstLinjer();
+        assertThat(tekstLinjer).contains("Testbedrift (999999999).", "Testbedrift 2 (123456789).");
     }
 
     @Test
