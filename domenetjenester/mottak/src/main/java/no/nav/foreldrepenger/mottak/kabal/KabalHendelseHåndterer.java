@@ -149,7 +149,14 @@ public class KabalHendelseHåndterer implements KafkaMessageHandler.KafkaStringM
 
     private Behandling finnRelevantBehandling(KabalHendelse mottattHendelse) {
         // Hendelse skal ha en kildereferanse som skal gi en behandling (fortrinnsvis underliggende klage)
-        var behandling = behandlingRepository.hentBehandling(UUID.fromString(mottattHendelse.kildeReferanse()));
+        UUID kildeReferanse;
+        try {
+            kildeReferanse = UUID.fromString(mottattHendelse.kildeReferanse());
+        } catch (IllegalArgumentException e) {
+            LOG.warn("KABAL mottatt hendelse med ugyldig kildereferanse (ikke UUID) hendelse={}", mottattHendelse, e);
+            return null;
+        }
+        var behandling = behandlingRepository.hentBehandling(kildeReferanse);
         if (behandling == null) {
             LOG.warn("KABAL mottatt hendelse med ukjent referanse hendelse={}", mottattHendelse);
             return null;
