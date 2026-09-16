@@ -25,6 +25,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.Familie
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonopplysningRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
+import no.nav.foreldrepenger.behandlingslager.behandling.repository.MottatteDokumentRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.domene.person.PersoninfoAdapter;
@@ -37,6 +38,7 @@ import no.nav.foreldrepenger.web.app.tjenester.fordeling.OpprettSakTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.MottaPapirsøknadDto;
 import no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.SaksnummerAnnenpartIdentDto;
 import no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.SaksnummerFødselsdatoDto;
+import no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.SaksnummerJournalpostDto;
 import no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.SaksnummerTermindatoDto;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
 import no.nav.vedtak.sikkerhet.abac.beskyttet.ActionType;
@@ -56,13 +58,15 @@ public class ForvaltningSøknadRestTjeneste {
     private FamilieHendelseTjeneste familieHendelseTjeneste;
     private OpprettSakTjeneste opprettSakTjeneste;
     private SaksbehandlingDokumentmottakTjeneste dokumentmottakTjeneste;
+    private MottatteDokumentRepository mottatteDokumentRepository;
 
     @Inject
     public ForvaltningSøknadRestTjeneste(BehandlingRepositoryProvider repositoryProvider,
                                          FamilieHendelseTjeneste familieHendelseTjeneste,
                                          PersoninfoAdapter personinfoAdapter,
                                          OpprettSakTjeneste opprettSakTjeneste,
-                                         SaksbehandlingDokumentmottakTjeneste dokumentmottakTjeneste) {
+                                         SaksbehandlingDokumentmottakTjeneste dokumentmottakTjeneste,
+                                         MottatteDokumentRepository mottatteDokumentRepository) {
         this.fagsakRepository = repositoryProvider.getFagsakRepository();
         this.behandlingRepository = repositoryProvider.getBehandlingRepository();
         this.familieHendelseRepository = repositoryProvider.getFamilieHendelseRepository();
@@ -72,6 +76,7 @@ public class ForvaltningSøknadRestTjeneste {
         this.familieHendelseTjeneste = familieHendelseTjeneste;
         this.opprettSakTjeneste = opprettSakTjeneste;
         this.dokumentmottakTjeneste = dokumentmottakTjeneste;
+        this.mottatteDokumentRepository = mottatteDokumentRepository;
     }
 
     public ForvaltningSøknadRestTjeneste() {
@@ -234,6 +239,16 @@ public class ForvaltningSøknadRestTjeneste {
         entityManager.flush();
 
         return Response.ok(antall).build();
+    }
+
+    @POST
+    @Path("/fjernFeilInntektsmelding")
+    @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+    @Operation(description = "Fjern inntektsmelding som har blitt kopiert til feil sak", tags = "FORVALTNING-søknad")
+    @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.DRIFT, sporingslogg = true)
+    public Response fjernFeilInntektsmelding(@BeanParam @Valid SaksnummerJournalpostDto dto) {
+        mottatteDokumentRepository.fjernFeilinnsendtDokument(new JournalpostId(dto.getJournalpostId()), DokumentTypeId.INNTEKTSMELDING);
+        return Response.ok().build();
     }
 
 }

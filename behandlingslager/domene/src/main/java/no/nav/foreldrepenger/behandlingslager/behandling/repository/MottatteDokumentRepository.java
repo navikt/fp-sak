@@ -8,6 +8,7 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.persistence.EntityManager;
 
+import no.nav.foreldrepenger.behandlingslager.behandling.DokumentTypeId;
 import no.nav.foreldrepenger.behandlingslager.behandling.MottattDokument;
 import no.nav.foreldrepenger.domene.typer.JournalpostId;
 import no.nav.vedtak.felles.jpa.HibernateVerktøy;
@@ -93,6 +94,14 @@ public class MottatteDokumentRepository {
             "update MottattDokument set kanalreferanse = :param WHERE id = :dokumentId")
             .setParameter("dokumentId", mottattDokument.getId())
             .setParameter(PARAM_KEY, kanalreferanse)
+            .executeUpdate();
+    }
+
+    public void fjernFeilinnsendtDokument(JournalpostId journalpostId, DokumentTypeId dokumentTypeId) {
+        entityManager.createQuery(
+                "delete from MottattDokument m where m.journalpostId = :journalpostId and m.dokumentTypeId = :dokumentTypeId")
+            .setParameter("journalpostId", journalpostId)
+            .setParameter("dokumentTypeId", dokumentTypeId)
             .executeUpdate();
     }
 }
