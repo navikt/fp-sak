@@ -244,7 +244,7 @@ public class ForvaltningSøknadRestTjeneste {
     @POST
     @Path("/fjernFeilInntektsmelding")
     @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
-    @Operation(description = "Oppdater annen part men kun hvis oppgitt = bruker", tags = "FORVALTNING-søknad")
+    @Operation(description = "Fjern inntektsmelding som har blitt kopiert til feil sak", tags = "FORVALTNING-søknad")
     @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.DRIFT, sporingslogg = true)
     public Response fjernFeilInntektsmelding(@BeanParam @Valid SaksnummerJournalpostDto dto) {
         mottatteDokumentRepository.fjernFeilinnsendtDokument(new JournalpostId(dto.getJournalpostId()), DokumentTypeId.INNTEKTSMELDING);
