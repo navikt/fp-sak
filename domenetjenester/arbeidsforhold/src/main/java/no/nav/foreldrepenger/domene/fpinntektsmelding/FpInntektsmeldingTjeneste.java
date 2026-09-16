@@ -5,7 +5,10 @@ import static no.nav.foreldrepenger.behandlingslager.virksomhet.OrgNummer.tilMas
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
@@ -23,6 +26,7 @@ import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagLinjeBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
@@ -43,6 +47,8 @@ import no.nav.vedtak.konfig.Tid;
 @ApplicationScoped
 public class FpInntektsmeldingTjeneste {
     private static final String GRUPPE_ID = "FPIM_TASK_%s";
+    private static final int PÅMINNELSE_ETTER_DAGER = 14; // jf. MinSideArbeidsgiverTjeneste.PÅMINNELSE_ETTER_DAGER i fp-inntektsmelding
+    private static final DateTimeFormatter DATO_FORMAT = DateTimeFormatter.ofPattern("dd.MM.yyyy");
     private FpinntektsmeldingKlient klient;
     private ProsessTaskTjeneste prosessTaskTjeneste;
     private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
@@ -205,11 +211,11 @@ public class FpInntektsmeldingTjeneste {
 
         var opprettForespørselResponseNy = klient.opprettForespørsel(request);
 
+        var arbeidsgivereMedNyForespørsel = new ArrayList<String>();
         opprettForespørselResponseNy.organisasjonsnumreMedStatus().forEach(organisasjonsnummerMedStatus -> {
             var orgnr = organisasjonsnummerMedStatus.organisasjonsnummerDto().orgnr();
             if (organisasjonsnummerMedStatus.status().equals(OpprettForespørselResponsNy.ForespørselResultat.FORESPØRSEL_OPPRETTET)) {
-                lagHistorikkForForespørsel(ref,
-                    String.format("Oppgave om å sende inntektsmelding er opprettet for %s.", hentArbeidsgivernavn(orgnr)));
+                arbeidsgivereMedNyForespørsel.add(hentArbeidsgivernavn(orgnr));
             } else {
                 if (LOG.isInfoEnabled()) {
                     LOG.info("Fpinntektsmelding har allerede oppgave på saksnummer: {} og orgnummer: {} på stp: {} og første uttaksdato: {}",
@@ -217,15 +223,26 @@ public class FpInntektsmeldingTjeneste {
                 }
             }
         });
+        if (!arbeidsgivereMedNyForespørsel.isEmpty()) {
+            lagHistorikkForForespørsel(ref, arbeidsgivereMedNyForespørsel, request.førsteUttaksdato());
+        }
     }
 
-    private void lagHistorikkForForespørsel(BehandlingReferanse ref, String tekst) {
-        var historikkinnslag = new Historikkinnslag.Builder()
+    private void lagHistorikkForForespørsel(BehandlingReferanse ref, List<String> arbeidsgivernavn, LocalDate førsteUttaksdato) {
+        var ytelse = ref.fagsakYtelseType().getNavn().toLowerCase(Locale.ROOT);
+        var oppsummeringTekst = String.format(
+            "Arbeidsgiver er informert om at startdato for %s er %s. Påminnelse sendes automatisk til arbeidsgiver dersom inntektsmelding ikke er mottatt innen %d dager.",
+            ytelse, førsteUttaksdato.format(DATO_FORMAT), PÅMINNELSE_ETTER_DAGER);
+        var builder = new Historikkinnslag.Builder()
             .medAktør(HistorikkAktør.VEDTAKSLØSNINGEN)
-            .medTittel("Min side - arbeidsgiver")
+            .medTittel("Forespørsel om inntektsmelding")
             .medBehandlingId(ref.behandlingId())
-            .medFagsakId(ref.fagsakId())
-            .addLinje(tekst)
+            .medFagsakId(ref.fagsakId());
+        arbeidsgivernavn.forEach(builder::addLinje);
+        var historikkinnslag = builder
+            .addLinje("Varslet på Min side - arbeidsgiver og Altinn innboks.")
+            .addLinje(HistorikkinnslagLinjeBuilder.LINJESKIFT)
+            .addLinje(oppsummeringTekst)
             .build();
 
         historikkRepo.lagre(historikkinnslag);
