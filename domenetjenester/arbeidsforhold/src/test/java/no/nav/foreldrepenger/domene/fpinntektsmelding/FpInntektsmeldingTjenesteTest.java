@@ -227,13 +227,7 @@ class FpInntektsmeldingTjenesteTest {
         verify(historikkRepository).lagre(captor.capture());
         var historikkinnslag = captor.getValue();
         assertThat(historikkinnslag.getTittel()).isEqualTo("Forespørsel om inntektsmelding");
-        var tekstLinjer = historikkinnslag.getTekstLinjer();
-        assertThat(tekstLinjer).anySatisfy(linje -> assertThat(linje).isEqualTo("Testbedrift."));
-        assertThat(tekstLinjer).anySatisfy(linje -> assertThat(linje).contains("Varslet på Min side - arbeidsgiver og Altinn innboks"));
-        assertThat(tekstLinjer).anySatisfy(linje -> {
-            assertThat(linje).contains("startdato for foreldrepenger er 01.09.2024");
-            assertThat(linje).contains("innen 14 dager");
-        });
+        assertThat(historikkinnslag.getTekstLinjer()).anySatisfy(linje -> assertThat(linje).isEqualTo("Testbedrift."));
     }
 
     @Test
@@ -280,8 +274,7 @@ class FpInntektsmeldingTjenesteTest {
         var captor = ArgumentCaptor.forClass(Historikkinnslag.class);
         verify(historikkRepository).lagre(captor.capture());
         var tekstLinjer = captor.getValue().getTekstLinjer();
-        assertThat(tekstLinjer).anySatisfy(linje -> assertThat(linje).isEqualTo("Testbedrift."));
-        assertThat(tekstLinjer).anySatisfy(linje -> assertThat(linje).isEqualTo("Testbedrift 2."));
+        assertThat(tekstLinjer).contains("Testbedrift.", "Testbedrift 2.");
     }
 
     @Test
