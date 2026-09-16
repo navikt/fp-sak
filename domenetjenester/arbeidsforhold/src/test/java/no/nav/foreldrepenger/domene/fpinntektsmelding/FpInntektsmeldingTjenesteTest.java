@@ -227,7 +227,7 @@ class FpInntektsmeldingTjenesteTest {
         verify(historikkRepository).lagre(captor.capture());
         var historikkinnslag = captor.getValue();
         assertThat(historikkinnslag.getTittel()).isEqualTo("Forespørsel om inntektsmelding");
-        assertThat(historikkinnslag.getTekstLinjer()).anySatisfy(linje -> assertThat(linje).isEqualTo("Testbedrift."));
+        assertThat(historikkinnslag.getTekstLinjer()).anySatisfy(linje -> assertThat(linje).isEqualTo("Testbedrift (999999999)."));
     }
 
     @Test
@@ -274,7 +274,7 @@ class FpInntektsmeldingTjenesteTest {
         var captor = ArgumentCaptor.forClass(Historikkinnslag.class);
         verify(historikkRepository).lagre(captor.capture());
         var tekstLinjer = captor.getValue().getTekstLinjer();
-        assertThat(tekstLinjer).contains("Testbedrift.", "Testbedrift 2.");
+        assertThat(tekstLinjer).contains("Testbedrift (999999999).", "Testbedrift 2 (123456789).");
     }
 
     @Test
