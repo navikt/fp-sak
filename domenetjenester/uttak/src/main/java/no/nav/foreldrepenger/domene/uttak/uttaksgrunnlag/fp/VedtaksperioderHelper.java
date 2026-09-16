@@ -11,6 +11,9 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Stream;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.MorsAktivitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.DokumentasjonVurdering;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.FordelingPeriodeKilde;
@@ -38,22 +41,45 @@ import no.nav.foreldrepenger.skjæringstidspunkt.overganger.UtsettelseCore2021;
 
 public class VedtaksperioderHelper {
 
+    private static final Logger LOG = LoggerFactory.getLogger(VedtaksperioderHelper.class);
+
     private VedtaksperioderHelper() {
         //
     }
 
     public static List<OppgittPeriodeEntitet> opprettOppgittePerioder(UttakResultatEntitet uttakResultatFraForrigeBehandling,
-                                                                      List<OppgittPeriodeEntitet> søknadsperioder,
-                                                                      LocalDate fomDato,
-                                                                      boolean beholdAvslåttePerioderFrittUttak) {
-        var førsteSøknadsdato = OppgittPeriodeUtil.finnFørsteSøknadsdato(søknadsperioder);
-        var vedtaksperioder = lagVedtaksperioder(uttakResultatFraForrigeBehandling,
-            fomDato, førsteSøknadsdato, beholdAvslåttePerioderFrittUttak);
+                                                                       List<OppgittPeriodeEntitet> søknadsperioder,
+                                                                       LocalDate fomDato,
+                                                                       boolean beholdAvslåttePerioderFrittUttak) {
+        var vedtaksperioder = opprettOppgittePerioderFraVedtak(uttakResultatFraForrigeBehandling, søknadsperioder, fomDato,
+            beholdAvslåttePerioderFrittUttak);
 
         List<OppgittPeriodeEntitet> søknadOgVedtaksperioder = new ArrayList<>();
         søknadsperioder.forEach(op -> søknadOgVedtaksperioder.add(OppgittPeriodeBuilder.fraEksisterende(op).build()));
         søknadOgVedtaksperioder.addAll(vedtaksperioder);
         return OppgittPeriodeUtil.sorterEtterFom(søknadOgVedtaksperioder);
+    }
+
+    static List<OppgittPeriodeEntitet> opprettOppgittePerioderFraVedtak(UttakResultatEntitet uttakResultatFraForrigeBehandling,
+                                                                         List<OppgittPeriodeEntitet> søknadsperioder,
+                                                                         LocalDate fomDato,
+                                                                         boolean beholdAvslåttePerioderFrittUttak) {
+        var førsteSøknadsdato = OppgittPeriodeUtil.finnFørsteSøknadsdato(søknadsperioder);
+        return lagVedtaksperioder(uttakResultatFraForrigeBehandling,
+            fomDato, førsteSøknadsdato, beholdAvslåttePerioderFrittUttak);
+    }
+
+    static List<OppgittPeriodeEntitet> opprettRelevantePerioderFraVedtak(UttakResultatEntitet uttakResultatFraForrigeBehandling,
+                                                                          List<OppgittPeriodeEntitet> søknadsperioder,
+                                                                          LocalDate fomDato,
+                                                                          boolean beholdAvslåttePerioderFrittUttak) {
+        var kopiertePerioder = opprettOppgittePerioderFraVedtak(uttakResultatFraForrigeBehandling, søknadsperioder, fomDato,
+            beholdAvslåttePerioderFrittUttak);
+        var relevantePerioder = OppgittPeriodeRelevans.relevantePerioder(kopiertePerioder);
+        if (!kopiertePerioder.isEmpty() && relevantePerioder.isEmpty()) {
+            LOG.warn("Relevansfilteret fjernet alle perioder kopiert fra tidligere uttaksresultat");
+        }
+        return relevantePerioder;
     }
 
     public static boolean avslåttPgaAvTaptPeriodeTilAnnenpart(UttakResultatPeriodeEntitet periode) {

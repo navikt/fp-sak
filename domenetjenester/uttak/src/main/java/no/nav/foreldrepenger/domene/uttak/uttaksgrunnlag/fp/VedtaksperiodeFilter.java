@@ -6,7 +6,6 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
@@ -17,7 +16,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeType;
-import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.OppholdÅrsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.UtsettelseÅrsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.Årsak;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.SamtidigUttaksprosent;
@@ -35,8 +33,6 @@ import no.nav.fpsak.tidsserie.LocalDateTimeline;
 public final class VedtaksperiodeFilter {
 
     private static final Logger LOG = LoggerFactory.getLogger(VedtaksperiodeFilter.class);
-
-    private static final Set<UtsettelseÅrsak> UTS_14_11 = Set.of(UtsettelseÅrsak.SYKDOM, UtsettelseÅrsak.INSTITUSJON_BARN, UtsettelseÅrsak.INSTITUSJON_SØKER);
 
     private VedtaksperiodeFilter() {
     }
@@ -114,15 +110,14 @@ public final class VedtaksperiodeFilter {
 
     private static LocalDate finnTidligsteUlikhetSøknadUttak(List<OppgittPeriodeEntitet> nysøknad, UttakResultatEntitet uttakResultatFraForrigeBehandling) {
         // Tidslinje fra ny søknad
-        var tidslinjeSøknad =  nysøknad.stream().map(VedtaksperiodeFilter::segmentForOppgittPeriode)
+        var førsteFomSøknad = nysøknad.stream().map(OppgittPeriodeEntitet::getFom).min(LocalDate::compareTo).orElseThrow();
+        var tidslinjeSøknad =  nysøknad.stream().map(p -> segmentForOppgittPeriode(p, førsteFomSøknad))
             .collect(Collectors.collectingAndThen(Collectors.toList(), LocalDateTimeline::new));
         var søknadIntervall = new LocalDateInterval(tidslinjeSøknad.getMinLocalDate(), tidslinjeSøknad.getMaxLocalDate());
 
         // Tidslinje for innvilgete peridoder fra forrige uttaksresultat - begrenset til søknadsintervallet.
-        var tidslinjeVedtak = opprettOppgittePerioderKunInnvilget(uttakResultatFraForrigeBehandling).stream()
-            .map(VedtaksperiodeFilter::segmentForOppgittPeriode)
-            .collect(Collectors.collectingAndThen(Collectors.toList(), LocalDateTimeline::new))
-            .intersection(søknadIntervall);
+        var vedtaksperioder = opprettOppgittePerioderKunInnvilget(uttakResultatFraForrigeBehandling);
+        var tidslinjeVedtak = lagTidslinjeVedtak(vedtaksperioder, søknadIntervall);
 
         // Finner segmenter der de to tidslinjene (søknad vs vedtakFomTidligsteDatoSøknad) er ulike
         var ulike = tidslinjeSøknad.combine(tidslinjeVedtak, VedtaksperiodeFilter::ekvivalentSøknadVedtak, LocalDateTimeline.JoinStyle.CROSS_JOIN)
@@ -132,26 +127,31 @@ public final class VedtaksperiodeFilter {
         return ulike.getLocalDateIntervals().stream().map(LocalDateInterval::getFomDato).min(Comparator.naturalOrder()).orElse(null);
     }
 
-    private static LocalDateSegment<Boolean> ekvivalentSøknadVedtak(LocalDateInterval i,
-                                                             LocalDateSegment<SammenligningPeriodeForOppgitt> søknad,
-                                                             LocalDateSegment<SammenligningPeriodeForOppgitt> vedtak) {
-        var søknadVerdi = Optional.ofNullable(søknad).map(LocalDateSegment::getValue).orElse(null);
-        var vedtakVerdi = Optional.ofNullable(vedtak).map(LocalDateSegment::getValue).orElse(null);
-        if (UtsettelseCore2021.kreverSammenhengendeUttak(i.getFomDato()) || skalVurderePeriode(søknadVerdi) || skalVurderePeriode(vedtakVerdi)) {
-            return new LocalDateSegment<>(i, Objects.equals(søknadVerdi, vedtakVerdi));
-        } else {
-            return new LocalDateSegment<>(i, true);
+    private static LocalDateTimeline<Sammenligningsgrunnlag> lagTidslinjeVedtak(List<OppgittPeriodeEntitet> vedtaksperioder,
+                                                                                LocalDateInterval søknadIntervall) {
+        if (vedtaksperioder.isEmpty()) {
+            return new LocalDateTimeline<>(List.of());
         }
+        var førsteFomVedtak = vedtaksperioder.stream().map(OppgittPeriodeEntitet::getFom).min(LocalDate::compareTo).orElseThrow();
+        return vedtaksperioder.stream()
+            .map(p -> segmentForOppgittPeriode(p, førsteFomVedtak))
+            .collect(Collectors.collectingAndThen(Collectors.toList(), LocalDateTimeline::new))
+            .intersection(søknadIntervall);
     }
 
-    private static boolean skalVurderePeriode(SammenligningPeriodeForOppgitt periode) {
-        if (periode == null || periode.årsak() instanceof OppholdÅrsak) {
-            return false;
-        } else if (periode.årsak() instanceof UtsettelseÅrsak utsettelse) {
-            // Mor første 6 uker og BFHR (morsaktivitet) skal behandles. Selvbetjening støtter dette.
-            return UTS_14_11.contains(utsettelse) || MorsAktivitet.forventerDokumentasjon(periode.morsAktivitet());
+    private static LocalDateSegment<Boolean> ekvivalentSøknadVedtak(LocalDateInterval i,
+                                                                    LocalDateSegment<Sammenligningsgrunnlag> søknad,
+                                                                    LocalDateSegment<Sammenligningsgrunnlag> vedtak) {
+        var søknadVerdi = Optional.ofNullable(søknad).map(LocalDateSegment::getValue).orElse(null);
+        var vedtakVerdi = Optional.ofNullable(vedtak).map(LocalDateSegment::getValue).orElse(null);
+        if (UtsettelseCore2021.kreverSammenhengendeUttak(i.getFomDato())
+            || Optional.ofNullable(søknadVerdi).map(Sammenligningsgrunnlag::relevant).orElse(false)
+            || Optional.ofNullable(vedtakVerdi).map(Sammenligningsgrunnlag::relevant).orElse(false)) {
+            var søknadPeriode = Optional.ofNullable(søknadVerdi).map(Sammenligningsgrunnlag::periode).orElse(null);
+            var vedtakPeriode = Optional.ofNullable(vedtakVerdi).map(Sammenligningsgrunnlag::periode).orElse(null);
+            return new LocalDateSegment<>(i, Objects.equals(søknadPeriode, vedtakPeriode));
         } else {
-            return true;
+            return new LocalDateSegment<>(i, true);
         }
     }
 
@@ -165,13 +165,14 @@ public final class VedtaksperiodeFilter {
             .toList();
     }
 
-    private static LocalDateSegment<SammenligningPeriodeForOppgitt> segmentForOppgittPeriode(OppgittPeriodeEntitet periode) {
+    private static LocalDateSegment<Sammenligningsgrunnlag> segmentForOppgittPeriode(OppgittPeriodeEntitet periode, LocalDate førsteFom) {
         var fom = VirkedagUtil.lørdagSøndagTilMandag(periode.getFom());
         var tom = VirkedagUtil.fredagLørdagTilSøndag(periode.getTom());
         if (fom.isAfter(tom)) {
             fom = periode.getFom();
         }
-        return new LocalDateSegment<>(fom, tom, new SammenligningPeriodeForOppgitt(periode));
+        var relevant = OppgittPeriodeRelevans.erRelevant(periode, periode.getFom().equals(førsteFom));
+        return new LocalDateSegment<>(fom, tom, new Sammenligningsgrunnlag(new SammenligningPeriodeForOppgitt(periode), relevant));
     }
 
     private static OppgittPeriodeEntitet knekkPeriodeReturnerFom(OppgittPeriodeEntitet periode, LocalDate fom) {
@@ -180,7 +181,12 @@ public final class VedtaksperiodeFilter {
             .build();
     }
 
-    private record SammenligningPeriodeForOppgitt(Årsak årsak, UttakPeriodeType periodeType, SamtidigUttaksprosent samtidigUttaksprosent, SammenligningGraderingForOppgitt gradering, boolean flerbarnsdager, MorsAktivitet morsAktivitet) {
+    private record SammenligningPeriodeForOppgitt(Årsak årsak,
+                                                   UttakPeriodeType periodeType,
+                                                   SamtidigUttaksprosent samtidigUttaksprosent,
+                                                   SammenligningGraderingForOppgitt gradering,
+                                                   boolean flerbarnsdager,
+                                                   MorsAktivitet morsAktivitet) {
         SammenligningPeriodeForOppgitt(OppgittPeriodeEntitet periode) {
             this(periode.getÅrsak(), periode.getPeriodeType(),
                 Optional.ofNullable(periode.getSamtidigUttaksprosent()).orElse(SamtidigUttaksprosent.HUNDRED),
@@ -188,7 +194,12 @@ public final class VedtaksperiodeFilter {
         }
     }
 
-    private record SammenligningGraderingForOppgitt(GraderingAktivitetType gradertAktivitet, Stillingsprosent arbeidsprosent, Arbeidsgiver arbeidsgiver) {
+    private record Sammenligningsgrunnlag(SammenligningPeriodeForOppgitt periode, boolean relevant) {
+    }
+
+    private record SammenligningGraderingForOppgitt(GraderingAktivitetType gradertAktivitet,
+                                                     Stillingsprosent arbeidsprosent,
+                                                     Arbeidsgiver arbeidsgiver) {
         SammenligningGraderingForOppgitt(OppgittPeriodeEntitet periode) {
             this(periode.getGraderingAktivitetType(), periode.getArbeidsprosentSomStillingsprosent(), periode.getArbeidsgiver());
         }
