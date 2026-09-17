@@ -125,7 +125,7 @@ public class ArbeidInntektHistorikkinnslagTjeneste {
             case MANUELT_OPPRETTET_AV_SAKSBEHANDLER -> "Opprettet av saksbehandler";
             case FJERN_FRA_BEHANDLINGEN -> "Fjernet fra behandlingen";
             case NYTT_ARBEIDSFORHOLD -> "Arbeidsforholdet er ansett som nytt";
-            case MELDING_TIL_ARBEIDSGIVER_NAV_NO -> "Ny melding sendes til arbeidsgiver med beskjed om å sende inntektsmelding på Min side - arbeidsgiver";
+            case MELDING_TIL_ARBEIDSGIVER -> "Ny melding sendes til arbeidsgiver med beskjed om å sende inntektsmelding på Min side - arbeidsgiver og Altinn innboks";
             case UDEFINERT, SLÅTT_SAMMEN_MED_ANNET, BRUK_MED_OVERSTYRT_PERIODE, INNTEKT_IKKE_MED_I_BG, BRUK -> throw new IllegalStateException("Unexpected value ArbeidsforholdKomplettVurderingType: " + type);
         };
     }
