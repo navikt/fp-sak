@@ -38,7 +38,7 @@ public class FpinntektsmeldingKlient {
         this.restClient = RestClient.client();
         this.restConfig = RestConfig.forClient(FpinntektsmeldingKlient.class);
         this.uriOpprettEnForesporsel = toUri(restConfig.fpContextPath(), "/api/foresporsel/opprett-en");
-        this.uriOpprettFlereForesporsler = toUri(restConfig.fpContextPath(), "/api/foresporsel/opprett-flere");
+        this.uriOpprettFlereForesporsler = toUri(restConfig.fpContextPath(), "/api/foresporsel/opprett-komplett");
         this.uriLukkForesporsel = toUri(restConfig.fpContextPath(), "/api/foresporsel/lukk");
         this.uriOverstyrInntektsmelding = toUri(restConfig.fpContextPath(), "/api/overstyring/inntektsmelding");
         this.uriSettForesporselTilUtgaatt = toUri(restConfig.fpContextPath(), "/api/foresporsel/sett-til-utgatt");
