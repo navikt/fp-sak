@@ -294,7 +294,7 @@ public class FpInntektsmeldingTjeneste {
             if (organisasjonsnummerMedStatus.status().equals(OpprettForespørselRespons.ForespørselResultat.FORESPØRSEL_OPPRETTET)) {
                 arbeidsgivereMedNyForespørsel.add(hentArbeidsgivernavn(orgnr));
             } else {
-                LOG.info("Fpinntektsmelding har opprettet ikke forespørsel på saksnummer: {} og orgnummer: {} på stp: {} og første uttaksdato: {}. Grunnen var: {}",
+                LOG.info("Fpinntektsmelding opprettet ikke forespørsel på saksnummer: {} og orgnummer: {} på stp: {} og første uttaksdato: {}. Grunnen var: {}",
                         ref.saksnummer(), tilMaskertNummer(orgnr), request.skjæringstidspunkt(), request.førsteUttaksdato(), organisasjonsnummerMedStatus.status());
             }
         });
