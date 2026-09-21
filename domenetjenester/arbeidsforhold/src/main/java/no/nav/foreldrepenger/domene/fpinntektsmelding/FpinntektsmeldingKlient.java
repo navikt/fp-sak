@@ -27,6 +27,8 @@ public class FpinntektsmeldingKlient {
     private final RestClient restClient;
     private final RestConfig restConfig;
     private final URI uriOpprettForesporsel;
+    private final URI uriOpprettForesporselKomplett;
+    private final URI uriOpprettSpesifikkForesporsel;
     private final URI uriLukkForesporsel;
     private final URI uriOverstyrInntektsmelding;
     private final URI uriSettForesporselTilUtgaatt;
@@ -37,18 +39,44 @@ public class FpinntektsmeldingKlient {
         this.restClient = RestClient.client();
         this.restConfig = RestConfig.forClient(FpinntektsmeldingKlient.class);
         this.uriOpprettForesporsel = toUri(restConfig.fpContextPath(), "/api/foresporsel/opprett");
+        this.uriOpprettForesporselKomplett = toUri(restConfig.fpContextPath(), "/api/foresporsel/opprett-komplett");
+        this.uriOpprettSpesifikkForesporsel = toUri(restConfig.fpContextPath(), "/api/foresporsel/opprett-en");
         this.uriLukkForesporsel = toUri(restConfig.fpContextPath(), "/api/foresporsel/lukk");
         this.uriOverstyrInntektsmelding = toUri(restConfig.fpContextPath(), "/api/overstyring/inntektsmelding");
         this.uriSettForesporselTilUtgaatt = toUri(restConfig.fpContextPath(), "/api/foresporsel/sett-til-utgatt");
         this.uriSendNyBeskjedPåForespørsel = toUri(restConfig.fpContextPath(), "/api/foresporsel/ny-beskjed");
     }
 
-    public OpprettForespørselResponsNy opprettForespørsel(OpprettForespørselRequest opprettForespørselRequest) {
+    public OpprettForespørselRespons opprettForespørsel(OpprettForespørselRequest opprettForespørselRequest) {
         Objects.requireNonNull(opprettForespørselRequest, REQUEST);
         try {
             LOG.info("Sender request til fpinntektsmelding for saksnummer {} ", opprettForespørselRequest.fagsakSaksnummer().saksnr());
             var request = RestRequest.newPOSTJson(opprettForespørselRequest, uriOpprettForesporsel, restConfig);
-           return restClient.send(request, OpprettForespørselResponsNy.class);
+           return restClient.send(request, OpprettForespørselRespons.class);
+        } catch (Exception e) {
+            LOG.warn("Feil ved opprettelse av inntektsmelding med request: {}", opprettForespørselRequest);
+            throw feilVedKallTilFpinntektsmelding(e.getMessage());
+        }
+    }
+
+    public OpprettForespørselRespons opprettForespørselKomplett(OpprettKomplettForespørslerRequest opprettForespørselRequest) {
+        Objects.requireNonNull(opprettForespørselRequest, REQUEST);
+        try {
+            LOG.info("Sender request med komplett liste over forespørsler til fpinntektsmelding for saksnummer {} ", opprettForespørselRequest.fagsakSaksnummer().saksnr());
+            var request = RestRequest.newPOSTJson(opprettForespørselRequest, uriOpprettForesporselKomplett, restConfig);
+            return restClient.send(request, OpprettForespørselRespons.class);
+        } catch (Exception e) {
+            LOG.warn("Feil ved opprettelse av inntektsmelding med request: {}", opprettForespørselRequest);
+            throw feilVedKallTilFpinntektsmelding(e.getMessage());
+        }
+    }
+
+    public OpprettForespørselRespons.OrganisasjonsnummerMedStatus opprettSpesifikkForespørsel(OpprettEnForespørselRequest opprettForespørselRequest) {
+        Objects.requireNonNull(opprettForespørselRequest, REQUEST);
+        try {
+            LOG.info("Sender request med enkel bestilling av forespørsel til fpinntektsmelding for saksnummer {} ", opprettForespørselRequest.fagsakSaksnummer().saksnr());
+            var request = RestRequest.newPOSTJson(opprettForespørselRequest, uriOpprettSpesifikkForesporsel, restConfig);
+            return restClient.send(request, OpprettForespørselRespons.OrganisasjonsnummerMedStatus.class);
         } catch (Exception e) {
             LOG.warn("Feil ved opprettelse av inntektsmelding med request: {}", opprettForespørselRequest);
             throw feilVedKallTilFpinntektsmelding(e.getMessage());
@@ -117,4 +145,3 @@ public class FpinntektsmeldingKlient {
         LOG.warn("Feil ved oversending til fpinntektsmelding med lukk forespørsel request: {}", lukkForespørselRequest);
     }
 }
-
