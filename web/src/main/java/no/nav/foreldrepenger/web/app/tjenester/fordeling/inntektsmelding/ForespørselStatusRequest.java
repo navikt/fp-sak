@@ -50,7 +50,7 @@ public record ForespørselStatusRequest(@NotNull @Size(min = 1, max = MAKS_ANTAL
 
     public record Forespørsel(@NotNull @Digits(integer = 19, fraction = 0) String fagsakSaksnummer,
                               @NotNull @Pattern(regexp = "^\\d{9}$") String orgnummer,
-                              @NotNull YtelseType ytelsetype) {
+                              @NotNull @Valid YtelseType ytelsetype) {
 
         @Override
         public String toString() {
