@@ -70,6 +70,7 @@ public class ArbeidOgInntektsmeldingDtoTjeneste {
         this.inntektsmeldingTjeneste = inntektsmeldingTjeneste;
         this.dokumentArkivTjeneste = dokumentArkivTjeneste;
         this.arbeidsforholdInntektsmeldingMangelTjeneste = arbeidsforholdInntektsmeldingMangelTjeneste;
+        this.behandlingRepository = behandlingRepository;
     }
 
     public Optional<ArbeidOgInntektsmeldingDto> lagDto(BehandlingReferanse referanse, Skjæringstidspunkt skjæringstidspunkt) {
