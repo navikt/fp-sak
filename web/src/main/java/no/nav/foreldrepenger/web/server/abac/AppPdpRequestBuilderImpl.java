@@ -15,7 +15,7 @@ import no.nav.foreldrepenger.behandlingslager.pip.PipRepository;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.vedtak.exception.ManglerTilgangException;
 import no.nav.vedtak.exception.TekniskException;
-import no.nav.vedtak.log.mdc.MdcExtendedLogContext;
+import no.nav.vedtak.log.mdc.LoggFelter;
 import no.nav.vedtak.sikkerhet.abac.AbacDataAttributter;
 import no.nav.vedtak.sikkerhet.abac.PdpRequestBuilder;
 import no.nav.vedtak.sikkerhet.abac.pdp.AppRessursData;
@@ -26,7 +26,6 @@ import no.nav.vedtak.sikkerhet.abac.pipdata.PipOverstyring;
 @Dependent
 public class AppPdpRequestBuilderImpl implements PdpRequestBuilder {
 
-    private static final MdcExtendedLogContext MDC_EXTENDED_LOG_CONTEXT = MdcExtendedLogContext.getContext("prosess");
     private PipRepository pipRepository;
 
     public AppPdpRequestBuilderImpl() {
@@ -52,13 +51,15 @@ public class AppPdpRequestBuilderImpl implements PdpRequestBuilder {
         var behandlingData = behandlingUuid.flatMap(pipRepository::hentDataForBehandlingUuid);
         var saksnummer = utledSaksnummer(dataAttributter, behandlingData.orElse(null));
 
-        setLogContext(saksnummer, behandlingData);
-
         var builder = AppRessursData.builder();
         behandlingData.map(PipBehandlingsData::behandlingStatus).flatMap(AppPdpRequestBuilderImpl::oversettBehandlingStatus)
             .ifPresent(builder::medBehandlingStatus);
         behandlingData.map(PipBehandlingsData::fagsakStatus).flatMap(AppPdpRequestBuilderImpl::oversettFagstatus)
             .ifPresent(builder::medFagsakStatus);
+        // Logging
+        saksnummer.ifPresent(s -> builder.medLoggSaksnummer(s.getVerdi()));
+        behandlingData.ifPresent(d -> builder.medLoggBehandling(d.behandlingUuid()));
+        behandlingData.ifPresent(d -> builder.medLoggFelt(LoggFelter.BEHANDLING_ID, d.behandlingId().toString()));
         return builder.build();
 
     }
@@ -70,8 +71,6 @@ public class AppPdpRequestBuilderImpl implements PdpRequestBuilder {
         var saksnummer = utledSaksnummer(dataAttributter, behandlingData.orElse(null));
 
         behandlingData.ifPresent(d -> validerSamsvarBehandlingOgFagsak(d, saksnummer));
-
-        setLogContext(saksnummer, behandlingData);
 
         var builder = AppRessursData.builder()
             .leggTilIdenter(dataAttributter.getVerdier(AppAbacAttributtType.AKTØR_ID))
@@ -87,22 +86,13 @@ public class AppPdpRequestBuilderImpl implements PdpRequestBuilder {
         if (aksjonspunktTypeOverstyring) {
             builder.medOverstyring(PipOverstyring.OVERSTYRING);
         }
+        // Logging
+        saksnummer.ifPresent(s -> builder.medLoggSaksnummer(s.getVerdi()));
+        behandlingData.ifPresent(d -> builder.medLoggBehandling(d.behandlingUuid()));
+        behandlingData.ifPresent(d -> builder.medLoggFelt(LoggFelter.BEHANDLING_ID, d.behandlingId().toString()));
 
         return builder.build();
 
-    }
-
-    private static void setLogContext(Optional<Saksnummer> saksnummer, Optional<PipBehandlingsData> behandlingData) {
-        saksnummer.ifPresent(s -> {
-            MDC_EXTENDED_LOG_CONTEXT.remove("fagsak");
-            MDC_EXTENDED_LOG_CONTEXT.add("fagsak", s.getVerdi());
-        });
-        behandlingData.ifPresent(bd -> {
-            MDC_EXTENDED_LOG_CONTEXT.remove("behandling");
-            MDC_EXTENDED_LOG_CONTEXT.add("behandling", bd.behandlingUuid());
-            MDC_EXTENDED_LOG_CONTEXT.remove("behandlingId"); // Forenkler oppslag ved feilfinning
-            MDC_EXTENDED_LOG_CONTEXT.add("behandlingId", bd.behandlingId());
-        });
     }
 
     private Optional<UUID> utledBehandling(AbacDataAttributter attributter) {
