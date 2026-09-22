@@ -47,35 +47,30 @@ public class ForespørselStatusVurderingTjeneste {
     }
 
     public List<ForespørselStatusResponse> vurder(ForespørselStatusRequest request) {
-        // Validerer batch-invariant (ett fagsakSaksnummer per kall) før noe domenelogikk kjøres.
-        // Se ForespørselStatusRequest#enesteFagsakSaksnummer for begrunnelse (ABAC/PDP-begrensning).
-        request.enesteFagsakSaksnummer();
-        return request.forespørsler().stream().map(this::vurderEn).toList();
-    }
+        return request.forespørsler().stream().map(forespørsel -> {
+            var saksnummer = new Saksnummer(forespørsel.fagsakSaksnummer());
+            var forventetYtelseType = mapYtelseType(forespørsel.ytelsetype());
 
-    private ForespørselStatusResponse vurderEn(Forespørsel forespørsel) {
-        var saksnummer = new Saksnummer(forespørsel.fagsakSaksnummer());
-        var forventetYtelseType = mapYtelseType(forespørsel.ytelsetype());
+            var fagsak = fagsakTjeneste.finnFagsakGittSaksnummer(saksnummer, false);
+            if (fagsak.isEmpty() || fagsak.get().getYtelseType() != forventetYtelseType) {
+                return svar(forespørsel, Årsak.SAK_IKKE_FUNNET);
+            }
+            if (FagsakStatus.AVSLUTTET.equals(fagsak.get().getStatus())) {
+                return svar(forespørsel, Årsak.SAK_AVSLUTTET);
+            }
 
-        var fagsak = fagsakTjeneste.finnFagsakGittSaksnummer(saksnummer, false);
-        if (fagsak.isEmpty() || fagsak.get().getYtelseType() != forventetYtelseType) {
-            return svar(forespørsel, Årsak.SAK_IKKE_FUNNET);
-        }
-        if (FagsakStatus.AVSLUTTET.equals(fagsak.get().getStatus())) {
-            return svar(forespørsel, Årsak.SAK_AVSLUTTET);
-        }
+            var behandling = behandlingRepository.hentSisteYtelsesBehandlingForFagsakId(fagsak.get().getId());
+            if (behandling.isEmpty()) {
+                return svar(forespørsel, Årsak.INGEN_BEHANDLING);
+            }
 
-        var behandling = behandlingRepository.hentSisteYtelsesBehandlingForFagsakId(fagsak.get().getId());
-        if (behandling.isEmpty()) {
-            return svar(forespørsel, Årsak.INGEN_BEHANDLING);
-        }
+            var årsakForAvsluttetBehandling = vurderAvsluttetBehandling(behandling.get());
+            if (årsakForAvsluttetBehandling.isPresent()) {
+                return svar(forespørsel, årsakForAvsluttetBehandling.get());
+            }
 
-        var årsakForAvsluttetBehandling = vurderAvsluttetBehandling(behandling.get());
-        if (årsakForAvsluttetBehandling.isPresent()) {
-            return svar(forespørsel, årsakForAvsluttetBehandling.get());
-        }
-
-        return svar(forespørsel, vurderArbeidsforhold(behandling.get(), forespørsel.orgnummer()));
+            return svar(forespørsel, vurderArbeidsforhold(behandling.get(), forespørsel.orgnummer()));
+        }).toList();
     }
 
     private Optional<Årsak> vurderAvsluttetBehandling(Behandling behandling) {

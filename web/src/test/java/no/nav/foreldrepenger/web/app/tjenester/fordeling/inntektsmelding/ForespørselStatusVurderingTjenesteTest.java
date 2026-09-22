@@ -1,12 +1,10 @@
 package no.nav.foreldrepenger.web.app.tjenester.fordeling.inntektsmelding;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 import java.util.List;
@@ -35,7 +33,6 @@ import no.nav.foreldrepenger.web.app.tjenester.fordeling.inntektsmelding.Foresp�
 import no.nav.foreldrepenger.web.app.tjenester.fordeling.inntektsmelding.ForespørselStatusRequest.YtelseType;
 import no.nav.foreldrepenger.web.app.tjenester.fordeling.inntektsmelding.ForespørselStatusResponse.Vurdering;
 import no.nav.foreldrepenger.web.app.tjenester.fordeling.inntektsmelding.ForespørselStatusResponse.Årsak;
-import no.nav.vedtak.exception.FunksjonellException;
 
 @ExtendWith(MockitoExtension.class)
 class ForespørselStatusVurderingTjenesteTest {
@@ -193,16 +190,6 @@ class ForespørselStatusVurderingTjenesteTest {
         assertThat(svar).hasSize(2);
         assertThat(svar.get(0).fagsakSaksnummer()).isEqualTo(SAKSNUMMER);
         assertThat(svar.get(1).fagsakSaksnummer()).isEqualTo(SAKSNUMMER);
-    }
-
-    @Test
-    void batch_med_flere_ulike_saksnummer_gir_funksjonell_exception_foer_domenelogikk() {
-        var saksnummer2 = "2234567890";
-        var request = new ForespørselStatusRequest(
-            List.of(gyldigForespørsel(), new Forespørsel(saksnummer2, ORGNR, YtelseType.FORELDREPENGER)));
-
-        assertThatThrownBy(() -> tjeneste.vurder(request)).isInstanceOf(FunksjonellException.class);
-        verifyNoInteractions(fagsakTjenesteMock, behandlingRepositoryMock, arbeidsforholdInntektsmeldingMangelTjenesteMock);
     }
 
     private void stubFagsakOgBehandling(Behandling behandling) {
