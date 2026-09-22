@@ -29,7 +29,7 @@ import no.nav.vedtak.exception.FunksjonellException;
  * saksnummer per tilgangskontroll-vurdering. Kaller (fp-inntektsmelding) gjør ett kall per
  * fagsakSaksnummer den vil sjekke, med de aktuelle orgnumrene i samme kall.
  */
-public record ForespørselStatusRequest(@NotNull @Valid @Size(min = 1, max = MAKS_ANTALL) List<@Valid @NotNull Forespørsel> forespørsler) {
+public record ForespørselStatusRequest(@NotNull @Size(min = 1, max = MAKS_ANTALL) List<@Valid @NotNull Forespørsel> forespørsler) {
 
     public static final int MAKS_ANTALL = 100;
 
