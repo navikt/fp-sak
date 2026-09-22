@@ -51,6 +51,7 @@ import no.nav.foreldrepenger.mottak.dokumentmottak.SaksbehandlingDokumentmottakT
 import no.nav.foreldrepenger.mottak.vurderfagsystem.VurderFagsystem;
 import no.nav.foreldrepenger.mottak.vurderfagsystem.VurderFagsystemFellesTjeneste;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
+import no.nav.foreldrepenger.web.app.tjenester.fordeling.inntektsmelding.ForespørselStatusVurderingTjeneste;
 import no.nav.vedtak.konfig.Tid;
 
 @ExtendWith(MockitoExtension.class)
@@ -77,6 +78,8 @@ class FordelRestTjenesteTest {
     private SakInfoDtoTjeneste sakInfoDtoTjenesteMock;
     @Mock
     private SkjæringstidspunktTjeneste skjæringstidspunktTjenesteMock;
+    @Mock
+    private ForespørselStatusVurderingTjeneste forespørselStatusVurderingTjenesteMock;
 
     private FordelRestTjeneste fordelRestTjeneste;
     private BehandlingRepositoryProvider repositoryProvider;
@@ -85,7 +88,7 @@ class FordelRestTjenesteTest {
     void setup(EntityManager entityManager) {
         repositoryProvider = new BehandlingRepositoryProvider(entityManager);
         var fagsakTjeneste = new FagsakTjeneste(repositoryProvider.getFagsakRepository(), repositoryProvider.getSøknadRepository());
-        fordelRestTjeneste = new FordelRestTjeneste(dokumentmottakTjenesteMock, fagsakTjeneste, opprettSakTjenesteMock, repositoryProvider, vurderFagsystemTjenesteMock, sakInfoDtoTjenesteMock, skjæringstidspunktTjenesteMock);
+        fordelRestTjeneste = new FordelRestTjeneste(dokumentmottakTjenesteMock, fagsakTjeneste, opprettSakTjenesteMock, repositoryProvider, vurderFagsystemTjenesteMock, sakInfoDtoTjenesteMock, skjæringstidspunktTjenesteMock, forespørselStatusVurderingTjenesteMock);
     }
 
     @Test
@@ -175,7 +178,7 @@ class FordelRestTjenesteTest {
         when(sakInfoDtoTjenesteMock.mapSakInfoV2Dto(fagsak2)).thenReturn(sakDto2);
         when(fagsakTjenesteMock.finnFagsakerForAktør(any(AktørId.class))).thenReturn(List.of(fagsak1, fagsak2));
 
-        var tjeneste = new FordelRestTjeneste(null, fagsakTjenesteMock, null, behandlingRepositoryProviderMock, null, sakInfoDtoTjenesteMock, skjæringstidspunktTjenesteMock);
+        var tjeneste = new FordelRestTjeneste(null, fagsakTjenesteMock, null, behandlingRepositoryProviderMock, null, sakInfoDtoTjenesteMock, skjæringstidspunktTjenesteMock, forespørselStatusVurderingTjenesteMock);
 
         var result = tjeneste.finnAlleSakerForBrukerV2(new FordelRestTjeneste.AktørIdDto(AKTØR_ID_MOR.getId()));
 
@@ -186,7 +189,7 @@ class FordelRestTjenesteTest {
     @DisplayName("Skal kaste exceptions om aktørId er ikke gyldig.")
     void exception_om_ikke_gyldig_aktørId() {
         var tjeneste = new FordelRestTjeneste(dokumentmottakTjenesteMock, fagsakTjenesteMock, opprettSakTjenesteMock, mock(
-            BehandlingRepositoryProvider.class), vurderFagsystemTjenesteMock, sakInfoDtoTjenesteMock, skjæringstidspunktTjenesteMock);
+            BehandlingRepositoryProvider.class), vurderFagsystemTjenesteMock, sakInfoDtoTjenesteMock, skjæringstidspunktTjenesteMock, forespørselStatusVurderingTjenesteMock);
 
         var aktørIdDto = new FordelRestTjeneste.AktørIdDto("ikke_gyldig_id_haha:)");
         var exception = assertThrows(IllegalArgumentException.class, () -> tjeneste.finnAlleSakerForBrukerV2(aktørIdDto));
@@ -216,7 +219,7 @@ class FordelRestTjenesteTest {
         when(skjæringstidspunktTjenesteMock.getSkjæringstidspunkter(b1.getId())).thenReturn(skjæringstidspunkter);
 
 
-        var tjeneste = new FordelRestTjeneste(null, fagsakTjenesteMock, null, behandlingRepositoryProviderMock, null, sakInfoDtoTjenesteMock, skjæringstidspunktTjenesteMock);
+        var tjeneste = new FordelRestTjeneste(null, fagsakTjenesteMock, null, behandlingRepositoryProviderMock, null, sakInfoDtoTjenesteMock, skjæringstidspunktTjenesteMock, forespørselStatusVurderingTjenesteMock);
 
         var result = tjeneste.hentSakerÅpneForMottakAvInntektsmelding(new FordelRestTjeneste.SakInntektsmeldingDto(new FordelRestTjeneste.AktørIdDto(AKTØR_ID_MOR.getId()), FordelRestTjeneste.SakInntektsmeldingDto.YtelseType.FORELDREPENGER));
 
@@ -241,7 +244,7 @@ class FordelRestTjenesteTest {
         when(fagsakTjenesteMock.finnFagsakerForAktør(any(AktørId.class))).thenReturn(List.of(fagsak1));
         when(skjæringstidspunktTjenesteMock.getSkjæringstidspunkter(b1.getId())).thenReturn(Skjæringstidspunkt.builder().medFørsteUttaksdato(LocalDate.now()).build());
 
-        var tjeneste = new FordelRestTjeneste(null, fagsakTjenesteMock, null, behandlingRepositoryProviderMock, null, sakInfoDtoTjenesteMock, skjæringstidspunktTjenesteMock);
+        var tjeneste = new FordelRestTjeneste(null, fagsakTjenesteMock, null, behandlingRepositoryProviderMock, null, sakInfoDtoTjenesteMock, skjæringstidspunktTjenesteMock, forespørselStatusVurderingTjenesteMock);
 
         var result = tjeneste.hentSakerÅpneForMottakAvInntektsmelding(new FordelRestTjeneste.SakInntektsmeldingDto(new FordelRestTjeneste.AktørIdDto(AKTØR_ID_MOR.getId()), FordelRestTjeneste.SakInntektsmeldingDto.YtelseType.FORELDREPENGER));
 
@@ -263,7 +266,7 @@ class FordelRestTjenesteTest {
         when(fagsakTjenesteMock.finnFagsakerForAktør(any(AktørId.class))).thenReturn(List.of(fagsak1, fagsak2));
         when(behandlingRepositoryProviderMock.getBehandlingRepository()).thenReturn(behandlingRepositoryMock);
 
-        var tjeneste = new FordelRestTjeneste(null, fagsakTjenesteMock, null, behandlingRepositoryProviderMock, null, sakInfoDtoTjenesteMock, skjæringstidspunktTjenesteMock);
+        var tjeneste = new FordelRestTjeneste(null, fagsakTjenesteMock, null, behandlingRepositoryProviderMock, null, sakInfoDtoTjenesteMock, skjæringstidspunktTjenesteMock, forespørselStatusVurderingTjenesteMock);
         var result = tjeneste.hentSakerÅpneForMottakAvInntektsmelding(new FordelRestTjeneste.SakInntektsmeldingDto(new FordelRestTjeneste.AktørIdDto(AKTØR_ID_MOR.getId()), FordelRestTjeneste.SakInntektsmeldingDto.YtelseType.SVANGERSKAPSPENGER));
 
         assertThat((List<?>) result.getEntity()).isEmpty();
@@ -286,7 +289,7 @@ class FordelRestTjenesteTest {
         when(fagsakTjenesteMock.finnFagsakerForAktør(any(AktørId.class))).thenReturn(List.of(fagsak1));
         when(skjæringstidspunktTjenesteMock.getSkjæringstidspunkter(b1.getId())).thenReturn(Skjæringstidspunkt.builder().build());
 
-        var tjeneste = new FordelRestTjeneste(null, fagsakTjenesteMock, null, behandlingRepositoryProviderMock, null, sakInfoDtoTjenesteMock, skjæringstidspunktTjenesteMock);
+        var tjeneste = new FordelRestTjeneste(null, fagsakTjenesteMock, null, behandlingRepositoryProviderMock, null, sakInfoDtoTjenesteMock, skjæringstidspunktTjenesteMock, forespørselStatusVurderingTjenesteMock);
 
         var result = tjeneste.hentSakerÅpneForMottakAvInntektsmelding(new FordelRestTjeneste.SakInntektsmeldingDto(new FordelRestTjeneste.AktørIdDto(AKTØR_ID_MOR.getId()), FordelRestTjeneste.SakInntektsmeldingDto.YtelseType.FORELDREPENGER));
 
@@ -315,7 +318,7 @@ class FordelRestTjenesteTest {
         when(fagsakTjenesteMock.finnFagsakerForAktør(any(AktørId.class))).thenReturn(List.of(fagsak1));
         when(skjæringstidspunktTjenesteMock.getSkjæringstidspunkter(b1.getId())).thenReturn(Skjæringstidspunkt.builder().medFørsteUttaksdato(førsteUttaksdato).build());
 
-        var tjeneste = new FordelRestTjeneste(null, fagsakTjenesteMock, null, behandlingRepositoryProviderMock, null, sakInfoDtoTjenesteMock, skjæringstidspunktTjenesteMock);
+        var tjeneste = new FordelRestTjeneste(null, fagsakTjenesteMock, null, behandlingRepositoryProviderMock, null, sakInfoDtoTjenesteMock, skjæringstidspunktTjenesteMock, forespørselStatusVurderingTjenesteMock);
 
         var result = tjeneste.hentSakerÅpneForMottakAvInntektsmelding(new FordelRestTjeneste.SakInntektsmeldingDto(new FordelRestTjeneste.AktørIdDto(AKTØR_ID_MOR.getId()), FordelRestTjeneste.SakInntektsmeldingDto.YtelseType.FORELDREPENGER));
 
@@ -347,7 +350,7 @@ class FordelRestTjenesteTest {
         when(skjæringstidspunktTjenesteMock.getSkjæringstidspunkter(1L)).thenReturn(skjæringstidspunkt(førsteUttaksdato));
         when(skjæringstidspunktTjenesteMock.getSkjæringstidspunkter(2L)).thenReturn(skjæringstidspunkt(andreUttaksdato));
 
-        var tjeneste = new FordelRestTjeneste(null, fagsakTjenesteMock, null, behandlingRepositoryProviderMock, null, null, skjæringstidspunktTjenesteMock);
+        var tjeneste = new FordelRestTjeneste(null, fagsakTjenesteMock, null, behandlingRepositoryProviderMock, null, null, skjæringstidspunktTjenesteMock, forespørselStatusVurderingTjenesteMock);
 
         var result = tjeneste.hentSakerÅpneForMottakAvInntektsmelding(new FordelRestTjeneste.SakInntektsmeldingDto(
             new FordelRestTjeneste.AktørIdDto(AKTØR_ID_MOR.getId()), FordelRestTjeneste.SakInntektsmeldingDto.YtelseType.FORELDREPENGER));

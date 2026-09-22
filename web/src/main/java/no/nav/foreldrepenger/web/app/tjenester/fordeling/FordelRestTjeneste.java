@@ -63,6 +63,9 @@ import no.nav.foreldrepenger.mottak.dokumentmottak.SaksbehandlingDokumentmottakT
 import no.nav.foreldrepenger.mottak.vurderfagsystem.VurderFagsystem;
 import no.nav.foreldrepenger.mottak.vurderfagsystem.VurderFagsystemFellesTjeneste;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
+import no.nav.foreldrepenger.web.app.tjenester.fordeling.inntektsmelding.ForespørselStatusRequest;
+import no.nav.foreldrepenger.web.app.tjenester.fordeling.inntektsmelding.ForespørselStatusResponse;
+import no.nav.foreldrepenger.web.app.tjenester.fordeling.inntektsmelding.ForespørselStatusVurderingTjeneste;
 import no.nav.foreldrepenger.web.server.abac.AppAbacAttributtType;
 import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.konfig.Tid;
@@ -90,6 +93,7 @@ public class FordelRestTjeneste {
     private BehandlingRepository behandlingRepository;
     private SakInfoDtoTjeneste sakInfoDtoTjeneste;
     private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
+    private ForespørselStatusVurderingTjeneste forespørselStatusVurderingTjeneste;
 
     public FordelRestTjeneste() {// For Rest-CDI
     }
@@ -101,7 +105,8 @@ public class FordelRestTjeneste {
                               BehandlingRepositoryProvider repositoryProvider,
                               VurderFagsystemFellesTjeneste vurderFagsystemFellesTjeneste,
                               SakInfoDtoTjeneste sakInfoDtoTjeneste,
-                              SkjæringstidspunktTjeneste skjæringstidspunktTjeneste) {
+                              SkjæringstidspunktTjeneste skjæringstidspunktTjeneste,
+                              ForespørselStatusVurderingTjeneste forespørselStatusVurderingTjeneste) {
         this.dokumentmottakTjeneste = dokumentmottakTjeneste;
         this.fagsakTjeneste = fagsakTjeneste;
         this.opprettSakTjeneste = opprettSakTjeneste;
@@ -110,6 +115,7 @@ public class FordelRestTjeneste {
         this.vurderFagsystemTjeneste = vurderFagsystemFellesTjeneste;
         this.sakInfoDtoTjeneste = sakInfoDtoTjeneste;
         this.skjæringstidspunktTjeneste = skjæringstidspunktTjeneste;
+        this.forespørselStatusVurderingTjeneste = forespørselStatusVurderingTjeneste;
     }
 
     @POST
@@ -288,6 +294,29 @@ public class FordelRestTjeneste {
             .toList();
 
         return Response.ok(infoOmSakIMResponse).build();
+    }
+
+    /**
+     * MIDLERTIDIG. Batch-endepunkt for en engangs ryddejobb i fp-inntektsmelding, se
+     * {@link ForespørselStatusRequest}. Skal fjernes når jobben er kjørt.
+     *
+     * Alle forespørslene i kallet må gjelde samme fagsakSaksnummer (maks 100 orgnummer for den
+     * ene saken), siden ABAC/PDP kun støtter 0 eller 1 saksnummer per tilgangskontroll-vurdering.
+     * Kaller må gjøre ett kall per fagsakSaksnummer den vil sjekke.
+     */
+    @POST
+    @Path("/inntektsmelding/forespoersel-status")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    @Operation(description = "MIDLERTIDIG: batch-sjekk av om et sett forespørsler om inntektsmelding fortsatt trengs. "
+        + "Alle forespørslene må gjelde samme fagsakSaksnummer. Brukes av en engangs ryddejobb i fp-inntektsmelding, "
+        + "se ForespørselStatusRequest.", tags = "fordel")
+    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK, sporingslogg = false)
+    public List<ForespørselStatusResponse> forespørselStatus(@TilpassetAbacAttributt(supplierClass = ForespørselStatusRequestAbacDataSupplier.class)
+        @Parameter(description = "Ett fagsakSaksnummer, maks 100 orgnummer/forespørsler, ett svar per forespørsel")
+        @Valid ForespørselStatusRequest request) {
+        ensureCallId();
+        return forespørselStatusVurderingTjeneste.vurder(request);
     }
 
     private void knyttSakOgJournalpost(Saksnummer saksnummer, JournalpostId journalpostId) {
@@ -528,6 +557,18 @@ public class FordelRestTjeneste {
             var req = (SakInntektsmeldingDto) obj;
             return AbacDataAttributter.opprett()
                 .leggTil(AppAbacAttributtType.AKTØR_ID, req.bruker().aktørId());
+        }
+    }
+
+    public static class ForespørselStatusRequestAbacDataSupplier implements Function<Object, AbacDataAttributter> {
+        @Override
+        public AbacDataAttributter apply(Object obj) {
+            var req = (ForespørselStatusRequest) obj;
+            // Kaster FunksjonellException dersom batchen inneholder mer enn ett fagsakSaksnummer.
+            // AppPdpRequestBuilderImpl støtter bare 0 eller 1 saksnummer per ABAC/PDP-vurdering.
+            var saksnummer = req.enesteFagsakSaksnummer();
+            return AbacDataAttributter.opprett()
+                .leggTil(AppAbacAttributtType.SAKSNUMMER, saksnummer);
         }
     }
 }
