@@ -18,11 +18,9 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import no.nav.foreldrepenger.behandling.FagsakTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
-import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakStatus;
-import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.domene.arbeidInntektsmelding.ArbeidsforholdInntektsmeldingMangelTjeneste;
 import no.nav.foreldrepenger.domene.arbeidInntektsmelding.ArbeidsforholdInntektsmeldingStatus;
@@ -30,7 +28,6 @@ import no.nav.foreldrepenger.domene.arbeidInntektsmelding.ArbeidsforholdInntekts
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.web.app.tjenester.fordeling.inntektsmelding.ForespørselStatusRequest.Forespørsel;
-import no.nav.foreldrepenger.web.app.tjenester.fordeling.inntektsmelding.ForespørselStatusRequest.YtelseType;
 import no.nav.foreldrepenger.web.app.tjenester.fordeling.inntektsmelding.ForespørselStatusResponse.Vurdering;
 import no.nav.foreldrepenger.web.app.tjenester.fordeling.inntektsmelding.ForespørselStatusResponse.Årsak;
 
@@ -67,18 +64,8 @@ class ForespørselStatusVurderingTjenesteTest {
     }
 
     @Test
-    void feil_ytelse_paa_sak_gir_sak_ikke_funnet() {
-        var fagsak = fagsakMed(FagsakYtelseType.SVANGERSKAPSPENGER, FagsakStatus.LØPENDE);
-        when(fagsakTjenesteMock.finnFagsakGittSaksnummer(eq(new Saksnummer(SAKSNUMMER)), eq(false))).thenReturn(Optional.of(fagsak));
-
-        var svar = vurderEn(gyldigForespørsel());
-
-        assertThat(svar.årsak()).isEqualTo(Årsak.SAK_IKKE_FUNNET);
-    }
-
-    @Test
     void avsluttet_fagsak_gir_sak_avsluttet() {
-        var fagsak = fagsakMed(FagsakYtelseType.FORELDREPENGER, FagsakStatus.AVSLUTTET);
+        var fagsak = fagsakMed(FagsakStatus.AVSLUTTET);
         when(fagsakTjenesteMock.finnFagsakGittSaksnummer(eq(new Saksnummer(SAKSNUMMER)), eq(false))).thenReturn(Optional.of(fagsak));
 
         var svar = vurderEn(gyldigForespørsel());
@@ -89,7 +76,7 @@ class ForespørselStatusVurderingTjenesteTest {
 
     @Test
     void ingen_ytelsesbehandling_gir_ingen_behandling_som_trengs_ikke() {
-        var fagsak = fagsakMed(FagsakYtelseType.FORELDREPENGER, FagsakStatus.LØPENDE);
+        var fagsak = fagsakMed(FagsakStatus.LØPENDE);
         when(fagsakTjenesteMock.finnFagsakGittSaksnummer(eq(new Saksnummer(SAKSNUMMER)), eq(false))).thenReturn(Optional.of(fagsak));
         when(behandlingRepositoryMock.hentSisteYtelsesBehandlingForFagsakId(FAGSAK_ID)).thenReturn(Optional.empty());
 
@@ -100,34 +87,25 @@ class ForespørselStatusVurderingTjenesteTest {
     }
 
     @Test
-    void avsluttet_og_avslaatt_behandling_gir_behandling_avslaatt() {
-        var behandling = avsluttetBehandlingMedResultat(true, false);
+    void avsluttet_behandling_gir_behandling_avsluttet() {
+        var behandling = mock(Behandling.class);
+        when(behandling.erAvsluttet()).thenReturn(true);
         stubFagsakOgBehandling(behandling);
 
         var svar = vurderEn(gyldigForespørsel());
 
-        assertThat(svar.årsak()).isEqualTo(Årsak.BEHANDLING_AVSLÅTT);
+        assertThat(svar.årsak()).isEqualTo(Årsak.BEHANDLING_AVSLUTTET);
     }
 
     @Test
-    void avsluttet_og_henlagt_behandling_gir_behandling_henlagt() {
-        var behandling = avsluttetBehandlingMedResultat(false, true);
-        stubFagsakOgBehandling(behandling);
-
-        var svar = vurderEn(gyldigForespørsel());
-
-        assertThat(svar.årsak()).isEqualTo(Årsak.BEHANDLING_HENLAGT);
-    }
-
-    @Test
-    void ingen_arbeidsforhold_for_orgnummer_gir_orgnr_ikke_paakrevd() {
+    void ingen_arbeidsforhold_for_orgnummer_gir_im_aldri_paakrevd() {
         var behandling = mock(Behandling.class);
         stubFagsakOgBehandling(behandling);
         when(arbeidsforholdInntektsmeldingMangelTjenesteMock.finnStatusForInntektsmeldingArbeidsforhold(any())).thenReturn(List.of());
 
         var svar = vurderEn(gyldigForespørsel());
 
-        assertThat(svar.årsak()).isEqualTo(Årsak.ORGNR_IKKE_PÅKREVD);
+        assertThat(svar.årsak()).isEqualTo(Årsak.IM_ALDRI_PÅKREVD);
     }
 
     @Test
@@ -140,7 +118,7 @@ class ForespørselStatusVurderingTjenesteTest {
         var svar = vurderEn(gyldigForespørsel());
 
         assertThat(svar.vurdering()).isEqualTo(Vurdering.TRENGS);
-        assertThat(svar.årsak()).isEqualTo(Årsak.MANGLER_INNTEKTSMELDING);
+        assertThat(svar.årsak()).isEqualTo(Årsak.IM_MANGLER);
     }
 
     @Test
@@ -152,7 +130,7 @@ class ForespørselStatusVurderingTjenesteTest {
 
         var svar = vurderEn(gyldigForespørsel());
 
-        assertThat(svar.årsak()).isEqualTo(Årsak.INNTEKTSMELDING_MOTTATT);
+        assertThat(svar.årsak()).isEqualTo(Årsak.IM_MOTTATT);
     }
 
     @Test
@@ -164,7 +142,7 @@ class ForespørselStatusVurderingTjenesteTest {
 
         var svar = vurderEn(gyldigForespørsel());
 
-        assertThat(svar.årsak()).isEqualTo(Årsak.AVKLART_IKKE_PÅKREVD);
+        assertThat(svar.årsak()).isEqualTo(Årsak.IM_AVKLART_IKKE_PÅKREVD);
     }
 
     @Test
@@ -176,7 +154,7 @@ class ForespørselStatusVurderingTjenesteTest {
 
         var svar = vurderEn(gyldigForespørsel());
 
-        assertThat(svar.årsak()).isEqualTo(Årsak.ORGNR_IKKE_PÅKREVD);
+        assertThat(svar.årsak()).isEqualTo(Årsak.IM_ALDRI_PÅKREVD);
     }
 
     @Test
@@ -184,7 +162,7 @@ class ForespørselStatusVurderingTjenesteTest {
         when(fagsakTjenesteMock.finnFagsakGittSaksnummer(eq(new Saksnummer(SAKSNUMMER)), eq(false))).thenReturn(Optional.empty());
 
         var request = new ForespørselStatusRequest(
-            List.of(gyldigForespørsel(), new Forespørsel(SAKSNUMMER, ANNET_ORGNR, YtelseType.FORELDREPENGER)));
+            List.of(gyldigForespørsel(), new Forespørsel(SAKSNUMMER, ANNET_ORGNR)));
         var svar = tjeneste.vurder(request);
 
         assertThat(svar).hasSize(2);
@@ -193,29 +171,16 @@ class ForespørselStatusVurderingTjenesteTest {
     }
 
     private void stubFagsakOgBehandling(Behandling behandling) {
-        var fagsak = fagsakMed(FagsakYtelseType.FORELDREPENGER, FagsakStatus.LØPENDE);
+        var fagsak = fagsakMed(FagsakStatus.LØPENDE);
         when(fagsakTjenesteMock.finnFagsakGittSaksnummer(eq(new Saksnummer(SAKSNUMMER)), eq(false))).thenReturn(Optional.of(fagsak));
         when(behandlingRepositoryMock.hentSisteYtelsesBehandlingForFagsakId(FAGSAK_ID)).thenReturn(Optional.of(behandling));
     }
 
-    private Fagsak fagsakMed(FagsakYtelseType ytelseType, FagsakStatus status) {
+    private Fagsak fagsakMed(FagsakStatus status) {
         var fagsak = mock(Fagsak.class);
-        when(fagsak.getYtelseType()).thenReturn(ytelseType);
         lenient().when(fagsak.getStatus()).thenReturn(status);
         lenient().when(fagsak.getId()).thenReturn(FAGSAK_ID);
         return fagsak;
-    }
-
-    private Behandling avsluttetBehandlingMedResultat(boolean avslått, boolean henlagt) {
-        var behandling = mock(Behandling.class);
-        var behandlingsresultat = mock(Behandlingsresultat.class);
-        when(behandling.erAvsluttet()).thenReturn(true);
-        when(behandling.getBehandlingsresultat()).thenReturn(behandlingsresultat);
-        when(behandlingsresultat.isBehandlingsresultatAvslått()).thenReturn(avslått);
-        if (!avslått) {
-            when(behandlingsresultat.isBehandlingHenlagt()).thenReturn(henlagt);
-        }
-        return behandling;
     }
 
     private static ArbeidsforholdInntektsmeldingStatus statusFor(String orgnummer, InntektsmeldingStatus status) {
@@ -227,6 +192,6 @@ class ForespørselStatusVurderingTjenesteTest {
     }
 
     private static Forespørsel gyldigForespørsel() {
-        return new Forespørsel(SAKSNUMMER, ORGNR, YtelseType.FORELDREPENGER);
+        return new Forespørsel(SAKSNUMMER, ORGNR);
     }
 }

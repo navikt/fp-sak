@@ -49,17 +49,11 @@ public record ForespørselStatusRequest(@NotNull @Size(min = 1, max = MAKS_ANTAL
     }
 
     public record Forespørsel(@NotNull @Digits(integer = 19, fraction = 0) String fagsakSaksnummer,
-                              @NotNull @Pattern(regexp = "^\\d{9}$") String orgnummer,
-                              @NotNull @Valid YtelseType ytelsetype) {
+                              @NotNull @Pattern(regexp = "^\\d{9}$") String orgnummer) {
 
         @Override
         public String toString() {
-            return getClass().getSimpleName() + "<" + fagsakSaksnummer + ", " + tilMaskertNummer(orgnummer) + ", " + ytelsetype + ">";
+            return getClass().getSimpleName() + "<" + fagsakSaksnummer + ", " + tilMaskertNummer(orgnummer) + ">";
         }
-    }
-
-    public enum YtelseType {
-        FORELDREPENGER,
-        SVANGERSKAPSPENGER
     }
 }

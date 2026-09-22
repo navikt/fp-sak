@@ -2,6 +2,7 @@ package no.nav.foreldrepenger.web.app.tjenester.fordeling.inntektsmelding;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -10,13 +11,13 @@ import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.FagsakTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
+import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakStatus;
-import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.domene.arbeidInntektsmelding.ArbeidsforholdInntektsmeldingMangelTjeneste;
 import no.nav.foreldrepenger.domene.arbeidInntektsmelding.ArbeidsforholdInntektsmeldingStatus;
+import no.nav.foreldrepenger.domene.arbeidInntektsmelding.ArbeidsforholdInntektsmeldingStatus.InntektsmeldingStatus;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.web.app.tjenester.fordeling.inntektsmelding.ForespørselStatusRequest.Forespørsel;
-import no.nav.foreldrepenger.web.app.tjenester.fordeling.inntektsmelding.ForespørselStatusRequest.YtelseType;
 import no.nav.foreldrepenger.web.app.tjenester.fordeling.inntektsmelding.ForespørselStatusResponse.Årsak;
 
 /**
@@ -47,75 +48,73 @@ public class ForespørselStatusVurderingTjeneste {
     }
 
     public List<ForespørselStatusResponse> vurder(ForespørselStatusRequest request) {
-        return request.forespørsler().stream().map(forespørsel -> {
-            var saksnummer = new Saksnummer(forespørsel.fagsakSaksnummer());
-            var forventetYtelseType = mapYtelseType(forespørsel.ytelsetype());
-
-            var fagsak = fagsakTjeneste.finnFagsakGittSaksnummer(saksnummer, false);
-            if (fagsak.isEmpty() || fagsak.get().getYtelseType() != forventetYtelseType) {
-                return svar(forespørsel, Årsak.SAK_IKKE_FUNNET);
-            }
-            if (FagsakStatus.AVSLUTTET.equals(fagsak.get().getStatus())) {
-                return svar(forespørsel, Årsak.SAK_AVSLUTTET);
-            }
-
-            var behandling = behandlingRepository.hentSisteYtelsesBehandlingForFagsakId(fagsak.get().getId());
-            if (behandling.isEmpty()) {
-                return svar(forespørsel, Årsak.INGEN_BEHANDLING);
-            }
-
-            var årsakForAvsluttetBehandling = vurderAvsluttetBehandling(behandling.get());
-            if (årsakForAvsluttetBehandling.isPresent()) {
-                return svar(forespørsel, årsakForAvsluttetBehandling.get());
-            }
-
-            return svar(forespørsel, vurderArbeidsforhold(behandling.get(), forespørsel.orgnummer()));
-        }).toList();
+        return request.forespørsler().stream()
+            .collect(Collectors.groupingBy(Forespørsel::fagsakSaksnummer))
+            .entrySet().stream()
+            .flatMap(saksnummerOgForespørsler -> vurderForSaksnummer(saksnummerOgForespørsler.getKey(), saksnummerOgForespørsler.getValue()).stream())
+            .toList();
     }
 
-    private Optional<Årsak> vurderAvsluttetBehandling(Behandling behandling) {
-        if (!behandling.erAvsluttet()) {
-            return Optional.empty();
+    private List<ForespørselStatusResponse> vurderForSaksnummer(String saksnummerVerdi, List<Forespørsel> forespørslerForSak) {
+        var fagsak = fagsakTjeneste.finnFagsakGittSaksnummer(new Saksnummer(saksnummerVerdi), false).orElse(null);
+        var fagsakÅrsak = utledÅrsakForFagsak(fagsak);
+        if (fagsakÅrsak.isPresent()) {
+            return lagSvarForAlleForespørsler(forespørslerForSak, fagsakÅrsak.get());
         }
-        var behandlingsresultat = behandling.getBehandlingsresultat();
-        if (behandlingsresultat == null) {
-            return Optional.empty();
+
+        var behandling = behandlingRepository.hentSisteYtelsesBehandlingForFagsakId(fagsak.getId()).orElse(null);
+        var behandlingÅrsak = utledÅrsakForBehandling(behandling);
+        if (behandlingÅrsak.isPresent()) {
+            return lagSvarForAlleForespørsler(forespørslerForSak, behandlingÅrsak.get());
         }
-        if (behandlingsresultat.isBehandlingsresultatAvslått()) {
-            return Optional.of(Årsak.BEHANDLING_AVSLÅTT);
+
+        var arbeidsforholdStatuser = arbeidsforholdInntektsmeldingMangelTjeneste.finnStatusForInntektsmeldingArbeidsforhold(BehandlingReferanse.fra(behandling));
+        return forespørslerForSak.stream()
+            .map(forespørsel -> lagSvar(forespørsel, utledÅrsakForInntektsmelding(arbeidsforholdStatuser, forespørsel.orgnummer())))
+            .toList();
+    }
+
+    private Optional<Årsak> utledÅrsakForFagsak(Fagsak fagsak) {
+        if (fagsak == null) {
+            return Optional.of(Årsak.SAK_IKKE_FUNNET);
         }
-        if (behandlingsresultat.isBehandlingHenlagt()) {
-            return Optional.of(Årsak.BEHANDLING_HENLAGT);
+        if (FagsakStatus.AVSLUTTET.equals(fagsak.getStatus())) {
+            return Optional.of(Årsak.SAK_AVSLUTTET);
         }
         return Optional.empty();
     }
 
-    private Årsak vurderArbeidsforhold(Behandling behandling, String orgnummer) {
-        var statuser = arbeidsforholdInntektsmeldingMangelTjeneste.finnStatusForInntektsmeldingArbeidsforhold(BehandlingReferanse.fra(behandling));
-        var statuserForArbeidsgiver = statuser.stream().filter(status -> status.arbeidsgiver().getIdentifikator().equals(orgnummer)).toList();
-
-        if (statuserForArbeidsgiver.isEmpty()) {
-            return Årsak.ORGNR_IKKE_PÅKREVD;
+    private Optional<Årsak> utledÅrsakForBehandling(Behandling behandling) {
+        if (behandling == null) {
+            return Optional.of(Årsak.INGEN_BEHANDLING);
         }
-        if (statuserForArbeidsgiver.stream()
-            .anyMatch(status -> status.inntektsmeldingStatus() == ArbeidsforholdInntektsmeldingStatus.InntektsmeldingStatus.IKKE_MOTTAT)) {
-            return Årsak.MANGLER_INNTEKTSMELDING;
+        if (behandling.erAvsluttet()) {
+            return Optional.of(Årsak.BEHANDLING_AVSLUTTET);
         }
-        if (statuserForArbeidsgiver.stream()
-            .allMatch(status -> status.inntektsmeldingStatus() == ArbeidsforholdInntektsmeldingStatus.InntektsmeldingStatus.MOTTATT)) {
-            return Årsak.INNTEKTSMELDING_MOTTATT;
-        }
-        return Årsak.AVKLART_IKKE_PÅKREVD;
+        return Optional.empty();
     }
 
-    private static ForespørselStatusResponse svar(Forespørsel forespørsel, Årsak årsak) {
+    private static Årsak utledÅrsakForInntektsmelding(List<ArbeidsforholdInntektsmeldingStatus> statuser, String orgnummer) {
+        var imStatuser = statuser.stream()
+            .filter(status -> status.arbeidsgiver().getIdentifikator().equals(orgnummer))
+            .map(ArbeidsforholdInntektsmeldingStatus::inntektsmeldingStatus)
+            .collect(Collectors.toSet());
+        if (imStatuser.isEmpty()) {
+            return Årsak.IM_ALDRI_PÅKREVD;
+        }
+        if (imStatuser.contains(InntektsmeldingStatus.IKKE_MOTTAT)) {
+            return Årsak.IM_MANGLER;
+        }
+        return imStatuser.contains(InntektsmeldingStatus.AVKLART_IKKE_PÅKREVD) ? Årsak.IM_AVKLART_IKKE_PÅKREVD : Årsak.IM_MOTTATT;
+    }
+
+    private static List<ForespørselStatusResponse> lagSvarForAlleForespørsler(List<Forespørsel> forespørsler, Årsak årsak) {
+        return forespørsler.stream()
+            .map(forespørsel -> lagSvar(forespørsel, årsak))
+            .toList();
+    }
+
+    private static ForespørselStatusResponse lagSvar(Forespørsel forespørsel, Årsak årsak) {
         return ForespørselStatusResponse.av(forespørsel.fagsakSaksnummer(), forespørsel.orgnummer(), årsak);
-    }
-
-    private static FagsakYtelseType mapYtelseType(YtelseType ytelseType) {
-        return switch (ytelseType) {
-            case FORELDREPENGER -> FagsakYtelseType.FORELDREPENGER;
-            case SVANGERSKAPSPENGER -> FagsakYtelseType.SVANGERSKAPSPENGER;
-        };
     }
 }

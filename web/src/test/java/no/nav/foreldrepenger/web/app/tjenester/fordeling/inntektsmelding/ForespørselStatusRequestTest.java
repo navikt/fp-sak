@@ -18,7 +18,7 @@ class ForespørselStatusRequestTest {
     void eneste_fagsak_saksnummer_returnerer_saksnummeret_naar_alle_forespoersler_gjelder_samme_sak() {
         var annetOrgnummer = "888888888";
         var request = new ForespørselStatusRequest(
-            List.of(gyldigForespørsel(), new ForespørselStatusRequest.Forespørsel(SAKSNUMMER, annetOrgnummer, ForespørselStatusRequest.YtelseType.FORELDREPENGER)));
+            List.of(gyldigForespørsel(), new ForespørselStatusRequest.Forespørsel(SAKSNUMMER, annetOrgnummer)));
 
         assertThat(request.enesteFagsakSaksnummer()).isEqualTo(SAKSNUMMER);
     }
@@ -27,12 +27,12 @@ class ForespørselStatusRequestTest {
     void eneste_fagsak_saksnummer_kaster_funksjonell_exception_ved_flere_ulike_saksnummer() {
         var annetSaksnummer = "2234567890";
         var request = new ForespørselStatusRequest(
-            List.of(gyldigForespørsel(), new ForespørselStatusRequest.Forespørsel(annetSaksnummer, ORGNR, ForespørselStatusRequest.YtelseType.FORELDREPENGER)));
+            List.of(gyldigForespørsel(), new ForespørselStatusRequest.Forespørsel(annetSaksnummer, ORGNR)));
 
         assertThatThrownBy(request::enesteFagsakSaksnummer).isInstanceOf(FunksjonellException.class);
     }
 
     private static ForespørselStatusRequest.Forespørsel gyldigForespørsel() {
-        return new ForespørselStatusRequest.Forespørsel(SAKSNUMMER, ORGNR, ForespørselStatusRequest.YtelseType.FORELDREPENGER);
+        return new ForespørselStatusRequest.Forespørsel(SAKSNUMMER, ORGNR);
     }
 }

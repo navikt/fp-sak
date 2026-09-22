@@ -55,7 +55,6 @@ import no.nav.foreldrepenger.mottak.vurderfagsystem.VurderFagsystemFellesTjenest
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.fordeling.inntektsmelding.ForespørselStatusRequest;
 import no.nav.foreldrepenger.web.app.tjenester.fordeling.inntektsmelding.ForespørselStatusRequest.Forespørsel;
-import no.nav.foreldrepenger.web.app.tjenester.fordeling.inntektsmelding.ForespørselStatusRequest.YtelseType;
 import no.nav.foreldrepenger.web.app.tjenester.fordeling.inntektsmelding.ForespørselStatusResponse;
 import no.nav.foreldrepenger.web.app.tjenester.fordeling.inntektsmelding.ForespørselStatusResponse.Årsak;
 import no.nav.foreldrepenger.web.app.tjenester.fordeling.inntektsmelding.ForespørselStatusVurderingTjeneste;
@@ -383,9 +382,9 @@ class FordelRestTjenesteTest {
     @Test
     void forespoerselStatus_delegerer_til_vurderingstjenesten_og_returnerer_svaret_uendret() {
         var request = new ForespørselStatusRequest(
-            List.of(new Forespørsel(FORESPØRSEL_SAKSNUMMER, ORGNR, YtelseType.FORELDREPENGER)));
+            List.of(new Forespørsel(FORESPØRSEL_SAKSNUMMER, ORGNR)));
         var forventetSvar = List.of(
-            ForespørselStatusResponse.av(FORESPØRSEL_SAKSNUMMER, ORGNR, Årsak.MANGLER_INNTEKTSMELDING));
+            ForespørselStatusResponse.av(FORESPØRSEL_SAKSNUMMER, ORGNR, Årsak.IM_MANGLER));
         when(forespørselStatusVurderingTjenesteMock.vurder(request)).thenReturn(forventetSvar);
 
         var svar = fordelRestTjeneste.forespørselStatus(request);
@@ -397,8 +396,8 @@ class FordelRestTjenesteTest {
     @Test
     void abac_supplier_legger_til_det_ene_saksnummeret_i_batchen() {
         var request = new ForespørselStatusRequest(
-            List.of(new Forespørsel(FORESPØRSEL_SAKSNUMMER, ORGNR, YtelseType.FORELDREPENGER),
-                new Forespørsel(FORESPØRSEL_SAKSNUMMER, ANNET_ORGNR, YtelseType.FORELDREPENGER)));
+            List.of(new Forespørsel(FORESPØRSEL_SAKSNUMMER, ORGNR),
+                new Forespørsel(FORESPØRSEL_SAKSNUMMER, ANNET_ORGNR)));
 
         var abacDataAttributter = new FordelRestTjeneste.ForespørselStatusRequestAbacDataSupplier().apply(request);
 
@@ -408,8 +407,8 @@ class FordelRestTjenesteTest {
     @Test
     void abac_supplier_kaster_funksjonell_exception_ved_flere_ulike_saksnummer_i_batchen() {
         var request = new ForespørselStatusRequest(
-            List.of(new Forespørsel(FORESPØRSEL_SAKSNUMMER, ORGNR, YtelseType.FORELDREPENGER),
-                new Forespørsel(ANNET_FORESPØRSEL_SAKSNUMMER, ORGNR, YtelseType.FORELDREPENGER)));
+            List.of(new Forespørsel(FORESPØRSEL_SAKSNUMMER, ORGNR),
+                new Forespørsel(ANNET_FORESPØRSEL_SAKSNUMMER, ORGNR)));
 
         assertThatThrownBy(() -> new FordelRestTjeneste.ForespørselStatusRequestAbacDataSupplier().apply(request))
             .isInstanceOf(FunksjonellException.class);

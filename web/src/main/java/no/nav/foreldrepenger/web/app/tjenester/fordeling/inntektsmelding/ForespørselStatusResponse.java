@@ -37,21 +37,20 @@ public record ForespørselStatusResponse(@NotNull String fagsakSaksnummer,
 
     public enum Årsak {
         /** Arbeidsgiveren mangler fortsatt inntektsmelding på saken. */
-        MANGLER_INNTEKTSMELDING(Vurdering.TRENGS),
+        IM_MANGLER(Vurdering.TRENGS),
 
         SAK_AVSLUTTET(Vurdering.TRENGS_IKKE),
-        BEHANDLING_AVSLÅTT(Vurdering.TRENGS_IKKE),
-        BEHANDLING_HENLAGT(Vurdering.TRENGS_IKKE),
-        INNTEKTSMELDING_MOTTATT(Vurdering.TRENGS_IKKE),
+        BEHANDLING_AVSLUTTET(Vurdering.TRENGS_IKKE),
+        IM_MOTTATT(Vurdering.TRENGS_IKKE),
         /** Saksbehandler har avklart at inntektsmelding ikke er påkrevd for arbeidsforholdet. */
-        AVKLART_IKKE_PÅKREVD(Vurdering.TRENGS_IKKE),
+        IM_AVKLART_IKKE_PÅKREVD(Vurdering.TRENGS_IKKE),
         /** Arbeidsgiveren er ikke blant dem saken krever inntektsmelding fra. */
-        ORGNR_IKKE_PÅKREVD(Vurdering.TRENGS_IKKE),
+        IM_ALDRI_PÅKREVD(Vurdering.TRENGS_IKKE),
         /** Saken har ingen ytelsesbehandling å vurdere kravet mot. */
         INGEN_BEHANDLING(Vurdering.TRENGS_IKKE),
 
         /**
-         * Saksnummeret finnes ikke i fp-sak, eller saken har en annen ytelse enn forespørselen.
+         * Saksnummeret finnes ikke i fp-sak.
          * Dette er en datafeil som skal ses på manuelt, ikke lukkes automatisk.
          */
         SAK_IKKE_FUNNET(Vurdering.UKJENT);
