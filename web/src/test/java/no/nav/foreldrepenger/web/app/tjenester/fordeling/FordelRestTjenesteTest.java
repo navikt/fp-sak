@@ -1,9 +1,11 @@
 package no.nav.foreldrepenger.web.app.tjenester.fordeling;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.time.LocalDate;
@@ -51,7 +53,14 @@ import no.nav.foreldrepenger.mottak.dokumentmottak.SaksbehandlingDokumentmottakT
 import no.nav.foreldrepenger.mottak.vurderfagsystem.VurderFagsystem;
 import no.nav.foreldrepenger.mottak.vurderfagsystem.VurderFagsystemFellesTjeneste;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
+import no.nav.foreldrepenger.web.app.tjenester.fordeling.inntektsmelding.ForespørselStatusRequest;
+import no.nav.foreldrepenger.web.app.tjenester.fordeling.inntektsmelding.ForespørselStatusRequest.Forespørsel;
+import no.nav.foreldrepenger.web.app.tjenester.fordeling.inntektsmelding.ForespørselStatusRequest.YtelseType;
+import no.nav.foreldrepenger.web.app.tjenester.fordeling.inntektsmelding.ForespørselStatusResponse;
+import no.nav.foreldrepenger.web.app.tjenester.fordeling.inntektsmelding.ForespørselStatusResponse.Årsak;
 import no.nav.foreldrepenger.web.app.tjenester.fordeling.inntektsmelding.ForespørselStatusVurderingTjeneste;
+import no.nav.foreldrepenger.web.server.abac.AppAbacAttributtType;
+import no.nav.vedtak.exception.FunksjonellException;
 import no.nav.vedtak.konfig.Tid;
 
 @ExtendWith(MockitoExtension.class)
@@ -59,6 +68,10 @@ import no.nav.vedtak.konfig.Tid;
 class FordelRestTjenesteTest {
 
     private static final AktørId AKTØR_ID_MOR = AktørId.dummy();
+    private static final String FORESPØRSEL_SAKSNUMMER = "1234567890";
+    private static final String ANNET_FORESPØRSEL_SAKSNUMMER = "2234567890";
+    private static final String ORGNR = "999999999";
+    private static final String ANNET_ORGNR = "888888888";
 
     @Mock
     private SaksbehandlingDokumentmottakTjeneste dokumentmottakTjenesteMock;
@@ -365,6 +378,41 @@ class FordelRestTjenesteTest {
         assertThat((List<?>) result.getEntity())
             .extracting(response -> ((FordelRestTjeneste.InfoOmSakInntektsmeldingResponse) response).statusInntektsmelding())
             .containsOnly(FordelRestTjeneste.StatusSakInntektsmelding.ÅPEN_FOR_BEHANDLING);
+    }
+
+    @Test
+    void forespoerselStatus_delegerer_til_vurderingstjenesten_og_returnerer_svaret_uendret() {
+        var request = new ForespørselStatusRequest(
+            List.of(new Forespørsel(FORESPØRSEL_SAKSNUMMER, ORGNR, YtelseType.FORELDREPENGER)));
+        var forventetSvar = List.of(
+            ForespørselStatusResponse.av(FORESPØRSEL_SAKSNUMMER, ORGNR, Årsak.MANGLER_INNTEKTSMELDING));
+        when(forespørselStatusVurderingTjenesteMock.vurder(request)).thenReturn(forventetSvar);
+
+        var svar = fordelRestTjeneste.forespørselStatus(request);
+
+        assertThat(svar).isEqualTo(forventetSvar);
+        verify(forespørselStatusVurderingTjenesteMock).vurder(request);
+    }
+
+    @Test
+    void abac_supplier_legger_til_det_ene_saksnummeret_i_batchen() {
+        var request = new ForespørselStatusRequest(
+            List.of(new Forespørsel(FORESPØRSEL_SAKSNUMMER, ORGNR, YtelseType.FORELDREPENGER),
+                new Forespørsel(FORESPØRSEL_SAKSNUMMER, ANNET_ORGNR, YtelseType.FORELDREPENGER)));
+
+        var abacDataAttributter = new FordelRestTjeneste.ForespørselStatusRequestAbacDataSupplier().apply(request);
+
+        assertThat(abacDataAttributter.getVerdier(AppAbacAttributtType.SAKSNUMMER)).containsExactly(FORESPØRSEL_SAKSNUMMER);
+    }
+
+    @Test
+    void abac_supplier_kaster_funksjonell_exception_ved_flere_ulike_saksnummer_i_batchen() {
+        var request = new ForespørselStatusRequest(
+            List.of(new Forespørsel(FORESPØRSEL_SAKSNUMMER, ORGNR, YtelseType.FORELDREPENGER),
+                new Forespørsel(ANNET_FORESPØRSEL_SAKSNUMMER, ORGNR, YtelseType.FORELDREPENGER)));
+
+        assertThatThrownBy(() -> new FordelRestTjeneste.ForespørselStatusRequestAbacDataSupplier().apply(request))
+            .isInstanceOf(FunksjonellException.class);
     }
 
     private Fagsak opprettFagsak(Long id, Saksnummer saksnummer) {
