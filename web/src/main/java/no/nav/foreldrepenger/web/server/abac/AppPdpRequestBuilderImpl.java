@@ -56,10 +56,9 @@ public class AppPdpRequestBuilderImpl implements PdpRequestBuilder {
             .ifPresent(builder::medBehandlingStatus);
         behandlingData.map(PipBehandlingsData::fagsakStatus).flatMap(AppPdpRequestBuilderImpl::oversettFagstatus)
             .ifPresent(builder::medFagsakStatus);
-        // Logging
-        saksnummer.ifPresent(s -> builder.medLoggSaksnummer(s.getVerdi()));
-        behandlingData.ifPresent(d -> builder.medLoggBehandling(d.behandlingUuid()));
-        behandlingData.ifPresent(d -> builder.medLoggFelt(LoggFelter.BEHANDLING_ID, d.behandlingId().toString()));
+
+        setLoggData(builder, saksnummer, behandlingData);
+
         return builder.build();
 
     }
@@ -86,13 +85,17 @@ public class AppPdpRequestBuilderImpl implements PdpRequestBuilder {
         if (aksjonspunktTypeOverstyring) {
             builder.medOverstyring(PipOverstyring.OVERSTYRING);
         }
-        // Logging
-        saksnummer.ifPresent(s -> builder.medLoggSaksnummer(s.getVerdi()));
-        behandlingData.ifPresent(d -> builder.medLoggBehandling(d.behandlingUuid()));
-        behandlingData.ifPresent(d -> builder.medLoggFelt(LoggFelter.BEHANDLING_ID, d.behandlingId().toString()));
+
+        setLoggData(builder, saksnummer, behandlingData);
 
         return builder.build();
 
+    }
+
+    private static void setLoggData(AppRessursData.Builder builder, Optional<Saksnummer> saksnummer, Optional<PipBehandlingsData> behandlingData) {
+        saksnummer.ifPresent(s -> builder.medLoggSaksnummer(s.getVerdi()));
+        behandlingData.ifPresent(d -> builder.medLoggBehandling(d.behandlingUuid()));
+        behandlingData.ifPresent(d -> builder.medLoggFelt(LoggFelter.BEHANDLING_ID, d.behandlingId().toString()));
     }
 
     private Optional<UUID> utledBehandling(AbacDataAttributter attributter) {
