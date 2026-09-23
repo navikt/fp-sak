@@ -6,7 +6,7 @@
     <parent>
         <groupId>no.nav.foreldrepenger.felles</groupId>
         <artifactId>fp-parent-app</artifactId>
-        <version>5.3.6</version>
+        <version>5.3.7</version>
     </parent>
 
     <groupId>no.nav.foreldrepenger</groupId>
@@ -39,8 +39,8 @@
         <abakus-kontrakt.version>2.4.1</abakus-kontrakt.version>
         <fpkalkulus.kontrakt.version>1.2.1</fpkalkulus.kontrakt.version>
         <!-- generelle verktøy -->
-        <felles.version>7.9.0</felles.version>
-        <prosesstask.version>5.2.7</prosesstask.version>
+        <felles.version>7.9.1</felles.version>
+        <prosesstask.version>5.2.8</prosesstask.version>
         <openapi-spec-utils.version>2.1.0</openapi-spec-utils.version>
         <!-- sonar -->
         <sonar.moduleKey>${project.artifactId}</sonar.moduleKey>
