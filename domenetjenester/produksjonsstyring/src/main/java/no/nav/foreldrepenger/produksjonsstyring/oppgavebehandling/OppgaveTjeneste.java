@@ -6,6 +6,8 @@ import java.util.List;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
+import no.nav.foreldrepenger.behandlingslager.kodeverk.Fagsystem;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -135,7 +137,17 @@ public class OppgaveTjeneste {
     }
 
     public String opprettOppgaveStopUtbetalingAvARENAYtelse(long behandlingId, LocalDate førsteUttaksdato) {
-        var beskrivelse = String.format("Samordning arenaytelse. Vedtak foreldrepenger fra %s", førsteUttaksdato);
+        return opprettOppgaveStopUtbetalingAvAAPDAGYtelse(behandlingId, førsteUttaksdato, Fagsystem.ARENA);
+    }
+
+    public String opprettOppgaveStopUtbetalingAvAAPDAGYtelse(long behandlingId, LocalDate førsteUttaksdato, Fagsystem kilde) {
+        var prefix = switch (kilde) {
+            case ARENA -> "Samordning arenaytelse";
+            case KELVIN -> "Samordning arbeidsavklaringspenger / Kelvin";
+            case DPSAK ->  "Samordning dagpenger / DP-sak";
+            default -> throw new IllegalArgumentException("Ukjent kilde: " + kilde);
+        };
+        var beskrivelse = String.format("%s. Vedtak foreldrepenger fra %s", prefix, førsteUttaksdato);
 
         var behandling = behandlingRepository.hentBehandling(behandlingId);
         return opprettOkonomiSettPåVent(beskrivelse, behandling);

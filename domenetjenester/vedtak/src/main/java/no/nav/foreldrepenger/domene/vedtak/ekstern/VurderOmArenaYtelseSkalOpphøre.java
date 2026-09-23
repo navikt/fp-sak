@@ -65,9 +65,20 @@ public class VurderOmArenaYtelseSkalOpphøre {
         var vedtaksDato = vedtak.getVedtaksdato();
         var startdatoFP = finnFørsteAnvistDatoFP(behandlingId).orElse(skjæringstidspunkt);
 
-        if (vurderArenaYtelserOpphøres(behandlingId, aktørId, startdatoFP, vedtaksDato)) {
+        var senesteInputDato = vedtaksDato.isAfter(startdatoFP) ? vedtaksDato : startdatoFP;
+        var arenaYtelser = hentArenaYtelser(behandlingId, aktørId, senesteInputDato);
+
+        if (vurderYtelserOpphøres(behandlingId, startdatoFP, vedtaksDato, arenaYtelser, Fagsystem.ARENA)) {
             var oppgaveId = oppgaveTjeneste.opprettOppgaveStopUtbetalingAvARENAYtelse(behandlingId, startdatoFP);
-            LOG.info("Oppgave opprettet i GOSYS slik at NØS kan behandle saken videre. Oppgavenummer: {}", oppgaveId);
+            LOG.info("Oppgave opprettet i GOSYS slik at NØS kan behandle saken videre (ARENA). Oppgavenummer: {}", oppgaveId);
+        }
+        if (vurderYtelserOpphøres(behandlingId, startdatoFP, vedtaksDato, arenaYtelser, Fagsystem.KELVIN)) {
+            var oppgaveId = oppgaveTjeneste.opprettOppgaveStopUtbetalingAvAAPDAGYtelse(behandlingId, startdatoFP, Fagsystem.KELVIN);
+            LOG.info("Oppgave opprettet i GOSYS slik at NØS kan behandle saken videre (KELVIN). Oppgavenummer: {}", oppgaveId);
+        }
+        if (vurderYtelserOpphøres(behandlingId, startdatoFP, vedtaksDato, arenaYtelser, Fagsystem.DPSAK)) {
+            var oppgaveId = oppgaveTjeneste.opprettOppgaveStopUtbetalingAvAAPDAGYtelse(behandlingId, startdatoFP, Fagsystem.DPSAK);
+            LOG.info("Oppgave opprettet i GOSYS slik at NØS kan behandle saken videre (DPSAK). Oppgavenummer: {}", oppgaveId);
         }
     }
 
@@ -76,7 +87,7 @@ public class VurderOmArenaYtelseSkalOpphøre {
      * og utbetalt ytelse i ARENA. FPSAK skal benytte lagrede registerdata om meldekortperioder for å vurdere om
      * startdatoen for foreldrepenger overlapper med ytelse i ARENA.
      *
-     * @param behandling         behandling til saken i FP
+     * @param behandlingId         behandling til saken i FP
      * @param førsteAnvistDatoFP første dato for utbetaling
      * @param vedtaksDato        vedtaksdato
      * @return true hvis det finnes en overlappende ytelse i ARENA, ellers false
@@ -85,7 +96,13 @@ public class VurderOmArenaYtelseSkalOpphøre {
         var senesteInputDato = vedtaksDato.isAfter(førsteAnvistDatoFP) ? vedtaksDato : førsteAnvistDatoFP;
         var arenaYtelser = hentArenaYtelser(behandlingId, aktørId, senesteInputDato);
 
+        return vurderYtelserOpphøres(behandlingId, førsteAnvistDatoFP, vedtaksDato, arenaYtelser, Fagsystem.ARENA);
+    }
+
+    boolean vurderYtelserOpphøres(Long behandlingId, LocalDate førsteAnvistDatoFP, LocalDate vedtaksDato,
+                                  Collection<Ytelse> arenaYtelser, Fagsystem kilde) {
         var arenaTimeline = new LocalDateTimeline<>(arenaYtelser.stream()
+            .filter(y -> kilde.equals(y.getKilde()))
             .map(Ytelse::getPeriode)
             .map(p -> new LocalDateSegment<>(p.getFomDato(), p.getTomDato(), Boolean.TRUE))
             .toList(), StandardCombinators::alwaysTrueForMatch);
