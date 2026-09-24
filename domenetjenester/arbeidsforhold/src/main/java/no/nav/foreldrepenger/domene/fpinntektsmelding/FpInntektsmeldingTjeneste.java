@@ -7,6 +7,7 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -17,6 +18,8 @@ import java.util.stream.Collectors;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+
+import no.nav.foreldrepenger.konfig.Environment;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -49,12 +52,13 @@ public class FpInntektsmeldingTjeneste {
     private static final String GRUPPE_ID = "FPIM_TASK_%s";
     private static final int PÅMINNELSE_ETTER_DAGER = 14; // jf. MinSideArbeidsgiverTjeneste.PÅMINNELSE_ETTER_DAGER i fp-inntektsmelding
     private static final DateTimeFormatter DATO_FORMAT = DateTimeFormatter.ofPattern("dd.MM.yyyy");
-    private FpinntektsmeldingKlient klient;
+    private FpInntektsmeldingKlient klient;
     private ProsessTaskTjeneste prosessTaskTjeneste;
     private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
     private HistorikkinnslagRepository historikkRepo;
     private ArbeidsgiverTjeneste arbeidsgiverTjeneste;
     private InntektsmeldingRegisterTjeneste inntektsmeldingRegisterTjeneste;
+    private boolean erToggleForNyInnsendingPå = false;
 
     private static final Logger LOG = LoggerFactory.getLogger(FpInntektsmeldingTjeneste.class);
 
@@ -63,7 +67,7 @@ public class FpInntektsmeldingTjeneste {
     }
 
     @Inject
-    public FpInntektsmeldingTjeneste(FpinntektsmeldingKlient klient,
+    public FpInntektsmeldingTjeneste(FpInntektsmeldingKlient klient,
                                      ProsessTaskTjeneste prosessTaskTjeneste,
                                      SkjæringstidspunktTjeneste skjæringstidspunktTjeneste,
                                      HistorikkinnslagRepository historikkRepo,
@@ -75,6 +79,8 @@ public class FpInntektsmeldingTjeneste {
         this.historikkRepo = historikkRepo;
         this.arbeidsgiverTjeneste = arbeidsgiverTjeneste;
         this.inntektsmeldingRegisterTjeneste = inntektsmeldingRegisterTjeneste;
+        // Hvis toggle er på vil det gi hyppigere bestillinger og oppdateringer av første uttaksdato for arbeidsgiver
+        this.erToggleForNyInnsendingPå = !Environment.current().isProd();
     }
 
     public void lagTaskForespørAlleInntektsmeldinger(BehandlingReferanse ref) {
@@ -85,12 +91,16 @@ public class FpInntektsmeldingTjeneste {
         lagTask(ref, orgnummer);
     }
 
+    public boolean erToggleForNyInnsendingPå() {
+        return erToggleForNyInnsendingPå;
+    }
+
     //Denne brukes av opprettForespørsel i ForvaltningBehandlingRestTjeneste dersom det av en eller annen grunn ikke er opprettet
     //forespørsel på en behandling. I disse tilfellene kan im allerede være mottatt (før altinn2 ble stengt).
     // Det er ikke et vanlig case og koden bør ikke brukes i andre tilfeller
     public void lagTaskForespørOgLukkBestemtInntektsmelding(Behandling behandling, String orgnummer) {
-        var forespørselTask = ProsessTaskData.forTaskType(TaskType.forProsessTask(FpinntektsmeldingTask.class));
-        forespørselTask.setProperty(FpinntektsmeldingTask.ORGNUMMER, orgnummer);
+        var forespørselTask = ProsessTaskData.forTaskType(TaskType.forProsessTask(FpInntektsmeldingTask.class));
+        forespørselTask.setProperty(FpInntektsmeldingTask.ORGNUMMER, orgnummer);
 
         var lukkTask = ProsessTaskData.forTaskType(TaskType.forProsessTask(LukkForespørslerImTask.class));
         lukkTask.setProperty(LukkForespørslerImTask.ORG_NUMMER, orgnummer);
@@ -105,10 +115,10 @@ public class FpInntektsmeldingTjeneste {
     }
 
     private void lagTask(BehandlingReferanse ref, String orgnummer) {
-        var taskdata = ProsessTaskData.forTaskType(TaskType.forProsessTask(FpinntektsmeldingTask.class));
+        var taskdata = ProsessTaskData.forTaskType(TaskType.forProsessTask(FpInntektsmeldingTask.class));
         taskdata.setBehandling(ref.saksnummer().getVerdi(), ref.fagsakId(), ref.behandlingId());
         if (orgnummer != null) {
-            taskdata.setProperty(FpinntektsmeldingTask.ORGNUMMER, orgnummer);
+            taskdata.setProperty(FpInntektsmeldingTask.ORGNUMMER, orgnummer);
         }
         var gruppeId = String.format(GRUPPE_ID, ref.saksnummer().getVerdi());
         taskdata.setGruppe(gruppeId);
@@ -174,33 +184,58 @@ public class FpInntektsmeldingTjeneste {
         var førsteUttaksdato = stp.getFørsteUttaksdato();
         var agDto = new OrganisasjonsnummerDto(arbeidsgiver.getOrgnr());
 
-        var request = new OpprettForespørselRequest(new OpprettForespørselRequest.AktørIdDto(ref.aktørId().getId()), null, skjæringstidspunkt,
-            mapYtelsetype(ref.fagsakYtelseType()), new SaksnummerDto(ref.saksnummer().getVerdi()), førsteUttaksdato,
-            List.of(agDto));
+        if (erToggleForNyInnsendingPå) {
+            // Togglet på i dev: Nytt endepunkt som aksepterer og forventer kun ett orgnr
+            var request = new OpprettEnForespørselRequest(new AktørIdDto(ref.aktørId().getId()), skjæringstidspunkt,
+                mapYtelsetype(ref.fagsakYtelseType()), new SaksnummerDto(ref.saksnummer().getVerdi()), førsteUttaksdato, agDto);
+            sendEnkeltRequest(ref, request);
+        } else {
+            var request = new OpprettForespørselRequest(new AktørIdDto(ref.aktørId().getId()), null, skjæringstidspunkt,
+                mapYtelsetype(ref.fagsakYtelseType()), new SaksnummerDto(ref.saksnummer().getVerdi()), førsteUttaksdato,
+                List.of(agDto));
 
-        sendRequest(ref, request);
+            sendRequest(ref, request);
+        }
     }
 
     public void lagForespørselForAlleArbeidsgivere(BehandlingReferanse ref, Skjæringstidspunkt stp) {
-        var arbeidsgivereViManglerInntektsmeldingFra = inntektsmeldingRegisterTjeneste.utledManglendeInntektsmeldingerFraGrunnlag(ref, stp)
-            .keySet()
-            .stream()
-            .filter(arbeidsgiver -> OrganisasjonsNummerValidator.erGyldig(arbeidsgiver.getOrgnr()))
-            .map(arbeidsgiver -> new OrganisasjonsnummerDto(arbeidsgiver.getOrgnr()))
-            .toList();
-        if (arbeidsgivereViManglerInntektsmeldingFra.isEmpty()) {
-            LOG.info("FpInntektsmeldingTjeneste:lagForespørsel: Ingen inntektsmeldinger mangler for sak {} og behandlingId {}", ref.saksnummer(),
-                ref.behandlingId());
-            return;
-        }
         var skjæringstidspunkt = stp.getUtledetSkjæringstidspunkt();
         var førsteUttaksdato = stp.getFørsteUttaksdato();
 
-        var request = new OpprettForespørselRequest(new OpprettForespørselRequest.AktørIdDto(ref.aktørId().getId()), null, skjæringstidspunkt,
-            mapYtelsetype(ref.fagsakYtelseType()), new SaksnummerDto(ref.saksnummer().getVerdi()), førsteUttaksdato,
-            arbeidsgivereViManglerInntektsmeldingFra);
-
-        sendRequest(ref, request);
+        if (erToggleForNyInnsendingPå) {
+            // Togglet på i dev: Ny innsending som alltid sender komplett liste over forespørsler, også de som er mottatte
+            var arbeidsgivereViManglerInntektsmeldingFra = inntektsmeldingRegisterTjeneste.utledAllePåKrevdeInntektsmeldinger(ref, stp)
+                .keySet()
+                .stream()
+                .filter(arbeidsgiver -> OrganisasjonsNummerValidator.erGyldig(arbeidsgiver.getOrgnr()))
+                .map(arbeidsgiver -> new OrganisasjonsnummerDto(arbeidsgiver.getOrgnr()))
+                .toList();
+            if (arbeidsgivereViManglerInntektsmeldingFra.isEmpty()) {
+                LOG.info("FpInntektsmeldingTjeneste:lagForespørsel: Ingen inntektsmeldinger mangler for sak {} og behandlingId {}", ref.saksnummer(),
+                    ref.behandlingId());
+                return;
+            }
+            var request = new OpprettKomplettForespørslerRequest(new AktørIdDto(ref.aktørId().getId()), skjæringstidspunkt,
+                mapYtelsetype(ref.fagsakYtelseType()), new SaksnummerDto(ref.saksnummer().getVerdi()), førsteUttaksdato,
+                arbeidsgivereViManglerInntektsmeldingFra);
+            sendKomplettRequest(ref, request);
+        } else {
+            var arbeidsgivereViManglerInntektsmeldingFra = inntektsmeldingRegisterTjeneste.utledManglendeInntektsmeldingerFraGrunnlag(ref, stp)
+                .keySet()
+                .stream()
+                .filter(arbeidsgiver -> OrganisasjonsNummerValidator.erGyldig(arbeidsgiver.getOrgnr()))
+                .map(arbeidsgiver -> new OrganisasjonsnummerDto(arbeidsgiver.getOrgnr()))
+                .toList();
+            if (arbeidsgivereViManglerInntektsmeldingFra.isEmpty()) {
+                LOG.info("FpInntektsmeldingTjeneste:lagForespørsel: Ingen inntektsmeldinger mangler for sak {} og behandlingId {}", ref.saksnummer(),
+                    ref.behandlingId());
+                return;
+            }
+            var request = new OpprettForespørselRequest(new AktørIdDto(ref.aktørId().getId()), null, skjæringstidspunkt,
+                mapYtelsetype(ref.fagsakYtelseType()), new SaksnummerDto(ref.saksnummer().getVerdi()), førsteUttaksdato,
+                arbeidsgivereViManglerInntektsmeldingFra);
+            sendRequest(ref, request);
+        }
     }
 
     private void sendRequest(BehandlingReferanse ref,
@@ -214,7 +249,7 @@ public class FpInntektsmeldingTjeneste {
         var arbeidsgivereMedNyForespørsel = new ArrayList<String>();
         opprettForespørselResponseNy.organisasjonsnumreMedStatus().forEach(organisasjonsnummerMedStatus -> {
             var orgnr = organisasjonsnummerMedStatus.organisasjonsnummerDto().orgnr();
-            if (organisasjonsnummerMedStatus.status().equals(OpprettForespørselResponsNy.ForespørselResultat.FORESPØRSEL_OPPRETTET)) {
+            if (organisasjonsnummerMedStatus.status().equals(OpprettForespørselRespons.ForespørselResultat.FORESPØRSEL_OPPRETTET)) {
                 arbeidsgivereMedNyForespørsel.add(hentArbeidsgivernavn(orgnr));
             } else {
                 if (LOG.isInfoEnabled()) {
@@ -224,34 +259,85 @@ public class FpInntektsmeldingTjeneste {
             }
         });
         if (!arbeidsgivereMedNyForespørsel.isEmpty()) {
-            lagHistorikkForForespørsel(ref, arbeidsgivereMedNyForespørsel, request.førsteUttaksdato());
+            lagHistorikkForForespørsel(ref, arbeidsgivereMedNyForespørsel, List.of(), request.førsteUttaksdato());
         }
     }
 
-    private void lagHistorikkForForespørsel(BehandlingReferanse ref, List<String> arbeidsgivernavn, LocalDate førsteUttaksdato) {
+    private void sendEnkeltRequest(BehandlingReferanse ref,
+                             OpprettEnForespørselRequest request) {
+        LOG.info(
+            "Sender kall til fpinntektsmelding om å opprette forespørsel for saksnummer {} med skjæringstidspunkt {} for følgende organisasjonsnumre: {}",
+            ref.saksnummer(), request.skjæringstidspunkt(), request.orgnummer());
+
+        var statusResponse = klient.opprettSpesifikkForespørsel(request);
+
+        opprettHistorikkInnslagOmNødvendig(ref, request.skjæringstidspunkt(), request.førsteUttaksdato(), List.of(statusResponse));
+    }
+
+    private void sendKomplettRequest(BehandlingReferanse ref,
+                             OpprettKomplettForespørslerRequest request) {
+        LOG.info(
+            "Sender kall til fpinntektsmelding om å opprette forespørsel for saksnummer {} med skjæringstidspunkt {} for følgende organisasjonsnumre: {}",
+            ref.saksnummer(), request.skjæringstidspunkt(), request.organisasjonsnummer());
+
+        var opprettForespørselResponse = klient.opprettForespørselKomplett(request);
+
+        opprettHistorikkInnslagOmNødvendig(ref, request.skjæringstidspunkt(), request.førsteUttaksdato(), opprettForespørselResponse.organisasjonsnumreMedStatus());
+    }
+
+    private void opprettHistorikkInnslagOmNødvendig(BehandlingReferanse ref, LocalDate skjæringstidspunkt, LocalDate førsteUttaksdato,
+                                                    List<OpprettForespørselRespons.OrganisasjonsnummerMedStatus> organisasjonsnummerMedStatuses) {
+        var arbeidsgivereMedNyForespørsel = new ArrayList<String>();
+        var arbeidsgivereMedEndretForespørsel = new ArrayList<String>();
+        organisasjonsnummerMedStatuses.forEach(organisasjonsnummerMedStatus -> {
+            var orgnr = organisasjonsnummerMedStatus.organisasjonsnummerDto().orgnr();
+            if (organisasjonsnummerMedStatus.status().equals(OpprettForespørselRespons.ForespørselResultat.FORESPØRSEL_OPPRETTET)) {
+                arbeidsgivereMedNyForespørsel.add(hentArbeidsgivernavn(orgnr));
+            } else if (organisasjonsnummerMedStatus.status().equals(OpprettForespørselRespons.ForespørselResultat.FORESPØRSEL_ENDRET)) {
+                arbeidsgivereMedEndretForespørsel.add(hentArbeidsgivernavn(orgnr));
+            } else {
+                LOG.info("Fpinntektsmelding opprettet ikke forespørsel på saksnummer: {} og orgnummer: {} på stp: {} og første uttaksdato: {}. Grunnen var: {}",
+                    ref.saksnummer(), tilMaskertNummer(orgnr), skjæringstidspunkt, førsteUttaksdato, organisasjonsnummerMedStatus.status());
+            }
+        });
+        if (!arbeidsgivereMedNyForespørsel.isEmpty() || !arbeidsgivereMedEndretForespørsel.isEmpty()) {
+            lagHistorikkForForespørsel(ref, arbeidsgivereMedNyForespørsel, arbeidsgivereMedEndretForespørsel, førsteUttaksdato);
+        }
+    }
+
+
+    private void lagHistorikkForForespørsel(BehandlingReferanse ref, List<String> arbeidsgivereMedNyForespørsel,
+                                            List<String> arbeidsgivereMedEndretForespørsel,LocalDate førsteUttaksdato) {
         var ytelse = ref.fagsakYtelseType().getNavn().toLowerCase(Locale.ROOT);
-        var oppsummeringTekst = String.format(
-            "Arbeidsgiver er informert om at startdato for %s er %s. Påminnelse sendes automatisk til arbeidsgiver dersom inntektsmelding ikke er mottatt innen %d dager.",
-            ytelse, førsteUttaksdato.format(DATO_FORMAT), PÅMINNELSE_ETTER_DAGER);
         var builder = new Historikkinnslag.Builder()
             .medAktør(HistorikkAktør.VEDTAKSLØSNINGEN)
             .medTittel("Forespørsel om inntektsmelding")
             .medBehandlingId(ref.behandlingId())
             .medFagsakId(ref.fagsakId());
-        arbeidsgivernavn.forEach(builder::addLinje);
-        var historikkinnslag = builder
+        var historikkinnslagBuilder = builder
             .addLinje("Varslet på Min side - arbeidsgiver og Altinn innboks.")
-            .addLinje(HistorikkinnslagLinjeBuilder.LINJESKIFT)
-            .addLinje(oppsummeringTekst)
-            .build();
-
-        historikkRepo.lagre(historikkinnslag);
+            .addLinje(HistorikkinnslagLinjeBuilder.LINJESKIFT);
+        if (!arbeidsgivereMedNyForespørsel.isEmpty()) {
+            var oppsummeringTekst = String.format(
+                "Arbeidsgiver er informert om at startdato for %s er %s. Påminnelse sendes automatisk til arbeidsgiver dersom inntektsmelding ikke er mottatt innen %d dager.",
+                ytelse, førsteUttaksdato.format(DATO_FORMAT), PÅMINNELSE_ETTER_DAGER);
+            arbeidsgivereMedNyForespørsel.forEach(builder::addLinje);
+            historikkinnslagBuilder.addLinje(oppsummeringTekst);
+        }
+        if (!arbeidsgivereMedEndretForespørsel.isEmpty()) {
+            var oppsummeringTekst = String.format(
+                "Arbeidsgiver er informert om at ny startdato for %s er %s.",
+                ytelse, førsteUttaksdato.format(DATO_FORMAT), PÅMINNELSE_ETTER_DAGER);
+            arbeidsgivereMedEndretForespørsel.forEach(builder::addLinje);
+            historikkinnslagBuilder.addLinje(oppsummeringTekst);
+        }
+        historikkRepo.lagre(historikkinnslagBuilder.build());
     }
 
-    private OpprettForespørselRequest.YtelseType mapYtelsetype(FagsakYtelseType fagsakYtelseType) {
+    private FpInntektsmeldingYtelse mapYtelsetype(FagsakYtelseType fagsakYtelseType) {
         return switch (fagsakYtelseType) {
-            case FORELDREPENGER -> OpprettForespørselRequest.YtelseType.FORELDREPENGER;
-            case SVANGERSKAPSPENGER -> OpprettForespørselRequest.YtelseType.SVANGERSKAPSPENGER;
+            case FORELDREPENGER -> FpInntektsmeldingYtelse.FORELDREPENGER;
+            case SVANGERSKAPSPENGER -> FpInntektsmeldingYtelse.SVANGERSKAPSPENGER;
             case UDEFINERT, ENGANGSTØNAD -> throw new IllegalArgumentException("Kan ikke opprette forespørsel for ytelsetype " + fagsakYtelseType);
         };
     }
