@@ -6,8 +6,6 @@ import java.util.List;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
-import no.nav.foreldrepenger.behandlingslager.kodeverk.Fagsystem;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -15,6 +13,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingTema;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
+import no.nav.foreldrepenger.behandlingslager.kodeverk.Fagsystem;
 import no.nav.foreldrepenger.domene.person.PersoninfoAdapter;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.PersonIdent;
@@ -134,10 +133,6 @@ public class OppgaveTjeneste {
             .medTildeltEnhetsnr(OMS_ANSVARLIG_ENHETID);
         var oppgave = restKlient.opprettetOppgave(orequest.build());
         LOG.info("FPSAK GOSYS opprettet OMS oppgave {}", oppgave.id());
-    }
-
-    public String opprettOppgaveStopUtbetalingAvARENAYtelse(long behandlingId, LocalDate førsteUttaksdato) {
-        return opprettOppgaveStopUtbetalingAvAAPDAGYtelse(behandlingId, førsteUttaksdato, Fagsystem.ARENA);
     }
 
     public String opprettOppgaveStopUtbetalingAvAAPDAGYtelse(long behandlingId, LocalDate førsteUttaksdato, Fagsystem kilde) {

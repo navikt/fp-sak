@@ -24,28 +24,28 @@ import no.nav.vedtak.konfig.Tid;
 @ApplicationScoped
 @ProsessTask(value = "iverksetteVedtak.oppgaveArena", prioritet = 2)
 @FagsakProsesstaskRekkefølge(gruppeSekvens = false)
-public class VurderOppgaveArenaTask extends GenerellProsessTask {
+public class VurderOppgaveAapDagpengerTask extends GenerellProsessTask {
 
-    private static final Logger LOG = LoggerFactory.getLogger(VurderOppgaveArenaTask.class);
+    private static final Logger LOG = LoggerFactory.getLogger(VurderOppgaveAapDagpengerTask.class);
 
-    private VurderOmArenaYtelseSkalOpphøre vurdereOmArenaYtelseSkalOpphøre;
+    private VurderOmAapDagSkalOpphøre vurderOmAapDagSkalOpphøre;
 
     private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
     private BehandlingRepository behandlingRepository;
     private BeregningsresultatRepository beregningsresultatRepository;
 
-    VurderOppgaveArenaTask() {
+    VurderOppgaveAapDagpengerTask() {
         // for CDI proxy
     }
 
     @Inject
-    public VurderOppgaveArenaTask(VurderOmArenaYtelseSkalOpphøre vurdereOmArenaYtelseSkalOpphøre,
-                                  SkjæringstidspunktTjeneste skjæringstidspunktTjeneste,
-                                  BehandlingRepository behandlingRepository,
-                                  BeregningsresultatRepository beregningsresultatRepository) {
+    public VurderOppgaveAapDagpengerTask(VurderOmAapDagSkalOpphøre vurderOmAapDagSkalOpphøre,
+                                         SkjæringstidspunktTjeneste skjæringstidspunktTjeneste,
+                                         BehandlingRepository behandlingRepository,
+                                         BeregningsresultatRepository beregningsresultatRepository) {
         super();
         this.skjæringstidspunktTjeneste = skjæringstidspunktTjeneste;
-        this.vurdereOmArenaYtelseSkalOpphøre = vurdereOmArenaYtelseSkalOpphøre;
+        this.vurderOmAapDagSkalOpphøre = vurderOmAapDagSkalOpphøre;
         this.behandlingRepository = behandlingRepository;
         this.beregningsresultatRepository = beregningsresultatRepository;
     }
@@ -64,8 +64,8 @@ public class VurderOppgaveArenaTask extends GenerellProsessTask {
         }
         var aktørId = behandling.getAktørId();
         var skjæringstidspunkt = skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandlingId).getUtledetSkjæringstidspunkt();
-        vurdereOmArenaYtelseSkalOpphøre.opprettOppgaveHvisArenaytelseSkalOpphøre(behandlingId, aktørId, skjæringstidspunkt);
-        LOG.info("VurderOppgaveArenaTask: Vurderer for behandling: {}", behandlingId);
+        vurderOmAapDagSkalOpphøre.opprettOppgaveHvisAapDagpengerSkalOpphøre(behandlingId, aktørId, skjæringstidspunkt);
+        LOG.info("VurderOppgaveAapDagpengerTask: Vurderer for behandling: {}", behandlingId);
     }
 
     private LocalDate getTidligsteFomDatoMedUtbetaling(Long behandlingId) {

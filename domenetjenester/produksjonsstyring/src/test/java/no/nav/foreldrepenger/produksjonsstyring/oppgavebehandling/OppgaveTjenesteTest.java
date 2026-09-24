@@ -13,6 +13,8 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
+import no.nav.foreldrepenger.behandlingslager.kodeverk.Fagsystem;
+
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -116,7 +118,7 @@ class OppgaveTjenesteTest {
     }
 
     @Test
-    void opprettOppgaveStopUtbetalingAvARENAYtelse() {
+    void opprettOppgaveStopUtbetalingAvAAPDAGYtelse() {
         var scenario = lagScenario();
         var behandling = lagBehandling(scenario);
         var tjeneste = lagTjeneste(scenario);
@@ -126,7 +128,7 @@ class OppgaveTjenesteTest {
         when(oppgaveRestKlient.opprettetOppgave(captor.capture())).thenReturn(OPPGAVE);
 
         var førsteAugust = LocalDate.of(2019, 8, 1);
-        var oppgaveId = tjeneste.opprettOppgaveStopUtbetalingAvARENAYtelse(behandling.getId(), førsteAugust);
+        var oppgaveId = tjeneste.opprettOppgaveStopUtbetalingAvAAPDAGYtelse(behandling.getId(), førsteAugust, Fagsystem.ARENA);
 
         var request = captor.getValue();
         assertThat(request.saksreferanse()).isEqualTo(behandling.getSaksnummer().getVerdi());

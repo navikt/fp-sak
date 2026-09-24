@@ -46,7 +46,7 @@ import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 
-class VurderOmArenaYtelseSkalOpphøreTest extends EntityManagerAwareTest {
+class VurderOmAapDagSkalOpphøreTest extends EntityManagerAwareTest {
 
     private BehandlingRepositoryProvider repositoryProvider;
     private BehandlingRepository behandlingRepository;
@@ -61,7 +61,7 @@ class VurderOmArenaYtelseSkalOpphøreTest extends EntityManagerAwareTest {
 
     private final ScenarioMorSøkerForeldrepenger scenario = ScenarioMorSøkerForeldrepenger.forFødselMedGittAktørId(AKTØR_ID);
     private InntektArbeidYtelseTjeneste iayTjeneste;
-    private VurderOmArenaYtelseSkalOpphøre vurdereOmArenaYtelseSkalOpphør;
+    private VurderOmAapDagSkalOpphøre vurdereOmArenaYtelseSkalOpphør;
 
     private Behandling behandling;
 
@@ -80,7 +80,7 @@ class VurderOmArenaYtelseSkalOpphøreTest extends EntityManagerAwareTest {
         this.entityManager = entityManager;
         beregningsresultatRepository = new BeregningsresultatRepository(entityManager);
         iayTjeneste = new AbakusInMemoryInntektArbeidYtelseTjeneste();
-        vurdereOmArenaYtelseSkalOpphør = new VurderOmArenaYtelseSkalOpphøre(
+        vurdereOmArenaYtelseSkalOpphør = new VurderOmAapDagSkalOpphøre(
             beregningsresultatRepository,
             iayTjeneste, behandlingVedtakRepository, null);
     }
