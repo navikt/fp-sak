@@ -19,8 +19,8 @@ import no.nav.vedtak.felles.integrasjon.rest.TokenFlow;
 
 @Dependent
 @RestClientConfig(tokenConfig = TokenFlow.ADAPTIVE, application = FpApplication.FPINNTEKTSMELDING)
-public class FpinntektsmeldingKlient {
-    private static final Logger LOG = LoggerFactory.getLogger(FpinntektsmeldingKlient.class);
+public class FpInntektsmeldingKlient {
+    private static final Logger LOG = LoggerFactory.getLogger(FpInntektsmeldingKlient.class);
 
     private static final String REQUEST = "request";
 
@@ -35,9 +35,9 @@ public class FpinntektsmeldingKlient {
     private final URI uriSendNyBeskjedPåForespørsel;
 
 
-    public FpinntektsmeldingKlient() {
+    public FpInntektsmeldingKlient() {
         this.restClient = RestClient.client();
-        this.restConfig = RestConfig.forClient(FpinntektsmeldingKlient.class);
+        this.restConfig = RestConfig.forClient(FpInntektsmeldingKlient.class);
         this.uriOpprettForesporsel = toUri(restConfig.fpContextPath(), "/api/foresporsel/opprett");
         this.uriOpprettForesporselKomplett = toUri(restConfig.fpContextPath(), "/api/foresporsel/opprett-komplett");
         this.uriOpprettSpesifikkForesporsel = toUri(restConfig.fpContextPath(), "/api/foresporsel/opprett-en");

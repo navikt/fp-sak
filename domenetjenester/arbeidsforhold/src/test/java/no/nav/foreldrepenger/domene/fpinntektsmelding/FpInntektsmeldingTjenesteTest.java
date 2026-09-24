@@ -60,7 +60,7 @@ import no.nav.vedtak.mapper.json.DefaultJsonMapper;
 class FpInntektsmeldingTjenesteTest {
 
     @Mock
-    private FpinntektsmeldingKlient klient;
+    private FpInntektsmeldingKlient klient;
     @Mock
     private ProsessTaskTjeneste taskTjeneste;
     @Mock
@@ -234,10 +234,10 @@ class FpInntektsmeldingTjenesteTest {
         var organisasjonsnumre = List.of(new OrganisasjonsnummerDto(virksomhet.getOrgnr()));
         if (prod) {
             verify(klient).opprettForespørsel(new OpprettForespørselRequest(new AktørIdDto(behandlingRef.aktørId().getId()), null, stp,
-                FpinntektsmeldingYtelse.FORELDREPENGER, new SaksnummerDto("1234"), stp, organisasjonsnumre));
+                FpInntektsmeldingYtelse.FORELDREPENGER, new SaksnummerDto("1234"), stp, organisasjonsnumre));
         } else {
             verify(klient).opprettForespørselKomplett(new OpprettKomplettForespørslerRequest(new AktørIdDto(behandlingRef.aktørId().getId()),
-                stp, FpinntektsmeldingYtelse.FORELDREPENGER, new SaksnummerDto("1234"), stp, organisasjonsnumre));
+                stp, FpInntektsmeldingYtelse.FORELDREPENGER, new SaksnummerDto("1234"), stp, organisasjonsnumre));
         }
         verifyNoMoreInteractions(klient);
         var captor = ArgumentCaptor.forClass(Historikkinnslag.class);
@@ -274,10 +274,10 @@ class FpInntektsmeldingTjenesteTest {
         var organisasjonsnummer = new OrganisasjonsnummerDto(virksomhet.getOrgnr());
         if (prod) {
             verify(klient).opprettForespørsel(new OpprettForespørselRequest(new AktørIdDto(behandlingRef.aktørId().getId()), null, stp,
-                FpinntektsmeldingYtelse.FORELDREPENGER, new SaksnummerDto("1234"), stp, List.of(organisasjonsnummer)));
+                FpInntektsmeldingYtelse.FORELDREPENGER, new SaksnummerDto("1234"), stp, List.of(organisasjonsnummer)));
         } else {
-            verify(klient).opprettSpesifikkForespørsel(new OpprettEnForespørselRequest(new AktørIdDto(behandlingRef.aktørId().getId()),
-                organisasjonsnummer, stp, FpinntektsmeldingYtelse.FORELDREPENGER, new SaksnummerDto("1234"), stp));
+            verify(klient).opprettSpesifikkForespørsel(new OpprettEnForespørselRequest(new AktørIdDto(behandlingRef.aktørId().getId()), stp,
+                FpInntektsmeldingYtelse.FORELDREPENGER, new SaksnummerDto("1234"), stp, organisasjonsnummer));
         }
         verifyNoMoreInteractions(klient);
         verify(historikkRepository).lagre(any());
@@ -311,6 +311,75 @@ class FpInntektsmeldingTjenesteTest {
         assertThat(tekstLinjer).contains("Testbedrift (999999999).", "Testbedrift 2 (123456789).");
     }
 
+    @Test
+    void skal_opprette_historikkinnslag_når_forespørsel_for_enkelt_arbeidsgiver_ble_endret() {
+        // Arrange
+        var stp = LocalDate.of(2024, 9, 1);
+        var førsteUttaksdato = stp.plusDays(1);
+        var virksomhet = Arbeidsgiver.virksomhet("999999999");
+        var behandlingRef = new BehandlingReferanse(new Saksnummer("1234"), 1234L, FagsakYtelseType.FORELDREPENGER, 4321L, UUID.randomUUID(),
+            BehandlingStatus.UTREDES, BehandlingType.FØRSTEGANGSSØKNAD, 5432L, new AktørId("9999999999999"), RelasjonsRolleType.MORA);
+        var skjæringstidspunkt = Skjæringstidspunkt.builder()
+            .medUtledetSkjæringstidspunkt(stp)
+            .medFørsteUttaksdato(førsteUttaksdato)
+            .build();
+        var respons = new OpprettForespørselRespons.OrganisasjonsnummerMedStatus(new OrganisasjonsnummerDto(virksomhet.getOrgnr()),
+            OpprettForespørselRespons.ForespørselResultat.FORESPØRSEL_ENDRET);
+        when(klient.opprettSpesifikkForespørsel(any())).thenReturn(respons);
+        when(arbeidsgiverTjeneste.hentVirksomhet(virksomhet.getIdentifikator()))
+            .thenReturn(Virksomhet.getBuilder().medOrgnr(virksomhet.getIdentifikator()).medNavn("Testbedrift").build());
+
+        // Act
+        kjørIMiljø(false, () -> fpInntektsmeldingTjeneste.lagForespørselForBestemtArbeidsgiver(behandlingRef, skjæringstidspunkt, virksomhet));
+
+        // Assert
+        var captor = ArgumentCaptor.forClass(Historikkinnslag.class);
+        verify(historikkRepository).lagre(captor.capture());
+        assertThat(captor.getValue().getTekstLinjer())
+            .contains("Testbedrift (999999999).", "Arbeidsgiver er informert om at ny startdato for foreldrepenger er 02.09.2024.")
+            .noneMatch(linje -> linje != null && linje.contains("Påminnelse sendes automatisk"));
+    }
+
+    @Test
+    void skal_opprette_historikkinnslag_for_både_ny_og_endret_forespørsel() {
+        // Arrange
+        var stp = LocalDate.of(2024, 9, 1);
+        var førsteUttaksdato = stp.plusDays(1);
+        var virksomhet = Arbeidsgiver.virksomhet("999999999");
+        var virksomhet2 = Arbeidsgiver.virksomhet("123456789");
+        var behandlingRef = new BehandlingReferanse(new Saksnummer("1234"), 1234L, FagsakYtelseType.FORELDREPENGER, 4321L, UUID.randomUUID(),
+            BehandlingStatus.UTREDES, BehandlingType.FØRSTEGANGSSØKNAD, 5432L, new AktørId("9999999999999"), RelasjonsRolleType.MORA);
+        var skjæringstidspunkt = Skjæringstidspunkt.builder()
+            .medUtledetSkjæringstidspunkt(stp)
+            .medFørsteUttaksdato(førsteUttaksdato)
+            .build();
+        var respons = new OpprettForespørselRespons(List.of(
+            new OpprettForespørselRespons.OrganisasjonsnummerMedStatus(new OrganisasjonsnummerDto(virksomhet.getOrgnr()),
+                OpprettForespørselRespons.ForespørselResultat.FORESPØRSEL_OPPRETTET),
+            new OpprettForespørselRespons.OrganisasjonsnummerMedStatus(new OrganisasjonsnummerDto(virksomhet2.getOrgnr()),
+                OpprettForespørselRespons.ForespørselResultat.FORESPØRSEL_ENDRET)));
+        var arbeidsgivere = Map.of(
+            virksomhet, Set.of(InternArbeidsforholdRef.nullRef()),
+            virksomhet2, Set.of(InternArbeidsforholdRef.nullRef()));
+        mockAlleForespørsler(false, behandlingRef, skjæringstidspunkt, arbeidsgivere, respons);
+        when(arbeidsgiverTjeneste.hentVirksomhet(virksomhet.getIdentifikator()))
+            .thenReturn(Virksomhet.getBuilder().medOrgnr(virksomhet.getIdentifikator()).medNavn("Testbedrift").build());
+        when(arbeidsgiverTjeneste.hentVirksomhet(virksomhet2.getIdentifikator()))
+            .thenReturn(Virksomhet.getBuilder().medOrgnr(virksomhet2.getIdentifikator()).medNavn("Testbedrift 2").build());
+
+        // Act
+        kjørIMiljø(false, () -> fpInntektsmeldingTjeneste.lagForespørselForAlleArbeidsgivere(behandlingRef, skjæringstidspunkt));
+
+        // Assert
+        var captor = ArgumentCaptor.forClass(Historikkinnslag.class);
+        verify(historikkRepository).lagre(captor.capture());
+        assertThat(captor.getValue().getTekstLinjer()).contains(
+            "Testbedrift (999999999).",
+            "Arbeidsgiver er informert om at startdato for foreldrepenger er 02.09.2024. Påminnelse sendes automatisk til arbeidsgiver dersom inntektsmelding ikke er mottatt innen 14 dager.",
+            "Testbedrift 2 (123456789).",
+            "Arbeidsgiver er informert om at ny startdato for foreldrepenger er 02.09.2024.");
+    }
+
     @ParameterizedTest
     @ValueSource(booleans = {true, false})
     void skal_ikke_opprettet_historikk_når_ny_oppgave_ikke_ble_opprettet(boolean prod) {
@@ -334,7 +403,7 @@ class FpInntektsmeldingTjenesteTest {
     @Test
     void skal_serialisere_komplett_forespørsel_med_organisasjonsnummer() {
         var request = new OpprettKomplettForespørslerRequest(new AktørIdDto("9999999999999"), LocalDate.of(2024, 9, 1),
-            FpinntektsmeldingYtelse.FORELDREPENGER, new SaksnummerDto("1234"), LocalDate.of(2024, 9, 5),
+            FpInntektsmeldingYtelse.FORELDREPENGER, new SaksnummerDto("1234"), LocalDate.of(2024, 9, 5),
             List.of(new OrganisasjonsnummerDto("999999999"), new OrganisasjonsnummerDto("123456789")));
 
         var json = DefaultJsonMapper.treeFromJson(DefaultJsonMapper.toJson(request));
@@ -353,8 +422,8 @@ class FpInntektsmeldingTjenesteTest {
 
     @Test
     void skal_serialisere_enkeltforespørsel_med_orgnummer() {
-        var request = new OpprettEnForespørselRequest(new AktørIdDto("9999999999999"), new OrganisasjonsnummerDto("999999999"),
-            LocalDate.of(2024, 9, 1), FpinntektsmeldingYtelse.FORELDREPENGER, new SaksnummerDto("1234"), LocalDate.of(2024, 9, 5));
+        var request = new OpprettEnForespørselRequest(new AktørIdDto("9999999999999"), LocalDate.of(2024, 9, 1),
+            FpInntektsmeldingYtelse.FORELDREPENGER, new SaksnummerDto("1234"), LocalDate.of(2024, 9, 5), new OrganisasjonsnummerDto("999999999"));
 
         var json = DefaultJsonMapper.treeFromJson(DefaultJsonMapper.toJson(request));
 
@@ -373,7 +442,7 @@ class FpInntektsmeldingTjenesteTest {
     @Test
     void skal_beholde_organisasjonsnumre_i_gammelt_endepunkt() {
         var request = new OpprettForespørselRequest(new AktørIdDto("9999999999999"), null, LocalDate.of(2024, 9, 1),
-            FpinntektsmeldingYtelse.FORELDREPENGER, new SaksnummerDto("1234"), LocalDate.of(2024, 9, 5),
+            FpInntektsmeldingYtelse.FORELDREPENGER, new SaksnummerDto("1234"), LocalDate.of(2024, 9, 5),
             List.of(new OrganisasjonsnummerDto("999999999")));
 
         var json = DefaultJsonMapper.treeFromJson(DefaultJsonMapper.toJson(request));
@@ -459,8 +528,8 @@ class FpInntektsmeldingTjenesteTest {
         assertThat(tasks).hasSize(2);
 
         var forespørselTask = tasks.get(0);
-        assertThat(forespørselTask.taskType()).isEqualTo(TaskType.forProsessTask(FpinntektsmeldingTask.class));
-        assertThat(forespørselTask.getPropertyValue(FpinntektsmeldingTask.ORGNUMMER)).isEqualTo(orgnummer);
+        assertThat(forespørselTask.taskType()).isEqualTo(TaskType.forProsessTask(FpInntektsmeldingTask.class));
+        assertThat(forespørselTask.getPropertyValue(FpInntektsmeldingTask.ORGNUMMER)).isEqualTo(orgnummer);
 
         var lukkTask = tasks.get(1);
         assertThat(lukkTask.taskType()).isEqualTo(TaskType.forProsessTask(LukkForespørslerImTask.class));
@@ -485,8 +554,8 @@ class FpInntektsmeldingTjenesteTest {
         verify(taskTjeneste, times(1)).lagre(captor.capture());
         var task = captor.getValue();
 
-        assertThat(task.taskType()).isEqualTo(TaskType.forProsessTask(FpinntektsmeldingTask.class));
-        assertThat(task.getPropertyValue(FpinntektsmeldingTask.ORGNUMMER)).isEqualTo(orgnummer);
+        assertThat(task.taskType()).isEqualTo(TaskType.forProsessTask(FpInntektsmeldingTask.class));
+        assertThat(task.getPropertyValue(FpInntektsmeldingTask.ORGNUMMER)).isEqualTo(orgnummer);
         assertThat(task.getGruppe()).isEqualTo("FPIM_TASK_1234");
     }
 

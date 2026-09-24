@@ -1,6 +1,6 @@
 package no.nav.foreldrepenger.domene.fpinntektsmelding;
 
-public enum FpinntektsmeldingYtelse {
+public enum FpInntektsmeldingYtelse {
     FORELDREPENGER,
     SVANGERSKAPSPENGER
 }

@@ -21,8 +21,8 @@ import java.util.Optional;
 @ApplicationScoped
 @ProsessTask("fpinntektsmelding.foresporsel")
 @FagsakProsesstaskRekkefølge(gruppeSekvens = true)
-public class FpinntektsmeldingTask extends GenerellProsessTask {
-    private static final Logger LOG = LoggerFactory.getLogger(FpinntektsmeldingTask.class);
+public class FpInntektsmeldingTask extends GenerellProsessTask {
+    private static final Logger LOG = LoggerFactory.getLogger(FpInntektsmeldingTask.class);
 
     public static final String ORGNUMMER = "orgnummer";
 
@@ -30,12 +30,12 @@ public class FpinntektsmeldingTask extends GenerellProsessTask {
     private FpInntektsmeldingTjeneste fpInntektsmeldingTjeneste;
     private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
 
-    FpinntektsmeldingTask() {
+    FpInntektsmeldingTask() {
         // for CDI proxy
     }
 
     @Inject
-    public FpinntektsmeldingTask(BehandlingRepository behandlingRepository,
+    public FpInntektsmeldingTask(BehandlingRepository behandlingRepository,
                                  FpInntektsmeldingTjeneste fpInntektsmeldingTjeneste,
                                  SkjæringstidspunktTjeneste skjæringstidspunktTjeneste) {
         this.behandlingRepository = behandlingRepository;
