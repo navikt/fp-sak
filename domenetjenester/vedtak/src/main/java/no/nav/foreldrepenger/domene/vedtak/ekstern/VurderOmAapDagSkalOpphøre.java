@@ -101,9 +101,11 @@ public class VurderOmAapDagSkalOpphøre {
     }
 
     boolean vurderYtelserOpphøres(Long behandlingId, LocalDate førsteAnvistDatoFP, LocalDate vedtaksDato,
-                                  Collection<Ytelse> aapDagpenger, Fagsystem kilde) {
-        var aapDagpengerTimelinge = new LocalDateTimeline<>(aapDagpenger.stream()
+                                  Collection<Ytelse> ytelser, Fagsystem kilde) {
+        var kildeFiltrertYtelser = ytelser.stream()
             .filter(y -> kilde.equals(y.getKilde()))
+            .toList();
+        var aapDagpengerTimelinge = new LocalDateTimeline<>(kildeFiltrertYtelser.stream()
             .map(Ytelse::getPeriode)
             .map(p -> new LocalDateSegment<>(p.getFomDato(), p.getTomDato(), Boolean.TRUE))
             .toList(), StandardCombinators::alwaysTrueForMatch);
@@ -114,15 +116,15 @@ public class VurderOmAapDagSkalOpphøre {
             return false;
 
         // Ser både på løpende og avsluttede vedtak som overlapper første anvist dato
-        if (!finnesYtelseVedtakPåEtterStartdato(aapDagpenger, førsteAnvistDatoFP)) {
+        if (!finnesYtelseVedtakPåEtterStartdato(kildeFiltrertYtelser, førsteAnvistDatoFP)) {
             return false;
         }
 
-        var sisteAapDagAnvistDatoFørVedtaksdato = finnSisteAapDagAnvistDatoFørVedtaksdato(aapDagpenger, vedtaksDato);
+        var sisteAapDagAnvistDatoFørVedtaksdato = finnSisteAapDagAnvistDatoFørVedtaksdato(kildeFiltrertYtelser, vedtaksDato);
         if (sisteAapDagAnvistDatoFørVedtaksdato == null) {
             return false;
         }
-        var nesteAapDagAnvistDatoEtterVedtaksdato = finnNesteAapDagAnvistDatoEtterVedtaksdato(aapDagpenger, vedtaksDato, sisteAapDagAnvistDatoFørVedtaksdato);
+        var nesteAapDagAnvistDatoEtterVedtaksdato = finnNesteAapDagAnvistDatoEtterVedtaksdato(kildeFiltrertYtelser, vedtaksDato, sisteAapDagAnvistDatoFørVedtaksdato);
         if (førsteAnvistDatoFP.isBefore(sisteAapDagAnvistDatoFørVedtaksdato)) {
             return true;
         }
