@@ -72,10 +72,6 @@ public class VurderOmAapDagSkalOpphøre {
             var oppgaveId = oppgaveTjeneste.opprettOppgaveStopUtbetalingAvAAPDAGYtelse(behandlingId, startdatoFP, Fagsystem.ARENA);
             LOG.info("Oppgave opprettet i GOSYS slik at NØS kan behandle saken videre (ARENA). Oppgavenummer: {}", oppgaveId);
         }
-        if (vurderYtelserOpphøres(behandlingId, startdatoFP, vedtaksDato, relevanteYtelser, Fagsystem.KELVIN)) {
-            var oppgaveId = oppgaveTjeneste.opprettOppgaveStopUtbetalingAvAAPDAGYtelse(behandlingId, startdatoFP, Fagsystem.KELVIN);
-            LOG.info("Oppgave opprettet i GOSYS slik at NØS kan behandle saken videre (KELVIN). Oppgavenummer: {}", oppgaveId);
-        }
         if (vurderYtelserOpphøres(behandlingId, startdatoFP, vedtaksDato, relevanteYtelser, Fagsystem.DPSAK)) {
             var oppgaveId = oppgaveTjeneste.opprettOppgaveStopUtbetalingAvAAPDAGYtelse(behandlingId, startdatoFP, Fagsystem.DPSAK);
             LOG.info("Oppgave opprettet i GOSYS slik at NØS kan behandle saken videre (DPSAK). Oppgavenummer: {}", oppgaveId);
@@ -138,7 +134,7 @@ public class VurderOmAapDagSkalOpphøre {
                 .map(it -> new YtelseFilter(it.getAktørYtelseFraRegister(aktørId)).før(skjæringstidspunkt)).orElse(YtelseFilter.EMPTY);
 
         return ytelseFilter
-            .filter(y -> Fagsystem.ARENA.equals(y.getKilde()) || Fagsystem.KELVIN.equals(y.getKilde()) || Fagsystem.DPSAK.equals(y.getKilde()))
+            .filter(y -> Fagsystem.ARENA.equals(y.getKilde()) || Fagsystem.DPSAK.equals(y.getKilde()))
             .getFiltrertYtelser();
     }
 
