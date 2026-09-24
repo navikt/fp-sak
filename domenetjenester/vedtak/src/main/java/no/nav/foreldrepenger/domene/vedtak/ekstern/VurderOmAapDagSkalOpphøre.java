@@ -31,8 +31,8 @@ import no.nav.fpsak.tidsserie.LocalDateTimeline;
 import no.nav.fpsak.tidsserie.StandardCombinators;
 
 @ApplicationScoped
-public class VurderOmArenaYtelseSkalOpphøre {
-    private static final Logger LOG = LoggerFactory.getLogger(VurderOmArenaYtelseSkalOpphøre.class);
+public class VurderOmAapDagSkalOpphøre {
+    private static final Logger LOG = LoggerFactory.getLogger(VurderOmAapDagSkalOpphøre.class);
 
     private static final long HALV_MELDEKORT_PERIODE = 9;
     private static final Period MELDEKORT_PERIODE = Period.ofDays(14);
@@ -42,22 +42,22 @@ public class VurderOmArenaYtelseSkalOpphøre {
     private BehandlingVedtakRepository behandlingVedtakRepository;
     private OppgaveTjeneste oppgaveTjeneste;
 
-    VurderOmArenaYtelseSkalOpphøre() {
+    VurderOmAapDagSkalOpphøre() {
         // for CDI proxy
     }
 
     @Inject
-    public VurderOmArenaYtelseSkalOpphøre(BeregningsresultatRepository beregningsresultatRepository,
-                                          InntektArbeidYtelseTjeneste inntektArbeidYtelseTjeneste,
-                                          BehandlingVedtakRepository behandlingVedtakRepository,
-                                          OppgaveTjeneste oppgaveTjeneste) {
+    public VurderOmAapDagSkalOpphøre(BeregningsresultatRepository beregningsresultatRepository,
+                                     InntektArbeidYtelseTjeneste inntektArbeidYtelseTjeneste,
+                                     BehandlingVedtakRepository behandlingVedtakRepository,
+                                     OppgaveTjeneste oppgaveTjeneste) {
         this.beregningsresultatRepository = beregningsresultatRepository;
         this.iayTjeneste = inntektArbeidYtelseTjeneste;
         this.behandlingVedtakRepository = behandlingVedtakRepository;
         this.oppgaveTjeneste = oppgaveTjeneste;
     }
 
-    void opprettOppgaveHvisArenaytelseSkalOpphøre(Long behandlingId, AktørId aktørId, LocalDate skjæringstidspunkt) {
+    void opprettOppgaveHvisAapDagpengerSkalOpphøre(Long behandlingId, AktørId aktørId, LocalDate skjæringstidspunkt) {
         var vedtak = behandlingVedtakRepository.hentForBehandling(behandlingId);
         if (!VedtakResultatType.INNVILGET.equals(vedtak.getVedtakResultatType())) {
             return;
@@ -65,60 +65,76 @@ public class VurderOmArenaYtelseSkalOpphøre {
         var vedtaksDato = vedtak.getVedtaksdato();
         var startdatoFP = finnFørsteAnvistDatoFP(behandlingId).orElse(skjæringstidspunkt);
 
-        if (vurderArenaYtelserOpphøres(behandlingId, aktørId, startdatoFP, vedtaksDato)) {
-            var oppgaveId = oppgaveTjeneste.opprettOppgaveStopUtbetalingAvARENAYtelse(behandlingId, startdatoFP);
-            LOG.info("Oppgave opprettet i GOSYS slik at NØS kan behandle saken videre. Oppgavenummer: {}", oppgaveId);
+        var senesteInputDato = vedtaksDato.isAfter(startdatoFP) ? vedtaksDato : startdatoFP;
+        var relevanteYtelser = hentAapDagpenger(behandlingId, aktørId, senesteInputDato);
+
+        if (vurderYtelserOpphøres(behandlingId, startdatoFP, vedtaksDato, relevanteYtelser, Fagsystem.ARENA)) {
+            var oppgaveId = oppgaveTjeneste.opprettOppgaveStopUtbetalingAvAAPDAGYtelse(behandlingId, startdatoFP, Fagsystem.ARENA);
+            LOG.info("Oppgave opprettet i GOSYS slik at NØS kan behandle saken videre (ARENA). Oppgavenummer: {}", oppgaveId);
+        }
+        if (vurderYtelserOpphøres(behandlingId, startdatoFP, vedtaksDato, relevanteYtelser, Fagsystem.DPSAK)) {
+            var oppgaveId = oppgaveTjeneste.opprettOppgaveStopUtbetalingAvAAPDAGYtelse(behandlingId, startdatoFP, Fagsystem.DPSAK);
+            LOG.info("Oppgave opprettet i GOSYS slik at NØS kan behandle saken videre (DPSAK). Oppgavenummer: {}", oppgaveId);
         }
     }
 
     /**
      * Ved iverksetting av vedtak skal FPSAK gjøre en sjekk av om det er overlapp mellom startdato for foreldrepenger
-     * og utbetalt ytelse i ARENA. FPSAK skal benytte lagrede registerdata om meldekortperioder for å vurdere om
-     * startdatoen for foreldrepenger overlapper med ytelse i ARENA.
+     * og utbetalt ytelse i ARENA/Kelving/Dpsak. FPSAK skal benytte lagrede registerdata om meldekortperioder for å vurdere om
+     * startdatoen for foreldrepenger overlapper med ytelse i disse systemene.
      *
-     * @param behandling         behandling til saken i FP
+     * @param behandlingId         behandling til saken i FP
      * @param førsteAnvistDatoFP første dato for utbetaling
      * @param vedtaksDato        vedtaksdato
      * @return true hvis det finnes en overlappende ytelse i ARENA, ellers false
      */
+    // Test convenience for legacy
     boolean vurderArenaYtelserOpphøres(Long behandlingId, AktørId aktørId, LocalDate førsteAnvistDatoFP, LocalDate vedtaksDato) {
         var senesteInputDato = vedtaksDato.isAfter(førsteAnvistDatoFP) ? vedtaksDato : førsteAnvistDatoFP;
-        var arenaYtelser = hentArenaYtelser(behandlingId, aktørId, senesteInputDato);
+        var relevanteYtelser = hentAapDagpenger(behandlingId, aktørId, senesteInputDato);
 
-        var arenaTimeline = new LocalDateTimeline<>(arenaYtelser.stream()
+        return vurderYtelserOpphøres(behandlingId, førsteAnvistDatoFP, vedtaksDato, relevanteYtelser, Fagsystem.ARENA);
+    }
+
+    boolean vurderYtelserOpphøres(Long behandlingId, LocalDate førsteAnvistDatoFP, LocalDate vedtaksDato,
+                                  Collection<Ytelse> ytelser, Fagsystem kilde) {
+        var kildeFiltrertYtelser = ytelser.stream()
+            .filter(y -> kilde.equals(y.getKilde()))
+            .toList();
+        var aapDagpengerTimelinge = new LocalDateTimeline<>(kildeFiltrertYtelser.stream()
             .map(Ytelse::getPeriode)
             .map(p -> new LocalDateSegment<>(p.getFomDato(), p.getTomDato(), Boolean.TRUE))
             .toList(), StandardCombinators::alwaysTrueForMatch);
-        var overlapp = lagTidslinjeFP(behandlingId).intersection(arenaTimeline).compress();
+        var overlapp = lagTidslinjeFP(behandlingId).intersection(aapDagpengerTimelinge).compress();
 
-        // Ingen overlapp VL / Arena
+        // Ingen overlapp VL / Annet system
         if (overlapp.getLocalDateIntervals().isEmpty())
             return false;
 
         // Ser både på løpende og avsluttede vedtak som overlapper første anvist dato
-        if (!finnesYtelseVedtakPåEtterStartdato(arenaYtelser, førsteAnvistDatoFP)) {
+        if (!finnesYtelseVedtakPåEtterStartdato(kildeFiltrertYtelser, førsteAnvistDatoFP)) {
             return false;
         }
 
-        var sisteArenaAnvistDatoFørVedtaksdato = finnSisteArenaAnvistDatoFørVedtaksdato(arenaYtelser, vedtaksDato);
-        if (sisteArenaAnvistDatoFørVedtaksdato == null) {
+        var sisteAapDagAnvistDatoFørVedtaksdato = finnSisteAapDagAnvistDatoFørVedtaksdato(kildeFiltrertYtelser, vedtaksDato);
+        if (sisteAapDagAnvistDatoFørVedtaksdato == null) {
             return false;
         }
-        var nesteArenaAnvistDatoEtterVedtaksdato = finnNesteArenaAnvistDatoEtterVedtaksdato(arenaYtelser, vedtaksDato, sisteArenaAnvistDatoFørVedtaksdato);
-        if (førsteAnvistDatoFP.isBefore(sisteArenaAnvistDatoFørVedtaksdato)) {
+        var nesteAapDagAnvistDatoEtterVedtaksdato = finnNesteAapDagAnvistDatoEtterVedtaksdato(kildeFiltrertYtelser, vedtaksDato, sisteAapDagAnvistDatoFørVedtaksdato);
+        if (førsteAnvistDatoFP.isBefore(sisteAapDagAnvistDatoFørVedtaksdato)) {
             return true;
         }
-        return nesteArenaAnvistDatoEtterVedtaksdato.isPresent() && DatoIntervallEntitet.fraOgMedTilOgMed(sisteArenaAnvistDatoFørVedtaksdato,
-            nesteArenaAnvistDatoEtterVedtaksdato.get()).inkluderer(førsteAnvistDatoFP) && vedtaksDato.isAfter(
-            nesteArenaAnvistDatoEtterVedtaksdato.get().minusDays(HALV_MELDEKORT_PERIODE));
+        return nesteAapDagAnvistDatoEtterVedtaksdato.isPresent() && DatoIntervallEntitet.fraOgMedTilOgMed(sisteAapDagAnvistDatoFørVedtaksdato,
+            nesteAapDagAnvistDatoEtterVedtaksdato.get()).inkluderer(førsteAnvistDatoFP) && vedtaksDato.isAfter(
+            nesteAapDagAnvistDatoEtterVedtaksdato.get().minusDays(HALV_MELDEKORT_PERIODE));
     }
 
-    private Collection<Ytelse> hentArenaYtelser(Long behandlingId, AktørId aktørId, LocalDate skjæringstidspunkt) {
+    private Collection<Ytelse> hentAapDagpenger(Long behandlingId, AktørId aktørId, LocalDate skjæringstidspunkt) {
         var ytelseFilter = iayTjeneste.finnGrunnlag(behandlingId)
                 .map(it -> new YtelseFilter(it.getAktørYtelseFraRegister(aktørId)).før(skjæringstidspunkt)).orElse(YtelseFilter.EMPTY);
 
         return ytelseFilter
-            .filter(y -> Fagsystem.ARENA.equals(y.getKilde()) || Fagsystem.KELVIN.equals(y.getKilde()) || Fagsystem.DPSAK.equals(y.getKilde()))
+            .filter(y -> Fagsystem.ARENA.equals(y.getKilde()) || Fagsystem.DPSAK.equals(y.getKilde()))
             .getFiltrertYtelser();
     }
 
@@ -139,7 +155,7 @@ public class VurderOmArenaYtelseSkalOpphøre {
             .min(Comparator.naturalOrder());
     }
 
-    private LocalDate finnSisteArenaAnvistDatoFørVedtaksdato(Collection<Ytelse> ytelser, LocalDate vedtaksdato) {
+    private LocalDate finnSisteAapDagAnvistDatoFørVedtaksdato(Collection<Ytelse> ytelser, LocalDate vedtaksdato) {
         return ytelser.stream()
             .map(Ytelse::getYtelseAnvist)
             .flatMap(Collection::stream)
@@ -149,7 +165,7 @@ public class VurderOmArenaYtelseSkalOpphøre {
             .orElse(null);
     }
 
-    private Optional<LocalDate> finnNesteArenaAnvistDatoEtterVedtaksdato(Collection<Ytelse> ytelser, LocalDate vedtaksdato, LocalDate sisteAnvisteDatoArena) {
+    private Optional<LocalDate> finnNesteAapDagAnvistDatoEtterVedtaksdato(Collection<Ytelse> ytelser, LocalDate vedtaksdato, LocalDate sisteAnvisteDatoAapDag) {
         // Venter ikke egentlig treff her ettersom vedtaksdato som regel er dagens dato
         var nesteAnvistDato = ytelser.stream()
             .map(Ytelse::getYtelseAnvist)
@@ -164,7 +180,7 @@ public class VurderOmArenaYtelseSkalOpphøre {
             .filter(y -> y.getPeriode().inkluderer(vedtaksdato))
             .toList();
         if (!ytelserPåVedtaksdato.isEmpty()) {
-            return Optional.of(sisteAnvisteDatoArena.plus(MELDEKORT_PERIODE));
+            return Optional.of(sisteAnvisteDatoAapDag.plus(MELDEKORT_PERIODE));
         }
         nesteAnvistDato = ytelser.stream()
             .map(Ytelse::getPeriode)

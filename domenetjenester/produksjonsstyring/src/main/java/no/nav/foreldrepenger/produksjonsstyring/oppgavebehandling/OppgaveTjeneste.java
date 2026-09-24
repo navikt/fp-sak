@@ -13,6 +13,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingTema;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
+import no.nav.foreldrepenger.behandlingslager.kodeverk.Fagsystem;
 import no.nav.foreldrepenger.domene.person.PersoninfoAdapter;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.PersonIdent;
@@ -134,8 +135,13 @@ public class OppgaveTjeneste {
         LOG.info("FPSAK GOSYS opprettet OMS oppgave {}", oppgave.id());
     }
 
-    public String opprettOppgaveStopUtbetalingAvARENAYtelse(long behandlingId, LocalDate førsteUttaksdato) {
-        var beskrivelse = String.format("Samordning arenaytelse. Vedtak foreldrepenger fra %s", førsteUttaksdato);
+    public String opprettOppgaveStopUtbetalingAvAAPDAGYtelse(long behandlingId, LocalDate førsteUttaksdato, Fagsystem kilde) {
+        var prefix = switch (kilde) {
+            case ARENA -> "Samordning arenaytelse";
+            case DPSAK ->  "Samordning dagpenger i DP-sak";
+            default -> throw new IllegalArgumentException("Ukjent kilde: " + kilde);
+        };
+        var beskrivelse = String.format("%s. Vedtak foreldrepenger fra %s", prefix, førsteUttaksdato);
 
         var behandling = behandlingRepository.hentBehandling(behandlingId);
         return opprettOkonomiSettPåVent(beskrivelse, behandling);
