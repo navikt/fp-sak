@@ -117,6 +117,7 @@ public class Behandlingsoppretter {
         // Ifm køhåndtering - kun relevant for Foreldrepenger. REGSØK har relevant logikk for FØRSTEGANG.
         // Må håndtere revurderinger med åpent aksjonspunkt: Kopier med siste papirsøknad hvis finnes så AP reutledes i REGSØK
         var uregistrertPapirSøknadFP = sisteYtelseBehandling.harÅpentAksjonspunktMedType(AksjonspunktDefinisjon.REGISTRER_PAPIR_ENDRINGSØKNAD_FORELDREPENGER);
+        var tidligereAnsvarligSaksbehandler = sisteYtelseBehandling.getAnsvarligSaksbehandler();
         henleggBehandling(sisteYtelseBehandling);
         if (BehandlingType.FØRSTEGANGSSØKNAD.equals(sisteYtelseBehandling.getType())) {
             return opprettNyFørstegangsbehandlingMedImOgVedleggFraForrige(sisteYtelseBehandling.getFagsak(), revurderingsÅrsak, sisteYtelseBehandling,false);
@@ -124,7 +125,7 @@ public class Behandlingsoppretter {
         var manuell = sisteYtelseBehandling.erManueltOpprettet();
         var revurdering = manuell ? opprettManuellRevurdering(sisteYtelseBehandling.getFagsak(), revurderingsÅrsak) : opprettRevurdering(sisteYtelseBehandling.getFagsak(), revurderingsÅrsak);
         if (manuell) {
-            Optional.ofNullable(sisteYtelseBehandling.getAnsvarligSaksbehandler()).ifPresent(revurdering::setAnsvarligSaksbehandler);
+            Optional.ofNullable(tidligereAnsvarligSaksbehandler).ifPresent(revurdering::setAnsvarligSaksbehandler);
         }
 
         if (uregistrertPapirSøknadFP) {
@@ -152,6 +153,7 @@ public class Behandlingsoppretter {
 
     public void henleggBehandling(Behandling behandling) {
         var lås = behandlingRepository.taSkriveLås(behandling);
+        behandling.setAnsvarligSaksbehandler(null);
         henleggBehandlingTjeneste.henleggBehandlingTeknisk(behandling, lås, BehandlingResultatType.MERGET_OG_HENLAGT, null);
     }
 
