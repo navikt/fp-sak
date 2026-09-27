@@ -13,6 +13,7 @@ import jakarta.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatPeriode;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatRepository;
@@ -57,7 +58,18 @@ public class VurderOmAapDagSkalOpphøre {
         this.oppgaveTjeneste = oppgaveTjeneste;
     }
 
-    void opprettOppgaveHvisAapDagpengerSkalOpphøre(Long behandlingId, AktørId aktørId, LocalDate skjæringstidspunkt) {
+    /**
+     * Ved iverksetting av vedtak skal FPSAK gjøre en sjekk av om det er overlapp mellom startdato for foreldrepenger
+     * og utbetalt ytelse i ARENA/Dpsak. FPSAK skal benytte lagrede registerdata om meldekortperioder for å vurdere om
+     * startdatoen for foreldrepenger overlapper med ytelse i disse systemene.
+     *
+     * AAP/Kelvin håndterer dette selv ved å opprette revurdering. Er i dialog med DP-sak, mulig de håndterer dette selv.
+     *
+     * @param behandling         behandling til saken i FP
+     * @param skjæringstidspunkt   skjæringstidspunkt for sak i FP-sak
+     */
+    void opprettOppgaveHvisAapDagpengerSkalOpphøre(Behandling behandling, LocalDate skjæringstidspunkt) {
+        var behandlingId = behandling.getId();
         var vedtak = behandlingVedtakRepository.hentForBehandling(behandlingId);
         if (!VedtakResultatType.INNVILGET.equals(vedtak.getVedtakResultatType())) {
             return;
@@ -66,7 +78,7 @@ public class VurderOmAapDagSkalOpphøre {
         var startdatoFP = finnFørsteAnvistDatoFP(behandlingId).orElse(skjæringstidspunkt);
 
         var senesteInputDato = vedtaksDato.isAfter(startdatoFP) ? vedtaksDato : startdatoFP;
-        var relevanteYtelser = hentAapDagpenger(behandlingId, aktørId, senesteInputDato);
+        var relevanteYtelser = hentAapDagpenger(behandlingId, behandling.getAktørId(), senesteInputDato);
 
         if (vurderYtelserOpphøres(behandlingId, startdatoFP, vedtaksDato, relevanteYtelser, Fagsystem.ARENA)) {
             var oppgaveId = oppgaveTjeneste.opprettOppgaveStopUtbetalingAvAAPDAGYtelse(behandlingId, startdatoFP, Fagsystem.ARENA);
@@ -78,16 +90,6 @@ public class VurderOmAapDagSkalOpphøre {
         }
     }
 
-    /**
-     * Ved iverksetting av vedtak skal FPSAK gjøre en sjekk av om det er overlapp mellom startdato for foreldrepenger
-     * og utbetalt ytelse i ARENA/Kelving/Dpsak. FPSAK skal benytte lagrede registerdata om meldekortperioder for å vurdere om
-     * startdatoen for foreldrepenger overlapper med ytelse i disse systemene.
-     *
-     * @param behandlingId         behandling til saken i FP
-     * @param førsteAnvistDatoFP første dato for utbetaling
-     * @param vedtaksDato        vedtaksdato
-     * @return true hvis det finnes en overlappende ytelse i ARENA, ellers false
-     */
     // Test convenience for legacy
     boolean vurderArenaYtelserOpphøres(Long behandlingId, AktørId aktørId, LocalDate førsteAnvistDatoFP, LocalDate vedtaksDato) {
         var senesteInputDato = vedtaksDato.isAfter(førsteAnvistDatoFP) ? vedtaksDato : førsteAnvistDatoFP;
@@ -96,7 +98,7 @@ public class VurderOmAapDagSkalOpphøre {
         return vurderYtelserOpphøres(behandlingId, førsteAnvistDatoFP, vedtaksDato, relevanteYtelser, Fagsystem.ARENA);
     }
 
-    boolean vurderYtelserOpphøres(Long behandlingId, LocalDate førsteAnvistDatoFP, LocalDate vedtaksDato,
+    private boolean vurderYtelserOpphøres(Long behandlingId, LocalDate førsteAnvistDatoFP, LocalDate vedtaksDato,
                                   Collection<Ytelse> ytelser, Fagsystem kilde) {
         var kildeFiltrertYtelser = ytelser.stream()
             .filter(y -> kilde.equals(y.getKilde()))

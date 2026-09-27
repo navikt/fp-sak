@@ -62,9 +62,8 @@ public class VurderOppgaveAapDagpengerTask extends GenerellProsessTask {
                 return;
             }
         }
-        var aktørId = behandling.getAktørId();
         var skjæringstidspunkt = skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandlingId).getUtledetSkjæringstidspunkt();
-        vurderOmAapDagSkalOpphøre.opprettOppgaveHvisAapDagpengerSkalOpphøre(behandlingId, aktørId, skjæringstidspunkt);
+        vurderOmAapDagSkalOpphøre.opprettOppgaveHvisAapDagpengerSkalOpphøre(behandling, skjæringstidspunkt);
         LOG.info("VurderOppgaveAapDagpengerTask: Vurderer for behandling: {}", behandlingId);
     }
 
