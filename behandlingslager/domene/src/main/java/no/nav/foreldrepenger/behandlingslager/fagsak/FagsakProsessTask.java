@@ -48,6 +48,7 @@ public class FagsakProsessTask extends BaseEntitet {
     }
 
     public FagsakProsessTask(Saksnummer saksnummer, Long fagsakId, Long prosessTaskId, Long behandlingId, Long gruppeSekvensNr) {
+        this.saksnummer = saksnummer;
         this.fagsakId = fagsakId;
         this.prosessTaskId = prosessTaskId;
         this.behandlingId = behandlingId;
