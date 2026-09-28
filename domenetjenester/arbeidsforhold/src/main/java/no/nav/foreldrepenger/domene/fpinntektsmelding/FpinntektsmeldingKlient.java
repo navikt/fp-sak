@@ -6,9 +6,12 @@ import java.util.Objects;
 import jakarta.enterprise.context.Dependent;
 import jakarta.ws.rs.core.UriBuilder;
 
+import no.nav.vedtak.exception.VLException;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import no.nav.vedtak.exception.FunksjonellException;
 import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.felles.integrasjon.rest.FpApplication;
 import no.nav.vedtak.felles.integrasjon.rest.RestClient;
@@ -23,6 +26,7 @@ public class FpinntektsmeldingKlient {
     private static final Logger LOG = LoggerFactory.getLogger(FpinntektsmeldingKlient.class);
 
     private static final String REQUEST = "request";
+    private static final String DUPLIKAT_NOTIFIKASJON = "angitt eksternId og merkelapp finnes fra før";
 
     private final RestClient restClient;
     private final RestConfig restConfig;
@@ -51,7 +55,7 @@ public class FpinntektsmeldingKlient {
            return restClient.send(request, OpprettForespørselResponsNy.class);
         } catch (Exception e) {
             LOG.warn("Feil ved opprettelse av inntektsmelding med request: {}", opprettForespørselRequest);
-            throw feilVedKallTilFpinntektsmelding(e.getMessage());
+            throw feilVedKallTilFpinntektsmelding(e);
         }
     }
 
@@ -62,7 +66,7 @@ public class FpinntektsmeldingKlient {
             restClient.send(request, String.class);
         } catch (Exception e) {
             LOG.warn("Feil ved overstyring av inntektsmelding med request: {}", overstyrInntektsmeldingRequest);
-            throw feilVedKallTilFpinntektsmelding(e.getMessage());
+            throw feilVedKallTilFpinntektsmelding(e);
         }
     }
 
@@ -73,8 +77,7 @@ public class FpinntektsmeldingKlient {
             var request = RestRequest.newPOSTJson(lukkForespørselRequest, uriLukkForesporsel, restConfig);
             restClient.send(request, String.class);
         } catch (Exception e) {
-            skrivTilLogg(lukkForespørselRequest);
-            throw feilVedKallTilFpinntektsmelding(e.getMessage());
+            throw feilVedKallTilFpinntektsmelding(e);
         }
     }
 
@@ -85,8 +88,7 @@ public class FpinntektsmeldingKlient {
             var request = RestRequest.newPOSTJson(lukkForespørselRequest, uriSettForesporselTilUtgaatt, restConfig);
             restClient.send(request, String.class);
         } catch (Exception e) {
-            skrivTilLogg(lukkForespørselRequest);
-            throw feilVedKallTilFpinntektsmelding(e.getMessage());
+            throw feilVedKallTilFpinntektsmelding(e);
         }
     }
 
@@ -97,12 +99,17 @@ public class FpinntektsmeldingKlient {
             var request = RestRequest.newPOSTJson(nyBeskjedRequest, uriSendNyBeskjedPåForespørsel, restConfig);
             return restClient.send(request, SendNyBeskjedResponse.class);
         } catch (Exception e) {
-            throw feilVedKallTilFpinntektsmelding(e.getMessage());
+            throw feilVedKallTilFpinntektsmelding(e);
         }
     }
 
-    private static TekniskException feilVedKallTilFpinntektsmelding(String feilmelding) {
-        return new TekniskException("FP-97215", "Feil ved kall til Fpinntektsmelding: " + feilmelding);
+    private static VLException feilVedKallTilFpinntektsmelding(Exception feilmelding) {
+        LOG.warn("FP-97215: Feil ved kall til Fpinntektsmelding: ", feilmelding);
+        if (feilmelding.getMessage().contains(DUPLIKAT_NOTIFIKASJON)) {
+            return new FunksjonellException("FP-97216",
+                "Det er allerede sendt en beskjed til arbeidsgiveren i dag.");
+        }
+        return new TekniskException("FP-97215", "Feil ved kall til Fpinntektsmelding");
     }
 
     private URI toUri(URI endpointURI, String path) {
@@ -111,10 +118,6 @@ public class FpinntektsmeldingKlient {
         } catch (Exception e) {
             throw new IllegalArgumentException("Ugyldig uri: " + endpointURI + path, e);
         }
-    }
-
-    private static void skrivTilLogg(LukkForespørselRequest lukkForespørselRequest) {
-        LOG.warn("Feil ved oversending til fpinntektsmelding med lukk forespørsel request: {}", lukkForespørselRequest);
     }
 }
 
