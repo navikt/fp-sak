@@ -138,7 +138,8 @@ public class OppgaveTjeneste {
     public String opprettOppgaveStopUtbetalingAvAAPDAGYtelse(long behandlingId, LocalDate førsteUttaksdato, Fagsystem kilde) {
         var prefix = switch (kilde) {
             case ARENA -> "Samordning arenaytelse";
-            case DPSAK ->  "Samordning dagpenger i DP-sak";
+            case DPSAK -> "Samordning dagpenger i DP-sak";
+            case KELVIN -> "Samordning arbeidsavklaringspenger i KELVIN";
             default -> throw new IllegalArgumentException("Ukjent kilde: " + kilde);
         };
         var beskrivelse = String.format("%s. Vedtak foreldrepenger fra %s", prefix, førsteUttaksdato);

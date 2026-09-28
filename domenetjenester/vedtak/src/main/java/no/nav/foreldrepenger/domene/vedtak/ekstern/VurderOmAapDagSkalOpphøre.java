@@ -6,6 +6,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Optional;
+import java.util.Set;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -37,6 +38,7 @@ public class VurderOmAapDagSkalOpphøre {
 
     private static final long HALV_MELDEKORT_PERIODE = 9;
     private static final Period MELDEKORT_PERIODE = Period.ofDays(14);
+    private static final Set<Fagsystem> RELEVANTE_FAGSYSTEMER = Set.of(Fagsystem.ARENA, Fagsystem.KELVIN, Fagsystem.DPSAK);
 
     private BeregningsresultatRepository beregningsresultatRepository;
     private InntektArbeidYtelseTjeneste iayTjeneste;
@@ -60,10 +62,8 @@ public class VurderOmAapDagSkalOpphøre {
 
     /**
      * Ved iverksetting av vedtak skal FPSAK gjøre en sjekk av om det er overlapp mellom startdato for foreldrepenger
-     * og utbetalt ytelse i ARENA/Dpsak. FPSAK skal benytte lagrede registerdata om meldekortperioder for å vurdere om
+     * og utbetalt ytelse i ARENA/Kelvin/DPSAK. FPSAK skal benytte lagrede registerdata om meldekortperioder for å vurdere om
      * startdatoen for foreldrepenger overlapper med ytelse i disse systemene.
-     *
-     * AAP/Kelvin håndterer dette selv ved å opprette revurdering. Er i dialog med DP-sak, mulig de håndterer dette selv.
      *
      * @param behandling         behandling til saken i FP
      * @param skjæringstidspunkt   skjæringstidspunkt for sak i FP-sak
@@ -83,6 +83,10 @@ public class VurderOmAapDagSkalOpphøre {
         if (vurderYtelserOpphøres(behandlingId, startdatoFP, vedtaksDato, relevanteYtelser, Fagsystem.ARENA)) {
             var oppgaveId = oppgaveTjeneste.opprettOppgaveStopUtbetalingAvAAPDAGYtelse(behandlingId, startdatoFP, Fagsystem.ARENA);
             LOG.info("Oppgave opprettet i GOSYS slik at NØS kan behandle saken videre (ARENA). Oppgavenummer: {}", oppgaveId);
+        }
+        if (vurderYtelserOpphøres(behandlingId, startdatoFP, vedtaksDato, relevanteYtelser, Fagsystem.KELVIN)) {
+            var oppgaveId = oppgaveTjeneste.opprettOppgaveStopUtbetalingAvAAPDAGYtelse(behandlingId, startdatoFP, Fagsystem.KELVIN);
+            LOG.info("Oppgave opprettet i GOSYS slik at NØS kan behandle saken videre (KELVIN). Oppgavenummer: {}", oppgaveId);
         }
         if (vurderYtelserOpphøres(behandlingId, startdatoFP, vedtaksDato, relevanteYtelser, Fagsystem.DPSAK)) {
             var oppgaveId = oppgaveTjeneste.opprettOppgaveStopUtbetalingAvAAPDAGYtelse(behandlingId, startdatoFP, Fagsystem.DPSAK);
@@ -136,7 +140,7 @@ public class VurderOmAapDagSkalOpphøre {
                 .map(it -> new YtelseFilter(it.getAktørYtelseFraRegister(aktørId)).før(skjæringstidspunkt)).orElse(YtelseFilter.EMPTY);
 
         return ytelseFilter
-            .filter(y -> Fagsystem.ARENA.equals(y.getKilde()) || Fagsystem.DPSAK.equals(y.getKilde()))
+            .filter(y -> RELEVANTE_FAGSYSTEMER.contains(y.getKilde()))
             .getFiltrertYtelser();
     }
 
