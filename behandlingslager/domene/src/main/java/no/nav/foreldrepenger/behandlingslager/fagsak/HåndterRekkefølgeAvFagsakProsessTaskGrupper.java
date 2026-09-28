@@ -5,6 +5,8 @@ import java.time.Instant;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
+import no.nav.foreldrepenger.domene.typer.Saksnummer;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -45,6 +47,9 @@ public class HåndterRekkefølgeAvFagsakProsessTaskGrupper implements ProsessTas
         if (fagsakId == null) {
             return new ProsessTaskVeto(false, ptData.getId()); // do nothing, er ikke relatert til fagsak/behandling
         }
+        if (ptData.getSaksnummer() == null) {
+            LOG.warn("Prosesstask[{}] av {} for fagsak [{}] har null saksnummer.", ptData.getId(), ptData.taskType(), fagsakId);
+        }
 
         var blokkerendeTask = repository.sjekkTillattKjøreFagsakProsessTask(ptData);
         // dersom blokkerende task er tom, vetoes ikke tasken
@@ -74,11 +79,15 @@ public class HåndterRekkefølgeAvFagsakProsessTaskGrupper implements ProsessTas
                 // ikke interessant her, move along
                 continue;
             }
+            if (task.getSaksnummer() == null) {
+                LOG.warn("Prosesstask[{}] av {} for fagsak [{}] har null saksnummer.", task.getId(), task.taskType(), task.getFagsakId());
+            }
 
             try (var handler = LocalProsessTaskHandlerRef.lookup(task.taskType())) {
                 var rekkefølge = handler.getFagsakProsesstaskRekkefølge();
                 var sekvensNr = rekkefølge.gruppeSekvens() ? gruppeSekvensNr : null;
-                repository.lagre(new FagsakProsessTask(task.getFagsakId(), task.getId(), task.getBehandlingIdAsLong(), sekvensNr));
+                Saksnummer saksnummer = task.getSaksnummer() != null ? new Saksnummer(task.getSaksnummer()) : null;
+                repository.lagre(new FagsakProsessTask(saksnummer, task.getFagsakId(), task.getId(), task.getBehandlingIdAsLong(), sekvensNr));
             }
         }
     }

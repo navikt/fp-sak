@@ -2,7 +2,9 @@ package no.nav.foreldrepenger.behandlingslager.fagsak;
 
 import java.util.Objects;
 
+import jakarta.persistence.AttributeOverride;
 import jakarta.persistence.Column;
+import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -11,6 +13,7 @@ import jakarta.persistence.Table;
 import jakarta.persistence.Version;
 
 import no.nav.foreldrepenger.behandlingslager.BaseEntitet;
+import no.nav.foreldrepenger.domene.typer.Saksnummer;
 
 @Entity(name = "FagsakProsessTask")
 @Table(name = "FAGSAK_PROSESS_TASK")
@@ -20,7 +23,11 @@ public class FagsakProsessTask extends BaseEntitet {
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "SEQ_FAGSAK_PROSESS_TASK")
     private Long id;
 
-    @Column(name = "fagsak_id", nullable = false, updatable = false)
+    @Embedded
+    @AttributeOverride(name = "saksnummer", column = @Column(name = "saksnummer"))
+    private Saksnummer saksnummer;
+
+    @Column(name = "fagsak_id", updatable = false)
     private Long fagsakId;
 
     @Column(name = "prosess_task_id", nullable = false, updatable = false)
@@ -40,19 +47,15 @@ public class FagsakProsessTask extends BaseEntitet {
         // Hibernate trenger en
     }
 
-    public FagsakProsessTask(Long fagsakId, Long prosessTaskId, Long behandlingId) {
-        this(fagsakId, prosessTaskId, behandlingId, null);
-    }
-
-    public FagsakProsessTask(Long fagsakId, Long prosessTaskId, Long behandlingId, Long gruppeSekvensNr) {
+    public FagsakProsessTask(Saksnummer saksnummer, Long fagsakId, Long prosessTaskId, Long behandlingId, Long gruppeSekvensNr) {
         this.fagsakId = fagsakId;
         this.prosessTaskId = prosessTaskId;
         this.behandlingId = behandlingId;
         this.gruppeSekvensNr = gruppeSekvensNr;
     }
 
-    public FagsakProsessTask(Long fagsakId, Long prosessTaskId) {
-        this(fagsakId, prosessTaskId, null);
+    public Saksnummer getSaksnummer() {
+        return saksnummer;
     }
 
     public Long getFagsakId() {
