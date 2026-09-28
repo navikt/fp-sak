@@ -27,7 +27,7 @@ public class FagsakProsessTask extends BaseEntitet {
     @AttributeOverride(name = "saksnummer", column = @Column(name = "saksnummer"))
     private Saksnummer saksnummer;
 
-    @Column(name = "fagsak_id", nullable = false, updatable = false)
+    @Column(name = "fagsak_id", updatable = false)
     private Long fagsakId;
 
     @Column(name = "prosess_task_id", nullable = false, updatable = false)
