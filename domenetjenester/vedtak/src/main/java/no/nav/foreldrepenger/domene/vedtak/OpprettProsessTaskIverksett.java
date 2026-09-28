@@ -10,7 +10,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.datavarehus.v2.SendStønadsstatistikkForVedtakTask;
 import no.nav.foreldrepenger.domene.vedtak.ekstern.SettUtbetalingPåVentPrivatArbeidsgiverTask;
-import no.nav.foreldrepenger.domene.vedtak.ekstern.VurderOppgaveArenaTask;
+import no.nav.foreldrepenger.domene.vedtak.ekstern.VurderOppgaveAapDagpengerTask;
 import no.nav.foreldrepenger.domene.vedtak.intern.AvsluttBehandlingTask;
 import no.nav.foreldrepenger.domene.vedtak.intern.SendVedtaksbrevTask;
 import no.nav.foreldrepenger.domene.vedtak.intern.SettFagsakRelasjonAvslutningsdatoTask;
@@ -59,7 +59,7 @@ public class OpprettProsessTaskIverksett {
 
     private void leggTilTasksYtelsesBehandling(Behandling behandling, ProsessTaskGruppe taskGruppe) {
         if (FagsakYtelseType.FORELDREPENGER.equals(behandling.getFagsakYtelseType())) {
-            taskGruppe.addNesteSekvensiell(ProsessTaskData.forProsessTask(VurderOppgaveArenaTask.class));
+            taskGruppe.addNesteSekvensiell(ProsessTaskData.forProsessTask(VurderOppgaveAapDagpengerTask.class));
         }
         if (!FagsakYtelseType.ENGANGSTØNAD.equals(behandling.getFagsakYtelseType())) {
             taskGruppe.addNesteSekvensiell(ProsessTaskData.forProsessTask(SettUtbetalingPåVentPrivatArbeidsgiverTask.class));
