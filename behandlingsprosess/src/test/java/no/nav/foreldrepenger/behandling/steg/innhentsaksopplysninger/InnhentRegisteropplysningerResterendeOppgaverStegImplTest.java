@@ -164,7 +164,7 @@ class InnhentRegisteropplysningerResterendeOppgaverStegImplTest {
         when(dokumentBehandlingTjeneste.erDokumentBestilt(any(), any())).thenReturn(true);
         when(fpInntektsmeldingTjeneste.erToggleForNyInnsendingPå()).thenReturn(nyInnsendingPå);
         mockPersonopplysningKall(behandling);
-        var stp = mockSkjæringstidspunkt(LocalDate.now().plusWeeks(2));
+        mockSkjæringstidspunkt(LocalDate.now().plusWeeks(2));
 
         // Act
         var resultat = steg.utførSteg(new BehandlingskontrollKontekst(behandling, new BehandlingLås(behandling.getId())));
@@ -189,7 +189,7 @@ class InnhentRegisteropplysningerResterendeOppgaverStegImplTest {
         when(kompletthetsjekker.vurderEtterlysningInntektsmelding(any(), any())).thenReturn(KompletthetResultat.ikkeOppfylt(ventefrist, Venteårsak.VENT_OPDT_INNTEKTSMELDING));
         when(dokumentBehandlingTjeneste.erDokumentBestilt(any(), any())).thenReturn(false);
         when(fpInntektsmeldingTjeneste.erToggleForNyInnsendingPå()).thenReturn(nyInnsendingPå);
-        var stp = mockSkjæringstidspunkt(LocalDate.now().plusWeeks(2));
+        mockSkjæringstidspunkt(LocalDate.now().plusWeeks(2));
 
         // Act
         var resultat = steg.utførSteg(new BehandlingskontrollKontekst(behandling, new BehandlingLås(behandling.getId())));
@@ -212,7 +212,7 @@ class InnhentRegisteropplysningerResterendeOppgaverStegImplTest {
         when(dokumentBehandlingTjeneste.erDokumentBestilt(any(), any())).thenReturn(false);
         when(fpInntektsmeldingTjeneste.erToggleForNyInnsendingPå()).thenReturn(nyInnsendingPå);
         mockPersonopplysningKall(behandling);
-        var stp = mockSkjæringstidspunkt(LocalDate.now().plusWeeks(2));
+        mockSkjæringstidspunkt(LocalDate.now().plusWeeks(2));
 
         // Act
         var resultat = steg.utførSteg(new BehandlingskontrollKontekst(behandling, new BehandlingLås(behandling.getId())));

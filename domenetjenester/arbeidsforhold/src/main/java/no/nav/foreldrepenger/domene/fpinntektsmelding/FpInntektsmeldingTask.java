@@ -51,7 +51,7 @@ public class FpInntektsmeldingTask extends GenerellProsessTask {
         var spesifikkArbeidsgiver = Optional.ofNullable(prosessTaskData.getPropertyValue(ORGNUMMER)).map(Arbeidsgiver::virksomhet);
 
         // Har mulighet for å kun sende forespørsel for et bestemt orgnummer, ellers sender vi for alle
-        spesifikkArbeidsgiver.ifPresentOrElse((ag) -> {
+        spesifikkArbeidsgiver.ifPresentOrElse(ag -> {
             LOG.info("Starter task for å opprette forespørsel i fpinntektsmelding for behandlingId {} med skjæringstidspunkt {} for arbeidsgiver {}",
                 behandlingId, stp, spesifikkArbeidsgiver.orElseThrow());
             fpInntektsmeldingTjeneste.lagForespørselForBestemtArbeidsgiver(ref, stp, ag);
