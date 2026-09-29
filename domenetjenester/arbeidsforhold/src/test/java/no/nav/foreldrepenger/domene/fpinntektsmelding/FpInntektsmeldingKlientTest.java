@@ -48,7 +48,7 @@ class FpInntektsmeldingKlientTest {
             .hasMessageNotContaining(råFeilmelding);
     }
 
-    private static FpinntektsmeldingKlient klientSomFeilerMed(String feilmelding) {
+    private static FpInntektsmeldingKlient klientSomFeilerMed(String feilmelding) {
         var restClient = mock(RestClient.class);
         when(restClient.send(any(RestRequest.class), eq(SendNyBeskjedResponse.class)))
             .thenThrow(new RuntimeException(feilmelding));
@@ -62,9 +62,9 @@ class FpInntektsmeldingKlientTest {
              var restConfigMock = mockStatic(RestConfig.class);
              var uriBuilderMock = mockStatic(UriBuilder.class)) {
             restClientMock.when(RestClient::client).thenReturn(restClient);
-            restConfigMock.when(() -> RestConfig.forClient(FpinntektsmeldingKlient.class)).thenReturn(restConfig);
+            restConfigMock.when(() -> RestConfig.forClient(FpInntektsmeldingKlient.class)).thenReturn(restConfig);
             uriBuilderMock.when(() -> UriBuilder.fromUri(uri)).thenReturn(uriBuilder);
-            return new FpinntektsmeldingKlient();
+            return new FpInntektsmeldingKlient();
         }
     }
 }
