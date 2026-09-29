@@ -7,7 +7,6 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -198,7 +197,7 @@ public class FpInntektsmeldingTjeneste {
         }
     }
 
-    public void lagForespørselForAlleArbeidsgivere(BehandlingReferanse ref, Skjæringstidspunkt stp) {
+    protected void lagForespørselForAlleArbeidsgivere(BehandlingReferanse ref, Skjæringstidspunkt stp) {
         var skjæringstidspunkt = stp.getUtledetSkjæringstidspunkt();
         var førsteUttaksdato = stp.getFørsteUttaksdato();
 
@@ -326,7 +325,7 @@ public class FpInntektsmeldingTjeneste {
         }
         if (!arbeidsgivereMedEndretForespørsel.isEmpty()) {
             var oppsummeringTekst = String.format(
-                "Arbeidsgiver er informert om at ny startdato for %s er %s.",
+                "Forespørsel til arbeidsgiver er oppdatert med ny startdato for %s er %s.",
                 ytelse, førsteUttaksdato.format(DATO_FORMAT), PÅMINNELSE_ETTER_DAGER);
             arbeidsgivereMedEndretForespørsel.forEach(builder::addLinje);
             historikkinnslagBuilder.addLinje(oppsummeringTekst);

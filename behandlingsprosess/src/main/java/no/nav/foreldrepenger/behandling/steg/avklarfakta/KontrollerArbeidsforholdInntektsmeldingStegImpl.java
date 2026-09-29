@@ -63,7 +63,7 @@ class KontrollerArbeidsforholdInntektsmeldingStegImpl implements KontrollerArbei
 
         List<AksjonspunktResultat> aksjonspuntker = new ArrayList<>(utleder.utledAksjonspunkterFor(new AksjonspunktUtlederInput(ref, skjæringstidspunkter)));
         if (fpInntektsmeldingTjeneste.erToggleForNyInnsendingPå()) {
-            fpInntektsmeldingTjeneste.lagForespørselForAlleArbeidsgivere(ref, skjæringstidspunkter);
+            fpInntektsmeldingTjeneste.lagTaskForespørAlleInntektsmeldinger(ref);
         }
         return BehandleStegResultat.utførtMedAksjonspunktResultater(aksjonspuntker);
     }

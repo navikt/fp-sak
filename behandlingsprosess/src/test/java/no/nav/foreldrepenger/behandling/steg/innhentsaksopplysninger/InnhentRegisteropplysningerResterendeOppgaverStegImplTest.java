@@ -175,7 +175,7 @@ class InnhentRegisteropplysningerResterendeOppgaverStegImplTest {
         assertThat(resultat.getAksjonspunktResultater()).isEmpty();
         verify(dokumentBestillerTjenesteMock, never()).bestillDokument(any(DokumentBestilling.class));
         verify(fpInntektsmeldingTjeneste).erToggleForNyInnsendingPå();
-        verify(fpInntektsmeldingTjeneste, times(nyInnsendingPå ? 1 : 0)).lagForespørselForAlleArbeidsgivere(BehandlingReferanse.fra(behandling), stp);
+        verify(fpInntektsmeldingTjeneste, times(nyInnsendingPå ? 1 : 0)).lagTaskForespørAlleInntektsmeldinger(BehandlingReferanse.fra(behandling));
         verifyNoMoreInteractions(fpInntektsmeldingTjeneste);
     }
 
@@ -198,7 +198,7 @@ class InnhentRegisteropplysningerResterendeOppgaverStegImplTest {
         assertThat(resultat.getAksjonspunktResultater()).containsExactly(opprettForAksjonspunktMedFrist(AUTO_VENT_ETTERLYST_INNTEKTSMELDING, Venteårsak.VENT_OPDT_INNTEKTSMELDING, ventefrist));
         verify(dokumentBestillerTjenesteMock, times(1)).bestillDokument(any(DokumentBestilling.class));
         verify(fpInntektsmeldingTjeneste).erToggleForNyInnsendingPå();
-        verify(fpInntektsmeldingTjeneste, times(nyInnsendingPå ? 1 : 0)).lagForespørselForAlleArbeidsgivere(BehandlingReferanse.fra(behandling), stp);
+        verify(fpInntektsmeldingTjeneste, times(nyInnsendingPå ? 1 : 0)).lagTaskForespørAlleInntektsmeldinger(BehandlingReferanse.fra(behandling));
         verifyNoMoreInteractions(fpInntektsmeldingTjeneste);
     }
 
@@ -223,7 +223,7 @@ class InnhentRegisteropplysningerResterendeOppgaverStegImplTest {
         assertThat(resultat.getAksjonspunktResultater()).isEmpty();
         verify(dokumentBestillerTjenesteMock, times(1)).bestillDokument(any(DokumentBestilling.class));
         verify(fpInntektsmeldingTjeneste).erToggleForNyInnsendingPå();
-        verify(fpInntektsmeldingTjeneste, times(nyInnsendingPå ? 1 : 0)).lagForespørselForAlleArbeidsgivere(BehandlingReferanse.fra(behandling), stp);
+        verify(fpInntektsmeldingTjeneste, times(nyInnsendingPå ? 1 : 0)).lagTaskForespørAlleInntektsmeldinger(BehandlingReferanse.fra(behandling));
         verifyNoMoreInteractions(fpInntektsmeldingTjeneste);
     }
 
