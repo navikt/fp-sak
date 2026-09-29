@@ -59,7 +59,7 @@ public class FpInntektsmeldingKlient {
            return restClient.send(request, OpprettForespørselRespons.class);
         } catch (Exception e) {
             LOG.warn("Feil ved opprettelse av inntektsmelding med request: {}", opprettForespørselRequest);
-            throw feilVedKallTilFpinntektsmelding(e.getMessage());
+            throw feilVedKallTilFpinntektsmelding(e);
         }
     }
 
@@ -71,7 +71,7 @@ public class FpInntektsmeldingKlient {
             return restClient.send(request, OpprettForespørselRespons.class);
         } catch (Exception e) {
             LOG.warn("Feil ved opprettelse av inntektsmelding med request: {}", opprettForespørselRequest);
-            throw feilVedKallTilFpinntektsmelding(e.getMessage());
+            throw feilVedKallTilFpinntektsmelding(e);
         }
     }
 
