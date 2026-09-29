@@ -297,12 +297,10 @@ public class FordelRestTjeneste {
     }
 
     /**
-     * MIDLERTIDIG. Batch-endepunkt for en engangs ryddejobb i fp-inntektsmelding, se
-     * {@link ForespørselStatusRequest}. Skal fjernes når jobben er kjørt.
-     *
-     * Alle forespørslene i kallet må gjelde samme fagsakSaksnummer (maks 100 orgnummer for den
-     * ene saken), siden ABAC/PDP kun støtter 0 eller 1 saksnummer per tilgangskontroll-vurdering.
-     * Kaller må gjøre ett kall per fagsakSaksnummer den vil sjekke.
+     * MIDLERTIDIG. Batch-endepunkt for en engangs ryddejobb i fp-inntektsmelding, se {@link ForespørselStatusRequest}.
+     * Fjernes når jobben er kjørt.
+     * <p>
+     * Maks ett fagsakSaksnummer per kall, siden ABAC/PDP kun autoriserer én sak per vurdering.
      */
     @POST
     @Path("/inntektsmelding/forespoersel-status")

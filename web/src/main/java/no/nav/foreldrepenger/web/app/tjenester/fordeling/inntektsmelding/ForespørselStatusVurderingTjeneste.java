@@ -21,11 +21,10 @@ import no.nav.foreldrepenger.web.app.tjenester.fordeling.inntektsmelding.Foresp�
 import no.nav.foreldrepenger.web.app.tjenester.fordeling.inntektsmelding.ForespørselStatusResponse.Årsak;
 
 /**
- * Vurderer, per element i {@link ForespørselStatusRequest}, om fp-sak fortsatt trenger inntektsmelding
- * fra arbeidsgiveren på saken. Se {@link ForespørselStatusRequest} for bakgrunn.
+ * Vurderer, per element i {@link ForespørselStatusRequest}, om fp-sak fortsatt trenger inntektsmelding fra
+ * arbeidsgiveren på saken.
  *
- * MIDLERTIDIG. Skal fjernes sammen med resten av batch-endepunktet når ryddejobben i fp-inntektsmelding
- * er ferdig kjørt.
+ * MIDLERTIDIG. Fjernes sammen med resten av batch-endepunktet når ryddejobben er ferdig kjørt.
  */
 @ApplicationScoped
 public class ForespørselStatusVurderingTjeneste {
