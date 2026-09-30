@@ -13,6 +13,7 @@ import org.junit.jupiter.api.Test;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.FordelingPeriodeKilde;
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.MorsAktivitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeType;
@@ -232,6 +233,63 @@ class VedtaksperiodeFilterFullPlanTest {
                 søkt(HALE_FOM, FP_TOM.plusWeeks(3), UttakPeriodeType.FELLESPERIODE));
 
             assertThat(endringsdato(plan, uttak(vedtak), false)).isEqualTo(HALE_FOM);
+        }
+
+        @Test
+        void endringssøknad_som_starter_med_fri_over_hull_i_vedtak_gir_ikke_endringsdato_fra_utsettelsen() {
+            var friTom = FP_FOM.plusDays(13);
+            var vedtak = List.of(
+                vedtaksperiode(MK_FOM, MK_TOM, UttakPeriodeType.MØDREKVOTE, PeriodeResultatType.INNVILGET, true),
+                vedtaksperiode(friTom.plusDays(1), FP_TOM, UttakPeriodeType.FELLESPERIODE, PeriodeResultatType.INNVILGET, true));
+            var plan = List.of(
+                søktUtsettelse(FP_FOM, friTom, UtsettelseÅrsak.FRI),
+                søkt(friTom.plusDays(1), FP_TOM, UttakPeriodeType.FELLESPERIODE),
+                søkt(HALE_FOM, FP_TOM.plusWeeks(3), UttakPeriodeType.FELLESPERIODE));
+
+            assertThat(endringsdato(plan, uttak(vedtak), false)).isEqualTo(HALE_FOM);
+        }
+
+        @Test
+        void urelevant_ferie_i_søknad_over_hull_i_vedtak_gir_ikke_endringsdato() {
+            var ferieTom = FP_FOM.plusDays(13);
+            var vedtak = List.of(
+                vedtaksperiode(MK_FOM, MK_TOM, UttakPeriodeType.MØDREKVOTE, PeriodeResultatType.INNVILGET, true),
+                vedtaksperiode(ferieTom.plusDays(1), FP_TOM, UttakPeriodeType.FELLESPERIODE, PeriodeResultatType.INNVILGET, true));
+            var plan = List.of(
+                søktUtsettelse(FP_FOM, ferieTom, UtsettelseÅrsak.FERIE),
+                søkt(ferieTom.plusDays(1), FP_TOM, UttakPeriodeType.FELLESPERIODE),
+                søkt(HALE_FOM, FP_TOM.plusWeeks(3), UttakPeriodeType.FELLESPERIODE));
+
+            assertThat(endringsdato(plan, uttak(vedtak), false)).isEqualTo(HALE_FOM);
+        }
+
+        @Test
+        void endringssøknad_som_starter_med_fri_med_morsaktivitet_over_hull_i_vedtak_gir_endringsdato_fra_utsettelsen() {
+            var friTom = FP_FOM.plusDays(13);
+            var vedtak = List.of(
+                vedtaksperiode(MK_FOM, MK_TOM, UttakPeriodeType.MØDREKVOTE, PeriodeResultatType.INNVILGET, true),
+                vedtaksperiode(friTom.plusDays(1), FP_TOM, UttakPeriodeType.FELLESPERIODE, PeriodeResultatType.INNVILGET, true));
+            var fri = OppgittPeriodeBuilder.fraEksisterende(søktUtsettelse(FP_FOM, friTom, UtsettelseÅrsak.FRI))
+                .medMorsAktivitet(MorsAktivitet.ARBEID)
+                .build();
+            var plan = List.of(
+                fri,
+                søkt(friTom.plusDays(1), FP_TOM, UttakPeriodeType.FELLESPERIODE));
+
+            assertThat(endringsdato(plan, uttak(vedtak), false)).isEqualTo(FP_FOM);
+        }
+
+        @Test
+        void endringssøknad_som_starter_med_fri_over_innvilget_uttak_gir_endringsdato_fra_utsettelsen() {
+            var friTom = FP_FOM.plusDays(13);
+            var vedtak = List.of(
+                vedtaksperiode(MK_FOM, MK_TOM, UttakPeriodeType.MØDREKVOTE, PeriodeResultatType.INNVILGET, true),
+                vedtaksperiode(FP_FOM, FP_TOM, UttakPeriodeType.FELLESPERIODE, PeriodeResultatType.INNVILGET, true));
+            var plan = List.of(
+                søktUtsettelse(FP_FOM, friTom, UtsettelseÅrsak.FRI),
+                søkt(friTom.plusDays(1), FP_TOM, UttakPeriodeType.FELLESPERIODE));
+
+            assertThat(endringsdato(plan, uttak(vedtak), false)).isEqualTo(FP_FOM);
         }
     }
 
