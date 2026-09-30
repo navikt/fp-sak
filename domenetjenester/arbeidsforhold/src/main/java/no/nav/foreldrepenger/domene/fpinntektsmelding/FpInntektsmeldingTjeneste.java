@@ -325,7 +325,7 @@ public class FpInntektsmeldingTjeneste {
         }
         if (!arbeidsgivereMedEndretForespørsel.isEmpty()) {
             var oppsummeringTekst = String.format(
-                "Forespørsel til arbeidsgiver er oppdatert med ny startdato for %s er %s.",
+                "Forespørsel til arbeidsgiver er oppdatert, ny startdato for %s er %s.",
                 ytelse, førsteUttaksdato.format(DATO_FORMAT));
             arbeidsgivereMedEndretForespørsel.forEach(builder::addLinje);
             historikkinnslagBuilder.addLinje(oppsummeringTekst);

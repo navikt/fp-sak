@@ -336,7 +336,7 @@ class FpInntektsmeldingTjenesteTest {
         var captor = ArgumentCaptor.forClass(Historikkinnslag.class);
         verify(historikkRepository).lagre(captor.capture());
         assertThat(captor.getValue().getTekstLinjer())
-            .contains("Testbedrift (999999999).", "Forespørsel til arbeidsgiver er oppdatert med ny startdato for foreldrepenger er 02.09.2024.")
+            .contains("Testbedrift (999999999).", "Forespørsel til arbeidsgiver er oppdatert, ny startdato for foreldrepenger er 02.09.2024.")
             .noneMatch(linje -> linje != null && linje.contains("Påminnelse sendes automatisk"));
     }
 
@@ -377,7 +377,7 @@ class FpInntektsmeldingTjenesteTest {
             "Testbedrift (999999999).",
             "Arbeidsgiver er informert om at startdato for foreldrepenger er 02.09.2024. Påminnelse sendes automatisk til arbeidsgiver dersom inntektsmelding ikke er mottatt innen 14 dager.",
             "Testbedrift 2 (123456789).",
-            "Forespørsel til arbeidsgiver er oppdatert med ny startdato for foreldrepenger er 02.09.2024.");
+            "Forespørsel til arbeidsgiver er oppdatert, ny startdato for foreldrepenger er 02.09.2024.");
     }
 
     @ParameterizedTest
