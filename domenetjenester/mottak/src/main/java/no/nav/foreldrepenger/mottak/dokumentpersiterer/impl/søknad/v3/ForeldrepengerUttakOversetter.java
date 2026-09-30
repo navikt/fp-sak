@@ -128,11 +128,11 @@ public class ForeldrepengerUttakOversetter  {
             .map(this::oversettPeriode)
             .filter(this::inneholderVirkedager)
             .toList();
+        if (kandidatperioder.isEmpty()) {
+            throw new IllegalArgumentException("Fordelingen må inneholde perioder med minst en virkedag");
+        }
         var oppgittPerioder = filtrerPerioderSomSkalSaksbehandles(kandidatperioder);
         if (oppgittPerioder.isEmpty() && !behandling.erRevurdering()) {
-            if (kandidatperioder.isEmpty()) {
-                throw new IllegalArgumentException("Fordelingen må inneholde perioder med minst en virkedag");
-            }
             throw new IllegalArgumentException("Fordelingen må inneholde minst én relevant periode");
         }
         var sammenstiltePerioder = søknadDataFraTidligereVedtakTjeneste.sammenstillMedTidligereVedtak(behandling, mottattDatoFraSøknad, oppgittPerioder);
