@@ -46,20 +46,13 @@ public class VedtaksperioderHelper {
                                                                       List<OppgittPeriodeEntitet> søknadsperioder,
                                                                       LocalDate fomDato,
                                                                       boolean beholdAvslåttePerioderFrittUttak) {
-        var vedtaksperioder = opprettPerioderFraVedtak(uttakResultatFraForrigeBehandling, søknadsperioder, fomDato, beholdAvslåttePerioderFrittUttak);
+        var førsteSøknadsdato = OppgittPeriodeUtil.finnFørsteSøknadsdato(søknadsperioder);
+        var vedtaksperioder = lagVedtaksperioder(uttakResultatFraForrigeBehandling, fomDato, førsteSøknadsdato, beholdAvslåttePerioderFrittUttak);
 
         List<OppgittPeriodeEntitet> søknadOgVedtaksperioder = new ArrayList<>();
         søknadsperioder.forEach(op -> søknadOgVedtaksperioder.add(OppgittPeriodeBuilder.fraEksisterende(op).build()));
         søknadOgVedtaksperioder.addAll(vedtaksperioder);
         return OppgittPeriodeUtil.sorterEtterFom(søknadOgVedtaksperioder);
-    }
-
-    private static List<OppgittPeriodeEntitet> opprettPerioderFraVedtak(UttakResultatEntitet uttakResultatFraForrigeBehandling,
-                                                                        List<OppgittPeriodeEntitet> søknadsperioder,
-                                                                        LocalDate fomDato,
-                                                                        boolean beholdAvslåttePerioderFrittUttak) {
-        var førsteSøknadsdato = OppgittPeriodeUtil.finnFørsteSøknadsdato(søknadsperioder);
-        return lagVedtaksperioder(uttakResultatFraForrigeBehandling, fomDato, førsteSøknadsdato, beholdAvslåttePerioderFrittUttak);
     }
 
     public static boolean avslåttPgaAvTaptPeriodeTilAnnenpart(UttakResultatPeriodeEntitet periode) {
