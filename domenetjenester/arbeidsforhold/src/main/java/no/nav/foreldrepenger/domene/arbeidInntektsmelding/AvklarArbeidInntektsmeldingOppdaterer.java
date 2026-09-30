@@ -4,7 +4,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -102,27 +101,17 @@ public class AvklarArbeidInntektsmeldingOppdaterer implements AksjonspunktOppdat
     }
 
     private void validerArbeidsforholdSomManglerInntektsmelding(List<ArbeidsforholdMangel> alleMangler, List<ArbeidsforholdValg> alleSaksbehandlersValg) {
-        var alleArbeidsforholdSomManglerIM = alleMangler.stream()
+        // Eldre valg kan være lagret pr arbeidsforhold, mens mangelen gjelder hele arbeidsgiveren. Det holder at ett valg som gjelder mangelen er fortsett uten inntektsmelding.
+        var uavklarteMangler = alleMangler.stream()
             .filter(m -> m.årsak().equals(AksjonspunktÅrsak.MANGLENDE_INNTEKTSMELDING))
+            .filter(mangel -> alleSaksbehandlersValg.stream()
+                .filter(valg -> valg.getVurdering().equals(ArbeidsforholdKomplettVurderingType.FORTSETT_UTEN_INNTEKTSMELDING))
+                .noneMatch(valg -> valg.getArbeidsgiver().equals(mangel.arbeidsgiver()) && valg.getArbeidsforholdRef().gjelderFor(mangel.ref())))
             .toList();
 
-        var saksbehandlersValgOmManglendeIM = alleSaksbehandlersValg.stream()
-            .filter(valg -> finnesIListe(alleArbeidsforholdSomManglerIM, valg))
-            .filter(valg -> valg.getVurdering().equals(ArbeidsforholdKomplettVurderingType.FORTSETT_UTEN_INNTEKTSMELDING))
-            .toList();
-
-        if (saksbehandlersValgOmManglendeIM.size() != alleArbeidsforholdSomManglerIM.size()) {
-            throw new IllegalStateException("Ikke like mange arbeidsforhold med manglende inntektsmelding som avklarte arbeidsforhold." +
-                "Arbeidsforhold uten inntektsmelding: " + alleArbeidsforholdSomManglerIM.size() + ". Valg som er bekreftet: " + alleSaksbehandlersValg.size());
+        if (!uavklarteMangler.isEmpty()) {
+            throw new IllegalStateException("Finnes arbeidsforhold som det ikke er valgt å fortsette uten inntektsmelding på. Uavklarte mangler: " + uavklarteMangler);
         }
-
-        alleArbeidsforholdSomManglerIM.forEach(mangel -> {
-            var arbeidsforholdValg = finnValgSomErGjort(alleSaksbehandlersValg, mangel);
-            if (arbeidsforholdValg.isEmpty() || !arbeidsforholdValg.get().getVurdering().equals(ArbeidsforholdKomplettVurderingType.FORTSETT_UTEN_INNTEKTSMELDING)) {
-                throw new IllegalStateException("Finnes arbeidsforhold som det ikke er valgt å fortsette uten inntektsmelding på." +
-                    " Gjelder arbeidsforhold hos " + mangel.arbeidsgiver() + " med internId " + mangel.ref());
-            }
-        });
     }
 
     private boolean avklartIkkeRelevant(ArbeidsforholdMangel mangel, List<ArbeidsforholdValg> saksbehandlersValgOmManglendeArbeidsforhold) {
@@ -146,11 +135,5 @@ public class AvklarArbeidInntektsmeldingOppdaterer implements AksjonspunktOppdat
         return inntektsmeldingerSomManglerArbeidsforhold.stream()
             .anyMatch(mangel -> Objects.equals(mangel.arbeidsgiver(), os.getArbeidsgiver())
                 && mangel.ref().gjelderFor(os.getArbeidsforholdRef()));
-    }
-
-    private Optional<ArbeidsforholdValg> finnValgSomErGjort(List<ArbeidsforholdValg> saksbehandlersValg, ArbeidsforholdMangel mangel) {
-        return saksbehandlersValg.stream()
-            .filter(valg -> valg.getArbeidsgiver().equals(mangel.arbeidsgiver()) && valg.getArbeidsforholdRef().gjelderFor(mangel.ref()))
-            .findFirst();
     }
 }

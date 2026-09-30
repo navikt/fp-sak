@@ -129,12 +129,12 @@ class InntektsmeldingTjenesteTest {
         var inntektsmeldingArkivTjenesteSvp = new InntektsmeldingRegisterTjeneste(iayTjeneste,
                 inntektsmeldingTjeneste, new UnitTestLookupInstanceImpl<>(svpengerFilter));
         // Act+Assert
-        assertThat(inntektsmeldingArkivTjenesteSvp.utledManglendeInntektsmeldingerFraGrunnlag(behandlingReferanse, skjæringstidspunkt)).isNotEmpty();
+        assertThat(inntektsmeldingArkivTjenesteSvp.utledManglendeInntektsmeldinger(behandlingReferanse, skjæringstidspunkt)).isNotEmpty();
 
         lagreInntektsmelding(I_DAG.minusDays(2), behandling, arbId1Intern, ARBEIDSFORHOLD_ID_EKSTERN);
 
         // Act+Assert
-        assertThat(inntektsmeldingArkivTjenesteSvp.utledManglendeInntektsmeldingerFraGrunnlag(behandlingReferanse, skjæringstidspunkt)).isEmpty();
+        assertThat(inntektsmeldingArkivTjenesteSvp.utledManglendeInntektsmeldinger(behandlingReferanse, skjæringstidspunkt)).isEmpty();
     }
 
     private SvpGrunnlagEntitet byggSvpGrunnlag(Behandling behandling, String arbeidsgiverOrgnr) {

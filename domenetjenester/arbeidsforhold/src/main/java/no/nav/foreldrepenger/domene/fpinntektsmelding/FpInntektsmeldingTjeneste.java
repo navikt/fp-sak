@@ -203,8 +203,7 @@ public class FpInntektsmeldingTjeneste {
 
         if (erToggleForNyInnsendingPå) {
             // Togglet på i dev: Ny innsending som alltid sender komplett liste over forespørsler, også de som er mottatte
-            var arbeidsgivereViManglerInntektsmeldingFra = inntektsmeldingRegisterTjeneste.utledAllePåKrevdeInntektsmeldinger(ref, stp)
-                .keySet()
+            var arbeidsgivereViManglerInntektsmeldingFra = inntektsmeldingRegisterTjeneste.utledPåkrevdeInntektsmeldinger(ref, stp)
                 .stream()
                 .filter(arbeidsgiver -> OrganisasjonsNummerValidator.erGyldig(arbeidsgiver.getOrgnr()))
                 .map(arbeidsgiver -> new OrganisasjonsnummerDto(arbeidsgiver.getOrgnr()))
@@ -219,8 +218,7 @@ public class FpInntektsmeldingTjeneste {
                 arbeidsgivereViManglerInntektsmeldingFra);
             sendKomplettRequest(ref, request);
         } else {
-            var arbeidsgivereViManglerInntektsmeldingFra = inntektsmeldingRegisterTjeneste.utledManglendeInntektsmeldingerFraGrunnlag(ref, stp)
-                .keySet()
+            var arbeidsgivereViManglerInntektsmeldingFra = inntektsmeldingRegisterTjeneste.utledManglendeInntektsmeldinger(ref, stp)
                 .stream()
                 .filter(arbeidsgiver -> OrganisasjonsNummerValidator.erGyldig(arbeidsgiver.getOrgnr()))
                 .map(arbeidsgiver -> new OrganisasjonsnummerDto(arbeidsgiver.getOrgnr()))

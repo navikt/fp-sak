@@ -75,6 +75,7 @@ public class ArbeidsforholdInntektsmeldingMangelTjeneste {
         var arbeidsforholdMedMangler = finnAlleManglerIArbeidsforholdInntektsmeldinger(behandlingReferanse, skjæringstidspunkt);
         var entiteter = ArbeidsforholdInntektsmeldingMangelMapper.mapManglendeOpplysningerVurdering(dto, arbeidsforholdMedMangler);
         sjekkUnikeReferanser(entiteter); // Skal kun være en avklaring pr referanse
+        deaktiverValgSomErstattesAvValgPåArbeidsgiver(behandlingReferanse.behandlingId(), entiteter);
         entiteter.forEach(ent -> arbeidsforholdValgRepository.lagre(ent, behandlingReferanse.behandlingId()));
 
         // Hvis det må sendes melding til arbeidsgiver
@@ -98,6 +99,14 @@ public class ArbeidsforholdInntektsmeldingMangelTjeneste {
             throw new IllegalArgumentException("Forsøk på å sende beskjed til ugyldig organisasjonsnummer, ulovlig tilstand");
         }
         return fpInntektsmeldingTjeneste.sendNyBeskjedTilArbeidsgiver(behandlingReferanse, dto.getArbeidsgiverIdent());
+    }
+
+    private void deaktiverValgSomErstattesAvValgPåArbeidsgiver(Long behandlingId, List<ArbeidsforholdValg> nyeValg) {
+        var eksisterendeValg = arbeidsforholdValgRepository.hentArbeidsforholdValgForBehandling(behandlingId);
+        ArbeidsforholdInntektsmeldingRyddeTjeneste.finnValgSomErstattesAvValgPåArbeidsgiver(eksisterendeValg, nyeValg).forEach(valg -> {
+            LOG.info("Deaktiverer valg pr arbeidsforhold som erstattes av valg på arbeidsgiver: {}", valg);
+            arbeidsforholdValgRepository.fjernValg(valg);
+        });
     }
 
     private void sjekkUnikeReferanser(List<ArbeidsforholdValg> entiteter) {
@@ -205,8 +214,9 @@ public class ArbeidsforholdInntektsmeldingMangelTjeneste {
         var iayGrunnlag = inntektArbeidYtelseTjeneste.finnGrunnlag(referanse.behandlingId());
         List<ArbeidsforholdMangel> mangler = new ArrayList<>();
         if (iayGrunnlag.isPresent()) {
-            mangler.addAll(lagArbeidsforholdMedMangel(inntektsmeldingRegisterTjeneste
-                .utledManglendeInntektsmeldingerFraGrunnlag(referanse, stp), AksjonspunktÅrsak.MANGLENDE_INNTEKTSMELDING));
+            inntektsmeldingRegisterTjeneste.utledManglendeInntektsmeldinger(referanse, stp).stream()
+                .map(arbeidsgiver -> new ArbeidsforholdMangel(arbeidsgiver, InternArbeidsforholdRef.nullRef(), AksjonspunktÅrsak.MANGLENDE_INNTEKTSMELDING))
+                .forEach(mangler::add);
 
             mangler.addAll(lagArbeidsforholdMedMangel(InntektsmeldingUtenArbeidsforholdTjeneste
                 .utledManglendeArbeidsforhold(hentRelevanteInntektsmeldinger(referanse, stp, iayGrunnlag.get()),
@@ -243,8 +253,8 @@ public class ArbeidsforholdInntektsmeldingMangelTjeneste {
     }
 
     public List<ArbeidsforholdInntektsmeldingStatus> finnStatusForInntektsmeldingArbeidsforhold(BehandlingReferanse referanse, Skjæringstidspunkt skjæringstidspunkt) {
-        var manglendeInntektsmeldinger = inntektsmeldingRegisterTjeneste.utledManglendeInntektsmeldingerFraGrunnlag(referanse, skjæringstidspunkt);
-        var allePåkrevdeInntektsmeldinger = inntektsmeldingRegisterTjeneste.hentAllePåkrevdeInntektsmeldinger(referanse, skjæringstidspunkt);
+        var manglendeInntektsmeldinger = inntektsmeldingRegisterTjeneste.utledManglendeInntektsmeldinger(referanse, skjæringstidspunkt);
+        var allePåkrevdeInntektsmeldinger = inntektsmeldingRegisterTjeneste.utledPåkrevdeInntektsmeldinger(referanse, skjæringstidspunkt);
         var saksbehandlersValg = arbeidsforholdValgRepository.hentArbeidsforholdValgForBehandling(referanse.behandlingId());
         LOG.info("ArbeidsfoholdInntektsmeldingStatusTjeneste: Påkrevde inntektsmeldinger: {}, Manglende inntektsmeldinger: {}, Saksbehandlers valg: {}",
             allePåkrevdeInntektsmeldinger, manglendeInntektsmeldinger, saksbehandlersValg);

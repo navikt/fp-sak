@@ -3,8 +3,7 @@ package no.nav.foreldrepenger.domene.arbeidsforhold.impl;
 import java.time.LocalDate;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -46,37 +45,43 @@ public class InaktiveArbeidsforholdUtleder {
     private InaktiveArbeidsforholdUtleder() {
     }
 
-    public static Map<Arbeidsgiver, Set<InternArbeidsforholdRef>> finnKunAktive(Map<Arbeidsgiver, Set<InternArbeidsforholdRef>> påkrevdeInntektsmeldinger,
-                                                                                Optional<InntektArbeidYtelseGrunnlag> inntektArbeidYtelseGrunnlag,
-                                                                                BehandlingReferanse referanse, Skjæringstidspunkt stp) {
+    public static Set<Arbeidsgiver> finnKunAktive(Set<Arbeidsgiver> påkrevdeArbeidsgivere,
+                                                  Optional<InntektArbeidYtelseGrunnlag> inntektArbeidYtelseGrunnlag,
+                                                  BehandlingReferanse referanse, Skjæringstidspunkt stp) {
         var utledetStp = stp.getUtledetSkjæringstidspunkt();
 
-        var aktiveArbeidsforhold = påkrevdeInntektsmeldinger.entrySet().stream()
-            .filter(e -> !erInaktivt(e.getKey(), inntektArbeidYtelseGrunnlag, referanse.aktørId(), utledetStp, referanse.saksnummer()))
-            .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+        var aktiveArbeidsgivere = påkrevdeArbeidsgivere.stream()
+            .filter(ag -> !erInaktivt(ag, inntektArbeidYtelseGrunnlag, referanse.aktørId(), utledetStp, referanse.saksnummer()))
+            .collect(Collectors.toSet());
 
-        if (aktiveArbeidsforhold.isEmpty()) {
+        if (aktiveArbeidsgivere.isEmpty()) {
             LOG.info("INAKTIV_ARB_UTLEDER: Alle arbeidsforhold var inaktive, returnerer tom liste");
-            return aktiveArbeidsforhold;
+            return aktiveArbeidsgivere;
         }
 
-        Map<Arbeidsgiver, Set<InternArbeidsforholdRef>> aktiveArbeidsforholdUtenPermisjon = new HashMap<>();
-        //Sjekker om hvert arbeidsforhold under virksomheten har registrert permisjon som overlapper skjæringstidspunkt. Fjerne de som har det
-        aktiveArbeidsforhold.forEach((key, value) -> {
-            var utenPermisjon = value.stream()
-                .filter(ref -> !erIPermisjonPåStp(key, ref, inntektArbeidYtelseGrunnlag, referanse.aktørId(), utledetStp))
-                .collect(Collectors.toSet());
-            if (!utenPermisjon.isEmpty()) {
-                aktiveArbeidsforholdUtenPermisjon.put(key, utenPermisjon);
-            }
-        });
-        if (aktiveArbeidsforholdUtenPermisjon.isEmpty()) {
+        // Fjerner arbeidsgivere der alle relevante arbeidsforhold har permisjon som overlapper skjæringstidspunkt
+        var relevanteYrkesaktiviteter = inntektArbeidYtelseGrunnlag
+            .map(grunnlag -> RelevanteYrkesaktiviteterForInntektsmelding.finn(grunnlag, referanse.aktørId(), utledetStp))
+            .orElse(List.of());
+        var aktiveArbeidsgivereUtenPermisjon = aktiveArbeidsgivere.stream()
+            .filter(ag -> !erAlleRelevanteArbeidsforholdIPermisjonPåStp(ag, relevanteYrkesaktiviteter, utledetStp))
+            .collect(Collectors.toSet());
+        if (aktiveArbeidsgivereUtenPermisjon.isEmpty()) {
             LOG.info("INAKTIV_ARB_UTLEDER: Finnes ingen aktive arbeidsforhold uten permisjon, returnerer istedenfor aktive arbeidsforhold med permisjon");
-            return aktiveArbeidsforhold;
+            return aktiveArbeidsgivere;
         }
-        return aktiveArbeidsforholdUtenPermisjon;
+        return aktiveArbeidsgivereUtenPermisjon;
     }
 
+    private static boolean erAlleRelevanteArbeidsforholdIPermisjonPåStp(Arbeidsgiver arbeidsgiver,
+                                                                        List<Yrkesaktivitet> relevanteYrkesaktiviteter,
+                                                                        LocalDate stp) {
+        var arbeidsforholdHosArbeidsgiver = relevanteYrkesaktiviteter.stream()
+            .filter(ya -> arbeidsgiver.equals(ya.getArbeidsgiver()))
+            .toList();
+        return !arbeidsforholdHosArbeidsgiver.isEmpty() && arbeidsforholdHosArbeidsgiver.stream()
+            .allMatch(ya -> HåndterePermisjoner.harRelevantPermisjonSomOverlapperSkjæringstidspunkt(ya, stp));
+    }
 
     public static boolean erInaktivt(Arbeidsgiver arbeidsgiverSomSjekkes,
                                      Optional<InntektArbeidYtelseGrunnlag> inntektArbeidYtelseGrunnlag,

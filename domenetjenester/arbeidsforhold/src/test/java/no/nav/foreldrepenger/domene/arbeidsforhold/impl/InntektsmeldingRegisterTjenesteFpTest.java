@@ -80,7 +80,7 @@ class InntektsmeldingRegisterTjenesteFpTest {
     }
 
     @Test
-    void utledManglendeInntektsmeldingerFraGrunnlag_enkel_case() {
+    void utledManglendeInntektsmeldinger_enkel_case() {
         var skjæringstidspunkt = Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(SKJÆRINGSTIDSPUNKT).build();
         var arbeidsgiver = Arbeidsgiver.virksomhet("123456789");
         var ref = InternArbeidsforholdRef.nyRef();
@@ -95,14 +95,10 @@ class InntektsmeldingRegisterTjenesteFpTest {
         when(inntektsmeldingTjeneste.hentInntektsmeldinger(behandlingReferanse, skjæringstidspunkt.getUtledetSkjæringstidspunkt())).thenReturn(
             Collections.emptyList());
 
-        var manglendeInntektsmeldinger = inntektsmeldingRegisterTjeneste.utledManglendeInntektsmeldingerFraGrunnlag(behandlingReferanse, skjæringstidspunkt);
+        var manglendeInntektsmeldinger = inntektsmeldingRegisterTjeneste.utledManglendeInntektsmeldinger(behandlingReferanse, skjæringstidspunkt);
         var statusPerArbeidsgiver = finnStatusForInntektsmeldingArbeidsforhold(behandlingReferanse, skjæringstidspunkt);
 
-        var listeAvArbeidsforholdsider = manglendeInntektsmeldinger.values().stream().toList();
-
-        assertThat(manglendeInntektsmeldinger).hasSize(1);
-        assertThat(manglendeInntektsmeldinger.keySet().stream().findFirst()).isEqualTo(Optional.of(arbeidsgiver));
-        assertThat(listeAvArbeidsforholdsider.getFirst()).isEqualTo(Set.of(ref));
+        assertThat(manglendeInntektsmeldinger).containsExactly(arbeidsgiver);
 
         assertThat(statusPerArbeidsgiver).hasSize(1);
         assertThat(statusPerArbeidsgiver.stream().toList().getFirst().inntektsmeldingStatus()).isEqualTo(ArbeidsforholdInntektsmeldingStatus.InntektsmeldingStatus.IKKE_MOTTAT);
@@ -127,19 +123,15 @@ class InntektsmeldingRegisterTjenesteFpTest {
         when(inntektsmeldingTjeneste.hentInntektsmeldinger(behandlingReferanse, skjæringstidspunkt.getUtledetSkjæringstidspunkt())).thenReturn(
             Collections.emptyList());
 
-        var manglendeInntektsmeldinger = inntektsmeldingRegisterTjeneste.utledManglendeInntektsmeldingerFraGrunnlag(behandlingReferanse, skjæringstidspunkt);
+        var manglendeInntektsmeldinger = inntektsmeldingRegisterTjeneste.utledManglendeInntektsmeldinger(behandlingReferanse, skjæringstidspunkt);
         var statusPerArbeidsgiver = finnStatusForInntektsmeldingArbeidsforhold(behandlingReferanse, skjæringstidspunkt);
 
-        var listeAvArbeidsforholdsider = manglendeInntektsmeldinger.values().stream().toList();
+        assertThat(manglendeInntektsmeldinger).containsExactly(arbeidsgiver);
 
-        assertThat(manglendeInntektsmeldinger).hasSize(1);
-        assertThat(manglendeInntektsmeldinger.keySet().stream().findFirst()).isEqualTo(Optional.of(arbeidsgiver));
-        assertThat(listeAvArbeidsforholdsider.getFirst()).isEqualTo(Set.of(ref));
-
-        assertThat(statusPerArbeidsgiver).hasSize(1);
-        assertThat(statusPerArbeidsgiver.stream().filter(status -> status.ref().equals(ref))
-            .map(ArbeidsforholdInntektsmeldingStatus::inntektsmeldingStatus)).containsAll(
-            Collections.singleton(ArbeidsforholdInntektsmeldingStatus.InntektsmeldingStatus.IKKE_MOTTAT));
+        assertThat(statusPerArbeidsgiver).singleElement().satisfies(status -> {
+            assertThat(status.arbeidsgiver()).isEqualTo(arbeidsgiver);
+            assertThat(status.inntektsmeldingStatus()).isEqualTo(ArbeidsforholdInntektsmeldingStatus.InntektsmeldingStatus.IKKE_MOTTAT);
+        });
     }
 
     @Test
@@ -163,12 +155,10 @@ class InntektsmeldingRegisterTjenesteFpTest {
         when(inntektArbeidYtelseTjeneste.finnGrunnlag(behandlingReferanse.behandlingId())).thenReturn(Optional.of(grunnlag));
         when(inntektsmeldingTjeneste.hentInntektsmeldinger(behandlingReferanse, skjæringstidspunkt.getUtledetSkjæringstidspunkt())).thenReturn(Collections.emptyList());
 
-        var manglendeInntektsmeldinger = inntektsmeldingRegisterTjeneste.utledManglendeInntektsmeldingerFraGrunnlag(behandlingReferanse, skjæringstidspunkt);
+        var manglendeInntektsmeldinger = inntektsmeldingRegisterTjeneste.utledManglendeInntektsmeldinger(behandlingReferanse, skjæringstidspunkt);
 
         // Assert: kun de to uten permisjon krever inntektsmelding
-        assertThat(manglendeInntektsmeldinger).hasSize(1);
-        assertThat(manglendeInntektsmeldinger.keySet().stream().findFirst()).isEqualTo(Optional.of(arbeidsgiver));
-        assertThat(manglendeInntektsmeldinger.get(arbeidsgiver)).containsExactlyInAnyOrder(ref1, ref2);
+        assertThat(manglendeInntektsmeldinger).containsExactly(arbeidsgiver);
     }
 
     @Test
@@ -192,11 +182,10 @@ class InntektsmeldingRegisterTjenesteFpTest {
         when(inntektArbeidYtelseTjeneste.finnGrunnlag(behandlingReferanse.behandlingId())).thenReturn(Optional.of(grunnlag));
         when(inntektsmeldingTjeneste.hentInntektsmeldinger(behandlingReferanse, skjæringstidspunkt.getUtledetSkjæringstidspunkt())).thenReturn(Collections.emptyList());
 
-        var manglendeInntektsmeldinger = inntektsmeldingRegisterTjeneste.utledManglendeInntektsmeldingerFraGrunnlag(behandlingReferanse, skjæringstidspunkt);
+        var manglendeInntektsmeldinger = inntektsmeldingRegisterTjeneste.utledManglendeInntektsmeldinger(behandlingReferanse, skjæringstidspunkt);
 
         // Assert: kun det ene uten permisjon krever inntektsmelding
-        assertThat(manglendeInntektsmeldinger).hasSize(1);
-        assertThat(manglendeInntektsmeldinger.get(arbeidsgiver)).containsExactly(ref1);
+        assertThat(manglendeInntektsmeldinger).containsExactly(arbeidsgiver);
     }
 
     @Test
@@ -218,25 +207,15 @@ class InntektsmeldingRegisterTjenesteFpTest {
         when(inntektsmeldingTjeneste.hentInntektsmeldinger(behandlingReferanse, skjæringstidspunkt.getUtledetSkjæringstidspunkt())).thenReturn(
             Collections.emptyList());
 
-        var manglendeInntektsmeldinger = inntektsmeldingRegisterTjeneste.utledManglendeInntektsmeldingerFraGrunnlag(behandlingReferanse, skjæringstidspunkt);
+        var manglendeInntektsmeldinger = inntektsmeldingRegisterTjeneste.utledManglendeInntektsmeldinger(behandlingReferanse, skjæringstidspunkt);
         var statusPerArbeidsgiver = finnStatusForInntektsmeldingArbeidsforhold(behandlingReferanse, skjæringstidspunkt);
 
-        List<InternArbeidsforholdRef> internrefs = manglendeInntektsmeldinger.entrySet()
-            .stream()
-            .flatMap(entry -> entry.getValue().stream())
-            .toList();
+        assertThat(manglendeInntektsmeldinger).containsExactly(arbeidsgiver);
 
-        assertThat(manglendeInntektsmeldinger).hasSize(1);
-        assertThat(manglendeInntektsmeldinger.keySet().stream().findFirst()).isEqualTo(Optional.of(arbeidsgiver));
-        assertThat(internrefs).containsAll(List.of(ref, ref2));
-
-        assertThat(statusPerArbeidsgiver).hasSize(2);
-        assertThat(statusPerArbeidsgiver.stream().filter(status -> status.ref().equals(ref))
-            .map(ArbeidsforholdInntektsmeldingStatus::inntektsmeldingStatus)).containsAll(
-            Collections.singleton(ArbeidsforholdInntektsmeldingStatus.InntektsmeldingStatus.IKKE_MOTTAT));
-        assertThat(statusPerArbeidsgiver.stream().filter(status -> status.ref().equals(ref2))
-            .map(ArbeidsforholdInntektsmeldingStatus::inntektsmeldingStatus)).containsAll(
-            Collections.singleton(ArbeidsforholdInntektsmeldingStatus.InntektsmeldingStatus.IKKE_MOTTAT));
+        assertThat(statusPerArbeidsgiver).singleElement().satisfies(status -> {
+            assertThat(status.arbeidsgiver()).isEqualTo(arbeidsgiver);
+            assertThat(status.inntektsmeldingStatus()).isEqualTo(ArbeidsforholdInntektsmeldingStatus.InntektsmeldingStatus.IKKE_MOTTAT);
+        });
     }
 
     @Test
@@ -258,25 +237,15 @@ class InntektsmeldingRegisterTjenesteFpTest {
         when(inntektsmeldingTjeneste.hentInntektsmeldinger(behandlingReferanse, skjæringstidspunkt.getUtledetSkjæringstidspunkt())).thenReturn(
             Collections.emptyList());
 
-        var manglendeInntektsmeldinger = inntektsmeldingRegisterTjeneste.utledManglendeInntektsmeldingerFraGrunnlag(behandlingReferanse, skjæringstidspunkt);
+        var manglendeInntektsmeldinger = inntektsmeldingRegisterTjeneste.utledManglendeInntektsmeldinger(behandlingReferanse, skjæringstidspunkt);
         var statusPerArbeidsgiver = finnStatusForInntektsmeldingArbeidsforhold(behandlingReferanse, skjæringstidspunkt);
 
-        List<InternArbeidsforholdRef> internrefs = manglendeInntektsmeldinger.entrySet()
-            .stream()
-            .flatMap(entry -> entry.getValue().stream())
-            .toList();
+        assertThat(manglendeInntektsmeldinger).containsExactly(arbeidsgiver);
 
-        assertThat(manglendeInntektsmeldinger).hasSize(1);
-        assertThat(manglendeInntektsmeldinger.keySet().stream().findFirst()).isEqualTo(Optional.of(arbeidsgiver));
-        assertThat(internrefs).containsAll(List.of(ref2, ref));
-
-        assertThat(statusPerArbeidsgiver).hasSize(2);
-        assertThat(statusPerArbeidsgiver.stream().filter(status -> status.ref().equals(ref))
-            .map(ArbeidsforholdInntektsmeldingStatus::inntektsmeldingStatus)).containsAll(
-            Collections.singleton(ArbeidsforholdInntektsmeldingStatus.InntektsmeldingStatus.IKKE_MOTTAT));
-        assertThat(statusPerArbeidsgiver.stream().filter(status -> status.ref().equals(ref2))
-            .map(ArbeidsforholdInntektsmeldingStatus::inntektsmeldingStatus)).containsAll(
-            Collections.singleton(ArbeidsforholdInntektsmeldingStatus.InntektsmeldingStatus.IKKE_MOTTAT));
+        assertThat(statusPerArbeidsgiver).singleElement().satisfies(status -> {
+            assertThat(status.arbeidsgiver()).isEqualTo(arbeidsgiver);
+            assertThat(status.inntektsmeldingStatus()).isEqualTo(ArbeidsforholdInntektsmeldingStatus.InntektsmeldingStatus.IKKE_MOTTAT);
+        });
     }
 
     @Test
@@ -298,22 +267,19 @@ class InntektsmeldingRegisterTjenesteFpTest {
         when(inntektsmeldingTjeneste.hentInntektsmeldinger(behandlingReferanse, skjæringstidspunkt.getUtledetSkjæringstidspunkt())).thenReturn(
             List.of(inntektsmeldingUtenArbId));
 
-        var manglendeInntektsmeldinger = inntektsmeldingRegisterTjeneste.utledManglendeInntektsmeldingerFraGrunnlag(behandlingReferanse, skjæringstidspunkt);
+        var manglendeInntektsmeldinger = inntektsmeldingRegisterTjeneste.utledManglendeInntektsmeldinger(behandlingReferanse, skjæringstidspunkt);
         var statusPerArbeidsgiver = finnStatusForInntektsmeldingArbeidsforhold(behandlingReferanse, skjæringstidspunkt);
 
         assertThat(manglendeInntektsmeldinger).isEmpty();
 
-        assertThat(statusPerArbeidsgiver).hasSize(2);
-        assertThat(statusPerArbeidsgiver.stream().filter(status -> status.ref().equals(ref))
-            .map(ArbeidsforholdInntektsmeldingStatus::inntektsmeldingStatus)).containsAll(
-            Collections.singleton(ArbeidsforholdInntektsmeldingStatus.InntektsmeldingStatus.MOTTATT));
-        assertThat(statusPerArbeidsgiver.stream().filter(status -> status.ref().equals(ref2))
-            .map(ArbeidsforholdInntektsmeldingStatus::inntektsmeldingStatus)).containsAll(
-            Collections.singleton(ArbeidsforholdInntektsmeldingStatus.InntektsmeldingStatus.MOTTATT));
+        assertThat(statusPerArbeidsgiver).singleElement().satisfies(status -> {
+            assertThat(status.arbeidsgiver()).isEqualTo(arbeidsgiver);
+            assertThat(status.inntektsmeldingStatus()).isEqualTo(ArbeidsforholdInntektsmeldingStatus.InntektsmeldingStatus.MOTTATT);
+        });
     }
 
     @Test
-    void har_mottatt_inntektsmelding_med_arbeidsforholdsid_for_ett_av_arbeidsforholdene_en_im_mangler() {
+    void inntektsmelding_med_arbeidsforholdsid_for_ett_av_arbeidsforholdene_dekker_hele_arbeidsgiver() {
         var skjæringstidspunkt = Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(SKJÆRINGSTIDSPUNKT).build();
         var arbeidsgiver = Arbeidsgiver.virksomhet("123456789");
         var ref = InternArbeidsforholdRef.nyRef();
@@ -331,29 +297,19 @@ class InntektsmeldingRegisterTjenesteFpTest {
         when(inntektsmeldingTjeneste.hentInntektsmeldinger(behandlingReferanse, skjæringstidspunkt.getUtledetSkjæringstidspunkt())).thenReturn(
             List.of(inntektsmeldingMedArbId));
 
-        var manglendeInntektsmeldinger = inntektsmeldingRegisterTjeneste.utledManglendeInntektsmeldingerFraGrunnlag(behandlingReferanse, skjæringstidspunkt);
+        var manglendeInntektsmeldinger = inntektsmeldingRegisterTjeneste.utledManglendeInntektsmeldinger(behandlingReferanse, skjæringstidspunkt);
         var statusPerArbeidsgiver = finnStatusForInntektsmeldingArbeidsforhold(behandlingReferanse, skjæringstidspunkt);
 
-        List<InternArbeidsforholdRef> internrefs = manglendeInntektsmeldinger.entrySet()
-            .stream()
-            .flatMap(entry -> entry.getValue().stream())
-            .toList();
+        assertThat(manglendeInntektsmeldinger).isEmpty();
 
-        assertThat(manglendeInntektsmeldinger).hasSize(1);
-        assertThat(manglendeInntektsmeldinger.keySet().stream().findFirst()).isEqualTo(Optional.of(arbeidsgiver));
-        assertThat(internrefs).containsAll(List.of(ref2));
-
-        assertThat(statusPerArbeidsgiver).hasSize(2);
-        assertThat(statusPerArbeidsgiver.stream().filter(status -> status.ref().equals(ref))
-            .map(ArbeidsforholdInntektsmeldingStatus::inntektsmeldingStatus)).containsAll(
-            Collections.singleton(ArbeidsforholdInntektsmeldingStatus.InntektsmeldingStatus.MOTTATT));
-        assertThat(statusPerArbeidsgiver.stream().filter(status -> status.ref().equals(ref2))
-            .map(ArbeidsforholdInntektsmeldingStatus::inntektsmeldingStatus)).containsAll(
-            Collections.singleton(ArbeidsforholdInntektsmeldingStatus.InntektsmeldingStatus.IKKE_MOTTAT));
+        assertThat(statusPerArbeidsgiver).singleElement().satisfies(status -> {
+            assertThat(status.arbeidsgiver()).isEqualTo(arbeidsgiver);
+            assertThat(status.inntektsmeldingStatus()).isEqualTo(ArbeidsforholdInntektsmeldingStatus.InntektsmeldingStatus.MOTTATT);
+        });
     }
 
     @Test
-    void to_arbeidsforhold_ulik_arbeidsgiver_mottar_to_inntektmeldinger_men_begge_har_feil_id() {
+    void to_arbeidsforhold_ulik_arbeidsgiver_mottar_to_inntektmeldinger_med_ukjent_id_regnes_som_mottatt() {
         var skjæringstidspunkt = Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(SKJÆRINGSTIDSPUNKT).build();
         var arbeidsgiver1 = Arbeidsgiver.virksomhet("123456789");
         var arbeidsgiver2 = Arbeidsgiver.virksomhet("987654321");
@@ -376,30 +332,14 @@ class InntektsmeldingRegisterTjenesteFpTest {
         when(inntektsmeldingTjeneste.hentInntektsmeldinger(behandlingReferanse, skjæringstidspunkt.getUtledetSkjæringstidspunkt())).thenReturn(
             List.of(inntektsmeldingMedArbId1, inntektsmeldingMedArbId2));
 
-        var manglendeInntektsmeldinger = inntektsmeldingRegisterTjeneste.utledManglendeInntektsmeldingerFraGrunnlag(behandlingReferanse, skjæringstidspunkt);
+        var manglendeInntektsmeldinger = inntektsmeldingRegisterTjeneste.utledManglendeInntektsmeldinger(behandlingReferanse, skjæringstidspunkt);
         var statusPerArbeidsgiver = finnStatusForInntektsmeldingArbeidsforhold(behandlingReferanse, skjæringstidspunkt);
 
+        assertThat(manglendeInntektsmeldinger).isEmpty();
 
-        assertThat(manglendeInntektsmeldinger).hasSize(2);
-        assertThat(manglendeInntektsmeldinger.get(arbeidsgiver1)).containsExactly(ref1Gyldig);
-        assertThat(manglendeInntektsmeldinger.get(arbeidsgiver2)).containsExactly(ref2Gyldig);
-
-        assertThat(statusPerArbeidsgiver).hasSize(2);
-        var ag1Status = statusPerArbeidsgiver.stream()
-            .filter(s -> s.arbeidsgiver().equals(arbeidsgiver1))
-            .findFirst()
-            .orElse(null);
-        assertThat(ag1Status).isNotNull();
-        assertThat(ag1Status.ref()).isEqualTo(ref1Gyldig);
-        assertThat(ag1Status.inntektsmeldingStatus()).isEqualTo(ArbeidsforholdInntektsmeldingStatus.InntektsmeldingStatus.IKKE_MOTTAT);
-
-        var ag2tatus = statusPerArbeidsgiver.stream()
-            .filter(s -> s.arbeidsgiver().equals(arbeidsgiver2))
-            .findFirst()
-            .orElse(null);
-        assertThat(ag2tatus).isNotNull();
-        assertThat(ag2tatus.ref()).isEqualTo(ref2Gyldig);
-        assertThat(ag2tatus.inntektsmeldingStatus()).isEqualTo(ArbeidsforholdInntektsmeldingStatus.InntektsmeldingStatus.IKKE_MOTTAT);
+        assertThat(statusPerArbeidsgiver).hasSize(2)
+            .allSatisfy(status -> assertThat(status.inntektsmeldingStatus()).isEqualTo(ArbeidsforholdInntektsmeldingStatus.InntektsmeldingStatus.MOTTATT));
+        assertThat(statusPerArbeidsgiver).extracting(ArbeidsforholdInntektsmeldingStatus::arbeidsgiver).containsExactlyInAnyOrder(arbeidsgiver1, arbeidsgiver2);
     }
 
     @Test
@@ -421,11 +361,10 @@ class InntektsmeldingRegisterTjenesteFpTest {
         when(inntektsmeldingTjeneste.hentInntektsmeldinger(behandlingReferanse, skjæringstidspunkt.getUtledetSkjæringstidspunkt())).thenReturn(
             Collections.emptyList());
 
-        var manglendeInntektsmeldinger = inntektsmeldingRegisterTjeneste.utledManglendeInntektsmeldingerFraGrunnlag(behandlingReferanse, skjæringstidspunkt);
+        var manglendeInntektsmeldinger = inntektsmeldingRegisterTjeneste.utledManglendeInntektsmeldinger(behandlingReferanse, skjæringstidspunkt);
         var statusPerArbeidsgiver = finnStatusForInntektsmeldingArbeidsforhold(behandlingReferanse, skjæringstidspunkt);
 
-        assertThat(manglendeInntektsmeldinger).hasSize(1);
-        assertThat(manglendeInntektsmeldinger.keySet().stream().findFirst()).isEqualTo(Optional.of(arbeidsgiver));
+        assertThat(manglendeInntektsmeldinger).containsExactly(arbeidsgiver);
 
         assertThat(statusPerArbeidsgiver).hasSize(1);
         assertThat(statusPerArbeidsgiver.stream().filter(status -> status.arbeidsgiver().equals(arbeidsgiver))
@@ -453,11 +392,10 @@ class InntektsmeldingRegisterTjenesteFpTest {
         when(inntektsmeldingTjeneste.hentInntektsmeldinger(behandlingReferanse, skjæringstidspunkt.getUtledetSkjæringstidspunkt())).thenReturn(
             List.of(inntektsmeldingMottatt));
 
-        var manglendeInntektsmeldinger = inntektsmeldingRegisterTjeneste.utledManglendeInntektsmeldingerFraGrunnlag(behandlingReferanse, skjæringstidspunkt);
+        var manglendeInntektsmeldinger = inntektsmeldingRegisterTjeneste.utledManglendeInntektsmeldinger(behandlingReferanse, skjæringstidspunkt);
         var statusPerArbeidsgiver = finnStatusForInntektsmeldingArbeidsforhold(behandlingReferanse, skjæringstidspunkt);
 
-        assertThat(manglendeInntektsmeldinger).hasSize(1);
-        assertThat(manglendeInntektsmeldinger.keySet().stream().findFirst()).isEqualTo(Optional.of(arbeidsgiver));
+        assertThat(manglendeInntektsmeldinger).containsExactly(arbeidsgiver);
 
         assertThat(statusPerArbeidsgiver).hasSize(2);
         assertThat(statusPerArbeidsgiver.stream().filter(status -> status.arbeidsgiver().equals(arbeidsgiver))
@@ -489,7 +427,7 @@ class InntektsmeldingRegisterTjenesteFpTest {
         when(inntektsmeldingTjeneste.hentInntektsmeldinger(behandlingReferanse, skjæringstidspunkt.getUtledetSkjæringstidspunkt())).thenReturn(
             List.of(inntektsmeldingArbeidsgiver1, inntektsmeldingArbeidsgiver2));
 
-        var manglendeInntektsmeldinger = inntektsmeldingRegisterTjeneste.utledManglendeInntektsmeldingerFraGrunnlag(behandlingReferanse, skjæringstidspunkt);
+        var manglendeInntektsmeldinger = inntektsmeldingRegisterTjeneste.utledManglendeInntektsmeldinger(behandlingReferanse, skjæringstidspunkt);
         var statusPerArbeidsgiver = finnStatusForInntektsmeldingArbeidsforhold(behandlingReferanse, skjæringstidspunkt);
 
         assertThat(manglendeInntektsmeldinger).isEmpty();
@@ -523,11 +461,10 @@ class InntektsmeldingRegisterTjenesteFpTest {
         when(inntektArbeidYtelseTjeneste.finnGrunnlag(behandlingReferanse.behandlingId())).thenReturn(Optional.of(grunnlag));
         when(inntektsmeldingTjeneste.hentInntektsmeldinger(behandlingReferanse, skjæringstidspunkt.getUtledetSkjæringstidspunkt())).thenReturn(List.of());
 
-        var manglendeInntektsmeldinger = inntektsmeldingRegisterTjeneste.utledManglendeInntektsmeldingerFraGrunnlag(behandlingReferanse, skjæringstidspunkt);
+        var manglendeInntektsmeldinger = inntektsmeldingRegisterTjeneste.utledManglendeInntektsmeldinger(behandlingReferanse, skjæringstidspunkt);
         var statusPerArbeidsgiver = finnStatusForInntektsmeldingArbeidsforhold(behandlingReferanse, skjæringstidspunkt);
 
-        assertThat(manglendeInntektsmeldinger).hasSize(1);
-        assertThat(manglendeInntektsmeldinger.get(arbeidsgiver)).containsExactly(førsteArbeidsforholdRef);
+        assertThat(manglendeInntektsmeldinger).containsExactly(arbeidsgiver);
 
         assertThat(statusPerArbeidsgiver).hasSize(1);
         assertThat(statusPerArbeidsgiver.stream().filter(status -> status.arbeidsgiver().equals(arbeidsgiver))
@@ -535,9 +472,32 @@ class InntektsmeldingRegisterTjenesteFpTest {
             Collections.singleton(ArbeidsforholdInntektsmeldingStatus.InntektsmeldingStatus.IKKE_MOTTAT));
     }
 
+    @Test
+    void krever_ikke_inntektsmelding_fra_arbeidsgiver_når_alle_arbeidsforhold_hos_arbeidsgiver_har_100_prosent_permisjon() {
+        var skjæringstidspunkt = Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(SKJÆRINGSTIDSPUNKT).build();
+        var arbeidsgiverMedPermisjon = Arbeidsgiver.virksomhet("123456789");
+        var arbeidsgiverAktiv = Arbeidsgiver.virksomhet("987654321");
+        var aktivitetsAvtale = lagAktivitetsAvtaleBuilder(SKJÆRINGSTIDSPUNKT.minusYears(1), null);
+        var permisjon = byggPermisjon(SKJÆRINGSTIDSPUNKT.minusDays(2), SKJÆRINGSTIDSPUNKT.plusMonths(2), PermisjonsbeskrivelseType.ANNEN_PERMISJON_IKKE_LOVFESTET, BigDecimal.valueOf(100));
+        var yrkesaktivitet1 = lagYrkesaktivitetBuilder(List.of(aktivitetsAvtale), arbeidsgiverMedPermisjon, InternArbeidsforholdRef.nyRef(), List.of(permisjon));
+        var yrkesaktivitet2 = lagYrkesaktivitetBuilder(List.of(aktivitetsAvtale), arbeidsgiverMedPermisjon, InternArbeidsforholdRef.nyRef(), List.of(permisjon));
+        var yrkesaktivitet3 = lagYrkesaktivitetBuilder(List.of(aktivitetsAvtale), arbeidsgiverAktiv, InternArbeidsforholdRef.nyRef(), List.of());
+
+        lagArbeid(List.of(yrkesaktivitet1, yrkesaktivitet2, yrkesaktivitet3));
+        lagInntekt(arbeidsgiverMedPermisjon, SKJÆRINGSTIDSPUNKT.minusMonths(12), 12);
+        lagInntekt(arbeidsgiverAktiv, SKJÆRINGSTIDSPUNKT.minusMonths(12), 12);
+        var grunnlag = byggIAY(inntektArbeidYtelseAggregatBuilder, Collections.emptyList(), arbeidBuilder, inntektBuilder, ytelseBuilder);
+
+        when(inntektArbeidYtelseTjeneste.finnGrunnlag(behandlingReferanse.behandlingId())).thenReturn(Optional.of(grunnlag));
+        when(inntektsmeldingTjeneste.hentInntektsmeldinger(behandlingReferanse, skjæringstidspunkt.getUtledetSkjæringstidspunkt())).thenReturn(Collections.emptyList());
+
+        assertThat(inntektsmeldingRegisterTjeneste.utledPåkrevdeInntektsmeldinger(behandlingReferanse, skjæringstidspunkt)).containsExactly(arbeidsgiverAktiv);
+        assertThat(inntektsmeldingRegisterTjeneste.utledManglendeInntektsmeldinger(behandlingReferanse, skjæringstidspunkt)).containsExactly(arbeidsgiverAktiv);
+    }
+
     public List<ArbeidsforholdInntektsmeldingStatus> finnStatusForInntektsmeldingArbeidsforhold(BehandlingReferanse referanse, Skjæringstidspunkt skjæringstidspunkt) {
-        var manglendeInntektsmeldinger = inntektsmeldingRegisterTjeneste.utledManglendeInntektsmeldingerFraGrunnlag(referanse, skjæringstidspunkt);
-        var allePåkrevdeInntektsmeldinger = inntektsmeldingRegisterTjeneste.hentAllePåkrevdeInntektsmeldinger(referanse, skjæringstidspunkt);
+        var manglendeInntektsmeldinger = inntektsmeldingRegisterTjeneste.utledManglendeInntektsmeldinger(referanse, skjæringstidspunkt);
+        var allePåkrevdeInntektsmeldinger = inntektsmeldingRegisterTjeneste.utledPåkrevdeInntektsmeldinger(referanse, skjæringstidspunkt);
 
         var saksbehandlersValg = arbeidsforholdValgRepository.hentArbeidsforholdValgForBehandling(referanse.behandlingId());
         return InntektsmeldingStatusMapper.mapInntektsmeldingStatus(allePåkrevdeInntektsmeldinger, manglendeInntektsmeldinger, saksbehandlersValg);

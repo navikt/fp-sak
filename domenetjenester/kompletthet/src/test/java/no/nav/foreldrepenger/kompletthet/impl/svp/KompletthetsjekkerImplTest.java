@@ -7,8 +7,6 @@ import static org.mockito.Mockito.when;
 
 import java.time.LocalDate;
 import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Set;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -30,7 +28,6 @@ import no.nav.foreldrepenger.dokumentarkiv.DokumentArkivTjeneste;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentBehandlingTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektsmeldingTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsforhold.impl.InntektsmeldingRegisterTjeneste;
-import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 import no.nav.foreldrepenger.kompletthet.Kompletthetsjekker;
 import no.nav.foreldrepenger.kompletthet.impl.KompletthetsjekkerImpl;
 import no.nav.foreldrepenger.kompletthet.impl.KompletthetsjekkerSøknadTjeneste;
@@ -67,8 +64,8 @@ class KompletthetsjekkerImplTest extends EntityManagerAwareTest {
     public void before() {
         lenient().when(skjæringstidspunktTjeneste.getSkjæringstidspunkter(Mockito.anyLong()))
             .thenReturn(skjæringstidspunkt);
-        lenient().when(inntektsmeldingArkivTjeneste.utledManglendeInntektsmeldingerForKompletthet(any(), any()))
-            .thenReturn(new HashMap<>());
+        lenient().when(inntektsmeldingArkivTjeneste.utledManglendeInntektsmeldinger(any(), any()))
+            .thenReturn(Set.of());
 
         repositoryProvider = new BehandlingRepositoryProvider(getEntityManager());
 
@@ -109,9 +106,8 @@ class KompletthetsjekkerImplTest extends EntityManagerAwareTest {
     }
 
     private void mockManglendeInntektsmeldingGrunnlag() {
-        var manglendeInntektsmeldinger = new HashMap<Arbeidsgiver, Set<InternArbeidsforholdRef>>();
-        manglendeInntektsmeldinger.put(Arbeidsgiver.virksomhet(OrgNummer.KUNSTIG_ORG), new HashSet<>());
-        when(inntektsmeldingArkivTjeneste.utledManglendeInntektsmeldingerForKompletthet(any(), any())).thenReturn(
+        var manglendeInntektsmeldinger = Set.of(Arbeidsgiver.virksomhet(OrgNummer.KUNSTIG_ORG));
+        when(inntektsmeldingArkivTjeneste.utledManglendeInntektsmeldinger(any(), any())).thenReturn(
             manglendeInntektsmeldinger);
     }
 }
