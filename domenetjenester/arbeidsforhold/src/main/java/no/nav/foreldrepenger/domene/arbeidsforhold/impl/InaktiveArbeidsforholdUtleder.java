@@ -117,27 +117,25 @@ public class InaktiveArbeidsforholdUtleder {
             .filter(yrkesaktivitet -> yrkesaktivitet.getArbeidsgiver() != null && yrkesaktivitet.getArbeidsgiver().equals(arbeidsgiver))
             .filter(yrkesaktivitet -> yrkesaktivitet.getArbeidsforholdRef() != null && yrkesaktivitet.getArbeidsforholdRef().equals(ref))
             .anyMatch(yrkesAktivitet -> HåndterePermisjoner.finnRelevantPermisjonSomOverlapperSkjæringstidspunkt(yrkesAktivitet, stp)
-                .filter(permisjon -> erIkkeVelferdspermisjonSomSkyldesSvp(permisjon, arbeidsgiver, iayg, søkerAktørId, stp))
+                .filter(permisjon -> erIkkeVelferdspermisjonSomSkyldesSvp(permisjon, arbeidsgiver, iayg, søkerAktørId))
                 .isPresent())).orElse(false);
     }
 
     private static boolean erIkkeVelferdspermisjonSomSkyldesSvp(Permisjon permisjon,
                                                                Arbeidsgiver arbeidsgiver,
                                                                InntektArbeidYtelseGrunnlag inntektArbeidYtelseGrunnlag,
-                                                               AktørId søkerAktørId,
-                                                               LocalDate stp) {
+                                                               AktørId søkerAktørId) {
         var erVelferdspermisjon = PermisjonsbeskrivelseType.VELFERDSPERMISJONER.contains(permisjon.getPermisjonsbeskrivelseType());
         if (!erVelferdspermisjon) {
             return true;
         }
-        var periodePåStp = DatoIntervallEntitet.fraOgMedTilOgMed(stp, stp);
         var ytelser = inntektArbeidYtelseGrunnlag.getAktørYtelseFraRegister(søkerAktørId)
             .map(AktørYtelse::getAlleYtelser)
             .orElse(Collections.emptyList());
-        var harSvpYtelsePåStp = ytelser.stream()
+        var harSvpYtelseIPermisjonsperioden = ytelser.stream()
             .filter(yt -> RelatertYtelseType.SVANGERSKAPSPENGER.equals(yt.getRelatertYtelseType()))
-            .anyMatch(yt -> harYtelseForArbeidsforholdIPeriode(yt, periodePåStp, arbeidsgiver));
-        return !harSvpYtelsePåStp;
+            .anyMatch(yt -> harYtelseForArbeidsforholdIPeriode(yt, permisjon.getPeriode(), arbeidsgiver));
+        return !harSvpYtelseIPermisjonsperioden;
     }
 
     private static boolean harMottattIMFraAG(Arbeidsgiver arbeidsgiverSomSjekkes, InntektArbeidYtelseGrunnlag inntektArbeidYtelseGrunnlag) {
