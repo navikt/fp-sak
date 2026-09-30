@@ -117,23 +117,27 @@ public class InaktiveArbeidsforholdUtleder {
             .filter(yrkesaktivitet -> yrkesaktivitet.getArbeidsgiver() != null && yrkesaktivitet.getArbeidsgiver().equals(arbeidsgiver))
             .filter(yrkesaktivitet -> yrkesaktivitet.getArbeidsforholdRef() != null && yrkesaktivitet.getArbeidsforholdRef().equals(ref))
             .anyMatch(yrkesAktivitet -> HåndterePermisjoner.finnRelevantPermisjonSomOverlapperSkjæringstidspunkt(yrkesAktivitet, stp)
-                .filter(permisjon -> !erVelferdspermisjonSomSkyldesSvp(permisjon, arbeidsgiver, iayg, søkerAktørId))
+                .filter(permisjon -> erIkkeVelferdspermisjonSomSkyldesSvp(permisjon, arbeidsgiver, iayg, søkerAktørId, stp))
                 .isPresent())).orElse(false);
     }
 
-    private static boolean erVelferdspermisjonSomSkyldesSvp(Permisjon permisjon,
-                                                            Arbeidsgiver arbeidsgiver,
-                                                            InntektArbeidYtelseGrunnlag inntektArbeidYtelseGrunnlag,
-                                                            AktørId søkerAktørId) {
-        if (!PermisjonsbeskrivelseType.VELFERDSPERMISJONER.contains(permisjon.getPermisjonsbeskrivelseType())) {
-            return false;
+    private static boolean erIkkeVelferdspermisjonSomSkyldesSvp(Permisjon permisjon,
+                                                               Arbeidsgiver arbeidsgiver,
+                                                               InntektArbeidYtelseGrunnlag inntektArbeidYtelseGrunnlag,
+                                                               AktørId søkerAktørId,
+                                                               LocalDate stp) {
+        var erVelferdspermisjon = PermisjonsbeskrivelseType.VELFERDSPERMISJONER.contains(permisjon.getPermisjonsbeskrivelseType());
+        if (!erVelferdspermisjon) {
+            return true;
         }
+        var periodePåStp = DatoIntervallEntitet.fraOgMedTilOgMed(stp, stp);
         var ytelser = inntektArbeidYtelseGrunnlag.getAktørYtelseFraRegister(søkerAktørId)
             .map(AktørYtelse::getAlleYtelser)
             .orElse(Collections.emptyList());
-        return ytelser.stream()
+        var harSvpYtelsePåStp = ytelser.stream()
             .filter(yt -> RelatertYtelseType.SVANGERSKAPSPENGER.equals(yt.getRelatertYtelseType()))
-            .anyMatch(yt -> harYtelseForArbeidsforholdIPeriode(yt, permisjon.getPeriode(), arbeidsgiver));
+            .anyMatch(yt -> harYtelseForArbeidsforholdIPeriode(yt, periodePåStp, arbeidsgiver));
+        return !harSvpYtelsePåStp;
     }
 
     private static boolean harMottattIMFraAG(Arbeidsgiver arbeidsgiverSomSjekkes, InntektArbeidYtelseGrunnlag inntektArbeidYtelseGrunnlag) {
