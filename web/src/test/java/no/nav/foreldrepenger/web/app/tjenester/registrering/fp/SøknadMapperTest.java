@@ -471,18 +471,53 @@ class SøknadMapperTest {
 
         assertThat(ytelseFordeling.getOppgittFordeling()).isNotNull();
         assertThat(ytelseFordeling.getOppgittFordeling().getPerioder()).isNotEmpty();
-        // Foreldrepenger før fødsel, mødrekvote og utsettelse
-        assertThat(ytelseFordeling.getOppgittFordeling().getPerioder()).hasSize(3);
+        // Ferieutsettelsen skal ikke inngå i planperiodene som saksbehandles.
+        assertThat(ytelseFordeling.getOppgittFordeling().getPerioder()).hasSize(2);
         assertThat(ytelseFordeling.getOppgittFordeling().getPerioder()).anySatisfy(
             periode -> assertThat(periode.getPeriodeType()).isEqualTo(FORELDREPENGER_FØR_FØDSEL));
         assertThat(ytelseFordeling.getOppgittFordeling().getPerioder()).anySatisfy(
             periode -> assertThat(periode.getPeriodeType()).isEqualTo(MØDREKVOTE));
-        assertThat(ytelseFordeling.getOppgittFordeling()
-            .getPerioder()
-            .stream()
-            .map(OppgittPeriodeEntitet::getÅrsak)
-            .filter(u -> u instanceof UtsettelseÅrsak)
-            .toList()).anySatisfy(årsak -> assertThat((UtsettelseÅrsak) årsak).isEqualTo(UtsettelseÅrsak.FERIE));
+        assertThat(ytelseFordeling.getOppgittFordeling().getPerioder()).noneMatch(OppgittPeriodeEntitet::isUtsettelse);
+    }
+
+    @Test
+    void skalBeholdeUtsettelseNårMorsAktivitetMåVurderesVedFørstegangssøknad() {
+        var navBruker = opprettBruker();
+        var uttaksstart = LocalDate.now().minusDays(10);
+        var dto = new ManuellRegistreringForeldrepengerDto();
+        oppdaterDtoForFødsel(dto, true, uttaksstart, 1);
+        dto.setSøker(ForeldreType.FAR);
+        var tidsromPermisjon = opprettTidsromPermisjonDto(
+            List.of(opprettPermisjonPeriodeDto(uttaksstart, uttaksstart.plusWeeks(2), FORELDREPENGER, ARBEID)));
+        var utsettelse = opprettUtsettelseDto(uttaksstart.plusWeeks(2).plusDays(1), uttaksstart.plusWeeks(3), FORELDREPENGER);
+        utsettelse.setMorsAktivitet(ARBEID);
+        tidsromPermisjon.setUtsettelsePeriode(List.of(utsettelse));
+        dto.setTidsromPermisjon(tidsromPermisjon);
+        dto.setDekningsgrad(DekningsgradDto.HUNDRE);
+        dto.setAnnenForelderInformert(true);
+        dto.setAnnenForelder(opprettAnnenForelderDto(true, false, false));
+
+        var mann = new PersoninfoKjønn(STD_KVINNE_AKTØR_ID, NavBrukerKjønn.MANN);
+        when(personinfoAdapter.hentBrukerKjønnForAktør(any(), any(AktørId.class))).thenReturn(Optional.of(mann));
+        var søknad = ytelseSøknadMapper.mapSøknad(dto, navBruker);
+        var personopplysningTjeneste = new PersonopplysningTjeneste(repositoryProvider.getPersonopplysningRepository(), BehandlingEventPubliserer.NULL_EVENT_PUB);
+        var oversetter = new SøknadOversetter(personopplysningTjeneste, repositoryProvider.getFagsakRepository(), behandlingRevurderingTjeneste,
+            grunnlagRepositoryProvider, virksomhetTjeneste, iayTjeneste, personinfoAdapter, oppgittPeriodeMottattDato,
+            new AnnenPartOversetter(personinfoAdapter));
+        var fagsak = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, navBruker, SAKSNUMMER);
+        var behandling = Behandling.forFørstegangssøknad(fagsak).build();
+        repositoryProvider.getFagsakRepository().opprettNy(fagsak);
+        var behandlingRepository = repositoryProvider.getBehandlingRepository();
+        behandlingRepository.lagre(behandling, behandlingRepository.taSkriveLås(behandling));
+
+        oversetter.trekkUtDataOgPersister((SøknadWrapper) SøknadWrapper.tilXmlWrapper(søknad),
+            new MottattDokument.Builder().medMottattDato(LocalDate.now())
+                .medFagsakId(behandling.getFagsakId())
+                .medElektroniskRegistrert(true)
+                .build(), behandling, Optional.empty());
+
+        var ytelseFordeling = repositoryProvider.getYtelsesFordelingRepository().hentAggregat(behandling.getId());
+        assertThat(ytelseFordeling.getOppgittFordeling().getPerioder()).hasSize(2).anyMatch(OppgittPeriodeEntitet::isUtsettelse);
     }
 
     @Test
@@ -582,6 +617,7 @@ class SøknadMapperTest {
         dto.setDekningsgrad(DekningsgradDto.HUNDRE);
         dto.setEgenVirksomhet(opprettEgenVirksomhetDto());
         dto.setAnnenForelderInformert(false);
+        dto.setAnnenForelder(opprettAnnenForelderMedRettigheter());
         var soeknad = ytelseSøknadMapper.mapSøknad(dto, navBruker);
 
         var mottattDokument = new MottattDokument.Builder().medMottattDato(LocalDate.now())
@@ -626,6 +662,7 @@ class SøknadMapperTest {
         dto.setDekningsgrad(DekningsgradDto.HUNDRE);
         dto.setEgenVirksomhet(opprettEgenVirksomhetDto());
         dto.setAnnenForelderInformert(false);
+        dto.setAnnenForelder(opprettAnnenForelderMedRettigheter());
         var soeknad = ytelseSøknadMapper.mapSøknad(dto, navBruker);
 
         var mottattDokument = new MottattDokument.Builder().medMottattDato(LocalDate.now())
@@ -666,6 +703,7 @@ class SøknadMapperTest {
         dto.setDekningsgrad(DekningsgradDto.HUNDRE);
         dto.setEgenVirksomhet(opprettEgenVirksomhetDto());
         dto.setAnnenForelderInformert(true);
+        dto.setAnnenForelder(opprettAnnenForelderMedRettigheter());
         var soeknad = ytelseSøknadMapper.mapSøknad(dto, navBruker);
 
         var mottattDokument = new MottattDokument.Builder().medMottattDato(LocalDate.now())
@@ -679,5 +717,12 @@ class SøknadMapperTest {
         oversetter.trekkUtDataOgPersister((SøknadWrapper) SøknadWrapper.tilXmlWrapper(soeknad), mottattDokument.build(), behandling,
             Optional.empty());
         verify(iayTjeneste).lagreOppgittOpptjening(anyLong(), any(OppgittOpptjeningBuilder.class));
+    }
+
+    private static AnnenForelderDto opprettAnnenForelderMedRettigheter() {
+        var annenForelder = opprettAnnenForelderDto(true, false, true);
+        annenForelder.setMorMottarUføretrygd(false);
+        annenForelder.setAnnenForelderRettEØS(false);
+        return annenForelder;
     }
 }

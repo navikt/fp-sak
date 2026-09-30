@@ -220,6 +220,9 @@ public class FagsakProsessTaskRepository {
         if (fagsakId == null) {
             return; // do nothing, er ikke relatert til fagsak/behandling
         }
+        if (ptEvent.getSaksnummer() == null) {
+            LOG.warn("Prosesstask[{}] av {} for fagsak [{}] har null saksnummer.", ptEvent.getId(), ptEvent.taskType(), fagsakId);
+        }
 
         var status = ptEvent.getNyStatus();
 

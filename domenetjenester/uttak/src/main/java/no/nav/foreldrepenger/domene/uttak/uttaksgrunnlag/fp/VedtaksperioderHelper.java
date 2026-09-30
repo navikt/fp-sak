@@ -39,7 +39,7 @@ import no.nav.foreldrepenger.skjæringstidspunkt.overganger.UtsettelseCore2021;
 public class VedtaksperioderHelper {
 
     private VedtaksperioderHelper() {
-        //
+
     }
 
     public static List<OppgittPeriodeEntitet> opprettOppgittePerioder(UttakResultatEntitet uttakResultatFraForrigeBehandling,
@@ -47,8 +47,7 @@ public class VedtaksperioderHelper {
                                                                       LocalDate fomDato,
                                                                       boolean beholdAvslåttePerioderFrittUttak) {
         var førsteSøknadsdato = OppgittPeriodeUtil.finnFørsteSøknadsdato(søknadsperioder);
-        var vedtaksperioder = lagVedtaksperioder(uttakResultatFraForrigeBehandling,
-            fomDato, førsteSøknadsdato, beholdAvslåttePerioderFrittUttak);
+        var vedtaksperioder = lagVedtaksperioder(uttakResultatFraForrigeBehandling, fomDato, førsteSøknadsdato, beholdAvslåttePerioderFrittUttak);
 
         List<OppgittPeriodeEntitet> søknadOgVedtaksperioder = new ArrayList<>();
         søknadsperioder.forEach(op -> søknadOgVedtaksperioder.add(OppgittPeriodeBuilder.fraEksisterende(op).build()));

@@ -7,6 +7,7 @@ import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
 import no.nav.foreldrepenger.behandlingskontroll.spi.BehandlingskontrollServiceProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.vedtak.felles.jpa.savepoint.Work;
+import no.nav.vedtak.log.mdc.LoggFelter;
 import no.nav.vedtak.log.mdc.MdcExtendedLogContext;
 
 /**
@@ -33,9 +34,9 @@ public class TekniskBehandlingStegVisitor implements BehandlingModellVisitor {
 
     @Override
     public StegProsesseringResultat prosesser(BehandlingStegModell steg) {
-        LOG_CONTEXT.add("fagsak", kontekst.getSaksnummer().getVerdi());
-        LOG_CONTEXT.add("behandling", kontekst.getBehandlingId());
-        LOG_CONTEXT.add("steg", steg.getBehandlingStegType().getKode());
+        LOG_CONTEXT.add(LoggFelter.SAK, kontekst.getSaksnummer().getVerdi());
+        LOG_CONTEXT.add(LoggFelter.BEHANDLING_ID, kontekst.getBehandlingId());
+        LOG_CONTEXT.add(LoggFelter.STEG, steg.getBehandlingStegType().getKode());
 
         var behandling = serviceProvider.hentBehandling(kontekst.getBehandlingId());
         var forrigeTilstand = BehandlingStegTilstandSnapshot.tilBehandlingsStegSnapshotSiste(behandling);
@@ -56,7 +57,7 @@ public class TekniskBehandlingStegVisitor implements BehandlingModellVisitor {
          * behandling og fagsak kan være satt utenfor, så nullstiller ikke de i log
          * context her
          */
-        LOG_CONTEXT.remove("steg");
+        LOG_CONTEXT.remove(LoggFelter.STEG);
 
         return resultat;
     }
