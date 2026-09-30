@@ -142,15 +142,13 @@ public final class VedtaksperiodeFilter {
                                                                     LocalDateSegment<SammenligningPeriodeForOppgitt> vedtak) {
         var søknadVerdi = Optional.ofNullable(søknad).map(LocalDateSegment::getValue).orElse(null);
         var vedtakVerdi = Optional.ofNullable(vedtak).map(LocalDateSegment::getValue).orElse(null);
-        if (skalVurderePeriode(søknadVerdi) || skalVurderePeriode(vedtakVerdi)) {
-            return new LocalDateSegment<>(i, Objects.equals(søknadVerdi, vedtakVerdi));
+        // Søknad er relevansfiltrert i mottak, og uttak lagrer ikke fri utsettelse (UTSETTELSE_GYLDIG) i resultatet.
+        // En urelevant periode i søknaden over hull i vedtaket er derfor ingen endring. Over uttak gir den endringsdato.
+        if (vedtakVerdi == null && søknadVerdi != null
+            && !OppgittPeriodeRelevans.erRelevantUavhengigAvPlassering(søknadVerdi.årsak(), søknadVerdi.morsAktivitet(), i.getFomDato())) {
+            return new LocalDateSegment<>(i, true);
         }
-        // Perioder som ikke skal saksbehandles gir ikke endringsdato, heller ikke mot hull
-        return new LocalDateSegment<>(i, true);
-    }
-
-    private static boolean skalVurderePeriode(SammenligningPeriodeForOppgitt periode) {
-        return periode != null && periode.relevant();
+        return new LocalDateSegment<>(i, Objects.equals(søknadVerdi, vedtakVerdi));
     }
 
     private static List<OppgittPeriodeEntitet> opprettOppgittePerioderKunInnvilget(UttakResultatEntitet uttakResultatFraForrigeBehandling) {
@@ -183,13 +181,11 @@ public final class VedtaksperiodeFilter {
                                                    SamtidigUttaksprosent samtidigUttaksprosent,
                                                    SammenligningGraderingForOppgitt gradering,
                                                    boolean flerbarnsdager,
-                                                   MorsAktivitet morsAktivitet,
-                                                   boolean relevant) {
+                                                   MorsAktivitet morsAktivitet) {
         private static SammenligningPeriodeForOppgitt fra(OppgittPeriodeEntitet periode) {
             return new SammenligningPeriodeForOppgitt(periode.getÅrsak(), periode.getPeriodeType(),
                 Optional.ofNullable(periode.getSamtidigUttaksprosent()).orElse(SamtidigUttaksprosent.HUNDRED),
-                periode.isGradert() ? new SammenligningGraderingForOppgitt(periode) : null, periode.isFlerbarnsdager(), periode.getMorsAktivitet(),
-                OppgittPeriodeRelevans.erRelevantUavhengigAvPlassering(periode));
+                periode.isGradert() ? new SammenligningGraderingForOppgitt(periode) : null, periode.isFlerbarnsdager(), periode.getMorsAktivitet());
         }
     }
 

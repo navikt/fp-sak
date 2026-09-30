@@ -7,7 +7,9 @@ import java.util.Set;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.MorsAktivitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeBuilder;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.OppgittPeriodeEntitet;
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.OppholdÅrsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.UtsettelseÅrsak;
+import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.årsak.Årsak;
 import no.nav.foreldrepenger.skjæringstidspunkt.overganger.UtsettelseCore2021;
 
 public final class OppgittPeriodeRelevans {
@@ -60,17 +62,16 @@ public final class OppgittPeriodeRelevans {
     }
 
     public static boolean erRelevant(OppgittPeriodeEntitet periode, boolean erFørstePeriode) {
-        if (UtsettelseCore2021.kreverSammenhengendeUttak(periode) || (!periode.isUtsettelse() && !periode.isOpphold())) {
-            return true;
-        }
         return (erFørstePeriode && UtsettelseÅrsak.FRI.equals(periode.getÅrsak()))
-            || (periode.getÅrsak() instanceof UtsettelseÅrsak utsettelse
-                && (UTSETTELSER_SOM_KREVER_SAKSBEHANDLING.contains(utsettelse)
-                    || MorsAktivitet.forventerDokumentasjon(periode.getMorsAktivitet())));
+            || erRelevantUavhengigAvPlassering(periode.getÅrsak(), periode.getMorsAktivitet(), periode.getFom());
     }
 
-    static boolean erRelevantUavhengigAvPlassering(OppgittPeriodeEntitet periode) {
-        return erRelevant(periode, false);
+    static boolean erRelevantUavhengigAvPlassering(Årsak årsak, MorsAktivitet morsAktivitet, LocalDate fom) {
+        if (UtsettelseCore2021.kreverSammenhengendeUttak(fom) || (!(årsak instanceof UtsettelseÅrsak) && !(årsak instanceof OppholdÅrsak))) {
+            return true;
+        }
+        return årsak instanceof UtsettelseÅrsak utsettelse
+            && (UTSETTELSER_SOM_KREVER_SAKSBEHANDLING.contains(utsettelse) || MorsAktivitet.forventerDokumentasjon(morsAktivitet));
     }
 
     private static boolean skalBeholdeÅrsak(OppgittPeriodeEntitet periode) {
