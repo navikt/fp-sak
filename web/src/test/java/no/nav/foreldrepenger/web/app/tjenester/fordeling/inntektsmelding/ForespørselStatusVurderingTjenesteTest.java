@@ -2,7 +2,6 @@ package no.nav.foreldrepenger.web.app.tjenester.fordeling.inntektsmelding;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -53,7 +52,7 @@ class ForespørselStatusVurderingTjenesteTest {
     @Test
     void avsluttet_fagsak_gir_trengs_ikke() {
         var fagsak = lagFagsak(FagsakStatus.AVSLUTTET);
-        when(fagsakTjenesteMock.finnFagsakGittSaksnummer(eq(new Saksnummer(SAKSNUMMER)), eq(false))).thenReturn(Optional.of(fagsak));
+        when(fagsakTjenesteMock.finnFagsakGittSaksnummer(new Saksnummer(SAKSNUMMER), false)).thenReturn(Optional.of(fagsak));
 
         assertThat(tjeneste.vurder(new ForespørselStatusRequest(SAKSNUMMER, ORGNR))).isFalse();
     }
@@ -109,7 +108,7 @@ class ForespørselStatusVurderingTjenesteTest {
 
     private void stubFagsakOgBehandling(Behandling behandling) {
         var fagsak = lagFagsak(FagsakStatus.LØPENDE);
-        when(fagsakTjenesteMock.finnFagsakGittSaksnummer(eq(new Saksnummer(SAKSNUMMER)), eq(false))).thenReturn(Optional.of(fagsak));
+        when(fagsakTjenesteMock.finnFagsakGittSaksnummer(new Saksnummer(SAKSNUMMER), false)).thenReturn(Optional.of(fagsak));
         when(behandlingRepositoryMock.hentSisteYtelsesBehandlingForFagsakId(FAGSAK_ID)).thenReturn(Optional.of(behandling));
     }
 
