@@ -56,11 +56,12 @@ public class HåndterePermisjoner {
             .anyMatch(p -> p.getTilOgMed() == null || TIDENES_ENDE.equals(p.getTilOgMed()));
     }
 
-    public static boolean harRelevantPermisjonSomOverlapperSkjæringstidspunkt(Yrkesaktivitet yrkesaktivitet, LocalDate stp) {
+    public static Optional<Permisjon> finnRelevantPermisjonSomOverlapperSkjæringstidspunkt(Yrkesaktivitet yrkesaktivitet, LocalDate stp) {
         return yrkesaktivitet.getPermisjon().stream()
             .filter(HåndterePermisjoner::har100ProsentPermisjonEllerMer)
             .filter(p -> fomErFørStp(stp, p) && tomErLikEllerEtterStp(stp, p))
-            .anyMatch(p -> p.getPermisjonsbeskrivelseType().erRelevantForBeregningEllerArbeidsforhold());
+            .filter(p -> p.getPermisjonsbeskrivelseType().erRelevantForBeregningEllerArbeidsforhold())
+            .findFirst();
     }
 
     public static List<Permisjon> finnRelevantePermisjonSomOverlapperTilretteleggingFom(Yrkesaktivitet yrkesaktivitet, LocalDate tilretteleggingBehovFom) {
