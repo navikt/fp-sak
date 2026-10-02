@@ -19,11 +19,13 @@ import no.nav.foreldrepenger.domene.iay.modell.AktørInntekt;
 import no.nav.foreldrepenger.domene.iay.modell.AktørYtelse;
 import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlag;
 import no.nav.foreldrepenger.domene.iay.modell.Inntektspost;
+import no.nav.foreldrepenger.domene.iay.modell.Permisjon;
 import no.nav.foreldrepenger.domene.iay.modell.Yrkesaktivitet;
 import no.nav.foreldrepenger.domene.iay.modell.Ytelse;
 import no.nav.foreldrepenger.domene.iay.modell.YtelseAnvist;
 import no.nav.foreldrepenger.domene.iay.modell.YtelseAnvistAndel;
 import no.nav.foreldrepenger.domene.iay.modell.kodeverk.InntektsKilde;
+import no.nav.foreldrepenger.domene.iay.modell.kodeverk.PermisjonsbeskrivelseType;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
@@ -119,7 +121,26 @@ public class InaktiveArbeidsforholdUtleder {
             .map(AktørArbeid::hentAlleYrkesaktiviteter).orElse(Collections.emptyList()).stream()
             .filter(yrkesaktivitet -> yrkesaktivitet.getArbeidsgiver() != null && yrkesaktivitet.getArbeidsgiver().equals(arbeidsgiver))
             .filter(yrkesaktivitet -> yrkesaktivitet.getArbeidsforholdRef() != null && yrkesaktivitet.getArbeidsforholdRef().equals(ref))
-            .anyMatch(yrkesAktivitet -> HåndterePermisjoner.harRelevantPermisjonSomOverlapperSkjæringstidspunkt(yrkesAktivitet, stp))).orElse(false);
+            .anyMatch(yrkesAktivitet -> HåndterePermisjoner.finnRelevantPermisjonSomOverlapperSkjæringstidspunkt(yrkesAktivitet, stp)
+                .filter(permisjon -> erIkkeVelferdspermisjonSomSkyldesSvp(permisjon, arbeidsgiver, iayg, søkerAktørId))
+                .isPresent())).orElse(false);
+    }
+
+    private static boolean erIkkeVelferdspermisjonSomSkyldesSvp(Permisjon permisjon,
+                                                               Arbeidsgiver arbeidsgiver,
+                                                               InntektArbeidYtelseGrunnlag inntektArbeidYtelseGrunnlag,
+                                                               AktørId søkerAktørId) {
+        var erVelferdspermisjon = PermisjonsbeskrivelseType.VELFERDSPERMISJONER.contains(permisjon.getPermisjonsbeskrivelseType());
+        if (!erVelferdspermisjon) {
+            return true;
+        }
+        var ytelser = inntektArbeidYtelseGrunnlag.getAktørYtelseFraRegister(søkerAktørId)
+            .map(AktørYtelse::getAlleYtelser)
+            .orElse(Collections.emptyList());
+        var harSvpYtelseIPermisjonsperioden = ytelser.stream()
+            .filter(yt -> RelatertYtelseType.SVANGERSKAPSPENGER.equals(yt.getRelatertYtelseType()))
+            .anyMatch(yt -> harYtelseForArbeidsforholdIPeriode(yt, permisjon.getPeriode(), arbeidsgiver));
+        return !harSvpYtelseIPermisjonsperioden;
     }
 
     private static boolean harMottattIMFraAG(Arbeidsgiver arbeidsgiverSomSjekkes, InntektArbeidYtelseGrunnlag inntektArbeidYtelseGrunnlag) {
