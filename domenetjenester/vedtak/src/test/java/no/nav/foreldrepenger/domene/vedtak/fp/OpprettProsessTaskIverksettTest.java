@@ -14,7 +14,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
 import no.nav.foreldrepenger.domene.vedtak.OpprettProsessTaskIverksett;
 import no.nav.foreldrepenger.domene.vedtak.ekstern.SettUtbetalingPåVentPrivatArbeidsgiverTask;
-import no.nav.foreldrepenger.domene.vedtak.ekstern.VurderOppgaveArenaTask;
+import no.nav.foreldrepenger.domene.vedtak.ekstern.VurderOppgaveAapDagpengerTask;
 import no.nav.foreldrepenger.domene.vedtak.intern.AvsluttBehandlingTask;
 import no.nav.foreldrepenger.domene.vedtak.intern.SendVedtaksbrevTask;
 import no.nav.foreldrepenger.domene.vedtak.intern.SettFagsakRelasjonAvslutningsdatoTask;
@@ -54,7 +54,7 @@ class OpprettProsessTaskIverksettTest {
         var tasktyper = prosessTaskDataList.stream().map(ProsessTaskData::taskType).toList();
         assertThat(tasktyper).contains(TaskType.forProsessTask(AvsluttBehandlingTask.class), TaskType.forProsessTask(SendVedtaksbrevTask.class),
             TaskType.forProsessTask(VurderOgSendØkonomiOppdragTask.class), TaskType.forProsessTask(SettUtbetalingPåVentPrivatArbeidsgiverTask.class),
-            TaskType.forProsessTask(VurderOppgaveArenaTask.class), TaskType.forProsessTask(SettFagsakRelasjonAvslutningsdatoTask.class));
+            TaskType.forProsessTask(VurderOppgaveAapDagpengerTask.class), TaskType.forProsessTask(SettFagsakRelasjonAvslutningsdatoTask.class));
     }
 
     @Test
@@ -71,7 +71,7 @@ class OpprettProsessTaskIverksettTest {
         var tasktyper = prosessTaskDataList.stream().map(ProsessTaskData::taskType).toList();
         assertThat(tasktyper).contains(TaskType.forProsessTask(AvsluttBehandlingTask.class), TaskType.forProsessTask(SendVedtaksbrevTask.class),
             TaskType.forProsessTask(VurderOgSendØkonomiOppdragTask.class), TaskType.forProsessTask(SettUtbetalingPåVentPrivatArbeidsgiverTask.class),
-            TaskType.forProsessTask(VurderOppgaveArenaTask.class), TaskType.forProsessTask(SettFagsakRelasjonAvslutningsdatoTask.class));
+            TaskType.forProsessTask(VurderOppgaveAapDagpengerTask.class), TaskType.forProsessTask(SettFagsakRelasjonAvslutningsdatoTask.class));
     }
 
 }

@@ -116,6 +116,16 @@ class HenleggBehandlingTjenesteTest {
     }
 
     @Test
+    void forvaltningstask_skal_ikke_endre_ansvarlig_saksbehandler() {
+        // Forvaltningstasken kaller henleggBehandlingManuell uten å gå via saksbehandler-endepunktet.
+        behandling.setAnsvarligSaksbehandler("Z111111");
+
+        henleggBehandlingTjeneste.henleggBehandlingManuell(behandling.getId(), BehandlingResultatType.HENLAGT_FEILOPPRETTET, "Forvaltning");
+
+        assertThat(behandling.getAnsvarligSaksbehandler()).isEqualTo("Z111111");
+    }
+
+    @Test
     void skal_henlegge_behandling_med_aksjonspunkt() {
         // Arrange
         var behandlingsresultat = BehandlingResultatType.HENLAGT_FEILOPPRETTET;

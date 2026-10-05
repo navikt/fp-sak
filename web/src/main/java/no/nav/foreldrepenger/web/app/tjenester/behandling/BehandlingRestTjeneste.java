@@ -247,7 +247,13 @@ public class BehandlingRestTjeneste {
         var behandling = getBehandling(dto);
         behandlingsutredningTjeneste.kanEndreBehandling(behandling, dto.getBehandlingVersjon());
         var årsakKode = tilHenleggBehandlingResultatType(dto.getÅrsakKode());
+        oppdaterAnsvarligSaksbehandler(behandling);
         henleggBehandlingTjeneste.henleggBehandlingManuell(behandling, lås, årsakKode, dto.getBegrunnelse());
+    }
+
+    private static void oppdaterAnsvarligSaksbehandler(Behandling behandling) {
+        var brukerKontekst = hentBrukerFraKontekst();
+        behandling.setAnsvarligSaksbehandler(brukerKontekst);
     }
 
     private Behandling getBehandling(DtoMedBehandlingId dto) {
@@ -333,8 +339,8 @@ public class BehandlingRestTjeneste {
         }
         if (BehandlingType.REVURDERING.equals(kode)) {
             var behandlingÅrsakType = dto.getBehandlingArsakType();
-            var behandling = behandlingsoppretterTjeneste.opprettRevurdering(fagsak, behandlingÅrsakType,
-                Optional.ofNullable(KontekstHolder.getKontekst()).map(Kontekst::getUid).orElse(null));
+            var opprettetAv = hentBrukerFraKontekst();
+            var behandling = behandlingsoppretterTjeneste.opprettRevurdering(fagsak, behandlingÅrsakType, opprettetAv);
             var gruppe = behandlingsprosessTjeneste.asynkStartBehandlingsprosess(behandling);
             return Redirect.tilBehandlingPollStatus(request, behandling.getUuid(), Optional.of(gruppe));
 
@@ -356,6 +362,11 @@ public class BehandlingRestTjeneste {
         }
         throw new IllegalArgumentException("Støtter ikke opprette ny behandling for behandlingType:" + kode);
 
+    }
+
+    private static String hentBrukerFraKontekst() {
+        return Optional.ofNullable(KontekstHolder.getKontekst()).map(Kontekst::getUid)
+            .orElseThrow(() -> new IllegalStateException("Mangler saksbehandlerkontekst"));
     }
 
     private Response notFound(Saksnummer saksnummer) {
