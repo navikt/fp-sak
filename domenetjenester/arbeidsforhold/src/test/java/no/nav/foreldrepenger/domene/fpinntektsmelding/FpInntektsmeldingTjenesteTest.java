@@ -3,7 +3,6 @@ package no.nav.foreldrepenger.domene.fpinntektsmelding;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
@@ -23,7 +22,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
-import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -47,7 +45,6 @@ import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.Beløp;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
-import no.nav.foreldrepenger.konfig.Environment;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskGruppe;
@@ -212,9 +209,8 @@ class FpInntektsmeldingTjenesteTest {
         verify(klient, times(1)).overstyrInntektsmelding(forventetRequest);
     }
 
-    @ParameterizedTest
-    @ValueSource(booleans = {true, false})
-    void skal_opprette_opppgave_og_historikkinnslag(boolean prod) {
+    @Test
+    void skal_opprette_opppgave_og_historikkinnslag() {
         // Arrange
         var stp = LocalDate.of(2024,9,1);
         var virksomhet = Arbeidsgiver.virksomhet("999999999");
@@ -225,20 +221,15 @@ class FpInntektsmeldingTjenesteTest {
 
         var respons = new OpprettForespørselRespons(List.of(new OpprettForespørselRespons.OrganisasjonsnummerMedStatus(
             new OrganisasjonsnummerDto(virksomhet.getOrgnr()), OpprettForespørselRespons.ForespørselResultat.FORESPØRSEL_OPPRETTET)));
-        mockAlleForespørsler(prod, behandlingRef, stpp, Map.of(virksomhet, Set.of(InternArbeidsforholdRef.nyRef())), respons);
+        mockAlleForespørsler(behandlingRef, stpp, Map.of(virksomhet, Set.of(InternArbeidsforholdRef.nyRef())), respons);
         when(arbeidsgiverTjeneste.hentVirksomhet(virksomhet.getIdentifikator())).thenReturn(Virksomhet.getBuilder().medOrgnr(virksomhet.getIdentifikator()).medNavn("Testbedrift").build());
         // Act
-        kjørIMiljø(prod, () -> fpInntektsmeldingTjeneste.lagForespørselForAlleArbeidsgivere(behandlingRef, stpp));
+        fpInntektsmeldingTjeneste.lagForespørselForAlleArbeidsgivere(behandlingRef, stpp);
 
         // Assert
         var organisasjonsnumre = List.of(new OrganisasjonsnummerDto(virksomhet.getOrgnr()));
-        if (prod) {
-            verify(klient).opprettForespørsel(new OpprettForespørselRequest(new AktørIdDto(behandlingRef.aktørId().getId()), null, stp,
-                FpInntektsmeldingYtelse.FORELDREPENGER, new SaksnummerDto("1234"), stp, organisasjonsnumre));
-        } else {
-            verify(klient).opprettForespørselKomplett(new OpprettKomplettForespørslerRequest(new AktørIdDto(behandlingRef.aktørId().getId()),
-                stp, FpInntektsmeldingYtelse.FORELDREPENGER, new SaksnummerDto("1234"), stp, organisasjonsnumre));
-        }
+        verify(klient).opprettForespørselKomplett(new OpprettKomplettForespørslerRequest(new AktørIdDto(behandlingRef.aktørId().getId()),
+            stp, FpInntektsmeldingYtelse.FORELDREPENGER, new SaksnummerDto("1234"), stp, organisasjonsnumre));
         verifyNoMoreInteractions(klient);
         var captor = ArgumentCaptor.forClass(Historikkinnslag.class);
         verify(historikkRepository).lagre(captor.capture());
@@ -247,9 +238,8 @@ class FpInntektsmeldingTjenesteTest {
         assertThat(historikkinnslag.getTekstLinjer()).anySatisfy(linje -> assertThat(linje).isEqualTo("Testbedrift (999999999)."));
     }
 
-    @ParameterizedTest
-    @ValueSource(booleans = {true, false})
-    void skal_opprette_forespørsel_for_enkelt_arbeidsgiver(boolean prod) {
+    @Test
+    void skal_opprette_forespørsel_for_enkelt_arbeidsgiver() {
         // Arrange
         var stp = LocalDate.of(2024,9,1);
         var virksomhet = Arbeidsgiver.virksomhet("999999999");
@@ -260,31 +250,22 @@ class FpInntektsmeldingTjenesteTest {
 
         var resultat = new OpprettForespørselRespons.OrganisasjonsnummerMedStatus(new OrganisasjonsnummerDto(virksomhet.getOrgnr()),
             OpprettForespørselRespons.ForespørselResultat.FORESPØRSEL_OPPRETTET);
-        if (prod) {
-            when(klient.opprettForespørsel(any())).thenReturn(new OpprettForespørselRespons(List.of(resultat)));
-        } else {
-            when(klient.opprettSpesifikkForespørsel(any())).thenReturn(resultat);
-        }
+        when(klient.opprettSpesifikkForespørsel(any())).thenReturn(resultat);
         when(arbeidsgiverTjeneste.hentVirksomhet(virksomhet.getIdentifikator())).thenReturn(Virksomhet.getBuilder().medOrgnr(virksomhet.getIdentifikator()).medNavn("Testbedrift").build());
 
         // Act
-        kjørIMiljø(prod, () -> fpInntektsmeldingTjeneste.lagForespørselForBestemtArbeidsgiver(behandlingRef, stpp, virksomhet));
+        fpInntektsmeldingTjeneste.lagForespørselForBestemtArbeidsgiver(behandlingRef, stpp, virksomhet);
 
         // Assert
         var organisasjonsnummer = new OrganisasjonsnummerDto(virksomhet.getOrgnr());
-        if (prod) {
-            verify(klient).opprettForespørsel(new OpprettForespørselRequest(new AktørIdDto(behandlingRef.aktørId().getId()), null, stp,
-                FpInntektsmeldingYtelse.FORELDREPENGER, new SaksnummerDto("1234"), stp, List.of(organisasjonsnummer)));
-        } else {
-            verify(klient).opprettSpesifikkForespørsel(new OpprettEnForespørselRequest(new AktørIdDto(behandlingRef.aktørId().getId()), stp,
-                FpInntektsmeldingYtelse.FORELDREPENGER, new SaksnummerDto("1234"), stp, organisasjonsnummer));
-        }
+        verify(klient).opprettSpesifikkForespørsel(new OpprettEnForespørselRequest(new AktørIdDto(behandlingRef.aktørId().getId()), stp,
+            FpInntektsmeldingYtelse.FORELDREPENGER, new SaksnummerDto("1234"), stp, organisasjonsnummer));
         verifyNoMoreInteractions(klient);
         verify(historikkRepository).lagre(any());
     }
-    @ParameterizedTest
-    @ValueSource(booleans = {true, false})
-    void skal_opprette_historikkinnslag_for_flere(boolean prod) {
+
+    @Test
+    void skal_opprette_historikkinnslag_for_flere() {
         // Arrange
         var stp = LocalDate.of(2024,9,1);
         var virksomhet = Arbeidsgiver.virksomhet("999999999");
@@ -298,11 +279,11 @@ class FpInntektsmeldingTjenesteTest {
         var respons = new OpprettForespørselRespons(
             List.of(new OpprettForespørselRespons.OrganisasjonsnummerMedStatus(new OrganisasjonsnummerDto(virksomhet.getOrgnr()), OpprettForespørselRespons.ForespørselResultat.FORESPØRSEL_OPPRETTET),
                     new OpprettForespørselRespons.OrganisasjonsnummerMedStatus(new OrganisasjonsnummerDto(virksomhet2.getOrgnr()), OpprettForespørselRespons.ForespørselResultat.FORESPØRSEL_OPPRETTET)));
-        mockAlleForespørsler(prod, behandlingRef, stpp, imer, respons);
+        mockAlleForespørsler(behandlingRef, stpp, imer, respons);
         when(arbeidsgiverTjeneste.hentVirksomhet(virksomhet.getIdentifikator())).thenReturn(Virksomhet.getBuilder().medOrgnr(virksomhet.getIdentifikator()).medNavn("Testbedrift").build());
         when(arbeidsgiverTjeneste.hentVirksomhet(virksomhet2.getIdentifikator())).thenReturn(Virksomhet.getBuilder().medOrgnr(virksomhet2.getIdentifikator()).medNavn("Testbedrift 2").build());
         // Act
-        kjørIMiljø(prod, () -> fpInntektsmeldingTjeneste.lagForespørselForAlleArbeidsgivere(behandlingRef, stpp));
+        fpInntektsmeldingTjeneste.lagForespørselForAlleArbeidsgivere(behandlingRef, stpp);
 
         // Assert
         var captor = ArgumentCaptor.forClass(Historikkinnslag.class);
@@ -330,7 +311,7 @@ class FpInntektsmeldingTjenesteTest {
             .thenReturn(Virksomhet.getBuilder().medOrgnr(virksomhet.getIdentifikator()).medNavn("Testbedrift").build());
 
         // Act
-        kjørIMiljø(false, () -> fpInntektsmeldingTjeneste.lagForespørselForBestemtArbeidsgiver(behandlingRef, skjæringstidspunkt, virksomhet));
+        fpInntektsmeldingTjeneste.lagForespørselForBestemtArbeidsgiver(behandlingRef, skjæringstidspunkt, virksomhet);
 
         // Assert
         var captor = ArgumentCaptor.forClass(Historikkinnslag.class);
@@ -361,14 +342,14 @@ class FpInntektsmeldingTjenesteTest {
         var arbeidsgivere = Map.of(
             virksomhet, Set.of(InternArbeidsforholdRef.nullRef()),
             virksomhet2, Set.of(InternArbeidsforholdRef.nullRef()));
-        mockAlleForespørsler(false, behandlingRef, skjæringstidspunkt, arbeidsgivere, respons);
+        mockAlleForespørsler(behandlingRef, skjæringstidspunkt, arbeidsgivere, respons);
         when(arbeidsgiverTjeneste.hentVirksomhet(virksomhet.getIdentifikator()))
             .thenReturn(Virksomhet.getBuilder().medOrgnr(virksomhet.getIdentifikator()).medNavn("Testbedrift").build());
         when(arbeidsgiverTjeneste.hentVirksomhet(virksomhet2.getIdentifikator()))
             .thenReturn(Virksomhet.getBuilder().medOrgnr(virksomhet2.getIdentifikator()).medNavn("Testbedrift 2").build());
 
         // Act
-        kjørIMiljø(false, () -> fpInntektsmeldingTjeneste.lagForespørselForAlleArbeidsgivere(behandlingRef, skjæringstidspunkt));
+        fpInntektsmeldingTjeneste.lagForespørselForAlleArbeidsgivere(behandlingRef, skjæringstidspunkt);
 
         // Assert
         var captor = ArgumentCaptor.forClass(Historikkinnslag.class);
@@ -380,9 +361,8 @@ class FpInntektsmeldingTjenesteTest {
             "Forespørsel til arbeidsgiver er oppdatert, ny startdato for foreldrepenger er 02.09.2024.");
     }
 
-    @ParameterizedTest
-    @ValueSource(booleans = {true, false})
-    void skal_ikke_opprettet_historikk_når_ny_oppgave_ikke_ble_opprettet(boolean prod) {
+    @Test
+    void skal_ikke_opprettet_historikk_når_ny_oppgave_ikke_ble_opprettet() {
         // Arrange
         var stp = LocalDate.of(2024,9,1);
         var virksomhet = Arbeidsgiver.virksomhet("999999999");
@@ -392,9 +372,9 @@ class FpInntektsmeldingTjenesteTest {
         var stpp = Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(stp).medFørsteUttaksdato(stp.plusDays(1)).build();
         var respons = new OpprettForespørselRespons(List.of(new OpprettForespørselRespons.OrganisasjonsnummerMedStatus(
             new OrganisasjonsnummerDto(virksomhet.getOrgnr()), OpprettForespørselRespons.ForespørselResultat.IKKE_OPPRETTET_FINNES_ALLEREDE)));
-        mockAlleForespørsler(prod, behandlingRef, stpp, Map.of(virksomhet, Set.of(InternArbeidsforholdRef.nullRef())), respons);
+        mockAlleForespørsler(behandlingRef, stpp, Map.of(virksomhet, Set.of(InternArbeidsforholdRef.nullRef())), respons);
         // Act
-        kjørIMiljø(prod, () -> fpInntektsmeldingTjeneste.lagForespørselForAlleArbeidsgivere(behandlingRef, stpp));
+        fpInntektsmeldingTjeneste.lagForespørselForAlleArbeidsgivere(behandlingRef, stpp);
 
         // Assert
         verify(historikkRepository, times(0)).lagre(any());
@@ -485,25 +465,10 @@ class FpInntektsmeldingTjenesteTest {
             new OrganisasjonsnummerDto("999999999"), status));
     }
 
-    private void mockAlleForespørsler(boolean prod, BehandlingReferanse ref, Skjæringstidspunkt stp,
+    private void mockAlleForespørsler(BehandlingReferanse ref, Skjæringstidspunkt stp,
                                     Map<Arbeidsgiver, Set<InternArbeidsforholdRef>> arbeidsgivere, OpprettForespørselRespons respons) {
-        if (prod) {
-            when(inntektsmeldingRegisterTjeneste.utledManglendeInntektsmeldingerFraGrunnlag(ref, stp)).thenReturn(arbeidsgivere);
-            when(klient.opprettForespørsel(any())).thenReturn(respons);
-        } else {
-            when(inntektsmeldingRegisterTjeneste.utledAllePåKrevdeInntektsmeldinger(ref, stp)).thenReturn(arbeidsgivere);
-            when(klient.opprettForespørselKomplett(any())).thenReturn(respons);
-        }
-    }
-
-    private void kjørIMiljø(boolean prod, Runnable handling) {
-        var miljø = mock(Environment.class);
-        when(miljø.isProd()).thenReturn(prod);
-        try (var environment = mockStatic(Environment.class)) {
-            environment.when(Environment::current).thenReturn(miljø);
-            setup();
-            handling.run();
-        }
+        when(inntektsmeldingRegisterTjeneste.utledAllePåKrevdeInntektsmeldinger(ref, stp)).thenReturn(arbeidsgivere);
+        when(klient.opprettForespørselKomplett(any())).thenReturn(respons);
     }
 
     @Test
