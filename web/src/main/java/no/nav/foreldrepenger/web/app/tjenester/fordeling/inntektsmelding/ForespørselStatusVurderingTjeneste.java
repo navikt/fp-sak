@@ -65,6 +65,6 @@ public class ForespørselStatusVurderingTjeneste {
         return statuser.stream()
             .filter(status -> status.arbeidsgiver().getIdentifikator().equals(orgnummer))
             .map(ArbeidsforholdInntektsmeldingStatus::inntektsmeldingStatus)
-            .anyMatch(InntektsmeldingStatus.IKKE_MOTTAT::equals);
+            .anyMatch(status -> !InntektsmeldingStatus.MOTTATT.equals(status));
     }
 }

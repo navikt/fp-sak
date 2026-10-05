@@ -87,13 +87,13 @@ class ForespørselStatusVurderingTjenesteTest {
     }
 
     @Test
-    void mottatt_og_avklart_ikke_paakrevd_uten_ikke_mottatt_gir_trengs_ikke() {
+    void avklart_ikke_paakrevd_gir_trengs_fortsatt_skal_ikke_lukkes_automatisk() {
         var behandling = mock(Behandling.class);
         stubFagsakOgBehandling(behandling);
         when(arbeidsforholdInntektsmeldingMangelTjenesteMock.finnStatusForInntektsmeldingArbeidsforhold(any())).thenReturn(
             List.of(lagIMStatus(ORGNR, InntektsmeldingStatus.MOTTATT), lagIMStatus(ORGNR, InntektsmeldingStatus.AVKLART_IKKE_PÅKREVD)));
 
-        assertThat(tjeneste.vurder(new ForespørselStatusRequest(SAKSNUMMER, ORGNR))).isFalse();
+        assertThat(tjeneste.vurder(new ForespørselStatusRequest(SAKSNUMMER, ORGNR))).isTrue();
     }
 
     @Test
