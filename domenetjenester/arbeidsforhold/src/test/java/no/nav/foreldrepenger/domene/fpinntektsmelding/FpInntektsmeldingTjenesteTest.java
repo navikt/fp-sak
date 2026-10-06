@@ -463,8 +463,8 @@ class FpInntektsmeldingTjenesteTest {
     }
 
     private void mockAlleForespørsler(BehandlingReferanse ref, Skjæringstidspunkt stp,
-                                    Map<Arbeidsgiver, Set<InternArbeidsforholdRef>> arbeidsgivere, OpprettForespørselRespons respons) {
-        when(inntektsmeldingRegisterTjeneste.utledAllePåKrevdeInntektsmeldinger(ref, stp)).thenReturn(arbeidsgivere);
+                                    Set<Arbeidsgiver> arbeidsgivere, OpprettForespørselRespons respons) {
+        when(inntektsmeldingRegisterTjeneste.utledPåkrevdeInntektsmeldinger(ref, stp)).thenReturn(arbeidsgivere);
         when(klient.opprettForespørselKomplett(any())).thenReturn(respons);
     }
 
