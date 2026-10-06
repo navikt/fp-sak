@@ -62,11 +62,8 @@ public class InaktiveArbeidsforholdUtleder {
         }
 
         // Fjerner arbeidsgivere der alle relevante arbeidsforhold har permisjon som overlapper skjæringstidspunkt
-        var relevanteYrkesaktiviteter = inntektArbeidYtelseGrunnlag
-            .map(grunnlag -> RelevanteYrkesaktiviteterForInntektsmelding.finn(grunnlag, referanse.aktørId(), utledetStp))
-            .orElse(List.of());
         var aktiveArbeidsgivereUtenPermisjon = aktiveArbeidsgivere.stream()
-            .filter(ag -> !erAlleRelevanteArbeidsforholdIPermisjonPåStp(ag, relevanteYrkesaktiviteter, utledetStp))
+            .filter(ag -> !erAlleRelevanteArbeidsforholdIPermisjonPåStp(ag, inntektArbeidYtelseGrunnlag, referanse.aktørId(), utledetStp))
             .collect(Collectors.toSet());
         if (aktiveArbeidsgivereUtenPermisjon.isEmpty()) {
             LOG.info("INAKTIV_ARB_UTLEDER: Finnes ingen aktive arbeidsforhold uten permisjon, returnerer istedenfor aktive arbeidsforhold med permisjon");
@@ -76,13 +73,26 @@ public class InaktiveArbeidsforholdUtleder {
     }
 
     private static boolean erAlleRelevanteArbeidsforholdIPermisjonPåStp(Arbeidsgiver arbeidsgiver,
-                                                                        List<Yrkesaktivitet> relevanteYrkesaktiviteter,
+                                                                        Optional<InntektArbeidYtelseGrunnlag> inntektArbeidYtelseGrunnlag,
+                                                                        AktørId søkerAktørId,
                                                                         LocalDate stp) {
-        var arbeidsforholdHosArbeidsgiver = relevanteYrkesaktiviteter.stream()
-            .filter(ya -> arbeidsgiver.equals(ya.getArbeidsgiver()))
-            .toList();
-        return !arbeidsforholdHosArbeidsgiver.isEmpty() && arbeidsforholdHosArbeidsgiver.stream()
-            .allMatch(ya -> HåndterePermisjoner.harRelevantPermisjonSomOverlapperSkjæringstidspunkt(ya, stp));
+        return inntektArbeidYtelseGrunnlag.map(iayg -> {
+            var arbeidsforholdHosArbeidsgiver = RelevanteYrkesaktiviteterForInntektsmelding.finn(iayg, søkerAktørId, stp).stream()
+                .filter(ya -> arbeidsgiver.equals(ya.getArbeidsgiver()))
+                .toList();
+            return !arbeidsforholdHosArbeidsgiver.isEmpty() && arbeidsforholdHosArbeidsgiver.stream()
+                .allMatch(ya -> harRelevantPermisjonPåStp(ya, arbeidsgiver, iayg, søkerAktørId, stp));
+        }).orElse(false);
+    }
+
+    private static boolean harRelevantPermisjonPåStp(Yrkesaktivitet yrkesaktivitet,
+                                                     Arbeidsgiver arbeidsgiver,
+                                                     InntektArbeidYtelseGrunnlag iayg,
+                                                     AktørId søkerAktørId,
+                                                     LocalDate stp) {
+        return HåndterePermisjoner.finnRelevantPermisjonSomOverlapperSkjæringstidspunkt(yrkesaktivitet, stp)
+            .filter(permisjon -> erIkkeVelferdspermisjonSomSkyldesSvp(permisjon, arbeidsgiver, iayg, søkerAktørId))
+            .isPresent();
     }
 
     public static boolean erInaktivt(Arbeidsgiver arbeidsgiverSomSjekkes,
@@ -121,9 +131,7 @@ public class InaktiveArbeidsforholdUtleder {
             .map(AktørArbeid::hentAlleYrkesaktiviteter).orElse(Collections.emptyList()).stream()
             .filter(yrkesaktivitet -> yrkesaktivitet.getArbeidsgiver() != null && yrkesaktivitet.getArbeidsgiver().equals(arbeidsgiver))
             .filter(yrkesaktivitet -> yrkesaktivitet.getArbeidsforholdRef() != null && yrkesaktivitet.getArbeidsforholdRef().equals(ref))
-            .anyMatch(yrkesAktivitet -> HåndterePermisjoner.finnRelevantPermisjonSomOverlapperSkjæringstidspunkt(yrkesAktivitet, stp)
-                .filter(permisjon -> erIkkeVelferdspermisjonSomSkyldesSvp(permisjon, arbeidsgiver, iayg, søkerAktørId))
-                .isPresent())).orElse(false);
+            .anyMatch(yrkesAktivitet -> harRelevantPermisjonPåStp(yrkesAktivitet, arbeidsgiver, iayg, søkerAktørId, stp))).orElse(false);
     }
 
     private static boolean erIkkeVelferdspermisjonSomSkyldesSvp(Permisjon permisjon,

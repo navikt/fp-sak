@@ -102,6 +102,7 @@ public class AvklarArbeidInntektsmeldingOppdaterer implements AksjonspunktOppdat
 
     private void validerArbeidsforholdSomManglerInntektsmelding(List<ArbeidsforholdMangel> alleMangler, List<ArbeidsforholdValg> alleSaksbehandlersValg) {
         // Eldre valg kan være lagret pr arbeidsforhold, mens mangelen gjelder hele arbeidsgiveren. Det holder at ett valg som gjelder mangelen er fortsett uten inntektsmelding.
+        // TODO (TFP-7104): gjelderFor-matchen mot ref er kun for legacy-valg pr arbeidsforhold; kan forenkles når disse er borte.
         var uavklarteMangler = alleMangler.stream()
             .filter(m -> m.årsak().equals(AksjonspunktÅrsak.MANGLENDE_INNTEKTSMELDING))
             .filter(mangel -> alleSaksbehandlersValg.stream()

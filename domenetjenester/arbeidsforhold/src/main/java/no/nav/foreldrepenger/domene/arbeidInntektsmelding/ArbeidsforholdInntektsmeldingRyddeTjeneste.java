@@ -75,6 +75,9 @@ public class ArbeidsforholdInntektsmeldingRyddeTjeneste {
     /**
      * Manglende inntektsmelding vurderes pr arbeidsgiver. Eldre valg kan være lagret pr arbeidsforhold. Når det lagres et nytt valg
      * som gjelder hele arbeidsgiveren, må disse deaktiveres slik at det nye valget ikke skygges av gamle valg.
+     * <p>
+     * TODO (TFP-7104): Midlertidig legacy-håndtering. Kan fjernes når det ikke lenger finnes aktive ARBEIDSFORHOLD_VALG pr arbeidsforhold (med ref)
+     * for manglende inntektsmelding, f.eks. etter migrering til ett valg pr arbeidsgiver. Avsluttede saker kopierer valg til revurderinger, så sjekk alle saker, ikke bare åpne.
      * @param eksisterendeValg aktive valg på behandlingen
      * @param nyeValg valg som skal lagres
      * @return eksisterende valg pr arbeidsforhold som erstattes av et nytt valg på arbeidsgivernivå

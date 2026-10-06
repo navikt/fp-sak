@@ -101,6 +101,8 @@ public class ArbeidsforholdInntektsmeldingMangelTjeneste {
         return fpInntektsmeldingTjeneste.sendNyBeskjedTilArbeidsgiver(behandlingReferanse, dto.getArbeidsgiverIdent());
     }
 
+    // TODO (TFP-7104): Midlertidig legacy-håndtering av valg pr arbeidsforhold. Fjernes sammen med
+    // ArbeidsforholdInntektsmeldingRyddeTjeneste.finnValgSomErstattesAvValgPåArbeidsgiver, se kommentar der.
     private void deaktiverValgSomErstattesAvValgPåArbeidsgiver(Long behandlingId, List<ArbeidsforholdValg> nyeValg) {
         var eksisterendeValg = arbeidsforholdValgRepository.hentArbeidsforholdValgForBehandling(behandlingId);
         ArbeidsforholdInntektsmeldingRyddeTjeneste.finnValgSomErstattesAvValgPåArbeidsgiver(eksisterendeValg, nyeValg).forEach(valg -> {
