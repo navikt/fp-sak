@@ -309,9 +309,10 @@ public class FpInntektsmeldingTjeneste {
         var ytelse = ref.fagsakYtelseType().getNavn().toLowerCase(Locale.ROOT);
 
         // Her kan vi ha elementer i begge lister.
-        // Det å opprette nye forespørsler er viktigst og bør prioriteres om det blir gjort, så lar den tittelen trumfe.
+        // Det å opprette nye forespørsler er viktigst og bør prioriteres, så lar de tekstene overgå oppdateringer.
         var tittel = arbeidsgivereMedNyForespørsel.isEmpty() ? "Oppdatert forespørsel" : "Forespørsel om inntektsmelding";
         var underTittel = arbeidsgivereMedNyForespørsel.isEmpty() ? "Oppdatert Min side - arbeidsgiver og Altinn innboks." : "Varslet på Min side - arbeidsgiver og Altinn innboks.";
+
         var builder = new Historikkinnslag.Builder()
             .medAktør(HistorikkAktør.VEDTAKSLØSNINGEN)
             .medTittel(tittel)
