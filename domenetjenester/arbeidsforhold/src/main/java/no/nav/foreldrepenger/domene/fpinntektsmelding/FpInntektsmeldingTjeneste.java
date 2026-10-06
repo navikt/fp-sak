@@ -18,8 +18,6 @@ import java.util.stream.Collectors;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
-import no.nav.foreldrepenger.konfig.Environment;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -79,7 +77,7 @@ public class FpInntektsmeldingTjeneste {
         this.arbeidsgiverTjeneste = arbeidsgiverTjeneste;
         this.inntektsmeldingRegisterTjeneste = inntektsmeldingRegisterTjeneste;
         // Hvis toggle er på vil det gi hyppigere bestillinger og oppdateringer av første uttaksdato for arbeidsgiver
-        this.erToggleForNyInnsendingPå = !Environment.current().isProd();
+        this.erToggleForNyInnsendingPå = true;
     }
 
     public void lagTaskForespørAlleInntektsmeldinger(BehandlingReferanse ref) {
@@ -291,6 +289,7 @@ public class FpInntektsmeldingTjeneste {
             if (organisasjonsnummerMedStatus.status().equals(OpprettForespørselRespons.ForespørselResultat.FORESPØRSEL_OPPRETTET)) {
                 arbeidsgivereMedNyForespørsel.add(hentArbeidsgivernavn(orgnr));
             } else if (organisasjonsnummerMedStatus.status().equals(OpprettForespørselRespons.ForespørselResultat.FORESPØRSEL_ENDRET)) {
+                LOG.info("LOGG_ENDRET_FORESP: Endret forespørsel for saksnummer: {} og orgnr {}", ref.saksnummer(), organisasjonsnummerMedStatus.organisasjonsnummerDto());
                 arbeidsgivereMedEndretForespørsel.add(hentArbeidsgivernavn(orgnr));
             } else {
                 LOG.info("Fpinntektsmelding opprettet ikke forespørsel på saksnummer: {} og orgnummer: {} på stp: {} og første uttaksdato: {}. Grunnen var: {}",
