@@ -311,14 +311,14 @@ public class FpInntektsmeldingTjeneste {
         // Her kan vi ha elementer i begge lister.
         // Det å opprette nye forespørsler er viktigst og bør prioriteres om det blir gjort, så lar den tittelen trumfe.
         var tittel = arbeidsgivereMedNyForespørsel.isEmpty() ? "Oppdatert forespørsel" : "Forespørsel om inntektsmelding";
-
+        var underTittel = arbeidsgivereMedNyForespørsel.isEmpty() ? "Oppdatert Min side - arbeidsgiver og Altinn innboks." : "Varslet på Min side - arbeidsgiver og Altinn innboks.";
         var builder = new Historikkinnslag.Builder()
             .medAktør(HistorikkAktør.VEDTAKSLØSNINGEN)
             .medTittel(tittel)
             .medBehandlingId(ref.behandlingId())
             .medFagsakId(ref.fagsakId());
         var historikkinnslagBuilder = builder
-            .addLinje("Varslet på Min side - arbeidsgiver og Altinn innboks.")
+            .addLinje(underTittel)
             .addLinje(HistorikkinnslagLinjeBuilder.LINJESKIFT);
         if (!arbeidsgivereMedNyForespørsel.isEmpty()) {
             var oppsummeringTekst = String.format(
