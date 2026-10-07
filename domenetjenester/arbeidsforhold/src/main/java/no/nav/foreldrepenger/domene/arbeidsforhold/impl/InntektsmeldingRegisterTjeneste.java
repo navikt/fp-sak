@@ -2,10 +2,8 @@ package no.nav.foreldrepenger.domene.arbeidsforhold.impl;
 
 import static no.nav.foreldrepenger.behandlingslager.virksomhet.OrgNummer.tilMaskertNummer;
 
-import java.time.LocalDate;
-import java.util.HashMap;
-import java.util.LinkedHashSet;
-import java.util.Map;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
@@ -22,22 +20,23 @@ import org.slf4j.LoggerFactory;
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
-import no.nav.foreldrepenger.behandlingslager.virksomhet.ArbeidType;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektsmeldingTjeneste;
+import no.nav.foreldrepenger.domene.iay.modell.ArbeidsforholdInformasjon;
 import no.nav.foreldrepenger.domene.iay.modell.ArbeidsforholdOverstyring;
 import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlag;
+import no.nav.foreldrepenger.domene.iay.modell.Inntektsmelding;
 import no.nav.foreldrepenger.domene.iay.modell.Yrkesaktivitet;
-import no.nav.foreldrepenger.domene.iay.modell.YrkesaktivitetFilter;
-import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 
+/**
+ * Utleder hvilke arbeidsgivere vi krever inntektsmelding fra. Vurderingen gjøres pr arbeidsgiver: én inntektsmelding
+ * fra en arbeidsgiver dekker alle arbeidsforhold hos arbeidsgiveren, uavhengig av arbeidsforholdId.
+ */
 @ApplicationScoped
 public class InntektsmeldingRegisterTjeneste {
 
     private static final String VALID_REF = "behandlingReferanse";
-    private static final Set<ArbeidType> AA_REG_TYPER = Set.of(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD, ArbeidType.MARITIMT_ARBEIDSFORHOLD,
-            ArbeidType.FORENKLET_OPPGJØRSORDNING);
     private static final Logger LOG = LoggerFactory.getLogger(InntektsmeldingRegisterTjeneste.class);
 
     private InntektArbeidYtelseTjeneste inntektArbeidYtelseTjeneste;
@@ -56,41 +55,62 @@ public class InntektsmeldingRegisterTjeneste {
         this.inntektsmeldingFiltere = inntektsmeldingFiltere;
     }
 
-    private void logInntektsmeldinger(BehandlingReferanse referanse, Map<Arbeidsgiver, Set<InternArbeidsforholdRef>> påkrevdeInntektsmeldinger,
-            String filtrert) {
-        if (påkrevdeInntektsmeldinger.isEmpty()) {
-            LOG.info("{} påkrevdeInntektsmeldinger[{}]: TOM LISTE", filtrert, referanse.behandlingId());
-            return;
-        }
-
-        påkrevdeInntektsmeldinger.forEach((key, value) -> {
-            var arbeidsforholdReferanser = value.stream().map(InternArbeidsforholdRef::toString).collect(Collectors.joining(","));
-            LOG.info("{} påkrevdeInntektsmeldinger[{}]: identifikator: {}, arbeidsforholdRef: {}", filtrert, referanse.behandlingId(),
-                    tilMaskertNummer(key.getIdentifikator()),
-                    arbeidsforholdReferanser);
-        });
+    /**
+     * Alle arbeidsgivere vi krever inntektsmelding fra, uten å ta hensyn til om inntektsmeldingen har kommet eller ikke.
+     * Filtrert for søknad (svp) og åpenbart passive arbeidsforhold.
+     */
+    public Set<Arbeidsgiver> utledPåkrevdeInntektsmeldinger(BehandlingReferanse referanse, Skjæringstidspunkt stp) {
+        Objects.requireNonNull(referanse, VALID_REF);
+        var inntektArbeidYtelseGrunnlag = inntektArbeidYtelseTjeneste.finnGrunnlag(referanse.behandlingId());
+        return utledPåkrevdeInntektsmeldinger(referanse, stp, inntektArbeidYtelseGrunnlag);
     }
 
     /**
-     * Liste av alle påkrevde inntektsmeldinger
-     * inntektsmelding. Filtrert ut åpenbart passive arbeidsforhold
+     * Arbeidsgivere vi krever inntektsmelding fra, men som ikke har sendt inntektsmelding og som saksbehandler
+     * ikke har avklart at ikke trenger å sende.
      */
-    public Map<Arbeidsgiver, Set<InternArbeidsforholdRef>> hentAllePåkrevdeInntektsmeldinger(BehandlingReferanse referanse, Skjæringstidspunkt stp) {
+    public Set<Arbeidsgiver> utledManglendeInntektsmeldinger(BehandlingReferanse referanse, Skjæringstidspunkt stp) {
         Objects.requireNonNull(referanse, VALID_REF);
         var inntektArbeidYtelseGrunnlag = inntektArbeidYtelseTjeneste.finnGrunnlag(referanse.behandlingId());
-        var påkrevdeInntektsmeldinger = utledPåkrevdeInntektsmeldingerFraGrunnlag(referanse, stp, inntektArbeidYtelseGrunnlag);
-        var filtrertHvisSvp = søknadsFilter(referanse, påkrevdeInntektsmeldinger);
-        return aktiveArbeidsforholdFilter(referanse, stp, inntektArbeidYtelseGrunnlag, filtrertHvisSvp);
+        var manglende = new HashSet<>(utledPåkrevdeInntektsmeldinger(referanse, stp, inntektArbeidYtelseGrunnlag));
+        if (!manglende.isEmpty()) {
+            inntektsmeldingTjeneste.hentInntektsmeldinger(referanse, stp.getUtledetSkjæringstidspunkt()).stream()
+                .map(Inntektsmelding::getArbeidsgiver)
+                .forEach(manglende::remove);
+            inntektArbeidYtelseGrunnlag.flatMap(InntektArbeidYtelseGrunnlag::getArbeidsforholdInformasjon)
+                .map(ArbeidsforholdInformasjon::getOverstyringer)
+                .orElse(List.of())
+                .stream()
+                .filter(ArbeidsforholdOverstyring::kreverIkkeInntektsmelding)
+                .map(ArbeidsforholdOverstyring::getArbeidsgiver)
+                .forEach(manglende::remove);
+        }
+        logInntektsmeldinger(referanse, manglende, "FILTRERT bort arbeidsgivere vi har mottatt inntektsmelding fra");
+        return manglende;
     }
 
-    private Map<Arbeidsgiver, Set<InternArbeidsforholdRef>> utledPåkrevdeInntektsmeldingerFraGrunnlag(BehandlingReferanse referanse,
-                                                                                                      Skjæringstidspunkt skjæringstidspunkt, Optional<InntektArbeidYtelseGrunnlag> inntektArbeidYtelseGrunnlag) {
-        Map<Arbeidsgiver, Set<InternArbeidsforholdRef>> påkrevdeInntektsmeldinger = new HashMap<>();
+    private Set<Arbeidsgiver> utledPåkrevdeInntektsmeldinger(BehandlingReferanse referanse,
+                                                             Skjæringstidspunkt stp,
+                                                             Optional<InntektArbeidYtelseGrunnlag> inntektArbeidYtelseGrunnlag) {
+        LOG.info("Utleder påkrevde inntektsmeldinger på skjæringstidspunkt {} for behandling {}", stp.getUtledetSkjæringstidspunkt(), referanse.behandlingId());
+        var påkrevde = utledPåkrevdeInntektsmeldingerFraGrunnlag(referanse, stp, inntektArbeidYtelseGrunnlag);
+        logInntektsmeldinger(referanse, påkrevde, "UFILTRERT");
 
-        inntektArbeidYtelseGrunnlag.ifPresent(grunnlag -> {
+        var filter = finnFilter(referanse);
+        var søkteArbeidsgivere = filter.søknadsFilter(referanse, påkrevde);
+        logInntektsmeldinger(referanse, søkteArbeidsgivere, "FILTRERT bort arbeidsgivere det ikke er søkt(svp) for");
 
-            var filterFør = new YrkesaktivitetFilter(grunnlag.getArbeidsforholdInformasjon(), grunnlag.getAktørArbeidFraRegister(referanse.aktørId()))
-                .før(skjæringstidspunkt.getUtledetSkjæringstidspunkt());
+        var aktiveArbeidsgivere = filter.aktiveArbeidsforholdFilter(referanse, stp, inntektArbeidYtelseGrunnlag, søkteArbeidsgivere);
+        logInntektsmeldinger(referanse, aktiveArbeidsgivere, "FILTRERT bort inaktive arbeidsgivere");
+        return aktiveArbeidsgivere;
+    }
+
+    private Set<Arbeidsgiver> utledPåkrevdeInntektsmeldingerFraGrunnlag(BehandlingReferanse referanse,
+                                                                        Skjæringstidspunkt skjæringstidspunkt,
+                                                                        Optional<InntektArbeidYtelseGrunnlag> inntektArbeidYtelseGrunnlag) {
+        return inntektArbeidYtelseGrunnlag.map(grunnlag -> {
+            var stp = skjæringstidspunkt.getUtledetSkjæringstidspunkt();
+            var filterFør = RelevanteYrkesaktiviteterForInntektsmelding.lagFilter(grunnlag, referanse.aktørId(), stp);
 
             var yrkesaktiviteterNy = filterFør.getYrkesaktiviteterKunAnsettelsesperiode();
             var yrkesaktiviteterGammel = filterFør.getYrkesaktiviteter();
@@ -99,176 +119,25 @@ public class InntektsmeldingRegisterTjeneste {
                     + " Saksnummer {} med gammel liste: {} og ny liste {}", referanse.saksnummer(), yrkesaktiviteterGammel, yrkesaktiviteterNy);
             }
 
-            var relevanteYrkesaktiviteter = yrkesaktiviteterGammel.stream()
-                .filter(ya -> AA_REG_TYPER.contains(ya.getArbeidType()))
-                .filter(ya -> harRelevantAnsettelsesperiodeSomDekkerAngittDato(filterFør, ya, skjæringstidspunkt.getUtledetSkjæringstidspunkt()))
-                .toList();
-            var arbeidsgivere = relevanteYrkesaktiviteter.stream().map(Yrkesaktivitet::getArbeidsgiver).toList();
-            LOG.info("Relevante yrkesaktiviteter for inntektsmelding: {}", arbeidsgivere);
-            relevanteYrkesaktiviteter.forEach(relevantYrkesaktivitet -> {
-                var identifikator = relevantYrkesaktivitet.getArbeidsgiver();
-                var arbeidsforholdRef = InternArbeidsforholdRef.ref(relevantYrkesaktivitet.getArbeidsforholdRef().getReferanse());
-
-                if (påkrevdeInntektsmeldinger.containsKey(identifikator)) {
-                    påkrevdeInntektsmeldinger.get(identifikator).add(arbeidsforholdRef);
-                } else {
-                    final Set<InternArbeidsforholdRef> arbeidsforholdSet = new LinkedHashSet<>();
-                    arbeidsforholdSet.add(arbeidsforholdRef);
-                    påkrevdeInntektsmeldinger.put(identifikator, arbeidsforholdSet);
-                }
-            });
-        });
-        return påkrevdeInntektsmeldinger;
-    }
-    /**
-     * Liste av arbeidsforhold per arbeidsgiver (ident) som må sende
-     * inntektsmelding. Filtrert ut åpenbart passive arbeidsforhold
-     */
-    public Map<Arbeidsgiver, Set<InternArbeidsforholdRef>> utledManglendeInntektsmeldingerFraGrunnlag(BehandlingReferanse referanse,
-        Skjæringstidspunkt stp) {
-        // Sjekk pr arbeidsforhold slik at saksbehandler kan avklare alle arbeidsforhold
-        return internUtledManglendeInntektsmeldinger(referanse, stp, true, true);
+            var arbeidsgivere = RelevanteYrkesaktiviteterForInntektsmelding.finn(filterFør, stp).stream()
+                .map(Yrkesaktivitet::getArbeidsgiver)
+                .collect(Collectors.toSet());
+            LOG.info("Relevante arbeidsgivere for inntektsmelding: {}", arbeidsgivere);
+            return arbeidsgivere;
+        }).orElseGet(Set::of);
     }
 
-    /**
-     *
-     * @param referanse behandlingen
-     * @param stp behandlingens skjæringstidspunkt
-     * @return utleder alle påkrevde inntektsmeldinger for behandlingen, uten å ta hensyn til om inntektsmeldingene har kommet eller ikke.
-     * Brukes til å sende en komplett liste over alle påkrevde inntektsmeldinger til fpinntektsmelding
-     */
-    public Map<Arbeidsgiver, Set<InternArbeidsforholdRef>> utledAllePåKrevdeInntektsmeldinger(BehandlingReferanse referanse,
-                                                                                              Skjæringstidspunkt stp) {
-        return internUtledManglendeInntektsmeldinger(referanse, stp, false, false);
+    private InntektsmeldingFilterYtelse finnFilter(BehandlingReferanse referanse) {
+        return FagsakYtelseTypeRef.Lookup.find(inntektsmeldingFiltere, referanse.fagsakYtelseType())
+            .orElseThrow(() -> new IllegalStateException("Ingen implementasjoner funnet for ytelse: " + referanse.fagsakYtelseType().getKode()));
     }
 
-    public Map<Arbeidsgiver, Set<InternArbeidsforholdRef>> utledManglendeInntektsmeldingerForKompletthet(BehandlingReferanse referanse,
-                                                                                                         Skjæringstidspunkt stp) {
-        // Sjekker pr arbeidsgiver, ikke pr arbeidsforhold, slik at tilfelle med flere arbeidsforhold for samme arbeidsgiver
-        // der det har kommet 1 inntektsmelding med arbeidsforhold ikke blir liggende på vent, men går til avklaring
-        return internUtledManglendeInntektsmeldinger(referanse, stp, false, true);
-    }
-
-    private Map<Arbeidsgiver, Set<InternArbeidsforholdRef>> internUtledManglendeInntektsmeldinger(BehandlingReferanse referanse,
-                                                                                                  Skjæringstidspunkt stp,
-                                                                                                  boolean prArbeidsforhold,
-                                                                                                  boolean hensyntaMottatteInntektsmeldinger) {
-        Objects.requireNonNull(referanse, VALID_REF);
-        LOG.info("Utleder manglende inntektsmeldinger på skjæringstidspunkt {} for behandling {}", stp.getUtledetSkjæringstidspunkt(), referanse.behandlingId());
-        var inntektArbeidYtelseGrunnlag = inntektArbeidYtelseTjeneste.finnGrunnlag(referanse.behandlingId());
-        var påkrevdeInntektsmeldinger = utledPåkrevdeInntektsmeldingerFraGrunnlag(referanse, stp, inntektArbeidYtelseGrunnlag);
-        logInntektsmeldinger(referanse, påkrevdeInntektsmeldinger, "UFILTRERT");
-
-        var påkrevdListeSøkteArbeidsforhold = søknadsFilter(referanse, påkrevdeInntektsmeldinger);
-        logInntektsmeldinger(referanse, påkrevdListeSøkteArbeidsforhold, "FILTRERT bort arbeidsforhold det ikke er søkt(svp) for");
-
-        var påkrevdListeAktiveArbeidsforhold = aktiveArbeidsforholdFilter(referanse, stp, inntektArbeidYtelseGrunnlag, påkrevdListeSøkteArbeidsforhold);
-        logInntektsmeldinger(referanse, påkrevdListeAktiveArbeidsforhold, "FILTRERT bort inaktive arbeidsforhold");
-
-        if (hensyntaMottatteInntektsmeldinger) {
-            filtrerUtMottatteInntektsmeldinger(referanse, stp, inntektArbeidYtelseGrunnlag, påkrevdListeAktiveArbeidsforhold, prArbeidsforhold);
-            logInntektsmeldinger(referanse, påkrevdListeAktiveArbeidsforhold, "FILTRERT bort arbeidsforhold vi har mottatt inntektsmelding på");
+    private static void logInntektsmeldinger(BehandlingReferanse referanse, Set<Arbeidsgiver> arbeidsgivere, String filtrert) {
+        if (arbeidsgivere.isEmpty()) {
+            LOG.info("{} påkrevdeInntektsmeldinger[{}]: TOM LISTE", filtrert, referanse.behandlingId());
+            return;
         }
-
-        return påkrevdListeAktiveArbeidsforhold;
-    }
-
-    // Vent med å ta i bruk denne til vi ikke lenger venter på andel i beregning
-    private void filtrerUtMottatteInntektsmeldinger(BehandlingReferanse referanse, Skjæringstidspunkt stp,
-                                                    Optional<InntektArbeidYtelseGrunnlag> inntektArbeidYtelseGrunnlag,
-                                                    Map<Arbeidsgiver, Set<InternArbeidsforholdRef>> påkrevdeInntektsmeldinger,
-                                                    boolean prArbeidsforhold) {
-        // modder påkrevdeInntektsmeldinger for hvert kall
-        if (!påkrevdeInntektsmeldinger.isEmpty()) {
-            var inntektsmeldinger = inntektsmeldingTjeneste.hentInntektsmeldinger(referanse, stp.getUtledetSkjæringstidspunkt());
-            for (var inntektsmelding : inntektsmeldinger) {
-                fjernArbeidsforholdFraPåkrevde(påkrevdeInntektsmeldinger, inntektsmelding.getArbeidsgiver(), inntektsmelding.getArbeidsforholdRef(), prArbeidsforhold);
-            }
-            if (!påkrevdeInntektsmeldinger.isEmpty()) {
-                fjernInntektsmeldingerSomAltErAvklart(inntektArbeidYtelseGrunnlag, påkrevdeInntektsmeldinger, prArbeidsforhold);
-            }
-        }
-    }
-
-    private void fjernInntektsmeldingerSomAltErAvklart(Optional<InntektArbeidYtelseGrunnlag> inntektArbeidYtelseGrunnlag,
-                                                       Map<Arbeidsgiver, Set<InternArbeidsforholdRef>> påkrevdeInntektsmeldinger,
-                                                       boolean prArbeidsforhold) {
-        var arbeidsforholdInformasjon = inntektArbeidYtelseGrunnlag.flatMap(InntektArbeidYtelseGrunnlag::getArbeidsforholdInformasjon);
-        if (arbeidsforholdInformasjon.isPresent()) {
-            var informasjon = arbeidsforholdInformasjon.get();
-            var inntektsmeldingSomIkkeKommer = informasjon.getOverstyringer()
-                .stream()
-                .filter(ArbeidsforholdOverstyring::kreverIkkeInntektsmelding)
-                .toList();
-
-            for (var im : inntektsmeldingSomIkkeKommer) {
-                fjernArbeidsforholdFraPåkrevde(påkrevdeInntektsmeldinger, im.getArbeidsgiver(), im.getArbeidsforholdRef(), prArbeidsforhold);
-            }
-        }
-    }
-
-    private void fjernArbeidsforholdFraPåkrevde(Map<Arbeidsgiver, Set<InternArbeidsforholdRef>> påkrevdeInntektsmeldinger,
-                                                Arbeidsgiver arbeidsgiver, InternArbeidsforholdRef arbeidsforholdRef,
-                                                boolean prArbeidsforhold) {
-        if (påkrevdeInntektsmeldinger.isEmpty()) {
-            return; // quick exit
-        }
-
-        if (påkrevdeInntektsmeldinger.containsKey(arbeidsgiver)) {
-            var arbeidsforhold = påkrevdeInntektsmeldinger.get(arbeidsgiver);
-            if (prArbeidsforhold && arbeidsforholdRef != null && arbeidsforholdRef.gjelderForSpesifiktArbeidsforhold()) {
-                arbeidsforhold.remove(arbeidsforholdRef);
-            } else {
-                arbeidsforhold.clear();
-            }
-            if (arbeidsforhold.isEmpty()) {
-                påkrevdeInntektsmeldinger.remove(arbeidsgiver);
-            }
-        }
-    }
-
-    private boolean harRelevantAnsettelsesperiodeSomDekkerAngittDato(YrkesaktivitetFilter filter, Yrkesaktivitet yrkesaktivitet, LocalDate dato) {
-        if (!yrkesaktivitet.erArbeidsforhold()) {
-            return false;
-        }
-        var ansettelsesPerioder = filter.getAnsettelsesPerioder(yrkesaktivitet);
-        var jobberPåStp = ansettelsesPerioder.stream().anyMatch(avtale -> avtale.getPeriode().inkluderer(dato));
-        if (jobberPåStp) {
-            return true;
-        }
-        var jobberDagenFørStp = ansettelsesPerioder.stream().anyMatch(avtale -> avtale.getPeriode().inkluderer(dato.minusDays(1)));
-        return jobberDagenFørStp && filter.getAlleYrkesaktiviteter().stream()
-            .filter(Yrkesaktivitet::erArbeidsforhold)
-            .filter(aktivitet -> Objects.equals(aktivitet.getArbeidsgiver(), yrkesaktivitet.getArbeidsgiver()))
-            .flatMap(aktivitet -> filter.getAnsettelsesPerioder(aktivitet).stream())
-            .anyMatch(avtale -> avtale.getPeriode().getFomDato().equals(dato));
-    }
-
-    /**
-     * Utleder påkrevde inntektsmeldinger fra grunnlaget basert på informasjonen som
-     * har blitt innhentet fra aa-reg (under INNREG-steget)
-     * <p>
-     * Sjekker opp mot mottatt dato, og melder påkrevde på de som har
-     * gjeldende(bruker var ansatt) på mottatt-dato.
-     * <p>
-     * Skal ikke benytte sjekk mot arkivet slik som gjøres i
-     * utledManglendeInntektsmeldingerFraAAreg da disse verdiene skal ikke påvirkes
-     * av endringer i arkivet.
-     */
-    private Map<Arbeidsgiver, Set<InternArbeidsforholdRef>> søknadsFilter(BehandlingReferanse referanse,
-                                                                          Map<Arbeidsgiver, Set<InternArbeidsforholdRef>> påkrevdeInntektsmeldinger) {
-        var filter = FagsakYtelseTypeRef.Lookup.find(inntektsmeldingFiltere, referanse.fagsakYtelseType())
-                .orElseThrow(
-                        () -> new IllegalStateException("Ingen implementasjoner funnet for ytelse: " + referanse.fagsakYtelseType().getKode()));
-        return filter.søknadsFilter(referanse, påkrevdeInntektsmeldinger);
-    }
-
-    private Map<Arbeidsgiver, Set<InternArbeidsforholdRef>> aktiveArbeidsforholdFilter(BehandlingReferanse referanse,
-                                                                                      Skjæringstidspunkt stp,
-                                                                                      Optional<InntektArbeidYtelseGrunnlag> inntektArbeidYtelseGrunnlag, Map<Arbeidsgiver, Set<InternArbeidsforholdRef>> påkrevdeInntektsmeldinger) {
-        var filter = FagsakYtelseTypeRef.Lookup.find(inntektsmeldingFiltere, referanse.fagsakYtelseType())
-                .orElseThrow(
-                        () -> new IllegalStateException("Ingen implementasjoner funnet for ytelse: " + referanse.fagsakYtelseType().getKode()));
-        return filter.aktiveArbeidsforholdFilter(referanse, stp, inntektArbeidYtelseGrunnlag, påkrevdeInntektsmeldinger);
+        var identifikatorer = arbeidsgivere.stream().map(ag -> tilMaskertNummer(ag.getIdentifikator())).collect(Collectors.joining(","));
+        LOG.info("{} påkrevdeInntektsmeldinger[{}]: identifikatorer: {}", filtrert, referanse.behandlingId(), identifikatorer);
     }
 }

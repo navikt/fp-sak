@@ -43,7 +43,6 @@ import no.nav.foreldrepenger.domene.iay.modell.InntektsmeldingBuilder;
 import no.nav.foreldrepenger.domene.iay.modell.Refusjon;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.Beløp;
-import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
@@ -221,7 +220,7 @@ class FpInntektsmeldingTjenesteTest {
 
         var respons = new OpprettForespørselRespons(List.of(new OpprettForespørselRespons.OrganisasjonsnummerMedStatus(
             new OrganisasjonsnummerDto(virksomhet.getOrgnr()), OpprettForespørselRespons.ForespørselResultat.FORESPØRSEL_OPPRETTET)));
-        mockAlleForespørsler(behandlingRef, stpp, Map.of(virksomhet, Set.of(InternArbeidsforholdRef.nyRef())), respons);
+        mockAlleForespørsler(behandlingRef, stpp, Set.of(virksomhet), respons);
         when(arbeidsgiverTjeneste.hentVirksomhet(virksomhet.getIdentifikator())).thenReturn(Virksomhet.getBuilder().medOrgnr(virksomhet.getIdentifikator()).medNavn("Testbedrift").build());
         // Act
         fpInntektsmeldingTjeneste.lagForespørselForAlleArbeidsgivere(behandlingRef, stpp);
@@ -271,7 +270,7 @@ class FpInntektsmeldingTjenesteTest {
         var virksomhet = Arbeidsgiver.virksomhet("999999999");
         var virksomhet2 = Arbeidsgiver.virksomhet("123456789");
 
-        var imer = Map.of(Arbeidsgiver.virksomhet(virksomhet.getOrgnr()), Set.of(InternArbeidsforholdRef.nullRef()), Arbeidsgiver.virksomhet(virksomhet2.getOrgnr()), Set.of(InternArbeidsforholdRef.nullRef()));
+        var imer = Set.of(Arbeidsgiver.virksomhet(virksomhet.getOrgnr()), Arbeidsgiver.virksomhet(virksomhet2.getOrgnr()));
 
         var behandlingRef = new BehandlingReferanse(new Saksnummer("1234"), 1234L, FagsakYtelseType.FORELDREPENGER, 4321L, UUID.randomUUID(),
             BehandlingStatus.UTREDES, BehandlingType.FØRSTEGANGSSØKNAD, 5432L, new AktørId("9999999999999"), RelasjonsRolleType.MORA);
@@ -339,9 +338,7 @@ class FpInntektsmeldingTjenesteTest {
                 OpprettForespørselRespons.ForespørselResultat.FORESPØRSEL_OPPRETTET),
             new OpprettForespørselRespons.OrganisasjonsnummerMedStatus(new OrganisasjonsnummerDto(virksomhet2.getOrgnr()),
                 OpprettForespørselRespons.ForespørselResultat.FORESPØRSEL_ENDRET)));
-        var arbeidsgivere = Map.of(
-            virksomhet, Set.of(InternArbeidsforholdRef.nullRef()),
-            virksomhet2, Set.of(InternArbeidsforholdRef.nullRef()));
+        var arbeidsgivere = Set.of(virksomhet, virksomhet2);
         mockAlleForespørsler(behandlingRef, skjæringstidspunkt, arbeidsgivere, respons);
         when(arbeidsgiverTjeneste.hentVirksomhet(virksomhet.getIdentifikator()))
             .thenReturn(Virksomhet.getBuilder().medOrgnr(virksomhet.getIdentifikator()).medNavn("Testbedrift").build());
@@ -372,7 +369,7 @@ class FpInntektsmeldingTjenesteTest {
         var stpp = Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(stp).medFørsteUttaksdato(stp.plusDays(1)).build();
         var respons = new OpprettForespørselRespons(List.of(new OpprettForespørselRespons.OrganisasjonsnummerMedStatus(
             new OrganisasjonsnummerDto(virksomhet.getOrgnr()), OpprettForespørselRespons.ForespørselResultat.IKKE_OPPRETTET_FINNES_ALLEREDE)));
-        mockAlleForespørsler(behandlingRef, stpp, Map.of(virksomhet, Set.of(InternArbeidsforholdRef.nullRef())), respons);
+        mockAlleForespørsler(behandlingRef, stpp, Set.of(virksomhet), respons);
         // Act
         fpInntektsmeldingTjeneste.lagForespørselForAlleArbeidsgivere(behandlingRef, stpp);
 
@@ -466,8 +463,8 @@ class FpInntektsmeldingTjenesteTest {
     }
 
     private void mockAlleForespørsler(BehandlingReferanse ref, Skjæringstidspunkt stp,
-                                    Map<Arbeidsgiver, Set<InternArbeidsforholdRef>> arbeidsgivere, OpprettForespørselRespons respons) {
-        when(inntektsmeldingRegisterTjeneste.utledAllePåKrevdeInntektsmeldinger(ref, stp)).thenReturn(arbeidsgivere);
+                                    Set<Arbeidsgiver> arbeidsgivere, OpprettForespørselRespons respons) {
+        when(inntektsmeldingRegisterTjeneste.utledPåkrevdeInntektsmeldinger(ref, stp)).thenReturn(arbeidsgivere);
         when(klient.opprettForespørselKomplett(any())).thenReturn(respons);
     }
 

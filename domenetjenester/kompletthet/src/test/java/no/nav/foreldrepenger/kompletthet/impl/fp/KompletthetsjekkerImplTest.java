@@ -11,10 +11,7 @@ import static org.mockito.Mockito.when;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -44,7 +41,6 @@ import no.nav.foreldrepenger.domene.arbeidsforhold.InntektsmeldingTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsforhold.impl.InntektsmeldingRegisterTjeneste;
 import no.nav.foreldrepenger.domene.iay.modell.InntektsmeldingBuilder;
 import no.nav.foreldrepenger.domene.typer.AktørId;
-import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 import no.nav.foreldrepenger.kompletthet.Kompletthetsjekker;
 import no.nav.foreldrepenger.kompletthet.ManglendeVedlegg;
 import no.nav.foreldrepenger.kompletthet.impl.KompletthetsjekkerImpl;
@@ -82,15 +78,14 @@ class KompletthetsjekkerImplTest extends EntityManagerAwareTest {
     private final Skjæringstidspunkt skjæringstidspunkt = Skjæringstidspunkt.builder()
             .medUtledetSkjæringstidspunkt(STARTDATO_PERMISJON)
             .build();
-    HashMap<Arbeidsgiver, Set<InternArbeidsforholdRef>> manglendeInntektsmeldinger;
+    Set<Arbeidsgiver> manglendeInntektsmeldinger;
 
     @BeforeEach
     public void before() {
-        manglendeInntektsmeldinger = new HashMap<>();
-        manglendeInntektsmeldinger.put(Arbeidsgiver.virksomhet(KUNSTIG_ORG), new HashSet<>());
+        manglendeInntektsmeldinger = Set.of(Arbeidsgiver.virksomhet(KUNSTIG_ORG));
 
         lenient().when(skjæringstidspunktTjeneste.getSkjæringstidspunkter(Mockito.anyLong())).thenReturn(skjæringstidspunkt);
-        lenient().when(inntektsmeldingArkivTjeneste.utledManglendeInntektsmeldingerForKompletthet(any(), any())).thenReturn(new HashMap<>());
+        lenient().when(inntektsmeldingArkivTjeneste.utledManglendeInntektsmeldinger(any(), any())).thenReturn(Set.of());
 
         repositoryProvider = new BehandlingRepositoryProvider(getEntityManager());
         søknadRepository = repositoryProvider.getSøknadRepository();
@@ -141,7 +136,7 @@ class KompletthetsjekkerImplTest extends EntityManagerAwareTest {
     void kompletthet_skal_være_oppfylt_når_det_ikke_mangler_noen_inntektsmelding() {
         // Arrange
         var behandling = ScenarioMorSøkerForeldrepenger.forFødsel().lagre(repositoryProvider);
-        mockManglendeInntektsmeldingKompletthet(Collections.emptyMap());
+        mockManglendeInntektsmeldingKompletthet(Set.of());
         testUtil.byggOgLagreFørstegangsSøknadMedMottattdato(behandling, LocalDate.now().minusWeeks(2),
                 STARTDATO_PERMISJON);
         lenient().when(inntektsmeldingTjeneste.hentInntektsmeldinger(any(), any())).thenReturn(
@@ -224,8 +219,7 @@ class KompletthetsjekkerImplTest extends EntityManagerAwareTest {
     void skal_føre_til_oppflyt_kompletthet_når_inntektsmelding_mangler_for_privat_arbeidsgivere() {
         // Arrange
         var behandling = ScenarioMorSøkerForeldrepenger.forFødsel().lagre(repositoryProvider);
-        HashMap<Arbeidsgiver, Set<InternArbeidsforholdRef>>  manglendeImPrivatArbGiver = new HashMap<>();
-        manglendeImPrivatArbGiver.put(Arbeidsgiver.fra(AktørId.dummy()), new HashSet<>());
+        var manglendeImPrivatArbGiver = Set.of(Arbeidsgiver.fra(AktørId.dummy()));
         mockManglendeInntektsmeldingKompletthet(manglendeImPrivatArbGiver);
         testUtil.byggOgLagreFørstegangsSøknadMedMottattdato(behandling, LocalDate.now().minusWeeks(1),
             STARTDATO_PERMISJON);
@@ -312,14 +306,13 @@ class KompletthetsjekkerImplTest extends EntityManagerAwareTest {
     }
 
     private void mockManglendeInntektsmelding() {
-        var manglendeInntektsmeldingerSet = new HashMap<Arbeidsgiver, Set<InternArbeidsforholdRef>>();
-        manglendeInntektsmeldingerSet.put(Arbeidsgiver.virksomhet("1"), new HashSet<>());
-        when(inntektsmeldingArkivTjeneste.utledManglendeInntektsmeldingerForKompletthet(any(), any())).thenReturn(
+        var manglendeInntektsmeldingerSet = Set.of(Arbeidsgiver.virksomhet("1"));
+        when(inntektsmeldingArkivTjeneste.utledManglendeInntektsmeldinger(any(), any())).thenReturn(
                 manglendeInntektsmeldingerSet);
     }
 
-    private void mockManglendeInntektsmeldingKompletthet(Map<Arbeidsgiver, Set<InternArbeidsforholdRef>> manglendeIM) {
-        when(inntektsmeldingArkivTjeneste.utledManglendeInntektsmeldingerForKompletthet(any(), any())).thenReturn(
+    private void mockManglendeInntektsmeldingKompletthet(Set<Arbeidsgiver> manglendeIM) {
+        when(inntektsmeldingArkivTjeneste.utledManglendeInntektsmeldinger(any(), any())).thenReturn(
             manglendeIM);
     }
 }

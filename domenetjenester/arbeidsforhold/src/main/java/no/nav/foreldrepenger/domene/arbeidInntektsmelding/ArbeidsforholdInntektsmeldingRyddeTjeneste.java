@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.arbeidsforhold.ArbeidsforholdKomplettVurderingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.arbeidsforhold.ArbeidsforholdValg;
@@ -17,6 +18,10 @@ import no.nav.foreldrepenger.domene.iay.modell.kodeverk.ArbeidsforholdHandlingTy
  * inn nye opplysninger som gjør tidligere vurderinger overflødige
  */
 public class ArbeidsforholdInntektsmeldingRyddeTjeneste {
+    private static final Set<ArbeidsforholdKomplettVurderingType> VURDERINGER_MANGLENDE_INNTEKTSMELDING = Set.of(
+        ArbeidsforholdKomplettVurderingType.FORTSETT_UTEN_INNTEKTSMELDING,
+        ArbeidsforholdKomplettVurderingType.KONTAKT_ARBEIDSGIVER_VED_MANGLENDE_INNTEKTSMELDING,
+        ArbeidsforholdKomplettVurderingType.MELDING_TIL_ARBEIDSGIVER_NAV_NO);
     private static final Set<ArbeidsforholdHandlingType> UGYLDIGE_HANDLINGER = Set.of(ArbeidsforholdHandlingType.BRUK_MED_OVERSTYRT_PERIODE,
         ArbeidsforholdHandlingType.INNTEKT_IKKE_MED_I_BG);
 
@@ -65,6 +70,30 @@ public class ArbeidsforholdInntektsmeldingRyddeTjeneste {
             .filter(valg -> !liggerIMangelListe(valg, manglerPåBehandlingen))
             .toList();
 
+    }
+
+    /**
+     * Manglende inntektsmelding vurderes pr arbeidsgiver. Eldre valg kan være lagret pr arbeidsforhold. Når det lagres et nytt valg
+     * som gjelder hele arbeidsgiveren, må disse deaktiveres slik at det nye valget ikke skygges av gamle valg.
+     * <p>
+     * TODO (TFP-7104): Midlertidig legacy-håndtering. Kan fjernes når det ikke lenger finnes aktive ARBEIDSFORHOLD_VALG pr arbeidsforhold (med ref)
+     * for manglende inntektsmelding, f.eks. etter migrering til ett valg pr arbeidsgiver. Avsluttede saker kopierer valg til revurderinger, så sjekk alle saker, ikke bare åpne.
+     * @param eksisterendeValg aktive valg på behandlingen
+     * @param nyeValg valg som skal lagres
+     * @return eksisterende valg pr arbeidsforhold som erstattes av et nytt valg på arbeidsgivernivå
+     */
+    public static List<ArbeidsforholdValg> finnValgSomErstattesAvValgPåArbeidsgiver(List<ArbeidsforholdValg> eksisterendeValg,
+                                                                                   List<ArbeidsforholdValg> nyeValg) {
+        var arbeidsgivereMedNyttValg = nyeValg.stream()
+            .filter(valg -> VURDERINGER_MANGLENDE_INNTEKTSMELDING.contains(valg.getVurdering()))
+            .filter(valg -> !valg.getArbeidsforholdRef().gjelderForSpesifiktArbeidsforhold())
+            .map(ArbeidsforholdValg::getArbeidsgiver)
+            .collect(Collectors.toSet());
+        return eksisterendeValg.stream()
+            .filter(valg -> VURDERINGER_MANGLENDE_INNTEKTSMELDING.contains(valg.getVurdering()))
+            .filter(valg -> valg.getArbeidsforholdRef().gjelderForSpesifiktArbeidsforhold())
+            .filter(valg -> arbeidsgivereMedNyttValg.contains(valg.getArbeidsgiver()))
+            .toList();
     }
 
     private static boolean liggerIMangelListe(ArbeidsforholdValg valg, List<ArbeidsforholdMangel> manglerPåBehandlingen) {
