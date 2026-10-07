@@ -305,13 +305,19 @@ public class FpInntektsmeldingTjeneste {
     private void lagHistorikkForForespørsel(BehandlingReferanse ref, List<String> arbeidsgivereMedNyForespørsel,
                                             List<String> arbeidsgivereMedEndretForespørsel,LocalDate førsteUttaksdato) {
         var ytelse = ref.fagsakYtelseType().getNavn().toLowerCase(Locale.ROOT);
+
+        // Her kan vi ha elementer i begge lister.
+        // Det å opprette nye forespørsler er viktigst og bør prioriteres, så lar de tekstene overgå oppdateringer.
+        var tittel = arbeidsgivereMedNyForespørsel.isEmpty() ? "Oppdatert forespørsel" : "Forespørsel om inntektsmelding";
+        var underTittel = arbeidsgivereMedNyForespørsel.isEmpty() ? "Oppdatert Min side - arbeidsgiver og Altinn innboks." : "Varslet på Min side - arbeidsgiver og Altinn innboks.";
+
         var builder = new Historikkinnslag.Builder()
             .medAktør(HistorikkAktør.VEDTAKSLØSNINGEN)
-            .medTittel("Forespørsel om inntektsmelding")
+            .medTittel(tittel)
             .medBehandlingId(ref.behandlingId())
             .medFagsakId(ref.fagsakId());
         var historikkinnslagBuilder = builder
-            .addLinje("Varslet på Min side - arbeidsgiver og Altinn innboks.")
+            .addLinje(underTittel)
             .addLinje(HistorikkinnslagLinjeBuilder.LINJESKIFT);
         if (!arbeidsgivereMedNyForespørsel.isEmpty()) {
             var oppsummeringTekst = String.format(
