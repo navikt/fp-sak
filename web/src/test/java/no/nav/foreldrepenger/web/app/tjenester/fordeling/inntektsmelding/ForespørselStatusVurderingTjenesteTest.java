@@ -50,40 +50,47 @@ class ForespørselStatusVurderingTjenesteTest {
     }
 
     @Test
-    void avsluttet_fagsak_gir_trengs_ikke() {
+    void avsluttet_fagsak_gir_utgått() {
         var fagsak = lagFagsak(FagsakStatus.AVSLUTTET);
         when(fagsakTjenesteMock.finnFagsakGittSaksnummer(new Saksnummer(SAKSNUMMER), false)).thenReturn(Optional.of(fagsak));
 
-        assertThat(tjeneste.vurder(new ForespørselStatusRequest(SAKSNUMMER, ORGNR))).isFalse();
+        assertThat(tjeneste.vurder(new ForespørselStatusRequest(SAKSNUMMER, ORGNR)))
+
+            .isEqualTo(ForespørselVurderingResultat.SETT_TIL_UTGÅTT);
     }
 
     @Test
-    void ingen_arbeidsforhold_for_orgnummer_gir_trengs_ikke() {
+    void ingen_arbeidsforhold_for_orgnummer_gir_utgått() {
         var behandling = mock(Behandling.class);
         stubFagsakOgBehandling(behandling);
         when(arbeidsforholdInntektsmeldingMangelTjenesteMock.finnStatusForInntektsmeldingArbeidsforhold(any())).thenReturn(List.of());
 
-        assertThat(tjeneste.vurder(new ForespørselStatusRequest(SAKSNUMMER, ORGNR))).isFalse();
+        assertThat(tjeneste.vurder(new ForespørselStatusRequest(SAKSNUMMER, ORGNR)))
+
+            .isEqualTo(ForespørselVurderingResultat.SETT_TIL_UTGÅTT);
     }
 
     @Test
-    void minst_en_ikke_mottatt_gir_trengs() {
+    void minst_en_ikke_mottatt_gir_trenger_fortsatt() {
         var behandling = mock(Behandling.class);
         stubFagsakOgBehandling(behandling);
         when(arbeidsforholdInntektsmeldingMangelTjenesteMock.finnStatusForInntektsmeldingArbeidsforhold(any())).thenReturn(
             List.of(lagIMStatus(ORGNR, InntektsmeldingStatus.MOTTATT), lagIMStatus(ORGNR, InntektsmeldingStatus.IKKE_MOTTAT)));
 
-        assertThat(tjeneste.vurder(new ForespørselStatusRequest(SAKSNUMMER, ORGNR))).isTrue();
+        assertThat(tjeneste.vurder(new ForespørselStatusRequest(SAKSNUMMER, ORGNR)))
+            .isEqualTo(ForespørselVurderingResultat.TRENGER_FORTSATT_INNTEKTSMELDING);
     }
 
     @Test
-    void alle_mottatt_gir_trengs_ikke() {
+    void alle_mottatt_gir_ferdig_siden_saken_fortsatt_løper() {
         var behandling = mock(Behandling.class);
         stubFagsakOgBehandling(behandling);
         when(arbeidsforholdInntektsmeldingMangelTjenesteMock.finnStatusForInntektsmeldingArbeidsforhold(any())).thenReturn(
             List.of(lagIMStatus(ORGNR, InntektsmeldingStatus.MOTTATT), lagIMStatus(ORGNR, InntektsmeldingStatus.MOTTATT)));
 
-        assertThat(tjeneste.vurder(new ForespørselStatusRequest(SAKSNUMMER, ORGNR))).isFalse();
+        assertThat(tjeneste.vurder(new ForespørselStatusRequest(SAKSNUMMER, ORGNR)))
+
+            .isEqualTo(ForespørselVurderingResultat.SETT_TIL_FERDIG);
     }
 
     @Test
@@ -93,17 +100,20 @@ class ForespørselStatusVurderingTjenesteTest {
         when(arbeidsforholdInntektsmeldingMangelTjenesteMock.finnStatusForInntektsmeldingArbeidsforhold(any())).thenReturn(
             List.of(lagIMStatus(ORGNR, InntektsmeldingStatus.MOTTATT), lagIMStatus(ORGNR, InntektsmeldingStatus.AVKLART_IKKE_PÅKREVD)));
 
-        assertThat(tjeneste.vurder(new ForespørselStatusRequest(SAKSNUMMER, ORGNR))).isTrue();
+        assertThat(tjeneste.vurder(new ForespørselStatusRequest(SAKSNUMMER, ORGNR)))
+            .isEqualTo(ForespørselVurderingResultat.TRENGER_FORTSATT_INNTEKTSMELDING);
     }
 
     @Test
-    void statuser_for_annet_orgnummer_filtreres_bort() {
+    void statuser_for_annet_orgnummer_filtreres_bort_og_gir_utgått() {
         var behandling = mock(Behandling.class);
         stubFagsakOgBehandling(behandling);
         when(arbeidsforholdInntektsmeldingMangelTjenesteMock.finnStatusForInntektsmeldingArbeidsforhold(any())).thenReturn(
             List.of(lagIMStatus(ANNET_ORGNR, InntektsmeldingStatus.IKKE_MOTTAT)));
 
-        assertThat(tjeneste.vurder(new ForespørselStatusRequest(SAKSNUMMER, ORGNR))).isFalse();
+        assertThat(tjeneste.vurder(new ForespørselStatusRequest(SAKSNUMMER, ORGNR)))
+
+            .isEqualTo(ForespørselVurderingResultat.SETT_TIL_UTGÅTT);
     }
 
     private void stubFagsakOgBehandling(Behandling behandling) {
