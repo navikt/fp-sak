@@ -15,6 +15,7 @@ import no.nav.foreldrepenger.behandlingskontroll.BehandlingTypeRef;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.domene.arbeidInntektsmelding.ArbeidsforholdInntektsmeldingMangelTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsforhold.aksjonspunkt.AksjonspunktUtlederForArbeidsforholdInntektsmelding;
@@ -62,7 +63,7 @@ class KontrollerArbeidsforholdInntektsmeldingStegImpl implements KontrollerArbei
         arbeidsforholdInntektsmeldingMangelTjeneste.ryddVekkUgyldigeArbeidsforholdoverstyringer(ref);
 
         List<AksjonspunktResultat> aksjonspuntker = new ArrayList<>(utleder.utledAksjonspunkterFor(new AksjonspunktUtlederInput(ref, skjæringstidspunkter)));
-        if (fpInntektsmeldingTjeneste.erToggleForNyInnsendingPå()) {
+        if (fpInntektsmeldingTjeneste.erToggleForNyInnsendingPå() && (ref.behandlingType().equals(BehandlingType.FØRSTEGANGSSØKNAD) || !aksjonspuntker.isEmpty())) {
             fpInntektsmeldingTjeneste.lagTaskForespørAlleInntektsmeldinger(ref);
         }
         return BehandleStegResultat.utførtMedAksjonspunktResultater(aksjonspuntker);
