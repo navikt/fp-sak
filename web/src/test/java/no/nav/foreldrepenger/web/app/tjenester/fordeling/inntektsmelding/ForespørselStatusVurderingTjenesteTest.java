@@ -1,11 +1,14 @@
 package no.nav.foreldrepenger.web.app.tjenester.fordeling.inntektsmelding;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
@@ -16,6 +19,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import no.nav.foreldrepenger.behandling.FagsakTjeneste;
+import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
@@ -26,6 +30,7 @@ import no.nav.foreldrepenger.domene.arbeidInntektsmelding.ArbeidsforholdInntekts
 import no.nav.foreldrepenger.domene.arbeidInntektsmelding.ArbeidsforholdInntektsmeldingStatus.InntektsmeldingStatus;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
+import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 
 @ExtendWith(MockitoExtension.class)
 class ForespørselStatusVurderingTjenesteTest {
@@ -41,12 +46,16 @@ class ForespørselStatusVurderingTjenesteTest {
     private BehandlingRepository behandlingRepositoryMock;
     @Mock
     private ArbeidsforholdInntektsmeldingMangelTjeneste arbeidsforholdInntektsmeldingMangelTjenesteMock;
+    @Mock
+    private SkjæringstidspunktTjeneste skjæringstidspunktTjenesteMock;
 
     private ForespørselStatusVurderingTjeneste tjeneste;
 
     @BeforeEach
     void setup() {
-        tjeneste = new ForespørselStatusVurderingTjeneste(fagsakTjenesteMock, behandlingRepositoryMock, arbeidsforholdInntektsmeldingMangelTjenesteMock);
+        tjeneste = new ForespørselStatusVurderingTjeneste(fagsakTjenesteMock, behandlingRepositoryMock, arbeidsforholdInntektsmeldingMangelTjenesteMock, skjæringstidspunktTjenesteMock);
+        lenient().when(skjæringstidspunktTjenesteMock.getSkjæringstidspunkter(anyLong()))
+            .thenReturn(Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(LocalDate.now()).build());
     }
 
     @Test
@@ -63,7 +72,7 @@ class ForespørselStatusVurderingTjenesteTest {
     void ingen_arbeidsforhold_for_orgnummer_gir_utgått() {
         var behandling = mock(Behandling.class);
         stubFagsakOgBehandling(behandling);
-        when(arbeidsforholdInntektsmeldingMangelTjenesteMock.finnStatusForInntektsmeldingArbeidsforhold(any())).thenReturn(List.of());
+        when(arbeidsforholdInntektsmeldingMangelTjenesteMock.finnStatusForInntektsmeldingArbeidsforhold(any(), any())).thenReturn(List.of());
 
         assertThat(tjeneste.vurder(new ForespørselStatusRequest(SAKSNUMMER, ORGNR)))
 
@@ -74,7 +83,7 @@ class ForespørselStatusVurderingTjenesteTest {
     void minst_en_ikke_mottatt_gir_trenger_fortsatt() {
         var behandling = mock(Behandling.class);
         stubFagsakOgBehandling(behandling);
-        when(arbeidsforholdInntektsmeldingMangelTjenesteMock.finnStatusForInntektsmeldingArbeidsforhold(any())).thenReturn(
+        when(arbeidsforholdInntektsmeldingMangelTjenesteMock.finnStatusForInntektsmeldingArbeidsforhold(any(), any())).thenReturn(
             List.of(lagIMStatus(ORGNR, InntektsmeldingStatus.MOTTATT), lagIMStatus(ORGNR, InntektsmeldingStatus.IKKE_MOTTAT)));
 
         assertThat(tjeneste.vurder(new ForespørselStatusRequest(SAKSNUMMER, ORGNR)))
@@ -85,7 +94,7 @@ class ForespørselStatusVurderingTjenesteTest {
     void alle_mottatt_gir_ferdig_siden_saken_fortsatt_løper() {
         var behandling = mock(Behandling.class);
         stubFagsakOgBehandling(behandling);
-        when(arbeidsforholdInntektsmeldingMangelTjenesteMock.finnStatusForInntektsmeldingArbeidsforhold(any())).thenReturn(
+        when(arbeidsforholdInntektsmeldingMangelTjenesteMock.finnStatusForInntektsmeldingArbeidsforhold(any(), any())).thenReturn(
             List.of(lagIMStatus(ORGNR, InntektsmeldingStatus.MOTTATT), lagIMStatus(ORGNR, InntektsmeldingStatus.MOTTATT)));
 
         assertThat(tjeneste.vurder(new ForespørselStatusRequest(SAKSNUMMER, ORGNR)))
@@ -97,7 +106,7 @@ class ForespørselStatusVurderingTjenesteTest {
     void avklart_ikke_paakrevd_gir_trengs_fortsatt_skal_ikke_lukkes_automatisk() {
         var behandling = mock(Behandling.class);
         stubFagsakOgBehandling(behandling);
-        when(arbeidsforholdInntektsmeldingMangelTjenesteMock.finnStatusForInntektsmeldingArbeidsforhold(any())).thenReturn(
+        when(arbeidsforholdInntektsmeldingMangelTjenesteMock.finnStatusForInntektsmeldingArbeidsforhold(any(), any())).thenReturn(
             List.of(lagIMStatus(ORGNR, InntektsmeldingStatus.MOTTATT), lagIMStatus(ORGNR, InntektsmeldingStatus.AVKLART_IKKE_PÅKREVD)));
 
         assertThat(tjeneste.vurder(new ForespørselStatusRequest(SAKSNUMMER, ORGNR)))
@@ -108,12 +117,23 @@ class ForespørselStatusVurderingTjenesteTest {
     void statuser_for_annet_orgnummer_filtreres_bort_og_gir_utgått() {
         var behandling = mock(Behandling.class);
         stubFagsakOgBehandling(behandling);
-        when(arbeidsforholdInntektsmeldingMangelTjenesteMock.finnStatusForInntektsmeldingArbeidsforhold(any())).thenReturn(
+        when(arbeidsforholdInntektsmeldingMangelTjenesteMock.finnStatusForInntektsmeldingArbeidsforhold(any(), any())).thenReturn(
             List.of(lagIMStatus(ANNET_ORGNR, InntektsmeldingStatus.IKKE_MOTTAT)));
 
         assertThat(tjeneste.vurder(new ForespørselStatusRequest(SAKSNUMMER, ORGNR)))
 
             .isEqualTo(ForespørselVurderingResultat.SETT_TIL_UTGÅTT);
+    }
+
+    @Test
+    void feil_i_statusberegning_propagerer_og_gir_ikke_utgått() {
+        var behandling = mock(Behandling.class);
+        stubFagsakOgBehandling(behandling);
+        when(arbeidsforholdInntektsmeldingMangelTjenesteMock.finnStatusForInntektsmeldingArbeidsforhold(any(), any()))
+            .thenThrow(new IllegalStateException("Beregningsfeil"));
+
+        assertThatThrownBy(() -> tjeneste.vurder(new ForespørselStatusRequest(SAKSNUMMER, ORGNR)))
+            .isInstanceOf(IllegalStateException.class);
     }
 
     private void stubFagsakOgBehandling(Behandling behandling) {

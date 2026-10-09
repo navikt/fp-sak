@@ -16,6 +16,7 @@ import no.nav.foreldrepenger.domene.arbeidInntektsmelding.ArbeidsforholdInntekts
 import no.nav.foreldrepenger.domene.arbeidInntektsmelding.ArbeidsforholdInntektsmeldingStatus;
 import no.nav.foreldrepenger.domene.arbeidInntektsmelding.ArbeidsforholdInntektsmeldingStatus.InntektsmeldingStatus;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
+import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 
 /**
  * Vurderer, for en enkelt {@link ForespørselStatusRequest}, om fp-sak fortsatt trenger inntektsmelding fra
@@ -31,6 +32,7 @@ public class ForespørselStatusVurderingTjeneste {
     private FagsakTjeneste fagsakTjeneste;
     private BehandlingRepository behandlingRepository;
     private ArbeidsforholdInntektsmeldingMangelTjeneste arbeidsforholdInntektsmeldingMangelTjeneste;
+    private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
 
     ForespørselStatusVurderingTjeneste() {
         // CDI
@@ -39,10 +41,12 @@ public class ForespørselStatusVurderingTjeneste {
     @Inject
     public ForespørselStatusVurderingTjeneste(FagsakTjeneste fagsakTjeneste,
                                               BehandlingRepository behandlingRepository,
-                                              ArbeidsforholdInntektsmeldingMangelTjeneste arbeidsforholdInntektsmeldingMangelTjeneste) {
+                                              ArbeidsforholdInntektsmeldingMangelTjeneste arbeidsforholdInntektsmeldingMangelTjeneste,
+                                              SkjæringstidspunktTjeneste skjæringstidspunktTjeneste) {
         this.fagsakTjeneste = fagsakTjeneste;
         this.behandlingRepository = behandlingRepository;
         this.arbeidsforholdInntektsmeldingMangelTjeneste = arbeidsforholdInntektsmeldingMangelTjeneste;
+        this.skjæringstidspunktTjeneste = skjæringstidspunktTjeneste;
     }
 
     public ForespørselVurderingResultat vurder(ForespørselStatusRequest request) {
@@ -56,8 +60,10 @@ public class ForespørselStatusVurderingTjeneste {
         }
 
         var behandling = behandlingRepository.hentSisteYtelsesBehandlingForFagsakId(fagsak.getId()).orElseThrow();
+        var referanse = BehandlingReferanse.fra(behandling);
+        var skjæringstidspunkt = skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandling.getId());
         var arbeidsforholdStatuser = arbeidsforholdInntektsmeldingMangelTjeneste.finnStatusForInntektsmeldingArbeidsforhold(
-            BehandlingReferanse.fra(behandling));
+            referanse, skjæringstidspunkt);
         return vurderForespørselStatus(arbeidsforholdStatuser, request.orgnummer());
     }
 
