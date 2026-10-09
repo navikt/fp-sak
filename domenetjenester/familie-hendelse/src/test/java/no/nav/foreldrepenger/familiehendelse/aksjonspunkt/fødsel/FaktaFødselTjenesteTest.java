@@ -6,7 +6,6 @@ import static org.mockito.Mockito.mock;
 
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Optional;
 
 import no.nav.foreldrepenger.familiehendelse.FamilieHendelseTjeneste;
 
@@ -53,7 +52,7 @@ class FaktaFødselTjenesteTest extends EntityManagerAwareTest {
         var fh = familieHendelseTjeneste.hentAggregat(ref.behandlingId());
 
         var exception = assertThrows(FunksjonellException.class,
-            () -> tjeneste.overstyrFaktaOmFødsel(ref, fh, Optional.of(dto.getTermindato()), dto.getBarn(), dto.getBegrunnelse(), false));
+            () -> tjeneste.overstyrFaktaOmFødsel(ref, fh, dto.getTermindato(), dto.getBarn(), dto.getBegrunnelse(), false));
         assertThat(exception).extracting("kode", "msg")
             .containsExactly("FP-076346", "For stort avvik termin/fødsel. Sjekk datoer eller meld sak i Porten");
     }
@@ -68,7 +67,7 @@ class FaktaFødselTjenesteTest extends EntityManagerAwareTest {
 
         var ref = BehandlingReferanse.fra(behandling);
         var exception = assertThrows(FunksjonellException.class,
-            () -> tjeneste.overstyrFaktaOmFødsel(ref, fh, Optional.of(dto.getTermindato()), dto.getBarn(),
+            () -> tjeneste.overstyrFaktaOmFødsel(ref, fh, dto.getTermindato(), dto.getBarn(),
                 dto.getBegrunnelse(), false));
         assertThat(exception).extracting("kode", "msg")
             .containsExactly("FP-076345", "Dødsdato før fødselsdato. Se over fødsels- og dødsdato");
@@ -82,7 +81,7 @@ class FaktaFødselTjenesteTest extends EntityManagerAwareTest {
             List.of(new DokumentertBarnDto(FØDSELSDATO, null), new DokumentertBarnDto(FØDSELSDATO.plusDays(1), null)));
         var fh = familieHendelseTjeneste.hentAggregat(behandling.getId());
 
-        tjeneste.overstyrFaktaOmFødsel(BehandlingReferanse.fra(behandling), fh, Optional.of(dto.getTermindato()), dto.getBarn(), dto.getBegrunnelse(),
+        tjeneste.overstyrFaktaOmFødsel(BehandlingReferanse.fra(behandling), fh, dto.getTermindato(), dto.getBarn(), dto.getBegrunnelse(),
             false);
 
         var fhFraRepo = repositoryProvider.getFamilieHendelseRepository().hentAggregat(behandling.getId());
@@ -100,7 +99,7 @@ class FaktaFødselTjenesteTest extends EntityManagerAwareTest {
         var dto = new OverstyringFaktaOmFødselDto("begrunnelse", endretTermindato, List.of());
         var fh = familieHendelseTjeneste.hentAggregat(behandling.getId());
 
-        tjeneste.overstyrFaktaOmFødsel(BehandlingReferanse.fra(behandling), fh, Optional.of(dto.getTermindato()), dto.getBarn(), dto.getBegrunnelse(),
+        tjeneste.overstyrFaktaOmFødsel(BehandlingReferanse.fra(behandling), fh, dto.getTermindato(), dto.getBarn(), dto.getBegrunnelse(),
             false);
 
         var fhFraRepo = repositoryProvider.getFamilieHendelseRepository().hentAggregat(behandling.getId());
@@ -116,7 +115,7 @@ class FaktaFødselTjenesteTest extends EntityManagerAwareTest {
         var dto = new OverstyringFaktaOmFødselDto("begrunnelse", TERMINDATO, List.of(new DokumentertBarnDto(FØDSELSDATO, dødsdato)));
         var fh = familieHendelseTjeneste.hentAggregat(behandling.getId());
 
-        tjeneste.overstyrFaktaOmFødsel(BehandlingReferanse.fra(behandling), fh, Optional.of(dto.getTermindato()), dto.getBarn(), dto.getBegrunnelse(),
+        tjeneste.overstyrFaktaOmFødsel(BehandlingReferanse.fra(behandling), fh, dto.getTermindato(), dto.getBarn(), dto.getBegrunnelse(),
             false);
 
         var fhFraRepo = repositoryProvider.getFamilieHendelseRepository().hentAggregat(behandling.getId());
@@ -134,7 +133,7 @@ class FaktaFødselTjenesteTest extends EntityManagerAwareTest {
         var dto = new OverstyringFaktaOmFødselDto("begrunnelse", TERMINDATO, List.of(new DokumentertBarnDto(FØDSELSDATO, dødsdato)));
         var fh = familieHendelseTjeneste.hentAggregat(behandling.getId());
 
-        tjeneste.overstyrFaktaOmFødsel(BehandlingReferanse.fra(behandling), fh, Optional.of(dto.getTermindato()), dto.getBarn(), dto.getBegrunnelse(),
+        tjeneste.overstyrFaktaOmFødsel(BehandlingReferanse.fra(behandling), fh, dto.getTermindato(), dto.getBarn(), dto.getBegrunnelse(),
             false);
 
         var fhFraRepo = repositoryProvider.getFamilieHendelseRepository().hentAggregat(behandling.getId());
@@ -165,7 +164,7 @@ class FaktaFødselTjenesteTest extends EntityManagerAwareTest {
 
         var fhFraRepoFoer = repositoryProvider.getFamilieHendelseRepository().hentAggregat(behandling.getId());
 
-        tjeneste.overstyrFaktaOmFødsel(BehandlingReferanse.fra(behandling), fh, Optional.of(dto.getTermindato()), dto.getBarn(), dto.getBegrunnelse(),
+        tjeneste.overstyrFaktaOmFødsel(BehandlingReferanse.fra(behandling), fh, dto.getTermindato(), dto.getBarn(), dto.getBegrunnelse(),
             false);
 
         var fhFraRepo = repositoryProvider.getFamilieHendelseRepository().hentAggregat(behandling.getId());

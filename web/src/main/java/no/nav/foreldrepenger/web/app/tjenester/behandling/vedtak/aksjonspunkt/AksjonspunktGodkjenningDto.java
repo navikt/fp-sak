@@ -13,7 +13,8 @@ import no.nav.vedtak.util.InputValideringRegex;
 
 public class AksjonspunktGodkjenningDto {
 
-    private boolean godkjent;
+    @NotNull
+    private Boolean godkjent;
 
     @Size(max = 4000)
     @Pattern(regexp = InputValideringRegex.FRITEKST)
@@ -35,7 +36,7 @@ public class AksjonspunktGodkjenningDto {
         return godkjent;
     }
 
-    public void setGodkjent(boolean godkjent) {
+    public void setGodkjent(Boolean godkjent) {
         this.godkjent = godkjent;
     }
 

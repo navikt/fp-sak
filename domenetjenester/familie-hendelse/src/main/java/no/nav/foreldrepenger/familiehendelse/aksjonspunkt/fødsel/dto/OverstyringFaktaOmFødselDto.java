@@ -5,7 +5,6 @@ import java.util.List;
 import java.util.Optional;
 
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -17,7 +16,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspun
 @JsonTypeName(AksjonspunktKodeDefinisjon.OVERSTYRING_AV_FAKTA_OM_FØDSEL_KODE)
 public class OverstyringFaktaOmFødselDto extends OverstyringAksjonspunktDto {
 
-    @NotNull
     private LocalDate termindato;
 
     @Size(min = 1, max = 9)
@@ -35,8 +33,8 @@ public class OverstyringFaktaOmFødselDto extends OverstyringAksjonspunktDto {
         // For Jackson
     }
 
-    public LocalDate getTermindato() {
-        return termindato;
+    public Optional<LocalDate> getTermindato() {
+        return Optional.ofNullable(termindato);
     }
 
 

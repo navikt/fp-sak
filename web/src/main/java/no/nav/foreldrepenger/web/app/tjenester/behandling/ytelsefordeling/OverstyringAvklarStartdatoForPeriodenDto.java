@@ -2,6 +2,8 @@ package no.nav.foreldrepenger.web.app.tjenester.behandling.ytelsefordeling;
 
 import java.time.LocalDate;
 
+import jakarta.validation.constraints.NotNull;
+
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -14,8 +16,10 @@ import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspun
 @JsonTypeName(AksjonspunktKodeDefinisjon.OVERSTYRING_AV_AVKLART_STARTDATO_KODE)
 public class OverstyringAvklarStartdatoForPeriodenDto extends OverstyringAksjonspunktDto {
 
+    @NotNull
     private LocalDate startdatoFraSøknad;
 
+    @NotNull
     private LocalDate opprinneligDato;
 
     public OverstyringAvklarStartdatoForPeriodenDto(String begrunnelse, LocalDate startdatoFraSøknad, LocalDate opprinneligDato) {

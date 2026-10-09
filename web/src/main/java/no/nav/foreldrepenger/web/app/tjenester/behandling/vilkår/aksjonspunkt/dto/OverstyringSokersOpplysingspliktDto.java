@@ -1,5 +1,7 @@
 package no.nav.foreldrepenger.web.app.tjenester.behandling.vilkår.aksjonspunkt.dto;
 
+import jakarta.validation.constraints.NotNull;
+
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -12,7 +14,8 @@ import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspun
 @JsonTypeName(AksjonspunktKodeDefinisjon.SØKERS_OPPLYSNINGSPLIKT_OVST_KODE)
 public class OverstyringSokersOpplysingspliktDto extends OverstyringAksjonspunktDto {
 
-    private boolean erVilkårOk;
+    @NotNull
+    private Boolean erVilkårOk;
 
     @SuppressWarnings("unused")
     private OverstyringSokersOpplysingspliktDto() {
