@@ -5,6 +5,7 @@ import java.time.LocalDate;
 import java.util.UUID;
 
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 
@@ -20,10 +21,14 @@ import no.nav.vedtak.util.InputValideringRegex;
 @JsonTypeName(AksjonspunktKodeDefinisjon.VURDERING_AV_FORMKRAV_KLAGE_NFP_KODE)
 public final class KlageFormkravAksjonspunktDto extends BekreftetAksjonspunktDto implements KlageFormKravLagreDto {
 
-    private boolean erKlagerPart;
-    private boolean erFristOverholdt;
-    private boolean erKonkret;
-    private boolean erSignert;
+    @NotNull
+    private Boolean erKlagerPart;
+    @NotNull
+    private Boolean erFristOverholdt;
+    @NotNull
+    private Boolean erKonkret;
+    @NotNull
+    private Boolean erSignert;
 
     private boolean erTilbakekreving;
 

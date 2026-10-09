@@ -2,6 +2,7 @@ package no.nav.foreldrepenger.web.app.tjenester.behandling.dekningsgrad;
 
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotNull;
 
 import com.fasterxml.jackson.annotation.JsonTypeName;
 
@@ -11,9 +12,10 @@ import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspun
 @JsonTypeName(AksjonspunktKodeDefinisjon.AVKLAR_DEKNINGSGRAD_KODE)
 public class AvklarDekningsgradDto extends BekreftetAksjonspunktDto {
 
+    @NotNull
     @Min(80)
     @Max(100)
-    private int dekningsgrad;
+    private Integer dekningsgrad;
 
     public AvklarDekningsgradDto(String begrunnelse, int dekningsgrad) {
         super(begrunnelse);

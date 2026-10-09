@@ -67,6 +67,19 @@ class FaktaOmFødselOverstyringshåndtererTest {
     }
 
     @Test
+    void skal_beholde_termindato_når_overstyring_mangler_termindato() {
+        var ref = byggBehandlingReferanse(termindato, null, List.of());
+        var overstyringFaktaOmFødselDto = new OverstyringFaktaOmFødselDto("Barnet er født.", null,
+            List.of(new DokumentertBarnDto(fødselsdato, null)));
+
+        oppdaterer.håndterOverstyring(overstyringFaktaOmFødselDto, ref);
+        var familieHendelseEtterOverstyring = familieHendelseTjeneste.hentAggregat(ref.behandlingId());
+
+        assertThat(familieHendelseEtterOverstyring.getGjeldendeVersjon().getTermindato()).hasValue(termindato);
+        assertBarn(familieHendelseEtterOverstyring, List.of(fødselsdato), Arrays.asList((LocalDate) null));
+    }
+
+    @Test
     void skal_oppdatere_og_lage_historikk_når_ett_barn_legges_til() {
         var ref = byggBehandlingReferanse(termindato, fødselsdato, List.of(fødselsdato));
         // barnDtoListe inneholder gjeldende barn fra register i tillegg til det som skal legges til. Dette vil overstyre fra overstyrt versjon som inneholder 1 barn fra bekreftet hendelse.

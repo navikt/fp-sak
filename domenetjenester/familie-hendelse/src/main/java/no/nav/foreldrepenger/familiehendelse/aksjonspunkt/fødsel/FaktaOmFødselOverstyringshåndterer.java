@@ -32,7 +32,7 @@ public class FaktaOmFødselOverstyringshåndterer implements Overstyringshåndte
     @Override
     public OppdateringResultat håndterOverstyring(OverstyringFaktaOmFødselDto dto, BehandlingReferanse ref) {
         var familieHendelse = familieHendelseTjeneste.hentAggregat(ref.behandlingId());
-        return faktaFødselTjeneste.overstyrFaktaOmFødsel(ref, familieHendelse, Optional.of(dto.getTermindato()), dto.getBarn(), dto.getBegrunnelse(),
+        return faktaFødselTjeneste.overstyrFaktaOmFødsel(ref, familieHendelse, dto.getTermindato(), dto.getBarn(), dto.getBegrunnelse(),
             true);
     }
 }
