@@ -259,21 +259,7 @@ public class FpInntektsmeldingTjeneste {
             ref.saksnummer(), request.skjæringstidspunkt(), request.orgnummer());
 
         var statusResponse = klient.opprettSpesifikkForespørsel(request);
-
-        if (request.organisasjonsnummerMedStatus().erInntektsmeldingMottatt()
-            && OpprettForespørselRespons.ForespørselResultat.FORESPØRSEL_OPPRETTET.equals(statusResponse.status())) {
-            var historikkinnslag = new Historikkinnslag.Builder()
-                .medAktør(HistorikkAktør.VEDTAKSLØSNINGEN)
-                .medTittel("Forespørsel om inntektsmelding")
-                .medBehandlingId(ref.behandlingId())
-                .medFagsakId(ref.fagsakId())
-                .addLinje("Inntektsmelding var allerede mottatt. Forespørsel opprettet uten varsel.")
-                .addLinje(hentArbeidsgivernavn(statusResponse.organisasjonsnummerDto().orgnr()) + ".")
-                .build();
-            historikkRepo.lagre(historikkinnslag);
-        } else {
-            opprettHistorikkInnslagOmNødvendig(ref, request.skjæringstidspunkt(), request.førsteUttaksdato(), List.of(statusResponse));
-        }
+        opprettHistorikkInnslagOmNødvendig(ref, request.skjæringstidspunkt(), request.førsteUttaksdato(), List.of(statusResponse));
     }
 
     private void sendKomplettRequest(BehandlingReferanse ref,
