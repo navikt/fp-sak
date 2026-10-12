@@ -371,9 +371,9 @@ public class ForvaltningBehandlingRestTjeneste {
             .stream()
             .anyMatch(im -> im.getArbeidsgiver().equals(arbeidsgiver));
         if (erMottatt) {
-            LOG.info("ForvaltningBehandlingRestTjeneste: Inntektsmelding er allerede mottatt for sak {} og orgnummer {}, oppretter tasks for å opprette og lukke forespørsel i sekvens",
+            LOG.info("ForvaltningBehandlingRestTjeneste: Inntektsmelding er allerede mottatt for sak {} og orgnummer {}, oppretter forespørsel uten varsel",
                 ref.saksnummer(), OrgNummer.tilMaskertNummer(dto.getOrgnummer()));
-            fpInntektsmeldingTjeneste.lagTaskForespørOgLukkBestemtInntektsmelding(behandling, dto.getOrgnummer());
+            fpInntektsmeldingTjeneste.lagTaskForespørBestemtMottattInntektsmelding(ref, dto.getOrgnummer());
         } else {
             fpInntektsmeldingTjeneste.lagTaskForespørBestemtInntektsmelding(ref, dto.getOrgnummer());
         }

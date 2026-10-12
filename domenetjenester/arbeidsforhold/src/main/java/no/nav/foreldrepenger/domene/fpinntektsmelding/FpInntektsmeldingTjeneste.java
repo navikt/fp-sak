@@ -39,7 +39,6 @@ import no.nav.foreldrepenger.domene.iay.modell.NaturalYtelse;
 import no.nav.foreldrepenger.domene.typer.Beløp;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
-import no.nav.vedtak.felles.prosesstask.api.ProsessTaskGruppe;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 import no.nav.vedtak.felles.prosesstask.api.TaskType;
 import no.nav.vedtak.konfig.Tid;
@@ -81,41 +80,29 @@ public class FpInntektsmeldingTjeneste {
     }
 
     public void lagTaskForespørAlleInntektsmeldinger(BehandlingReferanse ref) {
-        lagTask(ref, null);
+        lagTask(ref, null, false);
     }
 
     public void lagTaskForespørBestemtInntektsmelding(BehandlingReferanse ref, String orgnummer) {
-        lagTask(ref, orgnummer);
+        lagTask(ref, orgnummer, false);
+    }
+
+    public void lagTaskForespørBestemtMottattInntektsmelding(BehandlingReferanse ref, String orgnummer) {
+        lagTask(ref, orgnummer, true);
     }
 
     public boolean erToggleForNyInnsendingPå() {
         return erToggleForNyInnsendingPå;
     }
 
-    //Denne brukes av opprettForespørsel i ForvaltningBehandlingRestTjeneste dersom det av en eller annen grunn ikke er opprettet
-    //forespørsel på en behandling. I disse tilfellene kan im allerede være mottatt (før altinn2 ble stengt).
-    // Det er ikke et vanlig case og koden bør ikke brukes i andre tilfeller
-    public void lagTaskForespørOgLukkBestemtInntektsmelding(Behandling behandling, String orgnummer) {
-        var forespørselTask = ProsessTaskData.forTaskType(TaskType.forProsessTask(FpInntektsmeldingTask.class));
-        forespørselTask.setProperty(FpInntektsmeldingTask.ORGNUMMER, orgnummer);
-
-        var lukkTask = ProsessTaskData.forTaskType(TaskType.forProsessTask(LukkForespørslerImTask.class));
-        lukkTask.setProperty(LukkForespørslerImTask.ORG_NUMMER, orgnummer);
-        lukkTask.setProperty(LukkForespørslerImTask.STATUS, ForespørselStatus.UTFØRT.name());
-        lukkTask.setProperty(LukkForespørslerImTask.SAK_NUMMER, behandling.getSaksnummer().getVerdi());
-
-        var taskGruppe = new ProsessTaskGruppe();
-        taskGruppe.addNesteSekvensiell(forespørselTask);
-        taskGruppe.addNesteSekvensiell(lukkTask);
-        taskGruppe.setBehandling(behandling.getSaksnummer().getVerdi(), behandling.getFagsakId(), behandling.getId());
-        prosessTaskTjeneste.lagre(taskGruppe);
-    }
-
-    private void lagTask(BehandlingReferanse ref, String orgnummer) {
+    private void lagTask(BehandlingReferanse ref, String orgnummer, boolean erInntektsmeldingMottatt) {
         var taskdata = ProsessTaskData.forTaskType(TaskType.forProsessTask(FpInntektsmeldingTask.class));
         taskdata.setBehandling(ref.saksnummer().getVerdi(), ref.fagsakId(), ref.behandlingId());
         if (orgnummer != null) {
             taskdata.setProperty(FpInntektsmeldingTask.ORGNUMMER, orgnummer);
+        }
+        if (erInntektsmeldingMottatt) {
+            taskdata.setProperty(FpInntektsmeldingTask.ER_INNTEKTSMELDING_MOTTATT, Boolean.TRUE.toString());
         }
         var gruppeId = String.format(GRUPPE_ID, ref.saksnummer().getVerdi());
         taskdata.setGruppe(gruppeId);
@@ -177,14 +164,19 @@ public class FpInntektsmeldingTjeneste {
     }
 
     public void lagForespørselForBestemtArbeidsgiver(BehandlingReferanse ref, Skjæringstidspunkt stp, Arbeidsgiver arbeidsgiver) {
+        lagForespørselForBestemtArbeidsgiver(ref, stp, arbeidsgiver, false);
+    }
+
+    public void lagForespørselForBestemtArbeidsgiver(BehandlingReferanse ref, Skjæringstidspunkt stp, Arbeidsgiver arbeidsgiver,
+                                                     boolean erInntektsmeldingMottatt) {
         var skjæringstidspunkt = stp.getUtledetSkjæringstidspunkt();
         var førsteUttaksdato = stp.getFørsteUttaksdato();
         var agDto = new OrganisasjonsnummerDto(arbeidsgiver.getOrgnr());
 
-        if (erToggleForNyInnsendingPå) {
-            // Togglet på i dev: Nytt endepunkt som aksepterer og forventer kun ett orgnr
+        if (erInntektsmeldingMottatt || erToggleForNyInnsendingPå) {
             var request = new OpprettEnForespørselRequest(new AktørIdDto(ref.aktørId().getId()), skjæringstidspunkt,
-                mapYtelsetype(ref.fagsakYtelseType()), new SaksnummerDto(ref.saksnummer().getVerdi()), førsteUttaksdato, agDto);
+                mapYtelsetype(ref.fagsakYtelseType()), new SaksnummerDto(ref.saksnummer().getVerdi()), førsteUttaksdato, agDto,
+                new OpprettEnForespørselRequest.OrganisasjonsnummerMedStatusDto(agDto, erInntektsmeldingMottatt));
             sendEnkeltRequest(ref, request);
         } else {
             var request = new OpprettForespørselRequest(new AktørIdDto(ref.aktørId().getId()), null, skjæringstidspunkt,
@@ -268,7 +260,20 @@ public class FpInntektsmeldingTjeneste {
 
         var statusResponse = klient.opprettSpesifikkForespørsel(request);
 
-        opprettHistorikkInnslagOmNødvendig(ref, request.skjæringstidspunkt(), request.førsteUttaksdato(), List.of(statusResponse));
+        if (request.organisasjonsnummerMedStatus().erInntektsmeldingMottatt()
+            && OpprettForespørselRespons.ForespørselResultat.FORESPØRSEL_OPPRETTET.equals(statusResponse.status())) {
+            var historikkinnslag = new Historikkinnslag.Builder()
+                .medAktør(HistorikkAktør.VEDTAKSLØSNINGEN)
+                .medTittel("Forespørsel om inntektsmelding")
+                .medBehandlingId(ref.behandlingId())
+                .medFagsakId(ref.fagsakId())
+                .addLinje("Inntektsmelding var allerede mottatt. Forespørsel opprettet uten varsel.")
+                .addLinje(hentArbeidsgivernavn(statusResponse.organisasjonsnummerDto().orgnr()) + ".")
+                .build();
+            historikkRepo.lagre(historikkinnslag);
+        } else {
+            opprettHistorikkInnslagOmNødvendig(ref, request.skjæringstidspunkt(), request.førsteUttaksdato(), List.of(statusResponse));
+        }
     }
 
     private void sendKomplettRequest(BehandlingReferanse ref,
