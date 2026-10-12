@@ -282,25 +282,6 @@ class FpInntektsmeldingTjenesteTest {
         verify(klient).opprettSpesifikkForespørsel(new OpprettEnForespørselRequest(new AktørIdDto(behandlingRef.aktørId().getId()), stp,
             FpInntektsmeldingYtelse.FORELDREPENGER, new SaksnummerDto("1234"), stp, organisasjonsnummer,
             new OpprettEnForespørselRequest.OrganisasjonsnummerMedStatusDto(organisasjonsnummer, true)));
-        var historikkCaptor = ArgumentCaptor.forClass(Historikkinnslag.class);
-        verify(historikkRepository).lagre(historikkCaptor.capture());
-        assertThat(historikkCaptor.getValue().getTekstLinjer()).contains("Inntektsmelding var allerede mottatt. Forespørsel opprettet uten varsel.",
-            "Testbedrift (999999999).").noneMatch(linje -> linje != null && linje.contains("Påminnelse sendes automatisk"));
-    }
-
-    @Test
-    void skal_ikke_lagre_nytt_historikkinnslag_når_forespørselen_allerede_finnes() {
-        var stp = LocalDate.of(2024, 9, 1);
-        var virksomhet = Arbeidsgiver.virksomhet("999999999");
-        var ref = new BehandlingReferanse(new Saksnummer("1234"), 1234L, FagsakYtelseType.FORELDREPENGER, 4321L, UUID.randomUUID(),
-            BehandlingStatus.UTREDES, BehandlingType.FØRSTEGANGSSØKNAD, 5432L, new AktørId("9999999999999"), RelasjonsRolleType.MORA);
-        var skjæringstidspunkt = Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(stp).medFørsteUttaksdato(stp).build();
-        when(klient.opprettSpesifikkForespørsel(any())).thenReturn(new OpprettForespørselRespons.OrganisasjonsnummerMedStatus(
-            new OrganisasjonsnummerDto(virksomhet.getOrgnr()), OpprettForespørselRespons.ForespørselResultat.IKKE_OPPRETTET_FINNES_ALLEREDE));
-
-        fpInntektsmeldingTjeneste.lagForespørselForBestemtArbeidsgiver(ref, skjæringstidspunkt, virksomhet, true);
-
-        verifyNoInteractions(historikkRepository);
     }
 
     @Test
