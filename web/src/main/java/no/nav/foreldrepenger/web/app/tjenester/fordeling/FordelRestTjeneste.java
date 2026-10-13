@@ -65,6 +65,7 @@ import no.nav.foreldrepenger.mottak.vurderfagsystem.VurderFagsystemFellesTjenest
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.fordeling.inntektsmelding.ForespørselStatusRequest;
 import no.nav.foreldrepenger.web.app.tjenester.fordeling.inntektsmelding.ForespørselStatusVurderingTjeneste;
+import no.nav.foreldrepenger.web.app.tjenester.fordeling.inntektsmelding.ForespørselVurderingResultat;
 import no.nav.foreldrepenger.web.server.abac.AppAbacAttributtType;
 import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.konfig.Tid;
@@ -306,9 +307,8 @@ public class FordelRestTjeneste {
     @Operation(description = "MIDLERTIDIG: sjekk av om inntektsmelding for en gitt (fagsakSaksnummer, orgnummer) "
         + "fortsatt trengs. Brukes av en engangs ryddejobb i fp-inntektsmelding, se ForespørselStatusRequest.", tags = "fordel")
     @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK, sporingslogg = false)
-    public Boolean forespørselStatus(@TilpassetAbacAttributt(supplierClass = ForespørselStatusRequestAbacDataSupplier.class)
-        @Parameter(description = "Ett fagsakSaksnummer og ett orgnummer")
-        @Valid ForespørselStatusRequest request) {
+    public ForespørselVurderingResultat forespørselStatus(@TilpassetAbacAttributt(supplierClass = ForespørselStatusRequestAbacDataSupplier.class)
+                                                              @Parameter(description = "fagsakSaksnummer og orgnummer") @Valid ForespørselStatusRequest request) {
         ensureCallId();
         return forespørselStatusVurderingTjeneste.vurder(request);
     }
