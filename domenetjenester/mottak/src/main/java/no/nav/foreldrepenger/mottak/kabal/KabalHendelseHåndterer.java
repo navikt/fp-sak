@@ -156,9 +156,9 @@ public class KabalHendelseHåndterer implements KafkaMessageHandler.KafkaStringM
             LOG.warn("KABAL mottatt hendelse med ugyldig kildereferanse (ikke UUID) hendelse={}", mottattHendelse, e);
             return null;
         }
-        var behandling = behandlingRepository.hentBehandling(kildeReferanse);
+        var behandling = behandlingRepository.hentBehandlingHvisFinnes(kildeReferanse).orElse(null);
         if (behandling == null) {
-            LOG.warn("KABAL mottatt hendelse med ukjent referanse hendelse={}", mottattHendelse);
+            LOG.warn("KABAL har sendt hendelse med ukjent kildeReferanse hendelse={}", mottattHendelse);
             return null;
         }
         // Henlagt omgjøringskrav/begjæring har ingen behandling hos oss, de andre variantene skal ha en klage eller anke
