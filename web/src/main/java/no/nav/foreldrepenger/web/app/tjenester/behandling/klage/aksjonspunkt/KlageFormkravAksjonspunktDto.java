@@ -29,8 +29,8 @@ public final class KlageFormkravAksjonspunktDto extends BekreftetAksjonspunktDto
     private Boolean erKonkret;
     @NotNull
     private Boolean erSignert;
-
-    private boolean erTilbakekreving;
+    @NotNull
+    private Boolean erTilbakekreving;
 
     @Valid
     private KlageTilbakekrevingDto klageTilbakekreving;
