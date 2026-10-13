@@ -16,6 +16,7 @@ import no.nav.foreldrepenger.domene.arbeidInntektsmelding.ArbeidsforholdInntekts
 import no.nav.foreldrepenger.domene.arbeidInntektsmelding.ArbeidsforholdInntektsmeldingStatus;
 import no.nav.foreldrepenger.domene.arbeidInntektsmelding.ArbeidsforholdInntektsmeldingStatus.InntektsmeldingStatus;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
+import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 
 /**
  * Vurderer, for en enkelt {@link ForespørselStatusRequest}, om fp-sak fortsatt trenger inntektsmelding fra
@@ -31,6 +32,7 @@ public class ForespørselStatusVurderingTjeneste {
     private FagsakTjeneste fagsakTjeneste;
     private BehandlingRepository behandlingRepository;
     private ArbeidsforholdInntektsmeldingMangelTjeneste arbeidsforholdInntektsmeldingMangelTjeneste;
+    private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
 
     ForespørselStatusVurderingTjeneste() {
         // CDI
@@ -39,32 +41,49 @@ public class ForespørselStatusVurderingTjeneste {
     @Inject
     public ForespørselStatusVurderingTjeneste(FagsakTjeneste fagsakTjeneste,
                                               BehandlingRepository behandlingRepository,
-                                              ArbeidsforholdInntektsmeldingMangelTjeneste arbeidsforholdInntektsmeldingMangelTjeneste) {
+                                              ArbeidsforholdInntektsmeldingMangelTjeneste arbeidsforholdInntektsmeldingMangelTjeneste,
+                                              SkjæringstidspunktTjeneste skjæringstidspunktTjeneste) {
         this.fagsakTjeneste = fagsakTjeneste;
         this.behandlingRepository = behandlingRepository;
         this.arbeidsforholdInntektsmeldingMangelTjeneste = arbeidsforholdInntektsmeldingMangelTjeneste;
+        this.skjæringstidspunktTjeneste = skjæringstidspunktTjeneste;
     }
 
-    public boolean vurder(ForespørselStatusRequest request) {
+    public ForespørselVurderingResultat vurder(ForespørselStatusRequest request) {
         var fagsak = fagsakTjeneste.finnFagsakGittSaksnummer(new Saksnummer(request.fagsakSaksnummer()), false).orElse(null);
         if (fagsak == null) {
             LOG.info("Fant ikke fagsak for saksnummer={}, bør undersøke denne nærmere før eventuell lukking", request.fagsakSaksnummer());
-            return true;
+            return ForespørselVurderingResultat.TRENGER_FORTSATT_INNTEKTSMELDING;
         }
         if (FagsakStatus.AVSLUTTET.equals(fagsak.getStatus())) {
-            return false;
+            return ForespørselVurderingResultat.SETT_TIL_UTGÅTT;
         }
 
         var behandling = behandlingRepository.hentSisteYtelsesBehandlingForFagsakId(fagsak.getId()).orElseThrow();
+        var referanse = BehandlingReferanse.fra(behandling);
+        var skjæringstidspunkt = skjæringstidspunktTjeneste.getSkjæringstidspunkter(behandling.getId());
         var arbeidsforholdStatuser = arbeidsforholdInntektsmeldingMangelTjeneste.finnStatusForInntektsmeldingArbeidsforhold(
-            BehandlingReferanse.fra(behandling));
-        return trengerFortsattInntektsmelding(arbeidsforholdStatuser, request.orgnummer());
+            referanse, skjæringstidspunkt);
+        return vurderForespørselStatus(arbeidsforholdStatuser, request.orgnummer());
     }
 
-    private static boolean trengerFortsattInntektsmelding(List<ArbeidsforholdInntektsmeldingStatus> statuser, String orgnummer) {
-        return statuser.stream()
+    // Skiller mellom tre utfall for en løpende sak, basert på InntektsmeldingStatus per arbeidsforhold for orgnummeret:
+    // - ingen statuser funnet for orgnummeret -> SETT_TIL_UTGÅTT
+    // - alle statuser er MOTTATT -> SETT_TIL_FERDIG (arbeidsgiver kan likevel sende inn en ny så lenge saken fortsatt løper)
+    // - minst én status er IKKE_MOTTAT eller AVKLART_IKKE_PÅKREVD -> TRENGER_FORTSATT_INNTEKTSMELDING
+    private static ForespørselVurderingResultat vurderForespørselStatus(
+            List<ArbeidsforholdInntektsmeldingStatus> statuser, String orgnummer) {
+        var statuserForOrgnummer = statuser.stream()
             .filter(status -> status.arbeidsgiver().getIdentifikator().equals(orgnummer))
             .map(ArbeidsforholdInntektsmeldingStatus::inntektsmeldingStatus)
-            .anyMatch(status -> !InntektsmeldingStatus.MOTTATT.equals(status));
+            .toList();
+
+        if (statuserForOrgnummer.isEmpty()) {
+            return ForespørselVurderingResultat.SETT_TIL_UTGÅTT;
+        }
+        if (statuserForOrgnummer.stream().allMatch(InntektsmeldingStatus.MOTTATT::equals)) {
+            return ForespørselVurderingResultat.SETT_TIL_FERDIG;
+        }
+        return ForespørselVurderingResultat.TRENGER_FORTSATT_INNTEKTSMELDING;
     }
 }
