@@ -25,6 +25,7 @@ public class FpInntektsmeldingTask extends GenerellProsessTask {
     private static final Logger LOG = LoggerFactory.getLogger(FpInntektsmeldingTask.class);
 
     public static final String ORGNUMMER = "orgnummer";
+    public static final String ER_INNTEKTSMELDING_MOTTATT = "erInntektsmeldingMottatt";
 
     private BehandlingRepository behandlingRepository;
     private FpInntektsmeldingTjeneste fpInntektsmeldingTjeneste;
@@ -54,7 +55,12 @@ public class FpInntektsmeldingTask extends GenerellProsessTask {
         spesifikkArbeidsgiver.ifPresentOrElse(ag -> {
             LOG.info("Starter task for å opprette forespørsel i fpinntektsmelding for behandlingId {} med skjæringstidspunkt {} for arbeidsgiver {}",
                 behandlingId, stp, spesifikkArbeidsgiver.orElseThrow());
-            fpInntektsmeldingTjeneste.lagForespørselForBestemtArbeidsgiver(ref, stp, ag);
+            var mottattStatus = prosessTaskData.getPropertyValue(ER_INNTEKTSMELDING_MOTTATT);
+            if (mottattStatus != null && !Boolean.TRUE.toString().equals(mottattStatus) && !Boolean.FALSE.toString().equals(mottattStatus)) {
+                throw new IllegalArgumentException("Ugyldig verdi for " + ER_INNTEKTSMELDING_MOTTATT);
+            }
+            fpInntektsmeldingTjeneste.lagForespørselForBestemtArbeidsgiver(ref, stp, ag,
+                Boolean.parseBoolean(mottattStatus));
         }, () -> {
             LOG.info("Starter task for å opprette forespørsel i fpinntektsmelding for behandlingId {} med skjæringstidspunkt {}", behandlingId, stp);
             fpInntektsmeldingTjeneste.lagForespørselForAlleArbeidsgivere(ref, stp);
