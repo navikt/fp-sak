@@ -2,7 +2,6 @@ package no.nav.foreldrepenger.domene.arbeidsforhold.impl;
 
 import static no.nav.foreldrepenger.behandlingslager.virksomhet.OrgNummer.tilMaskertNummer;
 
-import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
@@ -22,22 +21,18 @@ import org.slf4j.LoggerFactory;
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;
-import no.nav.foreldrepenger.behandlingslager.virksomhet.ArbeidType;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektsmeldingTjeneste;
 import no.nav.foreldrepenger.domene.iay.modell.ArbeidsforholdOverstyring;
 import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlag;
 import no.nav.foreldrepenger.domene.iay.modell.Yrkesaktivitet;
-import no.nav.foreldrepenger.domene.iay.modell.YrkesaktivitetFilter;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 
 @ApplicationScoped
 public class InntektsmeldingRegisterTjeneste {
 
     private static final String VALID_REF = "behandlingReferanse";
-    private static final Set<ArbeidType> AA_REG_TYPER = Set.of(ArbeidType.ORDINÆRT_ARBEIDSFORHOLD, ArbeidType.MARITIMT_ARBEIDSFORHOLD,
-            ArbeidType.FORENKLET_OPPGJØRSORDNING);
     private static final Logger LOG = LoggerFactory.getLogger(InntektsmeldingRegisterTjeneste.class);
 
     private InntektArbeidYtelseTjeneste inntektArbeidYtelseTjeneste;
@@ -89,8 +84,8 @@ public class InntektsmeldingRegisterTjeneste {
 
         inntektArbeidYtelseGrunnlag.ifPresent(grunnlag -> {
 
-            var filterFør = new YrkesaktivitetFilter(grunnlag.getArbeidsforholdInformasjon(), grunnlag.getAktørArbeidFraRegister(referanse.aktørId()))
-                .før(skjæringstidspunkt.getUtledetSkjæringstidspunkt());
+            var stp = skjæringstidspunkt.getUtledetSkjæringstidspunkt();
+            var filterFør = RelevanteYrkesaktiviteterForInntektsmelding.lagFilter(grunnlag, referanse.aktørId(), stp);
 
             var yrkesaktiviteterNy = filterFør.getYrkesaktiviteterKunAnsettelsesperiode();
             var yrkesaktiviteterGammel = filterFør.getYrkesaktiviteter();
@@ -99,10 +94,7 @@ public class InntektsmeldingRegisterTjeneste {
                     + " Saksnummer {} med gammel liste: {} og ny liste {}", referanse.saksnummer(), yrkesaktiviteterGammel, yrkesaktiviteterNy);
             }
 
-            var relevanteYrkesaktiviteter = yrkesaktiviteterGammel.stream()
-                .filter(ya -> AA_REG_TYPER.contains(ya.getArbeidType()))
-                .filter(ya -> harRelevantAnsettelsesperiodeSomDekkerAngittDato(filterFør, ya, skjæringstidspunkt.getUtledetSkjæringstidspunkt()))
-                .toList();
+            var relevanteYrkesaktiviteter = RelevanteYrkesaktiviteterForInntektsmelding.finn(filterFør, stp);
             var arbeidsgivere = relevanteYrkesaktiviteter.stream().map(Yrkesaktivitet::getArbeidsgiver).toList();
             LOG.info("Relevante yrkesaktiviteter for inntektsmelding: {}", arbeidsgivere);
             relevanteYrkesaktiviteter.forEach(relevantYrkesaktivitet -> {
@@ -137,16 +129,14 @@ public class InntektsmeldingRegisterTjeneste {
      * @return utleder alle påkrevde inntektsmeldinger for behandlingen, uten å ta hensyn til om inntektsmeldingene har kommet eller ikke.
      * Brukes til å sende en komplett liste over alle påkrevde inntektsmeldinger til fpinntektsmelding
      */
-    public Map<Arbeidsgiver, Set<InternArbeidsforholdRef>> utledAllePåKrevdeInntektsmeldinger(BehandlingReferanse referanse,
-                                                                                              Skjæringstidspunkt stp) {
-        return internUtledManglendeInntektsmeldinger(referanse, stp, false, false);
+    public Set<Arbeidsgiver> utledAllePåKrevdeInntektsmeldinger(BehandlingReferanse referanse, Skjæringstidspunkt stp) {
+        return Set.copyOf(internUtledManglendeInntektsmeldinger(referanse, stp, false, false).keySet());
     }
 
-    public Map<Arbeidsgiver, Set<InternArbeidsforholdRef>> utledManglendeInntektsmeldingerForKompletthet(BehandlingReferanse referanse,
-                                                                                                         Skjæringstidspunkt stp) {
+    public Set<Arbeidsgiver> utledManglendeInntektsmeldingerForKompletthet(BehandlingReferanse referanse, Skjæringstidspunkt stp) {
         // Sjekker pr arbeidsgiver, ikke pr arbeidsforhold, slik at tilfelle med flere arbeidsforhold for samme arbeidsgiver
         // der det har kommet 1 inntektsmelding med arbeidsforhold ikke blir liggende på vent, men går til avklaring
-        return internUtledManglendeInntektsmeldinger(referanse, stp, false, true);
+        return Set.copyOf(internUtledManglendeInntektsmeldinger(referanse, stp, false, true).keySet());
     }
 
     private Map<Arbeidsgiver, Set<InternArbeidsforholdRef>> internUtledManglendeInntektsmeldinger(BehandlingReferanse referanse,
@@ -225,23 +215,6 @@ public class InntektsmeldingRegisterTjeneste {
                 påkrevdeInntektsmeldinger.remove(arbeidsgiver);
             }
         }
-    }
-
-    private boolean harRelevantAnsettelsesperiodeSomDekkerAngittDato(YrkesaktivitetFilter filter, Yrkesaktivitet yrkesaktivitet, LocalDate dato) {
-        if (!yrkesaktivitet.erArbeidsforhold()) {
-            return false;
-        }
-        var ansettelsesPerioder = filter.getAnsettelsesPerioder(yrkesaktivitet);
-        var jobberPåStp = ansettelsesPerioder.stream().anyMatch(avtale -> avtale.getPeriode().inkluderer(dato));
-        if (jobberPåStp) {
-            return true;
-        }
-        var jobberDagenFørStp = ansettelsesPerioder.stream().anyMatch(avtale -> avtale.getPeriode().inkluderer(dato.minusDays(1)));
-        return jobberDagenFørStp && filter.getAlleYrkesaktiviteter().stream()
-            .filter(Yrkesaktivitet::erArbeidsforhold)
-            .filter(aktivitet -> Objects.equals(aktivitet.getArbeidsgiver(), yrkesaktivitet.getArbeidsgiver()))
-            .flatMap(aktivitet -> filter.getAnsettelsesPerioder(aktivitet).stream())
-            .anyMatch(avtale -> avtale.getPeriode().getFomDato().equals(dato));
     }
 
     /**

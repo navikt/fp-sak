@@ -10,7 +10,6 @@ import java.time.temporal.TemporalAdjusters;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 import java.util.UUID;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -95,11 +94,9 @@ class InntektsmeldingRegisterTjenesteKomplettFpTest {
 
         var manglendeInntektsmeldinger = inntektsmeldingRegisterTjeneste.utledManglendeInntektsmeldingerForKompletthet(behandlingReferanse, skjæringstidspunkt);
 
-        var listeAvArbeidsforholdsider = manglendeInntektsmeldinger.values().stream().toList();
 
         assertThat(manglendeInntektsmeldinger).hasSize(1);
-        assertThat(manglendeInntektsmeldinger.keySet().stream().findFirst()).isEqualTo(Optional.of(arbeidsgiver));
-        assertThat(listeAvArbeidsforholdsider.getFirst()).isEqualTo(Set.of(ref));
+        assertThat(manglendeInntektsmeldinger.stream().findFirst()).isEqualTo(Optional.of(arbeidsgiver));
 
     }
 
@@ -124,11 +121,9 @@ class InntektsmeldingRegisterTjenesteKomplettFpTest {
 
         var manglendeInntektsmeldinger = inntektsmeldingRegisterTjeneste.utledManglendeInntektsmeldingerForKompletthet(behandlingReferanse, skjæringstidspunkt);
 
-        var listeAvArbeidsforholdsider = manglendeInntektsmeldinger.values().stream().toList();
 
         assertThat(manglendeInntektsmeldinger).hasSize(1);
-        assertThat(manglendeInntektsmeldinger.keySet().stream().findFirst()).isEqualTo(Optional.of(arbeidsgiver));
-        assertThat(listeAvArbeidsforholdsider.getFirst()).isEqualTo(Set.of(ref));
+        assertThat(manglendeInntektsmeldinger.stream().findFirst()).isEqualTo(Optional.of(arbeidsgiver));
     }
 
     @Test
@@ -152,14 +147,9 @@ class InntektsmeldingRegisterTjenesteKomplettFpTest {
 
         var manglendeInntektsmeldinger = inntektsmeldingRegisterTjeneste.utledManglendeInntektsmeldingerForKompletthet(behandlingReferanse, skjæringstidspunkt);
 
-        List<InternArbeidsforholdRef> internrefs = manglendeInntektsmeldinger.entrySet()
-            .stream()
-            .flatMap(entry -> entry.getValue().stream())
-            .toList();
 
         assertThat(manglendeInntektsmeldinger).hasSize(1);
-        assertThat(manglendeInntektsmeldinger.keySet().stream().findFirst()).isEqualTo(Optional.of(arbeidsgiver));
-        assertThat(internrefs).containsAll(List.of(ref, ref2));
+        assertThat(manglendeInntektsmeldinger.stream().findFirst()).isEqualTo(Optional.of(arbeidsgiver));
     }
 
     @Test
@@ -183,14 +173,9 @@ class InntektsmeldingRegisterTjenesteKomplettFpTest {
 
         var manglendeInntektsmeldinger = inntektsmeldingRegisterTjeneste.utledManglendeInntektsmeldingerForKompletthet(behandlingReferanse, skjæringstidspunkt);
 
-        List<InternArbeidsforholdRef> internrefs = manglendeInntektsmeldinger.entrySet()
-            .stream()
-            .flatMap(entry -> entry.getValue().stream())
-            .toList();
 
         assertThat(manglendeInntektsmeldinger).hasSize(1);
-        assertThat(manglendeInntektsmeldinger.keySet().stream().findFirst()).isEqualTo(Optional.of(arbeidsgiver));
-        assertThat(internrefs).containsAll(List.of(ref2, ref));
+        assertThat(manglendeInntektsmeldinger.stream().findFirst()).isEqualTo(Optional.of(arbeidsgiver));
 
     }
 
@@ -291,7 +276,7 @@ class InntektsmeldingRegisterTjenesteKomplettFpTest {
         var manglendeInntektsmeldinger = inntektsmeldingRegisterTjeneste.utledManglendeInntektsmeldingerForKompletthet(behandlingReferanse, skjæringstidspunkt);
 
         assertThat(manglendeInntektsmeldinger).hasSize(1);
-        assertThat(manglendeInntektsmeldinger.keySet().stream().findFirst()).isEqualTo(Optional.of(arbeidsgiver));
+        assertThat(manglendeInntektsmeldinger.stream().findFirst()).isEqualTo(Optional.of(arbeidsgiver));
 
     }
 
@@ -318,7 +303,7 @@ class InntektsmeldingRegisterTjenesteKomplettFpTest {
         var manglendeInntektsmeldinger = inntektsmeldingRegisterTjeneste.utledManglendeInntektsmeldingerForKompletthet(behandlingReferanse, skjæringstidspunkt);
 
         assertThat(manglendeInntektsmeldinger).hasSize(1);
-        assertThat(manglendeInntektsmeldinger.keySet().stream().findFirst()).isEqualTo(Optional.of(arbeidsgiver));
+        assertThat(manglendeInntektsmeldinger.stream().findFirst()).isEqualTo(Optional.of(arbeidsgiver));
     }
 
     @Test
