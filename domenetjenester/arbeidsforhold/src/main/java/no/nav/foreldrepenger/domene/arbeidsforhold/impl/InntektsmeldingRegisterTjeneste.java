@@ -130,13 +130,13 @@ public class InntektsmeldingRegisterTjeneste {
      * Brukes til å sende en komplett liste over alle påkrevde inntektsmeldinger til fpinntektsmelding
      */
     public Set<Arbeidsgiver> utledAllePåKrevdeInntektsmeldinger(BehandlingReferanse referanse, Skjæringstidspunkt stp) {
-        return Set.copyOf(internUtledManglendeInntektsmeldinger(referanse, stp, false, false).keySet());
+        return internUtledManglendeInntektsmeldinger(referanse, stp, false, false).keySet();
     }
 
     public Set<Arbeidsgiver> utledManglendeInntektsmeldingerForKompletthet(BehandlingReferanse referanse, Skjæringstidspunkt stp) {
         // Sjekker pr arbeidsgiver, ikke pr arbeidsforhold, slik at tilfelle med flere arbeidsforhold for samme arbeidsgiver
         // der det har kommet 1 inntektsmelding med arbeidsforhold ikke blir liggende på vent, men går til avklaring
-        return Set.copyOf(internUtledManglendeInntektsmeldinger(referanse, stp, false, true).keySet());
+        return internUtledManglendeInntektsmeldinger(referanse, stp, false, true).keySet();
     }
 
     private Map<Arbeidsgiver, Set<InternArbeidsforholdRef>> internUtledManglendeInntektsmeldinger(BehandlingReferanse referanse,
