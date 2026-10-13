@@ -53,7 +53,7 @@ public class FaktaUttakHistorikkinnslagTjeneste {
             .medFagsakId(fagsakId)
             .medBehandlingId(behandlingId)
             .medTittel(SkjermlenkeType.FAKTA_UTTAK)
-            .addLinje(overstyring ? "Overstyrt vurdering:" : null);
+            .addLinje(overstyring ? "Endret vurdering:" : null);
         perioderMedEndringer.forEach(historikkinnslagLinjeBuilder -> {
             historikkinnslagBuilder.addLinje(historikkinnslagLinjeBuilder);
             historikkinnslagBuilder.addLinje(HistorikkinnslagLinjeBuilder.LINJESKIFT);
