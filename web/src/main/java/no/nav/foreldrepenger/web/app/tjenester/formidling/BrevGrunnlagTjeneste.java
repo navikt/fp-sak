@@ -93,7 +93,6 @@ import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.domene.arbeidInntektsmelding.ArbeidsforholdInntektsmeldingMangelTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektsmeldingTjeneste;
-import no.nav.foreldrepenger.domene.iay.modell.AktørArbeid;
 import no.nav.foreldrepenger.domene.medlem.MedlemTjeneste;
 import no.nav.foreldrepenger.domene.prosess.BeregningTjeneste;
 import no.nav.foreldrepenger.domene.typer.AktørId;
@@ -557,15 +556,9 @@ class BrevGrunnlagTjeneste {
         if (ref.fagsakYtelseType() == FagsakYtelseType.ENGANGSTØNAD) {
             return Optional.empty();
         }
-        var alleYrkesaktiviteter = inntektArbeidYtelseTjeneste.finnGrunnlag(ref.behandlingId())
-            .flatMap(iay -> iay.getAktørArbeidFraRegister(ref.aktørId()))
-            .map(AktørArbeid::hentAlleYrkesaktiviteter)
-            .orElse(List.of());
         var arbeidsforholdInntektsmeldingStatuser = arbeidsforholdInntektsmeldingMangelTjeneste.finnStatusForInntektsmeldingArbeidsforhold(ref, stp);
 
-        return Optional.of(
-            BrevGrunnlagArbeidsforholdInntektsmeldingTjeneste.mapInntektsmeldingStatus(arbeidsforholdInntektsmeldingStatuser, alleYrkesaktiviteter,
-                stp.getUtledetSkjæringstidspunkt()));
+        return Optional.of(BrevGrunnlagArbeidsforholdInntektsmeldingTjeneste.mapInntektsmeldingStatus(arbeidsforholdInntektsmeldingStatuser));
     }
 
     private Optional<BeregningsgrunnlagDto> finnBeregningsgrunnlag(Behandling behandling) {
