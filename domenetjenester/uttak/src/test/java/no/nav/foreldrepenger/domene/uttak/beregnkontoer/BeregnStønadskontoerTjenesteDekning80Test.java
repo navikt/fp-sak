@@ -72,7 +72,7 @@ class BeregnStønadskontoerTjenesteDekning80Test {
             .finnRelasjonFor(input.getBehandlingReferanse().saksnummer())
             .getStønadskontoberegning();
         assertThat(stønadskontoberegning).isPresent();
-        assertThat(stønadskontoberegning.get().getRegelInput()).contains("\"regelvalgsdato\" : null");
+        assertThat(stønadskontoberegning.get().getRegelInput()).contains("\"regelvalgsdato\":null");
 
         var stønadskontoer = stønadskontoberegning.get().getStønadskontoutregning();
 
