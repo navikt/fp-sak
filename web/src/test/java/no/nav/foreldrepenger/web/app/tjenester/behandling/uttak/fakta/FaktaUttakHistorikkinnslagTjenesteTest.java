@@ -72,7 +72,7 @@ class FaktaUttakHistorikkinnslagTjenesteTest {
         assertThat(historikkinnslag.getFirst().getAktør()).isEqualTo(HistorikkAktør.SAKSBEHANDLER);
         assertThat(historikkinnslag.getFirst().getSkjermlenke()).isEqualTo(SkjermlenkeType.FAKTA_UTTAK);
         assertThat(historikkinnslag.getFirst().getLinjer()).hasSize(4);
-        assertThat(historikkinnslag.getFirst().getLinjer().get(0).getTekst()).contains("Overstyrt vurdering:");
+        assertThat(historikkinnslag.getFirst().getLinjer().get(0).getTekst()).contains("Endret vurdering:");
         assertThat(historikkinnslag.getFirst().getLinjer().get(1).getTekst()).contains("Perioden", ".2022", "er satt til", "Uttak", "Fedrekvoten");
         assertThat(historikkinnslag.getFirst().getLinjer().get(2).getType()).isEqualTo(HistorikkinnslagLinjeType.LINJESKIFT);
         assertThat(historikkinnslag.getFirst().getLinjer().get(3).getTekst()).contains(BEGRUNNELSE_TEKST);
