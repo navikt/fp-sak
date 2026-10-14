@@ -2,6 +2,7 @@ package no.nav.foreldrepenger.domene.opptjening.dto;
 
 import java.time.LocalDate;
 
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 
@@ -11,11 +12,14 @@ import no.nav.vedtak.util.InputValideringRegex;
 
 public class AvklarOpptjeningAktivitetDto {
 
+    @NotNull
     @ValidKodeverk
     private OpptjeningAktivitetType aktivitetType;
 
+    @NotNull
     private LocalDate opptjeningFom;
 
+    @NotNull
     private LocalDate opptjeningTom;
 
     @Pattern(regexp = "\\d{7}|\\d{9}|\\d{13}")
@@ -25,6 +29,7 @@ public class AvklarOpptjeningAktivitetDto {
     @Pattern(regexp = InputValideringRegex.FRITEKST)
     private String arbeidsforholdRef;
 
+    @NotNull
     private Boolean erGodkjent;
 
     @Size(max = 4000)

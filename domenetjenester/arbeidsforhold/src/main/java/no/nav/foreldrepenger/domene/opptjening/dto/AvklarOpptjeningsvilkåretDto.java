@@ -1,5 +1,6 @@
 package no.nav.foreldrepenger.domene.opptjening.dto;
 
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 
@@ -16,7 +17,8 @@ public class AvklarOpptjeningsvilkåretDto extends BekreftetAksjonspunktDto {
     @Pattern(regexp = InputValideringRegex.KODEVERK)
     private String avslagskode;
 
-    private boolean erVilkårOk;
+    @NotNull
+    private Boolean erVilkårOk;
 
     @SuppressWarnings("unused")
     private AvklarOpptjeningsvilkåretDto() {
