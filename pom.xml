@@ -6,7 +6,7 @@
     <parent>
         <groupId>no.nav.foreldrepenger.felles</groupId>
         <artifactId>fp-parent-app</artifactId>
-        <version>5.3.7</version>
+        <version>5.4.2</version>
     </parent>
 
     <groupId>no.nav.foreldrepenger</groupId>
@@ -39,8 +39,8 @@
         <abakus-kontrakt.version>2.4.1</abakus-kontrakt.version>
         <fpkalkulus.kontrakt.version>1.2.2</fpkalkulus.kontrakt.version>
         <!-- generelle verktøy -->
-        <felles.version>7.9.3</felles.version>
-        <prosesstask.version>5.2.8</prosesstask.version>
+        <felles.version>7.9.4</felles.version>
+        <prosesstask.version>5.3.0</prosesstask.version>
         <openapi-spec-utils.version>2.1.0</openapi-spec-utils.version>
         <!-- sonar -->
         <sonar.moduleKey>${project.artifactId}</sonar.moduleKey>
@@ -432,8 +432,8 @@
             <artifactId>felles-konfig</artifactId>
         </dependency>
         <dependency>
-            <groupId>jakarta.enterprise</groupId>
-            <artifactId>jakarta.enterprise.cdi-api</artifactId>
+            <groupId>jakarta.cdi</groupId>
+            <artifactId>jakarta.cdi-api</artifactId>
         </dependency>
         <dependency>
             <groupId>com.oracle.database.jdbc</groupId>

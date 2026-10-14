@@ -6,14 +6,11 @@ import java.util.LinkedHashSet;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
-
-import jakarta.enterprise.inject.Any;
-import jakarta.enterprise.inject.Instance;
+import java.util.function.Supplier;
 
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingModell;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingSteg;
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingStegModell;
-import no.nav.foreldrepenger.behandlingskontroll.BehandlingStegRef;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
@@ -24,9 +21,9 @@ import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspun
  * registrert må disse løses før utgang av et behandlingssteg.
  */
 class BehandlingStegModellImpl implements BehandlingStegModell {
-    private Instance<BehandlingSteg> stegInstances;
+    private final Supplier<BehandlingSteg> stegOppslag;
     private BehandlingSteg steg;
-    private BehandlingStegType behandlingStegType;
+    private final BehandlingStegType behandlingStegType;
 
     /**
      * Aksjonspunkter som må løses ved inngang til behandlingsteg.
@@ -42,34 +39,22 @@ class BehandlingStegModellImpl implements BehandlingStegModell {
      * Hver steg modell må tilhøre en BehandlingModell som beskriver hvordan de
      * henger sammen.
      */
-    private BehandlingModellImpl behandlingModell;
-
-    BehandlingStegModellImpl() {
-    }
+    private final BehandlingModellImpl behandlingModell;
 
     /**
-     * Holder for å referere til en konkret, men lazy-initialisert CDI
-     * implementasjon av et {@link BehandlingSteg}.
+     * Lazy oppslag av {@link BehandlingSteg} ved første {@link #getSteg()}, slik at modeller kan bygges
+     * i moduler/tester der steg-implementasjonene ikke finnes.
      */
-    BehandlingStegModellImpl(BehandlingModellImpl behandlingModell,
-            @Any Instance<BehandlingSteg> bean,
-            BehandlingStegType stegType) {
-        Objects.requireNonNull(behandlingModell, "behandlingModell");
-        Objects.requireNonNull(bean, "bean");
-        Objects.requireNonNull(stegType, "stegType");
-        this.stegInstances = bean;
-        this.behandlingModell = behandlingModell;
-        this.behandlingStegType = stegType;
+    BehandlingStegModellImpl(BehandlingModellImpl behandlingModell, Supplier<BehandlingSteg> stegOppslag, BehandlingStegType stegType) {
+        this.behandlingModell = Objects.requireNonNull(behandlingModell, "behandlingModell");
+        this.stegOppslag = Objects.requireNonNull(stegOppslag, "stegOppslag");
+        this.behandlingStegType = Objects.requireNonNull(stegType, "stegType");
     }
 
-    /** Direkte injisering av {@link BehandlingSteg}. For testing. */
+    /** Direkte referanse til {@link BehandlingSteg}. For testing. */
     BehandlingStegModellImpl(BehandlingModellImpl behandlingModell, BehandlingSteg steg, BehandlingStegType stegType) {
-        Objects.requireNonNull(behandlingModell, "behandlingModell");
         Objects.requireNonNull(steg, "steg");
-        Objects.requireNonNull(stegType, "stegType");
-        this.steg = steg;
-        this.behandlingModell = behandlingModell;
-        this.behandlingStegType = stegType;
+        this(behandlingModell, () -> steg, stegType);
     }
 
     @Override
@@ -97,17 +82,6 @@ class BehandlingStegModellImpl implements BehandlingStegModell {
         return Collections.unmodifiableSet(utgangAksjonpunkt);
     }
 
-    protected void initSteg() {
-        if (steg == null) {
-            steg = BehandlingStegRef.Lookup
-                    .find(BehandlingSteg.class, stegInstances, behandlingModell.getFagsakYtelseType(), behandlingModell.getBehandlingType(), behandlingStegType)
-                    .orElseThrow(() -> new IllegalStateException(
-                            "Mangler steg definert for stegKode=" + behandlingStegType + " [behandlingType="
-                                    + behandlingModell.getBehandlingType() + ", fagsakYtelseType=" + behandlingModell.getFagsakYtelseType()
-                                    + "]"));
-        }
-    }
-
     protected void leggTilAksjonspunktVurderingUtgang(AksjonspunktDefinisjon aksjonspunktDefinisjon) {
         behandlingModell.validerErIkkeAlleredeMappet(aksjonspunktDefinisjon);
         utgangAksjonpunkt.add(aksjonspunktDefinisjon);
@@ -116,12 +90,6 @@ class BehandlingStegModellImpl implements BehandlingStegModell {
     protected void leggTilAksjonspunktVurderingInngang(AksjonspunktDefinisjon aksjonspunktDefinisjon) {
         behandlingModell.validerErIkkeAlleredeMappet(aksjonspunktDefinisjon);
         inngangAksjonpunkt.add(aksjonspunktDefinisjon);
-    }
-
-    void destroy() {
-        if (stegInstances != null && steg != null) {
-            stegInstances.destroy(steg);
-        }
     }
 
     /**
@@ -137,7 +105,9 @@ class BehandlingStegModellImpl implements BehandlingStegModell {
      */
     @Override
     public BehandlingSteg getSteg() {
-        initSteg();
+        if (steg == null) {
+            steg = stegOppslag.get();
+        }
         return steg;
     }
 

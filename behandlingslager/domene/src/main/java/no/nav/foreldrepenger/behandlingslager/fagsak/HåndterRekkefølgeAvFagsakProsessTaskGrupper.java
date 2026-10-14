@@ -3,6 +3,7 @@ package no.nav.foreldrepenger.behandlingslager.fagsak;
 import java.time.Instant;
 
 import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.inject.Instance;
 import jakarta.inject.Inject;
 
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
@@ -103,12 +104,12 @@ public class HåndterRekkefølgeAvFagsakProsessTaskGrupper implements ProsessTas
 
     private static class LocalProsessTaskHandlerRef extends ProsessTaskHandlerRef {
 
-        private LocalProsessTaskHandlerRef(ProsessTaskHandler bean) {
-            super(bean);
+        private LocalProsessTaskHandlerRef(Instance.Handle<ProsessTaskHandler> handle) {
+            super(handle);
         }
 
         private FagsakProsesstaskRekkefølge getFagsakProsesstaskRekkefølge() {
-            var clazz = getTargetClassExpectingAnnotation(FagsakProsesstaskRekkefølge.class);
+            var clazz = getHandlerClass();
             if (!clazz.isAnnotationPresent(FagsakProsesstaskRekkefølge.class)) {
                 throw new UnsupportedOperationException(clazz.getSimpleName() + " må være annotert med "
                     + FagsakProsesstaskRekkefølge.class.getSimpleName() + " for å kobles til en Fagsak");
@@ -117,8 +118,7 @@ public class HåndterRekkefølgeAvFagsakProsessTaskGrupper implements ProsessTas
         }
 
         public static LocalProsessTaskHandlerRef lookup(TaskType taskType) {
-            var bean = lookupHandler(taskType);
-            return new LocalProsessTaskHandlerRef(bean);
+            return new LocalProsessTaskHandlerRef(lookupHandle(taskType));
         }
 
     }

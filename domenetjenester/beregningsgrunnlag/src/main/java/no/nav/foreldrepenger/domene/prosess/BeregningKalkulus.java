@@ -1,15 +1,33 @@
 package no.nav.foreldrepenger.domene.prosess;
 
-import java.util.Collections;
 import java.util.Optional;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import no.nav.folketrygdloven.kalkulus.kodeverk.BeregningSteg;
 import no.nav.folketrygdloven.kalkulus.response.beregningsgrunnlag.gui.BeregningsgrunnlagDto;
+import no.nav.foreldrepenger.behandling.BehandlingReferanse;
+import no.nav.foreldrepenger.behandling.aksjonspunkt.BekreftetAksjonspunktDto;
+import no.nav.foreldrepenger.behandling.aksjonspunkt.OverstyringAksjonspunktDto;
+import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
+import no.nav.foreldrepenger.behandlingslager.beregningsgrunnlag.BeregningsgrunnlagKobling;
+import no.nav.foreldrepenger.behandlingslager.beregningsgrunnlag.BeregningsgrunnlagKoblingRepository;
+import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
+import no.nav.foreldrepenger.domene.aksjonspunkt.KalkulusAksjonspunktMapper;
+import no.nav.foreldrepenger.domene.aksjonspunkt.MapEndringsresultat;
+import no.nav.foreldrepenger.domene.aksjonspunkt.OppdaterBeregningsgrunnlagResultat;
+import no.nav.foreldrepenger.domene.fp.BesteberegningFødendeKvinneTjeneste;
+import no.nav.foreldrepenger.domene.mappers.KalkulusInputTjeneste;
+import no.nav.foreldrepenger.domene.mappers.fra_kalkulus.KalkulusTilFpsakMapper;
+import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagGrunnlag;
+import no.nav.foreldrepenger.domene.output.BeregningsgrunnlagVilkårOgAkjonspunktResultat;
+import no.nav.foreldrepenger.domene.typer.Beløp;
 import no.nav.foreldrepenger.kalkulus.kontrakt.request.EnkelBeregnRequestDto;
 import no.nav.foreldrepenger.kalkulus.kontrakt.request.EnkelFpkalkulusRequestDto;
-
 import no.nav.foreldrepenger.kalkulus.kontrakt.request.EnkelGrunnlagTilstanderRequestDto;
 import no.nav.foreldrepenger.kalkulus.kontrakt.request.EnkelHentBeregningsgrunnlagGUIRequest;
 import no.nav.foreldrepenger.kalkulus.kontrakt.request.EnkelHåndterBeregningRequestDto;
@@ -19,28 +37,6 @@ import no.nav.foreldrepenger.kalkulus.kontrakt.request.håndtering.HåndterBereg
 import no.nav.foreldrepenger.kalkulus.kontrakt.response.beregningsgrunnlag.besteberegning.BesteberegningGrunnlagDto;
 import no.nav.foreldrepenger.kalkulus.kontrakt.typer.AktørIdPersonident;
 import no.nav.foreldrepenger.kalkulus.kontrakt.typer.Saksnummer;
-
-import org.jboss.weld.exceptions.IllegalStateException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import no.nav.folketrygdloven.kalkulus.kodeverk.BeregningSteg;
-import no.nav.foreldrepenger.behandling.BehandlingReferanse;
-import no.nav.foreldrepenger.behandling.aksjonspunkt.BekreftetAksjonspunktDto;
-import no.nav.foreldrepenger.behandling.aksjonspunkt.OverstyringAksjonspunktDto;
-import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
-import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
-import no.nav.foreldrepenger.domene.aksjonspunkt.KalkulusAksjonspunktMapper;
-import no.nav.foreldrepenger.domene.aksjonspunkt.MapEndringsresultat;
-import no.nav.foreldrepenger.domene.aksjonspunkt.OppdaterBeregningsgrunnlagResultat;
-import no.nav.foreldrepenger.behandlingslager.beregningsgrunnlag.BeregningsgrunnlagKobling;
-import no.nav.foreldrepenger.behandlingslager.beregningsgrunnlag.BeregningsgrunnlagKoblingRepository;
-import no.nav.foreldrepenger.domene.fp.BesteberegningFødendeKvinneTjeneste;
-import no.nav.foreldrepenger.domene.mappers.KalkulusInputTjeneste;
-import no.nav.foreldrepenger.domene.mappers.fra_kalkulus.KalkulusTilFpsakMapper;
-import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagGrunnlag;
-import no.nav.foreldrepenger.domene.output.BeregningsgrunnlagVilkårOgAkjonspunktResultat;
-import no.nav.foreldrepenger.domene.typer.Beløp;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 
 @ApplicationScoped
