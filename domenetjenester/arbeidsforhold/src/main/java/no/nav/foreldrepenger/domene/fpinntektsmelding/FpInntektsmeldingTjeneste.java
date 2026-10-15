@@ -18,6 +18,8 @@ import java.util.stream.Collectors;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
+import no.nav.foreldrepenger.domene.arbeidsforhold.InntektsmeldingTjeneste;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -57,6 +59,7 @@ public class FpInntektsmeldingTjeneste {
     private boolean erToggleForNyInnsendingPå = false;
 
     private static final Logger LOG = LoggerFactory.getLogger(FpInntektsmeldingTjeneste.class);
+    private InntektsmeldingTjeneste inntektsmeldingTjeneste;
 
     public FpInntektsmeldingTjeneste() {
         // CDI
@@ -68,7 +71,8 @@ public class FpInntektsmeldingTjeneste {
                                      SkjæringstidspunktTjeneste skjæringstidspunktTjeneste,
                                      HistorikkinnslagRepository historikkRepo,
                                      ArbeidsgiverTjeneste arbeidsgiverTjeneste,
-                                     InntektsmeldingRegisterTjeneste inntektsmeldingRegisterTjeneste) {
+                                     InntektsmeldingRegisterTjeneste inntektsmeldingRegisterTjeneste,
+                                     InntektsmeldingTjeneste inntektsmeldingTjeneste) {
         this.klient = klient;
         this.prosessTaskTjeneste = prosessTaskTjeneste;
         this.skjæringstidspunktTjeneste = skjæringstidspunktTjeneste;
@@ -77,6 +81,7 @@ public class FpInntektsmeldingTjeneste {
         this.inntektsmeldingRegisterTjeneste = inntektsmeldingRegisterTjeneste;
         // Hvis toggle er på vil det gi hyppigere bestillinger og oppdateringer av første uttaksdato for arbeidsgiver
         this.erToggleForNyInnsendingPå = true;
+        this.inntektsmeldingTjeneste = inntektsmeldingTjeneste;
     }
 
     public void lagTaskForespørAlleInntektsmeldinger(BehandlingReferanse ref) {
@@ -176,7 +181,7 @@ public class FpInntektsmeldingTjeneste {
         if (erInntektsmeldingMottatt || erToggleForNyInnsendingPå) {
             var request = new OpprettEnForespørselRequest(new AktørIdDto(ref.aktørId().getId()), skjæringstidspunkt,
                 mapYtelsetype(ref.fagsakYtelseType()), new SaksnummerDto(ref.saksnummer().getVerdi()), førsteUttaksdato, agDto,
-                new OpprettEnForespørselRequest.OrganisasjonsnummerMedStatusDto(agDto, erInntektsmeldingMottatt));
+                new OrganisasjonsnummerMedStatusDto(agDto, erInntektsmeldingMottatt));
             sendEnkeltRequest(ref, request);
         } else {
             var request = new OpprettForespørselRequest(new AktørIdDto(ref.aktørId().getId()), null, skjæringstidspunkt,
@@ -193,7 +198,7 @@ public class FpInntektsmeldingTjeneste {
 
         if (erToggleForNyInnsendingPå) {
             // Togglet på i dev: Ny innsending som alltid sender komplett liste over forespørsler, også de som er mottatte
-            var arbeidsgivereViManglerInntektsmeldingFra = inntektsmeldingRegisterTjeneste.utledAllePåKrevdeInntektsmeldinger(ref, stp)
+            var arbeidsgivereViManglerInntektsmeldingFra = inntektsmeldingRegisterTjeneste.hentAllePåkrevdeInntektsmeldinger(ref, stp)
                 .stream()
                 .filter(arbeidsgiver -> OrganisasjonsNummerValidator.erGyldig(arbeidsgiver.getOrgnr()))
                 .map(arbeidsgiver -> new OrganisasjonsnummerDto(arbeidsgiver.getOrgnr()))
@@ -203,8 +208,14 @@ public class FpInntektsmeldingTjeneste {
                     ref.behandlingId());
                 return;
             }
+            var mottatteInnteksmeldinger = inntektsmeldingTjeneste.hentInntektsmeldinger(ref, stp.getUtledetSkjæringstidspunkt()).stream()
+                .map(im -> new OrganisasjonsnummerDto(im.getArbeidsgiver().getOrgnr()))
+                .toList();
+            var organisasjonsnummerMedStatus = arbeidsgivereViManglerInntektsmeldingFra.stream()
+                .map(ag -> new OrganisasjonsnummerMedStatusDto(ag, mottatteInnteksmeldinger.contains(ag)))
+                .toList();
             var request = new OpprettKomplettForespørslerRequest(new AktørIdDto(ref.aktørId().getId()), skjæringstidspunkt,
-                mapYtelsetype(ref.fagsakYtelseType()), new SaksnummerDto(ref.saksnummer().getVerdi()), førsteUttaksdato,
+                mapYtelsetype(ref.fagsakYtelseType()), new SaksnummerDto(ref.saksnummer().getVerdi()), førsteUttaksdato, organisasjonsnummerMedStatus,
                 arbeidsgivereViManglerInntektsmeldingFra);
             sendKomplettRequest(ref, request);
         } else {
@@ -283,6 +294,8 @@ public class FpInntektsmeldingTjeneste {
             } else if (organisasjonsnummerMedStatus.status().equals(OpprettForespørselRespons.ForespørselResultat.FORESPØRSEL_ENDRET)) {
                 LOG.info("LOGG_ENDRET_FORESP: Endret forespørsel for saksnummer: {} og orgnr {}", ref.saksnummer(), organisasjonsnummerMedStatus.organisasjonsnummerDto());
                 arbeidsgivereMedEndretForespørsel.add(hentArbeidsgivernavn(orgnr));
+            } else if (organisasjonsnummerMedStatus.status().equals(OpprettForespørselRespons.ForespørselResultat.LUKKET_FORESPØRSEL_OPPRETTET)) {
+                LOG.info("LOGG_LUKKET_FORESP: Opprettet lukket forespørsel som ikke mottar varsling for saksnummer: {} og orgnr {}", ref.saksnummer(), organisasjonsnummerMedStatus.organisasjonsnummerDto());
             } else {
                 LOG.info("Fpinntektsmelding opprettet ikke forespørsel på saksnummer: {} og orgnummer: {} på stp: {} og første uttaksdato: {}. Grunnen var: {}",
                     ref.saksnummer(), tilMaskertNummer(orgnr), skjæringstidspunkt, førsteUttaksdato, organisasjonsnummerMedStatus.status());
