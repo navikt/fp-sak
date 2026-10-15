@@ -11,5 +11,6 @@ public record OpprettKomplettForespørslerRequest(@NotNull @Valid AktørIdDto ak
                                                 @NotNull @Valid FpInntektsmeldingYtelse ytelsetype,
                                                 @NotNull @Valid SaksnummerDto fagsakSaksnummer,
                                                 @Valid LocalDate førsteUttaksdato,
+                                                @NotNull List<@NotNull @Valid OrganisasjonsnummerMedStatusDto> organisasjonsnummerMedStatus,
                                                 @NotNull List<@NotNull @Valid OrganisasjonsnummerDto> organisasjonsnummer) {
 }
