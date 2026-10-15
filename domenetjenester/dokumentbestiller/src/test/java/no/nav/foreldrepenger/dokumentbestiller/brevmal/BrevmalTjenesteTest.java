@@ -23,7 +23,6 @@ import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentBehandlingTjeneste;
 import no.nav.foreldrepenger.domene.arbeidInntektsmelding.ArbeidsforholdInntektsmeldingMangelTjeneste;
 import no.nav.foreldrepenger.domene.arbeidInntektsmelding.ArbeidsforholdInntektsmeldingStatus;
-import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.kontrakter.formidling.v3.BrevmalDto;
 
@@ -92,7 +91,7 @@ class BrevmalTjenesteTest {
     @Test
     void skal_ikke_kunne_bestille_elysim_hvis_ingen_inntektsmelding_mangler() {
         var brevmalTjeneste = new BrevmalTjeneste(dokumentBehandlingTjeneste, arbeidsforholdInntektsmeldingMangelTjeneste);
-        var arbeidsforhold = new ArbeidsforholdInntektsmeldingStatus(Arbeidsgiver.virksomhet("999999999"), InternArbeidsforholdRef.nyRef(),
+        var arbeidsforhold = new ArbeidsforholdInntektsmeldingStatus(Arbeidsgiver.virksomhet("999999999"),
             ArbeidsforholdInntektsmeldingStatus.InntektsmeldingStatus.AVKLART_IKKE_PÅKREVD);
         when(arbeidsforholdInntektsmeldingMangelTjeneste.finnStatusForInntektsmeldingArbeidsforhold(any(BehandlingReferanse.class))).thenReturn(
             Collections.singletonList(arbeidsforhold));
@@ -115,7 +114,7 @@ class BrevmalTjenesteTest {
     @Test
     void skal_kunne_bestille_elysim_hvis_inntektsmelding_mangler() {
         var brevmalTjeneste = new BrevmalTjeneste(dokumentBehandlingTjeneste, arbeidsforholdInntektsmeldingMangelTjeneste);
-        var arbeidsforhold = new ArbeidsforholdInntektsmeldingStatus(Arbeidsgiver.virksomhet("999999999"), InternArbeidsforholdRef.nyRef(),
+        var arbeidsforhold = new ArbeidsforholdInntektsmeldingStatus(Arbeidsgiver.virksomhet("999999999"),
             ArbeidsforholdInntektsmeldingStatus.InntektsmeldingStatus.IKKE_MOTTAT);
         when(arbeidsforholdInntektsmeldingMangelTjeneste.finnStatusForInntektsmeldingArbeidsforhold(any(BehandlingReferanse.class))).thenReturn(
             Collections.singletonList(arbeidsforhold));

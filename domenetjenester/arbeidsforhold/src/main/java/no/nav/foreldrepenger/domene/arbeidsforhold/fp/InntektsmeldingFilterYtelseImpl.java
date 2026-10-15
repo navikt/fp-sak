@@ -1,6 +1,5 @@
 package no.nav.foreldrepenger.domene.arbeidsforhold.fp;
 
-import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
@@ -15,7 +14,6 @@ import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.domene.arbeidsforhold.impl.InaktiveArbeidsforholdUtleder;
 import no.nav.foreldrepenger.domene.arbeidsforhold.impl.InntektsmeldingFilterYtelse;
 import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlag;
-import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 
 @FagsakYtelseTypeRef(FagsakYtelseType.FORELDREPENGER)
 @ApplicationScoped
@@ -27,15 +25,15 @@ public class InntektsmeldingFilterYtelseImpl implements InntektsmeldingFilterYte
     }
 
     @Override
-    public Map<Arbeidsgiver, Set<InternArbeidsforholdRef>> søknadsFilter(BehandlingReferanse referanse, Map<Arbeidsgiver, Set<InternArbeidsforholdRef>> påkrevde) {
+    public Set<Arbeidsgiver> søknadsFilter(BehandlingReferanse referanse, Set<Arbeidsgiver> påkrevde) {
         return påkrevde;
     }
 
     @Override
-    public Map<Arbeidsgiver, Set<InternArbeidsforholdRef>> aktiveArbeidsforholdFilter(BehandlingReferanse referanse,
-                                                                                      Skjæringstidspunkt skjæringstidspunkt,
-                                                                                      Optional<InntektArbeidYtelseGrunnlag> inntektArbeidYtelseGrunnlag,
-                                                                                      Map<Arbeidsgiver, Set<InternArbeidsforholdRef>> påkrevde) {
+    public Set<Arbeidsgiver> aktiveArbeidsforholdFilter(BehandlingReferanse referanse,
+                                                        Skjæringstidspunkt skjæringstidspunkt,
+                                                        Optional<InntektArbeidYtelseGrunnlag> inntektArbeidYtelseGrunnlag,
+                                                        Set<Arbeidsgiver> påkrevde) {
         return InaktiveArbeidsforholdUtleder.finnKunAktive(påkrevde, inntektArbeidYtelseGrunnlag, referanse, skjæringstidspunkt);
     }
 }

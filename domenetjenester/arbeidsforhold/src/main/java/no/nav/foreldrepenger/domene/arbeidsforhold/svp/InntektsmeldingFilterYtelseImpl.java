@@ -1,11 +1,11 @@
 package no.nav.foreldrepenger.domene.arbeidsforhold.svp;
 
 import java.util.Collections;
-import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -22,7 +22,6 @@ import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.domene.arbeidsforhold.impl.InaktiveArbeidsforholdUtleder;
 import no.nav.foreldrepenger.domene.arbeidsforhold.impl.InntektsmeldingFilterYtelse;
 import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlag;
-import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 
 @FagsakYtelseTypeRef(FagsakYtelseType.SVANGERSKAPSPENGER)
 @ApplicationScoped
@@ -40,43 +39,38 @@ public class InntektsmeldingFilterYtelseImpl implements InntektsmeldingFilterYte
     }
 
     @Override
-    public Map<Arbeidsgiver, Set<InternArbeidsforholdRef>> søknadsFilter(BehandlingReferanse referanse, Map<Arbeidsgiver, Set<InternArbeidsforholdRef>> påkrevde) {
-        Map<Arbeidsgiver, Set<InternArbeidsforholdRef>> filtrert = new HashMap<>();
-        var arbeidsforholdFraSøknad = getArbeidsforholdSøktTilretteleggingI(referanse);
-        påkrevde.forEach((key, value) -> {
-            if (erSøktTilretteleggingI(arbeidsforholdFraSøknad, key)) {
-                filtrert.put(key, value);
-            }
-        });
-        return filtrert;
+    public Set<Arbeidsgiver> søknadsFilter(BehandlingReferanse referanse, Set<Arbeidsgiver> påkrevde) {
+        var arbeidsgivereFraSøknad = getArbeidsgivereSøktTilretteleggingI(referanse);
+        return påkrevde.stream()
+            .filter(arbeidsgivereFraSøknad::contains)
+            .collect(Collectors.toSet());
     }
 
-    private boolean erSøktTilretteleggingI(List<SvpTilretteleggingEntitet> arbeidsforholdFraSøknad, Arbeidsgiver key) {
-        return arbeidsforholdFraSøknad.stream()
-                .anyMatch(trlg -> trlg.getArbeidsgiver().map(arbeidsgiver -> arbeidsgiver.equals(key)).orElse(false));
+    @Override
+    public Set<Arbeidsgiver> aktiveArbeidsforholdFilter(BehandlingReferanse referanse,
+                                                        Skjæringstidspunkt stp,
+                                                        Optional<InntektArbeidYtelseGrunnlag> inntektArbeidYtelseGrunnlag,
+                                                        Set<Arbeidsgiver> påkrevde) {
+        var aktive = new HashSet<>(InaktiveArbeidsforholdUtleder.finnKunAktive(påkrevde, inntektArbeidYtelseGrunnlag, referanse, stp));
+
+        // Legger inn alle arbeidsgivere det er søkt tilrettelegging hos
+        var arbeidsgivereFraSøknad = getArbeidsgivereSøktTilretteleggingI(referanse);
+        påkrevde.stream()
+            .filter(arbeidsgivereFraSøknad::contains)
+            .forEach(aktive::add);
+        return aktive;
     }
 
-    private List<SvpTilretteleggingEntitet> getArbeidsforholdSøktTilretteleggingI(BehandlingReferanse referanse) {
+    private Set<Arbeidsgiver> getArbeidsgivereSøktTilretteleggingI(BehandlingReferanse referanse) {
+        return getTilretteleggingerFraSøknad(referanse).stream()
+            .flatMap(trlg -> trlg.getArbeidsgiver().stream())
+            .collect(Collectors.toSet());
+    }
+
+    private List<SvpTilretteleggingEntitet> getTilretteleggingerFraSøknad(BehandlingReferanse referanse) {
         return svangerskapspengerRepository.hentGrunnlag(referanse.behandlingId())
             .map(SvpGrunnlagEntitet::getGjeldendeVersjon)
             .map(SvpTilretteleggingerEntitet::getTilretteleggingListe)
             .orElse(Collections.emptyList());
-    }
-
-    @Override
-    public Map<Arbeidsgiver, Set<InternArbeidsforholdRef>> aktiveArbeidsforholdFilter(BehandlingReferanse referanse,
-                                                                                      Skjæringstidspunkt stp,
-                                                                                      Optional<InntektArbeidYtelseGrunnlag> inntektArbeidYtelseGrunnlag,
-                                                                                      Map<Arbeidsgiver, Set<InternArbeidsforholdRef>> påkrevde) {
-        var kunAktive = InaktiveArbeidsforholdUtleder.finnKunAktive(påkrevde, inntektArbeidYtelseGrunnlag, referanse, stp);
-
-        // Legger inn alle arbeidsforhold det er søkt tilrettelegging i
-        var arbeidsforholdFraSøknad = getArbeidsforholdSøktTilretteleggingI(referanse);
-        påkrevde.forEach((key, value) -> {
-            if (erSøktTilretteleggingI(arbeidsforholdFraSøknad, key) && !kunAktive.containsKey(key)) {
-                kunAktive.put(key, value);
-            }
-        });
-        return kunAktive;
     }
 }

@@ -28,7 +28,6 @@ import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.domene.arbeidInntektsmelding.ArbeidsforholdInntektsmeldingMangelTjeneste;
 import no.nav.foreldrepenger.domene.arbeidInntektsmelding.ArbeidsforholdInntektsmeldingStatus;
 import no.nav.foreldrepenger.domene.arbeidInntektsmelding.ArbeidsforholdInntektsmeldingStatus.InntektsmeldingStatus;
-import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 
@@ -150,6 +149,6 @@ class ForespørselStatusVurderingTjenesteTest {
     }
 
     private static ArbeidsforholdInntektsmeldingStatus lagIMStatus(String orgnummer, InntektsmeldingStatus status) {
-        return new ArbeidsforholdInntektsmeldingStatus(Arbeidsgiver.virksomhet(orgnummer), InternArbeidsforholdRef.nullRef(), status);
+        return new ArbeidsforholdInntektsmeldingStatus(Arbeidsgiver.virksomhet(orgnummer), status);
     }
 }

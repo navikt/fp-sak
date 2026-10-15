@@ -113,7 +113,7 @@ class InntektsmeldingTjenesteTest {
         var behandlingReferanse = lagReferanse(behandling);
 
         // Act+Assert
-        assertThat(inntektsmeldingArkivTjeneste.utledManglendeInntektsmeldingerFraGrunnlag(behandlingReferanse, skjæringstidspunkt)).isNotEmpty();
+        assertThat(inntektsmeldingArkivTjeneste.utledManglendeInntektsmeldinger(behandlingReferanse, skjæringstidspunkt)).isNotEmpty();
     }
 
     @Test
@@ -129,7 +129,7 @@ class InntektsmeldingTjenesteTest {
         var behandlingReferanse = lagReferanse(behandling);
 
         // Act+Assert
-        assertThat(inntektsmeldingArkivTjeneste.utledManglendeInntektsmeldingerFraGrunnlag(behandlingReferanse, skjæringstidspunkt)).isEmpty();
+        assertThat(inntektsmeldingArkivTjeneste.utledManglendeInntektsmeldinger(behandlingReferanse, skjæringstidspunkt)).isEmpty();
         LØNNSPOST = BigDecimal.TEN;
     }
 
@@ -145,7 +145,7 @@ class InntektsmeldingTjenesteTest {
         var behandlingReferanse = lagReferanse(behandling);
 
         // Act+Assert
-        assertThat(inntektsmeldingArkivTjeneste.utledManglendeInntektsmeldingerFraGrunnlag(behandlingReferanse, skjæringstidspunkt)).isEmpty();
+        assertThat(inntektsmeldingArkivTjeneste.utledManglendeInntektsmeldinger(behandlingReferanse, skjæringstidspunkt)).isEmpty();
     }
 
     private BehandlingReferanse lagReferanse(Behandling behandling) {

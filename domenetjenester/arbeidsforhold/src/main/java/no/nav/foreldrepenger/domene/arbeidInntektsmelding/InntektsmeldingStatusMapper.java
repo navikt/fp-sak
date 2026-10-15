@@ -1,15 +1,12 @@
 package no.nav.foreldrepenger.domene.arbeidInntektsmelding;
 
-import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
-import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.arbeidsforhold.ArbeidsforholdKomplettVurderingType;
 import no.nav.foreldrepenger.behandlingslager.behandling.arbeidsforhold.ArbeidsforholdValg;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
-import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 
 public class InntektsmeldingStatusMapper {
 
@@ -17,39 +14,30 @@ public class InntektsmeldingStatusMapper {
         // Skjuler default
     }
 
-    public static List<ArbeidsforholdInntektsmeldingStatus> mapInntektsmeldingStatus(Map<Arbeidsgiver, Set<InternArbeidsforholdRef>> allePåkrevde,
-                                                                                     Map<Arbeidsgiver, Set<InternArbeidsforholdRef>> alleManglende,
+    public static List<ArbeidsforholdInntektsmeldingStatus> mapInntektsmeldingStatus(Set<Arbeidsgiver> allePåkrevde,
+                                                                                     Set<Arbeidsgiver> alleManglende,
                                                                                      List<ArbeidsforholdValg> avklartearbeidsforholdvalg) {
-        List<ArbeidsforholdInntektsmeldingStatus> inntektsmeldingerMedStatus = new ArrayList<>();
-        allePåkrevde.forEach((arbeidsgiver, arbeidsforholdIdListe) -> {
-            var inntektsmeldingerMedStatusForArbeidsgiver = arbeidsforholdIdListe.stream().map(id -> {
-                var inntektsmeldingMangler = manglerInntektsmelding(arbeidsgiver, id, alleManglende);
-                var vurdering = finnSaksbehandlervalg(arbeidsgiver, id, avklartearbeidsforholdvalg);
-                var avklartFortsettUtenIM = inntektsmeldingMangler && vurdering.map(v -> v.equals(ArbeidsforholdKomplettVurderingType.FORTSETT_UTEN_INNTEKTSMELDING)).orElse(false);
-                if (inntektsmeldingMangler) {
-                    var status = avklartFortsettUtenIM ? ArbeidsforholdInntektsmeldingStatus.InntektsmeldingStatus.AVKLART_IKKE_PÅKREVD : ArbeidsforholdInntektsmeldingStatus.InntektsmeldingStatus.IKKE_MOTTAT;
-                    return new ArbeidsforholdInntektsmeldingStatus(arbeidsgiver, id, status);
-                } else return new ArbeidsforholdInntektsmeldingStatus(arbeidsgiver, id, ArbeidsforholdInntektsmeldingStatus.InntektsmeldingStatus.MOTTATT);
-            }).toList();
-            inntektsmeldingerMedStatus.addAll(inntektsmeldingerMedStatusForArbeidsgiver);
-        });
-        return inntektsmeldingerMedStatus;
+        return allePåkrevde.stream()
+            .sorted(Comparator.comparing(Arbeidsgiver::getIdentifikator))
+            .map(arbeidsgiver -> new ArbeidsforholdInntektsmeldingStatus(arbeidsgiver, utledStatus(arbeidsgiver, alleManglende, avklartearbeidsforholdvalg)))
+            .toList();
     }
 
-    private static Optional<ArbeidsforholdKomplettVurderingType> finnSaksbehandlervalg(Arbeidsgiver arbeidsgiver,
-                                                                                       InternArbeidsforholdRef id,
-                                                                                       List<ArbeidsforholdValg> avklartearbeidsforholdvalg) {
+    private static ArbeidsforholdInntektsmeldingStatus.InntektsmeldingStatus utledStatus(Arbeidsgiver arbeidsgiver,
+                                                                                         Set<Arbeidsgiver> alleManglende,
+                                                                                         List<ArbeidsforholdValg> avklartearbeidsforholdvalg) {
+        if (!alleManglende.contains(arbeidsgiver)) {
+            return ArbeidsforholdInntektsmeldingStatus.InntektsmeldingStatus.MOTTATT;
+        }
+        return erAvklartFortsettUtenInntektsmelding(arbeidsgiver, avklartearbeidsforholdvalg)
+            ? ArbeidsforholdInntektsmeldingStatus.InntektsmeldingStatus.AVKLART_IKKE_PÅKREVD
+            : ArbeidsforholdInntektsmeldingStatus.InntektsmeldingStatus.IKKE_MOTTAT;
+    }
+
+    // Eldre valg kan være lagret pr arbeidsforhold. Et valg for et av arbeidsforholdene gjelder hele arbeidsgiveren.
+    private static boolean erAvklartFortsettUtenInntektsmelding(Arbeidsgiver arbeidsgiver, List<ArbeidsforholdValg> avklartearbeidsforholdvalg) {
         return avklartearbeidsforholdvalg.stream()
-            .filter(v -> v.getArbeidsgiver().equals(arbeidsgiver) && v.getArbeidsforholdRef().gjelderFor(id))
-            .findFirst()
-            .map(ArbeidsforholdValg::getVurdering);
-    }
-
-    private static boolean manglerInntektsmelding(Arbeidsgiver arbeidsgiver,
-                                                  InternArbeidsforholdRef id,
-                                                  Map<Arbeidsgiver, Set<InternArbeidsforholdRef>> alleManglende) {
-        return alleManglende.entrySet()
-            .stream()
-            .anyMatch(entry -> entry.getKey().equals(arbeidsgiver) && entry.getValue().stream().anyMatch(ref -> ref.gjelderFor(id)));
+            .filter(v -> v.getArbeidsgiver().equals(arbeidsgiver))
+            .anyMatch(v -> ArbeidsforholdKomplettVurderingType.FORTSETT_UTEN_INNTEKTSMELDING.equals(v.getVurdering()));
     }
 }
