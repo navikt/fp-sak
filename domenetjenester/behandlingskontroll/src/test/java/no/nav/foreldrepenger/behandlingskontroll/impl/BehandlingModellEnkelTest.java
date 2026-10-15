@@ -34,39 +34,37 @@ class BehandlingModellEnkelTest {
 
     @Test
     void skal_bygge_behandlingskontroll_med_ett_steg() {
-        try (var modell = new BehandlingModellImpl(BehandlingType.FØRSTEGANGSSØKNAD, FagsakYtelseType.ENGANGSTØNAD, finnSteg)) {
-            modell.leggTil(STEG_1, BEHANDLING_TYPE, FAGSAK_YTELSE_TYPE);
+        var modell = new BehandlingModellImpl(BehandlingType.FØRSTEGANGSSØKNAD, FagsakYtelseType.ENGANGSTØNAD, finnSteg);
+        modell.leggTil(STEG_1, BEHANDLING_TYPE, FAGSAK_YTELSE_TYPE);
 
-            assertThat(modell.finnSteg(STEG_1)).isNotNull();
-            assertThat(modell.finnSteg(STEG_1).getSteg()).isEqualTo(dummyBehandlingSteg_1);
+        assertThat(modell.finnSteg(STEG_1)).isNotNull();
+        assertThat(modell.finnSteg(STEG_1).getSteg()).isEqualTo(dummyBehandlingSteg_1);
 
-            assertThat(modell.finnForrigeSteg(STEG_1)).isNull();
-            assertThat(modell.finnNesteSteg(STEG_1)).isNull();
-        }
+        assertThat(modell.finnForrigeSteg(STEG_1)).isNull();
+        assertThat(modell.finnNesteSteg(STEG_1)).isNull();
     }
 
     @Test
     void skal_bygge_behandlingskontroll_med_3_steg() {
         // Arrange
-        try (var modell = new BehandlingModellImpl(BehandlingType.FØRSTEGANGSSØKNAD, FagsakYtelseType.ENGANGSTØNAD, finnSteg)) {
-            modell.leggTil(STEG_1, BEHANDLING_TYPE, FAGSAK_YTELSE_TYPE);
-            modell.leggTil(STEG_2, BEHANDLING_TYPE, FAGSAK_YTELSE_TYPE);
-            modell.leggTil(STEG_3, BEHANDLING_TYPE, FAGSAK_YTELSE_TYPE);
+        var modell = new BehandlingModellImpl(BehandlingType.FØRSTEGANGSSØKNAD, FagsakYtelseType.ENGANGSTØNAD, finnSteg);
+        modell.leggTil(STEG_1, BEHANDLING_TYPE, FAGSAK_YTELSE_TYPE);
+        modell.leggTil(STEG_2, BEHANDLING_TYPE, FAGSAK_YTELSE_TYPE);
+        modell.leggTil(STEG_3, BEHANDLING_TYPE, FAGSAK_YTELSE_TYPE);
 
-            // Act - Assert
-            var finnSteg2 = modell.finnSteg(STEG_2);
-            assertThat(finnSteg2).isNotNull();
-            assertThat(finnSteg2.getSteg()).isSameAs(dummyBehandlingSteg_2);
+        // Act - Assert
+        var finnSteg2 = modell.finnSteg(STEG_2);
+        assertThat(finnSteg2).isNotNull();
+        assertThat(finnSteg2.getSteg()).isSameAs(dummyBehandlingSteg_2);
 
-            assertThat(modell.finnForrigeSteg(STEG_1)).isNull();
+        assertThat(modell.finnForrigeSteg(STEG_1)).isNull();
 
-            assertThat(modell.finnForrigeSteg(STEG_2)).isNotNull();
-            assertThat(modell.finnForrigeSteg(STEG_2).getSteg()).isSameAs(dummyBehandlingSteg_1);
+        assertThat(modell.finnForrigeSteg(STEG_2)).isNotNull();
+        assertThat(modell.finnForrigeSteg(STEG_2).getSteg()).isSameAs(dummyBehandlingSteg_1);
 
-            assertThat(modell.finnNesteSteg(STEG_2)).isNotNull();
-            assertThat(modell.finnNesteSteg(STEG_2).getSteg()).isSameAs(dummyBehandlingSteg_3);
+        assertThat(modell.finnNesteSteg(STEG_2)).isNotNull();
+        assertThat(modell.finnNesteSteg(STEG_2).getSteg()).isSameAs(dummyBehandlingSteg_3);
 
-            assertThat(modell.finnNesteSteg(STEG_3)).isNull();
-        }
+        assertThat(modell.finnNesteSteg(STEG_3)).isNull();
     }
 }

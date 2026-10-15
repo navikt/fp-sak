@@ -52,7 +52,7 @@ class UttakHistorikkUtilTest {
         assertThat(innslag.getBehandlingId()).isEqualTo(BEHANDLING.behandlingId());
         assertThat(innslag.getAktør()).isEqualTo(HistorikkAktør.SAKSBEHANDLER);
         assertThat(innslag.getLinjer()).hasSize(5);
-        assertThat(innslag.getLinjer().get(0).getTekst()).isEqualTo("__Overstyring av uttak__.");
+        assertThat(innslag.getLinjer().get(0).getTekst()).isEqualTo("__Endring av uttak__.");
         assertThat(innslag.getLinjer().get(1).getType()).isEqualTo(HistorikkinnslagLinjeType.LINJESKIFT);
         assertThat(innslag.getLinjer().get(2).getTekst()).contains("Vurdering av perioden");
         assertThat(innslag.getLinjer().get(3).getTekst()).isEqualTo("__Resultatet__ er endret fra Til manuell behandling til __Innvilget__.");

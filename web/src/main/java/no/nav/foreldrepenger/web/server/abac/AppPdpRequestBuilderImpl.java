@@ -15,7 +15,6 @@ import no.nav.foreldrepenger.behandlingslager.pip.PipRepository;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.vedtak.exception.ManglerTilgangException;
 import no.nav.vedtak.exception.TekniskException;
-import no.nav.vedtak.log.mdc.LoggFelter;
 import no.nav.vedtak.sikkerhet.abac.AbacDataAttributter;
 import no.nav.vedtak.sikkerhet.abac.PdpRequestBuilder;
 import no.nav.vedtak.sikkerhet.abac.pdp.AppRessursData;
@@ -57,9 +56,11 @@ public class AppPdpRequestBuilderImpl implements PdpRequestBuilder {
         behandlingData.map(PipBehandlingsData::fagsakStatus).flatMap(AppPdpRequestBuilderImpl::oversettFagstatus)
             .ifPresent(builder::medFagsakStatus);
 
-        setLoggData(builder, saksnummer, behandlingData);
-
-        return builder.build();
+        return builder
+            .medLoggSaksnummer(saksnummer.map(Saksnummer::getVerdi).orElse(null))
+            .medLoggBehandling(behandlingData.map(PipBehandlingsData::behandlingUuid).orElse(null))
+            .medLoggBehandlingId(behandlingData.map(PipBehandlingsData::behandlingId).orElse(null))
+            .build();
 
     }
 
@@ -86,16 +87,12 @@ public class AppPdpRequestBuilderImpl implements PdpRequestBuilder {
             builder.medOverstyring(PipOverstyring.OVERSTYRING);
         }
 
-        setLoggData(builder, saksnummer, behandlingData);
+        return builder
+            .medLoggSaksnummer(saksnummer.map(Saksnummer::getVerdi).orElse(null))
+            .medLoggBehandling(behandlingData.map(PipBehandlingsData::behandlingUuid).orElse(null))
+            .medLoggBehandlingId(behandlingData.map(PipBehandlingsData::behandlingId).orElse(null))
+            .build();
 
-        return builder.build();
-
-    }
-
-    private static void setLoggData(AppRessursData.Builder builder, Optional<Saksnummer> saksnummer, Optional<PipBehandlingsData> behandlingData) {
-        saksnummer.ifPresent(s -> builder.medLoggSaksnummer(s.getVerdi()));
-        behandlingData.ifPresent(d -> builder.medLoggBehandling(d.behandlingUuid()));
-        behandlingData.ifPresent(d -> builder.medLoggFelt(LoggFelter.BEHANDLING_ID, d.behandlingId().toString()));
     }
 
     private Optional<UUID> utledBehandling(AbacDataAttributter attributter) {
