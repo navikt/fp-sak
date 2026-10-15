@@ -194,7 +194,6 @@ public class FpInntektsmeldingTjeneste {
         if (erToggleForNyInnsendingPå) {
             // Togglet på i dev: Ny innsending som alltid sender komplett liste over forespørsler, også de som er mottatte
             var arbeidsgivereViManglerInntektsmeldingFra = inntektsmeldingRegisterTjeneste.utledAllePåKrevdeInntektsmeldinger(ref, stp)
-                .keySet()
                 .stream()
                 .filter(arbeidsgiver -> OrganisasjonsNummerValidator.erGyldig(arbeidsgiver.getOrgnr()))
                 .map(arbeidsgiver -> new OrganisasjonsnummerDto(arbeidsgiver.getOrgnr()))
