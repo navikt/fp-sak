@@ -71,7 +71,7 @@ public class EøsUttakFellesTjeneste {
             .medFagsakId(ref.fagsakId())
             .medBehandlingId(ref.behandlingId())
             .medTittel(SkjermlenkeType.FAKTA_UTTAK_EØS)
-            .addLinje(overstyring ? "Overstyrt vurdering:" : null)
+            .addLinje(overstyring ? "Endret vurdering:" : null)
             .addLinje("Avklart at annen forelder ikke har uttak i EØS")
             .addLinje(begrunnelse)
             .build();
@@ -83,7 +83,7 @@ public class EøsUttakFellesTjeneste {
                                                                                  boolean overstyring) {
         var linjer = new ArrayList<HistorikkinnslagLinjeBuilder>();
         if (overstyring) {
-            linjer.add(new HistorikkinnslagLinjeBuilder().tekst("Overstyrt vurdering:"));
+            linjer.add(new HistorikkinnslagLinjeBuilder().tekst("Endret vurdering:"));
         }
         linjer.add(new HistorikkinnslagLinjeBuilder().tekst("Registrert uttak for annen forelder i EØS"));
         for (var periode : perioder) {

@@ -20,6 +20,7 @@ public class BekreftSvangerskapspengerDto extends BekreftetAksjonspunktDto {
     private LocalDate termindato;
 
     private LocalDate fødselsdato;
+    @NotNull
     @Size(min = 1, max = 1000)
     private List<@Valid BekreftTilrettelegging> bekreftetSvpArbeidsforholdList;
 

@@ -6,7 +6,6 @@ import java.time.LocalDateTime;
 import java.util.Objects;
 import java.util.Optional;
 
-import org.jboss.weld.exceptions.IllegalArgumentException;
 
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.domene.iay.modell.kodeverk.InntektsmeldingInnsendingsårsak;

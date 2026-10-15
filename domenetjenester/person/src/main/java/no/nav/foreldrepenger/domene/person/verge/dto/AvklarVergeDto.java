@@ -17,11 +17,13 @@ import no.nav.vedtak.util.InputValideringRegex;
 @JsonTypeName(AksjonspunktKodeDefinisjon.AVKLAR_VERGE_KODE)
 public class AvklarVergeDto extends BekreftetAksjonspunktDto {
 
+    @NotNull
     @Size(max = 100)
     @Pattern(regexp = InputValideringRegex.FRITEKST)
     private String navn;
     @Pattern(regexp = "^\\d{11}$")
     private String fnr;
+    @NotNull
     private LocalDate gyldigFom;
     private LocalDate gyldigTom;
 

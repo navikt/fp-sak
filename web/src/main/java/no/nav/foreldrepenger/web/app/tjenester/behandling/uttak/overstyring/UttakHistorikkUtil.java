@@ -57,7 +57,7 @@ public final class UttakHistorikkUtil {
             .medBehandlingId(behandling.behandlingId())
             .medFagsakId(behandling.fagsakId())
             .medTittel(SkjermlenkeType.UTTAK)
-            .addLinje(new HistorikkinnslagLinjeBuilder().bold(erOverstyring ? "Overstyring av uttak" : "Manuell vurdering av uttak"))
+            .addLinje(new HistorikkinnslagLinjeBuilder().bold(erOverstyring ? "Endring av uttak" : "Manuell vurdering av uttak"))
             .addLinje(LINJESKIFT);
         endringer.forEach(historikkinnslag::addLinje);
         return Optional.of(historikkinnslag.build());

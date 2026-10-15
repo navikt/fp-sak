@@ -6,7 +6,7 @@
     <parent>
         <groupId>no.nav.foreldrepenger.felles</groupId>
         <artifactId>fp-parent-app</artifactId>
-        <version>5.3.7</version>
+        <version>5.4.2</version>
     </parent>
 
     <groupId>no.nav.foreldrepenger</groupId>
@@ -27,7 +27,7 @@
     <properties>
         <!-- regel-repositories -->
         <fp-tidsserie.version>2.8.0</fp-tidsserie.version>
-        <fp-nare.version>2.7.0</fp-nare.version>
+        <fp-nare.version>2.7.1</fp-nare.version>
         <fp-inngangsvilkar.version>1.1.5</fp-inngangsvilkar.version>
         <beregning.version>7.2.2</beregning.version>
         <fp-uttak.version>15.5.9</fp-uttak.version>
@@ -35,12 +35,12 @@
         <svp-uttak.version>2.4.9</svp-uttak.version>
         <fp-ytelse-beregn.version>1.0.5</fp-ytelse-beregn.version>
         <!-- kontrakter -->
-        <fp-kontrakter.version>9.4.39</fp-kontrakter.version>
+        <fp-kontrakter.version>9.4.40</fp-kontrakter.version>
         <abakus-kontrakt.version>2.4.1</abakus-kontrakt.version>
-        <fpkalkulus.kontrakt.version>1.2.1</fpkalkulus.kontrakt.version>
+        <fpkalkulus.kontrakt.version>1.2.2</fpkalkulus.kontrakt.version>
         <!-- generelle verktøy -->
-        <felles.version>7.9.3</felles.version>
-        <prosesstask.version>5.2.8</prosesstask.version>
+        <felles.version>7.9.4</felles.version>
+        <prosesstask.version>5.3.0</prosesstask.version>
         <openapi-spec-utils.version>2.1.0</openapi-spec-utils.version>
         <!-- sonar -->
         <sonar.moduleKey>${project.artifactId}</sonar.moduleKey>
@@ -132,7 +132,7 @@
             <dependency>
                 <groupId>no.nav.foreldrepenger.felles</groupId>
                 <artifactId>jms-integrasjon</artifactId>
-                <version>3.2.21</version>
+                <version>3.2.22</version>
             </dependency>
 
             <dependency>
@@ -432,8 +432,8 @@
             <artifactId>felles-konfig</artifactId>
         </dependency>
         <dependency>
-            <groupId>jakarta.enterprise</groupId>
-            <artifactId>jakarta.enterprise.cdi-api</artifactId>
+            <groupId>jakarta.cdi</groupId>
+            <artifactId>jakarta.cdi-api</artifactId>
         </dependency>
         <dependency>
             <groupId>com.oracle.database.jdbc</groupId>

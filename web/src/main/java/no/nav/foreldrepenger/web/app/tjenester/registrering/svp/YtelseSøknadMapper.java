@@ -3,7 +3,6 @@ package no.nav.foreldrepenger.web.app.tjenester.registrering.svp;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
-import org.jboss.weld.exceptions.UnsupportedOperationException;
 
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingTypeRef;
 import no.nav.foreldrepenger.behandlingskontroll.FagsakYtelseTypeRef;

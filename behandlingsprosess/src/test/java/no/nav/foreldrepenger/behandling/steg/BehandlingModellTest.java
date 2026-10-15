@@ -5,10 +5,12 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
+import java.util.stream.Stream;
 
 import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.inject.spi.CDI;
 
-import org.jboss.weld.interceptor.util.proxy.TargetInstanceProxy;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -41,9 +43,11 @@ class BehandlingModellTest {
             var behandlingSteg = steg.getSteg();
             assertThat(behandlingSteg).as(description).isNotNull();
 
-            @SuppressWarnings("rawtypes") var targetClass = ((TargetInstanceProxy) behandlingSteg)
-                    .weld_getTargetClass();
-            assertThat(targetClass).as(description).hasAnnotation(ApplicationScoped.class);
+            var target = CDI.current().getBeanContainer().unwrapClientProxy(behandlingSteg);
+            assertThat(target).as(description).isNotSameAs(behandlingSteg);
+            assertThat(Stream.<Class<?>>iterate(target.getClass(), Objects::nonNull, Class::getSuperclass))
+                .as(description)
+                .anyMatch(c -> c.isAnnotationPresent(ApplicationScoped.class));
         }
     }
 

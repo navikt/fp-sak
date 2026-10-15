@@ -131,11 +131,11 @@ public class LeggTilOppgittNæringDto implements AbacDto {
     }
 
     public String getRegnskapNavn() {
-        return regnskapNavn;
+        return "".equals(regnskapNavn) ? null : regnskapNavn;
     }
 
     public String getRegnskapTlf() {
-        return regnskapTlf;
+        return "".equals(regnskapTlf) ? null : regnskapTlf;
     }
 
     public Utfall getNyoppstartet() {
