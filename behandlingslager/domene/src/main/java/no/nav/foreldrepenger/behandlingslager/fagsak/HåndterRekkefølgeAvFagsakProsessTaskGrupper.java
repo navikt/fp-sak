@@ -80,7 +80,7 @@ public class HåndterRekkefølgeAvFagsakProsessTaskGrupper implements ProsessTas
                 var rekkefølge = handler.getFagsakProsesstaskRekkefølge();
                 var sekvensNr = rekkefølge.gruppeSekvens() ? gruppeSekvensNr : null;
                 Saksnummer saksnummer = task.getSaksnummer() != null ? new Saksnummer(task.getSaksnummer()) : null;
-                repository.lagre(new FagsakProsessTask(saksnummer, task.getId(), task.getBehandlingIdAsLong(), sekvensNr));
+                repository.lagre(new FagsakProsessTask(saksnummer, task.getFagsakId(), task.getId(), task.getBehandlingIdAsLong(), sekvensNr));
             }
         }
     }
