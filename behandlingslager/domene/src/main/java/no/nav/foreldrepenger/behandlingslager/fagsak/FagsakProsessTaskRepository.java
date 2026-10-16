@@ -23,6 +23,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStatus;
+import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.vedtak.felles.jpa.HibernateVerktøy;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskEvent;
@@ -53,7 +54,7 @@ public class FagsakProsessTaskRepository {
 
     public void lagre(FagsakProsessTask fagsakProsessTask) {
         var ptData = taskTjeneste.finn(fagsakProsessTask.getProsessTaskId());
-        LOG.debug("Linker fagsak[{}] -> prosesstask[{}], {} gruppeSekvensNr=[{}]", fagsakProsessTask.getFagsakId(), fagsakProsessTask.getProsessTaskId(), ptData.taskType(), fagsakProsessTask.getGruppeSekvensNr());
+        LOG.debug("Linker fagsak[{}] -> prosesstask[{}], {} gruppeSekvensNr=[{}]", fagsakProsessTask.getSaksnummer(), fagsakProsessTask.getProsessTaskId(), ptData.taskType(), fagsakProsessTask.getGruppeSekvensNr());
         var em = getEntityManager();
         em.persist(fagsakProsessTask);
         em.flush();
@@ -69,13 +70,13 @@ public class FagsakProsessTaskRepository {
         return HibernateVerktøy.hentUniktResultat(query);
     }
 
-    public void fjern(Long fagsakId, Long prosessTaskId, Long gruppeSekvensNr) {
+    public void fjern(Saksnummer saksnummer, Long prosessTaskId, Long gruppeSekvensNr) {
         var ptData = taskTjeneste.finn(prosessTaskId);
-        LOG.debug("Fjerner link fagsak[{}] -> prosesstask[{}], {} gruppeSekvensNr=[{}]", fagsakId, prosessTaskId, ptData.taskType(), gruppeSekvensNr);
+        LOG.debug("Fjerner link fagsak[{}] -> prosesstask[{}], {} gruppeSekvensNr=[{}]", saksnummer.getVerdi(), prosessTaskId, ptData.taskType(), gruppeSekvensNr);
         var em = getEntityManager();
-        var query = em.createNativeQuery("delete from FAGSAK_PROSESS_TASK where prosess_task_id = :prosessTaskId and fagsak_id=:fagsakId");
+        var query = em.createNativeQuery("delete from FAGSAK_PROSESS_TASK where prosess_task_id = :prosessTaskId and saksnummer=:saksnummer");
         query.setParameter("prosessTaskId", prosessTaskId);
-        query.setParameter("fagsakId", fagsakId);
+        query.setParameter("saksnummer", saksnummer.getVerdi());
         query.executeUpdate();
         em.flush();
     }
@@ -88,7 +89,7 @@ public class FagsakProsessTaskRepository {
         em.flush();
     }
 
-    public List<ProsessTaskData> finnAlleForAngittSøk(Long fagsakId, Long behandlingId, String gruppeId, Collection<ProsessTaskStatus> statuser,
+    public List<ProsessTaskData> finnAlleForAngittSøk(Saksnummer saksnummer, Long behandlingId, String gruppeId, Collection<ProsessTaskStatus> statuser,
                                                       LocalDateTime nesteKjoeringFraOgMed,
                                                       LocalDateTime nesteKjoeringTilOgMed) {
 
@@ -106,14 +107,14 @@ public class FagsakProsessTaskRepository {
                     + "      OR ("
                     + "           pt.neste_kjoering_etter >= cast(:nesteKjoeringFraOgMed as timestamp(0)) AND pt.neste_kjoering_etter <= cast(:nesteKjoeringTilOgMed as timestamp(0))"
                     + "      ))"
-                    + " AND fpt.fagsak_id = :fagsakId AND fpt.behandling_id = coalesce(:behandlingId, fpt.behandling_id)",
+                    + " AND fpt.saksnummer = :saksnummer AND fpt.behandling_id = coalesce(:behandlingId, fpt.behandling_id)",
                 ProsessTaskEntitet.class);
 
         query.setParameter("statuses", statusNames)
             .setParameter("gruppe", gruppeId, StandardBasicTypes.STRING)
             .setParameter("nesteKjoeringFraOgMed", nesteKjoeringFraOgMed) // max oppløsning på neste_kjoering_etter er sekunder
             .setParameter("nesteKjoeringTilOgMed", nesteKjoeringTilOgMed)
-            .setParameter("fagsakId", fagsakId)
+            .setParameter("saksnummer", saksnummer.getVerdi())
             .setParameter("behandlingId", behandlingId, StandardBasicTypes.LONG)
             .setHint(HibernateHints.HINT_READ_ONLY, "true");
 
@@ -122,11 +123,11 @@ public class FagsakProsessTaskRepository {
     }
 
 
-    public String lagreNyGruppeKunHvisIkkeAlleredeFinnesOgIngenHarFeilet(Long fagsakId, Long behandlingId, ProsessTaskGruppe gruppe) {
+    public String lagreNyGruppeKunHvisIkkeAlleredeFinnesOgIngenHarFeilet(Saksnummer saksnummer, Long behandlingId, ProsessTaskGruppe gruppe) {
         // oppretter nye tasks hvis gamle har feilet og matcher angitt gruppe, eller tidligere er FERDIG. Ignorerer hvis tidligere gruppe fortsatt
         // er KLAR
         var nyeTasks = gruppe.getTasks();
-        var eksisterendeTasks = sjekkStatusProsessTasks(fagsakId, behandlingId, null);
+        var eksisterendeTasks = sjekkStatusProsessTasks(saksnummer, behandlingId, null);
 
         if (eksisterendeTasks.isEmpty()) {
             // legg inn nye
@@ -150,8 +151,8 @@ public class FagsakProsessTaskRepository {
     }
 
 
-    public List<ProsessTaskData> sjekkStatusProsessTasks(Long fagsakId, Long behandlingId, String gruppe) {
-        Objects.requireNonNull(fagsakId, "fagsakId");
+    public List<ProsessTaskData> sjekkStatusProsessTasks(Saksnummer saksnummer, Long behandlingId, String gruppe) {
+        Objects.requireNonNull(saksnummer, "saksnummer");
 
         var now = LocalDateTime.now().withNano(0).withSecond(0);
 
@@ -164,7 +165,7 @@ public class FagsakProsessTaskRepository {
         var statuser = EnumSet.allOf(ProsessTaskStatus.class);
         List<ProsessTaskData> tasks = Collections.emptyList();
         if (gruppe != null) {
-            tasks = finnAlleForAngittSøk(fagsakId, behandlingId, gruppe, new ArrayList<>(statuser), fom, tom);
+            tasks = finnAlleForAngittSøk(saksnummer, behandlingId, gruppe, new ArrayList<>(statuser), fom, tom);
         }
 
         if (tasks.isEmpty()) {
@@ -172,7 +173,7 @@ public class FagsakProsessTaskRepository {
             statuser.remove(ProsessTaskStatus.FERDIG);
             statuser.remove(ProsessTaskStatus.KJOERT);
             statuser.remove(ProsessTaskStatus.SUSPENDERT);
-            tasks = finnAlleForAngittSøk(fagsakId, behandlingId, null, new ArrayList<>(statuser), fom, tom);
+            tasks = finnAlleForAngittSøk(saksnummer, behandlingId, null, new ArrayList<>(statuser), fom, tom);
         }
 
         return tasks;
@@ -180,7 +181,7 @@ public class FagsakProsessTaskRepository {
 
 
     public Optional<FagsakProsessTask> sjekkTillattKjøreFagsakProsessTask(ProsessTaskData ptData) {
-        var fagsakId = ptData.getFagsakId();
+        var saksnummer = Optional.ofNullable(ptData.getSaksnummer()).map(Saksnummer::new).orElse(null);
         var prosessTaskId = ptData.getId();
         var fagsakProsessTaskOpt = hent(prosessTaskId, true);
 
@@ -193,10 +194,10 @@ public class FagsakProsessTaskRepository {
             // Dersom den ikke er NULL er den kun tillatt dersom den matcher laveste gruppe_sekvensnr for Fagsak i
             // FAGSAK_PROSESS_TASK tabell.
             var query = getEntityManager().createQuery("from FagsakProsessTask fpt " +
-                    "where fpt.fagsakId=:fagsakId and gruppeSekvensNr is not null " +
+                    "where fpt.saksnummer=:saksnummer and gruppeSekvensNr is not null " +
                     "order by gruppeSekvensNr ",
                 FagsakProsessTask.class);
-            query.setParameter("fagsakId", fagsakId);
+            query.setParameter("saksnummer", saksnummer);
 
             var førsteFagsakProsessTask = query.getResultList().stream()
                 .findFirst()
@@ -215,14 +216,12 @@ public class FagsakProsessTaskRepository {
     /** Observerer og vedlikeholder relasjon mellom fagsak og prosess task for enklere søk (dvs. fjerner relasjon når FERDIG). */
     public void observeProsessTask(@Observes ProsessTaskEvent ptEvent) {
 
-        var fagsakId = ptEvent.getFagsakId();
+
         var prosessTaskId = ptEvent.getId();
-        if (fagsakId == null) {
+        if (ptEvent.getSaksnummer() == null) {
             return; // do nothing, er ikke relatert til fagsak/behandling
         }
-        if (ptEvent.getSaksnummer() == null) {
-            LOG.warn("Prosesstask[{}] av {} for fagsak [{}] har null saksnummer.", ptEvent.getId(), ptEvent.taskType(), fagsakId);
-        }
+        var saksnummer = new Saksnummer(ptEvent.getSaksnummer());
 
         var status = ptEvent.getNyStatus();
 
@@ -230,7 +229,7 @@ public class FagsakProsessTaskRepository {
 
         if (fagsakProsessTaskOpt.isPresent() && status.erKjørt()) {
             // fjern link
-            fjern(fagsakId, ptEvent.getId(), fagsakProsessTaskOpt.get().getGruppeSekvensNr());
+            fjern(saksnummer, ptEvent.getId(), fagsakProsessTaskOpt.get().getGruppeSekvensNr());
         }
 
     }
