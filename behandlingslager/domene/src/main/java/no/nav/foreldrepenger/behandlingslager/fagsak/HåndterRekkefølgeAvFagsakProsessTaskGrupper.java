@@ -6,11 +6,10 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.inject.Instance;
 import jakarta.inject.Inject;
 
-import no.nav.foreldrepenger.domene.typer.Saksnummer;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskGruppe;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskHandler;
@@ -44,12 +43,8 @@ public class HåndterRekkefølgeAvFagsakProsessTaskGrupper implements ProsessTas
 
     @Override
     public ProsessTaskVeto vetoKjøring(ProsessTaskData ptData) {
-        var fagsakId = ptData.getFagsakId();
-        if (fagsakId == null) {
-            return new ProsessTaskVeto(false, ptData.getId()); // do nothing, er ikke relatert til fagsak/behandling
-        }
         if (ptData.getSaksnummer() == null) {
-            LOG.warn("Prosesstask[{}] av {} for fagsak [{}] har null saksnummer.", ptData.getId(), ptData.taskType(), fagsakId);
+            return new ProsessTaskVeto(false, ptData.getId()); // do nothing, er ikke relatert til fagsak/behandling
         }
 
         var blokkerendeTask = repository.sjekkTillattKjøreFagsakProsessTask(ptData);
@@ -58,7 +53,7 @@ public class HåndterRekkefølgeAvFagsakProsessTaskGrupper implements ProsessTas
         if (vetoed) {
             var blokker = taskTjeneste.finn(blokkerendeTask.get().getProsessTaskId());
             LOG.info("Vetoer kjøring av prosesstask[{}] av {} for fagsak [{}] , er blokkert av prosesstask[{}] av {} for samme fagsak.",
-                ptData.getId(), ptData.taskType(), ptData.getFagsakId(), blokker.getId(), blokker.taskType());
+                ptData.getId(), ptData.taskType(), ptData.getSaksnummer(), blokker.getId(), blokker.taskType());
 
             return new ProsessTaskVeto(false, ptData.getId(), blokker.getId(), getClass().getSimpleName()
                 + " vetoer pga definert rekkefølge i FAGSAK_PROSESS_TASK.GRUPPE_SEKVENSNR. Blir pukket når blokkerende task kjøres FERDIG.");
@@ -76,19 +71,16 @@ public class HåndterRekkefølgeAvFagsakProsessTaskGrupper implements ProsessTas
         for (var entry : gruppe.getTasks()) {
 
             var task = entry.task();
-            if (task.getFagsakId() == null) {
+            if (task.getSaksnummer() == null) {
                 // ikke interessant her, move along
                 continue;
-            }
-            if (task.getSaksnummer() == null) {
-                LOG.warn("Prosesstask[{}] av {} for fagsak [{}] har null saksnummer.", task.getId(), task.taskType(), task.getFagsakId());
             }
 
             try (var handler = LocalProsessTaskHandlerRef.lookup(task.taskType())) {
                 var rekkefølge = handler.getFagsakProsesstaskRekkefølge();
                 var sekvensNr = rekkefølge.gruppeSekvens() ? gruppeSekvensNr : null;
                 Saksnummer saksnummer = task.getSaksnummer() != null ? new Saksnummer(task.getSaksnummer()) : null;
-                repository.lagre(new FagsakProsessTask(saksnummer, task.getFagsakId(), task.getId(), task.getBehandlingIdAsLong(), sekvensNr));
+                repository.lagre(new FagsakProsessTask(saksnummer, task.getId(), task.getBehandlingIdAsLong(), sekvensNr));
             }
         }
     }

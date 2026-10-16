@@ -11,6 +11,7 @@ import jakarta.inject.Inject;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakProsessTaskRepository;
+import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskGruppe;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskStatus;
@@ -29,13 +30,13 @@ public class ProsesseringAsynkTjeneste {
         this.fagsakProsessTaskRepository = fagsakProsessTaskRepository;
     }
 
-    public Map<String, ProsessTaskData> sjekkProsessTaskPågår(Long fagsakId, Long behandlingId, String gruppe) {
-        var statusProsessTasks = sjekkStatusProsessTasksGrouped(fagsakId, behandlingId, gruppe);
+    public Map<String, ProsessTaskData> sjekkProsessTaskPågår(Saksnummer saksnummer, Long behandlingId, String gruppe) {
+        var statusProsessTasks = sjekkStatusProsessTasksGrouped(saksnummer, behandlingId, gruppe);
 
         var nestePerGruppe = nesteProsessTaskPerGruppe(statusProsessTasks);
 
         if (angittGruppeErFerdig(gruppe, nestePerGruppe)) {
-            nestePerGruppe = nesteProsessTaskPerGruppe(sjekkStatusProsessTasksGrouped(fagsakId, behandlingId, null));
+            nestePerGruppe = nesteProsessTaskPerGruppe(sjekkStatusProsessTasksGrouped(saksnummer, behandlingId, null));
         }
 
         return nestePerGruppe;
@@ -52,7 +53,7 @@ public class ProsesseringAsynkTjeneste {
      * angitt.
      */
     public Map<String, ProsessTaskData> sjekkProsessTaskPågårForBehandling(Behandling behandling, String gruppe) {
-        return sjekkProsessTaskPågår(behandling.getFagsakId(), behandling.getId(), gruppe);
+        return sjekkProsessTaskPågår(behandling.getSaksnummer(), behandling.getId(), gruppe);
     }
 
     /**
@@ -61,8 +62,8 @@ public class ProsesseringAsynkTjeneste {
      * skrives, gamle fjernes). For å merge sees det på individuelle tasks inne i
      * gruppen (da gruppe id kan være forskjellig uansett).
      */
-    public String lagreNyGruppeKunHvisIkkeAlleredeFinnesOgIngenHarFeilet(Long fagsakId, Long behandlingId, ProsessTaskGruppe gruppe) {
-        return fagsakProsessTaskRepository.lagreNyGruppeKunHvisIkkeAlleredeFinnesOgIngenHarFeilet(fagsakId, behandlingId, gruppe);
+    public String lagreNyGruppeKunHvisIkkeAlleredeFinnesOgIngenHarFeilet(Saksnummer saksnummer, Long behandlingId, ProsessTaskGruppe gruppe) {
+        return fagsakProsessTaskRepository.lagreNyGruppeKunHvisIkkeAlleredeFinnesOgIngenHarFeilet(saksnummer, behandlingId, gruppe);
     }
 
     private Map<String, ProsessTaskData> nesteProsessTaskPerGruppe(Map<String, List<ProsessTaskData>> tasks) {
@@ -83,8 +84,8 @@ public class ProsesseringAsynkTjeneste {
             gruppe).getStatus().erKjørt());
     }
 
-    private Map<String, List<ProsessTaskData>> sjekkStatusProsessTasksGrouped(Long fagsakId, Long behandlingId, String gruppe) {
-        var tasks = fagsakProsessTaskRepository.sjekkStatusProsessTasks(fagsakId, behandlingId, gruppe);
+    private Map<String, List<ProsessTaskData>> sjekkStatusProsessTasksGrouped(Saksnummer saksnummer, Long behandlingId, String gruppe) {
+        var tasks = fagsakProsessTaskRepository.sjekkStatusProsessTasks(saksnummer, behandlingId, gruppe);
         return tasks.stream().collect(Collectors.groupingBy(ProsessTaskData::getGruppe));
     }
 

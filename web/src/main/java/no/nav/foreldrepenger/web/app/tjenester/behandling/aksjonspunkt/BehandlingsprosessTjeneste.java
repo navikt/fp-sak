@@ -119,7 +119,7 @@ public class BehandlingsprosessTjeneste {
     private String asynkInnhentingAvRegisteropplysningerOgKjørProsess(Behandling behandling) {
         return behandlingProsesseringTjeneste.finnesTasksForPolling(behandling).orElseGet(() -> {
             var gruppe = behandlingProsesseringTjeneste.lagOppdaterFortsettTasksForPolling(behandling);
-            return prosesseringAsynkTjeneste.lagreNyGruppeKunHvisIkkeAlleredeFinnesOgIngenHarFeilet(behandling.getFagsakId(), behandling.getId(),
+            return prosesseringAsynkTjeneste.lagreNyGruppeKunHvisIkkeAlleredeFinnesOgIngenHarFeilet(behandling.getSaksnummer(), behandling.getId(),
                 gruppe);
         });
     }
@@ -142,7 +142,7 @@ public class BehandlingsprosessTjeneste {
         var behandlingId = behandling.getId();
 
         var nesteTask = prosesseringAsynkTjeneste.sjekkProsessTaskPågårForBehandling(behandling, gruppe);
-        return new VurderProsessTaskStatusForPollingApi(behandlingId).sjekkStatusNesteProsessTask(gruppe, nesteTask);
+        return new VurderProsessTaskStatusForPollingApi(behandlingId.toString()).sjekkStatusNesteProsessTask(gruppe, nesteTask);
 
     }
 
@@ -184,7 +184,7 @@ public class BehandlingsprosessTjeneste {
 
         opprettHistorikkinnslagForBehandlingStartetPåNytt(behandling);
 
-        return prosesseringAsynkTjeneste.lagreNyGruppeKunHvisIkkeAlleredeFinnesOgIngenHarFeilet(behandling.getFagsakId(), behandling.getId(), gruppe);
+        return prosesseringAsynkTjeneste.lagreNyGruppeKunHvisIkkeAlleredeFinnesOgIngenHarFeilet(behandling.getSaksnummer(), behandling.getId(), gruppe);
     }
 
     /**
