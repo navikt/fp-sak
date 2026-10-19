@@ -27,9 +27,6 @@ public class FagsakProsessTask extends BaseEntitet {
     @AttributeOverride(name = "saksnummer", column = @Column(name = "saksnummer"))
     private Saksnummer saksnummer;
 
-    @Column(name = "fagsak_id", updatable = false)
-    private Long fagsakId;
-
     @Column(name = "prosess_task_id", nullable = false, updatable = false)
     private Long prosessTaskId;
 
@@ -47,9 +44,8 @@ public class FagsakProsessTask extends BaseEntitet {
         // Hibernate trenger en
     }
 
-    public FagsakProsessTask(Saksnummer saksnummer, Long fagsakId, Long prosessTaskId, Long behandlingId, Long gruppeSekvensNr) {
+    public FagsakProsessTask(Saksnummer saksnummer, Long prosessTaskId, Long behandlingId, Long gruppeSekvensNr) {
         this.saksnummer = saksnummer;
-        this.fagsakId = fagsakId;
         this.prosessTaskId = prosessTaskId;
         this.behandlingId = behandlingId;
         this.gruppeSekvensNr = gruppeSekvensNr;
@@ -57,10 +53,6 @@ public class FagsakProsessTask extends BaseEntitet {
 
     public Saksnummer getSaksnummer() {
         return saksnummer;
-    }
-
-    public Long getFagsakId() {
-        return fagsakId;
     }
 
     public Long getProsessTaskId() {
@@ -84,20 +76,20 @@ public class FagsakProsessTask extends BaseEntitet {
             return false;
         }
         return Objects.equals(prosessTaskId, other.prosessTaskId)
-            && Objects.equals(fagsakId, other.fagsakId)
+            && Objects.equals(saksnummer, other.saksnummer)
             && Objects.equals(behandlingId, other.behandlingId);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(prosessTaskId, fagsakId, behandlingId);
+        return Objects.hash(prosessTaskId, saksnummer, behandlingId);
     }
 
     @Override
     public String toString() {
         return getClass().getSimpleName() + "<"
             + "prosessTask=" + prosessTaskId
-            + ", fagsak=" + fagsakId
+            + ", fagsak=" + saksnummer
             + (behandlingId == null ? "" : ", behandling=" + behandlingId)
             + (gruppeSekvensNr == null ? "" : ", gruppeSekvensNr=" + gruppeSekvensNr)
             + ">";
