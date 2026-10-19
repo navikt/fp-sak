@@ -77,7 +77,7 @@ public class SendInformasjonsbrevPåminnelseTask implements ProsessTaskHandler {
 
     @Override
     public void doTask(ProsessTaskData prosessTaskData) {
-        var fagsakFar = fagsakRepository.finnEksaktFagsakReadOnly(new Saksnummer(prosessTaskData.getSaksnummer()));
+        var fagsakFar = fagsakRepository.finnEksaktFagsak(new Saksnummer(prosessTaskData.getSaksnummer()));
 
         var aktørId = fagsakFar.getAktørId();
         var bruker = hentPersonInfo(aktørId);
