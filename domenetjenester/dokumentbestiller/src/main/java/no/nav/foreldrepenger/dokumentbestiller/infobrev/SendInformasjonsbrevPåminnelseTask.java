@@ -20,24 +20,23 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakProsesstaskRekkefølge;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
+import no.nav.foreldrepenger.behandlingslager.task.FagsakProsessTask;
 import no.nav.foreldrepenger.behandlingsprosess.prosessering.BehandlingOpprettingTjeneste;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentBestillerTjeneste;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentBestilling;
 import no.nav.foreldrepenger.domene.person.PersoninfoAdapter;
 import no.nav.foreldrepenger.domene.typer.AktørId;
-import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.domene.uttak.saldo.StønadskontoSaldoTjeneste;
 import no.nav.foreldrepenger.produksjonsstyring.behandlingenhet.BehandlendeEnhetTjeneste;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.Stønadskontotype;
 import no.nav.vedtak.exception.TekniskException;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
-import no.nav.vedtak.felles.prosesstask.api.ProsessTaskHandler;
 
 @ApplicationScoped
 @ProsessTask(value = "opprettsak.informasjonsbrevPåminnelse", prioritet = 3)
 @FagsakProsesstaskRekkefølge(gruppeSekvens = true)
-public class SendInformasjonsbrevPåminnelseTask implements ProsessTaskHandler {
+public class SendInformasjonsbrevPåminnelseTask extends FagsakProsessTask {
 
     private static final Logger LOG = LoggerFactory.getLogger(SendInformasjonsbrevPåminnelseTask.class);
 
@@ -64,6 +63,7 @@ public class SendInformasjonsbrevPåminnelseTask implements ProsessTaskHandler {
                                               UttakInputTjeneste uttakInputTjeneste,
                                               StønadskontoSaldoTjeneste stønadskontoSaldoTjeneste,
                                               RelatertBehandlingTjeneste relatertBehandlingTjeneste) {
+        super(repositoryProvider.getFagsakLåsRepository(), repositoryProvider.getBehandlingLåsRepository());
         this.behandlingOpprettingTjeneste = behandlingOpprettingTjeneste;
         this.behandlendeEnhetTjeneste = behandlendeEnhetTjeneste;
         this.personinfoAdapter = personinfoAdapter;
@@ -76,8 +76,8 @@ public class SendInformasjonsbrevPåminnelseTask implements ProsessTaskHandler {
     }
 
     @Override
-    public void doTask(ProsessTaskData prosessTaskData) {
-        var fagsakFar = fagsakRepository.finnEksaktFagsak(new Saksnummer(prosessTaskData.getSaksnummer()));
+    public void prosesser(ProsessTaskData prosessTaskData, Long fagsakId) {
+        var fagsakFar = fagsakRepository.finnEksaktFagsak(fagsakId);
 
         var aktørId = fagsakFar.getAktørId();
         var bruker = hentPersonInfo(aktørId);
