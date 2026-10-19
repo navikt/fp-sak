@@ -69,9 +69,8 @@ public class FagsakTjeneste {
 
         var fagsak = hentFagsakForSaksnummer(saksnummer);
         if (fagsak.isPresent()) {
-            var fagsakId = fagsak.get().getId();
-            var nesteTask = prosesseringAsynkTjeneste.sjekkProsessTaskPågår(fagsakId, null, gruppe);
-            return new VurderProsessTaskStatusForPollingApi(fagsakId).sjekkStatusNesteProsessTask(gruppe, nesteTask);
+            var nesteTask = prosesseringAsynkTjeneste.sjekkProsessTaskPågår(saksnummer, null, gruppe);
+            return new VurderProsessTaskStatusForPollingApi(saksnummer.getVerdi()).sjekkStatusNesteProsessTask(gruppe, nesteTask);
         }
         return Optional.empty();
     }
