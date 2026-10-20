@@ -1,0 +1,57 @@
+package no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto;
+
+import jakarta.validation.constraints.Digits;
+import jakarta.validation.constraints.NotNull;
+import jakarta.ws.rs.QueryParam;
+
+import no.nav.foreldrepenger.behandlingslager.behandling.DokumentTypeId;
+import no.nav.foreldrepenger.validering.ValidKodeverk;
+import no.nav.foreldrepenger.web.server.abac.AppAbacAttributtType;
+import no.nav.vedtak.sikkerhet.abac.AbacDataAttributter;
+import no.nav.vedtak.sikkerhet.abac.AbacDto;
+
+public class SaksnummerJournalpostDokumenttypeDto implements AbacDto {
+
+    @NotNull
+    @QueryParam("saksnummer")
+    @Digits(integer = 18, fraction = 0)
+    private String saksnummer;
+
+    @NotNull
+    @QueryParam("journalpostid")
+    @Digits(integer = 18, fraction = 0)
+    private String journalpostId;
+
+    @NotNull
+    @QueryParam("dokumentTypeId")
+    @ValidKodeverk
+    private DokumentTypeId dokumentTypeId;
+
+    public SaksnummerJournalpostDokumenttypeDto(@NotNull String saksnummer, @NotNull String journalpostId, @NotNull DokumentTypeId dokumentTypeId) {
+        this.saksnummer = saksnummer;
+        this.journalpostId = journalpostId;
+        this.dokumentTypeId = dokumentTypeId;
+    }
+
+    public SaksnummerJournalpostDokumenttypeDto() {
+    }
+
+    @Override
+    public AbacDataAttributter abacAttributter() {
+        return AbacDataAttributter.opprett()
+            .leggTil(AppAbacAttributtType.SAKSNUMMER, saksnummer)
+            .leggTil(AppAbacAttributtType.JOURNALPOST_ID, journalpostId);
+    }
+
+    public String getSaksnummer() {
+        return saksnummer;
+    }
+
+    public String getJournalpostId() {
+        return journalpostId;
+    }
+
+    public DokumentTypeId getDokumentTypeId() {
+        return dokumentTypeId;
+    }
+}

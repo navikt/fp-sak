@@ -38,7 +38,7 @@ import no.nav.foreldrepenger.web.app.tjenester.fordeling.OpprettSakTjeneste;
 import no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.MottaPapirsøknadDto;
 import no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.SaksnummerAnnenpartIdentDto;
 import no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.SaksnummerFødselsdatoDto;
-import no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.SaksnummerJournalpostDto;
+import no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.SaksnummerJournalpostDokumenttypeDto;
 import no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.SaksnummerTermindatoDto;
 import no.nav.vedtak.sikkerhet.abac.BeskyttetRessurs;
 import no.nav.vedtak.sikkerhet.abac.beskyttet.ActionType;
@@ -242,12 +242,14 @@ public class ForvaltningSøknadRestTjeneste {
     }
 
     @POST
-    @Path("/fjernFeilInntektsmelding")
+    @Path("/fjernFeilMottattDokument")
     @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
     @Operation(description = "Fjern inntektsmelding som har blitt kopiert til feil sak", tags = "FORVALTNING-søknad")
     @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.DRIFT, sporingslogg = true)
-    public Response fjernFeilInntektsmelding(@BeanParam @Valid SaksnummerJournalpostDto dto) {
-        mottatteDokumentRepository.fjernFeilinnsendtDokument(new JournalpostId(dto.getJournalpostId()), DokumentTypeId.INNTEKTSMELDING);
+    public Response fjernFeilMottattDokument(@BeanParam @Valid SaksnummerJournalpostDokumenttypeDto dto) {
+        var fagsak = fagsakRepository.finnEksaktFagsak(new Saksnummer(dto.getSaksnummer()));
+        mottatteDokumentRepository.fjernFeilinnsendtDokument(fagsak, new JournalpostId(dto.getJournalpostId()), dto.getDokumentTypeId());
+
         return Response.ok().build();
     }
 
