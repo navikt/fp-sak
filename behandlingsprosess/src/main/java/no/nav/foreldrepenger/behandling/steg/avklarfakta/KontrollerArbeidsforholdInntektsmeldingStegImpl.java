@@ -63,7 +63,7 @@ class KontrollerArbeidsforholdInntektsmeldingStegImpl implements KontrollerArbei
         arbeidsforholdInntektsmeldingMangelTjeneste.ryddVekkUgyldigeArbeidsforholdoverstyringer(ref);
 
         List<AksjonspunktResultat> aksjonspuntker = new ArrayList<>(utleder.utledAksjonspunkterFor(new AksjonspunktUtlederInput(ref, skjæringstidspunkter)));
-        if (fpInntektsmeldingTjeneste.erToggleForNyInnsendingPå() && (ref.behandlingType().equals(BehandlingType.FØRSTEGANGSSØKNAD) || !aksjonspuntker.isEmpty())) {
+        if (fpInntektsmeldingTjeneste.erToggleForNyInnsendingPå()) {
             fpInntektsmeldingTjeneste.lagTaskForespørAlleInntektsmeldinger(ref);
         }
         return BehandleStegResultat.utførtMedAksjonspunktResultater(aksjonspuntker);

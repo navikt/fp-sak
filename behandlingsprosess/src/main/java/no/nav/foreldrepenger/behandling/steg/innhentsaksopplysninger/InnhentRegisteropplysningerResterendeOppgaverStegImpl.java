@@ -101,7 +101,7 @@ public class InnhentRegisteropplysningerResterendeOppgaverStegImpl implements Be
 
             var etterlysIM = kompletthetsjekker.vurderEtterlysningInntektsmelding(ref, skjæringstidspunkter);
             if (!etterlysIM.erOppfylt()) {
-                if (fpInntektsmeldingTjeneste.erToggleForNyInnsendingPå() && ref.behandlingType().equals(BehandlingType.FØRSTEGANGSSØKNAD)) {
+                if (fpInntektsmeldingTjeneste.erToggleForNyInnsendingPå()) {
                     fpInntektsmeldingTjeneste.lagTaskForespørAlleInntektsmeldinger(ref);
                 }
                 etterlysInntektsmeldingTjeneste.etterlysInntektsmeldingHvisIkkeAlleredeSendt(ref); // Etterlys inntektsmelding alltid ved mangler!
