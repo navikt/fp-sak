@@ -10,6 +10,7 @@ import jakarta.persistence.EntityManager;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.DokumentTypeId;
 import no.nav.foreldrepenger.behandlingslager.behandling.MottattDokument;
+import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.domene.typer.JournalpostId;
 import no.nav.vedtak.felles.jpa.HibernateVerktøy;
 
@@ -97,10 +98,11 @@ public class MottatteDokumentRepository {
             .executeUpdate();
     }
 
-    public void fjernFeilinnsendtDokument(JournalpostId journalpostId, DokumentTypeId dokumentTypeId) {
+    public void fjernFeilinnsendtDokument(Fagsak fagsak, JournalpostId journalpostId, DokumentTypeId dokumentTypeId) {
         entityManager.createQuery(
-                "delete from MottattDokument m where m.journalpostId = :journalpostId and m.dokumentTypeId = :dokumentTypeId")
+                "delete from MottattDokument m where m.journalpostId = :journalpostId and m.fagsakId = :fagsakId and m.dokumentTypeId = :dokumentTypeId")
             .setParameter("journalpostId", journalpostId)
+            .setParameter("fagsakId", fagsak.getId())
             .setParameter("dokumentTypeId", dokumentTypeId)
             .executeUpdate();
     }
