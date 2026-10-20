@@ -119,33 +119,22 @@ public class InntektsmeldingRegisterTjeneste {
     public Map<Arbeidsgiver, Set<InternArbeidsforholdRef>> utledManglendeInntektsmeldingerFraGrunnlag(BehandlingReferanse referanse,
         Skjæringstidspunkt stp) {
         // Sjekk pr arbeidsforhold slik at saksbehandler kan avklare alle arbeidsforhold
-        return internUtledManglendeInntektsmeldinger(referanse, stp, true, true);
-    }
-
-    /**
-     *
-     * @param referanse behandlingen
-     * @param stp behandlingens skjæringstidspunkt
-     * @return utleder alle påkrevde inntektsmeldinger for behandlingen, uten å ta hensyn til om inntektsmeldingene har kommet eller ikke.
-     * Brukes til å sende en komplett liste over alle påkrevde inntektsmeldinger til fpinntektsmelding
-     */
-    public Set<Arbeidsgiver> utledAllePåKrevdeInntektsmeldinger(BehandlingReferanse referanse, Skjæringstidspunkt stp) {
-        return internUtledManglendeInntektsmeldinger(referanse, stp, false, false).keySet();
+        return internUtledManglendeInntektsmeldinger(referanse, stp, true);
     }
 
     public Set<Arbeidsgiver> utledManglendeInntektsmeldingerForKompletthet(BehandlingReferanse referanse, Skjæringstidspunkt stp) {
         // Sjekker pr arbeidsgiver, ikke pr arbeidsforhold, slik at tilfelle med flere arbeidsforhold for samme arbeidsgiver
         // der det har kommet 1 inntektsmelding med arbeidsforhold ikke blir liggende på vent, men går til avklaring
-        return internUtledManglendeInntektsmeldinger(referanse, stp, false, true).keySet();
+        return internUtledManglendeInntektsmeldinger(referanse, stp, false).keySet();
     }
 
     private Map<Arbeidsgiver, Set<InternArbeidsforholdRef>> internUtledManglendeInntektsmeldinger(BehandlingReferanse referanse,
                                                                                                   Skjæringstidspunkt stp,
-                                                                                                  boolean prArbeidsforhold,
-                                                                                                  boolean hensyntaMottatteInntektsmeldinger) {
+                                                                                                  boolean prArbeidsforhold) {
         Objects.requireNonNull(referanse, VALID_REF);
         LOG.info("Utleder manglende inntektsmeldinger på skjæringstidspunkt {} for behandling {}", stp.getUtledetSkjæringstidspunkt(), referanse.behandlingId());
         var inntektArbeidYtelseGrunnlag = inntektArbeidYtelseTjeneste.finnGrunnlag(referanse.behandlingId());
+
         var påkrevdeInntektsmeldinger = utledPåkrevdeInntektsmeldingerFraGrunnlag(referanse, stp, inntektArbeidYtelseGrunnlag);
         logInntektsmeldinger(referanse, påkrevdeInntektsmeldinger, "UFILTRERT");
 
@@ -155,10 +144,8 @@ public class InntektsmeldingRegisterTjeneste {
         var påkrevdListeAktiveArbeidsforhold = aktiveArbeidsforholdFilter(referanse, stp, inntektArbeidYtelseGrunnlag, påkrevdListeSøkteArbeidsforhold);
         logInntektsmeldinger(referanse, påkrevdListeAktiveArbeidsforhold, "FILTRERT bort inaktive arbeidsforhold");
 
-        if (hensyntaMottatteInntektsmeldinger) {
-            filtrerUtMottatteInntektsmeldinger(referanse, stp, inntektArbeidYtelseGrunnlag, påkrevdListeAktiveArbeidsforhold, prArbeidsforhold);
-            logInntektsmeldinger(referanse, påkrevdListeAktiveArbeidsforhold, "FILTRERT bort arbeidsforhold vi har mottatt inntektsmelding på");
-        }
+        filtrerUtMottatteInntektsmeldinger(referanse, stp, inntektArbeidYtelseGrunnlag, påkrevdListeAktiveArbeidsforhold, prArbeidsforhold);
+        logInntektsmeldinger(referanse, påkrevdListeAktiveArbeidsforhold, "FILTRERT bort arbeidsforhold vi har mottatt inntektsmelding på");
 
         return påkrevdListeAktiveArbeidsforhold;
     }

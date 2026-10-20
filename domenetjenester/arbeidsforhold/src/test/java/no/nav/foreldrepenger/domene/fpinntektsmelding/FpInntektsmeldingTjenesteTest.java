@@ -17,6 +17,8 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 
+import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -37,6 +39,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.Relasj
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Virksomhet;
+import no.nav.foreldrepenger.domene.arbeidsforhold.InntektsmeldingTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsforhold.impl.InntektsmeldingRegisterTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsgiver.ArbeidsgiverTjeneste;
 import no.nav.foreldrepenger.domene.iay.modell.InntektsmeldingBuilder;
@@ -66,11 +69,14 @@ class FpInntektsmeldingTjenesteTest {
     private ArbeidsgiverTjeneste arbeidsgiverTjeneste;
     @Mock
     private InntektsmeldingRegisterTjeneste inntektsmeldingRegisterTjeneste;
+    @Mock
+    private InntektsmeldingTjeneste inntektsmeldingTjeneste;
     private FpInntektsmeldingTjeneste fpInntektsmeldingTjeneste;
 
     @BeforeEach
     void setup() {
-        fpInntektsmeldingTjeneste = new FpInntektsmeldingTjeneste(klient, taskTjeneste, skjæringstidspunktTjeneste, historikkRepository, arbeidsgiverTjeneste, inntektsmeldingRegisterTjeneste);
+        fpInntektsmeldingTjeneste = new FpInntektsmeldingTjeneste(klient, taskTjeneste, skjæringstidspunktTjeneste, historikkRepository,
+            arbeidsgiverTjeneste, inntektsmeldingRegisterTjeneste, inntektsmeldingTjeneste);
     }
 
     @Test
@@ -219,7 +225,7 @@ class FpInntektsmeldingTjenesteTest {
 
         var respons = new OpprettForespørselRespons(List.of(new OpprettForespørselRespons.OrganisasjonsnummerMedStatus(
             new OrganisasjonsnummerDto(virksomhet.getOrgnr()), OpprettForespørselRespons.ForespørselResultat.FORESPØRSEL_OPPRETTET)));
-        mockAlleForespørsler(behandlingRef, stpp, Set.of(virksomhet), respons);
+        mockAlleForespørsler(behandlingRef, stpp, Map.of(virksomhet, Set.of(InternArbeidsforholdRef.nullRef())), respons);
         when(arbeidsgiverTjeneste.hentVirksomhet(virksomhet.getIdentifikator())).thenReturn(Virksomhet.getBuilder().medOrgnr(virksomhet.getIdentifikator()).medNavn("Testbedrift").build());
         // Act
         fpInntektsmeldingTjeneste.lagForespørselForAlleArbeidsgivere(behandlingRef, stpp);
@@ -227,7 +233,8 @@ class FpInntektsmeldingTjenesteTest {
         // Assert
         var organisasjonsnumre = List.of(new OrganisasjonsnummerDto(virksomhet.getOrgnr()));
         verify(klient).opprettForespørselKomplett(new OpprettKomplettForespørslerRequest(new AktørIdDto(behandlingRef.aktørId().getId()),
-            stp, FpInntektsmeldingYtelse.FORELDREPENGER, new SaksnummerDto("1234"), stp, organisasjonsnumre));
+            stp, FpInntektsmeldingYtelse.FORELDREPENGER, new SaksnummerDto("1234"), stp,
+            List.of(new OrganisasjonsnummerMedStatusDto(organisasjonsnumre.getFirst(), false)), organisasjonsnumre));
         verifyNoMoreInteractions(klient);
         var captor = ArgumentCaptor.forClass(Historikkinnslag.class);
         verify(historikkRepository).lagre(captor.capture());
@@ -258,7 +265,7 @@ class FpInntektsmeldingTjenesteTest {
         var organisasjonsnummer = new OrganisasjonsnummerDto(virksomhet.getOrgnr());
         verify(klient).opprettSpesifikkForespørsel(new OpprettEnForespørselRequest(new AktørIdDto(behandlingRef.aktørId().getId()), stp,
             FpInntektsmeldingYtelse.FORELDREPENGER, new SaksnummerDto("1234"), stp, organisasjonsnummer,
-            new OpprettEnForespørselRequest.OrganisasjonsnummerMedStatusDto(organisasjonsnummer, false)));
+            new OrganisasjonsnummerMedStatusDto(organisasjonsnummer, false)));
         verifyNoMoreInteractions(klient);
         verify(historikkRepository).lagre(any());
     }
@@ -272,15 +279,14 @@ class FpInntektsmeldingTjenesteTest {
         var skjæringstidspunkt = Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(stp).medFørsteUttaksdato(stp).build();
         var organisasjonsnummer = new OrganisasjonsnummerDto(virksomhet.getOrgnr());
         when(klient.opprettSpesifikkForespørsel(any())).thenReturn(new OpprettForespørselRespons.OrganisasjonsnummerMedStatus(
-            organisasjonsnummer, OpprettForespørselRespons.ForespørselResultat.FORESPØRSEL_OPPRETTET));
-        when(arbeidsgiverTjeneste.hentVirksomhet(virksomhet.getIdentifikator()))
-            .thenReturn(Virksomhet.getBuilder().medOrgnr(virksomhet.getIdentifikator()).medNavn("Testbedrift").build());
+            organisasjonsnummer, OpprettForespørselRespons.ForespørselResultat.LUKKET_FORESPØRSEL_OPPRETTET));
 
         fpInntektsmeldingTjeneste.lagForespørselForBestemtArbeidsgiver(behandlingRef, skjæringstidspunkt, virksomhet, true);
 
         verify(klient).opprettSpesifikkForespørsel(new OpprettEnForespørselRequest(new AktørIdDto(behandlingRef.aktørId().getId()), stp,
             FpInntektsmeldingYtelse.FORELDREPENGER, new SaksnummerDto("1234"), stp, organisasjonsnummer,
-            new OpprettEnForespørselRequest.OrganisasjonsnummerMedStatusDto(organisasjonsnummer, true)));
+            new OrganisasjonsnummerMedStatusDto(organisasjonsnummer, true)));
+        verifyNoInteractions(historikkRepository, arbeidsgiverTjeneste);
     }
 
     @Test
@@ -290,7 +296,9 @@ class FpInntektsmeldingTjenesteTest {
         var virksomhet = Arbeidsgiver.virksomhet("999999999");
         var virksomhet2 = Arbeidsgiver.virksomhet("123456789");
 
-        var imer = Set.of(Arbeidsgiver.virksomhet(virksomhet.getOrgnr()), Arbeidsgiver.virksomhet(virksomhet2.getOrgnr()));
+        var imer = Map.of(
+            virksomhet, Set.of(InternArbeidsforholdRef.nullRef()),
+            virksomhet2, Set.of(InternArbeidsforholdRef.nullRef()));
 
         var behandlingRef = new BehandlingReferanse(new Saksnummer("1234"), 1234L, FagsakYtelseType.FORELDREPENGER, 4321L, UUID.randomUUID(),
             BehandlingStatus.UTREDES, BehandlingType.FØRSTEGANGSSØKNAD, 5432L, new AktørId("9999999999999"), RelasjonsRolleType.MORA);
@@ -358,7 +366,9 @@ class FpInntektsmeldingTjenesteTest {
                 OpprettForespørselRespons.ForespørselResultat.FORESPØRSEL_OPPRETTET),
             new OpprettForespørselRespons.OrganisasjonsnummerMedStatus(new OrganisasjonsnummerDto(virksomhet2.getOrgnr()),
                 OpprettForespørselRespons.ForespørselResultat.FORESPØRSEL_ENDRET)));
-        var arbeidsgivere = Set.of(virksomhet, virksomhet2);
+        var arbeidsgivere = Map.of(
+            virksomhet, Set.of(InternArbeidsforholdRef.nullRef()),
+            virksomhet2, Set.of(InternArbeidsforholdRef.nullRef()));
         mockAlleForespørsler(behandlingRef, skjæringstidspunkt, arbeidsgivere, respons);
         when(arbeidsgiverTjeneste.hentVirksomhet(virksomhet.getIdentifikator()))
             .thenReturn(Virksomhet.getBuilder().medOrgnr(virksomhet.getIdentifikator()).medNavn("Testbedrift").build());
@@ -378,8 +388,10 @@ class FpInntektsmeldingTjenesteTest {
             "Forespørsel til arbeidsgiver er oppdatert, ny startdato for foreldrepenger er 02.09.2024.");
     }
 
-    @Test
-    void skal_ikke_opprettet_historikk_når_ny_oppgave_ikke_ble_opprettet() {
+    @ParameterizedTest
+    @EnumSource(value = OpprettForespørselRespons.ForespørselResultat.class,
+        names = {"IKKE_OPPRETTET_FINNES_ALLEREDE", "LUKKET_FORESPØRSEL_OPPRETTET"})
+    void skal_ikke_opprettet_historikk_når_ny_oppgave_ikke_ble_opprettet(OpprettForespørselRespons.ForespørselResultat status) {
         // Arrange
         var stp = LocalDate.of(2024,9,1);
         var virksomhet = Arbeidsgiver.virksomhet("999999999");
@@ -388,20 +400,23 @@ class FpInntektsmeldingTjenesteTest {
             BehandlingStatus.UTREDES, BehandlingType.FØRSTEGANGSSØKNAD, 5432L, new AktørId("9999999999999"), RelasjonsRolleType.MORA);
         var stpp = Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(stp).medFørsteUttaksdato(stp.plusDays(1)).build();
         var respons = new OpprettForespørselRespons(List.of(new OpprettForespørselRespons.OrganisasjonsnummerMedStatus(
-            new OrganisasjonsnummerDto(virksomhet.getOrgnr()), OpprettForespørselRespons.ForespørselResultat.IKKE_OPPRETTET_FINNES_ALLEREDE)));
-        mockAlleForespørsler(behandlingRef, stpp, Set.of(virksomhet), respons);
+            new OrganisasjonsnummerDto(virksomhet.getOrgnr()), status)));
+        mockAlleForespørsler(behandlingRef, stpp, Map.of(virksomhet, Set.of(InternArbeidsforholdRef.nullRef())), respons);
         // Act
         fpInntektsmeldingTjeneste.lagForespørselForAlleArbeidsgivere(behandlingRef, stpp);
 
         // Assert
-        verify(historikkRepository, times(0)).lagre(any());
+        verifyNoInteractions(historikkRepository, arbeidsgiverTjeneste);
     }
 
     @Test
     void skal_serialisere_komplett_forespørsel_med_organisasjonsnummer() {
+        var orgnummer = new OrganisasjonsnummerDto("999999999");
+        var orgnummer2 = new OrganisasjonsnummerDto("123456789");
         var request = new OpprettKomplettForespørslerRequest(new AktørIdDto("9999999999999"), LocalDate.of(2024, 9, 1),
             FpInntektsmeldingYtelse.FORELDREPENGER, new SaksnummerDto("1234"), LocalDate.of(2024, 9, 5),
-            List.of(new OrganisasjonsnummerDto("999999999"), new OrganisasjonsnummerDto("123456789")));
+            List.of(new OrganisasjonsnummerMedStatusDto(orgnummer, true), new OrganisasjonsnummerMedStatusDto(orgnummer2, false)),
+            List.of(orgnummer, orgnummer2));
 
         var json = DefaultJsonMapper.treeFromJson(DefaultJsonMapper.toJson(request));
 
@@ -412,6 +427,10 @@ class FpInntektsmeldingTjenesteTest {
               "ytelsetype": "FORELDREPENGER",
               "fagsakSaksnummer": "1234",
               "førsteUttaksdato": "2024-09-05",
+              "organisasjonsnummerMedStatus": [
+                {"orgnummer": "999999999", "erInntektsmeldingMottatt": true},
+                {"orgnummer": "123456789", "erInntektsmeldingMottatt": false}
+              ],
               "organisasjonsnummer": ["999999999", "123456789"]
             }
             """));
@@ -423,7 +442,7 @@ class FpInntektsmeldingTjenesteTest {
         var organisasjonsnummer = new OrganisasjonsnummerDto("999999999");
         var request = new OpprettEnForespørselRequest(new AktørIdDto("9999999999999"), LocalDate.of(2024, 9, 1),
             FpInntektsmeldingYtelse.FORELDREPENGER, new SaksnummerDto("1234"), LocalDate.of(2024, 9, 5), organisasjonsnummer,
-            new OpprettEnForespørselRequest.OrganisasjonsnummerMedStatusDto(organisasjonsnummer, erInntektsmeldingMottatt));
+            new OrganisasjonsnummerMedStatusDto(organisasjonsnummer, erInntektsmeldingMottatt));
 
         var json = DefaultJsonMapper.treeFromJson(DefaultJsonMapper.toJson(request));
 
@@ -490,9 +509,42 @@ class FpInntektsmeldingTjenesteTest {
     }
 
     private void mockAlleForespørsler(BehandlingReferanse ref, Skjæringstidspunkt stp,
-                                    Set<Arbeidsgiver> arbeidsgivere, OpprettForespørselRespons respons) {
-        when(inntektsmeldingRegisterTjeneste.utledAllePåKrevdeInntektsmeldinger(ref, stp)).thenReturn(arbeidsgivere);
+                                      Map<Arbeidsgiver, Set<InternArbeidsforholdRef>> arbeidsgivere, OpprettForespørselRespons respons) {
+        when(inntektsmeldingRegisterTjeneste.hentAllePåkrevdeInntektsmeldinger(ref, stp)).thenReturn(arbeidsgivere);
+        when(inntektsmeldingTjeneste.hentInntektsmeldinger(ref, stp.getUtledetSkjæringstidspunkt())).thenReturn(List.of());
         when(klient.opprettForespørselKomplett(any())).thenReturn(respons);
+    }
+
+    @Test
+    void komplett_forespørsel_skal_angi_mottatt_status_for_hver_arbeidsgiver() {
+        var dato = LocalDate.of(2024, 9, 1);
+        var medMottattIM = Arbeidsgiver.virksomhet("974760673");
+        var utenMottattIM = Arbeidsgiver.virksomhet("450674427");
+        var ref = new BehandlingReferanse(new Saksnummer("1234"), 1234L, FagsakYtelseType.FORELDREPENGER, 4321L, UUID.randomUUID(),
+            BehandlingStatus.UTREDES, BehandlingType.FØRSTEGANGSSØKNAD, 5432L, new AktørId("9999999999999"), RelasjonsRolleType.MORA);
+        var stp = Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(dato).medFørsteUttaksdato(dato).build();
+        var orgnummerMedIM = new OrganisasjonsnummerDto(medMottattIM.getOrgnr());
+        var orgnummerUtenIM = new OrganisasjonsnummerDto(utenMottattIM.getOrgnr());
+        when(inntektsmeldingRegisterTjeneste.hentAllePåkrevdeInntektsmeldinger(ref, stp)).thenReturn(Map.of(
+            medMottattIM, Set.of(InternArbeidsforholdRef.nyRef(), InternArbeidsforholdRef.nyRef()),
+            utenMottattIM, Set.of(InternArbeidsforholdRef.nyRef())));
+        when(inntektsmeldingTjeneste.hentInntektsmeldinger(ref, dato)).thenReturn(List.of(
+            InntektsmeldingBuilder.builder().medArbeidsgiver(medMottattIM).build()));
+        when(klient.opprettForespørselKomplett(any())).thenReturn(new OpprettForespørselRespons(List.of(
+            new OpprettForespørselRespons.OrganisasjonsnummerMedStatus(orgnummerMedIM,
+                OpprettForespørselRespons.ForespørselResultat.IKKE_OPPRETTET_FINNES_ALLEREDE),
+            new OpprettForespørselRespons.OrganisasjonsnummerMedStatus(orgnummerUtenIM,
+                OpprettForespørselRespons.ForespørselResultat.IKKE_OPPRETTET_FINNES_ALLEREDE))));
+
+        fpInntektsmeldingTjeneste.lagForespørselForAlleArbeidsgivere(ref, stp);
+
+        var captor = ArgumentCaptor.forClass(OpprettKomplettForespørslerRequest.class);
+        verify(klient).opprettForespørselKomplett(captor.capture());
+        assertThat(captor.getValue().organisasjonsnummer()).containsExactlyInAnyOrder(orgnummerMedIM, orgnummerUtenIM);
+        assertThat(captor.getValue().organisasjonsnummerMedStatus()).containsExactlyInAnyOrder(
+            new OrganisasjonsnummerMedStatusDto(orgnummerMedIM, true),
+            new OrganisasjonsnummerMedStatusDto(orgnummerUtenIM, false));
+        verify(inntektsmeldingTjeneste).hentInntektsmeldinger(ref, dato);
     }
 
     @Test

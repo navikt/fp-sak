@@ -11,7 +11,4 @@ public record OpprettEnForespørselRequest(@NotNull @Valid AktørIdDto aktørId,
                                           @NotNull @Valid SaksnummerDto fagsakSaksnummer,
                                           @Valid LocalDate førsteUttaksdato,
                                           @NotNull @Valid OrganisasjonsnummerDto orgnummer,
-                                          @NotNull @Valid OrganisasjonsnummerMedStatusDto organisasjonsnummerMedStatus) {
-    public record OrganisasjonsnummerMedStatusDto(@NotNull @Valid OrganisasjonsnummerDto orgnummer, boolean erInntektsmeldingMottatt) {
-    }
-}
+                                          @NotNull @Valid OrganisasjonsnummerMedStatusDto organisasjonsnummerMedStatus) {}
