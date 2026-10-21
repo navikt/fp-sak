@@ -230,6 +230,13 @@ public class FagsakRepository {
         entityManager.flush();
     }
 
+    public void fagsakSkalGjenåpnesForBruk(Long fagsakId) {
+        var fagsak = finnEksaktFagsak(fagsakId);
+        fagsak.setStengt(false);
+        entityManager.persist(fagsak);
+        entityManager.flush();
+    }
+
     @SuppressWarnings("unchecked")
     public List<Fagsak> hentFagsakerRelevanteForAvslutning() {
          var query = (NativeQuery<Fagsak>) entityManager
