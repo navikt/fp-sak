@@ -113,4 +113,9 @@ class FagsakRepositoryStub extends FagsakRepository {
     public void fagsakSkalStengesForBruk(Long fagsakId) {
         throw new IkkeImplementertForTestException();
     }
+
+    @Override
+    public void fagsakSkalGjenåpnesForBruk(Long fagsakId) {
+        throw new IkkeImplementertForTestException();
+    }
 }
