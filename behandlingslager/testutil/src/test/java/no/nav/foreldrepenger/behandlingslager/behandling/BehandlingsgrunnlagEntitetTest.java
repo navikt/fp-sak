@@ -766,7 +766,7 @@ class BehandlingsgrunnlagEntitetTest extends EntityManagerAwareTest {
     }
 
     private Behandling lagBehandling() {
-        var fagsak = FagsakBuilder.nyEngangstønadForMor().build();
+        var fagsak = FagsakBuilder.nyEngangstønadForMor().medSaksnummer(fagsakRepository.genererNyttSaksnummer()).build();
         fagsakRepository.opprettNy(fagsak);
         var behandlingBuilder = Behandling.forFørstegangssøknad(fagsak);
         var behandling = behandlingBuilder.build();

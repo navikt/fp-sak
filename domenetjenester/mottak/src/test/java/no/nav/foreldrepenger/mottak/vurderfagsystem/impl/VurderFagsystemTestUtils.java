@@ -52,7 +52,7 @@ public class VurderFagsystemTestUtils {
 
     public static Fagsak fagsakFødselMedId(Long forventetFagsakId) {
 
-        var fagsak = Fagsak.opprettNy(FagsakYtelseType.ENGANGSTØNAD, BehandlingslagerTestUtil.lagNavBruker());
+        var fagsak = Fagsak.opprettNy(FagsakYtelseType.ENGANGSTØNAD, BehandlingslagerTestUtil.lagNavBruker(), new Saksnummer(forventetFagsakId * 2 + ""));
         fagsak.setId(forventetFagsakId);
         return fagsak;
     }

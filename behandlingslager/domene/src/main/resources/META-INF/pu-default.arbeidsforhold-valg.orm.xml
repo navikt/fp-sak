@@ -6,7 +6,7 @@
                  version="3.0">
 
     <!-- Sekvenser -->
-    <sequence-generator name="SEQ_ARBEID_KOMPLETT_VURDERING" allocation-size="50" sequence-name="SEQ_ARBEIDSFORHOLD_VALG"/>
+    <sequence-generator name="SEQ_ARBEIDSFORHOLD_VALG" allocation-size="50" sequence-name="SEQ_ARBEIDSFORHOLD_VALG"/>
 
     <!-- Entiteter -->
     <entity class="no.nav.foreldrepenger.behandlingslager.behandling.arbeidsforhold.ArbeidsforholdValg"/>

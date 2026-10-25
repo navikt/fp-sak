@@ -15,6 +15,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollKontekst;
 import no.nav.foreldrepenger.behandlingskontroll.events.BehandlingStatusEvent;
+import no.nav.foreldrepenger.behandlingslager.aktør.NavBruker;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStatus;
@@ -24,9 +25,10 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingsresultatRepo
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingLås;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
-import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.OrgNummer;
+import no.nav.foreldrepenger.domene.typer.AktørId;
+import no.nav.foreldrepenger.domene.typer.Saksnummer;
 
 @ExtendWith(MockitoExtension.class)
 class LukkForespørselObserverTest {
@@ -36,8 +38,6 @@ class LukkForespørselObserverTest {
     private BehandlingRepository behandlingRepository;
     @Mock
     private BehandlingsresultatRepository behandlingsresultatRepository;
-    @Mock
-    private FagsakRepository fagsakRepository;
 
     private LukkForespørselObserver lukkForespørselObserver;
 
@@ -48,7 +48,7 @@ class LukkForespørselObserverTest {
 
     @Test
     void observer_mottattImEvent() {
-        var fagsak = Fagsak.opprettNy(FagsakYtelseType.SVANGERSKAPSPENGER, null);
+        var fagsak = Fagsak.opprettNy(FagsakYtelseType.SVANGERSKAPSPENGER, NavBruker.opprettNyNB(AktørId.dummy()), new Saksnummer("123"));
         var behandling = Behandling.forFørstegangssøknad(fagsak).build();
         var orgnr = new OrgNummer(KUNSTIG_ORG);
 
@@ -61,7 +61,7 @@ class LukkForespørselObserverTest {
     }
     @Test
     void observer_behandling_avsluttet_event_skal_sette_forespørsel_utgått() {
-        var fagsak = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, null);
+        var fagsak = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, NavBruker.opprettNyNB(AktørId.dummy()), new Saksnummer("123"));
         var behandling = Behandling.forFørstegangssøknad(fagsak).build();
 
         var behandlingsres = new Behandlingsresultat.Builder().medBehandlingResultatType(BehandlingResultatType.MERGET_OG_HENLAGT).build();
@@ -78,7 +78,7 @@ class LukkForespørselObserverTest {
 
     @Test
     void observer_behandling_avsluttet_event_skal_ikke_sette_forespørsel_utgått() {
-        var fagsak = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, null);
+        var fagsak = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, NavBruker.opprettNyNB(AktørId.dummy()), new Saksnummer("123"));
         var behandling = Behandling.forFørstegangssøknad(fagsak).build();
 
         var behandlingsres = new Behandlingsresultat.Builder().medBehandlingResultatType(BehandlingResultatType.MERGET_OG_HENLAGT).build();

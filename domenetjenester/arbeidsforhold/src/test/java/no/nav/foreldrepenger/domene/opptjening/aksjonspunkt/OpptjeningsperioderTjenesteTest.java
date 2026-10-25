@@ -614,7 +614,7 @@ class OpptjeningsperioderTjenesteTest {
     }
 
     private Behandling opprettBehandling() {
-        var fagsak = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, NavBruker.opprettNyNB(AKTØRID));
+        var fagsak = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, NavBruker.opprettNyNB(AKTØRID), fagsakRepository.genererNyttSaksnummer());
         var fagsakId = fagsakRepository.opprettNy(fagsak);
         fagsakRepository.oppdaterRelasjonsRolle(fagsakId, RelasjonsRolleType.MORA);
         var builder = Behandling.forFørstegangssøknad(fagsak);

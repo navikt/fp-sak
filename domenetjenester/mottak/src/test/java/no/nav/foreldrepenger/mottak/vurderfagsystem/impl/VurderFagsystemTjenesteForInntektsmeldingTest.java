@@ -91,7 +91,7 @@ class VurderFagsystemTjenesteForInntektsmeldingTest {
     @Mock
     private NavBrukerTjeneste brukerTjeneste;
 
-    private final Fagsak fpFagsakUdefinert = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, lagNavBruker());
+    private final Fagsak fpFagsakUdefinert = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, lagNavBruker(), new Saksnummer("123456789"));
 
     @BeforeEach
     void setUp() {

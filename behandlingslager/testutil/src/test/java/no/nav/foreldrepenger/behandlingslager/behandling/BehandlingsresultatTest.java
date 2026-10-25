@@ -52,8 +52,9 @@ class BehandlingsresultatTest extends EntityManagerAwareTest {
     }
 
     private Behandling opprettBehandling() {
-        var fagsak = FagsakBuilder.nyEngangstønadForMor().build();
-        new FagsakRepository(getEntityManager()).opprettNy(fagsak);
+        var fagsakRepository = new FagsakRepository(getEntityManager());
+        var fagsak = FagsakBuilder.nyEngangstønadForMor().medSaksnummer(fagsakRepository.genererNyttSaksnummer()).build();
+        fagsakRepository.opprettNy(fagsak);
         var behandling = Behandling.forFørstegangssøknad(fagsak).build();
         behandlingRepository.lagre(behandling, new BehandlingLåsRepository(getEntityManager()).taLås(behandling.getId()));
         return behandling;

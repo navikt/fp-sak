@@ -253,7 +253,7 @@ class HendelseSorteringRepositoryTest extends EntityManagerAwareTest {
     }
 
     private Fagsak opprettFagsak(NavBruker bruker, FagsakYtelseType fagsakYtelseType) {
-        return Fagsak.opprettNy(fagsakYtelseType, bruker);
+        return Fagsak.opprettNy(fagsakYtelseType, bruker, fagsakRepository.genererNyttSaksnummer());
     }
 
     private Set<AktørId> genererFagsaker(int antall) {

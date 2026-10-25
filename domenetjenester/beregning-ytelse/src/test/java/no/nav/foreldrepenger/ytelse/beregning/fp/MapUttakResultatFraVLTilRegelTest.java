@@ -37,6 +37,7 @@ import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.EksternArbeidsforholdRef;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
+import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakAktivitet;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakPeriode;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakPeriodeAktivitet;
@@ -67,7 +68,7 @@ class MapUttakResultatFraVLTilRegelTest {
 
     @BeforeEach
     void setup() {
-        var fagsak = FagsakBuilder.nyForeldrepengerForMor().build();
+        var fagsak = FagsakBuilder.nyForeldrepengerForMor().medSaksnummer(new Saksnummer("123")).build();
         behandling = Behandling.forFørstegangssøknad(fagsak).build();
         Behandlingsresultat.opprettFor(behandling);
         vlPlan = lagUttakResultatPlan();

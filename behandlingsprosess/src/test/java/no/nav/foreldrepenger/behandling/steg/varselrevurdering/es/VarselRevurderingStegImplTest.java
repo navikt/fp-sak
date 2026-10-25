@@ -18,6 +18,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.testutilities.fagsak.FagsakBuilder;
+import no.nav.foreldrepenger.domene.typer.Saksnummer;
 
 class VarselRevurderingStegImplTest {
 
@@ -31,7 +32,7 @@ class VarselRevurderingStegImplTest {
 
     @BeforeEach
     void setup() {
-        var fagsak = FagsakBuilder.nyEngangstønadForMor().build();
+        var fagsak = FagsakBuilder.nyEngangstønadForMor().medSaksnummer(new Saksnummer("123456789")).build();
         behandlingBuilder = Behandling.nyBehandlingFor(fagsak, BehandlingType.REVURDERING).medBehandlingstidFrist(BEHANDLINGSTID_FRIST);
 
         behandlingRepository = mock(BehandlingRepository.class);

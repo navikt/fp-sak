@@ -98,7 +98,7 @@ class YtelsesFordelingRepositoryTest extends EntityManagerAwareTest {
     }
 
     private Fagsak opprettFagsak() {
-        var fagsak = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, NavBruker.opprettNyNB(AktørId.dummy()));
+        var fagsak = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, NavBruker.opprettNyNB(AktørId.dummy()), fagsakRepository.genererNyttSaksnummer());
         fagsakRepository.opprettNy(fagsak);
         return fagsak;
     }
