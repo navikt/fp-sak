@@ -49,7 +49,7 @@ class HendelseHåndteringRepositoryTest extends EntityManagerAwareTest {
 
         var navBruker = NavBruker.opprettNyNB(morAktørId);
         navBrukerRepository.lagre(navBruker);
-        var fagsak = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, navBruker);
+        var fagsak = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, navBruker, fagsakRepository.genererNyttSaksnummer());
         fagsakRepository.opprettNy(fagsak);
 
         var behandlingBuilder = Behandling.forFørstegangssøknad(fagsak);

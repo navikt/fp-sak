@@ -35,7 +35,7 @@ class SøknadRepositoryTest extends EntityManagerAwareTest {
 
     @Test
     void skal_finne_endringssøknad_for_behandling() {
-        var fagsak = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, NavBruker.opprettNyNB(AktørId.dummy()));
+        var fagsak = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, NavBruker.opprettNyNB(AktørId.dummy()), fagsakRepository.genererNyttSaksnummer());
         fagsakRepository.opprettNy(fagsak);
 
         var behandling = Behandling.forFørstegangssøknad(fagsak).build();
@@ -67,7 +67,7 @@ class SøknadRepositoryTest extends EntityManagerAwareTest {
 
     @Test
     void skal_ikke_finne_endringssøknad_for_behandling() {
-        var fagsak = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, NavBruker.opprettNyNB(AktørId.dummy()));
+        var fagsak = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, NavBruker.opprettNyNB(AktørId.dummy()), fagsakRepository.genererNyttSaksnummer());
         fagsakRepository.opprettNy(fagsak);
 
         var behandling = Behandling.forFørstegangssøknad(fagsak).build();
@@ -90,7 +90,7 @@ class SøknadRepositoryTest extends EntityManagerAwareTest {
 
     @Test
     void skal_kopiere_søknadsgrunnlaget_fra_behandling1_til_behandling2() {
-        var fagsak = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, NavBruker.opprettNyNB(AktørId.dummy()));
+        var fagsak = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, NavBruker.opprettNyNB(AktørId.dummy()), fagsakRepository.genererNyttSaksnummer());
         fagsakRepository.opprettNy(fagsak);
 
         var behandling1 = Behandling.forFørstegangssøknad(fagsak).build();

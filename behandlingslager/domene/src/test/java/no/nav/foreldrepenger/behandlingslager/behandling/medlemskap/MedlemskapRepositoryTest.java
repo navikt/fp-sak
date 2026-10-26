@@ -46,7 +46,7 @@ class MedlemskapRepositoryTest extends EntityManagerAwareTest {
     }
 
     private Behandling lagBehandling() {
-        var fagsak = Fagsak.opprettNy(FagsakYtelseType.ENGANGSTØNAD, NavBruker.opprettNyNB(AktørId.dummy()));
+        var fagsak = Fagsak.opprettNy(FagsakYtelseType.ENGANGSTØNAD, NavBruker.opprettNyNB(AktørId.dummy()), fagsakRepository.genererNyttSaksnummer());
         fagsakRepository.opprettNy(fagsak);
         var builder = Behandling.forFørstegangssøknad(fagsak);
         var behandling = builder.build();

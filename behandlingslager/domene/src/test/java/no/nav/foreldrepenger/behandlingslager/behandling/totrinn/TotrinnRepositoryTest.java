@@ -39,7 +39,7 @@ class TotrinnRepositoryTest extends EntityManagerAwareTest {
     @Test
     void skal_finne_flere_inaktive_totrinnsvurderinger_og_flere_aktive_totrinnsvurdering() {
 
-        var fagsak = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, NavBruker.opprettNyNB(AktørId.dummy()));
+        var fagsak = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, NavBruker.opprettNyNB(AktørId.dummy()), fagsakRepository.genererNyttSaksnummer());
         fagsakRepository.opprettNy(fagsak);
 
         var behandling = Behandling.forFørstegangssøknad(fagsak).build();

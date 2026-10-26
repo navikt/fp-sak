@@ -11,7 +11,6 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
 
 import no.nav.foreldrepenger.behandlingslager.BaseEntitet;
@@ -23,8 +22,7 @@ import no.nav.vedtak.felles.jpa.converters.BooleanToStringConverter;
 public class Etterkontroll extends BaseEntitet {
 
     @Id
-    @SequenceGenerator(name = "etterkontroll_sekvens", sequenceName = "SEQ_ETTERKONTROLL")
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "etterkontroll_sekvens")
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "SEQ_ETTERKONTROLL")
     private Long id;
 
     @Column(name = "fagsak_id", nullable = false, updatable = false)

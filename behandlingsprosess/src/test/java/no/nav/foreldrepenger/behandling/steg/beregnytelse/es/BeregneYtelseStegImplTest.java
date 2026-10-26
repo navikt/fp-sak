@@ -27,6 +27,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadEntitet;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.testutilities.fagsak.FagsakBuilder;
 import no.nav.foreldrepenger.dbstoette.CdiDbAwareTest;
+import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 import no.nav.foreldrepenger.skjæringstidspunkt.es.SkjæringstidspunktTjenesteImpl;
 
@@ -44,7 +45,7 @@ class BeregneYtelseStegImplTest {
     private SkjæringstidspunktTjeneste skjæringstidspunktTjeneste;
 
     private BeregneYtelseEngangsstønadStegImpl beregneYtelseSteg;
-    private Fagsak fagsak = FagsakBuilder.nyEngangstønadForMor().build();
+    private Fagsak fagsak = FagsakBuilder.nyEngangstønadForMor().medSaksnummer(new Saksnummer("123456789")).build();
     private BeregningSats sats;
     private BeregningSats sats2017;
 

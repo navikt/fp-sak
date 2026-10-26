@@ -17,11 +17,13 @@ import no.nav.foreldrepenger.dbstoette.EntityManagerAwareTest;
 class VilkårResultatTest extends EntityManagerAwareTest {
 
     private BehandlingRepository behandlingRepository;
+    private FagsakRepository fagsakRepository;
 
     @BeforeEach
     void setup() {
         var entityManager = getEntityManager();
         behandlingRepository = new BehandlingRepository(entityManager);
+        fagsakRepository = new FagsakRepository(entityManager);
     }
 
     @Test
@@ -54,7 +56,7 @@ class VilkårResultatTest extends EntityManagerAwareTest {
     }
 
     private Behandling lagBehandling() {
-        var fagsak = FagsakBuilder.nyEngangstønadForMor().build();
+        var fagsak = FagsakBuilder.nyEngangstønadForMor().medSaksnummer(fagsakRepository.genererNyttSaksnummer()).build();
         new FagsakRepository(getEntityManager()).opprettNy(fagsak);
         return Behandling.forFørstegangssøknad(fagsak).build();
     }

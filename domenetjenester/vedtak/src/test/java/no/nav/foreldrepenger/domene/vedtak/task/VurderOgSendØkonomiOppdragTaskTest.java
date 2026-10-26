@@ -64,7 +64,7 @@ class VurderOgSendØkonomiOppdragTaskTest {
         lenient().when(prosessTaskData.getId()).thenReturn(TASK_ID);
         var repositoryProvider = ScenarioMorSøkerForeldrepenger.forFødsel().mockBehandlingRepositoryProvider();
         lenient().when(repositoryProvider.getBehandlingRepository().hentBehandling(BEHANDLING_ID))
-            .thenReturn(Behandling.nyBehandlingFor(Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, NavBruker.opprettNy(AktørId.dummy(), Språkkode.NB)), BehandlingType.FØRSTEGANGSSØKNAD).build());
+            .thenReturn(Behandling.nyBehandlingFor(Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, NavBruker.opprettNy(AktørId.dummy(), Språkkode.NB), new Saksnummer(SAKSNUMMER)), BehandlingType.FØRSTEGANGSSØKNAD).build());
         task = new VurderOgSendØkonomiOppdragTask(repo, repositoryProvider, nyOppdragskontrollTjeneste, oppdragPostConditionTjeneste, oppdragInputTjeneste);
     }
 

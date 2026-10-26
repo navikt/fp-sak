@@ -18,6 +18,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import no.nav.foreldrepenger.behandlingslager.aktør.NavBruker;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
@@ -27,6 +28,7 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.hendelser.Endringstype;
 import no.nav.foreldrepenger.domene.typer.AktørId;
+import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.familiehendelse.FamilieHendelseTjeneste;
 import no.nav.foreldrepenger.mottak.dokumentmottak.HistorikkinnslagTjeneste;
 import no.nav.foreldrepenger.mottak.hendelser.freg.DødfødselForretningshendelse;
@@ -34,6 +36,8 @@ import no.nav.foreldrepenger.mottak.hendelser.saksvelger.DødfødselForretningsh
 
 @ExtendWith(MockitoExtension.class)
 class DødfødselForretningshendelseSaksvelgerTest {
+
+    private static final Saksnummer SAKSNUMMER = new Saksnummer("123456789");
 
     @Mock
     private BehandlingRepositoryProvider repositoryProvider;
@@ -63,7 +67,7 @@ class DødfødselForretningshendelseSaksvelgerTest {
     void skal_velge_sak_som_er_åpen_foreldrepengesak() {
         // Arrange
         var aktørId = AktørId.dummy();
-        var fagsak = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, null);
+        var fagsak = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, NavBruker.opprettNyNB(aktørId), SAKSNUMMER);
         when(fagsakRepository.hentForBruker(aktørId)).thenReturn(singletonList(fagsak));
         var behandling = Behandling.forFørstegangssøknad(fagsak).build();
         when(behandlingRepository.hentSisteYtelsesBehandlingForFagsakId(any())).thenReturn(Optional.of(behandling));
@@ -85,7 +89,7 @@ class DødfødselForretningshendelseSaksvelgerTest {
     void skal_ikke_velge_sak_som_er_avsluttet_foreldrepengesak() {
         // Arrange
         var aktørId = AktørId.dummy();
-        var fagsak = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, null);
+        var fagsak = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, NavBruker.opprettNyNB(aktørId), SAKSNUMMER);
         fagsak.setAvsluttet();
         when(fagsakRepository.hentForBruker(aktørId)).thenReturn(singletonList(fagsak));
 
@@ -104,7 +108,7 @@ class DødfødselForretningshendelseSaksvelgerTest {
     void skal_ikke_velge_engangsstønadsak() {
         // Arrange
         var aktørId = AktørId.dummy();
-        var fagsak = Fagsak.opprettNy(FagsakYtelseType.ENGANGSTØNAD, null);
+        var fagsak = Fagsak.opprettNy(FagsakYtelseType.ENGANGSTØNAD, NavBruker.opprettNyNB(aktørId), SAKSNUMMER);
         when(fagsakRepository.hentForBruker(aktørId)).thenReturn(singletonList(fagsak));
 
         var hendelse = new DødfødselForretningshendelse(singletonList(aktørId), LocalDate.now(), Endringstype.OPPRETTET);
@@ -122,7 +126,7 @@ class DødfødselForretningshendelseSaksvelgerTest {
     void annullert_dødfødselshendelse_skal_treffe_åpen_foreldrepengesak() {
         // Arrange
         var aktørId = AktørId.dummy();
-        var fagsak = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, null);
+        var fagsak = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, NavBruker.opprettNyNB(aktørId), SAKSNUMMER);
         when(fagsakRepository.hentForBruker(aktørId)).thenReturn(singletonList(fagsak));
 
         var hendelse = new DødfødselForretningshendelse(singletonList(aktørId), LocalDate.now(), Endringstype.ANNULLERT);
@@ -142,7 +146,7 @@ class DødfødselForretningshendelseSaksvelgerTest {
     void korrigert_dødfødselshendelse_skal_treffe_åpen_foreldrepengesak() {
         // Arrange
         var aktørId = AktørId.dummy();
-        var fagsak = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, null);
+        var fagsak = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, NavBruker.opprettNyNB(aktørId), SAKSNUMMER);
         when(fagsakRepository.hentForBruker(aktørId)).thenReturn(singletonList(fagsak));
         var behandling = Behandling.forFørstegangssøknad(fagsak).build();
         when(behandlingRepository.hentSisteYtelsesBehandlingForFagsakId(any())).thenReturn(Optional.of(behandling));

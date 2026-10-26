@@ -128,7 +128,7 @@ class VedtakXmlTest {
 
     private Fagsak opprettFagsak() {
         var søker = NavBruker.opprettNyNB(AKTØR_ID);
-        var fagsak = Fagsak.opprettNy(FagsakYtelseType.ENGANGSTØNAD, søker);
+        var fagsak = Fagsak.opprettNy(FagsakYtelseType.ENGANGSTØNAD, søker, fagsakRepository.genererNyttSaksnummer());
         fagsakRepository.opprettNy(fagsak);
         return fagsak;
     }

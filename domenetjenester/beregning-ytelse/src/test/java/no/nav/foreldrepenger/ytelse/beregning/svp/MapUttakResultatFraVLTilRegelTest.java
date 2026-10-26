@@ -22,6 +22,7 @@ import no.nav.foreldrepenger.behandlingslager.uttak.svp.SvangerskapspengerUttakR
 import no.nav.foreldrepenger.behandlingslager.uttak.svp.SvangerskapspengerUttakResultatPeriodeEntitet;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
+import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.domene.uttak.input.UttakInput;
 import no.nav.foreldrepenger.ytelse.beregning.regelmodell.beregningsgrunnlag.AktivitetStatus;
 import no.nav.foreldrepenger.ytelse.beregning.regelmodell.beregningsgrunnlag.ReferanseType;
@@ -39,7 +40,7 @@ class MapUttakResultatFraVLTilRegelTest {
 
     @BeforeEach
     void setup() {
-        var fagsak = FagsakBuilder.nyForeldrepengerForMor().build();
+        var fagsak = FagsakBuilder.nyForeldrepengerForMor().medSaksnummer(new Saksnummer("123456789")).build();
         behandling = Behandling.forFørstegangssøknad(fagsak).build();
         behandlingresultat = Behandlingsresultat.opprettFor(behandling);
         mapper = new MapUttakResultatFraVLTilRegel() {

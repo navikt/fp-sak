@@ -37,10 +37,10 @@ class FagsakRevurderingTest {
     private Behandling nyesteBehandling;
     private Behandling eldreBehandling;
     private Fagsak fagsak;
-    private Saksnummer fagsakSaksnummer = new Saksnummer("199999");
+    private final Saksnummer fagsakSaksnummer = new Saksnummer("199999");
 
     private Fagsak fagsakMedFlereBehandlinger;
-    private Saksnummer fagsakMedFlereBehSaksnr = new Saksnummer("299999");
+    private final Saksnummer fagsakMedFlereBehSaksnr = new Saksnummer("299999");
 
     @BeforeEach
     void opprettBehandlinger() {
@@ -195,7 +195,7 @@ class FagsakRevurderingTest {
 
     @Test
     void behandlingerSkalSorteresSynkendePåAvsluttetDato() {
-        var fagsak = FagsakBuilder.nyEngangstønadForMor().build();
+        var fagsak = FagsakBuilder.nyEngangstønadForMor().medSaksnummer(fagsakSaksnummer).build();
         var now = LocalDateTime.now();
         var nyBehandling = Behandling.forFørstegangssøknad(fagsak).medAvsluttetDato(now).build();
         var gammelBehandling = Behandling.forFørstegangssøknad(fagsak)
@@ -214,7 +214,7 @@ class FagsakRevurderingTest {
 
     @Test
     void behandlingerSkalSorteresSynkendePåOpprettetDatoNårAvsluttetDatoErNull() {
-        var fagsak = FagsakBuilder.nyEngangstønadForMor().build();
+        var fagsak = FagsakBuilder.nyEngangstønadForMor().medSaksnummer(fagsakSaksnummer).build();
         var now = LocalDateTime.now();
         var nyBehandling = Behandling.forFørstegangssøknad(fagsak)
                 .medAvsluttetDato(null)

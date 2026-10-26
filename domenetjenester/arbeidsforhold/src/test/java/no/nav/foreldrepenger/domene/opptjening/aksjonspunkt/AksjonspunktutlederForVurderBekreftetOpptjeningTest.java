@@ -77,7 +77,7 @@ class AksjonspunktutlederForVurderBekreftetOpptjeningTest {
     }
 
     private Behandling opprettBehandling() {
-        var fagsak = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, NavBruker.opprettNyNB(AKTØRID));
+        var fagsak = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, NavBruker.opprettNyNB(AKTØRID), fagsakRepository.genererNyttSaksnummer());
         fagsakRepository.opprettNy(fagsak);
         var builder = Behandling.forFørstegangssøknad(fagsak);
         var behandling = builder.build();

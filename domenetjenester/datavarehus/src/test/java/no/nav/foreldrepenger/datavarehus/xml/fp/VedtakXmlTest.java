@@ -243,7 +243,7 @@ class VedtakXmlTest {
         behandlingVedtakRepository.lagre(vedtak, behandlingRepository.taSkriveLås(behandling));
 
         var fagsakMora = scenario.getFagsak();
-        var fagsakForFar = FagsakBuilder.nyForeldrepengesak(RelasjonsRolleType.FARA).build();
+        var fagsakForFar = FagsakBuilder.nyForeldrepengesak(RelasjonsRolleType.FARA).medSaksnummer(repositoryProvider.getFagsakRepository().genererNyttSaksnummer()).build();
         repositoryProvider.getFagsakRepository().opprettNy(fagsakForFar);
 
         repositoryProvider.getFagsakRelasjonRepository().kobleFagsaker(fagsakMora, fagsakForFar);
