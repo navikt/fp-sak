@@ -41,7 +41,7 @@ class VergeRepositoryTest extends EntityManagerAwareTest {
     void skal_lagre_og_hente_ut_vergeinformasjon() {
         // Arrange
         var bruker = opprettBruker();
-        var fagsak = Fagsak.opprettNy(FagsakYtelseType.ENGANGSTØNAD, bruker);
+        var fagsak = Fagsak.opprettNy(FagsakYtelseType.ENGANGSTØNAD, bruker, fagsakRepository.genererNyttSaksnummer());
         fagsakRepository.opprettNy(fagsak);
         var behandling = Behandling.forFørstegangssøknad(fagsak).build();
         behandlingRepository.lagre(behandling, behandlingRepository.taSkriveLås(behandling));
@@ -77,7 +77,7 @@ class VergeRepositoryTest extends EntityManagerAwareTest {
     void skal_kopiere_vergegrunnlag_fra_tidligere_behandling() {
         // Arrange
         var bruker = opprettBruker();
-        var fagsak = Fagsak.opprettNy(FagsakYtelseType.ENGANGSTØNAD, bruker);
+        var fagsak = Fagsak.opprettNy(FagsakYtelseType.ENGANGSTØNAD, bruker, fagsakRepository.genererNyttSaksnummer());
         fagsakRepository.opprettNy(fagsak);
         var gammelBehandling = Behandling.forFørstegangssøknad(fagsak).build();
         behandlingRepository.lagre(gammelBehandling, behandlingRepository.taSkriveLås(gammelBehandling));

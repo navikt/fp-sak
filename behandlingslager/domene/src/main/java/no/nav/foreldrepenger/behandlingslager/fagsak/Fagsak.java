@@ -18,6 +18,8 @@ import jakarta.persistence.PreRemove;
 import jakarta.persistence.Table;
 import jakarta.persistence.Version;
 
+import jakarta.validation.constraints.NotNull;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -43,6 +45,7 @@ public class Fagsak extends BaseEntitet {
     @Column(name = "ytelse_type", nullable = false, updatable = false)
     private FagsakYtelseType ytelseType = FagsakYtelseType.UDEFINERT;
 
+    @NotNull
     @ManyToOne(optional = false)
     @JoinColumn(name = "bruker_id", nullable = false)
     private NavBruker navBruker;
@@ -56,8 +59,9 @@ public class Fagsak extends BaseEntitet {
     private FagsakStatus fagsakStatus = FagsakStatus.DEFAULT;
 
     /**
-     * Offisielt tildelt saksnummer fra GSAK.
+     * Saksnummer generert fra egen sekvens. Er en ekstern identifikator for fagsaken.
      */
+    @NotNull
     @Embedded
     @AttributeOverride(name = "saksnummer", column = @Column(name = "saksnummer"))
     private Saksnummer saksnummer;
@@ -74,24 +78,16 @@ public class Fagsak extends BaseEntitet {
         // Hibernate
     }
 
-    private Fagsak(FagsakYtelseType ytelseType, NavBruker søker) {
-        this(ytelseType, søker, null, null);
-    }
-
     public Fagsak(FagsakYtelseType ytelseType, NavBruker søker, RelasjonsRolleType rolle, Saksnummer saksnummer) {
         Objects.requireNonNull(ytelseType, "ytelseType");
+        Objects.requireNonNull(søker, "søker");
+        Objects.requireNonNull(saksnummer, "saksnummer");
         this.ytelseType = ytelseType;
         this.navBruker = søker;
+        this.saksnummer = saksnummer;
         if (rolle != null) {
             this.brukerRolle = rolle;
         }
-        if (saksnummer != null) {
-            this.saksnummer = saksnummer;
-        }
-    }
-
-    public static Fagsak opprettNy(FagsakYtelseType ytelseType, NavBruker bruker) {
-        return new Fagsak(ytelseType, bruker);
     }
 
     public static Fagsak opprettNy(FagsakYtelseType ytelseType, NavBruker bruker, Saksnummer saksnummer) {

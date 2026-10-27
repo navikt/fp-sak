@@ -117,7 +117,7 @@ class SendInformasjonsbrevPåminnelseBatchTjenesteTest {
     void skal_ikke_finne_en_sak_som_trenger_påminnelse_når_mor_har_en_nyere_sak(EntityManager em) {
         // Arrange
         var behandlingMor = opprettTestdata(em, LocalDate.now().plusDays(2)).behandlingMor;
-        var nyFagsakMor = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, behandlingMor.getFagsak().getNavBruker());
+        var nyFagsakMor = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, behandlingMor.getFagsak().getNavBruker(), repositoryProvider.getFagsakRepository().genererNyttSaksnummer());
         repositoryProvider.getFagsakRepository().opprettNy(nyFagsakMor);
 
         // Act
@@ -131,7 +131,7 @@ class SendInformasjonsbrevPåminnelseBatchTjenesteTest {
     void skal_ikke_finne_en_sak_som_trenger_påminnelse_når_far_har_en_nyere_sak(EntityManager em) {
         // Arrange
         var behandlingFar = opprettTestdata(em, LocalDate.now().plusDays(2)).behandlingFar;
-        var nyFagsakFar = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, behandlingFar.getFagsak().getNavBruker());
+        var nyFagsakFar = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, behandlingFar.getFagsak().getNavBruker(), repositoryProvider.getFagsakRepository().genererNyttSaksnummer());
         repositoryProvider.getFagsakRepository().opprettNy(nyFagsakFar);
 
         // Act

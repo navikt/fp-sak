@@ -35,6 +35,7 @@ import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
+import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttak;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakAktivitet;
 import no.nav.foreldrepenger.domene.uttak.ForeldrepengerUttakPeriode;
@@ -348,7 +349,7 @@ class BeregningsresultatMedUttaksplanMapperTest {
 
     private static Behandling lagBehandling() {
         var søker = NavBruker.opprettNyNB(AKTØR_ID);
-        var fagsak = FagsakBuilder.nyForeldrepengerForMor().medBruker(søker).build();
+        var fagsak = FagsakBuilder.nyForeldrepengerForMor().medBruker(søker).medSaksnummer(new Saksnummer("123456789")).build();
         var behandling = Behandling.forFørstegangssøknad(fagsak)
                 .build();
         behandling.setId(1L);

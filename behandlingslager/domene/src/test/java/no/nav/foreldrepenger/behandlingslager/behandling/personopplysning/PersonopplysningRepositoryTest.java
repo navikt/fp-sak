@@ -42,7 +42,7 @@ class PersonopplysningRepositoryTest extends EntityManagerAwareTest {
     @Test
     void skal_hente_eldste_versjon_av_aggregat() {
         var personinfo = lagPerson();
-        var fagsak = Fagsak.opprettNy(FagsakYtelseType.ENGANGSTØNAD, NavBruker.opprettNyNB(personinfo.getAktørId()));
+        var fagsak = Fagsak.opprettNy(FagsakYtelseType.ENGANGSTØNAD, NavBruker.opprettNyNB(personinfo.getAktørId()), fagsakRepository.genererNyttSaksnummer());
         fagsakRepository.opprettNy(fagsak);
         var builder = Behandling.forFørstegangssøknad(fagsak);
         var behandling = builder.build();

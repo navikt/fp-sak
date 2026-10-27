@@ -33,7 +33,7 @@ class FagsakRelasjonRepositoryTest extends EntityManagerAwareTest {
 
     @Test
     void skal_ikke_kunne_kobles_med_seg_selv() {
-        var fagsak = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, NavBruker.opprettNyNB(AktørId.dummy()));
+            var fagsak = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, NavBruker.opprettNyNB(AktørId.dummy()), fagsakRepository.genererNyttSaksnummer());
         fagsakRepository.opprettNy(fagsak);
         relasjonRepository.opprettRelasjon(fagsak);
         assertThrows(VLException.class, () -> relasjonRepository.kobleFagsaker(fagsak, fagsak));
@@ -42,9 +42,9 @@ class FagsakRelasjonRepositoryTest extends EntityManagerAwareTest {
     @Test
     void skal_ikke_kunne_kobles_med_fagsak_med_identisk_aktørid() {
         var bruker = NavBruker.opprettNyNB(AktørId.dummy());
-        var fagsak = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, bruker);
+        var fagsak = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, bruker, fagsakRepository.genererNyttSaksnummer());
         fagsakRepository.opprettNy(fagsak);
-        var fagsak2 = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, bruker);
+        var fagsak2 = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, bruker, fagsakRepository.genererNyttSaksnummer());
         fagsakRepository.opprettNy(fagsak2);
 
         relasjonRepository.opprettRelasjon(fagsak);
@@ -53,9 +53,9 @@ class FagsakRelasjonRepositoryTest extends EntityManagerAwareTest {
 
     @Test
     void skal_ikke_kunne_kobles_med_fagsak_med_ulik_ytelse() {
-        var fagsak = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, NavBruker.opprettNyNB(AktørId.dummy()));
+        var fagsak = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, NavBruker.opprettNyNB(AktørId.dummy()), fagsakRepository.genererNyttSaksnummer());
         fagsakRepository.opprettNy(fagsak);
-        var fagsak2 = Fagsak.opprettNy(FagsakYtelseType.ENGANGSTØNAD, NavBruker.opprettNyNB(AktørId.dummy()));
+        var fagsak2 = Fagsak.opprettNy(FagsakYtelseType.ENGANGSTØNAD, NavBruker.opprettNyNB(AktørId.dummy()), fagsakRepository.genererNyttSaksnummer());
         fagsakRepository.opprettNy(fagsak2);
 
         relasjonRepository.opprettRelasjon(fagsak);
@@ -64,9 +64,9 @@ class FagsakRelasjonRepositoryTest extends EntityManagerAwareTest {
 
     @Test
     void skal_koble_sammen_fagsak_med_lik_ytelse_type_og_ulik_aktør() {
-        var fagsak = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, NavBruker.opprettNyNB(AktørId.dummy()));
+        var fagsak = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, NavBruker.opprettNyNB(AktørId.dummy()), fagsakRepository.genererNyttSaksnummer());
         fagsakRepository.opprettNy(fagsak);
-        var fagsak2 = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, NavBruker.opprettNyNB(AktørId.dummy()));
+        var fagsak2 = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, NavBruker.opprettNyNB(AktørId.dummy()), fagsakRepository.genererNyttSaksnummer());
         fagsakRepository.opprettNy(fagsak2);
 
         relasjonRepository.opprettRelasjon(fagsak);
@@ -97,8 +97,8 @@ class FagsakRelasjonRepositoryTest extends EntityManagerAwareTest {
     @Test
     void skal_oppdatere_med_avslutningsdato() {
         // Arrange
-        var fagsak1 = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, NavBruker.opprettNyNB(AktørId.dummy()));
-        var fagsak2 = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, NavBruker.opprettNyNB(AktørId.dummy()));
+        var fagsak1 = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, NavBruker.opprettNyNB(AktørId.dummy()), fagsakRepository.genererNyttSaksnummer());
+        var fagsak2 = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, NavBruker.opprettNyNB(AktørId.dummy()), fagsakRepository.genererNyttSaksnummer());
         fagsakRepository.opprettNy(fagsak1);
         fagsakRepository.opprettNy(fagsak2);
         relasjonRepository.opprettRelasjon(fagsak1);
@@ -119,7 +119,7 @@ class FagsakRelasjonRepositoryTest extends EntityManagerAwareTest {
     @Test
     void skal_hente_fagsakrel_aktiv_på_tidspunkt() {
         var bruker = NavBruker.opprettNyNB(AktørId.dummy());
-        var fagsak = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, bruker);
+        var fagsak = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, bruker, fagsakRepository.genererNyttSaksnummer());
         fagsakRepository.opprettNy(fagsak);
         var rel1 = new FagsakRelasjon(fagsak, null, null, null, null);
         rel1.setOpprettetTidspunkt(LocalDate.of(2023, 1, 1).atStartOfDay());

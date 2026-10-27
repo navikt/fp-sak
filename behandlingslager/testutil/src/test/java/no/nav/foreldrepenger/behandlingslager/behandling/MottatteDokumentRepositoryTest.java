@@ -73,8 +73,10 @@ class MottatteDokumentRepositoryTest extends EntityManagerAwareTest {
     }
 
     private Fagsak opprettFagsak() {
-        var fagsak = FagsakBuilder.nyEngangstønadForMor().build();
-        new FagsakRepository(getEntityManager()).opprettNy(fagsak);
+        var fagsakRepository = new FagsakRepository(getEntityManager());
+        var saksnummer = fagsakRepository.genererNyttSaksnummer();
+        var fagsak = FagsakBuilder.nyEngangstønadForMor().medSaksnummer(saksnummer).build();
+        fagsakRepository.opprettNy(fagsak);
         return fagsak;
     }
 

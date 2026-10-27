@@ -646,7 +646,7 @@ class BehandlingRepositoryTest extends EntityManagerAwareTest {
             .medKjønn(kjønn)
             .build();
         var fagsak = FagsakBuilder.nyEngangstønad(rolle)
-            .medBruker(navBruker).build();
+            .medBruker(navBruker).medSaksnummer(saksnummer).build();
         fagsakRepository.opprettNy(fagsak);
         return fagsak;
     }

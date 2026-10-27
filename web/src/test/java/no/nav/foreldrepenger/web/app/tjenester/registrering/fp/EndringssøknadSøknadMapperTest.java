@@ -77,7 +77,7 @@ class EndringssøknadSøknadMapperTest {
             grunnlagRepositoryProvider, virksomhetTjeneste, iayTjeneste, personinfoAdapter, oppgittPeriodeMottattDatoTjeneste,
             new AnnenPartOversetter(personinfoAdapter));
 
-        var fagsak = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, navBruker);
+        var fagsak = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, navBruker, repositoryProvider.getFagsakRepository().genererNyttSaksnummer());
         var behandling = Behandling.forFørstegangssøknad(fagsak).build();
         repositoryProvider.getFagsakRepository().opprettNy(fagsak);
         var behandlingRepository = repositoryProvider.getBehandlingRepository();

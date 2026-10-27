@@ -10,6 +10,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
+import no.nav.foreldrepenger.behandlingslager.aktør.NavBruker;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
@@ -17,6 +18,7 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakStatus;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.domene.typer.AktørId;
+import no.nav.foreldrepenger.domene.typer.Saksnummer;
 
 class AutomatiskFagsakAvslutningBatchTjenesteTest {
 
@@ -36,9 +38,9 @@ class AutomatiskFagsakAvslutningBatchTjenesteTest {
 
     @Test
     void skal_kjøre_batch_uten_feil() {
-        var fagsak1 = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, null);
+        var fagsak1 = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, NavBruker.opprettNyNB(AktørId.dummy()), new Saksnummer("123456789"));
         fagsak1.setId(1L);
-        var fagsak2 = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, null);
+        var fagsak2 = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, NavBruker.opprettNyNB(AktørId.dummy()), new Saksnummer("987654321"));
         fagsak2.setId(2L);
         var behandling = Mockito.mock(Behandling.class);
         Mockito.when(behandling.getId()).thenReturn(3L);

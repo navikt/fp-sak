@@ -123,7 +123,7 @@ class BehandlingRevurderingTjenesteTest extends EntityManagerAwareTest {
 
     private Behandling opprettRevurderingsKandidat() {
 
-        var fagsak = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, NavBruker.opprettNyNB(AktørId.dummy()));
+        var fagsak = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, NavBruker.opprettNyNB(AktørId.dummy()), fagsakRepository.genererNyttSaksnummer());
         fagsakRepository.opprettNy(fagsak);
         var behandling = Behandling.forFørstegangssøknad(fagsak).build();
         behandlingRepository.lagre(behandling, behandlingRepository.taSkriveLås(behandling));
