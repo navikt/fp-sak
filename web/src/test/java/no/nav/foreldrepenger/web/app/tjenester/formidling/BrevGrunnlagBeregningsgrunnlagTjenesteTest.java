@@ -6,6 +6,8 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.EnumSource;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.AktivitetStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.OpptjeningAktivitetType;
@@ -26,8 +28,6 @@ class BrevGrunnlagBeregningsgrunnlagTjenesteTest {
     private static final BigDecimal NAT_BORTFALT = BigDecimal.valueOf(3232);
     private static final BigDecimal NAT_TILKOMMET = BigDecimal.valueOf(2120);
     private static final BigDecimal BRUTTO = BigDecimal.valueOf(444432);
-
-
 
     @Test
     void tester_mapping() {
@@ -72,18 +72,32 @@ class BrevGrunnlagBeregningsgrunnlagTjenesteTest {
         assertThat(dto.beregningsgrunnlagperioder().get(0).beregningsgrunnlagandeler().get(0).erTilkommetAndel()).isFalse();
     }
 
-    private BeregningsgrunnlagPeriode buildBeregningsgrunnlagPeriode() {
+    @ParameterizedTest
+    @EnumSource(AndelKilde.class)
+    void skal_kun_markere_andeler_fra_fordeling_og_periodisering_som_tilkommet(AndelKilde kilde) {
+        var gr = BeregningsgrunnlagGrunnlagBuilder.nytt()
+            .medBeregningsgrunnlag(buildBeregningsgrunnlag(kilde))
+            .build(BeregningsgrunnlagTilstand.FASTSATT);
+
+        var dto = new BrevGrunnlagBeregningsgrunnlagTjeneste(gr).map().orElseThrow();
+
+        var forventetTilkommet = kilde == AndelKilde.PROSESS_OMFORDELING || kilde == AndelKilde.PROSESS_PERIODISERING
+            || kilde == AndelKilde.SAKSBEHANDLER_FORDELING;
+        assertThat(dto.beregningsgrunnlagperioder().get(0).beregningsgrunnlagandeler().get(0).erTilkommetAndel()).isEqualTo(forventetTilkommet);
+    }
+
+    private BeregningsgrunnlagPeriode buildBeregningsgrunnlagPeriode(AndelKilde kilde) {
         return BeregningsgrunnlagPeriode.builder()
             .medBeregningsgrunnlagPeriode(LocalDate.now().minusDays(20), LocalDate.now().minusDays(15))
             .medBruttoPrÅr(BigDecimal.valueOf(500000))
             .medAvkortetPrÅr(BigDecimal.valueOf(500000))
             .medRedusertPrÅr(BigDecimal.valueOf(500000))
             .leggTilPeriodeÅrsak(PeriodeÅrsak.UDEFINERT)
-            .leggTilBeregningsgrunnlagPrStatusOgAndel(buildBgPrStatusOgAndel())
+            .leggTilBeregningsgrunnlagPrStatusOgAndel(buildBgPrStatusOgAndel(kilde))
             .build();
     }
 
-    private BeregningsgrunnlagPrStatusOgAndel buildBgPrStatusOgAndel() {
+    private BeregningsgrunnlagPrStatusOgAndel buildBgPrStatusOgAndel(AndelKilde kilde) {
         var bga = BGAndelArbeidsforhold
             .builder()
             .medArbeidsgiver(Arbeidsgiver.virksomhet("999999999"))
@@ -102,15 +116,19 @@ class BrevGrunnlagBeregningsgrunnlagTjenesteTest {
             .medRedusertPrÅr(BigDecimal.valueOf(52335))
             .medDagsatsArbeidsgiver(100L)
             .medDagsatsBruker(200L)
-            .medKilde(AndelKilde.PROSESS_START)
+            .medKilde(kilde)
             .build();
     }
 
     private Beregningsgrunnlag buildBeregningsgrunnlag() {
+        return buildBeregningsgrunnlag(AndelKilde.PROSESS_START);
+    }
+
+    private Beregningsgrunnlag buildBeregningsgrunnlag(AndelKilde kilde) {
         return Beregningsgrunnlag.builder()
             .medSkjæringstidspunkt(LocalDate.now())
             .leggTilAktivitetStatus(buildBgAktivitetStatus())
-            .leggTilBeregningsgrunnlagPeriode(buildBeregningsgrunnlagPeriode())
+            .leggTilBeregningsgrunnlagPeriode(buildBeregningsgrunnlagPeriode(kilde))
             .medGrunnbeløp(BigDecimal.valueOf(100000))
             .medBesteberegningsgrunnlag(buildBesteberegning())
             .build();

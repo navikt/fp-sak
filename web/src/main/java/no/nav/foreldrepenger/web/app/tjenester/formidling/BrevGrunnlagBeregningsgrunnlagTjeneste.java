@@ -3,9 +3,11 @@ package no.nav.foreldrepenger.web.app.tjenester.formidling;
 import java.math.BigDecimal;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,6 +40,8 @@ public class BrevGrunnlagBeregningsgrunnlagTjeneste {
 
     private final BeregningsgrunnlagGrunnlag grunnlag;
     private static final Logger LOG = LoggerFactory.getLogger(BrevGrunnlagBeregningsgrunnlagTjeneste.class);
+    private static final Set<AndelKilde> TILKOMNE_ANDELER = EnumSet.of(AndelKilde.PROSESS_OMFORDELING, AndelKilde.PROSESS_PERIODISERING,
+        AndelKilde.SAKSBEHANDLER_FORDELING);
 
     public BrevGrunnlagBeregningsgrunnlagTjeneste(BeregningsgrunnlagGrunnlag grunnlag) {
         this.grunnlag = Objects.requireNonNull(grunnlag, "beregningsgrunnlaggrunnlag");
@@ -258,7 +262,7 @@ public class BrevGrunnlagBeregningsgrunnlagTjeneste {
     }
 
     private boolean erTilkommetAndel(AndelKilde kilde) {
-        return !kilde.equals(AndelKilde.PROSESS_START);
+        return TILKOMNE_ANDELER.contains(kilde);
     }
 
 }
