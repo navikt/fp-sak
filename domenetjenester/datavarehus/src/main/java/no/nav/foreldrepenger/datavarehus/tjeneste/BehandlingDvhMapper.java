@@ -171,7 +171,8 @@ public class BehandlingDvhMapper {
     }
 
     private static BehandlingMetode utledBehandlingMetode(Behandling behandling, Behandlingsresultat behandlingsresultat) {
-        if (!behandling.erSaksbehandlingAvsluttet()) {
+        // Sørge for at reguleringsbehandlinger får satt metode i alle innslag til DVH
+        if (!behandling.erSaksbehandlingAvsluttet() && !behandling.harBehandlingÅrsak(BehandlingÅrsakType.RE_SATS_REGULERING)) {
             return null;
         }
         if (behandling.getAksjonspunktMedDefinisjonOptional(AksjonspunktDefinisjon.FATTER_VEDTAK).filter(Aksjonspunkt::erUtført).isPresent()) {
