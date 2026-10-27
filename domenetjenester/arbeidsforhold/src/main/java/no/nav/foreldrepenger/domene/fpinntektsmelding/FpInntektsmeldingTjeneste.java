@@ -20,6 +20,8 @@ import jakarta.inject.Inject;
 
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektsmeldingTjeneste;
 
+import no.nav.foreldrepenger.domene.iay.modell.kodeverk.NaturalYtelseType;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -151,8 +153,32 @@ public class FpInntektsmeldingTjeneste {
 
     private List<OverstyrInntektsmeldingRequest.BortfaltNaturalytelseRequestDto> mapNaturalytelser(List<NaturalYtelse> naturalYtelser) {
         return naturalYtelser.stream()
-            .map(n -> new OverstyrInntektsmeldingRequest.BortfaltNaturalytelseRequestDto(n.getPeriode().getFomDato(), n.getPeriode().getTomDato(), n.getType(), n.getBeloepPerMnd().getVerdi()))
+            .map(n -> new OverstyrInntektsmeldingRequest.BortfaltNaturalytelseRequestDto(n.getPeriode().getFomDato(), n.getPeriode().getTomDato(), mapNaturalytelse(n.getType()), n.getBeloepPerMnd().getVerdi()))
             .toList();
+    }
+
+    private OverstyrInntektsmeldingRequest.Naturalytelsetype mapNaturalytelse(NaturalYtelseType type) {
+        return switch (type) {
+            case ELEKTRISK_KOMMUNIKASJON -> OverstyrInntektsmeldingRequest.Naturalytelsetype.ELEKTRISK_KOMMUNIKASJON;
+            case AKSJER_GRUNNFONDSBEVIS_TIL_UNDERKURS -> OverstyrInntektsmeldingRequest.Naturalytelsetype.AKSJER_GRUNNFONDSBEVIS_TIL_UNDERKURS;
+            case LOSJI -> OverstyrInntektsmeldingRequest.Naturalytelsetype.LOSJI;
+            case KOST_DØGN -> OverstyrInntektsmeldingRequest.Naturalytelsetype.KOST_DOEGN;
+            case BESØKSREISER_HJEMMET_ANNET -> OverstyrInntektsmeldingRequest.Naturalytelsetype.BESØKSREISER_HJEMMET_ANNET;
+            case KOSTBESPARELSE_I_HJEMMET -> OverstyrInntektsmeldingRequest.Naturalytelsetype.KOSTBESPARELSE_I_HJEMMET;
+            case RENTEFORDEL_LÅN -> OverstyrInntektsmeldingRequest.Naturalytelsetype.RENTEFORDEL_LÅN;
+            case BIL -> OverstyrInntektsmeldingRequest.Naturalytelsetype.BIL;
+            case KOST_DAGER -> OverstyrInntektsmeldingRequest.Naturalytelsetype.KOST_DAGER;
+            case BOLIG -> OverstyrInntektsmeldingRequest.Naturalytelsetype.BOLIG;
+            case SKATTEPLIKTIG_DEL_FORSIKRINGER -> OverstyrInntektsmeldingRequest.Naturalytelsetype.SKATTEPLIKTIG_DEL_FORSIKRINGER;
+            case FRI_TRANSPORT -> OverstyrInntektsmeldingRequest.Naturalytelsetype.FRI_TRANSPORT;
+            case OPSJONER -> OverstyrInntektsmeldingRequest.Naturalytelsetype.OPSJONER;
+            case TILSKUDD_BARNEHAGEPLASS -> OverstyrInntektsmeldingRequest.Naturalytelsetype.TILSKUDD_BARNEHAGEPLASS;
+            case ANNET -> OverstyrInntektsmeldingRequest.Naturalytelsetype.ANNET;
+            case BEDRIFTSBARNEHAGEPLASS -> OverstyrInntektsmeldingRequest.Naturalytelsetype.BEDRIFTSBARNEHAGEPLASS;
+            case YRKEBIL_TJENESTLIGBEHOV_KILOMETER -> OverstyrInntektsmeldingRequest.Naturalytelsetype.YRKEBIL_TJENESTLIGBEHOV_KILOMETER;
+            case YRKEBIL_TJENESTLIGBEHOV_LISTEPRIS -> OverstyrInntektsmeldingRequest.Naturalytelsetype.YRKEBIL_TJENESTLIGBEHOV_LISTEPRIS;
+            case INNBETALING_TIL_UTENLANDSK_PENSJONSORDNING -> OverstyrInntektsmeldingRequest.Naturalytelsetype.INNBETALING_TIL_UTENLANDSK_PENSJONSORDNING;
+        };
     }
 
     private List<OverstyrInntektsmeldingRequest.RefusjonendringRequestDto> mapRefusjonsendringer(Map<LocalDate, Beløp> endringerRefusjon, LocalDate overstyrtOpphørFom) {
