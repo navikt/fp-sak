@@ -128,6 +128,11 @@ public class DatavarehusTjenesteImpl implements DatavarehusTjeneste {
     }
 
     private void lagreNedBehandling(Behandling behandling, Optional<BehandlingVedtak> vedtak) {
+        // Slutt å lagre ned anker inntil vi har ryddet bestanden og migrert til ny modell for Kabal-anker
+        // Kan fjerne alt anke-relatert her når vi har implementert modell for Kabal-anker. Må beholde "våre" 106 anker.
+        if (BehandlingType.ANKE.equals(behandling.getType())) {
+            return;
+        }
         var familieHendelseGrunnlag = familieGrunnlagRepository.hentAggregatHvisEksisterer(behandling.getId());
         Optional<KlageResultatEntitet> gjeldendeKlagevurderingresultat = behandling.getType().erKlageAnkeType()
             ? klageRepository.hentKlageResultatHvisEksisterer(behandling.getId()) : Optional.empty();
