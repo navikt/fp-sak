@@ -13,8 +13,6 @@ import jakarta.validation.constraints.NotNull;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonValue;
 
-import no.nav.foreldrepenger.domene.iay.modell.kodeverk.NaturalYtelseType;
-
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public record OverstyrInntektsmeldingRequest(@NotNull @Valid AktørIdDto aktorId,
                                              @NotNull @Valid ArbeidsgiverDto arbeidsgiverIdent,
@@ -38,9 +36,29 @@ public record OverstyrInntektsmeldingRequest(@NotNull @Valid AktørIdDto aktorId
 
     protected record BortfaltNaturalytelseRequestDto(@NotNull LocalDate fom,
                                                   LocalDate tom,
-                                                  @NotNull NaturalYtelseType naturalytelsetype,
+                                                  @NotNull Naturalytelsetype naturalytelsetype,
                                                   @NotNull @Min(0) @Max(Integer.MAX_VALUE) @Digits(integer = 20, fraction = 2) BigDecimal beløp) {}
-
+    public enum Naturalytelsetype {
+        ELEKTRISK_KOMMUNIKASJON,
+        AKSJER_GRUNNFONDSBEVIS_TIL_UNDERKURS,
+        LOSJI,
+        KOST_DOEGN,
+        BESØKSREISER_HJEMMET_ANNET,
+        KOSTBESPARELSE_I_HJEMMET,
+        RENTEFORDEL_LÅN,
+        BIL,
+        KOST_DAGER,
+        BOLIG,
+        SKATTEPLIKTIG_DEL_FORSIKRINGER,
+        FRI_TRANSPORT,
+        OPSJONER,
+        TILSKUDD_BARNEHAGEPLASS,
+        ANNET,
+        BEDRIFTSBARNEHAGEPLASS,
+        YRKEBIL_TJENESTLIGBEHOV_KILOMETER,
+        YRKEBIL_TJENESTLIGBEHOV_LISTEPRIS,
+        INNBETALING_TIL_UTENLANDSK_PENSJONSORDNING
+    }
     @Override
     public String toString() {
         return "OverstyrInntektsmeldingRequest{" + "aktorId=" + "***" + ", arbeidsgiverIdent=" + "***" + ", startdato=" + startdato
