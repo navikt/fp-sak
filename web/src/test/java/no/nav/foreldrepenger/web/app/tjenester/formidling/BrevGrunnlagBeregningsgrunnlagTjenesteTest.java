@@ -27,6 +27,8 @@ class BrevGrunnlagBeregningsgrunnlagTjenesteTest {
     private static final BigDecimal NAT_TILKOMMET = BigDecimal.valueOf(2120);
     private static final BigDecimal BRUTTO = BigDecimal.valueOf(444432);
 
+
+
     @Test
     void tester_mapping() {
         // Arrange
@@ -70,18 +72,18 @@ class BrevGrunnlagBeregningsgrunnlagTjenesteTest {
         assertThat(dto.beregningsgrunnlagperioder().get(0).beregningsgrunnlagandeler().get(0).erTilkommetAndel()).isFalse();
     }
 
-    private BeregningsgrunnlagPeriode buildBeregningsgrunnlagPeriode(AndelKilde kilde) {
+    private BeregningsgrunnlagPeriode buildBeregningsgrunnlagPeriode() {
         return BeregningsgrunnlagPeriode.builder()
             .medBeregningsgrunnlagPeriode(LocalDate.now().minusDays(20), LocalDate.now().minusDays(15))
             .medBruttoPrÅr(BigDecimal.valueOf(500000))
             .medAvkortetPrÅr(BigDecimal.valueOf(500000))
             .medRedusertPrÅr(BigDecimal.valueOf(500000))
             .leggTilPeriodeÅrsak(PeriodeÅrsak.UDEFINERT)
-            .leggTilBeregningsgrunnlagPrStatusOgAndel(buildBgPrStatusOgAndel(kilde))
+            .leggTilBeregningsgrunnlagPrStatusOgAndel(buildBgPrStatusOgAndel())
             .build();
     }
 
-    private BeregningsgrunnlagPrStatusOgAndel buildBgPrStatusOgAndel(AndelKilde kilde) {
+    private BeregningsgrunnlagPrStatusOgAndel buildBgPrStatusOgAndel() {
         var bga = BGAndelArbeidsforhold
             .builder()
             .medArbeidsgiver(Arbeidsgiver.virksomhet("999999999"))
@@ -100,19 +102,15 @@ class BrevGrunnlagBeregningsgrunnlagTjenesteTest {
             .medRedusertPrÅr(BigDecimal.valueOf(52335))
             .medDagsatsArbeidsgiver(100L)
             .medDagsatsBruker(200L)
-            .medKilde(kilde)
+            .medKilde(AndelKilde.PROSESS_START)
             .build();
     }
 
     private Beregningsgrunnlag buildBeregningsgrunnlag() {
-        return buildBeregningsgrunnlag(AndelKilde.PROSESS_START);
-    }
-
-    private Beregningsgrunnlag buildBeregningsgrunnlag(AndelKilde kilde) {
         return Beregningsgrunnlag.builder()
             .medSkjæringstidspunkt(LocalDate.now())
             .leggTilAktivitetStatus(buildBgAktivitetStatus())
-            .leggTilBeregningsgrunnlagPeriode(buildBeregningsgrunnlagPeriode(kilde))
+            .leggTilBeregningsgrunnlagPeriode(buildBeregningsgrunnlagPeriode())
             .medGrunnbeløp(BigDecimal.valueOf(100000))
             .medBesteberegningsgrunnlag(buildBesteberegning())
             .build();
