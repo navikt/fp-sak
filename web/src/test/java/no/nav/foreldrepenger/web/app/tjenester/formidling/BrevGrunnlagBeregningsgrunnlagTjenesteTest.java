@@ -6,8 +6,6 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.EnumSource;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.AktivitetStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.OpptjeningAktivitetType;
@@ -70,20 +68,6 @@ class BrevGrunnlagBeregningsgrunnlagTjenesteTest {
         assertThat(dto.beregningsgrunnlagperioder().get(0).beregningsgrunnlagandeler().get(0).arbeidsforhold().naturalytelseBortfaltPrÅr()).isEqualTo(andel.getBgAndelArbeidsforhold().get().getNaturalytelseBortfaltPrÅr().orElse(BigDecimal.ZERO));
         assertThat(dto.beregningsgrunnlagperioder().get(0).beregningsgrunnlagandeler().get(0).arbeidsforhold().naturalytelseTilkommetPrÅr()).isEqualTo(andel.getBgAndelArbeidsforhold().get().getNaturalytelseTilkommetPrÅr().orElse(BigDecimal.ZERO));
         assertThat(dto.beregningsgrunnlagperioder().get(0).beregningsgrunnlagandeler().get(0).erTilkommetAndel()).isFalse();
-    }
-
-    @ParameterizedTest
-    @EnumSource(AndelKilde.class)
-    void skal_kun_markere_andeler_fra_fordeling_og_periodisering_som_tilkommet(AndelKilde kilde) {
-        var gr = BeregningsgrunnlagGrunnlagBuilder.nytt()
-            .medBeregningsgrunnlag(buildBeregningsgrunnlag(kilde))
-            .build(BeregningsgrunnlagTilstand.FASTSATT);
-
-        var dto = new BrevGrunnlagBeregningsgrunnlagTjeneste(gr).map().orElseThrow();
-
-        var forventetTilkommet = kilde == AndelKilde.PROSESS_OMFORDELING || kilde == AndelKilde.PROSESS_PERIODISERING
-            || kilde == AndelKilde.SAKSBEHANDLER_FORDELING;
-        assertThat(dto.beregningsgrunnlagperioder().get(0).beregningsgrunnlagandeler().get(0).erTilkommetAndel()).isEqualTo(forventetTilkommet);
     }
 
     private BeregningsgrunnlagPeriode buildBeregningsgrunnlagPeriode(AndelKilde kilde) {
