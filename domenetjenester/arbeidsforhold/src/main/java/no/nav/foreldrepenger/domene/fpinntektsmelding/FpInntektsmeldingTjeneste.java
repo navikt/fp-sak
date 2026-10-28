@@ -5,6 +5,7 @@ import static no.nav.foreldrepenger.behandlingslager.virksomhet.OrgNummer.tilMas
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.LocalDate;
+import java.time.Month;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
@@ -14,6 +15,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -153,7 +155,9 @@ public class FpInntektsmeldingTjeneste {
 
     private List<OverstyrInntektsmeldingRequest.BortfaltNaturalytelseRequestDto> mapNaturalytelser(List<NaturalYtelse> naturalYtelser) {
         return naturalYtelser.stream()
-            .map(n -> new OverstyrInntektsmeldingRequest.BortfaltNaturalytelseRequestDto(n.getPeriode().getFomDato(), n.getPeriode().getTomDato(), mapNaturalytelse(n.getType()), n.getBeloepPerMnd().getVerdi()))
+            .filter(yt -> yt.getPeriode().getFomDato().equals(LocalDate.of(1, Month.JANUARY, 1)))
+            .map(n -> new OverstyrInntektsmeldingRequest.BortfaltNaturalytelseRequestDto(n.getPeriode().getTomDato(), Tid.TIDENES_ENDE,
+                mapNaturalytelse(n.getType()), n.getBeloepPerMnd().getVerdi()))
             .toList();
     }
 

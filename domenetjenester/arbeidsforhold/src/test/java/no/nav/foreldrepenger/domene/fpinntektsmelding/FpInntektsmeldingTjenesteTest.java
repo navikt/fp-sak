@@ -43,7 +43,9 @@ import no.nav.foreldrepenger.domene.arbeidsforhold.InntektsmeldingTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsforhold.impl.InntektsmeldingRegisterTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsgiver.ArbeidsgiverTjeneste;
 import no.nav.foreldrepenger.domene.iay.modell.InntektsmeldingBuilder;
+import no.nav.foreldrepenger.domene.iay.modell.NaturalYtelse;
 import no.nav.foreldrepenger.domene.iay.modell.Refusjon;
+import no.nav.foreldrepenger.domene.iay.modell.kodeverk.NaturalYtelseType;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.Beløp;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
@@ -51,6 +53,7 @@ import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 import no.nav.vedtak.felles.prosesstask.api.TaskType;
+import no.nav.vedtak.konfig.Tid;
 import no.nav.vedtak.mapper.json.DefaultJsonMapper;
 
 
@@ -211,6 +214,31 @@ class FpInntektsmeldingTjenesteTest {
             stp.minusDays(10), OverstyrInntektsmeldingRequest.YtelseType.FORELDREPENGER, BigDecimal.valueOf(5000), BigDecimal.valueOf(6000),
             List.of(), Collections.emptyList(), "Truls Test", saksnummerDto);
         verify(klient, times(1)).overstyrInntektsmelding(forventetRequest);
+    }
+
+    @Test
+    void skal_sende_bortfall_fra_dagen_etter_siste_dag_med_naturalytelse_ved_overstyring() {
+        var startdato = LocalDate.of(2026, 1, 10);
+        var beløp = BigDecimal.valueOf(500);
+        var inntektsmelding = InntektsmeldingBuilder.builder()
+            .medStartDatoPermisjon(startdato)
+            .medArbeidsgiver(Arbeidsgiver.virksomhet("999999999"))
+            .medBeløp(BigDecimal.valueOf(5000))
+            .medRefusjon(BigDecimal.valueOf(5000))
+            .leggTil(new NaturalYtelse(LocalDate.of(1, 1, 1), startdato.plusDays(10), beløp, NaturalYtelseType.BIL))
+            .build();
+        var behandlingRef = new BehandlingReferanse(new Saksnummer("1234"), 1234L, FagsakYtelseType.FORELDREPENGER, 4321L, UUID.randomUUID(),
+            BehandlingStatus.UTREDES, BehandlingType.FØRSTEGANGSSØKNAD, 5432L, new AktørId("9999999999999"), RelasjonsRolleType.MORA);
+
+        fpInntektsmeldingTjeneste.overstyrInntektsmelding(inntektsmelding, Optional.empty(), Optional.empty(), Map.of(),
+            Optional.empty(), "Z123456", behandlingRef);
+
+        var captor = ArgumentCaptor.forClass(OverstyrInntektsmeldingRequest.class);
+        verify(klient).overstyrInntektsmelding(captor.capture());
+        assertThat(captor.getValue().startdato()).isEqualTo(startdato);
+        assertThat(captor.getValue().bortfaltNaturalytelsePerioder()).containsExactly(
+            new OverstyrInntektsmeldingRequest.BortfaltNaturalytelseRequestDto(
+                startdato.plusDays(10), Tid.TIDENES_ENDE, OverstyrInntektsmeldingRequest.Naturalytelsetype.BIL, beløp));
     }
 
     @Test
