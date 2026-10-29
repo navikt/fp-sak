@@ -26,7 +26,7 @@ public class RegisterPathTjeneste {
     private static final String HEADER_SAKSNUMMER_FILTER = "Nav-FagsakId";
 
     private static final String NASJONAL_ENHET = BehandlendeEnhetTjeneste.getNasjonalEnhet().enhetId();
-    private static final String BEREGNING_FILTER = "8-28Foreldrepenger";
+    private static final String BEREGNING_FILTER = "8-28FOR";
 
     private final RestClient restClient;
     private final RestConfig restConfig;
