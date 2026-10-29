@@ -6,8 +6,6 @@ import static no.nav.foreldrepenger.domene.iay.modell.kodeverk.NaturalYtelseType
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.io.IOException;
@@ -20,13 +18,10 @@ import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import no.nav.foreldrepenger.behandling.BehandlingEventPubliserer;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
-import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingEvent;
 import no.nav.foreldrepenger.behandlingslager.behandling.DokumentTypeId;
 import no.nav.foreldrepenger.behandlingslager.behandling.MottattDokument;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
@@ -57,9 +52,6 @@ class InntektsmeldingOversetterTest extends EntityManagerAwareTest {
     private InntektArbeidYtelseTjeneste iayTjeneste;
     private MottatteDokumentRepository mottatteDokumentRepository;
     private InntektsmeldingOversetter oversetter;
-    @Mock
-    private BehandlingEventPubliserer behandlingEventPubliserer;
-
     @BeforeEach
     void setUp() {
         when(virksomhetTjeneste.finnOrganisasjon(any())).thenReturn(Optional.of(Virksomhet.getBuilder()
@@ -69,7 +61,7 @@ class InntektsmeldingOversetterTest extends EntityManagerAwareTest {
             .build()));
         iayTjeneste = new AbakusInMemoryInntektArbeidYtelseTjeneste();
         var inntektsmeldingTjeneste = new InntektsmeldingTjeneste(iayTjeneste);
-        oversetter = new InntektsmeldingOversetter(inntektsmeldingTjeneste, virksomhetTjeneste, behandlingEventPubliserer);
+        oversetter = new InntektsmeldingOversetter(inntektsmeldingTjeneste, virksomhetTjeneste);
         repositoryProvider = new BehandlingRepositoryProvider(getEntityManager());
         mottatteDokumentRepository = new MottatteDokumentRepository(getEntityManager());
     }
@@ -122,8 +114,6 @@ class InntektsmeldingOversetterTest extends EntityManagerAwareTest {
         oversetter.trekkUtDataOgPersister(wrapper, mottattDokument, behandling, Optional.empty());
 
         // Assert
-        verify(behandlingEventPubliserer, times(1)).publiserBehandlingEvent(any(BehandlingEvent.class));
-
         var grunnlag = iayTjeneste.hentGrunnlag(behandling.getId());
 
         var innsendingstidspunkt = grunnlag.getInntektsmeldinger()
@@ -138,21 +128,6 @@ class InntektsmeldingOversetterTest extends EntityManagerAwareTest {
             .isPresent()
             .hasValue(wrapper.getInnsendingstidspunkt().get());
 
-    }
-
-    @Test
-    void skalIkkePublisereEventNårInntektsmeldingErFraArbeidsgiverPortal() throws IOException, URISyntaxException {
-        // Arrange
-        var behandling = opprettBehandling();
-        var mottattDokument = opprettDokument(behandling, "inntektsmelding_naturalytelse_gjenopptak_ignorer_belop.xml");
-
-        var wrapper = (InntektsmeldingWrapper) MottattDokumentXmlParser.unmarshallXml(mottattDokument.getPayloadXml());
-
-        // Act
-        oversetter.trekkUtDataOgPersister(wrapper, mottattDokument, behandling, Optional.empty());
-
-        // Assert
-        verify(behandlingEventPubliserer, times(0)).publiserBehandlingEvent(any(BehandlingEvent.class));
     }
 
     @Test
@@ -176,8 +151,6 @@ class InntektsmeldingOversetterTest extends EntityManagerAwareTest {
         // Så motta eldre inntektsmelding
         Mockito.doReturn(Optional.of(eldreDato)).when(wrapperSpied).getInnsendingstidspunkt();
         oversetter.trekkUtDataOgPersister(wrapperSpied, mottattDokument, behandling, Optional.empty());
-
-        verify(behandlingEventPubliserer, times(2)).publiserBehandlingEvent(any(BehandlingEvent.class));
 
         // Assert
         var grunnlag = iayTjeneste.hentGrunnlag(behandling.getId());
@@ -220,8 +193,6 @@ class InntektsmeldingOversetterTest extends EntityManagerAwareTest {
         // Så motta nyere inntektsmelding
         Mockito.doReturn(Optional.of(nyereDato)).when(wrapperSpied).getInnsendingstidspunkt();
         oversetter.trekkUtDataOgPersister(wrapperSpied, mottattDokument, behandling, Optional.empty());
-
-        verify(behandlingEventPubliserer, times(2)).publiserBehandlingEvent(any(BehandlingEvent.class));
 
         // Assert
         var grunnlag = iayTjeneste.hentGrunnlag(behandling.getId());
