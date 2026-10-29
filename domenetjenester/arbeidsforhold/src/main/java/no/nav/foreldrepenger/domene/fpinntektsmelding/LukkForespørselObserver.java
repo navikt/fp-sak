@@ -1,7 +1,5 @@
 package no.nav.foreldrepenger.domene.fpinntektsmelding;
 
-import static no.nav.foreldrepenger.behandlingslager.virksomhet.OrgNummer.tilMaskertNummer;
-
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.event.Observes;
 import jakarta.inject.Inject;
@@ -32,12 +30,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
         this.fpInntektsmeldingTjeneste = fpInntektsmeldingTjeneste;
         this.behandlingRepository = behandlingRepository;
         this.behandlingsresultatRepository = behandlingsresultatRepository;
-    }
-
-    public void observerLukkForespørselForMotattImEvent(@Observes LukkForespørselForMottattImEvent event) {
-        var maskertOrgnr = tilMaskertNummer(event.getOrgNummer().getId());
-        LOG.info("Mottatt LukkForespørselForMottattImEvent for behandlingId {} med saksnummer {} og orgnummer {}", event.getBehandlingId(), event.getSaksnummer(), maskertOrgnr);
-        fpInntektsmeldingTjeneste.lagLukkForespørselTask(event.behandling(), event.getOrgNummer(), ForespørselStatus.UTFØRT);
     }
 
     //Det er kun for henlagte førstegangsbehandlinger at vi kaller fpinntektsmelding for å sette im-forespøslene til utgått for saken

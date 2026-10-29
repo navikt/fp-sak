@@ -1,7 +1,5 @@
 package no.nav.foreldrepenger.domene.fpinntektsmelding;
 
-import static no.nav.foreldrepenger.behandlingslager.virksomhet.OrgNummer.tilMaskertNummer;
-
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
@@ -38,13 +36,11 @@ public class LukkForespørslerImTask extends GenerellProsessTask {
     @Override
     protected void prosesser(ProsessTaskData prosessTaskData, Long fagsakId, Long behandlingId) {
         var saksnummer = prosessTaskData.getPropertyValue(SAK_NUMMER);
-        var orgnummer = prosessTaskData.getPropertyValue(ORG_NUMMER);
         var status = prosessTaskData.getPropertyValue(STATUS);
-        var maskertOrgnummer = tilMaskertNummer(orgnummer);
 
+        // UTFØRT branchen kan fjernes når alle eksisterende tasks er ferdigkjørt
         if (ForespørselStatus.UTFØRT.name().equals(status)) {
-            LOG.info("Starter task for å sette eventuelle forespørsler i fpinntektsmelding for saksnummer {} og orgnummer {} til utført",  saksnummer, maskertOrgnummer);
-            fpInntektsmeldingTjeneste.lukkForespørsel(saksnummer, orgnummer);
+            LOG.warn("Ignorerer utdatert task for å lukke forespørsel i fpinntektsmelding for saksnummer {}. UTFØRT krever ikke lenger et lukkekall.", saksnummer);
         } else if (ForespørselStatus.UTGÅTT.name().equals(status)) {
             LOG.info("Starter task for å sette eventuelle forespørsler i fpinntektsmelding for saksnummer {} til utgått",  saksnummer);
             fpInntektsmeldingTjeneste.settForespørselTilUtgått(saksnummer);

@@ -33,7 +33,6 @@ public class FpInntektsmeldingKlient {
     private final URI uriOpprettForesporsel;
     private final URI uriOpprettForesporselKomplett;
     private final URI uriOpprettSpesifikkForesporsel;
-    private final URI uriLukkForesporsel;
     private final URI uriOverstyrInntektsmelding;
     private final URI uriSettForesporselTilUtgaatt;
     private final URI uriSendNyBeskjedPåForespørsel;
@@ -45,7 +44,6 @@ public class FpInntektsmeldingKlient {
         this.uriOpprettForesporsel = toUri(restConfig.fpContextPath(), "/api/foresporsel/opprett");
         this.uriOpprettForesporselKomplett = toUri(restConfig.fpContextPath(), "/api/foresporsel/opprett-komplett");
         this.uriOpprettSpesifikkForesporsel = toUri(restConfig.fpContextPath(), "/api/foresporsel/opprett-en");
-        this.uriLukkForesporsel = toUri(restConfig.fpContextPath(), "/api/foresporsel/lukk");
         this.uriOverstyrInntektsmelding = toUri(restConfig.fpContextPath(), "/api/overstyring/inntektsmelding");
         this.uriSettForesporselTilUtgaatt = toUri(restConfig.fpContextPath(), "/api/foresporsel/sett-til-utgatt");
         this.uriSendNyBeskjedPåForespørsel = toUri(restConfig.fpContextPath(), "/api/foresporsel/ny-beskjed");
@@ -94,17 +92,6 @@ public class FpInntektsmeldingKlient {
             restClient.send(request, String.class);
         } catch (Exception e) {
             LOG.warn("Feil ved overstyring av inntektsmelding med request: {}", overstyrInntektsmeldingRequest);
-            throw feilVedKallTilFpinntektsmelding(e);
-        }
-    }
-
-    public void lukkForespørsel(LukkForespørselRequest lukkForespørselRequest) {
-        Objects.requireNonNull(lukkForespørselRequest, REQUEST);
-        try {
-            LOG.info("Sender lukk forespørsel request til fpinntektsmelding for saksnummer {} med organisasjonsnummer {}", lukkForespørselRequest.fagsakSaksnummer().saksnr(), lukkForespørselRequest.orgnummer());
-            var request = RestRequest.newPOSTJson(lukkForespørselRequest, uriLukkForesporsel, restConfig);
-            restClient.send(request, String.class);
-        } catch (Exception e) {
             throw feilVedKallTilFpinntektsmelding(e);
         }
     }

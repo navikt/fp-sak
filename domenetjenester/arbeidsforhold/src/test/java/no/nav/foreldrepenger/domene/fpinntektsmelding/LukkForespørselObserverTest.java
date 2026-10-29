@@ -1,6 +1,5 @@
 package no.nav.foreldrepenger.domene.fpinntektsmelding;
 
-import static no.nav.foreldrepenger.behandlingslager.virksomhet.OrgNummer.KUNSTIG_ORG;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -26,7 +25,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingL�
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
-import no.nav.foreldrepenger.behandlingslager.virksomhet.OrgNummer;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 
@@ -46,19 +44,6 @@ class LukkForespørselObserverTest {
         lukkForespørselObserver = new LukkForespørselObserver(fpInntektsmeldingTjeneste, behandlingRepository, behandlingsresultatRepository);
     }
 
-    @Test
-    void observer_mottattImEvent() {
-        var fagsak = Fagsak.opprettNy(FagsakYtelseType.SVANGERSKAPSPENGER, NavBruker.opprettNyNB(AktørId.dummy()), new Saksnummer("123"));
-        var behandling = Behandling.forFørstegangssøknad(fagsak).build();
-        var orgnr = new OrgNummer(KUNSTIG_ORG);
-
-        var event = new LukkForespørselForMottattImEvent(behandling, orgnr);
-
-        lukkForespørselObserver.observerLukkForespørselForMotattImEvent(event);
-
-        verify(fpInntektsmeldingTjeneste, times(1)).lagLukkForespørselTask(behandling, orgnr, ForespørselStatus.UTFØRT);
-
-    }
     @Test
     void observer_behandling_avsluttet_event_skal_sette_forespørsel_utgått() {
         var fagsak = Fagsak.opprettNy(FagsakYtelseType.FORELDREPENGER, NavBruker.opprettNyNB(AktørId.dummy()), new Saksnummer("123"));

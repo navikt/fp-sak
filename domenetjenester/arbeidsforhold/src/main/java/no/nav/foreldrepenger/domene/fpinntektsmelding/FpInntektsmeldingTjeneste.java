@@ -15,7 +15,6 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -392,17 +391,6 @@ public class FpInntektsmeldingTjeneste {
         taskdata.setProperty(LukkForespørslerImTask.STATUS, status.name());
         taskdata.setProperty(LukkForespørslerImTask.SAK_NUMMER, behandling.getSaksnummer().getVerdi());
         prosessTaskTjeneste.lagre(taskdata);
-    }
-
-    public void lukkForespørsel(String saksnummer, String orgnummer) {
-        if (!OrganisasjonsNummerValidator.erGyldig(orgnummer)) {
-            if (LOG.isWarnEnabled()) {
-                LOG.warn("FpInntektsmeldingTjeneste: Lukker ikke forespørsel for saksnummer: {} fordi orgnummer: {} ikke er gyldig", saksnummer, tilMaskertNummer(orgnummer));
-            }
-            return;
-        }
-        var request = new LukkForespørselRequest(new OrganisasjonsnummerDto(orgnummer), new SaksnummerDto(saksnummer));
-        klient.lukkForespørsel(request);
     }
 
     public void settForespørselTilUtgått(String saksnummer) {
