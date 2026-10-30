@@ -9,7 +9,6 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 import java.time.LocalDate;
@@ -19,8 +18,6 @@ import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
@@ -154,15 +151,13 @@ class InnhentRegisteropplysningerResterendeOppgaverStegImplTest {
     }
 
 
-    @ParameterizedTest
-    @ValueSource(booleans = {true, false})
-    void skal_ikke_sende_brev_når_etterlysning_sendt(boolean nyInnsendingPå) {
+    @Test
+    void skal_ikke_sende_brev_når_etterlysning_sendt() {
         // Arrange
         var scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
         var behandling = scenario.lagre(repositoryProvider);
         when(kompletthetsjekker.vurderEtterlysningInntektsmelding(any(), any())).thenReturn(KompletthetResultat.fristUtløpt());
         when(dokumentBehandlingTjeneste.erDokumentBestilt(any(), any())).thenReturn(true);
-        when(fpInntektsmeldingTjeneste.erToggleForNyInnsendingPå()).thenReturn(nyInnsendingPå);
         mockPersonopplysningKall(behandling);
         mockSkjæringstidspunkt(LocalDate.now().plusWeeks(2));
 
@@ -174,21 +169,17 @@ class InnhentRegisteropplysningerResterendeOppgaverStegImplTest {
         assertThat(resultat.getTransisjon().stegTransisjon()).isEqualTo(StegTransisjon.UTFØRT);
         assertThat(resultat.getAksjonspunktResultater()).isEmpty();
         verify(dokumentBestillerTjenesteMock, never()).bestillDokument(any(DokumentBestilling.class));
-        verify(fpInntektsmeldingTjeneste).erToggleForNyInnsendingPå();
-        verify(fpInntektsmeldingTjeneste, times(nyInnsendingPå ? 1 : 0)).lagTaskForespørAlleInntektsmeldinger(BehandlingReferanse.fra(behandling));
-        verifyNoMoreInteractions(fpInntektsmeldingTjeneste);
+        verify(fpInntektsmeldingTjeneste, times(1)).lagTaskForespørAlleInntektsmeldinger(BehandlingReferanse.fra(behandling));
     }
 
-    @ParameterizedTest
-    @ValueSource(booleans = {true, false})
-    void skal_etterlyse_IM_hvis_kompletthetsjekk_er_ikke_oppfylt_og_ventefrist_er_passert(boolean nyInnsendingPå) {
+    @Test
+    void skal_etterlyse_IM_hvis_kompletthetsjekk_er_ikke_oppfylt_og_ventefrist_er_passert() {
         // Arrange
         var scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
         var behandling = scenario.lagre(repositoryProvider);
         var ventefrist = LocalDateTime.now().plusWeeks(1);
         when(kompletthetsjekker.vurderEtterlysningInntektsmelding(any(), any())).thenReturn(KompletthetResultat.ikkeOppfylt(ventefrist, Venteårsak.VENT_OPDT_INNTEKTSMELDING));
         when(dokumentBehandlingTjeneste.erDokumentBestilt(any(), any())).thenReturn(false);
-        when(fpInntektsmeldingTjeneste.erToggleForNyInnsendingPå()).thenReturn(nyInnsendingPå);
         mockSkjæringstidspunkt(LocalDate.now().plusWeeks(2));
 
         // Act
@@ -197,20 +188,16 @@ class InnhentRegisteropplysningerResterendeOppgaverStegImplTest {
         // Assert
         assertThat(resultat.getAksjonspunktResultater()).containsExactly(opprettForAksjonspunktMedFrist(AUTO_VENT_ETTERLYST_INNTEKTSMELDING, Venteårsak.VENT_OPDT_INNTEKTSMELDING, ventefrist));
         verify(dokumentBestillerTjenesteMock, times(1)).bestillDokument(any(DokumentBestilling.class));
-        verify(fpInntektsmeldingTjeneste).erToggleForNyInnsendingPå();
-        verify(fpInntektsmeldingTjeneste, times(nyInnsendingPå ? 1 : 0)).lagTaskForespørAlleInntektsmeldinger(BehandlingReferanse.fra(behandling));
-        verifyNoMoreInteractions(fpInntektsmeldingTjeneste);
+        verify(fpInntektsmeldingTjeneste, times(1)).lagTaskForespørAlleInntektsmeldinger(BehandlingReferanse.fra(behandling));
     }
 
-    @ParameterizedTest
-    @ValueSource(booleans = {true, false})
-    void skal_etterlyse_IM_hvis_kompletthetsjekk_er_ikke_oppfylt_og_ventefrist_er_utgått(boolean nyInnsendingPå) {
+    @Test
+    void skal_etterlyse_IM_hvis_kompletthetsjekk_er_ikke_oppfylt_og_ventefrist_er_utgått() {
         // Arrange
         var scenario = ScenarioMorSøkerForeldrepenger.forFødsel();
         var behandling = scenario.lagre(repositoryProvider);
         when(kompletthetsjekker.vurderEtterlysningInntektsmelding(any(), any())).thenReturn(KompletthetResultat.fristUtløpt());
         when(dokumentBehandlingTjeneste.erDokumentBestilt(any(), any())).thenReturn(false);
-        when(fpInntektsmeldingTjeneste.erToggleForNyInnsendingPå()).thenReturn(nyInnsendingPå);
         mockPersonopplysningKall(behandling);
         mockSkjæringstidspunkt(LocalDate.now().plusWeeks(2));
 
@@ -222,9 +209,7 @@ class InnhentRegisteropplysningerResterendeOppgaverStegImplTest {
         assertThat(resultat.getTransisjon().stegTransisjon()).isEqualTo(StegTransisjon.UTFØRT);
         assertThat(resultat.getAksjonspunktResultater()).isEmpty();
         verify(dokumentBestillerTjenesteMock, times(1)).bestillDokument(any(DokumentBestilling.class));
-        verify(fpInntektsmeldingTjeneste).erToggleForNyInnsendingPå();
-        verify(fpInntektsmeldingTjeneste, times(nyInnsendingPå ? 1 : 0)).lagTaskForespørAlleInntektsmeldinger(BehandlingReferanse.fra(behandling));
-        verifyNoMoreInteractions(fpInntektsmeldingTjeneste);
+        verify(fpInntektsmeldingTjeneste, times(1)).lagTaskForespørAlleInntektsmeldinger(BehandlingReferanse.fra(behandling));
     }
 
     private void mockPersonopplysningKall(Behandling behandling) {

@@ -438,6 +438,19 @@ class FpInntektsmeldingTjenesteTest {
     }
 
     @Test
+    void skal_ikke_opprette_forespørsel_når_ingen_inntektsmeldinger_mangler() {
+        var stp = LocalDate.of(2024, 9, 1);
+        var behandlingRef = new BehandlingReferanse(new Saksnummer("1234"), 1234L, FagsakYtelseType.FORELDREPENGER, 4321L, UUID.randomUUID(),
+            BehandlingStatus.UTREDES, BehandlingType.FØRSTEGANGSSØKNAD, 5432L, new AktørId("9999999999999"), RelasjonsRolleType.MORA);
+        var skjæringstidspunkt = Skjæringstidspunkt.builder().medUtledetSkjæringstidspunkt(stp).medFørsteUttaksdato(stp).build();
+        when(inntektsmeldingRegisterTjeneste.hentAllePåkrevdeInntektsmeldinger(behandlingRef, skjæringstidspunkt)).thenReturn(Map.of());
+
+        fpInntektsmeldingTjeneste.lagForespørselForAlleArbeidsgivere(behandlingRef, skjæringstidspunkt);
+
+        verifyNoInteractions(klient, inntektsmeldingTjeneste);
+    }
+
+    @Test
     void skal_serialisere_komplett_forespørsel_med_organisasjonsnummer() {
         var orgnummer = new OrganisasjonsnummerDto("999999999");
         var orgnummer2 = new OrganisasjonsnummerDto("123456789");
@@ -488,26 +501,6 @@ class FpInntektsmeldingTjenesteTest {
               }
             }
             """.formatted(erInntektsmeldingMottatt)));
-    }
-
-    @Test
-    void skal_beholde_organisasjonsnumre_i_gammelt_endepunkt() {
-        var request = new OpprettForespørselRequest(new AktørIdDto("9999999999999"), null, LocalDate.of(2024, 9, 1),
-            FpInntektsmeldingYtelse.FORELDREPENGER, new SaksnummerDto("1234"), LocalDate.of(2024, 9, 5),
-            List.of(new OrganisasjonsnummerDto("999999999")));
-
-        var json = DefaultJsonMapper.treeFromJson(DefaultJsonMapper.toJson(request));
-
-        assertThat(json).isEqualTo(DefaultJsonMapper.treeFromJson("""
-            {
-              "aktørId": "9999999999999",
-              "skjæringstidspunkt": "2024-09-01",
-              "ytelsetype": "FORELDREPENGER",
-              "fagsakSaksnummer": "1234",
-              "førsteUttaksdato": "2024-09-05",
-              "organisasjonsnumre": ["999999999"]
-            }
-            """));
     }
 
     @ParameterizedTest
