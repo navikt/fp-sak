@@ -30,7 +30,6 @@ public class FpInntektsmeldingKlient {
 
     private final RestClient restClient;
     private final RestConfig restConfig;
-    private final URI uriOpprettForesporsel;
     private final URI uriOpprettForesporselKomplett;
     private final URI uriOpprettSpesifikkForesporsel;
     private final URI uriOverstyrInntektsmelding;
@@ -41,24 +40,11 @@ public class FpInntektsmeldingKlient {
     public FpInntektsmeldingKlient() {
         this.restClient = RestClient.client();
         this.restConfig = RestConfig.forClient(FpInntektsmeldingKlient.class);
-        this.uriOpprettForesporsel = toUri(restConfig.fpContextPath(), "/api/foresporsel/opprett");
         this.uriOpprettForesporselKomplett = toUri(restConfig.fpContextPath(), "/api/foresporsel/opprett-komplett");
         this.uriOpprettSpesifikkForesporsel = toUri(restConfig.fpContextPath(), "/api/foresporsel/opprett-en");
         this.uriOverstyrInntektsmelding = toUri(restConfig.fpContextPath(), "/api/overstyring/inntektsmelding");
         this.uriSettForesporselTilUtgaatt = toUri(restConfig.fpContextPath(), "/api/foresporsel/sett-til-utgatt");
         this.uriSendNyBeskjedPåForespørsel = toUri(restConfig.fpContextPath(), "/api/foresporsel/ny-beskjed");
-    }
-
-    public OpprettForespørselRespons opprettForespørsel(OpprettForespørselRequest opprettForespørselRequest) {
-        Objects.requireNonNull(opprettForespørselRequest, REQUEST);
-        try {
-            LOG.info("Sender request til fpinntektsmelding for saksnummer {} ", opprettForespørselRequest.fagsakSaksnummer().saksnr());
-            var request = RestRequest.newPOSTJson(opprettForespørselRequest, uriOpprettForesporsel, restConfig);
-           return restClient.send(request, OpprettForespørselRespons.class);
-        } catch (Exception e) {
-            LOG.warn("Feil ved opprettelse av inntektsmelding med request: {}", opprettForespørselRequest);
-            throw feilVedKallTilFpinntektsmelding(e);
-        }
     }
 
     public OpprettForespørselRespons opprettForespørselKomplett(OpprettKomplettForespørslerRequest opprettForespørselRequest) {
