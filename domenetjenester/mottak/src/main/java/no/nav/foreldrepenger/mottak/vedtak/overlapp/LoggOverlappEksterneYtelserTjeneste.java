@@ -37,7 +37,6 @@ import no.nav.foreldrepenger.domene.tid.ÅpenDatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.PersonIdent;
 import no.nav.foreldrepenger.mottak.vedtak.rest.DpsakKlient;
-import no.nav.foreldrepenger.mottak.vedtak.rest.InfotrygdPSGrunnlag;
 import no.nav.foreldrepenger.mottak.vedtak.rest.InfotrygdSPGrunnlag;
 import no.nav.fpsak.tidsserie.LocalDateInterval;
 import no.nav.fpsak.tidsserie.LocalDateSegment;
@@ -67,7 +66,6 @@ public class LoggOverlappEksterneYtelserTjeneste {
     private BeregningsresultatRepository beregningsresultatRepository;
     private BehandlingRepository behandlingRepository;
     private PersoninfoAdapter personinfoAdapter;
-    private InfotrygdPSGrunnlag infotrygdPSGrTjeneste;
     private InfotrygdSPGrunnlag infotrygdSPGrTjeneste;
     private AbakusTjeneste abakusTjeneste;
     private Spøkelse spøkelse;
@@ -79,7 +77,6 @@ public class LoggOverlappEksterneYtelserTjeneste {
     @Inject
     public LoggOverlappEksterneYtelserTjeneste(BeregningsresultatRepository beregningsresultatRepository,
                                                PersoninfoAdapter personinfoAdapter,
-                                               InfotrygdPSGrunnlag infotrygdPSGrTjeneste,
                                                InfotrygdSPGrunnlag infotrygdSPGrTjeneste,
                                                AbakusTjeneste abakusTjeneste,
                                                Spøkelse spøkelse,
@@ -90,7 +87,6 @@ public class LoggOverlappEksterneYtelserTjeneste {
         this.beregningsresultatRepository = beregningsresultatRepository;
         this.behandlingRepository = behandlingRepository;
         this.personinfoAdapter = personinfoAdapter;
-        this.infotrygdPSGrTjeneste = infotrygdPSGrTjeneste;
         this.infotrygdSPGrTjeneste = infotrygdSPGrTjeneste;
         this.abakusTjeneste = abakusTjeneste;
         this.spøkelse = spøkelse;
@@ -242,11 +238,7 @@ public class LoggOverlappEksterneYtelserTjeneste {
                                           LocalDateTimeline<BigDecimal> perioderFp,
                                           List<OverlappVedtak.Builder> overlappene) {
         var infotrygdRequest = new GrunnlagRequest(ident.getIdent(), førsteUttaksDatoFP.minusMonths(1), førsteUttaksDatoFP.plusYears(3));
-        //sjekker om noen av vedtaksperiodene i Infotrygd på sykepenger eller pleiepenger overlapper med perioderFp
-        var infotrygdPSGrunnlag = infotrygdPSGrTjeneste.hentGrunnlag(infotrygdRequest);
-        overlappene.addAll(finnGradertOverlapp(perioderFp, Fagsystem.INFOTRYGD, OverlappVedtak.OverlappYtelseType.BS, null,
-            finnTidslinjeFraGrunnlagene(infotrygdPSGrunnlag)));
-
+        //sjekker om noen av vedtaksperiodene i Infotrygd for sykepenger overlapper med perioderFp
         var infotrygdSPGrunnlag = infotrygdSPGrTjeneste.hentGrunnlag(infotrygdRequest);
         overlappene.addAll(
             finnGradertOverlapp(perioderFp, Fagsystem.INFOTRYGD, OverlappVedtak.OverlappYtelseType.SP, null,
