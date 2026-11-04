@@ -95,8 +95,7 @@ class VedtaksHendelseHåndtererTest extends EntityManagerAwareTest {
         var fagsakTjeneste = new FagsakTjeneste(new FagsakRepository(getEntityManager()),
             new SøknadRepository(getEntityManager(), behandlingRepository));
         var overlappOppgaveTjeneste = new OverlappOppgaveTjeneste(oppgaveTjenesteMock);
-        var overlappTjeneste = new LoggOverlappEksterneYtelserTjeneste(beregningsresultatRepository, null,
-            null, null, null, null,
+        var overlappTjeneste = new LoggOverlappEksterneYtelserTjeneste(beregningsresultatRepository, null, null, null, null,
             null, overlappInfotrygdRepository, behandlingRepository, overlappOppgaveTjeneste);
         lenient().when(mottakRepository.hendelseErNy(any())).thenReturn(true);
         vedtaksHendelseHåndterer = new VedtaksHendelseHåndterer("topic", fagsakTjeneste, beregningsresultatRepository, behandlingRepository, overlappTjeneste,
