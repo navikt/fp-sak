@@ -14,6 +14,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import jakarta.persistence.Transient;
 import jakarta.persistence.Version;
+import jakarta.validation.constraints.NotNull;
 
 import no.nav.foreldrepenger.behandlingslager.BaseEntitet;
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Fagsystem;
@@ -42,8 +43,9 @@ public class OverlappVedtak extends BaseEntitet {
     @Column(name = "versjon", nullable = false)
     private long versjon;
 
-    @Embedded
-    @AttributeOverride(name = "saksnummer", column = @Column(name = "saksnummer", nullable = false))
+    @NotNull
+    @Convert(converter = Saksnummer.SaksnummerConverter.class)
+    @Column(name = "saksnummer", nullable=false)
     private Saksnummer saksnummer;
 
     @Column(name = "BEHANDLING_ID", nullable = false, updatable = false)

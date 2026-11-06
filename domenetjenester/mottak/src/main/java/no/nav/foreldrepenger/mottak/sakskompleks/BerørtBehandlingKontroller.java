@@ -164,7 +164,7 @@ public class BerørtBehandlingKontroller {
     private void opprettBerørtBehandling(Fagsak fagsakMedforelder,
                                          Behandlingsresultat behandlingsresultatBruker,
                                          BerørtBehandlingTjeneste.BerørtÅrsak årsak) {
-        fagsakLåsRepository.taLås(fagsakMedforelder.getId());
+        fagsakLåsRepository.taLås(fagsakMedforelder.getSaksnummer());
         // Låse behandling som potensielt skal settes på vent
         behandlingRepository.hentSisteYtelsesBehandlingForFagsakId(fagsakMedforelder.getId()).ifPresent(behandlingRepository::taSkriveLås);
         var åpenTømUttak = behandlingRepository.hentÅpneYtelseBehandlingerForFagsakId(fagsakMedforelder.getId())
@@ -203,7 +203,7 @@ public class BerørtBehandlingKontroller {
     }
 
     private void opprettDekningsgradRevurdering(Fagsak fagsakMedforelder) {
-        fagsakLåsRepository.taLås(fagsakMedforelder.getId());
+        fagsakLåsRepository.taLås(fagsakMedforelder.getSaksnummer());
         var revurderingMedforelder = behandlingsoppretter.opprettRevurdering(fagsakMedforelder, BehandlingÅrsakType.ENDRE_DEKNINGSGRAD);
         if (køKontroller.skalEvtNyBehandlingKøes(fagsakMedforelder)) {
             køKontroller.enkøBehandling(revurderingMedforelder);
@@ -213,7 +213,7 @@ public class BerørtBehandlingKontroller {
     }
 
     private void opprettFerieBerørtBehandling(Fagsak fagsakMedforelder, Behandlingsresultat behandlingsresultatBruker) {
-        fagsakLåsRepository.taLås(fagsakMedforelder.getId());
+        fagsakLåsRepository.taLås(fagsakMedforelder.getSaksnummer());
         var åpenTømUttak = behandlingRepository.hentÅpneYtelseBehandlingerForFagsakId(fagsakMedforelder.getId())
             .stream()
             .anyMatch(SpesialBehandling::erOppsagtUttak);

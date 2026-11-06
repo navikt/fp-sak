@@ -2,10 +2,8 @@ package no.nav.foreldrepenger.behandlingslager.fagsak;
 
 import java.util.Objects;
 
-import jakarta.persistence.AttributeOverride;
 import jakarta.persistence.Column;
 import jakarta.persistence.Convert;
-import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -17,9 +15,9 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.PreRemove;
 import jakarta.persistence.Table;
 import jakarta.persistence.Version;
-
 import jakarta.validation.constraints.NotNull;
 
+import org.hibernate.annotations.NaturalId;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -61,9 +59,10 @@ public class Fagsak extends BaseEntitet {
     /**
      * Saksnummer generert fra egen sekvens. Er en ekstern identifikator for fagsaken.
      */
+    @NaturalId
     @NotNull
-    @Embedded
-    @AttributeOverride(name = "saksnummer", column = @Column(name = "saksnummer"))
+    @Convert(converter = Saksnummer.SaksnummerConverter.class)
+    @Column(name = "saksnummer", unique = true, nullable = false, updatable = false)
     private Saksnummer saksnummer;
 
     @Convert(converter = BooleanToStringConverter.class)

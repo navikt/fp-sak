@@ -86,7 +86,7 @@ public class HåndterOpphørAvYtelser {
                 .ifPresent(b -> {
                     Optional.ofNullable(beskrivelse).ifPresent(beskriv -> opprettVurderKonsekvens(b, beskriv));
                     var enhet = utledEnhetFraBehandling(b);
-                    fagsakLåsRepository.taLås(fagsak.getId());
+                    fagsakLåsRepository.taLås(fagsak.getSaksnummer());
                     var skalKøes = køKontroller.skalEvtNyBehandlingKøes(fagsak);
                     var revurdering = opprettRevurdering(fagsak, årsakType, enhet, skalKøes);
                     if (revurdering != null) {

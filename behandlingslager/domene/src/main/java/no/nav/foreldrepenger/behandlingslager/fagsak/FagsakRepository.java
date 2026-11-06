@@ -10,11 +10,11 @@ import java.util.Set;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.persistence.EntityManager;
+import jakarta.persistence.FindOption;
 import jakarta.persistence.LockModeType;
 
-import jakarta.persistence.TypedQuery;
-
-import org.hibernate.jpa.HibernateHints;
+import org.hibernate.KeyType;
+import org.hibernate.ReadOnlyMode;
 import org.hibernate.query.NativeQuery;
 
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBruker;
@@ -24,18 +24,13 @@ import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.Relasj
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.JournalpostId;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
-import no.nav.vedtak.exception.TekniskException;
-import no.nav.vedtak.felles.jpa.HibernateVerktøy;
+import no.nav.vedtak.felles.jpa.TomtResultatException;
 
 @ApplicationScoped
 public class FagsakRepository {
 
     public EntityManager getEntityManager() {
         return entityManager;
-    }
-
-    public void setEntityManager(EntityManager entityManager) {
-        this.entityManager = entityManager;
     }
 
     private EntityManager entityManager;
@@ -51,42 +46,43 @@ public class FagsakRepository {
     }
 
     public Fagsak finnEksaktFagsak(long fagsakId) {
-        var query = getFagsakQuery(fagsakId);
-        var fagsak = HibernateVerktøy.hentEksaktResultat(query);
-        entityManager.refresh(fagsak); // hent alltid på nytt
-        return fagsak;
+        return Optional.ofNullable(entityManager.find(Fagsak.class, fagsakId))
+            .orElseThrow(() -> ikkeFunnet(String.valueOf(fagsakId)));
     }
 
     public Fagsak finnEksaktFagsak(Saksnummer saksnummer) {
-        var query = getFagsakWhereSaksnummerQuery(saksnummer);
-        var fagsak = HibernateVerktøy.hentEksaktResultat(query);
-        entityManager.refresh(fagsak); // hent alltid på nytt
-        return fagsak;
+        return hentSakGittSaksnummer(saksnummer)
+            .orElseThrow(() -> ikkeFunnet(saksnummer.verdi()));
     }
 
     public Fagsak finnEksaktFagsakReadOnly(long fagsakId) {
-        var query = getFagsakQuery(fagsakId)
-            .setHint(HibernateHints.HINT_READ_ONLY, "true");
-        var fagsak = HibernateVerktøy.hentEksaktResultat(query);
-        entityManager.refresh(fagsak); // hent alltid på nytt
-        return fagsak;
+        return Optional.ofNullable(entityManager.find(Fagsak.class, fagsakId, ReadOnlyMode.READ_ONLY))
+            .orElseThrow(() -> ikkeFunnet(String.valueOf(fagsakId)));
     }
 
     public Fagsak finnEksaktFagsakReadOnly(Saksnummer saksnummer) {
-        var query = getFagsakWhereSaksnummerQuery(saksnummer)
-            .setHint(HibernateHints.HINT_READ_ONLY, "true");
-        var fagsak = HibernateVerktøy.hentEksaktResultat(query);
-        entityManager.refresh(fagsak); // hent alltid på nytt
-        return fagsak;
+        return Optional.ofNullable(entityManager.find(Fagsak.class, saksnummer, KeyType.NATURAL, KeyType.NATURAL, ReadOnlyMode.READ_ONLY))
+            .orElseThrow(() -> ikkeFunnet(saksnummer.verdi()));
     }
 
-    public Optional<Fagsak> finnUnikFagsak(long fagsakId) {
-        var query = getFagsakQuery(fagsakId);
-        var opt = HibernateVerktøy.hentUniktResultat(query);
-        if (opt.isPresent()) {
-            entityManager.refresh(opt.get());
+    private static TomtResultatException ikkeFunnet(String sak) {
+        return new TomtResultatException("F-650018", String.format("Sak %s ikke funnet", sak));
+    }
+
+    public Optional<Fagsak> hentSakGittSaksnummer(Saksnummer saksnummer) {
+        return hentSakGittSaksnummer(saksnummer, KeyType.NATURAL);
+    }
+
+    public Optional<Fagsak> hentSakGittSaksnummer(Saksnummer saksnummer, boolean taSkriveLås) {
+        if (taSkriveLås) {
+            return hentSakGittSaksnummer(saksnummer, KeyType.NATURAL, LockModeType.PESSIMISTIC_WRITE);
+        } else {
+            return hentSakGittSaksnummer(saksnummer, KeyType.NATURAL);
         }
-        return opt;
+    }
+
+    private Optional<Fagsak> hentSakGittSaksnummer(Saksnummer saksnummer, FindOption... findOptions) {
+        return Optional.ofNullable(entityManager.find(Fagsak.class, saksnummer, findOptions));
     }
 
     public List<Fagsak> hentForBruker(AktørId aktørId) {
@@ -111,21 +107,6 @@ public class FagsakRepository {
         query.setParameter("journalpost", journalpostId);
         var journalposter = query.getResultList();
         return journalposter.isEmpty() ? Optional.empty() : Optional.ofNullable(journalposter.getFirst());
-    }
-
-    public Optional<Fagsak> hentSakGittSaksnummer(Saksnummer saksnummer) {
-        var query = getFagsakWhereSaksnummerQuery(saksnummer);
-
-        var fagsaker = query.getResultList();
-        if (fagsaker.size() > 1) {
-            throw flereEnnEnFagsakFeil(saksnummer);
-        }
-
-        return fagsaker.isEmpty() ? Optional.empty() : Optional.of(fagsaker.getFirst());
-    }
-
-    private TekniskException flereEnnEnFagsakFeil(Saksnummer saksnummer) {
-        return new TekniskException("FP-429883", "Det var flere enn en Fagsak for saksnummer: " + saksnummer);
     }
 
     public Long opprettNy(Fagsak fagsak) {
@@ -169,19 +150,6 @@ public class FagsakRepository {
         entityManager.flush();
     }
 
-    public Optional<Fagsak> hentSakGittSaksnummer(Saksnummer saksnummer, boolean taSkriveLås) {
-        var query = getFagsakWhereSaksnummerQuery(saksnummer);
-        if (taSkriveLås) {
-            query.setLockMode(LockModeType.PESSIMISTIC_WRITE);
-        }
-
-        var fagsaker = query.getResultList();
-        if (fagsaker.size() > 1) {
-            throw flereEnnEnFagsakFeil(saksnummer);
-        }
-
-        return fagsaker.isEmpty() ? Optional.empty() : Optional.of(fagsaker.getFirst());
-    }
 
     public Long lagre(Journalpost journalpost) {
         entityManager.persist(journalpost);
@@ -273,27 +241,4 @@ public class FagsakRepository {
         return query.getResultList();
     }
 
-
-    public List<Fagsak> finnLøpendeFagsakerFPForEnPeriode(LocalDateTime fraDatoTid, LocalDateTime tilDatoTid) {
-        var query = entityManager.createQuery("select f from Fagsak f " +
-                    "where f.fagsakStatus = :lopende and f.opprettetTidspunkt > :fomTid and f.opprettetTidspunkt < :tomTid and f.ytelseType in (:fp, :svp)",
-                Fagsak.class)
-            .setParameter("lopende", FagsakStatus.LØPENDE)
-            .setParameter("fomTid", fraDatoTid)
-            .setParameter("tomTid", tilDatoTid)
-            .setParameter("fp", FagsakYtelseType.FORELDREPENGER)
-            .setParameter("svp", FagsakYtelseType.SVANGERSKAPSPENGER);
-
-        return query.getResultList();
-    }
-
-    private TypedQuery<Fagsak> getFagsakQuery(long fagsakId) {
-        var query = entityManager.createQuery("from Fagsak where id=:fagsakId", Fagsak.class);
-        query.setParameter("fagsakId", fagsakId);
-        return query;
-    }
-
-    private TypedQuery<Fagsak> getFagsakWhereSaksnummerQuery(Saksnummer saksnummer) {
-        return entityManager.createQuery("from Fagsak where saksnummer=:saksnummer", Fagsak.class).setParameter( "saksnummer", saksnummer);
-    }
 }

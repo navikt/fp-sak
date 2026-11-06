@@ -5,6 +5,7 @@ import java.util.Optional;
 
 import jakarta.persistence.AttributeOverride;
 import jakarta.persistence.Column;
+import jakarta.persistence.Convert;
 import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -37,9 +38,9 @@ public class PleiepengerInnleggelseEntitet extends BaseEntitet implements IndexK
     @ChangeTracked
     private DatoIntervallEntitet periode;
 
-    @Embedded
     @ChangeTracked
-    @AttributeOverride(name = "saksnummer", column = @Column(name = "psb_saksnummer"))
+    @Convert(converter = Saksnummer.SaksnummerConverter.class)
+    @Column(name = "psb_saksnummer")
     private Saksnummer pleiepengerSaksnummer;
 
     @Embedded

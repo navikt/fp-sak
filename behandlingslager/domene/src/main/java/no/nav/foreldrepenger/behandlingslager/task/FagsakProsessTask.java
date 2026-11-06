@@ -6,6 +6,7 @@ import java.util.Optional;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingLåsRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakLåsRepository;
+import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskHandler;
 
@@ -37,7 +38,7 @@ public abstract class FagsakProsessTask implements ProsessTaskHandler {
             .sorted(Comparator.naturalOrder())
             .forEach(behandling -> behandlingLåsRepository.taLås(behandling));
 
-        fagsakLåsRepository.taLås(fagsakId);
+        fagsakLåsRepository.taLås(Saksnummer.fra(prosessTaskData.getSaksnummer()));
         prosesser(prosessTaskData, fagsakId);
     }
 

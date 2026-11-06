@@ -208,7 +208,7 @@ public class BehandlingskontrollTjenesteImpl implements BehandlingskontrollTjene
 
     @Override
     public void opprettBehandling(BehandlingskontrollKontekst kontekst, Behandling behandling) {
-        var fagsakLås = serviceProvider.taFagsakLås(behandling.getFagsakId());
+        var fagsakLås = serviceProvider.taFagsakLås(behandling.getSaksnummer());
         behandlingRepository.lagre(behandling, kontekst.getSkriveLås());
         serviceProvider.oppdaterLåsVersjon(fagsakLås);
         eventPubliserer.fireEvent(kontekst, null, behandling.getStatus());
