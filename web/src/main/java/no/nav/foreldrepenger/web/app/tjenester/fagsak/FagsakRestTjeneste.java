@@ -221,7 +221,7 @@ public class FagsakRestTjeneste {
             if (eksisterende.size() == nyeMarkeringer.size() && nyeMarkeringer.containsAll(eksisterende)) {
                 return Response.ok().build();
             }
-            fagsakEgenskapRepository.lagreAlleFagsakMarkeringer(fagsak.getId(), nyeMarkeringer);
+            fagsakEgenskapRepository.lagreAlleFagsakMarkeringer(fagsak, nyeMarkeringer);
             lagHistorikkInnslag(fagsak, eksisterende, nyeMarkeringer);
             var taskGruppe = new ProsessTaskGruppe();
             // Bytt enhet ved behov for åpne behandlinger - vil sørge for å oppdatere LOS

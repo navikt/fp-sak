@@ -34,17 +34,6 @@ class FagsakRepositoryTest extends EntityManagerAwareTest {
     }
 
     @Test
-    void skal_finne_unik_fagsak_gitt_id() {
-        var aktørId = AktørId.dummy();
-        var saksnummer  = new Saksnummer("9999");
-        var fagsak = opprettFagsak(saksnummer, aktørId);
-
-        var resultat = fagsakRepository.finnUnikFagsak(fagsak.getId());
-
-        assertThat(resultat).isPresent();
-    }
-
-    @Test
     void skal_finne_fagsak_gitt_saksnummer() {
         var aktørId = AktørId.dummy();
         var saksnummer  = new Saksnummer("9999");

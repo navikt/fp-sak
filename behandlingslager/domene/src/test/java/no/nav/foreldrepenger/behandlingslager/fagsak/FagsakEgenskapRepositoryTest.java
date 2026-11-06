@@ -33,8 +33,8 @@ class FagsakEgenskapRepositoryTest extends EntityManagerAwareTest {
         var saksnummer  = new Saksnummer("9999");
         var fagsak = opprettFagsak(saksnummer, aktørId);
 
-        fagsakEgenskapRepository.lagreAlleFagsakMarkeringer(fagsak.getId(), Set.of(FagsakMarkering.BOSATT_UTLAND));
-        fagsakEgenskapRepository.lagreUtlandDokumentasjonStatus(fagsak.getId(), UtlandDokumentasjonStatus.DOKUMENTASJON_VIL_IKKE_BLI_INNHENTET);
+        fagsakEgenskapRepository.lagreAlleFagsakMarkeringer(fagsak, Set.of(FagsakMarkering.BOSATT_UTLAND));
+        fagsakEgenskapRepository.lagreUtlandDokumentasjonStatus(fagsak.getId(), fagsak.getSaksnummer(), UtlandDokumentasjonStatus.DOKUMENTASJON_VIL_IKKE_BLI_INNHENTET);
 
         var resultat = fagsakEgenskapRepository.finnUtlandDokumentasjonStatus(fagsak.getId());
         assertThat(resultat)
@@ -51,17 +51,17 @@ class FagsakEgenskapRepositoryTest extends EntityManagerAwareTest {
         var saksnummer  = new Saksnummer("9999");
         var fagsak = opprettFagsak(saksnummer, aktørId);
 
-        fagsakEgenskapRepository.lagreAlleFagsakMarkeringer(fagsak.getId(), Set.of(FagsakMarkering.BOSATT_UTLAND));
+        fagsakEgenskapRepository.lagreAlleFagsakMarkeringer(fagsak, Set.of(FagsakMarkering.BOSATT_UTLAND));
 
         var markering = fagsakEgenskapRepository.finnFagsakMarkeringer(fagsak.getId());
         assertThat(markering).containsOnly(FagsakMarkering.BOSATT_UTLAND);
 
-        fagsakEgenskapRepository.leggTilFagsakMarkering(fagsak.getId(), FagsakMarkering.SELVSTENDIG_NÆRING);
+        fagsakEgenskapRepository.leggTilFagsakMarkering(fagsak, FagsakMarkering.SELVSTENDIG_NÆRING);
 
         markering = fagsakEgenskapRepository.finnFagsakMarkeringer(fagsak.getId());
         assertThat(markering).containsOnly(FagsakMarkering.BOSATT_UTLAND, FagsakMarkering.SELVSTENDIG_NÆRING);
 
-        fagsakEgenskapRepository.lagreAlleFagsakMarkeringer(fagsak.getId(), Set.of(FagsakMarkering.EØS_BOSATT_NORGE));
+        fagsakEgenskapRepository.lagreAlleFagsakMarkeringer(fagsak, Set.of(FagsakMarkering.EØS_BOSATT_NORGE));
 
         markering = fagsakEgenskapRepository.finnFagsakMarkeringer(fagsak.getId());
         assertThat(markering).containsOnly(FagsakMarkering.EØS_BOSATT_NORGE);
@@ -73,12 +73,12 @@ class FagsakEgenskapRepositoryTest extends EntityManagerAwareTest {
         var saksnummer  = new Saksnummer("9999");
         var fagsak = opprettFagsak(saksnummer, aktørId);
 
-        fagsakEgenskapRepository.lagreUtlandDokumentasjonStatus(fagsak.getId(), UtlandDokumentasjonStatus.DOKUMENTASJON_VIL_BLI_INNHENTET);
+        fagsakEgenskapRepository.lagreUtlandDokumentasjonStatus(fagsak.getId(), fagsak.getSaksnummer(), UtlandDokumentasjonStatus.DOKUMENTASJON_VIL_BLI_INNHENTET);
 
         var markering = fagsakEgenskapRepository.finnUtlandDokumentasjonStatus(fagsak.getId());
         assertThat(markering).hasValueSatisfying(m -> assertThat(m).isEqualTo(UtlandDokumentasjonStatus.DOKUMENTASJON_VIL_BLI_INNHENTET));
 
-        fagsakEgenskapRepository.lagreUtlandDokumentasjonStatus(fagsak.getId(), UtlandDokumentasjonStatus.DOKUMENTASJON_ER_INNHENTET);
+        fagsakEgenskapRepository.lagreUtlandDokumentasjonStatus(fagsak.getId(), fagsak.getSaksnummer(), UtlandDokumentasjonStatus.DOKUMENTASJON_ER_INNHENTET);
 
         markering = fagsakEgenskapRepository.finnUtlandDokumentasjonStatus(fagsak.getId());
         assertThat(markering).hasValueSatisfying(m -> assertThat(m).isEqualTo(UtlandDokumentasjonStatus.DOKUMENTASJON_ER_INNHENTET));
