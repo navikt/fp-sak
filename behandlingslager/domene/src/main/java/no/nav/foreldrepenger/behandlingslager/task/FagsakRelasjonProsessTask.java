@@ -2,6 +2,7 @@ package no.nav.foreldrepenger.behandlingslager.task;
 
 import java.util.Optional;
 
+import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakLås;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakLåsRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjon;
@@ -35,8 +36,8 @@ public abstract class FagsakRelasjonProsessTask implements ProsessTaskHandler {
         var fagsakId = prosessTaskData.getFagsakId();
         var fagsakRelasjon = fagsakRelasjonRepository.finnRelasjonForHvisEksisterer(fagsakId);
         // Låser i samme rekkefølge som andre tasks som kan finne på å gjøre noe med Fagsakrelasjon
-        var fagsak1Lås = fagsakRelasjon.map(FagsakRelasjon::getFagsakNrEn).map(fagsakLåsRepository::taLås);
-        var fagsak2Lås = fagsakRelasjon.flatMap(FagsakRelasjon::getFagsakNrTo).map(fagsakLåsRepository::taLås);
+        var fagsak1Lås = fagsakRelasjon.map(FagsakRelasjon::getFagsakNrEn).map(Fagsak::getSaksnummer).map(fagsakLåsRepository::taLås);
+        var fagsak2Lås = fagsakRelasjon.flatMap(FagsakRelasjon::getFagsakNrTo).map(Fagsak::getSaksnummer).map(fagsakLåsRepository::taLås);
         var reLås = fagsakRelasjon.map(fr -> fagsakRelasjonLåsRepository.taLås(fagsakId)).orElse(null);
         fagsakRelasjon = fagsakRelasjonRepository.finnRelasjonForHvisEksisterer(fagsakId);
 

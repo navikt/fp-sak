@@ -67,7 +67,7 @@ public class RegistrerFagsakEgenskaper {
         var rutingResultat = enhetTjeneste.finnRuting(Set.of(behandling.getAktørId()));
         // Har registrert en tilknytning og ikke utflyttet
         if (rutingResultat.contains(RutingResultat.UTLAND) || personinfo.erIkkeBosattFreg(behandling.getFagsakYtelseType(), behandling.getAktørId())) {
-            fagsakEgenskapRepository.leggTilFagsakMarkering(behandling.getFagsakId(), FagsakMarkering.BOSATT_UTLAND);
+            fagsakEgenskapRepository.leggTilFagsakMarkering(behandling.getFagsak(), FagsakMarkering.BOSATT_UTLAND);
             BehandlendeEnhetTjeneste.sjekkSkalOppdatereEnhet(behandling, fagsakEgenskapRepository.finnFagsakMarkeringer(behandling.getFagsakId()))
                 .ifPresent(e -> enhetTjeneste.oppdaterBehandlendeEnhet(behandling, e, HistorikkAktør.VEDTAKSLØSNINGEN, "Personopplysning"));
         }
@@ -93,7 +93,7 @@ public class RegistrerFagsakEgenskaper {
             saksmarkering.add(FagsakMarkering.BARE_FAR_RETT);
         }
         if (!saksmarkering.isEmpty()) {
-            saksmarkering.forEach(fsm -> fagsakEgenskapRepository.leggTilFagsakMarkering(behandling.getFagsakId(), fsm));
+            saksmarkering.forEach(fsm -> fagsakEgenskapRepository.leggTilFagsakMarkering(behandling.getFagsak(), fsm));
             BehandlendeEnhetTjeneste.sjekkSkalOppdatereEnhet(behandling, saksmarkering)
                 .ifPresent(e -> enhetTjeneste.oppdaterBehandlendeEnhet(behandling, e, HistorikkAktør.VEDTAKSLØSNINGEN, "Søknadsopplysning"));
         }

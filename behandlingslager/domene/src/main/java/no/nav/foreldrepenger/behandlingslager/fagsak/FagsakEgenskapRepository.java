@@ -14,6 +14,7 @@ import jakarta.persistence.EntityManager;
 
 import no.nav.foreldrepenger.behandlingslager.fagsak.egenskaper.FagsakMarkering;
 import no.nav.foreldrepenger.behandlingslager.fagsak.egenskaper.UtlandDokumentasjonStatus;
+import no.nav.foreldrepenger.domene.typer.Saksnummer;
 
 @ApplicationScoped
 public class FagsakEgenskapRepository {
@@ -45,11 +46,11 @@ public class FagsakEgenskapRepository {
             .map(UtlandDokumentasjonStatus::valueOf);
     }
 
-    public void lagreUtlandDokumentasjonStatus(long fagsakId, UtlandDokumentasjonStatus verdi) {
+    public void lagreUtlandDokumentasjonStatus(long fagsakId, Saksnummer saksnummer, UtlandDokumentasjonStatus verdi) {
         // Tar lås på fagsaken slik at samtidige kall (f.eks. fra flere behandlinger/prosesstasker på samme fagsak) blir
         // serialisert. Uten denne låsen kan to transaksjoner begge lese "ingen aktiv egenskap" og begge sette inn en
         // rad, slik at vi ender opp med duplikate aktive rader i FAGSAK_EGENSKAP.
-        fagsakLåsRepository.taLås(fagsakId);
+        fagsakLåsRepository.taLås(saksnummer);
         if (finnEgenskapMedGittVerdi(fagsakId, verdi).isEmpty()) {
             var lagres = finnEgenskaper(fagsakId, verdi.getNøkkel()).stream().findFirst().orElseGet(() -> new FagsakEgenskap(fagsakId, verdi));
             lagres.setEgenskapVerdi(verdi);
@@ -94,30 +95,34 @@ public class FagsakEgenskapRepository {
         return query.getResultList();
     }
 
-    public void lagreAlleFagsakMarkeringer(long fagsakId, Collection<FagsakMarkering> markeringer) {
-        var eksisterende = finnFagsakMarkeringer(fagsakId);
-        markeringer.stream().filter(fm -> !eksisterende.contains(fm)).forEach(fm -> lagreFagsakMarkering(fagsakId, fm));
-        eksisterende.stream().filter(fm -> !markeringer.contains(fm)).forEach(fm -> fjernFagsakMarkering(fagsakId, fm));
+    public void lagreAlleFagsakMarkeringer(Fagsak fagsak, Collection<FagsakMarkering> markeringer) {
+        fagsakLåsRepository.taLås(fagsak.getSaksnummer());
+        var eksisterende = finnFagsakMarkeringer(fagsak.getId());
+        markeringer.stream().filter(fm -> !eksisterende.contains(fm)).forEach(fm -> lagreFagsakMarkering(fagsak.getId(), fm));
+        eksisterende.stream().filter(fm -> !markeringer.contains(fm)).forEach(fm -> fjernFagsakMarkering(fagsak.getId(), fagsak.getSaksnummer(), fm));
     }
 
-    public void leggTilFagsakMarkering(long fagsakId, FagsakMarkering markering) {
+    public void leggTilFagsakMarkering(Fagsak fagsak, FagsakMarkering markering) {
+        fagsakLåsRepository.taLås(fagsak.getSaksnummer());
+        lagreFagsakMarkering(fagsak.getId(), markering);
+    }
+
+    public void leggTilFagsakMarkering(long fagsakId, Saksnummer saksnummer, FagsakMarkering markering) {
+        fagsakLåsRepository.taLås(saksnummer);
         lagreFagsakMarkering(fagsakId, markering);
     }
 
     private void lagreFagsakMarkering(long fagsakId, FagsakMarkering verdi) {
         Objects.requireNonNull(verdi);
-        // Se kommentar i lagreUtlandDokumentasjonStatus - låsen forhindrer at to samtidige kall begge oppretter
-        // en aktiv egenskaprad med samme verdi.
-        fagsakLåsRepository.taLås(fagsakId);
         var eksisterende = finnEgenskapMedGittVerdi(fagsakId, verdi);
         if (eksisterende.isEmpty()) {
             lagreFagsakEgenskap(fagsakId, verdi);
         }
     }
 
-    public void fjernFagsakMarkering(long fagsakId, FagsakMarkering verdi) {
+    public void fjernFagsakMarkering(long fagsakId, Saksnummer saksnummer, FagsakMarkering verdi) {
         Objects.requireNonNull(verdi);
-        fagsakLåsRepository.taLås(fagsakId);
+        fagsakLåsRepository.taLås(saksnummer);
         var eksisterende = finnEgenskapMedGittVerdi(fagsakId, verdi);
         eksisterende.ifPresent(this::fjernFagsakEgenskap);
     }

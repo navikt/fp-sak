@@ -26,7 +26,7 @@ public class Journalpost extends BaseEntitet {
     @Column(name = "id")
     private Long id;
 
-    @Column(name = "journalpost_id", nullable = false, unique = true)
+    @Column(name = "journalpost_id", nullable = false)
     private JournalpostId journalpostId;
 
     @ManyToOne(optional = false)
