@@ -2,7 +2,6 @@ package no.nav.foreldrepenger.produksjonsstyring.oppgavebehandling;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -13,7 +12,6 @@ import org.mockito.ArgumentCaptor;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.DokumentTypeId;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
-import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakLås;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakLåsRepository;
 import no.nav.foreldrepenger.produksjonsstyring.oppgavebehandling.task.OpprettOppgaveVurderDokumentTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
@@ -35,7 +33,6 @@ class OpprettOppgaveVurderDokumentTaskTest {
         låsRepository = mock(FagsakLåsRepository.class);
 
         when(repositoryProvider.getFagsakLåsRepository()).thenReturn(låsRepository);
-        when(låsRepository.taLås(anyLong())).thenReturn(mock(FagsakLås.class));
 
         opprettOppgaveVurderDokumentTask = new OpprettOppgaveVurderDokumentTask(oppgaveTjeneste);
     }

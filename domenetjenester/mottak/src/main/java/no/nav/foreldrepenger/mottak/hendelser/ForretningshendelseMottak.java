@@ -190,7 +190,7 @@ public class ForretningshendelseMottak {
     }
 
     private void merkUtlandsSakerFlyttBehandlinger(List<Fagsak> saker, ProsessTaskGruppe taskGruppe) {
-        saker.forEach(f -> fagsakEgenskapRepository.leggTilFagsakMarkering(f.getId(), FagsakMarkering.BOSATT_UTLAND));
+        saker.forEach(f -> fagsakEgenskapRepository.leggTilFagsakMarkering(f, FagsakMarkering.BOSATT_UTLAND));
         var åpneBehandlingerFlyttes = saker.stream()
             .map(f -> behandlingRepository.hentÅpneBehandlingerForFagsakId(f.getId()))
             .flatMap(Collection::stream)

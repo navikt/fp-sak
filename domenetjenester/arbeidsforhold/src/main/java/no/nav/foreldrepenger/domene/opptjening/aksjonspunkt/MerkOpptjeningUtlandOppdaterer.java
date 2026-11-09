@@ -42,7 +42,7 @@ public class MerkOpptjeningUtlandOppdaterer implements AksjonspunktOppdaterer<Me
         var ref = param.getRef();
         var fagsakId = ref.fagsakId();
         var eksisterende = fagsakEgenskapRepository.finnUtlandDokumentasjonStatus(fagsakId).orElse(null);
-        fagsakEgenskapRepository.lagreUtlandDokumentasjonStatus(fagsakId, dto.getDokStatus());
+        fagsakEgenskapRepository.lagreUtlandDokumentasjonStatus(fagsakId, ref.saksnummer(), dto.getDokStatus());
         if (!Objects.equals(eksisterende, dto.getDokStatus())) {
             lagHistorikkinnslag(ref, dto, eksisterende);
         }

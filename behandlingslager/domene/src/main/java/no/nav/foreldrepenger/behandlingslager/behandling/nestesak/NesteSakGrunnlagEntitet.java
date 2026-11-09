@@ -4,15 +4,14 @@ import java.time.LocalDate;
 import java.util.Objects;
 import java.util.Optional;
 
-import jakarta.persistence.AttributeOverride;
 import jakarta.persistence.Column;
 import jakarta.persistence.Convert;
-import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.NotNull;
 
 import no.nav.foreldrepenger.behandlingslager.BaseEntitet;
 import no.nav.foreldrepenger.behandlingslager.diff.ChangeTracked;
@@ -39,8 +38,9 @@ public class NesteSakGrunnlagEntitet extends BaseEntitet {
     @Column(name = "behandling_id", nullable = false, updatable = false)
     private Long behandlingId;
 
-    @Embedded
-    @AttributeOverride(name = "saksnummer", column = @Column(name = "saksnummer", updatable = false, nullable=false))
+    @NotNull
+    @Convert(converter = Saksnummer.SaksnummerConverter.class)
+    @Column(name = "saksnummer", updatable = false, nullable=false)
     private Saksnummer saksnummer;
 
     @Column(name = "startdato", nullable = false)

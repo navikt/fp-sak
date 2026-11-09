@@ -60,7 +60,7 @@ public class ScenarioAnkeEngangsstønad {
         }
         var behandling = abstractTestScenario.buildAvsluttet(repositoryProvider);
         if (lås) {
-            var flås = repositoryProvider.getFagsakLåsRepository().taLås(behandling.getFagsak());
+            var flås = repositoryProvider.getFagsakLåsRepository().taLås(behandling.getFagsak().getSaksnummer());
             repositoryProvider.getFagsakLåsRepository().oppdaterLåsVersjon(flås);
         }
         return buildAnke(repositoryProvider, behandling.getFagsak());

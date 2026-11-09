@@ -221,7 +221,7 @@ public class BehandlingRestTjeneste {
         var behandling = getBehandling(dto);
         behandlingsutredningTjeneste.kanEndreBehandling(behandling, dto.getBehandlingVersjon());
         if (!behandling.erAvsluttet() && !fagsakEgenskapRepository.harFagsakMarkering(behandling.getFagsakId(), FagsakMarkering.HASTER)) {
-            fagsakEgenskapRepository.leggTilFagsakMarkering(behandling.getFagsakId(), FagsakMarkering.HASTER);
+            fagsakEgenskapRepository.leggTilFagsakMarkering(behandling.getFagsak(), FagsakMarkering.HASTER);
             var builder = new Historikkinnslag.Builder().medAktør(HistorikkAktør.SAKSBEHANDLER)
                 .medBehandlingId(behandling.getId())
                 .medFagsakId(behandling.getFagsakId())

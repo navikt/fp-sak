@@ -14,8 +14,6 @@ import jakarta.persistence.Id;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
 
-import org.hibernate.annotations.NaturalId;
-
 @Entity(name = "BehandlingDvh")
 @Table(name = "BEHANDLING_DVH", schema = "FPSAK_HIST")
 public class BehandlingDvh implements Serializable {
@@ -73,7 +71,6 @@ public class BehandlingDvh implements Serializable {
     @Column(name = "FOERSTE_STOENADSDAG")
     private LocalDate foersteStoenadsdag;
 
-    @NaturalId
     @Column(name = "uuid")
     private UUID uuid;
 

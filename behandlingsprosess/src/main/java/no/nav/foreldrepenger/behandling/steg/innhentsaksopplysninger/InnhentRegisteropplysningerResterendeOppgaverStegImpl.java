@@ -142,7 +142,7 @@ public class InnhentRegisteropplysningerResterendeOppgaverStegImpl implements Be
         var dødsrelatert = behandling.getBehandlingÅrsaker().stream().map(BehandlingÅrsak::getBehandlingÅrsakType)
             .anyMatch(bat -> BehandlingÅrsakType.årsakerRelatertTilDød().contains(bat));
         if (dødsrelatert) {
-            fagsakEgenskapRepository.leggTilFagsakMarkering(behandling.getFagsakId(), FagsakMarkering.DØD_DØDFØDSEL);
+            fagsakEgenskapRepository.leggTilFagsakMarkering(behandling.getFagsak(), FagsakMarkering.DØD_DØDFØDSEL);
         }
     }
 

@@ -83,6 +83,13 @@ public class FagsakRelasjonRepository {
         return hentUniktResultat(query);
     }
 
+    public Optional<FagsakRelasjon> finnRelasjonForHvisEksisterer(Saksnummer saksnummer) {
+        var query = entityManager.createQuery("from FagsakRelasjon where (fagsakNrEn.saksnummer=:saksnummer or fagsakNrTo.saksnummer=:saksnummer) AND aktiv = true",
+            FagsakRelasjon.class);
+        query.setParameter("saksnummer", saksnummer);
+        return hentUniktResultat(query);
+    }
+
     public Optional<FagsakRelasjon> finnRelasjonForHvisEksisterer(long fagsakId) {
         var query = entityManager.createQuery("from FagsakRelasjon where (fagsakNrEn.id=:fagsak or fagsakNrTo.id=:fagsak) AND aktiv = true",
             FagsakRelasjon.class);
@@ -101,12 +108,12 @@ public class FagsakRelasjonRepository {
     public void lagre(Fagsak fagsak, Stønadskontoberegning stønadskontoberegning) {
         Objects.requireNonNull(stønadskontoberegning, STØNADSKONTOBEREGNING);
 
-        var fagsak1Lås = fagsakLåsRepository.taLås(fagsak.getId());
+        var fagsak1Lås = fagsakLåsRepository.taLås(fagsak.getSaksnummer());
         FagsakLås fagsak2Lås = null;
         var fagsakRelasjon = hentEllerOpprett(fagsak);
         var fagsakNrTo = fagsakRelasjon.getFagsakNrTo();
         if (fagsakNrTo.isPresent()) {
-            fagsak2Lås = fagsakLåsRepository.taLås(fagsakNrTo.get().getId());
+            fagsak2Lås = fagsakLåsRepository.taLås(fagsakNrTo.get().getSaksnummer());
         }
         var forskjellige = differ().areDifferent(fagsakRelasjon.getStønadskontoberegning().orElse(null), stønadskontoberegning);
         if (forskjellige) {
@@ -134,14 +141,14 @@ public class FagsakRelasjonRepository {
 
     public FagsakRelasjon opprettRelasjon(Fagsak fagsak) {
         Objects.requireNonNull(fagsak, FAGSAK_QP);
-        var fagsakLås = fagsakLåsRepository.taLås(fagsak);
-        finnRelasjonForHvisEksisterer(fagsakLås.getFagsakId()).ifPresent(this::deaktiverEksisterendeRelasjon);
+        var fagsakLås = fagsakLåsRepository.taLås(fagsak.getSaksnummer());
+        finnRelasjonForHvisEksisterer(fagsak).ifPresent(this::deaktiverEksisterendeRelasjon);
         return opprettRelasjon(fagsakLås, new FagsakRelasjon(fagsak, null, null, null, null));
     }
 
     private FagsakRelasjon opprettRelasjon(FagsakLås fagsakLås, FagsakRelasjon nyFagsakRelasjon) {
-        if (finnRelasjonForHvisEksisterer(fagsakLås.getFagsakId()).isPresent()) {
-            throw new IllegalStateException("Aktiv fagsakrelasjon finnes allerede på fagsak " + fagsakLås.getFagsakId());
+        if (finnRelasjonForHvisEksisterer(fagsakLås.saksnummer()).isPresent()) {
+            throw new IllegalStateException("Aktiv fagsakrelasjon finnes allerede på fagsak " + fagsakLås.saksnummer());
         }
         nyFagsakRelasjon.getStønadskontoberegning().ifPresent(this::persisterStønadskontoberegning);
 
@@ -155,7 +162,7 @@ public class FagsakRelasjonRepository {
         Objects.requireNonNull(fagsak, FAGSAK_QP);
         var eksisterendeFagsakRelasjon = finnRelasjonFor(fagsak);
 
-        var fagsakLås = fagsakLåsRepository.taLås(fagsak);
+        var fagsakLås = fagsakLåsRepository.taLås(fagsak.getSaksnummer());
         deaktiverEksisterendeRelasjon(eksisterendeFagsakRelasjon);
         var nyFagsakRelasjon = new FagsakRelasjon(eksisterendeFagsakRelasjon.getFagsakNrEn(), eksisterendeFagsakRelasjon.getFagsakNrTo().orElse(null),
             eksisterendeFagsakRelasjon.getStønadskontoberegning().orElse(null),
@@ -168,8 +175,8 @@ public class FagsakRelasjonRepository {
     public Optional<FagsakRelasjon> kobleFagsaker(Fagsak fagsakEn, Fagsak fagsakTo) {
         Objects.requireNonNull(fagsakEn, "fagsakEn");
         Objects.requireNonNull(fagsakTo, "fagsakTo");
-        var fagsak1Lås = fagsakLåsRepository.taLås(fagsakEn.getId());
-        var fagsak2Lås = fagsakLåsRepository.taLås(fagsakTo.getId());
+        var fagsak1Lås = fagsakLåsRepository.taLås(fagsakEn.getSaksnummer());
+        var fagsak2Lås = fagsakLåsRepository.taLås(fagsakTo.getSaksnummer());
 
         if (!fagsakEn.getYtelseType().equals(fagsakTo.getYtelseType())) {
             var msg = String.format("Kan ikke koble sammen saker med forskjellig ytelse type. Prøver å koble sammen fagsakene %s (%s) og %s (%s).",
@@ -206,8 +213,8 @@ public class FagsakRelasjonRepository {
     public void fraKobleFagsaker(Fagsak fagsakEn, Fagsak fagsakTo) {
         Objects.requireNonNull(fagsakEn, "fagsakEn");
         Objects.requireNonNull(fagsakTo, "fagsakTo");
-        var fagsak1Lås = fagsakLåsRepository.taLås(fagsakEn.getId());
-        var fagsak2Lås = fagsakLåsRepository.taLås(fagsakTo.getId());
+        var fagsak1Lås = fagsakLåsRepository.taLås(fagsakEn.getSaksnummer());
+        var fagsak2Lås = fagsakLåsRepository.taLås(fagsakTo.getSaksnummer());
 
         var fagsakRelasjon = finnRelasjonForHvisEksisterer(fagsakEn).orElse(null);
         var fagsakToOpt = Optional.ofNullable(fagsakRelasjon).flatMap(FagsakRelasjon::getFagsakNrTo);
@@ -238,12 +245,12 @@ public class FagsakRelasjonRepository {
     }
 
     public void nullstillOverstyrtStønadskontoberegning(Fagsak fagsak) {
-        var fagsak1Lås = fagsakLåsRepository.taLås(fagsak);
+        var fagsak1Lås = fagsakLåsRepository.taLås(fagsak.getSaksnummer());
         FagsakLås fagsak2Lås = null;
         var fagsakRelasjon = finnRelasjonFor(fagsak);
         var fagsakNrTo = fagsakRelasjon.getFagsakNrTo();
         if (fagsakNrTo.isPresent()) {
-            fagsak2Lås = fagsakLåsRepository.taLås(fagsakNrTo.get().getId());
+            fagsak2Lås = fagsakLåsRepository.taLås(fagsakNrTo.get().getSaksnummer());
         }
         deaktiverEksisterendeRelasjon(fagsakRelasjon);
 

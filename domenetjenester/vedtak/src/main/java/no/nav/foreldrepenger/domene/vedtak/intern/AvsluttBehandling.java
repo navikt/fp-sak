@@ -87,7 +87,7 @@ public class AvsluttBehandling {
             var andreÅpneYtelsesbehandlinger = behandlingRepository.hentÅpneYtelseBehandlingerForFagsakId(behandling.getFagsakId()).stream()
                 .anyMatch(b -> !b.getId().equals(behandlingId));
             if (!andreÅpneYtelsesbehandlinger) {
-                fagsakEgenskapRepository.fjernFagsakMarkering(behandling.getFagsakId(), FagsakMarkering.HASTER);
+                fagsakEgenskapRepository.fjernFagsakMarkering(behandling.getFagsakId(), behandling.getSaksnummer(), FagsakMarkering.HASTER);
             }
         }
 

@@ -4,10 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-import jakarta.persistence.AttributeOverride;
 import jakarta.persistence.Column;
 import jakarta.persistence.Convert;
-import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
@@ -16,6 +14,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.persistence.Version;
+import jakarta.validation.constraints.NotNull;
 
 import no.nav.foreldrepenger.behandlingslager.BaseEntitet;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
@@ -35,11 +34,9 @@ public class Oppdragskontroll extends BaseEntitet {
     @Column(name = "behandling_id", nullable = false, updatable = false)
     private Long behandlingId;
 
-    /**
-     * Offisielt tildelt saksnummer fra GSAK.
-     */
-    @Embedded
-    @AttributeOverride(name = "saksnummer", column = @Column(name = "saksnummer", unique = true, nullable = false, updatable = false))
+    @NotNull
+    @Convert(converter = Saksnummer.SaksnummerConverter.class)
+    @Column(name = "saksnummer", updatable = false, nullable=false)
     private Saksnummer saksnummer;
 
     @Convert(converter = BooleanToStringConverter.class)

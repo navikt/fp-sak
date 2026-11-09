@@ -61,18 +61,18 @@ public class FaktaOmsorgRettTjeneste {
     public void avklarRettighet(AksjonspunktOppdaterParameter param, Rettighetstype rettighetstype) {
         ytelseFordelingTjeneste.avklarRettighet(param.getBehandlingId(), rettighetstype);
         if (rettighetstype.equals(Rettighetstype.BARE_FAR_RETT)) {
-            fagsakEgenskapRepository.leggTilFagsakMarkering(param.getRef().fagsakId(), FagsakMarkering.BARE_FAR_RETT);
+            fagsakEgenskapRepository.leggTilFagsakMarkering(param.getRef().fagsakId(), param.getRef().saksnummer(), FagsakMarkering.BARE_FAR_RETT);
         } else {
-            fagsakEgenskapRepository.fjernFagsakMarkering(param.getRef().fagsakId(), FagsakMarkering.BARE_FAR_RETT);
+            fagsakEgenskapRepository.fjernFagsakMarkering(param.getRef().fagsakId(), param.getRef().saksnummer(), FagsakMarkering.BARE_FAR_RETT);
         }
     }
 
     public void overstyrRettighet(BehandlingReferanse ref, Rettighetstype nyOverstyrtRettighet) {
         ytelseFordelingTjeneste.overstyrRettighet(ref.behandlingId(), nyOverstyrtRettighet);
         if (Set.of(Rettighetstype.BARE_FAR_RETT, Rettighetstype.BARE_FAR_RETT_MOR_UFØR).contains(nyOverstyrtRettighet)) {
-            fagsakEgenskapRepository.leggTilFagsakMarkering(ref.fagsakId(), FagsakMarkering.BARE_FAR_RETT);
+            fagsakEgenskapRepository.leggTilFagsakMarkering(ref.fagsakId(), ref.saksnummer(), FagsakMarkering.BARE_FAR_RETT);
         } else {
-            fagsakEgenskapRepository.fjernFagsakMarkering(ref.fagsakId(), FagsakMarkering.BARE_FAR_RETT);
+            fagsakEgenskapRepository.fjernFagsakMarkering(ref.fagsakId(), ref.saksnummer(), FagsakMarkering.BARE_FAR_RETT);
         }
     }
 
