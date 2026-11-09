@@ -3,6 +3,7 @@ package no.nav.foreldrepenger.mottak;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import jakarta.enterprise.context.Dependent;
 import jakarta.inject.Inject;
@@ -36,6 +37,8 @@ import no.nav.foreldrepenger.produksjonsstyring.behandlingenhet.BehandlendeEnhet
 
 @Dependent
 public class Behandlingsoppretter {
+
+    private static Set<BehandlingResultatType> INNVILGET_KODER = Set.of(BehandlingResultatType.INNVILGET, BehandlingResultatType.FORELDREPENGER_ENDRET, BehandlingResultatType.INGEN_ENDRING);
 
     private BehandlingRepository behandlingRepository;
     private BehandlingProsesseringTjeneste behandlingProsesseringTjeneste;
@@ -262,6 +265,17 @@ public class Behandlingsoppretter {
     }
 
     public boolean erBehandlingOgFørstegangsbehandlingHenlagt(Fagsak fagsak) {
+        // For å håndtere tilfelle der utsatt start + førstgang er teknisk henlagt, mens aktivt vedtak er innvilget
+        // Unngår tilfelle der siste er innvilget utsatt start, avslag eller opphør - disse vil ha behov for ny førstegangsbehandling
+        var sisteVedtatteErInnvilget = behandlingRepository.finnSisteIkkeHenlagteYtelseBehandlingFor(fagsak.getId())
+            .map(Behandling::getId)
+            .flatMap(behandlingsresultatRepository::hentHvisEksisterer)
+            .map(Behandlingsresultat::getBehandlingResultatType)
+            .filter(INNVILGET_KODER::contains)
+            .isPresent();
+        if (sisteVedtatteErInnvilget) {
+            return false;
+        }
         var behandling = behandlingRepository.hentSisteYtelsesBehandlingForFagsakId(fagsak.getId());
         var behandlingsresultat = behandling.flatMap(b -> behandlingsresultatRepository.hentHvisEksisterer(b.getId()));
         if (behandlingsresultat.isPresent() && erHenlagt(behandlingsresultat.get())) {
