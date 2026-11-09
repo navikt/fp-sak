@@ -267,16 +267,14 @@ public class Behandlingsoppretter {
     public boolean erBehandlingOgFørstegangsbehandlingHenlagt(Fagsak fagsak) {
         // For å håndtere tilfelle der utsatt start + førstgang er teknisk henlagt, mens aktivt vedtak er innvilget
         // Unngår tilfelle der siste er innvilget utsatt start, avslag eller opphør - disse vil ha behov for ny førstegangsbehandling
-        var sisteVedtatte = behandlingRepository.finnSisteIkkeHenlagteYtelseBehandlingFor(fagsak.getId());
-        if (sisteVedtatte.isPresent()) {
-            var sisteErInnvilget = sisteVedtatte.map(Behandling::getId)
-                .flatMap(behandlingsresultatRepository::hentHvisEksisterer)
-                .map(Behandlingsresultat::getBehandlingResultatType)
-                .filter(INNVILGET_KODER::contains)
-                .isPresent();
-            if (sisteErInnvilget) {
-                return false;
-            }
+        var sisteVedtatteErInnvilget = behandlingRepository.finnSisteIkkeHenlagteYtelseBehandlingFor(fagsak.getId())
+            .map(Behandling::getId)
+            .flatMap(behandlingsresultatRepository::hentHvisEksisterer)
+            .map(Behandlingsresultat::getBehandlingResultatType)
+            .filter(INNVILGET_KODER::contains)
+            .isPresent();
+        if (sisteVedtatteErInnvilget) {
+            return false;
         }
         var behandling = behandlingRepository.hentSisteYtelsesBehandlingForFagsakId(fagsak.getId());
         var behandlingsresultat = behandling.flatMap(b -> behandlingsresultatRepository.hentHvisEksisterer(b.getId()));
