@@ -24,9 +24,9 @@ public class BekreftArbeidMedPermisjonUtenSluttdatoDto extends BekreftetAksjonsp
         // For Jackson
     }
 
-    public BekreftArbeidMedPermisjonUtenSluttdatoDto(String begrunnelse, List<AvklarPermisjonUtenSluttdatoDto> avklartePermisjonerUtenSluttdato) {
+    public BekreftArbeidMedPermisjonUtenSluttdatoDto(String begrunnelse, @NotNull List<AvklarPermisjonUtenSluttdatoDto> arbeidsforhold) {
         super(begrunnelse);
-        this.arbeidsforhold = avklartePermisjonerUtenSluttdato;
+        this.arbeidsforhold = arbeidsforhold;
     }
 
     public List<AvklarPermisjonUtenSluttdatoDto> getArbeidsforhold() {
