@@ -30,10 +30,11 @@ public class FagsakLåsRepository {
      * @return låsen
      */
     public FagsakLås taLås(final Saksnummer saksnummer) {
-        Fagsak fagsak = entityManager.find(Fagsak.class, saksnummer, KeyType.NATURAL, LockModeType.PESSIMISTIC_WRITE);
-        if (fagsak == null) {
-            throw new TekniskException("FP-131238", String.format("Fant ikke sak for låsing, saksnummer=%s.", saksnummer.getVerdi()));
-        }
+        // Se om det er mulig å håndtere fagsakRelasjon-henting bedre (uten å laste fagsak) - da kan man se på find med NATURAL og PW med nullsjekk
+        entityManager.createQuery("select fs.id, fs.versjon from Fagsak fs where fs.saksnummer=:saksnummer")
+            .setParameter("saksnummer", saksnummer)
+            .setLockMode(LockModeType.PESSIMISTIC_WRITE)
+            .getSingleResult();
         return new FagsakLås(saksnummer);
     }
 

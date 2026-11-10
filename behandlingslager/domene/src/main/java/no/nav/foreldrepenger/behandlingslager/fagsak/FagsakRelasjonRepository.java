@@ -43,6 +43,29 @@ public class FagsakRelasjonRepository {
         this.fagsakLåsRepository = fagsakLåsRepository;
     }
 
+    public Optional<FagsakRelasjonLåsegrunnlag> finnLåsegrunnlag(Saksnummer saksnummer) {
+        var query = entityManager.createQuery("""
+            select new no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjonLåsegrunnlag(fr.id, en.saksnummer, to.saksnummer)
+            from FagsakRelasjon fr
+            join fr.fagsakNrEn en
+            left join fr.fagsakNrTo to
+            where fr.aktiv = true
+              and (en.saksnummer = :saksnummer or to.saksnummer = :saksnummer)
+        """, FagsakRelasjonLåsegrunnlag.class)
+            .setParameter("saksnummer", saksnummer);
+        return hentUniktResultat(query);
+    }
+
+    public Optional<FagsakRelasjon> finnFagsakRelasjonFor(FagsakRelasjonLåsegrunnlag låsegrunnlag) {
+        var query = entityManager.createQuery("""
+            select fr from FagsakRelasjon fr
+            where fr.id = :id
+              and aktiv = true
+            """, FagsakRelasjon.class)
+            .setParameter("id", låsegrunnlag.relasjonId());
+        return hentUniktResultat(query);
+    }
+
     public FagsakRelasjon finnRelasjonFor(Fagsak fagsak) {
         var query = entityManager.createQuery("from FagsakRelasjon where (fagsakNrEn=:fagsak or fagsakNrTo=:fagsak) AND aktiv = true",
             FagsakRelasjon.class);
