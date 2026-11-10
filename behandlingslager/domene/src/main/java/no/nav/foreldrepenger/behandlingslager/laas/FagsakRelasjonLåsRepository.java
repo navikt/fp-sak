@@ -1,9 +1,13 @@
 package no.nav.foreldrepenger.behandlingslager.laas;
 
+import java.util.Objects;
+
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.LockModeType;
+
+import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjonLåsegrunnlag;
 
 @ApplicationScoped
 public class FagsakRelasjonLåsRepository {
@@ -18,33 +22,15 @@ public class FagsakRelasjonLåsRepository {
         this.entityManager = entityManager;
     }
 
-    /**
-     * Tar lås på underliggende rader
-     *
-     * @param fagsakIdIn id for fagsaken
-     * @return låsen
-     */
-    public FagsakRelasjonLås taLås(final Long fagsakIdIn) {
-        var lockModeType = LockModeType.PESSIMISTIC_WRITE;
 
-        var lås = new FagsakRelasjonLås();
-
-        // sjekker om fagsakId != null slik at det fungerer som no-op for ferske, unpersisted entiteter
-        if (fagsakIdIn != null) {
-            // bruker enkle queries slik at unngår laste eager associations og entiteter her
-            var relasjonId = låsFagsakRelasjon(fagsakIdIn, lockModeType);
-            lås.setFagsakRelasjonId(relasjonId);
-        }
-
-        return lås;
-    }
-
-    private Long låsFagsakRelasjon(final Long fagsakId, LockModeType lockModeType) {
-        var resultFs = (Object[]) entityManager
-            .createQuery("select fr.id, fr.versjon from FagsakRelasjon fr where (fr.fagsakNrEn.id=:id or fr.fagsakNrTo.id=:id) and fr.aktiv = true")
-            .setParameter("id", fagsakId)
-            .setLockMode(lockModeType)
+    public FagsakRelasjonLås taLåsForRelasjon(final FagsakRelasjonLåsegrunnlag låsegrunnlag) {
+        Objects.requireNonNull(låsegrunnlag, "låsegrunnlag");
+        Objects.requireNonNull(låsegrunnlag.relasjonId(), "relasjonId");
+        entityManager.createQuery("select fr.id, fr.versjon from FagsakRelasjon fr where fr.id=:id")
+            .setParameter("id", låsegrunnlag.relasjonId())
+            .setLockMode(LockModeType.PESSIMISTIC_WRITE)
             .getSingleResult();
-        return (Long) resultFs[0];
+        return new FagsakRelasjonLås(låsegrunnlag.relasjonId());
     }
+
 }
