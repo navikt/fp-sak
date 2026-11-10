@@ -96,7 +96,7 @@ public class OpprettInformasjonsFagsakTask implements ProsessTaskHandler {
             return;
         }
 
-        var fagsakMor = fagsakRepository.finnEksaktFagsakReadOnly(Long.parseLong(prosessTaskData.getPropertyValue(FAGSAK_ID_MOR_KEY)));
+        var fagsakMor = fagsakRepository.finnEksaktFagsak(Long.parseLong(prosessTaskData.getPropertyValue(FAGSAK_ID_MOR_KEY)));
         var enhet = prosessTaskData.getPropertyValue(BEH_ENHET_ID_KEY);
         var brukEnhet = behandlendeEnhetTjeneste.finnBehandlendeEnhetForUkoblet(fagsakMor, enhet);
         var bruker = hentPersonInfo(aktørId);

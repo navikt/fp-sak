@@ -19,20 +19,11 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjonRepository;
  * <p>
  * Når lagring skjer vil relevante entiteter også få sin versjon inkrementert
  */
-public class FagsakRelasjonLås {
+public final class FagsakRelasjonLås {
 
-    private Long fagsakRelasjonId;
+    private final Long fagsakRelasjonId;
 
-    /**
-     * protected ctor, kun for test-mock.
-     */
-    protected FagsakRelasjonLås() {
-    }
-
-    /**
-     * protected, unngå å opprette utenfor denne pakken. Kan overstyres kun til test
-     */
-    protected FagsakRelasjonLås(Long fagsakRelasjonId) {
+    FagsakRelasjonLås(Long fagsakRelasjonId) {
         if (fagsakRelasjonId == null) {
             throw new IllegalArgumentException("Minst en av fagsakId og behandlingId må være forskjellig fra null.");
         }
@@ -43,19 +34,9 @@ public class FagsakRelasjonLås {
         return this.fagsakRelasjonId;
     }
 
-    void setFagsakRelasjonId(Long fagsakRelasjonId) {
-        this.fagsakRelasjonId = fagsakRelasjonId;
-    }
-
     @Override
     public boolean equals(Object obj) {
-        if (obj == this) {
-            return true;
-        }
-        if (!(obj instanceof FagsakRelasjonLås other)) {
-            return false;
-        }
-        return Objects.equals(getFagsakRelasjonId(), other.getFagsakRelasjonId());
+        return obj instanceof FagsakRelasjonLås other && Objects.equals(getFagsakRelasjonId(), other.getFagsakRelasjonId());
     }
 
     @Override
