@@ -9,9 +9,12 @@ import java.util.Set;
 import jakarta.ws.rs.ApplicationPath;
 import jakarta.ws.rs.core.Application;
 
+import no.nav.vedtak.openapi.PrefixStrippingFQNTypeNameResolver;
+import no.nav.vedtak.openapi.TypegenereringOpenApiReader;
+
 import org.glassfish.jersey.server.ServerProperties;
 
-import io.swagger.v3.jaxrs2.integration.resources.OpenApiResource;
+import io.swagger.v3.rest.integration.resources.OpenApiResource;
 import no.nav.foreldrepenger.konfig.Environment;
 import no.nav.foreldrepenger.web.app.jackson.JacksonJsonConfig;
 import no.nav.foreldrepenger.web.app.tjenester.RestImplementationClasses;
@@ -38,7 +41,8 @@ public class ApiConfig extends Application {
 
     private void registerOpenApi() {
         var contextPath = ENV.getProperty("context.path", "/fpsak");
-        LokalOpenApiUtils.settOppForTypegenereringFrontend();
+        var typeNameResolver = new PrefixStrippingFQNTypeNameResolver("no.nav.foreldrepenger.web.app.", "no.nav.");
+        TypegenereringOpenApiReader.settOppForTypegenereringFrontend(typeNameResolver, RestImplementationClasses.allJsonTypeNameClasses());
         OpenApiUtils.setupOpenApi("FPSAK - Foreldrepenger, engangsstønad og svangerskapspenger",
             contextPath, RestImplementationClasses.getImplementationClasses(), this);
     }

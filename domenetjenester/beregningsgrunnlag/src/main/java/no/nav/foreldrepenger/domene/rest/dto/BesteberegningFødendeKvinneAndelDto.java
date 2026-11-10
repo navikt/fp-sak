@@ -5,8 +5,6 @@ import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 
-import no.nav.foreldrepenger.behandlingslager.behandling.beregning.Inntektskategori;
-
 public class BesteberegningFødendeKvinneAndelDto {
 
 
@@ -28,11 +26,11 @@ public class BesteberegningFødendeKvinneAndelDto {
         // For Jackson
     }
 
-    public BesteberegningFødendeKvinneAndelDto(Long andelsnr, Integer inntektPrMnd, Inntektskategori inntektskategori,
-                                               boolean lagtTilAvSaksbehandler) {
+    public BesteberegningFødendeKvinneAndelDto(Long andelsnr, @NotNull FastsatteVerdierForBesteberegningDto fastsatteVerdier,
+                                               @NotNull Boolean lagtTilAvSaksbehandler) {
         this.lagtTilAvSaksbehandler = lagtTilAvSaksbehandler;
         this.andelsnr = andelsnr;
-        fastsatteVerdier = new FastsatteVerdierForBesteberegningDto(inntektPrMnd, inntektskategori);
+        this.fastsatteVerdier = fastsatteVerdier;
     }
 
     public FastsatteVerdierForBesteberegningDto getFastsatteVerdier() {

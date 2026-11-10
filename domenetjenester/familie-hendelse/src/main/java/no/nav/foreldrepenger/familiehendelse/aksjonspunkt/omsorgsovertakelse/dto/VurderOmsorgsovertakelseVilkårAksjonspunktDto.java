@@ -41,14 +41,14 @@ public class VurderOmsorgsovertakelseVilkårAksjonspunktDto extends BekreftetAks
 
     public VurderOmsorgsovertakelseVilkårAksjonspunktDto(String begrunnelse,
                                                          LocalDate omsorgsovertakelseDato,
-                                                         List<OmsorgsovertakelseBarnDto> fødselsdatoer,
+                                                         List<OmsorgsovertakelseBarnDto> barn,
                                                          Avslagsårsak avslagskode,
                                                          OmsorgsovertakelseVilkårType delvilkår,
                                                          Boolean ektefellesBarn) {
 
         super(begrunnelse);
         this.omsorgsovertakelseDato = omsorgsovertakelseDato;
-        this.barn = fødselsdatoer;
+        this.barn = barn;
         this.avslagskode = avslagskode;
         this.delvilkår = delvilkår;
         this.ektefellesBarn = ektefellesBarn;

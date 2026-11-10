@@ -8,8 +8,6 @@ import java.util.UUID;
 
 import jakarta.validation.constraints.NotNull;
 
-import no.nav.foreldrepenger.dokumentarkiv.ArkivDokument;
-import no.nav.foreldrepenger.dokumentarkiv.ArkivJournalPost;
 import no.nav.foreldrepenger.dokumentarkiv.Kommunikasjonsretning;
 import no.nav.foreldrepenger.domene.typer.JournalpostId;
 
@@ -28,14 +26,15 @@ public class DokumentDto {
         // trengs for deserialisering av JSON
     }
 
-    public DokumentDto(ArkivJournalPost arkivJournalPost, ArkivDokument arkivDokument) {
-        this.journalpostId = arkivJournalPost.getJournalpostId();
-        this.dokumentId = arkivDokument.getDokumentId();
-        this.tittel = arkivDokument.getTittel();
-        this.kommunikasjonsretning = arkivJournalPost.getKommunikasjonsretning();
+    public DokumentDto(@NotNull JournalpostId journalpostId, @NotNull String dokumentId, @NotNull Kommunikasjonsretning kommunikasjonsretning,
+                       String tittel, LocalDateTime tidspunkt) {
+        this.journalpostId = journalpostId;
+        this.dokumentId = dokumentId;
+        this.tittel = tittel;
+        this.kommunikasjonsretning = kommunikasjonsretning;
         this.behandlinger = new ArrayList<>();
         this.behandlingUuidList = new ArrayList<>();
-        this.tidspunkt = arkivJournalPost.getTidspunkt();
+        this.tidspunkt = tidspunkt;
     }
 
     public JournalpostId getJournalpostId() {

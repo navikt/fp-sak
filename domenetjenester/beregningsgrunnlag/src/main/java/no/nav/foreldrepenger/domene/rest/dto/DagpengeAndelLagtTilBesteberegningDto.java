@@ -3,8 +3,6 @@ package no.nav.foreldrepenger.domene.rest.dto;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 
-import no.nav.foreldrepenger.behandlingslager.behandling.beregning.Inntektskategori;
-
 public class DagpengeAndelLagtTilBesteberegningDto {
 
     @Valid
@@ -15,8 +13,8 @@ public class DagpengeAndelLagtTilBesteberegningDto {
         // For Jackson
     }
 
-    public DagpengeAndelLagtTilBesteberegningDto(int fastsattBeløp, Inntektskategori inntektskategori) {
-        this.fastsatteVerdier = new FastsatteVerdierForBesteberegningDto(fastsattBeløp, inntektskategori);
+    public DagpengeAndelLagtTilBesteberegningDto(@NotNull FastsatteVerdierForBesteberegningDto fastsatteVerdier) {
+        this.fastsatteVerdier = fastsatteVerdier;
     }
 
     public FastsatteVerdierForBesteberegningDto getFastsatteVerdier() {

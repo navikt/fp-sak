@@ -192,7 +192,8 @@ public class DokumentRestTjeneste {
     private DokumentDto mapFraArkivDokument(ArkivJournalPost arkivJournalPost, ArkivDokument arkivDokument,
             Map<JournalpostId, List<MottattDokument>> mottatteIMDokument,
             Map<JournalpostId, List<Inntektsmelding>> inntektsMeldinger) {
-        var dto = new DokumentDto(arkivJournalPost, arkivDokument);
+        var dto = new DokumentDto(arkivJournalPost.getJournalpostId(), arkivDokument.getDokumentId(), arkivJournalPost.getKommunikasjonsretning(),
+            arkivDokument.getTittel(), arkivJournalPost.getTidspunkt());
         if (DokumentTypeId.INNTEKTSMELDING.equals(arkivDokument.getDokumentType())
                 && mottatteIMDokument.containsKey(arkivJournalPost.getJournalpostId())) {
             var behandlinger = mottatteIMDokument.get(dto.getJournalpostId()).stream()
