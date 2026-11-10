@@ -7,6 +7,7 @@ import static no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsak
 import static no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType.RE_HENDELSE_FØDSEL;
 import static no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType.RE_OPPLYSNINGER_OM_DØD;
 import static no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType.RE_OPPLYSNINGER_OM_FORDELING;
+import static no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType.RE_VEDTAK_PLEIEPENGER;
 import static no.nav.foreldrepenger.domene.uttak.UttakRevurderingTestUtil.AKTØR_ID_FAR;
 import static no.nav.foreldrepenger.domene.uttak.UttakRevurderingTestUtil.AKTØR_ID_MOR;
 import static no.nav.foreldrepenger.domene.uttak.UttakRevurderingTestUtil.FØDSELSDATO;
@@ -40,6 +41,7 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.Dekningsgrad;
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Fagsystem;
 import no.nav.foreldrepenger.behandlingslager.uttak.PeriodeResultatType;
 import no.nav.foreldrepenger.behandlingslager.uttak.UttakArbeidType;
+import no.nav.foreldrepenger.behandlingslager.uttak.Utbetalingsgrad;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.PeriodeResultatÅrsak;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.Stønadskonto;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.StønadskontoType;
@@ -826,6 +828,72 @@ class EndringsdatoRevurderingUtlederTest {
         var endringsdato = utleder.utledEndringsdato(input);
 
         assertThat(endringsdato).isEqualTo(originalOppgittPeriode.getFom());
+    }
+
+    @Test
+    void skal_utlede_at_endringsdato_er_første_uttaksdato_fra_vedtak_når_pleiepenger_ikke_lenger_overlapper_utbetalt_uttak() {
+        var revurdering = opprettRevurderingPleiepenger();
+        // Pleiepenger er endret i registerdata etter at revurderingen ble opprettet og ligger nå før foreldrepengene
+        leggTilPleiepenger(revurdering, FØRSTE_UTTAKSDATO_GJELDENDE_VEDTAK.minusWeeks(4), FØRSTE_UTTAKSDATO_GJELDENDE_VEDTAK.minusWeeks(1));
+
+        var endringsdato = utleder.utledEndringsdato(lagInputPleiepenger(revurdering));
+
+        assertThat(endringsdato).isEqualTo(FØRSTE_UTTAKSDATO_GJELDENDE_VEDTAK);
+    }
+
+    @Test
+    void skal_utlede_at_endringsdato_er_første_dag_med_overlapp_når_pleiepenger_overlapper_utbetalt_uttak() {
+        var revurdering = opprettRevurderingPleiepenger();
+        var pleiepengerFom = FØRSTE_UTTAKSDATO_GJELDENDE_VEDTAK.plusWeeks(2);
+        leggTilPleiepenger(revurdering, pleiepengerFom, pleiepengerFom.plusWeeks(2));
+
+        var endringsdato = utleder.utledEndringsdato(lagInputPleiepenger(revurdering));
+
+        assertThat(endringsdato).isEqualTo(pleiepengerFom);
+    }
+
+    private Behandling opprettRevurderingPleiepenger() {
+        var periode = new UttakResultatPeriodeEntitet.Builder(FØRSTE_UTTAKSDATO_GJELDENDE_VEDTAK,
+            FØRSTE_UTTAKSDATO_GJELDENDE_VEDTAK.plusWeeks(6).minusDays(1)).medResultatType(PeriodeResultatType.INNVILGET,
+            PeriodeResultatÅrsak.UKJENT).build();
+        var aktivitet = new UttakResultatPeriodeAktivitetEntitet.Builder(periode,
+            new UttakAktivitetEntitet.Builder().medUttakArbeidType(UttakArbeidType.FRILANS).build())
+            .medTrekkdager(new Trekkdager(30))
+            .medTrekkonto(UttakPeriodeType.MØDREKVOTE)
+            .medUtbetalingsgrad(Utbetalingsgrad.FULL)
+            .medArbeidsprosent(BigDecimal.ZERO)
+            .build();
+        periode.leggTilAktivitet(aktivitet);
+        uttakBeregningsandelTjeneste.leggTilFrilans();
+        return testUtil.opprettRevurdering(AKTØR_ID_MOR, RE_VEDTAK_PLEIEPENGER, List.of(periode),
+            new OppgittFordelingEntitet(List.of(), true));
+    }
+
+    private void leggTilPleiepenger(Behandling revurdering, LocalDate fom, LocalDate tom) {
+        var iayBuilder = iayTjeneste.opprettBuilderForRegister(revurdering.getId());
+        var aktørYtelseBuilder = iayBuilder.getAktørYtelseBuilder(revurdering.getAktørId());
+        var ytelseBuilder = aktørYtelseBuilder.getYtelselseBuilderForType(Fagsystem.K9SAK,
+            RelatertYtelseType.PLEIEPENGER_SYKT_BARN, new Saksnummer("02"));
+        ytelseBuilder.medKilde(Fagsystem.K9SAK)
+            .medYtelseType(RelatertYtelseType.PLEIEPENGER_SYKT_BARN)
+            .medStatus(RelatertYtelseTilstand.AVSLUTTET)
+            .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(fom, tom))
+            .medYtelseAnvist(ytelseBuilder.getAnvistBuilder()
+                .medAnvistPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(fom, tom))
+                .medUtbetalingsgradProsent(BigDecimal.valueOf(100))
+                .build());
+        aktørYtelseBuilder.leggTilYtelse(ytelseBuilder);
+        iayBuilder.leggTilAktørYtelse(aktørYtelseBuilder);
+        iayTjeneste.lagreIayAggregat(revurdering.getId(), iayBuilder);
+    }
+
+    private UttakInput lagInputPleiepenger(Behandling revurdering) {
+        var hendelse = FamilieHendelse.forFødsel(null, FØDSELSDATO, List.of(new Barn()), 1);
+        var familiehendelser = new FamilieHendelser().medBekreftetHendelse(hendelse);
+        var fpGrunnlag = new ForeldrepengerGrunnlag().medFamilieHendelser(familiehendelser)
+            .medOriginalBehandling(new OriginalBehandling(revurdering.getOriginalBehandlingId().orElseThrow(), familiehendelser))
+            .medOppdagetPleiepengerOverlappendeUtbetaling(true);
+        return lagInput(BehandlingReferanse.fra(revurdering), fpGrunnlag).medBehandlingÅrsaker(Set.of(RE_VEDTAK_PLEIEPENGER));
     }
 
     private YrkesaktivitetBuilder lagYrkesaktivitet(Arbeidsgiver arbeidsgiver, DatoIntervallEntitet periode) {

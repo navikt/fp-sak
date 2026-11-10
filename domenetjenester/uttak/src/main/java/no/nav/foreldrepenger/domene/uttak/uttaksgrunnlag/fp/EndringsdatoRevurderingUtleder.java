@@ -348,7 +348,10 @@ public class EndringsdatoRevurderingUtleder {
                     .ifPresent(datoer::add);
                 case FØRSTE_UTTAKSDATO_SØKNAD_FORRIGE_BEHANDLING -> finnFørsteUttaksdatoSøknadForrigeBehandling(ref).ifPresent(datoer::add);
                 case NESTE_STØNADSPERIODE -> finnNesteStønadsperiode(fpGrunnlag).ifPresent(datoer::add);
-                case VEDTAK_PLEIEPENGER -> førsteDatoMedOverlappPleiepenger(uttakInput).ifPresent(datoer::add);
+                // Pleiepengene kan ha blitt endret i registerdata etter at revurderingen ble opprettet, slik at overlappen er borte
+                case VEDTAK_PLEIEPENGER -> førsteDatoMedOverlappPleiepenger(uttakInput)
+                    .or(() -> finnFørsteUttaksdato(finnForrigeBehandling(ref)))
+                    .ifPresent(datoer::add);
             }
         }
 
