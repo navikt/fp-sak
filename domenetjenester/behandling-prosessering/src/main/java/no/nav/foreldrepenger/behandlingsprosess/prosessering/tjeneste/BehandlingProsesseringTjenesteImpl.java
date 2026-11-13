@@ -231,12 +231,17 @@ public class BehandlingProsesseringTjenesteImpl implements BehandlingProsesserin
         var gjenopptaTask = lagTaskData(TaskType.forProsessTask(GjenopptaBehandlingTask.class), behandling, nesteKjøringEtter, prioritet);
         gruppe.addNesteSekvensiell(gjenopptaTask);
 
-        if (behandling.erYtelseBehandling() && registerdataEndringshåndterer.skalInnhenteRegisteropplysningerPåNytt(behandling)) {
-            leggTilTasksForRegisterinnhenting(behandling, gruppe, nesteKjøringEtter, prioritet);
-            var registerdataOppdatererTask = lagTaskData(TaskType.forProsessTask(RegisterdataOppdatererTask.class), behandling, nesteKjøringEtter, prioritet);
-            var snapshot = endringsresultatSjekker.opprettEndringsresultatPåBehandlingsgrunnlagSnapshot(behandling.getId());
-            registerdataOppdatererTask.setPayload(DefaultJsonMapper.toJson(snapshot));
-            gruppe.addNesteSekvensiell(registerdataOppdatererTask);
+        if (behandling.erYtelseBehandling()) {
+            var oppdaterRegisterData = registerdataEndringshåndterer.skalInnhenteRegisteropplysningerPåNytt(behandling);
+            if (oppdaterRegisterData) {
+                leggTilTasksForRegisterinnhenting(behandling, gruppe, nesteKjøringEtter, prioritet);
+            }
+            if (oppdaterRegisterData || registerdataEndringshåndterer.skalSimulerePåNytt(behandling)) {
+                var registerdataOppdatererTask = lagTaskData(TaskType.forProsessTask(RegisterdataOppdatererTask.class), behandling, nesteKjøringEtter, prioritet);
+                var snapshot = endringsresultatSjekker.opprettEndringsresultatPåBehandlingsgrunnlagSnapshot(behandling.getId());
+                registerdataOppdatererTask.setPayload(DefaultJsonMapper.toJson(snapshot));
+                gruppe.addNesteSekvensiell(registerdataOppdatererTask);
+            }
         }
         var fortsettBehandlingTask = lagTaskData(TASK_FORTSETT, behandling, nesteKjøringEtter, prioritet);
         fortsettBehandlingTask.setProperty(FortsettBehandlingTask.MANUELL_FORTSETTELSE, String.valueOf(true));
