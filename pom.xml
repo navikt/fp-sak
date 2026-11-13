@@ -37,7 +37,7 @@
         <!-- kontrakter -->
         <fp-kontrakter.version>9.4.41</fp-kontrakter.version>
         <abakus-kontrakt.version>2.4.1</abakus-kontrakt.version>
-        <fpkalkulus.kontrakt.version>1.2.2</fpkalkulus.kontrakt.version>
+        <fpkalkulus.kontrakt.version>1.2.3</fpkalkulus.kontrakt.version>
         <!-- generelle verktøy -->
         <felles.version>7.10.1</felles.version>
         <prosesstask.version>5.3.1</prosesstask.version>
