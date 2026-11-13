@@ -14,6 +14,7 @@ import jakarta.ws.rs.core.MediaType;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import no.nav.folketrygdloven.kalkulus.response.beregningsgrunnlag.gui.BeregningsgrunnlagDto;
+import no.nav.folketrygdloven.kalkulus.response.fordelingsgrunnlag.gui.FordelingGrunnlagDto;
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.Opptjening;
 import no.nav.foreldrepenger.behandlingslager.behandling.opptjening.OpptjeningRepository;
@@ -37,7 +38,9 @@ public class BeregningsgrunnlagRestTjeneste {
 
     static final String BASE_PATH = "/behandling";
     private static final String BEREGNINGSGRUNNLAG_PART_PATH = "/beregningsgrunnlag";
+    private static final String FORDELINGSGRUNNLAG_PART_PATH = "/fordelingsgrunnlag";
     public static final String BEREGNINGSGRUNNLAG_PATH = BASE_PATH + BEREGNINGSGRUNNLAG_PART_PATH;
+    public static final String FORDELINGSGRUNNLAG_PATH = BASE_PATH + FORDELINGSGRUNNLAG_PART_PATH;
 
     private BehandlingRepository behandlingRepository;
     private OpptjeningRepository opptjeningRepository;
@@ -67,6 +70,20 @@ public class BeregningsgrunnlagRestTjeneste {
         if (!opptjening.map(Opptjening::erOpptjeningPeriodeVilkårOppfylt).orElse(Boolean.FALSE)) {
             return null;
         }
-        return beregningTjeneste.hentGuiDto(BehandlingReferanse.fra(behandling)).orElse(null);
+        return beregningTjeneste.hentBeregningsgrunnlagGui(BehandlingReferanse.fra(behandling)).orElse(null);
+    }
+
+    @GET
+    @Operation(description = "Hent fordelingsgrunnlag for angitt behandling", summary = "Returnerer fordelingsgrunnlag for behandling.", tags = "fordelingsgrunnlag")
+    @BeskyttetRessurs(actionType = ActionType.READ, resourceType = ResourceType.FAGSAK, sporingslogg = false)
+    @Path(FORDELINGSGRUNNLAG_PART_PATH)
+    public FordelingGrunnlagDto hentFordelingsgrunnlag(@TilpassetAbacAttributt(supplierClass = BehandlingAbacSuppliers.UuidAbacDataSupplier.class)
+                                                        @NotNull @QueryParam(UuidDto.NAME) @Parameter(description = UuidDto.DESC) @Valid UuidDto uuidDto) {
+        var behandling = behandlingRepository.hentBehandling(uuidDto.getBehandlingUuid());
+        var opptjening = opptjeningRepository.finnOpptjening(behandling.getId());
+        if (!opptjening.map(Opptjening::erOpptjeningPeriodeVilkårOppfylt).orElse(Boolean.FALSE)) {
+            return null;
+        }
+        return beregningTjeneste.hentFordelingsgrunnlagGui(BehandlingReferanse.fra(behandling)).orElse(null);
     }
 }

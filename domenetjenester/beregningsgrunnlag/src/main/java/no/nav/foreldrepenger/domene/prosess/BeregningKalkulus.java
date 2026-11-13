@@ -10,6 +10,7 @@ import org.slf4j.LoggerFactory;
 
 import no.nav.folketrygdloven.kalkulus.kodeverk.BeregningSteg;
 import no.nav.folketrygdloven.kalkulus.response.beregningsgrunnlag.gui.BeregningsgrunnlagDto;
+import no.nav.folketrygdloven.kalkulus.response.fordelingsgrunnlag.gui.FordelingGrunnlagDto;
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.BekreftetAksjonspunktDto;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.OverstyringAksjonspunktDto;
@@ -112,13 +113,24 @@ class BeregningKalkulus implements BeregningAPI {
     }
 
     @Override
-    public Optional<BeregningsgrunnlagDto> hentGUIDto(BehandlingReferanse referanse) {
+    public Optional<BeregningsgrunnlagDto> hentBeregningsgrunnlagGui(BehandlingReferanse referanse) {
         var kobling = koblingRepository.hentKobling(referanse.behandlingId());
         return kobling.flatMap(k -> {
             var kalkulusInput = kalkulusInputTjeneste.lagKalkulusInput(referanse);
             var hentGuiDtoRequest = new EnkelHentBeregningsgrunnlagGUIRequest(k.getKoblingUuid(),
                 new Saksnummer(referanse.saksnummer().getVerdi()), kalkulusInput);
-            return klient.hentGrunnlagGUI(hentGuiDtoRequest);
+            return klient.hentBeregningsgrunnlagGui(hentGuiDtoRequest);
+        });
+    }
+
+    @Override
+    public Optional<FordelingGrunnlagDto> hentFordelingsgrunnlagGui(BehandlingReferanse referanse) {
+        var kobling = koblingRepository.hentKobling(referanse.behandlingId());
+        return kobling.flatMap(k -> {
+            var kalkulusInput = kalkulusInputTjeneste.lagKalkulusInput(referanse);
+            var hentGuiDtoRequest = new EnkelHentBeregningsgrunnlagGUIRequest(k.getKoblingUuid(),
+                new Saksnummer(referanse.saksnummer().getVerdi()), kalkulusInput);
+            return klient.hentFordelingsgrunnlagGui(hentGuiDtoRequest);
         });
     }
 

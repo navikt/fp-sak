@@ -408,6 +408,11 @@ public class BehandlingDtoTjeneste {
                 }
             }
 
+            var fordelingsgrunnlag = beregningTjeneste.hentFordelingsgrunnlagGui(BehandlingReferanse.fra(behandling));
+            if (fordelingsgrunnlag.isPresent()) {
+                dto.leggTil(get(BeregningsgrunnlagRestTjeneste.FORDELINGSGRUNNLAG_PATH, "fordelingsgrunnlag", uuidDto));
+            }
+
             var harInnhentetRegisterData = behandlingRepository.hentSistOppdatertTidspunkt(behandling.getId()).isPresent();
             if (harInnhentetRegisterData) {
                 dto.leggTil(get(ArbeidOgInntektsmeldingRestTjeneste.ARBEID_OG_INNTEKTSMELDING_PATH, "arbeidsforhold-inntektsmelding", uuidDto));

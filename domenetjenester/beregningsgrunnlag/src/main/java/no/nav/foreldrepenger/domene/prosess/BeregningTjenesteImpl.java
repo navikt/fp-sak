@@ -6,6 +6,7 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
 import no.nav.folketrygdloven.kalkulus.response.beregningsgrunnlag.gui.BeregningsgrunnlagDto;
+import no.nav.folketrygdloven.kalkulus.response.fordelingsgrunnlag.gui.FordelingGrunnlagDto;
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.BekreftetAksjonspunktDto;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.OverstyringAksjonspunktDto;
@@ -34,8 +35,13 @@ public class BeregningTjenesteImpl implements BeregningTjeneste {
     }
 
     @Override
-    public Optional<BeregningsgrunnlagDto> hentGuiDto(BehandlingReferanse referanse) {
-        return kalkulusBeregner.hentGUIDto(referanse);
+    public Optional<BeregningsgrunnlagDto> hentBeregningsgrunnlagGui(BehandlingReferanse referanse) {
+        return kalkulusBeregner.hentBeregningsgrunnlagGui(referanse);
+    }
+
+    @Override
+    public Optional<FordelingGrunnlagDto> hentFordelingsgrunnlagGui(BehandlingReferanse referanse) {
+        return kalkulusBeregner.hentFordelingsgrunnlagGui(referanse);
     }
 
     @Override
