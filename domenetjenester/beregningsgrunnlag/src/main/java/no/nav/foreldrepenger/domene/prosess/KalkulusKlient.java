@@ -11,6 +11,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import no.nav.folketrygdloven.kalkulus.response.beregningsgrunnlag.gui.BeregningsgrunnlagDto;
+import no.nav.folketrygdloven.kalkulus.response.fordelingsgrunnlag.gui.FordelingGrunnlagDto;
 import no.nav.foreldrepenger.domene.mappers.BeregningAksjonspunktResultatMapper;
 import no.nav.foreldrepenger.kalkulus.kontrakt.request.EnkelBeregnRequestDto;
 import no.nav.foreldrepenger.kalkulus.kontrakt.request.EnkelFpkalkulusRequestDto;
@@ -39,7 +40,8 @@ public class KalkulusKlient {
 
     private URI beregn;
     private URI hentGrunnlag;
-    private URI hentGrunnlagGui;
+    private URI hentBeregningsgrunnlagGui;
+    private URI hentFordelingsgrunnlagGui;
     private URI hentGrunnlagBesteberegning;
     private URI kopierGrunnlag;
     private URI kopierFastsattGrunnlag;
@@ -55,7 +57,8 @@ public class KalkulusKlient {
         this.restConfig = RestConfig.forClient(this.getClass());
         this.beregn = toUri(restConfig.fpContextPath(), "/api/kalkulus/v1/beregn");
         this.hentGrunnlag = toUri(restConfig.fpContextPath(), "/api/kalkulus/v1/grunnlag");
-        this.hentGrunnlagGui = toUri(restConfig.fpContextPath(), "/api/kalkulus/v1/grunnlag/gui");
+        this.hentBeregningsgrunnlagGui = toUri(restConfig.fpContextPath(), "/api/kalkulus/v1/grunnlag/gui/beregningsgrunnlag");
+        this.hentFordelingsgrunnlagGui = toUri(restConfig.fpContextPath(), "/api/kalkulus/v1/grunnlag/gui/fordelingsgrunnlag");
         this.hentGrunnlagBesteberegning = toUri(restConfig.fpContextPath(), "/api/kalkulus/v1/grunnlag/besteberegning");
         this.tilstand = toUri(restConfig.fpContextPath(), "/api/kalkulus/v1/grunnlag/tilstander");
         this.kopierGrunnlag = toUri(restConfig.fpContextPath(), "/api/kalkulus/v1/kopier");
@@ -86,9 +89,15 @@ public class KalkulusKlient {
         return restClient.sendReturnOptional(restRequest, BeregningsgrunnlagGrunnlagDto.class);
     }
 
-    public Optional<BeregningsgrunnlagDto> hentGrunnlagGUI(EnkelHentBeregningsgrunnlagGUIRequest request) {
+    public Optional<FordelingGrunnlagDto> hentFordelingsgrunnlagGui(EnkelHentBeregningsgrunnlagGUIRequest request) {
         LOG.info("Henter GUI dto fra fpkalkulus");
-        var restRequest = RestRequest.newPOSTJson(request, hentGrunnlagGui, restConfig);
+        var restRequest = RestRequest.newPOSTJson(request, hentFordelingsgrunnlagGui, restConfig);
+        return restClient.sendReturnOptional(restRequest, FordelingGrunnlagDto.class);
+    }
+
+    public Optional<BeregningsgrunnlagDto> hentBeregningsgrunnlagGui(EnkelHentBeregningsgrunnlagGUIRequest request) {
+        LOG.info("Henter GUI dto fra fpkalkulus");
+        var restRequest = RestRequest.newPOSTJson(request, hentBeregningsgrunnlagGui, restConfig);
         return restClient.sendReturnOptional(restRequest, BeregningsgrunnlagDto.class);
     }
 

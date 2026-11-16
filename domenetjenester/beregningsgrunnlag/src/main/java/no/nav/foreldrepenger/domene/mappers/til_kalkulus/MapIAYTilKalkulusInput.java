@@ -149,9 +149,11 @@ public class MapIAYTilKalkulusInput {
             var refusjonOpphører = inntektsmelding.getRefusjonOpphører();
             var refusjonBeløp = inntektsmelding.getRefusjonBeløpPerMnd() != null ? no.nav.foreldrepenger.kalkulus.kontrakt.typer.Beløp.fra(
                 inntektsmelding.getRefusjonBeløpPerMnd().getVerdi()) : null;
+            var journalpostId = inntektsmelding.getJournalpostId() != null
+                ? new no.nav.foreldrepenger.kalkulus.kontrakt.typer.JournalpostId(inntektsmelding.getJournalpostId().getVerdi()) : null;
 
             return new InntektsmeldingDto(aktør, inntektBeløp, naturalYtelseDtos, refusjonDtos, internArbeidsforholdRefDto, startDato,
-                refusjonOpphører, refusjonBeløp, inntektsmelding.getInnsendingstidspunkt().toLocalDate());
+                refusjonOpphører, refusjonBeløp, inntektsmelding.getInnsendingstidspunkt().toLocalDate(), journalpostId);
         }).toList();
     }
 

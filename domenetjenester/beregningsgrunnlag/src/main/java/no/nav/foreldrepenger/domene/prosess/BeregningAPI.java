@@ -3,6 +3,7 @@ package no.nav.foreldrepenger.domene.prosess;
 import java.util.Optional;
 
 import no.nav.folketrygdloven.kalkulus.response.beregningsgrunnlag.gui.BeregningsgrunnlagDto;
+import no.nav.folketrygdloven.kalkulus.response.fordelingsgrunnlag.gui.FordelingGrunnlagDto;
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.BekreftetAksjonspunktDto;
 import no.nav.foreldrepenger.behandling.aksjonspunkt.OverstyringAksjonspunktDto;
@@ -17,7 +18,9 @@ interface BeregningAPI {
 
     BeregningsgrunnlagVilkårOgAkjonspunktResultat beregn(BehandlingReferanse behandlingReferanse, BehandlingStegType stegType);
 
-    Optional<BeregningsgrunnlagDto> hentGUIDto(BehandlingReferanse referanse);
+    Optional<BeregningsgrunnlagDto> hentBeregningsgrunnlagGui(BehandlingReferanse referanse);
+
+    Optional<FordelingGrunnlagDto> hentFordelingsgrunnlagGui(BehandlingReferanse referanse);
 
     void kopier(BehandlingReferanse revurdering, BehandlingReferanse originalbehandling, BehandlingStegType tilstand);
 
