@@ -1,5 +1,6 @@
 package no.nav.foreldrepenger.behandlingslager.task;
 
+import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskHandler;
 
@@ -14,13 +15,13 @@ public abstract class GenerellProsessTask implements ProsessTaskHandler {
 
     @Override
     public void doTask(ProsessTaskData prosessTaskData) {
-        var fagsakId = prosessTaskData.getFagsakId();
+        var saksnummer = Saksnummer.fra(prosessTaskData.getSaksnummer());
         var behandlingId = getBehandlingId(prosessTaskData);
 
-        prosesser(prosessTaskData, fagsakId, behandlingId);
+        prosesser(prosessTaskData, saksnummer, behandlingId);
     }
 
-    protected abstract void prosesser(ProsessTaskData prosessTaskData, Long fagsakId, Long behandlingId);
+    protected abstract void prosesser(ProsessTaskData prosessTaskData, Saksnummer saksnummer, Long behandlingId);
 
     private Long getBehandlingId(ProsessTaskData data) {
         return data.getBehandlingIdAsLong();

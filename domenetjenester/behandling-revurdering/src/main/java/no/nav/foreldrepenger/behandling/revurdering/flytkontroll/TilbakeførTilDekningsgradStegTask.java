@@ -15,8 +15,10 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.YtelseFordelingAggregat;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakProsesstaskRekkefølge;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjon;
+import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.behandlingslager.task.FagsakProsessTask;
 import no.nav.foreldrepenger.behandlingsprosess.prosessering.BehandlingProsesseringTjeneste;
+import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.domene.ytelsefordeling.YtelseFordelingTjeneste;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
@@ -29,6 +31,7 @@ public class TilbakeførTilDekningsgradStegTask extends FagsakProsessTask {
     private static final Logger LOG = LoggerFactory.getLogger(TilbakeførTilDekningsgradStegTask.class);
 
     private BehandlingRepository behandlingRepository;
+    private FagsakRepository fagsakRepository;
     private FagsakRelasjonTjeneste fagsakRelasjonTjeneste;
     private YtelseFordelingTjeneste ytelseFordelingTjeneste;
     private BehandlingProsesseringTjeneste behandlingProsesseringTjeneste;
@@ -40,6 +43,7 @@ public class TilbakeførTilDekningsgradStegTask extends FagsakProsessTask {
                                              BehandlingProsesseringTjeneste behandlingProsesseringTjeneste) {
         super(repositoryProvider.getFagsakLåsRepository(), repositoryProvider.getBehandlingLåsRepository());
         this.behandlingRepository = repositoryProvider.getBehandlingRepository();
+        this.fagsakRepository = repositoryProvider.getFagsakRepository();
         this.fagsakRelasjonTjeneste = fagsakRelasjonTjeneste;
         this.ytelseFordelingTjeneste = ytelseFordelingTjeneste;
         this.behandlingProsesseringTjeneste = behandlingProsesseringTjeneste;
@@ -50,8 +54,9 @@ public class TilbakeførTilDekningsgradStegTask extends FagsakProsessTask {
     }
 
     @Override
-    protected void prosesser(ProsessTaskData prosessTaskData, Long fagsakId) {
-        var behandling = behandlingRepository.hentSisteYtelsesBehandlingForFagsakId(fagsakId).orElseThrow();
+    protected void prosesser(ProsessTaskData prosessTaskData, Saksnummer saksnummer) {
+        var fagsak = fagsakRepository.finnEksaktFagsak(saksnummer);
+        var behandling = behandlingRepository.hentSisteYtelsesBehandlingForFagsakId(fagsak.getId()).orElseThrow();
         var lås = behandlingRepository.taSkriveLås(behandling);
         if (behandling.erSaksbehandlingAvsluttet() || SpesialBehandling.erSpesialBehandling(behandling)) {
             return;

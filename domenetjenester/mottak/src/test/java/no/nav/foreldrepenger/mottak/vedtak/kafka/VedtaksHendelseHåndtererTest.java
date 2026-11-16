@@ -235,7 +235,7 @@ class VedtaksHendelseHåndtererTest extends EntityManagerAwareTest {
 
         var task = prosessTaskDataList.getFirst();
         assertThat(task.taskType()).isEqualTo(TaskType.forProsessTask(HåndterOverlappPleiepengerTask.class));
-        assertThat(task.getFagsakId()).isEqualTo(fpBehandling.getFagsak().getId());
+        assertThat(task.getSaksnummer()).isEqualTo(fpBehandling.getSaksnummer().getVerdi());
     }
 
     @Test

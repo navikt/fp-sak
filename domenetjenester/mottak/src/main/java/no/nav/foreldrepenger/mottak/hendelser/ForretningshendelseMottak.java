@@ -30,6 +30,7 @@ import no.nav.foreldrepenger.behandlingslager.hendelser.Endringstype;
 import no.nav.foreldrepenger.behandlingslager.hendelser.Forretningshendelse;
 import no.nav.foreldrepenger.behandlingslager.hendelser.ForretningshendelseType;
 import no.nav.foreldrepenger.domene.typer.AktørId;
+import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.konfig.Environment;
 import no.nav.foreldrepenger.kontrakter.abonnent.v2.HendelseDto;
 import no.nav.foreldrepenger.kontrakter.abonnent.v2.pdl.DødHendelseDto;
@@ -123,14 +124,14 @@ public class ForretningshendelseMottak {
      * 2. steg av håndtering av mottatt forretningshendelse. Hendelsen på fagsaken brukes som TRIGGER ift. protokoll
      * for mottak av hendelser på fagsak/behandling
      */
-    public void håndterHendelsePåFagsak(Long fagsakId, ForretningshendelseType hendelseType, BehandlingÅrsakType behandlingÅrsakType) {
-        Objects.requireNonNull(fagsakId);
+    public void håndterHendelsePåFagsak(Saksnummer saksnummer, ForretningshendelseType hendelseType, BehandlingÅrsakType behandlingÅrsakType) {
+        Objects.requireNonNull(saksnummer);
 
-        var fagsak = fagsakRepository.finnEksaktFagsak(fagsakId);
+        var fagsak = fagsakRepository.finnEksaktFagsak(saksnummer);
         var håndterer = håndtererProvider.finnHåndterer(hendelseType, fagsak.getYtelseType());
 
         // Hent siste ytelsebehandling
-        var sisteYtelsebehandling = behandlingRevurderingTjeneste.hentAktivIkkeBerørtEllerSisteYtelsesbehandling(fagsakId).orElse(null);
+        var sisteYtelsebehandling = behandlingRevurderingTjeneste.hentAktivIkkeBerørtEllerSisteYtelsesbehandling(fagsak.getId()).orElse(null);
 
         // Case 1: Ingen ytelsesbehandling er opprettet på fagsak - hendelse skal ikke opprette noen behandling
         if (sisteYtelsebehandling == null) {
@@ -153,7 +154,7 @@ public class ForretningshendelseMottak {
 
         // Case 4: Ytelsesbehandling finnes, men verken åpen eller innvilget. Antas å inntreffe sjelden
         if (sisteInnvilgedeYtelsesbehandling.isEmpty()) {
-            LOG.info("FP-524248 Det finnes fagsak for ytelsesbehandling, men ingen åpen eller innvilget ytelsesesbehandling. Gjelder forretningshendelse '{}' på fagsakId {}.", hendelseType.getKode(), fagsakId);
+            LOG.info("FP-524248 Det finnes fagsak for ytelsesbehandling, men ingen åpen eller innvilget ytelsesesbehandling. Gjelder forretningshendelse '{}' på fagsakId {}.", hendelseType.getKode(), fagsak.getId());
             return;
         }
         var innvilgetBehandling = sisteInnvilgedeYtelsesbehandling.get();
@@ -169,7 +170,7 @@ public class ForretningshendelseMottak {
         taskData.setFagsak(fagsak.getSaksnummer().getVerdi(), fagsak.getId());
         if (IS_PROD) {
             // Unngå samtidighetsproblemer dersom begge foreldres saker revurderes pga hendelse
-            var tidstillegg = !RelasjonsRolleType.erMor(fagsak.getRelasjonsRolleType()) ? 45 : 0;
+            var tidstillegg = RelasjonsRolleType.erMor(fagsak.getRelasjonsRolleType()) ? 0 : 45;
             if (LocalTime.now().isBefore(OPPDRAG_VÅKNER)) {
                 // Porsjoner utover neste 29 min
                 var tidspunkt = OPPDRAG_VÅKNER.plusMinutes(20).plusSeconds(tidstillegg);

@@ -23,6 +23,7 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.behandlingslager.task.GenerellProsessTask;
 import no.nav.foreldrepenger.domene.abakus.AbakusTjeneste;
 import no.nav.foreldrepenger.domene.typer.AktørId;
+import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 
@@ -58,8 +59,8 @@ public class HåndterOverlappPleiepengerTask extends GenerellProsessTask {
     }
 
     @Override
-    public void prosesser(ProsessTaskData prosessTaskData, Long fagsakId, Long behandlingId) {
-        var fagsak = fagsakRepository.finnEksaktFagsak(fagsakId);
+    public void prosesser(ProsessTaskData prosessTaskData, Saksnummer saksnummer, Long behandlingId) {
+        var fagsak = fagsakRepository.finnEksaktFagsak(saksnummer);
         // Unngå doble revurderinger ved tette vedtak fra Pleiepenger
         if (erFortsattOverlapp(fagsak)) {
             tjeneste.oppdaterEllerOpprettRevurdering(fagsak, null, BehandlingÅrsakType.RE_VEDTAK_PLEIEPENGER);

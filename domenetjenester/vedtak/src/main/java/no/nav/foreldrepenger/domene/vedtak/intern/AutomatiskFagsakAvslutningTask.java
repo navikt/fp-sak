@@ -17,6 +17,7 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.laas.FagsakRelasjonLås;
 import no.nav.foreldrepenger.behandlingslager.laas.FagsakRelasjonLåsRepository;
 import no.nav.foreldrepenger.behandlingslager.task.FagsakRelasjonProsessTask;
+import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.produksjonsstyring.fagsakstatus.FagsakStatusOppdateringResultat;
 import no.nav.foreldrepenger.produksjonsstyring.fagsakstatus.OppdaterFagsakStatusTjeneste;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
@@ -51,15 +52,15 @@ public class AutomatiskFagsakAvslutningTask extends FagsakRelasjonProsessTask {
 
     @Override
     public void prosesser(ProsessTaskData prosessTaskData, Optional<FagsakRelasjon> relasjon, FagsakRelasjonLås relasjonLås, Optional<FagsakLås> fagsak1Lås, Optional<FagsakLås> fagsak2Lås) {
-        var fagsakId = prosessTaskData.getFagsakId();
+        var saksnummer = Saksnummer.fra(prosessTaskData.getSaksnummer());
         // For å sikre at fagsaken hentes opp i cache - ellers dukker den opp via readonly-query og det blir problem.
-        fagsakRepository.finnEksaktFagsak(fagsakId);
+        var fagsak = fagsakRepository.finnEksaktFagsak(saksnummer);
 
-        behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(fagsakId).ifPresent(behandling -> {
+        behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(fagsak.getId()).ifPresent(behandling -> {
             var ytelseType = behandling.getFagsakYtelseType();
             var resultat = oppdaterFagsakStatus(behandling);
             if (resultat != FagsakStatusOppdateringResultat.FAGSAK_AVSLUTTET) {
-                oppdaterFagsakRelasjonAvslutningsdato(relasjon, relasjonLås, fagsak1Lås, fagsak2Lås, fagsakId, ytelseType);
+                oppdaterFagsakRelasjonAvslutningsdato(relasjon, relasjonLås, fagsak1Lås, fagsak2Lås, fagsak.getId(), ytelseType);
             }
         });
     }

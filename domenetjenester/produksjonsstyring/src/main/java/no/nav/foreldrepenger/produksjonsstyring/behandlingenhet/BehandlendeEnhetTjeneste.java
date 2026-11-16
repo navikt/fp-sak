@@ -37,6 +37,7 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjon;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.egenskaper.FagsakMarkering;
 import no.nav.foreldrepenger.domene.typer.AktørId;
+import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.vedtak.felles.integrasjon.ruting.RutingResultat;
 
 @ApplicationScoped
@@ -85,10 +86,10 @@ public class BehandlendeEnhetTjeneste {
         return sjekkMotKobletSak(fagsak, enhet);
     }
 
-    public OrganisasjonsEnhet finnBehandlendeEnhetFor(Long fagsakId, String enhetId) {
+    public OrganisasjonsEnhet finnBehandlendeEnhetFor(Saksnummer saksnummer, String enhetId) {
         return Optional.ofNullable(enhetId)
-            .map(e -> EnhetsTjeneste.velgEnhet(e, finnSaksmerking(fagsakId)))
-            .orElseGet(() -> finnBehandlendeEnhetFor(fagsakRepository.finnEksaktFagsak(fagsakId)));
+            .map(e -> EnhetsTjeneste.velgEnhet(e, finnSaksmerking(saksnummer)))
+            .orElseGet(() -> finnBehandlendeEnhetFor(fagsakRepository.finnEksaktFagsak(saksnummer)));
     }
 
     public OrganisasjonsEnhet finnBehandlendeEnhetFra(Behandling behandling) {
@@ -128,6 +129,10 @@ public class BehandlendeEnhetTjeneste {
 
     private Collection<FagsakMarkering> finnSaksmerking(Long fagsakId) {
         return fagsakEgenskapRepository.finnFagsakMarkeringer(fagsakId);
+    }
+
+    private Collection<FagsakMarkering> finnSaksmerking(Saksnummer saksnummer) {
+        return fagsakEgenskapRepository.finnFagsakMarkeringer(fagsakRepository.finnEksaktFagsak(saksnummer).getId());
     }
 
     private Optional<OrganisasjonsEnhet> getOrganisasjonsEnhetEtterEndring(Behandling behandling, OrganisasjonsEnhet enhet) {

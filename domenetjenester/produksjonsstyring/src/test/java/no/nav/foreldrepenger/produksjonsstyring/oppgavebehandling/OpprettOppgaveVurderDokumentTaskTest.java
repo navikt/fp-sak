@@ -13,6 +13,7 @@ import org.mockito.ArgumentCaptor;
 import no.nav.foreldrepenger.behandlingslager.behandling.DokumentTypeId;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakLåsRepository;
+import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.produksjonsstyring.oppgavebehandling.task.OpprettOppgaveVurderDokumentTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 
@@ -43,7 +44,7 @@ class OpprettOppgaveVurderDokumentTaskTest {
         var prosessTaskData = ProsessTaskData.forProsessTask(OpprettOppgaveVurderDokumentTask.class);
         prosessTaskData.setFagsak(SAKSNUMMER, FAGSAK_ID);
         prosessTaskData.setProperty(OpprettOppgaveVurderDokumentTask.KEY_DOKUMENT_TYPE, DokumentTypeId.SØKNAD_ENGANGSSTØNAD_FØDSEL.getKode());
-        var fagsakIdCaptor = ArgumentCaptor.forClass(Long.class);
+        var fagsakIdCaptor = ArgumentCaptor.forClass(Saksnummer.class);
         var fordelingsoppgaveEnhetsIdCaptor = ArgumentCaptor.forClass(String.class);
         var beskrivelseCaptor = ArgumentCaptor.forClass(String.class);
 
@@ -52,7 +53,7 @@ class OpprettOppgaveVurderDokumentTaskTest {
 
         // Assert
         verify(oppgaveTjeneste).opprettVurderDokumentMedBeskrivelseBasertPåFagsakId(fagsakIdCaptor.capture(), any(), fordelingsoppgaveEnhetsIdCaptor.capture(), beskrivelseCaptor.capture());
-        assertThat(fagsakIdCaptor.getValue()).isEqualTo(FAGSAK_ID);
+        assertThat(fagsakIdCaptor.getValue().getVerdi()).isEqualTo(SAKSNUMMER);
         var dokumentTypeId = DokumentTypeId.SØKNAD_ENGANGSSTØNAD_FØDSEL;
         assertThat(beskrivelseCaptor.getValue()).isEqualTo("VL: " + dokumentTypeId.getNavn()); // Antar testhelper, ellers bruk finn+navn
     }

@@ -93,10 +93,10 @@ public class OppgaveTjeneste {
         }
     }
 
-    public String opprettVurderDokumentMedBeskrivelseBasertPåFagsakId(Long fagsakId, String journalpostId, String enhetsId, String beskrivelse) {
-        var fagsak = fagsakRepository.finnEksaktFagsak(fagsakId);
+    public String opprettVurderDokumentMedBeskrivelseBasertPåFagsakId(Saksnummer saksnummer, String journalpostId, String enhetsId, String beskrivelse) {
+        var fagsak = fagsakRepository.finnEksaktFagsak(saksnummer);
 
-        var orequest = createRestRequestBuilder(Oppgavetype.VURDER_DOKUMENT, fagsak.getSaksnummer(), fagsak.getAktørId(), enhetsId, beskrivelse,
+        var orequest = createRestRequestBuilder(Oppgavetype.VURDER_DOKUMENT, saksnummer, fagsak.getAktørId(), enhetsId, beskrivelse,
             Prioritet.NORM, DEFAULT_OPPGAVEFRIST_DAGER)
             .medBehandlingstema(BehandlingTema.fraFagsak(fagsak, null).getOffisiellKode())
             .medJournalpostId(journalpostId);
@@ -105,10 +105,10 @@ public class OppgaveTjeneste {
         return oppgave.id().toString();
     }
 
-    public String opprettVurderKonsekvensBasertPåFagsakId(Long fagsakId, String enhetsId, String beskrivelse, boolean høyPrioritet) {
-        var fagsak = fagsakRepository.finnEksaktFagsak(fagsakId);
+    public String opprettVurderKonsekvensBasertPåFagsakId(Saksnummer saksnummer, String enhetsId, String beskrivelse, boolean høyPrioritet) {
+        var fagsak = fagsakRepository.finnEksaktFagsak(saksnummer);
 
-        var orequest = createRestRequestBuilder(Oppgavetype.VURDER_KONSEKVENS_YTELSE, fagsak.getSaksnummer(), fagsak.getAktørId(), enhetsId, beskrivelse,
+        var orequest = createRestRequestBuilder(Oppgavetype.VURDER_KONSEKVENS_YTELSE, saksnummer, fagsak.getAktørId(), enhetsId, beskrivelse,
             høyPrioritet ? Prioritet.HOY : Prioritet.NORM, DEFAULT_OPPGAVEFRIST_DAGER)
             .medBehandlingstema(BehandlingTema.fraFagsak(fagsak, null).getOffisiellKode());
         var oppgave = restKlient.opprettetOppgave(orequest.build());

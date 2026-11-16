@@ -209,15 +209,15 @@ public class BehandlingRepository {
         return query.getResultList();
     }
 
-    public List<Long> hentÅpneBehandlingerIdForFagsakId(Long fagsakId) {
-        Objects.requireNonNull(fagsakId, FAGSAK_ID);
+    public List<Long> hentÅpneBehandlingerIdForSaksnummer(Saksnummer saksnummer) {
+        Objects.requireNonNull(saksnummer, "saksnummer");
 
         var query = entityManager.createQuery(
                 "SELECT beh.id from Behandling AS beh " +
-                        "WHERE beh.fagsak.id = :fagsakId " +
+                        "WHERE beh.fagsak.saksnummer = :saksnummer " +
                         "AND beh.status NOT IN (:status)",
                 Long.class);
-        query.setParameter(FAGSAK_ID, fagsakId);
+        query.setParameter("saksnummer", saksnummer);
         query.setParameter("status", BehandlingStatus.getFerdigbehandletStatuser());
         query.setHint(HibernateHints.HINT_READ_ONLY, "true");
         query.setHint(HibernateHints.HINT_CACHE_MODE, "IGNORE");

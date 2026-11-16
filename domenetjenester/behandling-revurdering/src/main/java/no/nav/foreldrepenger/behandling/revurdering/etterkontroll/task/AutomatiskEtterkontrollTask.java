@@ -23,6 +23,7 @@ import no.nav.foreldrepenger.behandlingslager.etterkontroll.KontrollType;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakProsesstaskRekkefølge;
 import no.nav.foreldrepenger.behandlingslager.task.FagsakProsessTask;
 import no.nav.foreldrepenger.domene.person.PersoninfoAdapter;
+import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.familiehendelse.FamilieHendelseTjeneste;
 import no.nav.foreldrepenger.produksjonsstyring.behandlingenhet.BehandlendeEnhetTjeneste;
 import no.nav.fpsak.tidsserie.LocalDateInterval;
@@ -63,14 +64,14 @@ public class AutomatiskEtterkontrollTask extends FagsakProsessTask {
     }
 
     @Override
-    protected void prosesser(ProsessTaskData prosessTaskData, Long fagsakId) {
-        LOG.info("Etterkontrollerer fagsak med fagsakId = {}", fagsakId);
+    protected void prosesser(ProsessTaskData prosessTaskData, Saksnummer saksnummer) {
+        LOG.info("Etterkontrollerer fagsak med fagsakId = {}", saksnummer);
 
         var behandling = behandlingRepository.hentBehandling(prosessTaskData.getBehandlingIdAsLong());
 
-        etterkontrollRepository.avflaggDersomEksisterer(fagsakId, KontrollType.MANGLENDE_FØDSEL);
+        etterkontrollRepository.avflaggDersomEksisterer(behandling.getFagsakId(), KontrollType.MANGLENDE_FØDSEL);
 
-        if (behandlingRepository.harÅpenOrdinærYtelseBehandlingerForFagsakId(fagsakId)) {
+        if (behandlingRepository.harÅpenOrdinærYtelseBehandlingerForFagsakId(behandling.getFagsakId())) {
             return;
         }
 

@@ -50,7 +50,7 @@ public class VedtakOverlappAvstemSakTask extends GenerellProsessTask {
     }
 
     @Override
-    public void prosesser(ProsessTaskData prosessTaskData, Long fagsakId, Long behandlingId) {
+    public void prosesser(ProsessTaskData prosessTaskData, Saksnummer saksnummer, Long behandlingId) {
         var saksnr = prosessTaskData.getPropertyValue(LOG_SAKSNUMMER_KEY);
         var hendelse = Optional.ofNullable(prosessTaskData.getPropertyValue(LOG_HENDELSE_KEY)).orElse(OverlappVedtak.HENDELSE_AVSTEM_SAK);
         if (saksnr != null) {
