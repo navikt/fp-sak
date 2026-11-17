@@ -89,14 +89,14 @@ public class KalkulusKlient {
         return restClient.sendReturnOptional(restRequest, BeregningsgrunnlagGrunnlagDto.class);
     }
 
-    public Optional<FordelingGrunnlagDto> hentFordelingsgrunnlagGui(EnkelHentBeregningsgrunnlagGUIRequest request) {
-        LOG.info("Henter GUI dto fra fpkalkulus");
+    public Optional<FordelingGrunnlagDto> hentFordelingsgrunnlagGui(EnkelFpkalkulusRequestDto request) {
+        LOG.info("Henter FordelingGrunnlagDto til frontend fra fpkalkulus");
         var restRequest = RestRequest.newPOSTJson(request, hentFordelingsgrunnlagGui, restConfig);
         return restClient.sendReturnOptional(restRequest, FordelingGrunnlagDto.class);
     }
 
     public Optional<BeregningsgrunnlagDto> hentBeregningsgrunnlagGui(EnkelHentBeregningsgrunnlagGUIRequest request) {
-        LOG.info("Henter GUI dto fra fpkalkulus");
+        LOG.info("Henter BeregningsgrunnlagDto til frontend fra fpkalkulus");
         var restRequest = RestRequest.newPOSTJson(request, hentBeregningsgrunnlagGui, restConfig);
         return restClient.sendReturnOptional(restRequest, BeregningsgrunnlagDto.class);
     }
