@@ -127,9 +127,8 @@ class BeregningKalkulus implements BeregningAPI {
     public Optional<FordelingGrunnlagDto> hentFordelingsgrunnlagGui(BehandlingReferanse referanse) {
         var kobling = koblingRepository.hentKobling(referanse.behandlingId());
         return kobling.flatMap(k -> {
-            var kalkulusInput = kalkulusInputTjeneste.lagKalkulusInput(referanse);
-            var hentGuiDtoRequest = new EnkelHentBeregningsgrunnlagGUIRequest(k.getKoblingUuid(),
-                new Saksnummer(referanse.saksnummer().getVerdi()), kalkulusInput);
+            var hentGuiDtoRequest = new EnkelFpkalkulusRequestDto(k.getKoblingUuid(),
+                new Saksnummer(referanse.saksnummer().getVerdi()));
             return klient.hentFordelingsgrunnlagGui(hentGuiDtoRequest);
         });
     }
