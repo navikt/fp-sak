@@ -7,6 +7,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakProsesstaskRekkefølge;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.behandlingslager.task.GenerellProsessTask;
+import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 
@@ -35,8 +36,8 @@ public class HåndterOpphørAvYtelserTask extends GenerellProsessTask {
     }
 
     @Override
-    public void prosesser(ProsessTaskData prosessTaskData, Long fagsakId, Long behandlingId) {
-        var fagsak = fagsakRepository.finnEksaktFagsak(fagsakId);
+    public void prosesser(ProsessTaskData prosessTaskData, Saksnummer saksnummer, Long behandlingId) {
+        var fagsak = fagsakRepository.finnEksaktFagsak(saksnummer);
         var beskrivelse = prosessTaskData.getPropertyValue(BESKRIVELSE_KEY);
 
         tjeneste.oppdaterEllerOpprettRevurdering(fagsak, beskrivelse, BehandlingÅrsakType.OPPHØR_YTELSE_NYTT_BARN);

@@ -365,7 +365,6 @@ class OpprettNyFørstegangsbehandlingTest {
     private void verifiserProsessTaskData(Behandling behandling, ProsessTaskData prosessTaskData, Long ventetDokument, boolean skalhabehandling) {
 
         assertThat(prosessTaskData.taskType()).isEqualTo(TaskType.forProsessTask(HåndterMottattDokumentTask.class));
-        assertThat(prosessTaskData.getFagsakId()).isEqualTo(behandling.getFagsakId());
         assertThat(prosessTaskData.getSaksnummer()).isEqualTo(behandling.getSaksnummer().getVerdi());
         if (skalhabehandling) {
             assertThat(prosessTaskData.getBehandlingIdAsLong()).isEqualTo(behandling.getId());

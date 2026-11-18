@@ -7,6 +7,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakProsesstaskRekkefølge;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.behandlingslager.task.FagsakProsessTask;
+import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 
@@ -33,9 +34,9 @@ public class BehandlingAvsluttetHendelseTask extends FagsakProsessTask {
     }
 
     @Override
-    protected void prosesser(ProsessTaskData prosessTaskData, Long fagsakId) {
+    protected void prosesser(ProsessTaskData prosessTaskData, Saksnummer saksnummer) {
         // For å sikre at fagsaken hentes opp i cache - ellers dukker den opp via readonly-query og det blir problem.
-        var fagsak = fagsakRepository.finnEksaktFagsak(fagsakId);
+        var fagsak = fagsakRepository.finnEksaktFagsak(saksnummer);
 
         oppdaterFagsakStatusTjeneste.oppdaterFagsakNårBehandlingAvsluttet(fagsak, prosessTaskData.getBehandlingIdAsLong());
     }

@@ -44,7 +44,7 @@ public class PubliserBehandlingHendelseTask extends GenerellProsessTask {
     }
 
     @Override
-    protected void prosesser(ProsessTaskData prosessTaskData, Long fagsakId, Long behandlingId) {
+    protected void prosesser(ProsessTaskData prosessTaskData, Saksnummer saksnummer, Long behandlingId) {
         var behandling = behandlingRepository.hentBehandling(behandlingId);
         var hendelseForBehandling = HendelseForBehandling.valueOf(prosessTaskData.getPropertyValue(HENDELSE_TYPE));
         var hendelseType = utledHendelse(behandling, hendelseForBehandling);

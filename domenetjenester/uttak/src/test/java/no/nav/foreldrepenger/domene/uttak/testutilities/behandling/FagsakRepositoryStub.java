@@ -22,10 +22,17 @@ class FagsakRepositoryStub extends FagsakRepository {
     private static final AtomicLong ID = new AtomicLong(0L);
 
     private final Map<Long, Fagsak> fagsakMap = new ConcurrentHashMap<>();
+    private final Map<Saksnummer, Fagsak> saksnummerMap = new ConcurrentHashMap<>();
+
 
     @Override
     public Fagsak finnEksaktFagsak(long fagsakId) {
         return Optional.ofNullable(fagsakMap.get(fagsakId)).orElseThrow();
+    }
+
+    @Override
+    public Fagsak finnEksaktFagsak(Saksnummer saksnummer) {
+        return Optional.ofNullable(saksnummerMap.get(saksnummer)).orElseThrow();
     }
 
     @Override
@@ -57,6 +64,7 @@ class FagsakRepositoryStub extends FagsakRepository {
     public Long opprettNy(Fagsak fagsak) {
         fagsak.setId(ID.getAndIncrement());
         fagsakMap.put(fagsak.getId(), fagsak);
+        saksnummerMap.put(fagsak.getSaksnummer(), fagsak);
         return fagsak.getId();
     }
 

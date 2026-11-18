@@ -10,6 +10,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.TaskType;
 
@@ -30,10 +31,11 @@ class LukkForespørslerImTaskTest {
     @Test
     void utgått_task_setter_forespørsel_til_utgått() {
         var task = new LukkForespørslerImTask(fpInntektsmeldingTjeneste);
+        var saksnummer = Saksnummer.fra("123");
 
-        task.prosesser(taskdata(ForespørselStatus.UTGÅTT.name()), null, null);
+        task.prosesser(taskdata(ForespørselStatus.UTGÅTT.name()), saksnummer, null);
 
-        verify(fpInntektsmeldingTjeneste).settForespørselTilUtgått("123");
+        verify(fpInntektsmeldingTjeneste).settForespørselTilUtgått(saksnummer);
     }
 
     @Test
@@ -59,7 +61,6 @@ class LukkForespørslerImTaskTest {
 
     private static ProsessTaskData taskdata(String status) {
         var taskdata = ProsessTaskData.forTaskType(TaskType.forProsessTask(LukkForespørslerImTask.class));
-        taskdata.setProperty(LukkForespørslerImTask.SAK_NUMMER, "123");
         if (status != null) {
             taskdata.setProperty(LukkForespørslerImTask.STATUS, status);
         }

@@ -6,6 +6,7 @@ import jakarta.inject.Inject;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakProsesstaskRekkefølge;
 import no.nav.foreldrepenger.behandlingslager.task.FagsakProsessTask;
+import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 
@@ -27,7 +28,7 @@ public class GjenopptaKøetBehandlingTask extends FagsakProsessTask {
     }
 
     @Override
-    protected void prosesser(ProsessTaskData prosessTaskData, Long fagsakId) {
+    protected void prosesser(ProsessTaskData prosessTaskData, Saksnummer saksnummer) {
         if (prosessTaskData.getBehandlingIdAsLong() != null) {
             køKontroller.oppdaterVedHenleggelseOmNødvendigOgFortsettBehandling(prosessTaskData.getBehandlingIdAsLong());
         }

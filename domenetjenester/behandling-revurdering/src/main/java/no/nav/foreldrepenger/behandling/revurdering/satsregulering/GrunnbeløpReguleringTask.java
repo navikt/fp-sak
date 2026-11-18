@@ -25,6 +25,7 @@ import no.nav.foreldrepenger.domene.modell.Beregningsgrunnlag;
 import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagGrunnlag;
 import no.nav.foreldrepenger.domene.prosess.BeregningTjeneste;
 import no.nav.foreldrepenger.domene.typer.Beløp;
+import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.produksjonsstyring.behandlingenhet.BehandlendeEnhetTjeneste;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
@@ -68,19 +69,19 @@ public class GrunnbeløpReguleringTask extends FagsakProsessTask {
     }
 
     @Override
-    protected void prosesser(ProsessTaskData prosessTaskData, Long fagsakId) {
+    protected void prosesser(ProsessTaskData prosessTaskData, Saksnummer saksnummer) {
         // For å sikre at fagsaken hentes opp i cache - ellers dukker den opp via readonly-query og det blir problem.
-        var fagsak = fagsakRepository.finnEksaktFagsak(fagsakId);
+        var fagsak = fagsakRepository.finnEksaktFagsak(saksnummer);
 
         // Implisitt precondition fra utvalget i batches: Ingen ytelsesbehandlinger
         // utenom evt berørt behandling.
-        var åpneYtelsesBehandlinger = behandlingRepository.harÅpenOrdinærYtelseBehandlingerForFagsakId(fagsakId);
+        var åpneYtelsesBehandlinger = behandlingRepository.harÅpenOrdinærYtelseBehandlingerForFagsakId(fagsak.getId());
         if (åpneYtelsesBehandlinger) {
-            LOG.info("GrunnbeløpRegulering finnes allerede åpen revurdering på fagsakId = {}", fagsakId);
+            LOG.info("GrunnbeløpRegulering finnes allerede åpen revurdering på fagsakId = {}", saksnummer);
             return;
         }
         if (prosessTaskData.getPropertyValue(MANUELL_KEY) == null) {
-            var sisteVedtatte = behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(fagsakId).orElseThrow();
+            var sisteVedtatte = behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(fagsak.getId()).orElseThrow();
             var skjæringstidspunkt = skjæringstidspunktTjeneste.getSkjæringstidspunkterForAvsluttetBehandling(sisteVedtatte.getId());
             var grunnbeløpFraSisteVedtatt = beregningTjeneste.hent(BehandlingReferanse.fra(sisteVedtatte))
                 .flatMap(BeregningsgrunnlagGrunnlag::getBeregningsgrunnlag)

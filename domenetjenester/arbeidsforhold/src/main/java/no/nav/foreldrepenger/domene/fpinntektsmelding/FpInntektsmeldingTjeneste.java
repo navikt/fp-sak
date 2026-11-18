@@ -19,10 +19,6 @@ import java.util.stream.Collectors;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
-import no.nav.foreldrepenger.domene.arbeidsforhold.InntektsmeldingTjeneste;
-
-import no.nav.foreldrepenger.domene.iay.modell.kodeverk.NaturalYtelseType;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,11 +33,14 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.OrgNummer;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.OrganisasjonsNummerValidator;
+import no.nav.foreldrepenger.domene.arbeidsforhold.InntektsmeldingTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsforhold.impl.InntektsmeldingRegisterTjeneste;
 import no.nav.foreldrepenger.domene.arbeidsgiver.ArbeidsgiverTjeneste;
 import no.nav.foreldrepenger.domene.iay.modell.Inntektsmelding;
 import no.nav.foreldrepenger.domene.iay.modell.NaturalYtelse;
+import no.nav.foreldrepenger.domene.iay.modell.kodeverk.NaturalYtelseType;
 import no.nav.foreldrepenger.domene.typer.Beløp;
+import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
@@ -331,12 +330,11 @@ public class FpInntektsmeldingTjeneste {
         taskdata.setGruppe(gruppeId);
         taskdata.setSekvens(String.valueOf(Instant.now().toEpochMilli()));
         taskdata.setProperty(LukkForespørslerImTask.STATUS, status.name());
-        taskdata.setProperty(LukkForespørslerImTask.SAK_NUMMER, behandling.getSaksnummer().getVerdi());
         prosessTaskTjeneste.lagre(taskdata);
     }
 
-    public void settForespørselTilUtgått(String saksnummer) {
-        var request = new LukkForespørselRequest(null, new SaksnummerDto(saksnummer));
+    public void settForespørselTilUtgått(Saksnummer saksnummer) {
+        var request = new LukkForespørselRequest(null, new SaksnummerDto(saksnummer.getVerdi()));
         klient.settForespørselTilUtgått(request);
     }
 

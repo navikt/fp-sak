@@ -31,18 +31,18 @@ public abstract class FagsakProsessTask implements ProsessTaskHandler {
 
     @Override
     public void doTask(ProsessTaskData prosessTaskData) {
-        var fagsakId = prosessTaskData.getFagsakId();
+        var saksnummer = Saksnummer.fra(prosessTaskData.getSaksnummer());
 
         identifiserBehandling(prosessTaskData)
             .stream()
             .sorted(Comparator.naturalOrder())
             .forEach(behandling -> behandlingLåsRepository.taLås(behandling));
 
-        fagsakLåsRepository.taLås(Saksnummer.fra(prosessTaskData.getSaksnummer()));
-        prosesser(prosessTaskData, fagsakId);
+        fagsakLåsRepository.taLås(saksnummer);
+        prosesser(prosessTaskData, saksnummer);
     }
 
-    protected abstract void prosesser(ProsessTaskData prosessTaskData, Long fagsakId);
+    protected abstract void prosesser(ProsessTaskData prosessTaskData, Saksnummer saksnummer);
 
     /**
      * Må alltid ta behandlingen før vi tar lås på fagsaken.

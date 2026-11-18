@@ -12,6 +12,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakProsesstaskRekkefølge;
 import no.nav.foreldrepenger.behandlingslager.hendelser.ForretningshendelseType;
 import no.nav.foreldrepenger.behandlingslager.task.FagsakProsessTask;
+import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 
@@ -38,21 +39,21 @@ public class MottaHendelseFagsakTask extends FagsakProsessTask {
     }
 
     @Override
-    protected void prosesser(ProsessTaskData prosessTaskData, Long fagsakId) {
+    protected void prosesser(ProsessTaskData prosessTaskData, Saksnummer saksnummer) {
         var hendelseTypeKode = prosessTaskData.getPropertyValue(PROPERTY_HENDELSE_TYPE);
         var årsakTypeKode = prosessTaskData.getPropertyValue(PROPERTY_ÅRSAK_TYPE);
-        Objects.requireNonNull(fagsakId);
+        Objects.requireNonNull(saksnummer);
         Objects.requireNonNull(hendelseTypeKode);
         Objects.requireNonNull(årsakTypeKode);
 
         var hendelseType = ForretningshendelseType.fraKode(hendelseTypeKode);
         var behandlingÅrsakType = BehandlingÅrsakType.fraKode(årsakTypeKode);
 
-        forretningshendelseMottak.håndterHendelsePåFagsak(fagsakId, hendelseType, behandlingÅrsakType);
+        forretningshendelseMottak.håndterHendelsePåFagsak(saksnummer, hendelseType, behandlingÅrsakType);
     }
 
     @Override
     protected List<Long> identifiserBehandling(ProsessTaskData prosessTaskData) {
-        return behandlingRepository.hentÅpneBehandlingerIdForFagsakId(prosessTaskData.getFagsakId());
+        return behandlingRepository.hentÅpneBehandlingerIdForSaksnummer(Saksnummer.fra(prosessTaskData.getSaksnummer()));
     }
 }

@@ -13,8 +13,6 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
-import no.nav.foreldrepenger.behandlingslager.kodeverk.Fagsystem;
-
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -24,6 +22,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import no.nav.foreldrepenger.behandlingslager.aktør.OrganisasjonsEnhet;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.Tema;
+import no.nav.foreldrepenger.behandlingslager.kodeverk.Fagsystem;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.AbstractTestScenario;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerEngangsstønad;
 import no.nav.foreldrepenger.domene.person.PersoninfoAdapter;
@@ -79,7 +78,7 @@ class OppgaveTjenesteTest {
         var scenario = lagScenario();
         var behandling = lagBehandling(scenario);
         var tjeneste = lagTjeneste(scenario);
-        var oppgaveId = tjeneste.opprettVurderDokumentMedBeskrivelseBasertPåFagsakId(behandling.getFagsakId(), null, "2010",
+        var oppgaveId = tjeneste.opprettVurderDokumentMedBeskrivelseBasertPåFagsakId(behandling.getSaksnummer(), null, "2010",
                 "bla bla");
 
         var request = captor.getValue();
@@ -109,7 +108,7 @@ class OppgaveTjenesteTest {
         var captor = ArgumentCaptor.forClass(OpprettOppgave.class);
         when(oppgaveRestKlient.opprettetOppgave(captor.capture())).thenReturn(OPPGAVE);
 
-        var oppgaveId = tjeneste.opprettVurderKonsekvensBasertPåFagsakId(behandling.getFagsakId(), "2010", "bla bla", false);
+        var oppgaveId = tjeneste.opprettVurderKonsekvensBasertPåFagsakId(behandling.getSaksnummer(), "2010", "bla bla", false);
 
         var request = captor.getValue();
         assertThat(request.saksreferanse()).isEqualTo(behandling.getSaksnummer().getVerdi());

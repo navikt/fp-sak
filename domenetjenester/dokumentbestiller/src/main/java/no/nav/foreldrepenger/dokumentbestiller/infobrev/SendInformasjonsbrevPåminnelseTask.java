@@ -26,6 +26,7 @@ import no.nav.foreldrepenger.dokumentbestiller.DokumentBestillerTjeneste;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentBestilling;
 import no.nav.foreldrepenger.domene.person.PersoninfoAdapter;
 import no.nav.foreldrepenger.domene.typer.AktørId;
+import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.domene.uttak.saldo.StønadskontoSaldoTjeneste;
 import no.nav.foreldrepenger.produksjonsstyring.behandlingenhet.BehandlendeEnhetTjeneste;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.grunnlag.Stønadskontotype;
@@ -76,8 +77,8 @@ public class SendInformasjonsbrevPåminnelseTask extends FagsakProsessTask {
     }
 
     @Override
-    public void prosesser(ProsessTaskData prosessTaskData, Long fagsakId) {
-        var fagsakFar = fagsakRepository.finnEksaktFagsak(fagsakId);
+    public void prosesser(ProsessTaskData prosessTaskData, Saksnummer saksnummer) {
+        var fagsakFar = fagsakRepository.finnEksaktFagsak(saksnummer);
 
         var aktørId = fagsakFar.getAktørId();
         var bruker = hentPersonInfo(aktørId);
