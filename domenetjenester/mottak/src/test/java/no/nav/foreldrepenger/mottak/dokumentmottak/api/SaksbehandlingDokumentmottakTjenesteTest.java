@@ -69,7 +69,6 @@ class SaksbehandlingDokumentmottakTjenesteTest {
         verify(taskTjeneste).lagre(captor.capture());
         var prosessTaskData = captor.getValue();
         assertThat(prosessTaskData.taskType()).isEqualTo(TaskType.forProsessTask(HåndterMottattDokumentTask.class));
-        assertThat(prosessTaskData.getFagsakId()).isEqualTo(FAGSAK_ID);
         assertThat(prosessTaskData.getSaksnummer()).isEqualTo(SAKSNUMMER.getVerdi());
     }
 
@@ -113,7 +112,6 @@ class SaksbehandlingDokumentmottakTjenesteTest {
         // Assert
         verify(taskTjeneste).lagre(captor.capture());
         var data = captor.getValue();
-        assertThat(data.getFagsakId()).isEqualTo(456L);
         assertThat(data.getSaksnummer()).isEqualTo("456");
         assertThat(data.getBehandlingIdAsLong()).isNull();
         assertThat(data.getPropertyValue(HåndterMottattDokumentTask.MOTTATT_DOKUMENT_ID_KEY)).isEqualTo("1");
@@ -144,7 +142,6 @@ class SaksbehandlingDokumentmottakTjenesteTest {
         // Assert
         verify(taskTjeneste).lagre(captor.capture());
         var data = captor.getValue();
-        assertThat(data.getFagsakId()).isEqualTo(456L);
         assertThat(data.getSaksnummer()).isEqualTo("456");
         assertThat(data.getBehandlingIdAsLong()).isEqualTo(789L);
         assertThat(data.getPropertyValue(HåndterMottattDokumentTask.MOTTATT_DOKUMENT_ID_KEY)).isEqualTo("1");

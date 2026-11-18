@@ -15,6 +15,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
+import no.nav.foreldrepenger.behandlingslager.behandling.beregning.AktivitetStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatAndel;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatPeriode;
@@ -24,6 +25,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.beregning.Inntektskateg
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.VedtakResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeType;
+import no.nav.foreldrepenger.behandlingslager.beregningsgrunnlag.BeregningsgrunnlagKoblingRepository;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerEngangsstønad;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerForeldrepenger;
 import no.nav.foreldrepenger.behandlingslager.testutilities.behandling.ScenarioMorSøkerSvangerskapspenger;
@@ -36,8 +38,6 @@ import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPeriodeAktiv
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPeriodeEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.UttakResultatPerioderEntitet;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
-import no.nav.foreldrepenger.behandlingslager.beregningsgrunnlag.BeregningsgrunnlagKoblingRepository;
-import no.nav.foreldrepenger.behandlingslager.behandling.beregning.AktivitetStatus;
 import no.nav.foreldrepenger.domene.typer.Beløp;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 import no.nav.foreldrepenger.regler.uttak.fastsetteperiode.TrekkdagerUtregningUtil;
@@ -58,7 +58,7 @@ public class SatsReguleringUtil {
 
     static Optional<ProsessTaskData> finnTaskFor(ArgumentCaptor<ProsessTaskData> captor, Behandling behandling) {
         return captor.getAllValues().stream()
-            .filter(t -> t.getFagsakId().equals(behandling.getFagsakId()))
+            .filter(t -> t.getSaksnummer().equals(behandling.getSaksnummer().getVerdi()))
             .findFirst();
     }
 

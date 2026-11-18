@@ -28,6 +28,7 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.task.FagsakProsessTask;
 import no.nav.foreldrepenger.behandlingsprosess.prosessering.BehandlingProsesseringTjeneste;
 import no.nav.foreldrepenger.domene.person.PersoninfoAdapter;
+import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.familiehendelse.FamilieHendelseTjeneste;
 import no.nav.foreldrepenger.produksjonsstyring.behandlingenhet.BehandlendeEnhetTjeneste;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
@@ -69,17 +70,17 @@ public class EngangsstønadReguleringTask extends FagsakProsessTask {
     }
 
     @Override
-    protected void prosesser(ProsessTaskData prosessTaskData, Long fagsakId) {
-        LOG.info("ESregulering fagsak med fagsakId = {}", fagsakId);
+    protected void prosesser(ProsessTaskData prosessTaskData, Saksnummer saksnummer) {
+        LOG.info("ESregulering fagsak med fagsakId = {}", saksnummer);
 
-        var fagsak = fagsakRepository.finnEksaktFagsak(fagsakId);
+        var fagsak = fagsakRepository.finnEksaktFagsak(saksnummer);
 
         if (!FagsakYtelseType.ENGANGSTØNAD.equals(fagsak.getYtelseType()) ||
-            behandlingRepository.harÅpenOrdinærYtelseBehandlingerForFagsakId(fagsakId)) {
+            behandlingRepository.harÅpenOrdinærYtelseBehandlingerForFagsakId(fagsak.getId())) {
             return;
         }
 
-        var behandling = behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(fagsakId).orElseThrow();
+        var behandling = behandlingRepository.finnSisteAvsluttedeIkkeHenlagteBehandling(fagsak.getId()).orElseThrow();
 
         familieHendelseTjeneste.finnAggregat(behandling.getId())
             .flatMap(g -> utledRevurderingsbehovMedÅrsak(behandling, g))

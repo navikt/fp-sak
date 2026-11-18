@@ -11,6 +11,7 @@ import org.slf4j.LoggerFactory;
 import no.nav.foreldrepenger.behandlingslager.aktør.OrganisasjonsEnhet;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakProsesstaskRekkefølge;
 import no.nav.foreldrepenger.behandlingslager.task.GenerellProsessTask;
+import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.produksjonsstyring.behandlingenhet.BehandlendeEnhetTjeneste;
 import no.nav.foreldrepenger.produksjonsstyring.oppgavebehandling.OppgaveTjeneste;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
@@ -51,17 +52,17 @@ public class OpprettOppgaveVurderKonsekvensTask extends GenerellProsessTask {
     }
 
     @Override
-    protected void prosesser(ProsessTaskData prosessTaskData, Long fagsakId, Long behandlingId){
+    protected void prosesser(ProsessTaskData prosessTaskData, Saksnummer saksnummer, Long behandlingId){
         var behandlendeEnhet = prosessTaskData.getPropertyValue(KEY_BEHANDLENDE_ENHET);
         var beskrivelse = prosessTaskData.getPropertyValue(KEY_BESKRIVELSE);
         var prioritet = prosessTaskData.getPropertyValue(KEY_PRIORITET);
 
-        var enhet = Optional.ofNullable(enhetTjeneste.finnBehandlendeEnhetFor(fagsakId, behandlendeEnhet)).map(OrganisasjonsEnhet::enhetId).orElse(null);
+        var enhet = Optional.ofNullable(enhetTjeneste.finnBehandlendeEnhetFor(saksnummer, behandlendeEnhet)).map(OrganisasjonsEnhet::enhetId).orElse(null);
 
         var høyPrioritet = PRIORITET_HØY.equals(prioritet);
 
         //vurder opphør av ytelse i Infotrygd pga overlapp på far - vet ikke saksnummer
-        var oppgaveId = oppgaveTjeneste.opprettVurderKonsekvensBasertPåFagsakId(fagsakId, enhet, beskrivelse, høyPrioritet);
+        var oppgaveId = oppgaveTjeneste.opprettVurderKonsekvensBasertPåFagsakId(saksnummer, enhet, beskrivelse, høyPrioritet);
 
         LOG.info("Oppgave opprettet i GSAK for å vurdere konsekvens for ytelse på enhet {}. Oppgavenummer: {}. Prioritet: {}", enhet, oppgaveId, prioritet);
     }

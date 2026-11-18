@@ -123,7 +123,6 @@ class HåndterOpphørAvYtelserTest extends EntityManagerAwareTest {
         var vurderKonsekvens = captor.getValue();
         assertThat(vurderKonsekvens.taskType()).isEqualTo(
             TaskType.forProsessTask(OpprettOppgaveVurderKonsekvensTask.class));
-        assertThat(vurderKonsekvens.getFagsakId()).isEqualTo(fsavsluttetBehMor.getId());
         assertThat(vurderKonsekvens.getSaksnummer()).isEqualTo(fsavsluttetBehMor.getSaksnummer().getVerdi());
         assertThat(vurderKonsekvens.getPropertyValue(OpprettOppgaveVurderKonsekvensTask.KEY_BESKRIVELSE)).isEqualTo(
             BESKRIVELSE);
@@ -157,7 +156,7 @@ class HåndterOpphørAvYtelserTest extends EntityManagerAwareTest {
         var vurderKonsekvens = captor.getValue();
         assertThat(vurderKonsekvens.taskType()).isEqualTo(
             TaskType.forProsessTask(OpprettOppgaveVurderKonsekvensTask.class));
-        assertThat(vurderKonsekvens.getFagsakId()).isEqualTo(fsavsluttetBehMor.getId());
+        assertThat(vurderKonsekvens.getSaksnummer()).isEqualTo(fsavsluttetBehMor.getSaksnummer().getVerdi());
         assertThat(vurderKonsekvens.getPropertyValue(OpprettOppgaveVurderKonsekvensTask.KEY_BESKRIVELSE)).isEqualTo(
             BESKRIVELSE);
 

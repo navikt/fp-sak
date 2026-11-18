@@ -8,6 +8,7 @@ import org.slf4j.LoggerFactory;
 
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakProsesstaskRekkefølge;
 import no.nav.foreldrepenger.behandlingslager.task.GenerellProsessTask;
+import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 
@@ -15,7 +16,6 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 @ProsessTask(value = "fpinntektsmelding.lukkForesporsler")
 @FagsakProsesstaskRekkefølge(gruppeSekvens = true)
 public class LukkForespørslerImTask extends GenerellProsessTask {
-    public static final String SAK_NUMMER = "saksnummer";
     public static final String ORG_NUMMER = "organisasjonnummer";
     public static final String STATUS = "status";
 
@@ -34,8 +34,7 @@ public class LukkForespørslerImTask extends GenerellProsessTask {
     }
 
     @Override
-    protected void prosesser(ProsessTaskData prosessTaskData, Long fagsakId, Long behandlingId) {
-        var saksnummer = prosessTaskData.getPropertyValue(SAK_NUMMER);
+    protected void prosesser(ProsessTaskData prosessTaskData, Saksnummer saksnummer, Long behandlingId) {
         var status = prosessTaskData.getPropertyValue(STATUS);
 
         // UTFØRT branchen kan fjernes når alle eksisterende tasks er ferdigkjørt

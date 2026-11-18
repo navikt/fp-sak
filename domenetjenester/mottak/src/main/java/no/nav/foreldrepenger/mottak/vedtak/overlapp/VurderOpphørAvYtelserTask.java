@@ -7,6 +7,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakProsesstaskRekkefølge;
 import no.nav.foreldrepenger.behandlingslager.task.GenerellProsessTask;
+import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 
@@ -35,7 +36,7 @@ public class VurderOpphørAvYtelserTask extends GenerellProsessTask {
     }
 
     @Override
-    public void prosesser(ProsessTaskData prosessTaskData, Long fagsakId, Long behandlingId) {
+    public void prosesser(ProsessTaskData prosessTaskData, Saksnummer saksnummer, Long behandlingId) {
         var behandling = behandlingRepository.hentBehandling(behandlingId);
         //kjøres for førstegangsvedtak og revurderingsvedtak for fp og SVP
         overlappsLoggerTjeneste.loggOverlappForVedtakFPSAK(behandling);

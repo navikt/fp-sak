@@ -15,6 +15,7 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakProsesstaskRekkefølg
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.task.GenerellProsessTask;
 import no.nav.foreldrepenger.dokumentbestiller.infobrev.InformasjonssakRepository;
+import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskDataBuilder;
@@ -51,7 +52,7 @@ public class VedtakAvstemPeriodeTask extends GenerellProsessTask {
     }
 
     @Override
-    public void prosesser(ProsessTaskData prosessTaskData, Long fagsakId, Long behandlingId) {
+    public void prosesser(ProsessTaskData prosessTaskData, Saksnummer saksnummer, Long behandlingId) {
         var vedtak = Boolean.parseBoolean(prosessTaskData.getPropertyValue(LOG_VEDTAK_KEY));
         var fom = LocalDate.parse(prosessTaskData.getPropertyValue(LOG_FOM_KEY), DateTimeFormatter.ISO_LOCAL_DATE);
         var tom = LocalDate.parse(prosessTaskData.getPropertyValue(LOG_TOM_KEY), DateTimeFormatter.ISO_LOCAL_DATE);

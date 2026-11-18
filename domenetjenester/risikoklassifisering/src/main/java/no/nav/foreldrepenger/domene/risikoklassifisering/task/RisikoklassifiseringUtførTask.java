@@ -50,7 +50,7 @@ public class RisikoklassifiseringUtførTask extends GenerellProsessTask {
     }
 
     @Override
-    protected void prosesser(ProsessTaskData prosessTaskData, Long fagsakId, Long behandlingId) {
+    protected void prosesser(ProsessTaskData prosessTaskData, no.nav.foreldrepenger.domene.typer.Saksnummer saksnummer, Long behandlingId) {
         var behandling = behandlingRepository.hentBehandling(behandlingId);
         var referanse = BehandlingReferanse.fra(behandling);
         var request = opprettRequest(referanse);

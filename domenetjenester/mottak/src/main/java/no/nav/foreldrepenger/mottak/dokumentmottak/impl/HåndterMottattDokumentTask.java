@@ -14,6 +14,7 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakProsesstaskRekkefølge;
 import no.nav.foreldrepenger.behandlingslager.task.FagsakProsessTask;
+import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.mottak.dokumentmottak.MottatteDokumentTjeneste;
 import no.nav.foreldrepenger.mottak.dokumentpersiterer.impl.MottattDokumentPersisterer;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
@@ -49,7 +50,7 @@ public class HåndterMottattDokumentTask extends FagsakProsessTask {
     }
 
     @Override
-    protected void prosesser(ProsessTaskData prosessTaskData, Long fagsakId) {
+    protected void prosesser(ProsessTaskData prosessTaskData, Saksnummer saksnummer) {
         var behandlingId = prosessTaskData.getBehandlingIdAsLong();
         var dokumentId = Long.valueOf(prosessTaskData.getPropertyValue(MOTTATT_DOKUMENT_ID_KEY));
         var mottattDokument = mottatteDokumentTjeneste.hentMottattDokument(dokumentId)
@@ -69,6 +70,6 @@ public class HåndterMottattDokumentTask extends FagsakProsessTask {
 
     @Override
     protected List<Long> identifiserBehandling(ProsessTaskData prosessTaskData) {
-        return behandlingRepository.hentÅpneBehandlingerIdForFagsakId(prosessTaskData.getFagsakId());
+        return behandlingRepository.hentÅpneBehandlingerIdForSaksnummer(Saksnummer.fra(prosessTaskData.getSaksnummer()));
     }
 }

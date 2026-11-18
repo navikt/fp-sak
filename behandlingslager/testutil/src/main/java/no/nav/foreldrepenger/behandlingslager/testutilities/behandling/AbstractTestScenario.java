@@ -580,6 +580,7 @@ public abstract class AbstractTestScenario<S extends AbstractTestScenario<S>> {
     public FagsakRepository mockFagsakRepository() {
         var fagsakRepository = mock(FagsakRepository.class);
         lenient().when(fagsakRepository.finnEksaktFagsak(anyLong())).thenAnswer(a -> fagsak);
+        lenient().when(fagsakRepository.finnEksaktFagsak(any(Saksnummer.class))).thenAnswer(a -> fagsak);
         lenient().when(fagsakRepository.hentSakGittSaksnummer(any(Saksnummer.class))).thenAnswer(a -> Optional.of(fagsak));
         lenient().when(fagsakRepository.hentForBruker(any(AktørId.class))).thenAnswer(a -> singletonList(fagsak));
         lenient().when(fagsakRepository.opprettNy(fagsakCaptor.capture())).thenAnswer(invocation -> {

@@ -15,6 +15,7 @@ import org.mockito.Mockito;
 import no.nav.foreldrepenger.behandlingslager.aktør.OrganisasjonsEnhet;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakLåsRepository;
+import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.produksjonsstyring.behandlingenhet.BehandlendeEnhetTjeneste;
 import no.nav.foreldrepenger.produksjonsstyring.oppgavebehandling.task.OpprettOppgaveVurderKonsekvensTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
@@ -49,7 +50,7 @@ class OpprettOppgaveVurderKonsekvensTaskTest {
         prosessTaskData.setFagsak(SAKSNUMMER, FAGSAK_ID);
         prosessTaskData.setProperty(OpprettOppgaveVurderKonsekvensTask.KEY_BESKRIVELSE, OpprettOppgaveVurderKonsekvensTask.STANDARD_BESKRIVELSE);
         prosessTaskData.setProperty(OpprettOppgaveVurderKonsekvensTask.KEY_PRIORITET, OpprettOppgaveVurderKonsekvensTask.PRIORITET_NORM);
-        var fagsakIdCaptor = ArgumentCaptor.forClass(Long.class);
+        var fagsakIdCaptor = ArgumentCaptor.forClass(Saksnummer.class);
         var beskrivelseCaptor = ArgumentCaptor.forClass(String.class);
 
         // Act
@@ -58,7 +59,7 @@ class OpprettOppgaveVurderKonsekvensTaskTest {
         // Assert
         verify(oppgaveTjeneste).opprettVurderKonsekvensBasertPåFagsakId(fagsakIdCaptor.capture(), any(),
                 beskrivelseCaptor.capture(), Mockito.eq(false));
-        assertThat(fagsakIdCaptor.getValue()).isEqualTo(FAGSAK_ID);
+        assertThat(fagsakIdCaptor.getValue().getVerdi()).isEqualTo(SAKSNUMMER);
         assertThat(beskrivelseCaptor.getValue()).isEqualTo(OpprettOppgaveVurderKonsekvensTask.STANDARD_BESKRIVELSE);
     }
 }
