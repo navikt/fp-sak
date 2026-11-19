@@ -76,7 +76,7 @@ public class VurderFormkrafNkSteg implements BehandlingSteg {
                     KlageHjemmel.standardHjemmelForYtelse(behandling.getFagsakYtelseType()) : klageVurderingResultat.getKlageHjemmel();
 
                 var tilKabalTask = ProsessTaskData.forProsessTask(SendTilKabalTask.class);
-                tilKabalTask.setBehandling(behandling.getSaksnummer().getVerdi(), behandling.getFagsakId(), behandling.getId());
+                tilKabalTask.setBehandling(behandling.getSaksnummer().getVerdi(), behandling.getId());
                 tilKabalTask.setProperty(SendTilKabalTask.HJEMMEL_KEY, klageHjemmel.getKode());
                 tilKabalTask.setNesteKjøringEtter(LocalDateTime.now().plusSeconds(60)); // TFP-6348: gir formidling tid slik at oversendelse er tilgjengelig ved oversendelse til KA
                 taskTjeneste.lagre(tilKabalTask);

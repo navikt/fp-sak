@@ -266,7 +266,7 @@ public class BehandlingProsesseringTjenesteImpl implements BehandlingProsesserin
 
     private ProsessTaskData lagTaskData(TaskType tasktype, Behandling behandling, LocalDateTime nesteKjøringEtter, int prioritet) {
         var taskdata = ProsessTaskData.forTaskType(tasktype);
-        taskdata.setBehandling(behandling.getSaksnummer().getVerdi(), behandling.getFagsakId(), behandling.getId());
+        taskdata.setBehandling(behandling.getSaksnummer().getVerdi(), behandling.getId());
         if (nesteKjøringEtter != null) {
             taskdata.setNesteKjøringEtter(nesteKjøringEtter);
         }

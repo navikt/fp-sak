@@ -161,7 +161,7 @@ public class ForvaltningBehandlingRestTjeneste {
 
     private void opprettHenleggelseTask(Behandling behandling) {
         var prosessTaskData = ProsessTaskData.forProsessTask(HenleggBehandlingTask.class);
-        prosessTaskData.setBehandling(behandling.getSaksnummer().getVerdi(), behandling.getFagsakId(), behandling.getId());
+        prosessTaskData.setBehandling(behandling.getSaksnummer().getVerdi(), behandling.getId());
         prosessTaskData.setProperty(HenleggBehandlingTask.HENLEGGELSE_TYPE_KEY, BehandlingResultatType.HENLAGT_FEILOPPRETTET.getKode());
 
         taskTjeneste.lagre(prosessTaskData);
@@ -219,13 +219,13 @@ public class ForvaltningBehandlingRestTjeneste {
         mottatteDokumentRepository.hentMottatteDokumentMedFagsakId(fagsakId).stream()
                 .filter(md -> DokumentTypeId.INNTEKTSMELDING.getKode().equals(md.getDokumentType().getKode()))
                 .filter(md -> journalpostId.equals(md.getJournalpostId()))
-                .forEach(im -> opprettMottaDokumentTask(fagsak.getSaksnummer(), fagsakId, im));
+                .forEach(im -> opprettMottaDokumentTask(fagsak.getSaksnummer(), im));
         return Response.ok().build();
     }
 
-    private void opprettMottaDokumentTask(Saksnummer saksnummer, Long fagsakId, MottattDokument mottattDokument) {
+    private void opprettMottaDokumentTask(Saksnummer saksnummer, MottattDokument mottattDokument) {
         var prosessTaskData = ProsessTaskData.forProsessTask(HåndterMottattDokumentTask.class);
-        prosessTaskData.setFagsak(saksnummer.getVerdi(), fagsakId);
+        prosessTaskData.setFagsak(saksnummer.getVerdi());
         prosessTaskData.setProperty(HåndterMottattDokumentTask.MOTTATT_DOKUMENT_ID_KEY, mottattDokument.getId().toString());
         prosessTaskData.setProperty(HåndterMottattDokumentTask.BEHANDLING_ÅRSAK_TYPE_KEY, BehandlingÅrsakType.RE_ENDRET_INNTEKTSMELDING.getKode());
 

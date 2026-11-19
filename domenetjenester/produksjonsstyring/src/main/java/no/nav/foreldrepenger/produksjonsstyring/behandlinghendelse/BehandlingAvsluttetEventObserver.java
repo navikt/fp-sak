@@ -29,7 +29,7 @@ public class BehandlingAvsluttetEventObserver {
     public void observerBehandlingAvsluttetEvent(@Observes BehandlingStatusEvent.BehandlingAvsluttetEvent event) {
         LOG.info("Observerte hendelse {} for behandling {}. Lager task for å avslutte eksterne koblinger", event.getNyStatus(), event.getBehandlingId());
         var prosessTaskData = ProsessTaskData.forProsessTask(AvsluttEksterneGrunnlagTask.class);
-        prosessTaskData.setBehandling(event.getSaksnummer().getVerdi(), event.getFagsakId(), event.getBehandlingId());
+        prosessTaskData.setBehandling(event.getSaksnummer().getVerdi(), event.getBehandlingId());
         taskTjeneste.lagre(prosessTaskData);
     }
 }

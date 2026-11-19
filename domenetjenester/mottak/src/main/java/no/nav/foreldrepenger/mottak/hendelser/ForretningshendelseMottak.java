@@ -167,7 +167,7 @@ public class ForretningshendelseMottak {
         var taskData = ProsessTaskData.forProsessTask(MottaHendelseFagsakTask.class);
         taskData.setProperty(MottaHendelseFagsakTask.PROPERTY_HENDELSE_TYPE, hendelseType.getKode());
         taskData.setProperty(MottaHendelseFagsakTask.PROPERTY_ÅRSAK_TYPE, behandlingÅrsakType.getKode());
-        taskData.setFagsak(fagsak.getSaksnummer().getVerdi(), fagsak.getId());
+        taskData.setFagsak(fagsak.getSaksnummer().getVerdi());
         if (IS_PROD) {
             // Unngå samtidighetsproblemer dersom begge foreldres saker revurderes pga hendelse
             var tidstillegg = RelasjonsRolleType.erMor(fagsak.getRelasjonsRolleType()) ? 0 : 45;
@@ -205,7 +205,7 @@ public class ForretningshendelseMottak {
 
     private ProsessTaskData opprettOppdaterEnhetTask(Behandling behandling) {
         var prosessTaskData = ProsessTaskData.forProsessTask(OppdaterBehandlendeEnhetTask.class);
-        prosessTaskData.setBehandling(behandling.getSaksnummer().getVerdi(), behandling.getFagsakId(), behandling.getId());
+        prosessTaskData.setBehandling(behandling.getSaksnummer().getVerdi(), behandling.getId());
         return prosessTaskData;
     }
 }

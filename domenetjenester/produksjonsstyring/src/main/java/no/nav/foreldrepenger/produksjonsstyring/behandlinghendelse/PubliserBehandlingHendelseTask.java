@@ -66,9 +66,9 @@ public class PubliserBehandlingHendelseTask extends GenerellProsessTask {
         LOG.info("Publiser behandlingshendelse på kafka for behandlingsId: {}", behandling.getId());
     }
 
-    public static ProsessTaskData prosessTask(Saksnummer saksnummer, Long fagsakId, Long behandlingsId, HendelseForBehandling hendelse) {
+    public static ProsessTaskData prosessTask(Saksnummer saksnummer, Long behandlingsId, HendelseForBehandling hendelse) {
         var prosessTaskData = ProsessTaskData.forProsessTask(PubliserBehandlingHendelseTask.class);
-        prosessTaskData.setBehandling(saksnummer.getVerdi(), fagsakId, behandlingsId);
+        prosessTaskData.setBehandling(saksnummer.getVerdi(), behandlingsId);
         prosessTaskData.setProperty(PubliserBehandlingHendelseTask.HENDELSE_TYPE, hendelse.name());
         return prosessTaskData;
     }

@@ -160,7 +160,7 @@ public class VedtaksHendelseHåndterer implements KafkaMessageHandler.KafkaStrin
         // Setter til 5 sek for autotest
         var kjøretidspunkt = ENV.isLocal() ? LocalDateTime.now().plusSeconds(5) : LocalDateTime.of(VirkedagUtil.fomVirkedag(LocalDate.now().plusDays(1)), LocalTime.of(7, 35, 1));
         var prosessTaskData = ProsessTaskData.forProsessTask(HåndterOverlappPleiepengerTask.class);
-        prosessTaskData.setFagsak(f.getSaksnummer().getVerdi(), f.getId());
+        prosessTaskData.setFagsak(f.getSaksnummer().getVerdi());
         prosessTaskData.setNesteKjøringEtter(kjøretidspunkt);
         prosessTaskData.setCallId(callId + "_" + f.getId());
         taskTjeneste.lagre(prosessTaskData);

@@ -107,7 +107,7 @@ public class HåndterOpphørAvYtelser {
 
     private void opprettVurderKonsekvens(Behandling behandling, String beskrivelse) {
         var enhet = utledEnhetFraBehandling(behandling);
-        opprettTaskForÅVurdereKonsekvens(behandling.getSaksnummer(), behandling.getFagsakId(), enhet.enhetId(), beskrivelse);
+        opprettTaskForÅVurdereKonsekvens(behandling.getSaksnummer(), enhet.enhetId(), beskrivelse);
     }
 
     private Behandling opprettRevurdering(Fagsak sakRevurdering, BehandlingÅrsakType behandlingÅrsakType, OrganisasjonsEnhet enhet, boolean skalKøes) {
@@ -126,12 +126,12 @@ public class HåndterOpphørAvYtelser {
         return FagsakYtelseType.SVANGERSKAPSPENGER.equals(fagsak.getYtelseType()) ? revurderingTjenesteSVP : revurderingTjenesteFP;
     }
 
-    private void opprettTaskForÅVurdereKonsekvens(Saksnummer saksnummer, Long fagsakId, String behandlendeEnhetsId, String oppgaveBeskrivelse) {
+    private void opprettTaskForÅVurdereKonsekvens(Saksnummer saksnummer, String behandlendeEnhetsId, String oppgaveBeskrivelse) {
         var prosessTaskData = ProsessTaskData.forProsessTask(OpprettOppgaveVurderKonsekvensTask.class);
         prosessTaskData.setProperty(OpprettOppgaveVurderKonsekvensTask.KEY_BEHANDLENDE_ENHET, behandlendeEnhetsId);
         prosessTaskData.setProperty(OpprettOppgaveVurderKonsekvensTask.KEY_BESKRIVELSE, oppgaveBeskrivelse);
         prosessTaskData.setProperty(OpprettOppgaveVurderKonsekvensTask.KEY_PRIORITET, OpprettOppgaveVurderKonsekvensTask.PRIORITET_HØY);
-        prosessTaskData.setFagsak(saksnummer.getVerdi(), fagsakId);
+        prosessTaskData.setFagsak(saksnummer.getVerdi());
         taskTjeneste.lagre(prosessTaskData);
     }
 

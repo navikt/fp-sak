@@ -97,7 +97,7 @@ public class FpInntektsmeldingTjeneste {
 
     private void lagTask(BehandlingReferanse ref, String orgnummer, boolean erInntektsmeldingMottatt) {
         var taskdata = ProsessTaskData.forTaskType(TaskType.forProsessTask(FpInntektsmeldingTask.class));
-        taskdata.setBehandling(ref.saksnummer().getVerdi(), ref.fagsakId(), ref.behandlingId());
+        taskdata.setBehandling(ref.saksnummer().getVerdi(), ref.behandlingId());
         if (orgnummer != null) {
             taskdata.setProperty(FpInntektsmeldingTask.ORGNUMMER, orgnummer);
         }
@@ -322,7 +322,7 @@ public class FpInntektsmeldingTjeneste {
     public void lagLukkForespørselTask(Behandling behandling, OrgNummer orgNummer, ForespørselStatus status) {
         var behandlingId = behandling.getId();
         var taskdata = ProsessTaskData.forTaskType(TaskType.forProsessTask(LukkForespørslerImTask.class));
-        taskdata.setBehandling(behandling.getSaksnummer().getVerdi(), behandling.getFagsakId(), behandlingId);
+        taskdata.setBehandling(behandling.getSaksnummer().getVerdi(), behandlingId);
         if (orgNummer != null) {
             taskdata.setProperty(LukkForespørslerImTask.ORG_NUMMER, orgNummer.getId());
         }

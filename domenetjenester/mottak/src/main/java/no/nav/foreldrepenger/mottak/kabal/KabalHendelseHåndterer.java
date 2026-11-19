@@ -116,7 +116,7 @@ public class KabalHendelseHåndterer implements KafkaMessageHandler.KafkaStringM
         }
 
         var task = ProsessTaskData.forProsessTask(MottaFraKabalTask.class);
-        task.setBehandling(behandling.getSaksnummer().getVerdi(), behandling.getFagsakId(), behandling.getId());
+        task.setBehandling(behandling.getSaksnummer().getVerdi(), behandling.getId());
         task.setProperty(MottaFraKabalTask.HENDELSETYPE_KEY, mottattHendelse.type().name());
         task.setProperty(MottaFraKabalTask.KABALREF_KEY, mottattHendelse.kabalReferanse());
 
@@ -188,7 +188,7 @@ public class KabalHendelseHåndterer implements KafkaMessageHandler.KafkaStringM
         opprettOppgave.setProperty(OpprettOppgaveVurderKonsekvensTask.KEY_BEHANDLENDE_ENHET, sisteYtelseEnhet);
         opprettOppgave.setProperty(OpprettOppgaveVurderKonsekvensTask.KEY_BESKRIVELSE, beskrivelse);
         opprettOppgave.setProperty(OpprettOppgaveVurderKonsekvensTask.KEY_PRIORITET, OpprettOppgaveVurderKonsekvensTask.PRIORITET_HØY);
-        opprettOppgave.setFagsak(behandling.getSaksnummer().getVerdi(), behandling.getFagsakId());
+        opprettOppgave.setFagsak(behandling.getSaksnummer().getVerdi());
         taskTjeneste.lagre(opprettOppgave);
     }
 

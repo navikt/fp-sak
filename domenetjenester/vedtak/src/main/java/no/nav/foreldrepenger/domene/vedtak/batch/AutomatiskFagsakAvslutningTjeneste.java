@@ -51,10 +51,10 @@ public class AutomatiskFagsakAvslutningTjeneste {
     private ProsessTaskData opprettFagsakAvslutningTask(Fagsak fagsak, String callId, LocalDate dato, LocalTime tid, int spread) {
         var nesteKjøring = LocalDateTime.of(dato, tid.plusSeconds(Math.abs(System.nanoTime()) % spread));
         var prosessTaskData = ProsessTaskData.forProsessTask(AutomatiskFagsakAvslutningTask.class);
-        prosessTaskData.setFagsak(fagsak.getSaksnummer().getVerdi(), fagsak.getId());
+        prosessTaskData.setFagsak(fagsak.getSaksnummer().getVerdi());
         prosessTaskData.setNesteKjøringEtter(nesteKjøring);
         // unik per task da det er ulike tasks for hver behandling
-        prosessTaskData.setCallId(callId + "_" + fagsak.getId());
+        prosessTaskData.setCallId(callId + "_" + fagsak.getSaksnummer().getVerdi());
         return prosessTaskData;
     }
 

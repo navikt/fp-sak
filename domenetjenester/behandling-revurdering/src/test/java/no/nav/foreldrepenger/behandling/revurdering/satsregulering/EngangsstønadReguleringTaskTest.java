@@ -74,7 +74,7 @@ class EngangsstønadReguleringTaskTest {
         var behandling = opprettES(em, BehandlingStatus.AVSLUTTET, cutoff.minusDays(5), gammelSats);
 
         var prosessTaskData = ProsessTaskData.forProsessTask(EngangsstønadReguleringTask.class);
-        prosessTaskData.setBehandling(behandling.getSaksnummer().getVerdi(), behandling.getFagsakId(), behandling.getId());
+        prosessTaskData.setBehandling(behandling.getSaksnummer().getVerdi(), behandling.getId());
 
         task.doTask(prosessTaskData);
 
@@ -92,7 +92,7 @@ class EngangsstønadReguleringTaskTest {
         lenient().when(personinfoAdapter.innhentAlleFødteForBehandlingIntervaller(any(), any(), any())).thenReturn(List.of(byggBaby(fødselsdato)));
 
         var prosessTaskData = ProsessTaskData.forProsessTask(EngangsstønadReguleringTask.class);
-        prosessTaskData.setBehandling(behandling.getSaksnummer().getVerdi(), behandling.getFagsakId(), behandling.getId());
+        prosessTaskData.setBehandling(behandling.getSaksnummer().getVerdi(), behandling.getId());
 
         task.doTask(prosessTaskData);
 

@@ -234,7 +234,6 @@ class DokumentmottakerSøknadDefaultTest extends EntityManagerAwareTest {
         var mottattDokument = DokumentmottakTestUtil.byggMottattDokument(dokumentTypeId, fagsakId, "", now(), true, null);
         var revurdering = mock(Behandling.class);
         when(revurdering.getId()).thenReturn(10L);
-        when(revurdering.getFagsakId()).thenReturn(behandling.getFagsakId());
         when(revurdering.getSaksnummer()).thenReturn(behandling.getSaksnummer());
         doReturn(revurdering).when(behandlingsoppretter).opprettRevurdering(behandling.getFagsak(), BehandlingÅrsakType.RE_ENDRING_FRA_BRUKER);
 

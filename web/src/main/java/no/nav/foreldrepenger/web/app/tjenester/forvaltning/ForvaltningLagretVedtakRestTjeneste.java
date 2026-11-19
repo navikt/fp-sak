@@ -78,7 +78,7 @@ public class ForvaltningLagretVedtakRestTjeneste {
 
         if (lagretVedtak != null) {
             var prosessTaskData = ProsessTaskData.forProsessTask(RegenererVedtaksXmlTask.class);
-            prosessTaskData.setBehandling(behandling.getSaksnummer().getVerdi(), behandling.getFagsakId(), behandling.getId());
+            prosessTaskData.setBehandling(behandling.getSaksnummer().getVerdi(), behandling.getId());
             taskTjeneste.lagre(prosessTaskData);
         } else {
             LOG.warn("Oppgitt behandling {} er ukjent", uuidDto.getBehandlingUuid());
@@ -112,7 +112,7 @@ public class ForvaltningLagretVedtakRestTjeneste {
             var behandling = behandlingsprosessTjeneste.hentBehandling(b);
             var prosessTaskData = ProsessTaskData.forProsessTask(ValiderOgRegenererVedtaksXmlTask.class);
 
-            prosessTaskData.setBehandling(behandling.getSaksnummer().getVerdi(), behandling.getFagsakId(), behandling.getId());
+            prosessTaskData.setBehandling(behandling.getSaksnummer().getVerdi(), behandling.getId());
             taskTjeneste.lagre(prosessTaskData);
         }
 
