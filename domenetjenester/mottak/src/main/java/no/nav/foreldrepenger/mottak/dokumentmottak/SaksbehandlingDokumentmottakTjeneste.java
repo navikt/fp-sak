@@ -38,7 +38,7 @@ public class SaksbehandlingDokumentmottakTjeneste {
         var mottattDokumentId = mottatteDokumentTjeneste.lagreMottattDokumentPåFagsak(mottattDokument);
 
         var prosessTaskData = ProsessTaskData.forProsessTask(HåndterMottattDokumentTask.class);
-        prosessTaskData.setFagsak(saksnummer.getVerdi(), mottattDokument.getFagsakId());
+        prosessTaskData.setFagsak(saksnummer.getVerdi());
         prosessTaskData.setProperty(HåndterMottattDokumentTask.MOTTATT_DOKUMENT_ID_KEY, mottattDokumentId.toString());
         settÅrsakHvisDefinert(behandlingÅrsakType, prosessTaskData);
         taskTjeneste.lagre(prosessTaskData);
@@ -47,7 +47,7 @@ public class SaksbehandlingDokumentmottakTjeneste {
     public void opprettFraTidligereBehandling(MottattDokument mottattDokument, Behandling behandling, BehandlingÅrsakType behandlingÅrsakType) {
         LOG.info("Oppretter håndtermottattdokumenttask fra tidligere behandling {} fagsak {} dokument {}", behandling.getId(), behandling.getFagsakId(), mottattDokument.getId());
         var prosessTaskData = ProsessTaskData.forProsessTask(HåndterMottattDokumentTask.class);
-        prosessTaskData.setBehandling(behandling.getSaksnummer().getVerdi(), behandling.getFagsakId(), behandling.getId());
+        prosessTaskData.setBehandling(behandling.getSaksnummer().getVerdi(), behandling.getId());
         prosessTaskData.setProperty(HåndterMottattDokumentTask.MOTTATT_DOKUMENT_ID_KEY, mottattDokument.getId().toString());
         settÅrsakHvisDefinert(behandlingÅrsakType, prosessTaskData);
         taskTjeneste.lagre(prosessTaskData);
@@ -56,7 +56,7 @@ public class SaksbehandlingDokumentmottakTjeneste {
     public void mottaUbehandletSøknad(MottattDokument mottattDokument, BehandlingÅrsakType behandlingÅrsakType, Saksnummer saksnummer) {
         var prosessTaskData = ProsessTaskData.forProsessTask(HåndterMottattDokumentTask.class);
 
-        prosessTaskData.setFagsak(saksnummer.getVerdi(), mottattDokument.getFagsakId());
+        prosessTaskData.setFagsak(saksnummer.getVerdi());
         prosessTaskData.setProperty(HåndterMottattDokumentTask.MOTTATT_DOKUMENT_ID_KEY, mottattDokument.getId().toString());
         settÅrsakHvisDefinert(behandlingÅrsakType, prosessTaskData);
         taskTjeneste.lagre(prosessTaskData);

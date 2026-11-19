@@ -24,12 +24,6 @@ import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 
-import no.nav.foreldrepenger.domene.iay.modell.Inntektsmelding;
-
-import no.nav.foreldrepenger.domene.iay.modell.Refusjon;
-
-import no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.RefusjonsendringDto;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -49,7 +43,9 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlag;
+import no.nav.foreldrepenger.domene.iay.modell.Inntektsmelding;
 import no.nav.foreldrepenger.domene.iay.modell.InntektsmeldingAggregat;
+import no.nav.foreldrepenger.domene.iay.modell.Refusjon;
 import no.nav.foreldrepenger.domene.mappers.KalkulusInputTjeneste;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
@@ -58,6 +54,7 @@ import no.nav.foreldrepenger.web.app.tjenester.fagsak.dto.SaksnummerDto;
 import no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.BeregningSatsDto;
 import no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.EndreInntektsmeldingDto;
 import no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.ForvaltningBehandlingIdDto;
+import no.nav.foreldrepenger.web.app.tjenester.forvaltning.dto.RefusjonsendringDto;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 import no.nav.vedtak.mapper.json.DefaultJsonMapper;
@@ -181,7 +178,7 @@ public class ForvaltningBeregningRestTjeneste {
             return Response.status(Response.Status.BAD_REQUEST).build();
         }
         var prosessTaskData = ProsessTaskData.forProsessTask(GrunnbeløpReguleringTask.class);
-        prosessTaskData.setFagsak(fagsak.getSaksnummer().getVerdi(), fagsak.getId());
+        prosessTaskData.setFagsak(fagsak.getSaksnummer().getVerdi());
         prosessTaskData.setProperty(GrunnbeløpReguleringTask.MANUELL_KEY, "true");
         taskTjeneste.lagre(prosessTaskData);
         return Response.ok().build();
@@ -224,7 +221,7 @@ public class ForvaltningBeregningRestTjeneste {
             dto.getRefusjonPrMndFraStart(), KontekstHolder.getKontekst().getUid(), refusjonsendringer, dto.getStartdatoPermisjon());
         var task = ProsessTaskData.forProsessTask(OverstyrInntektsmeldingTask.class);
         task.setPayload(DefaultJsonMapper.toJson(taskParam));
-        task.setBehandling(behandling.getSaksnummer().getVerdi(), behandling.getFagsakId(), behandling.getId());
+        task.setBehandling(behandling.getSaksnummer().getVerdi(), behandling.getId());
         taskTjeneste.lagre(task);
         return Response.ok().build();
     }

@@ -88,7 +88,7 @@ class HåndterMottattDokumentTaskTest extends EntityManagerAwareTest {
         var dokumentId = mottatteDokumentTjeneste.lagreMottattDokumentPåFagsak(mottattDokument);
 
         var prosessTask = ProsessTaskData.forProsessTask(HåndterMottattDokumentTask.class);
-        prosessTask.setFagsak(fagsak.getSaksnummer().getVerdi(), fagsak.getId());
+        prosessTask.setFagsak(fagsak.getSaksnummer().getVerdi());
         prosessTask.setProperty(HåndterMottattDokumentTask.MOTTATT_DOKUMENT_ID_KEY, dokumentId.toString());
         prosessTask.setProperty(HåndterMottattDokumentTask.BEHANDLING_ÅRSAK_TYPE_KEY, BehandlingÅrsakType.UDEFINERT.getKode());
         var captor = ArgumentCaptor.forClass(MottattDokument.class);
@@ -118,7 +118,7 @@ class HåndterMottattDokumentTaskTest extends EntityManagerAwareTest {
         var dokumentId = mottatteDokumentTjeneste.lagreMottattDokumentPåFagsak(mottattDokument);
 
         var prosessTask = ProsessTaskData.forProsessTask(HåndterMottattDokumentTask.class);
-        prosessTask.setBehandling(fagsak.getSaksnummer().getVerdi(), fagsak.getId(), behandlingId);
+        prosessTask.setBehandling(fagsak.getSaksnummer().getVerdi(), behandlingId);
         prosessTask.setProperty(HåndterMottattDokumentTask.MOTTATT_DOKUMENT_ID_KEY, dokumentId.toString());
         prosessTask.setProperty(HåndterMottattDokumentTask.BEHANDLING_ÅRSAK_TYPE_KEY, BehandlingÅrsakType.ETTER_KLAGE.getKode());
         var captorBehandling = ArgumentCaptor.forClass(Long.class);

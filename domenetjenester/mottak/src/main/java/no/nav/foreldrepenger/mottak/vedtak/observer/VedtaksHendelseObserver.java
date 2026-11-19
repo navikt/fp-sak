@@ -67,18 +67,18 @@ public class VedtaksHendelseObserver {
 
     public void observerBehandlingHenlagtEvent(@Observes BehandlingHenlagtEvent event) {
         if (event.behandlingType().erYtelseBehandlingType() && FagsakYtelseType.FORELDREPENGER.equals(event.ytelseType())) {
-            lagreProsesstaskFor(event.getBehandlingId(), event.getSaksnummer(), event.getFagsakId(),
+            lagreProsesstaskFor(event.getBehandlingId(), event.getSaksnummer(),
                 TaskType.forProsessTask(StartBerørtBehandlingTask.class), 0);
         }
     }
 
     void lagreProsesstaskFor(Behandling behandling, TaskType taskType, int delaysecs) {
-        lagreProsesstaskFor(behandling.getId(), behandling.getSaksnummer(), behandling.getFagsakId(), taskType, delaysecs);
+        lagreProsesstaskFor(behandling.getId(), behandling.getSaksnummer(), taskType, delaysecs);
     }
 
-    void lagreProsesstaskFor(Long behandlingId, Saksnummer saksnummer, Long fagsakId, TaskType taskType, int delaysecs) {
+    void lagreProsesstaskFor(Long behandlingId, Saksnummer saksnummer, TaskType taskType, int delaysecs) {
         var data = ProsessTaskData.forTaskType(taskType);
-        data.setBehandling(saksnummer.getVerdi(), fagsakId, behandlingId);
+        data.setBehandling(saksnummer.getVerdi(), behandlingId);
         data.setNesteKjøringEtter(LocalDateTime.now().plusSeconds(delaysecs));
         taskTjeneste.lagre(data);
     }

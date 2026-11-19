@@ -70,7 +70,7 @@ public class AutomatiskEtterkontrollBatchTjeneste implements BatchTjeneste {
 
     private void opprettEtterkontrollTask(Behandling kandidat, String callId) {
         var prosessTaskData = ProsessTaskData.forProsessTask(AutomatiskEtterkontrollTask.class);
-        prosessTaskData.setBehandling(kandidat.getSaksnummer().getVerdi(), kandidat.getFagsakId(), kandidat.getId());
+        prosessTaskData.setBehandling(kandidat.getSaksnummer().getVerdi(), kandidat.getId());
         prosessTaskData.setCallId(callId + "_" + kandidat.getFagsakId());
         taskTjeneste.lagre(prosessTaskData);
     }

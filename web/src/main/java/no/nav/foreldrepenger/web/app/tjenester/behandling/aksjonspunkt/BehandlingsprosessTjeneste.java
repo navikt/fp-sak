@@ -175,10 +175,10 @@ public class BehandlingsprosessTjeneste {
         var gruppe = new ProsessTaskGruppe();
 
         var åpneBehandlingForEndringerTask = ProsessTaskData.forProsessTask(ÅpneBehandlingForEndringerTask.class);
-        åpneBehandlingForEndringerTask.setBehandling(behandling.getSaksnummer().getVerdi(), behandling.getFagsakId(), behandling.getId());
+        åpneBehandlingForEndringerTask.setBehandling(behandling.getSaksnummer().getVerdi(), behandling.getId());
         gruppe.addNesteSekvensiell(åpneBehandlingForEndringerTask);
         var fortsettBehandlingTask = ProsessTaskData.forProsessTask(FortsettBehandlingTask.class);
-        fortsettBehandlingTask.setBehandling(behandling.getSaksnummer().getVerdi(), behandling.getFagsakId(), behandling.getId());
+        fortsettBehandlingTask.setBehandling(behandling.getSaksnummer().getVerdi(), behandling.getId());
         fortsettBehandlingTask.setProperty(FortsettBehandlingTask.MANUELL_FORTSETTELSE, String.valueOf(true));
         gruppe.addNesteSekvensiell(fortsettBehandlingTask);
 

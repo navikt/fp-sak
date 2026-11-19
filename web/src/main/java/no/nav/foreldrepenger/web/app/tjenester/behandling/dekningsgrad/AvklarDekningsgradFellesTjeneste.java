@@ -10,8 +10,8 @@ import no.nav.foreldrepenger.behandling.aksjonspunkt.OppdateringResultat;
 import no.nav.foreldrepenger.behandling.revurdering.flytkontroll.TilbakeførTilDekningsgradStegTask;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag;
-import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagLinjeBuilder;
+import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.SkjermlenkeType;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Dekningsgrad;
 import no.nav.foreldrepenger.domene.ytelsefordeling.YtelseFordelingTjeneste;
@@ -72,7 +72,7 @@ public class AvklarDekningsgradFellesTjeneste {
         var fagsakRelasjon = fagsakRelasjonTjeneste.finnRelasjonForHvisEksisterer(fagsakId).orElseThrow();
         fagsakRelasjon.getRelatertFagsakFraId(fagsakId).ifPresent(sak -> {
             var prosessTaskData = ProsessTaskData.forProsessTask(TilbakeførTilDekningsgradStegTask.class);
-            prosessTaskData.setFagsak(sak.getSaksnummer().getVerdi(), sak.getId());
+            prosessTaskData.setFagsak(sak.getSaksnummer().getVerdi());
             prosessTaskData.setNesteKjøringEtter(LocalDateTime.now().plusSeconds(5)); //Liten delay her for å hindre samtidighetsproblem i køing inn i uttak
             prosessTaskTjeneste.lagre(prosessTaskData);
         });

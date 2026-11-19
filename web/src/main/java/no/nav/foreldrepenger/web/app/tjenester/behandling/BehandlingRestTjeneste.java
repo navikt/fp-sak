@@ -229,7 +229,7 @@ public class BehandlingRestTjeneste {
             historikkinnslagRepository.lagre(builder.build());
             if (!behandling.isBehandlingPåVent()) {
                 var prosessTaskData = ProsessTaskData.forProsessTask(PubliserBehandlingHendelseTask.class);
-                prosessTaskData.setBehandling(behandling.getSaksnummer().getVerdi(), behandling.getFagsakId(), behandling.getId());
+                prosessTaskData.setBehandling(behandling.getSaksnummer().getVerdi(), behandling.getId());
                 prosessTaskData.setProperty(PubliserBehandlingHendelseTask.HENDELSE_TYPE, HendelseForBehandling.AKSJONSPUNKT.name());
                 prosessTaskTjeneste.lagre(prosessTaskData);
             }

@@ -72,7 +72,7 @@ public class GrunnbeløpFinnSakerTask implements ProsessTaskHandler {
         };
 
         if (revurder) {
-            kandidater.forEach(sak -> opprettReguleringTask(sak.fagsakId(), sak.saksnummer(), callIdRoot));
+            kandidater.forEach(sak -> opprettReguleringTask(sak.saksnummer(), callIdRoot));
         }
         LOG.info("GrunnbeløpRegulering ytelse {} finner {} saker til vurdering", ytelse, kandidater.size());
     }
@@ -88,10 +88,10 @@ public class GrunnbeløpFinnSakerTask implements ProsessTaskHandler {
         return fjor ? forrige.getPeriode().getFomDato() : gjeldende.getPeriode().getFomDato();
     }
 
-    private void opprettReguleringTask(Long fagsakId, Saksnummer saksnummer, String callId) {
+    private void opprettReguleringTask(Saksnummer saksnummer, String callId) {
         var prosessTaskData = ProsessTaskData.forProsessTask(GrunnbeløpReguleringTask.class);
-        prosessTaskData.setFagsak(saksnummer.getVerdi(), fagsakId);
-        prosessTaskData.setCallId(callId + "_" + fagsakId);
+        prosessTaskData.setFagsak(saksnummer.getVerdi());
+        prosessTaskData.setCallId(callId + "_" + saksnummer.getVerdi());
         taskTjeneste.lagre(prosessTaskData);
     }
 }

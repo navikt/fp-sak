@@ -17,10 +17,9 @@ import no.nav.vedtak.felles.prosesstask.api.TaskType;
 
 class BehandleNegativeKvitteringTjenesteTest {
 
-    private final static TaskType TASKTYPE = new TaskType("iverksetteVedtak.oppdragTilØkonomi"); //TODO deps
-    private final static Long BEHANDLING_ID = 100010010L;
-    private final static Long FAGSAK_ID = 987654301L;
-    private static final Saksnummer SAKSNUMMER = new Saksnummer(FAGSAK_ID.toString());
+    private static final TaskType TASKTYPE = new TaskType("iverksetteVedtak.oppdragTilØkonomi"); //TODO deps
+    private static final Long BEHANDLING_ID = 100010010L;
+    private static final Saksnummer SAKSNUMMER = new Saksnummer("987654301");
 
     private ProsessTaskTjeneste taskTjeneste;
 
@@ -58,7 +57,7 @@ class BehandleNegativeKvitteringTjenesteTest {
 
     private ProsessTaskData lagØkonomioppragTaskPåVent() {
         var taskData = ProsessTaskData.forTaskType(TASKTYPE);
-        taskData.setBehandling(SAKSNUMMER.getVerdi(), FAGSAK_ID, BEHANDLING_ID);
+        taskData.setBehandling(SAKSNUMMER.getVerdi(), BEHANDLING_ID);
         taskData.venterPåHendelse(BehandleØkonomioppdragKvittering.ØKONOMI_OPPDRAG_KVITTERING);
         return taskData;
     }

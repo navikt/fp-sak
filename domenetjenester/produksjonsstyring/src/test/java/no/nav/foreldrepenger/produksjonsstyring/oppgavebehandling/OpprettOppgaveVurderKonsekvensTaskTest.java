@@ -22,7 +22,6 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 
 class OpprettOppgaveVurderKonsekvensTaskTest {
 
-    private static final long FAGSAK_ID = 2L;
     private static final String SAKSNUMMER = "2";
     private OppgaveTjeneste oppgaveTjeneste;
     private OpprettOppgaveVurderKonsekvensTask opprettOppgaveVurderKonsekvensTask;
@@ -47,7 +46,7 @@ class OpprettOppgaveVurderKonsekvensTaskTest {
     void skal_opprette_oppgave_for_å_vurdere_konsekvens_basert_på_fagsakId() {
         // Arrange
         var prosessTaskData = ProsessTaskData.forProsessTask(OpprettOppgaveVurderKonsekvensTask.class);
-        prosessTaskData.setFagsak(SAKSNUMMER, FAGSAK_ID);
+        prosessTaskData.setFagsak(SAKSNUMMER);
         prosessTaskData.setProperty(OpprettOppgaveVurderKonsekvensTask.KEY_BESKRIVELSE, OpprettOppgaveVurderKonsekvensTask.STANDARD_BESKRIVELSE);
         prosessTaskData.setProperty(OpprettOppgaveVurderKonsekvensTask.KEY_PRIORITET, OpprettOppgaveVurderKonsekvensTask.PRIORITET_NORM);
         var fagsakIdCaptor = ArgumentCaptor.forClass(Saksnummer.class);

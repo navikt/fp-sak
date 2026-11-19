@@ -93,7 +93,7 @@ class AutomatiskEtterkontrollTaskTest {
                 Collections.emptyList());
 
         var prosessTaskData = ProsessTaskData.forProsessTask(AutomatiskEtterkontrollTask.class);
-        prosessTaskData.setBehandling(behandling.getSaksnummer().getVerdi(), behandling.getFagsakId(), behandling.getId());
+        prosessTaskData.setBehandling(behandling.getSaksnummer().getVerdi(), behandling.getId());
 
         createTask();
         task.doTask(prosessTaskData);
@@ -137,7 +137,7 @@ class AutomatiskEtterkontrollTaskTest {
                 Collections.emptyList());
 
         var prosessTaskData = ProsessTaskData.forProsessTask(AutomatiskEtterkontrollTask.class);
-        prosessTaskData.setBehandling(behandling.getSaksnummer().getVerdi(), behandling.getFagsakId(), behandling.getId());
+        prosessTaskData.setBehandling(behandling.getSaksnummer().getVerdi(), behandling.getId());
 
         createTask();
         task.doTask(prosessTaskData);
@@ -154,7 +154,7 @@ class AutomatiskEtterkontrollTaskTest {
         when(personinfoAdapter.innhentAlleFødteForBehandlingIntervaller(any(), any(), any())).thenReturn(barn);
 
         var prosessTaskData = ProsessTaskData.forProsessTask(AutomatiskEtterkontrollTask.class);
-        prosessTaskData.setBehandling(behandling.getSaksnummer().getVerdi(), behandling.getFagsakId(), behandling.getId());
+        prosessTaskData.setBehandling(behandling.getSaksnummer().getVerdi(), behandling.getId());
 
         createTask();
         task.doTask(prosessTaskData);
@@ -169,7 +169,7 @@ class AutomatiskEtterkontrollTaskTest {
         when(personinfoAdapter.innhentAlleFødteForBehandlingIntervaller(any(), any(), any())).thenReturn(barn);
 
         var prosessTaskData = ProsessTaskData.forProsessTask(AutomatiskEtterkontrollTask.class);
-        prosessTaskData.setBehandling(behandling.getSaksnummer().getVerdi(), behandling.getFagsakId(), behandling.getId());
+        prosessTaskData.setBehandling(behandling.getSaksnummer().getVerdi(), behandling.getId());
 
         createTask();
         task.doTask(prosessTaskData);
@@ -185,7 +185,7 @@ class AutomatiskEtterkontrollTaskTest {
         when(personinfoAdapter.innhentAlleFødteForBehandlingIntervaller(any(), any(), any())).thenReturn(barn);
 
         var prosessTaskData = ProsessTaskData.forProsessTask(AutomatiskEtterkontrollTask.class);
-        prosessTaskData.setBehandling(behandling.getSaksnummer().getVerdi(), behandling.getFagsakId(), behandling.getId());
+        prosessTaskData.setBehandling(behandling.getSaksnummer().getVerdi(), behandling.getId());
 
         createTask();
         task.doTask(prosessTaskData);
@@ -200,7 +200,7 @@ class AutomatiskEtterkontrollTaskTest {
         when(personinfoAdapter.innhentAlleFødteForBehandlingIntervaller(any(), any(), any())).thenReturn(barn);
 
         var prosessTaskData = ProsessTaskData.forProsessTask(AutomatiskEtterkontrollTask.class);
-        prosessTaskData.setBehandling(behandling.getSaksnummer().getVerdi(), behandling.getFagsakId(), behandling.getId());
+        prosessTaskData.setBehandling(behandling.getSaksnummer().getVerdi(), behandling.getId());
 
         createTask();
         task.doTask(prosessTaskData);
@@ -213,7 +213,7 @@ class AutomatiskEtterkontrollTaskTest {
         var behandling = opprettRevurderingsKandidat(0, 2, false, false, false);
 
         var prosessTaskData = ProsessTaskData.forProsessTask(AutomatiskEtterkontrollTask.class);
-        prosessTaskData.setBehandling(behandling.getSaksnummer().getVerdi(), behandling.getFagsakId(), behandling.getId());
+        prosessTaskData.setBehandling(behandling.getSaksnummer().getVerdi(), behandling.getId());
 
         createTask();
         task.doTask(prosessTaskData);

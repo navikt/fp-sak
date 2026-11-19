@@ -191,7 +191,7 @@ public class ForvaltningUttrekkRestTjeneste {
         }
 
         var task = ProsessTaskData.forProsessTask(TilbakeføringTilStegTask.class);
-        task.setBehandling(behandling.getSaksnummer().getVerdi(), behandling.getFagsakId(), behandling.getId());
+        task.setBehandling(behandling.getSaksnummer().getVerdi(), behandling.getId());
         return Optional.of(task);
     }
 
@@ -232,7 +232,7 @@ public class ForvaltningUttrekkRestTjeneste {
         }
 
         var task = ProsessTaskData.forProsessTask(OppdaterTidligstMottattForUttakTask.class);
-        task.setBehandling(behandling.getSaksnummer().getVerdi(), behandling.getFagsakId(), behandling.getId());
+        task.setBehandling(behandling.getSaksnummer().getVerdi(), behandling.getId());
         return Optional.of(task);
     }
 

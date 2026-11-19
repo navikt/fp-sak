@@ -20,7 +20,6 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 
 import no.nav.foreldrepenger.behandling.BehandlingRevurderingTjeneste;
-import no.nav.foreldrepenger.behandling.FagsakRelasjonTjeneste;
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBrukerKjønn;
 import no.nav.foreldrepenger.behandlingslager.aktør.OrganisasjonsEnhet;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
@@ -60,8 +59,6 @@ class DokumentmottakerInntektsmeldingTest {
     private BehandlingRepository behandlingRepository;
     @Inject
     private FagsakRepository fagsakRepository;
-    @Inject
-    private FagsakRelasjonTjeneste fagsakRelasjonTjeneste;
     @Inject
     private ForeldrepengerUttakTjeneste fpUttakTjeneste;
     @Inject
@@ -207,7 +204,6 @@ class DokumentmottakerInntektsmeldingTest {
 
         var revurdering = mock(Behandling.class);
         when(revurdering.getId()).thenReturn(10L);
-        when(revurdering.getFagsakId()).thenReturn(behandling.getFagsakId());
         when(revurdering.getFagsak()).thenReturn(behandling.getFagsak());
         when(revurdering.getSaksnummer()).thenReturn(behandling.getSaksnummer());
 

@@ -208,15 +208,14 @@ class ForvaltningOppdragTjeneste {
         var sendØkonomiOppdrag = ProsessTaskData.forProsessTask(SendØkonomiOppdragTask.class);
         sendØkonomiOppdrag.setGruppe(hovedProsessTask.getGruppe());
         sendØkonomiOppdrag.setProperty("patchet", hardPatch ? "hardt" : "vanlig"); // for sporing
-        sendØkonomiOppdrag.setBehandling(hovedProsessTask.getSaksnummer(), hovedProsessTask.getFagsakId(),
-            hovedProsessTask.getBehandlingIdAsLong());
+        sendØkonomiOppdrag.setBehandling(hovedProsessTask.getSaksnummer(), hovedProsessTask.getBehandlingIdAsLong());
         taskTjeneste.lagre(sendØkonomiOppdrag);
     }
 
     private void lagSendØkonomioppdragTask(Behandling behandling) {
         var sendØkonomiOppdrag = ProsessTaskData.forProsessTask(SendØkonomiOppdragTask.class);
         sendØkonomiOppdrag.setProperty("patchet", "k27rapport"); // for sporing
-        sendØkonomiOppdrag.setBehandling(behandling.getSaksnummer().getVerdi(), behandling.getFagsakId(), behandling.getId());
+        sendØkonomiOppdrag.setBehandling(behandling.getSaksnummer().getVerdi(), behandling.getId());
         taskTjeneste.lagre(sendØkonomiOppdrag);
     }
 

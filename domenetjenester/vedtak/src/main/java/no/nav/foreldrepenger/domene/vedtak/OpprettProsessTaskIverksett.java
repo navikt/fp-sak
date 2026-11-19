@@ -53,7 +53,7 @@ public class OpprettProsessTaskIverksett {
         }
         // Siste i gruppen
         taskGruppe.addNesteSekvensiell(avsluttBehandling);
-        taskGruppe.setBehandling(behandling.getSaksnummer().getVerdi(), behandling.getFagsakId(), behandling.getId());
+        taskGruppe.setBehandling(behandling.getSaksnummer().getVerdi(), behandling.getId());
         taskTjeneste.lagre(taskGruppe);
     }
 

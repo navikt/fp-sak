@@ -70,7 +70,7 @@ class RisikoklassifiseringUtførTaskTest {
         var ref = BehandlingReferanse.fra(behandling);
         forberedelse(ref, true);
         var prosessTaskData = ProsessTaskData.forProsessTask(RisikoklassifiseringUtførTask.class);
-                prosessTaskData.setBehandling("9999", 0L, BEHANDLING_ID);
+                prosessTaskData.setBehandling("9999", BEHANDLING_ID);
         risikoklassifiseringUtførTask.doTask(prosessTaskData);
         var request = new RisikovurderingRequestDto(
             new no.nav.foreldrepenger.kontrakter.risk.kodeverk.AktørId(ref.aktørId().getId()), SKJÆRINGSTIDSPUNKT, LocalDate.now(),

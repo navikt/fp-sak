@@ -19,7 +19,6 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 
 class OpprettOppgaveVurderDokumentTaskTest {
 
-    private static final long FAGSAK_ID = 2L;
     private static final String SAKSNUMMER = "2";
 
     private OppgaveTjeneste oppgaveTjeneste;
@@ -42,7 +41,7 @@ class OpprettOppgaveVurderDokumentTaskTest {
     void skal_opprette_oppgave_for_å_vurdere_dokument_basert_på_fagsakId() {
         // Arrange
         var prosessTaskData = ProsessTaskData.forProsessTask(OpprettOppgaveVurderDokumentTask.class);
-        prosessTaskData.setFagsak(SAKSNUMMER, FAGSAK_ID);
+        prosessTaskData.setFagsak(SAKSNUMMER);
         prosessTaskData.setProperty(OpprettOppgaveVurderDokumentTask.KEY_DOKUMENT_TYPE, DokumentTypeId.SØKNAD_ENGANGSSTØNAD_FØDSEL.getKode());
         var fagsakIdCaptor = ArgumentCaptor.forClass(Saksnummer.class);
         var fordelingsoppgaveEnhetsIdCaptor = ArgumentCaptor.forClass(String.class);

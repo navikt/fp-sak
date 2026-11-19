@@ -36,7 +36,7 @@ class FlyttEnhetTask implements ProsessTaskHandler {
         var kandidater = behandlingKandidaterRepository.finnBehandlingerIkkeAvsluttetPåAngittEnhet(enhet);
         kandidater.forEach(beh -> {
             var taskData = ProsessTaskData.forProsessTask(OppdaterBehandlendeEnhetTask.class);
-            taskData.setBehandling(beh.getSaksnummer().getVerdi(), beh.getFagsakId(), beh.getId());
+            taskData.setBehandling(beh.getSaksnummer().getVerdi(), beh.getId());
             taskTjeneste.lagre(taskData);
         });
     }

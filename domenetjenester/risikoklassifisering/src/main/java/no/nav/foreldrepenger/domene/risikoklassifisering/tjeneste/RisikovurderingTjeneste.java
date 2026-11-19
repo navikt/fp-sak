@@ -70,7 +70,7 @@ public class RisikovurderingTjeneste {
         } else {
             LOG.info("Oppretter task for risikoklassifisering på behandling " + referanse.behandlingId());
             var taskData = ProsessTaskData.forProsessTask(RisikoklassifiseringUtførTask.class);
-            taskData.setBehandling(referanse.saksnummer().getVerdi(), referanse.fagsakId(), referanse.behandlingId());
+            taskData.setBehandling(referanse.saksnummer().getVerdi(), referanse.behandlingId());
             prosessTaskTjeneste.lagre(taskData);
         }
     }

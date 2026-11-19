@@ -88,11 +88,11 @@ public class BehandlingskontrollEventObserver {
     }
 
     private void opprettProsessTask(BehandlingEvent behandlingEvent, HendelseForBehandling hendelse) {
-        opprettProsessTask(behandlingEvent.getSaksnummer(), behandlingEvent.getFagsakId(), behandlingEvent.getBehandlingId(), hendelse);
+        opprettProsessTask(behandlingEvent.getSaksnummer(), behandlingEvent.getBehandlingId(), hendelse);
     }
 
-    private void opprettProsessTask(Saksnummer saksnummer, Long fagsakId, Long behandlingsId, HendelseForBehandling hendelse) {
-        var prosessTaskData = PubliserBehandlingHendelseTask.prosessTask(saksnummer, fagsakId, behandlingsId, hendelse);
+    private void opprettProsessTask(Saksnummer saksnummer, Long behandlingsId, HendelseForBehandling hendelse) {
+        var prosessTaskData = PubliserBehandlingHendelseTask.prosessTask(saksnummer, behandlingsId, hendelse);
         taskTjeneste.lagre(prosessTaskData);
     }
 }

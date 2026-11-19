@@ -47,7 +47,7 @@ class GjenopptaBehandlingTaskTest {
         when(mockBehandlingRepository.taSkriveLås(anyLong())).thenReturn(new BehandlingLås(behandlingId));
 
         var prosessTaskData = ProsessTaskData.forProsessTask(GjenopptaBehandlingTask.class);
-        prosessTaskData.setBehandling("123", 0L, behandlingId);
+        prosessTaskData.setBehandling("123", behandlingId);
 
         task.doTask(prosessTaskData);
 

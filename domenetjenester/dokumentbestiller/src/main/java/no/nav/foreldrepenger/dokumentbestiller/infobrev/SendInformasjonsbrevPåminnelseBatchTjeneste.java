@@ -48,8 +48,8 @@ public class SendInformasjonsbrevPåminnelseBatchTjeneste implements BatchTjenes
             LOG.info("Oppretter informasjonsbrev-påminnelse task for {}", sak.saksnummer().getVerdi());
             var data = ProsessTaskData.forProsessTask(SendInformasjonsbrevPåminnelseTask.class);
             data.setNesteKjøringEtter(LocalDateTime.of(LocalDate.now(), baseline.plusSeconds(LocalDateTime.now().getNano() % 419)));
-            data.setFagsak(sak.saksnummer().getVerdi(), sak.fagsakId());
-            data.setCallId(callId + "_" + sak.fagsakId());
+            data.setFagsak(sak.saksnummer().getVerdi());
+            data.setCallId(callId + "_" + sak.saksnummer().getVerdi());
             taskTjeneste.lagre(data);
         });
         return BATCHNAVN + "-" + saker.size();
