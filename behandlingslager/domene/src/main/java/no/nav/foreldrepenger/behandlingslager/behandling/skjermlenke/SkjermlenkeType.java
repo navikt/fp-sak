@@ -39,6 +39,7 @@ public enum SkjermlenkeType implements Kodeverdi, DatabaseKode {
     FAKTA_OM_AKTIVITETSKRAV("FAKTA_OM_AKTIVITETSKRAV", "Fakta om aktivitetskrav"),
     FAKTA_OMSORG_OG_RETT("FAKTA_OMSORG_OG_RETT", "Fakta om aleneomsorg og annenpart rett"),
     FAKTA_OM_VERGE("FAKTA_OM_VERGE", "Fakta om verge/fullmektig"),
+    FAKTA_OM_REFUSJON("FAKTA_OM_REFUSJON", "Fakta om refusjon"),
     FORMKRAV_KLAGE_KA("FORMKRAV_KLAGE_KA", "Formkrav klage KA"),
     FORMKRAV_KLAGE_NFP("FORMKRAV_KLAGE_NFP", "Formkrav klage NFP"),
     KLAGE_BEH_NFP("KLAGE_BEH_NFP", "Klageresultat NFP"),
