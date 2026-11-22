@@ -13,6 +13,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.NotNull;
 
 import no.nav.foreldrepenger.behandlingslager.BaseEntitet;
 import no.nav.foreldrepenger.behandlingslager.diff.ChangeTracked;
@@ -36,6 +37,7 @@ public class UføretrygdGrunnlagEntitet extends BaseEntitet {
     @Column(name = "aktiv", nullable = false)
     private boolean aktiv = true;
 
+    @NotNull
     @Column(name = "behandling_id", nullable = false, updatable = false)
     private Long behandlingId;
 

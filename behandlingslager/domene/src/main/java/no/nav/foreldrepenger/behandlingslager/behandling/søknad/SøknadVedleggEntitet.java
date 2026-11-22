@@ -13,6 +13,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.NotNull;
 
 import no.nav.foreldrepenger.behandlingslager.BaseEntitet;
 import no.nav.vedtak.felles.jpa.converters.BooleanToStringConverter;
@@ -45,10 +46,12 @@ public class SøknadVedleggEntitet extends BaseEntitet {
     @Convert(converter = BooleanToStringConverter.class)
     private boolean erVedleggPåkrevdISøknadsdialog;
 
+    @NotNull
     @Enumerated(EnumType.STRING)
     @Column(name = "innsendingsvalg", nullable = false)
     private Innsendingsvalg innsendingsvalg = Innsendingsvalg.IKKE_VALGT;
 
+    @NotNull
     @ManyToOne(optional = false)
     @JoinColumn(name = "soeknad_id", nullable = false, updatable = false)
     private SøknadEntitet søknad;

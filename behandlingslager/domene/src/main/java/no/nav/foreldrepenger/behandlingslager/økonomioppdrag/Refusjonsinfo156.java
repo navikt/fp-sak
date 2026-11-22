@@ -11,6 +11,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.NotNull;
 
 import org.hibernate.annotations.Immutable;
 
@@ -24,16 +25,20 @@ public class Refusjonsinfo156 extends BaseCreateableEntitet {
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "SEQ_OKO_REFUSJONSINFO_156")
     private Long id;
 
+    @NotNull
     @OneToOne(optional = false)
     @JoinColumn(name = "oppdrags_linje_150_id", nullable = false, updatable = false)
     private Oppdragslinje150 oppdragslinje150;
 
+    @NotNull
     @Column(name = "maks_dato", nullable = false)
     private LocalDate maksDato;
 
+    @NotNull
     @Column(name = "refunderes_id", nullable = false)
     private String refunderesId;
 
+    @NotNull
     @Column(name = "dato_fom", nullable = false)
     private LocalDate datoFom;
 

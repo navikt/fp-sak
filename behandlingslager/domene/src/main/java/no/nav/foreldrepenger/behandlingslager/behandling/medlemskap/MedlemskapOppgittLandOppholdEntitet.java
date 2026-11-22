@@ -14,6 +14,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.NotNull;
 
 import no.nav.foreldrepenger.behandlingslager.BaseEntitet;
 import no.nav.foreldrepenger.behandlingslager.diff.ChangeTracked;
@@ -40,15 +41,17 @@ public class MedlemskapOppgittLandOppholdEntitet extends BaseEntitet implements 
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "SEQ_MEDLEMSKAP_OPPG_LAND")
     private Long id;
 
+    @NotNull
     @ChangeTracked
     @Convert(converter = Landkoder.KodeverdiConverter.class)
     @Column(name="land", nullable = false)
     private Landkoder land = Landkoder.UDEFINERT;
 
+    @NotNull
     @ChangeTracked
     @Embedded
-    @AttributeOverride(name = "fomDato", column = @Column(name = "periode_fom"))
-    @AttributeOverride(name = "tomDato", column = @Column(name = "periode_tom"))
+    @AttributeOverride(name = "fomDato", column = @Column(name = "periode_fom", nullable = false))
+    @AttributeOverride(name = "tomDato", column = @Column(name = "periode_tom", nullable = false))
     private DatoIntervallEntitet periode;
 
     @ChangeTracked
@@ -56,6 +59,7 @@ public class MedlemskapOppgittLandOppholdEntitet extends BaseEntitet implements 
     @Column(name = "tidligere_opphold", nullable = false)
     private boolean tidligereOpphold;
 
+    @NotNull
     @ManyToOne(optional = false)
     @JoinColumn(name = "medlemskap_oppg_tilknyt_id", nullable = false, updatable = false)
     private MedlemskapOppgittTilknytningEntitet oppgittTilknytning;

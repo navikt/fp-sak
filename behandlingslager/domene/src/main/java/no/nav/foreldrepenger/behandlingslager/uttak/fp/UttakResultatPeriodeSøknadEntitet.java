@@ -15,6 +15,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import jakarta.persistence.Version;
+import jakarta.validation.constraints.NotNull;
 
 import no.nav.foreldrepenger.behandlingslager.BaseEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.MorsAktivitet;
@@ -35,6 +36,7 @@ public class UttakResultatPeriodeSøknadEntitet extends BaseEntitet {
     @Column(name = "versjon", nullable = false)
     private long versjon;
 
+    @NotNull
     @Column(name = "periode_type", updatable = false, nullable = false)
     @Convert(converter = UttakPeriodeType.KodeverdiConverter.class)
     private UttakPeriodeType uttakPeriodeType;
@@ -55,7 +57,7 @@ public class UttakResultatPeriodeSøknadEntitet extends BaseEntitet {
     @Column(name = "tidligst_mottatt_dato")
     private LocalDate tidligstMottattDato;
 
-    @Column(name = "MORS_AKTIVITET", updatable = false, nullable = false)
+    @Column(name = "MORS_AKTIVITET", updatable = false)
     @Convert(converter = MorsAktivitet.KodeverdiConverter.class)
     private MorsAktivitet morsAktivitet = MorsAktivitet.UDEFINERT;
 

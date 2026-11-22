@@ -9,6 +9,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.NotNull;
 
 import no.nav.foreldrepenger.behandlingslager.BaseCreateableEntitet;
 
@@ -21,7 +22,8 @@ public class VergeOrganisasjonEntitet extends BaseCreateableEntitet {
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "SEQ_VERGE_ORGANISASJON")
     private Long id;
 
-    @Column(name = "orgnr")
+    @NotNull
+    @Column(name = "orgnr", nullable = false)
     private String organisasjonsnummer;
 
     @Column(name = "navn")

@@ -7,6 +7,7 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.NotNull;
 
 import no.nav.foreldrepenger.behandlingslager.BaseEntitet;
 
@@ -19,12 +20,15 @@ public class Poststed extends BaseEntitet {
     @Column(name = "poststednummer", updatable = false, nullable = false)
     private String poststednummer;
 
+    @NotNull
     @Column(name = "poststednavn", nullable = false)
     private String poststednavn;
 
+    @NotNull
     @Column(name = "gyldigfom", nullable = false)
     private LocalDate gyldigFom;
 
+    @NotNull
     @Column(name = "gyldigtom", nullable = false)
     private LocalDate gyldigTom;
 

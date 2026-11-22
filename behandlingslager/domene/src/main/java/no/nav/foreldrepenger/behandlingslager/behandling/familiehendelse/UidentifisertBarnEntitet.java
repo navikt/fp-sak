@@ -12,6 +12,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.NotNull;
 
 import no.nav.foreldrepenger.behandlingslager.BaseEntitet;
 import no.nav.foreldrepenger.behandlingslager.diff.ChangeTracked;
@@ -25,6 +26,7 @@ public class UidentifisertBarnEntitet extends BaseEntitet implements Uidentifise
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "SEQ_UIDENTIFISERT_BARN")
     private Long id;
 
+    @NotNull
     @Column(name = "foedsel_dato", nullable = false)
     @ChangeTracked
     private LocalDate fødselsdato;
@@ -36,6 +38,7 @@ public class UidentifisertBarnEntitet extends BaseEntitet implements Uidentifise
     @Column(name = "barn_nummer")
     private Integer barnNummer;
 
+    @NotNull
     @ManyToOne(optional = false)
     @JoinColumn(name = "familie_hendelse_id", nullable = false, updatable = false)
     private FamilieHendelseEntitet familieHendelse;

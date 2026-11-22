@@ -14,6 +14,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.NotNull;
 
 import no.nav.foreldrepenger.behandlingslager.BaseEntitet;
 import no.nav.foreldrepenger.behandlingslager.diff.ChangeTracked;
@@ -30,10 +31,12 @@ public class PleiepengerInnleggelseEntitet extends BaseEntitet implements IndexK
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "SEQ_PSB_INNLAGT_PERIODE")
     private Long id;
 
+    @NotNull
     @ManyToOne(optional = false)
-    @JoinColumn(name = "PSB_PERIODER_ID", nullable = false, updatable = false, unique = true)
+    @JoinColumn(name = "PSB_PERIODER_ID", nullable = false, updatable = false)
     private PleiepengerPerioderEntitet pleiepengerPerioder;
 
+    @NotNull
     @Embedded
     @ChangeTracked
     private DatoIntervallEntitet periode;
@@ -43,6 +46,7 @@ public class PleiepengerInnleggelseEntitet extends BaseEntitet implements IndexK
     @Column(name = "psb_saksnummer")
     private Saksnummer pleiepengerSaksnummer;
 
+    @NotNull
     @Embedded
     @ChangeTracked
     @AttributeOverride(name = "aktørId", column = @Column(name = "PLEIETRENGENDE_AKTOER_ID", nullable = false, updatable = false))

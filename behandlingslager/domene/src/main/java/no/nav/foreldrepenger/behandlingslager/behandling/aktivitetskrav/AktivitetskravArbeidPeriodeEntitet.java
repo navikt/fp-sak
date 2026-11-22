@@ -15,6 +15,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.NotNull;
 
 import no.nav.foreldrepenger.behandlingslager.BaseCreateableEntitet;
 import no.nav.foreldrepenger.behandlingslager.diff.ChangeTracked;
@@ -29,28 +30,34 @@ public class AktivitetskravArbeidPeriodeEntitet extends BaseCreateableEntitet {
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "SEQ_AKTIVITETSKRAV_ARBEID_PERIODE")
     private Long id;
 
+    @NotNull
     @ManyToOne(optional = false)
-    @JoinColumn(name = "aktivitetskrav_arbeid_perioder_id", nullable = false, updatable = false, unique = true)
+    @JoinColumn(name = "aktivitetskrav_arbeid_perioder_id", nullable = false, updatable = false)
     private AktivitetskravArbeidPerioderEntitet aktivitetskravArbeidPerioder;
 
+    @NotNull
     @Embedded
     @ChangeTracked
     private DatoIntervallEntitet periode;
 
+    @NotNull
     @Embedded
     @ChangeTracked
     private OrgNummer orgNummer;
 
+    @NotNull
     @Embedded
     @ChangeTracked
-    @AttributeOverride(name = "verdi", column = @Column(name = "sum_stillingsprosent"))
+    @AttributeOverride(name = "verdi", column = @Column(name = "sum_stillingsprosent", nullable = false))
     private Stillingsprosent sumStillingsprosent;
 
+    @NotNull
     @Embedded
     @ChangeTracked
-    @AttributeOverride(name = "verdi", column = @Column(name = "sum_permisjonsprosent"))
+    @AttributeOverride(name = "verdi", column = @Column(name = "sum_permisjonsprosent", nullable = false))
     private Stillingsprosent sumPermisjonsprosent;
 
+    @NotNull
     @ChangeTracked
     @Convert(converter = AktivitetskravPermisjonType.KodeverdiConverter.class)
     @Column(name = "permisjon_type", nullable = false, updatable = false)

@@ -17,6 +17,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.NotNull;
 
 import no.nav.foreldrepenger.behandlingslager.BaseEntitet;
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBrukerKjønn;
@@ -40,11 +41,13 @@ public class PersonopplysningEntitet extends BaseEntitet implements HarAktørId,
     @AttributeOverride(name = "aktørId", column = @Column(name = "aktoer_id", updatable = false))
     private AktørId aktørId;
 
+    @NotNull
     @ChangeTracked
     @Convert(converter = NavBrukerKjønn.KodeverdiConverter.class)
     @Column(name = "bruker_kjoenn", nullable = false)
     private NavBrukerKjønn brukerKjønn = NavBrukerKjønn.UDEFINERT;
 
+    @NotNull
     @ChangeTracked
     @Enumerated(EnumType.STRING)
     @Column(name = "sivilstand_type", nullable = false)
@@ -58,10 +61,12 @@ public class PersonopplysningEntitet extends BaseEntitet implements HarAktørId,
     @Column(name = "doedsdato")
     private LocalDate dødsdato;
 
+    @NotNull
     @ChangeTracked
     @Column(name = "foedselsdato", nullable = false)
     private LocalDate fødselsdato;
 
+    @NotNull
     @ManyToOne(optional = false)
     @JoinColumn(name = "po_informasjon_id", nullable = false, updatable = false)
     private PersonInformasjonEntitet personopplysningInformasjon;

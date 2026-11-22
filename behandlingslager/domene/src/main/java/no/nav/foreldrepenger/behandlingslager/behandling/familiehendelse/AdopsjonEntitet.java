@@ -13,6 +13,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.Version;
+import jakarta.validation.constraints.NotNull;
 
 import no.nav.foreldrepenger.behandlingslager.BaseEntitet;
 import no.nav.foreldrepenger.behandlingslager.diff.ChangeTracked;
@@ -57,14 +58,16 @@ public class AdopsjonEntitet extends BaseEntitet {
     @Column(name = "adopterer_alene")
     private Boolean adoptererAlene;
 
+    @NotNull
     @OneToOne(optional = false)
-    @JoinColumn(name = "familie_hendelse_id", nullable = false, updatable = false, unique = true)
+    @JoinColumn(name = "familie_hendelse_id", nullable = false, updatable = false)
     private FamilieHendelseEntitet familieHendelse;
 
     @Version
     @Column(name = "versjon", nullable = false)
     private long versjon;
 
+    @NotNull
     @ChangeTracked
     @Convert(converter = OmsorgsovertakelseVilkårType.KodeverdiConverter.class)
     @Column(name = "omsorg_vilkaar_type", nullable = false)

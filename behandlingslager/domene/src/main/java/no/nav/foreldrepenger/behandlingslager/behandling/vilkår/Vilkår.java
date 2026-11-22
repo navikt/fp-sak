@@ -21,6 +21,7 @@ import jakarta.persistence.Lob;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.Version;
+import jakarta.validation.constraints.NotNull;
 
 import no.nav.foreldrepenger.behandlingslager.BaseEntitet;
 import no.nav.foreldrepenger.behandlingslager.diff.IndexKey;
@@ -33,6 +34,7 @@ public class Vilkår extends BaseEntitet implements IndexKey {
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "SEQ_VILKAR")
     private Long id;
 
+    @NotNull
     @ManyToOne(optional = false)
     @JoinColumn(name = "vilkar_resultat_id", nullable = false, updatable = false)
     private VilkårResultat vilkårResultat;
@@ -41,18 +43,22 @@ public class Vilkår extends BaseEntitet implements IndexKey {
     @Column(name = "versjon", nullable = false)
     private long versjon;
 
+    @NotNull
     @Enumerated(EnumType.STRING)
     @Column(name="vilkar_type", nullable = false, updatable = false)
     private VilkårType vilkårType;
 
+    @NotNull
     @Convert(converter = VilkårUtfallType.KodeverdiConverter.class)
     @Column(name="vilkar_utfall", nullable = false)
     private VilkårUtfallType vilkårUtfall = VilkårUtfallType.UDEFINERT;
 
+    @NotNull
     @Convert(converter = VilkårUtfallType.KodeverdiConverter.class)
     @Column(name="vilkar_utfall_manuell", nullable = false)
     private VilkårUtfallType vilkårUtfallManuelt = VilkårUtfallType.UDEFINERT;
 
+    @NotNull
     @Convert(converter = VilkårUtfallType.KodeverdiConverter.class)
     @Column(name="vilkar_utfall_overstyrt", nullable = false)
     private VilkårUtfallType vilkårUtfallOverstyrt = VilkårUtfallType.UDEFINERT;
@@ -63,12 +69,13 @@ public class Vilkår extends BaseEntitet implements IndexKey {
      * - Avslagårsak stammer fra manuell vurdering eller overstyring
      * - AvslagårsakMapper gjør om fra merknad-kode til avslagkode
      */
+    @NotNull
     @Convert(converter = VilkårUtfallMerknad.KodeverdiConverter.class)
     @Column(name = "vilkar_utfall_merknad", nullable = false)
     private VilkårUtfallMerknad vilkårUtfallMerknad = VilkårUtfallMerknad.UDEFINERT;
 
     @Convert(converter = Avslagsårsak.KodeverdiConverter.class)
-    @Column(name="avslag_kode", nullable = false)
+    @Column(name="avslag_kode")
     private Avslagsårsak avslagsårsak = Avslagsårsak.UDEFINERT;
 
     @Lob

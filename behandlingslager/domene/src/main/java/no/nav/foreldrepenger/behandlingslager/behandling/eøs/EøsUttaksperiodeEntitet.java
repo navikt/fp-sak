@@ -14,6 +14,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.NotNull;
 
 import no.nav.foreldrepenger.behandlingslager.BaseCreateableEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeType;
@@ -28,19 +29,23 @@ public class EøsUttaksperiodeEntitet extends BaseCreateableEntitet {
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "SEQ_EOS_UTTAKSPERIODE")
     private Long id;
 
+    @NotNull
     @ManyToOne
     @JoinColumn(name = "eos_uttaksperioder_id", updatable = false, nullable = false)
     private EøsUttaksperioderEntitet eosUttaksperioder;
 
+    @NotNull
     @Embedded
     private DatoIntervallEntitet periode;
 
+    @NotNull
     @Convert(converter = UttakPeriodeType.KodeverdiConverter.class)
     @Column(name="trekkonto", nullable = false)
     private UttakPeriodeType trekkonto = UttakPeriodeType.UDEFINERT;
 
+    @NotNull
     @Embedded
-    @AttributeOverride(name = "verdi", column = @Column(name = "trekkdager"))
+    @AttributeOverride(name = "verdi", column = @Column(name = "trekkdager", nullable = false))
     private Trekkdager trekkdager;
 
     protected EøsUttaksperiodeEntitet() {

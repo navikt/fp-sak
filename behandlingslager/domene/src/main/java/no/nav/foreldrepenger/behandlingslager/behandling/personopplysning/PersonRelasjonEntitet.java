@@ -13,6 +13,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.NotNull;
 
 import no.nav.foreldrepenger.behandlingslager.BaseEntitet;
 import no.nav.foreldrepenger.behandlingslager.diff.ChangeTracked;
@@ -30,15 +31,16 @@ public class PersonRelasjonEntitet extends BaseEntitet implements HarAktørId, I
     private Long id;
 
     @Embedded
-    @AttributeOverride(name = "aktørId", column = @Column(name = "fra_aktoer_id", updatable = false, nullable=false))
+    @AttributeOverride(name = "aktørId", column = @Column(name = "fra_aktoer_id", updatable = false))
     @ChangeTracked
     private AktørId fraAktørId;
 
     @Embedded
-    @AttributeOverride(name = "aktørId", column = @Column(name = "til_aktoer_id", updatable = false, nullable=false))
+    @AttributeOverride(name = "aktørId", column = @Column(name = "til_aktoer_id", updatable = false))
     @ChangeTracked
     private AktørId tilAktørId;
 
+    @NotNull
     @Convert(converter = RelasjonsRolleType.KodeverdiConverter.class)
     @Column(name="relasjonsrolle", nullable = false)
     @ChangeTracked
@@ -49,6 +51,7 @@ public class PersonRelasjonEntitet extends BaseEntitet implements HarAktørId, I
     @ChangeTracked
     private Boolean harSammeBosted;
 
+    @NotNull
     @ManyToOne(optional = false)
     @JoinColumn(name = "po_informasjon_id", nullable = false, updatable = false)
     private PersonInformasjonEntitet personopplysningInformasjon;

@@ -5,6 +5,7 @@ import java.util.Objects;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
+import jakarta.validation.constraints.NotNull;
 
 import com.fasterxml.jackson.annotation.JsonValue;
 
@@ -27,8 +28,9 @@ public class OrgNummer implements Serializable, Comparable<OrgNummer>, IndexKey,
      */
     public static final String KUNSTIG_ORG = "342352362";  // magic constant
 
+    @NotNull
     @JsonValue
-    @Column(name = "org_nummer", updatable = false, length = 50)
+    @Column(name = "org_nummer", nullable = false, updatable = false, length = 50)
     private String orgNummer;
 
     public OrgNummer(String orgNummer) {

@@ -3,7 +3,6 @@ package no.nav.foreldrepenger.behandlingslager.behandling.vedtak;
 import java.util.Objects;
 import java.util.Optional;
 
-import jakarta.persistence.AttributeOverride;
 import jakarta.persistence.Column;
 import jakarta.persistence.Convert;
 import jakarta.persistence.Embedded;
@@ -18,7 +17,7 @@ import jakarta.validation.constraints.NotNull;
 
 import no.nav.foreldrepenger.behandlingslager.BaseEntitet;
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Fagsystem;
-import no.nav.foreldrepenger.domene.tid.ÅpenDatoIntervallEntitet;
+import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 
 @Entity(name = "OverlappVedtak")
@@ -48,21 +47,24 @@ public class OverlappVedtak extends BaseEntitet {
     @Column(name = "saksnummer", nullable=false)
     private Saksnummer saksnummer;
 
+    @NotNull
     @Column(name = "BEHANDLING_ID", nullable = false, updatable = false)
     private Long behandlingId;
 
+    @NotNull
     @Embedded
-    @AttributeOverride(name = "fomDato", column = @Column(name = "FOM", nullable = false))
-    @AttributeOverride(name = "tomDato", column = @Column(name = "TOM", nullable = false))
-    private ÅpenDatoIntervallEntitet periode;
+    private DatoIntervallEntitet periode;
 
+    @NotNull
     @Column(name = "HENDELSE", nullable = false)
     private String hendelse;
 
+    @NotNull
     @Convert(converter = Fagsystem.KodeverdiConverter.class)
     @Column(name = "FAGSYSTEM", nullable = false)
     private Fagsystem fagsystem;
 
+    @NotNull
     @Column(name = "YTELSE", nullable = false)
     private String ytelse;
 
@@ -90,7 +92,7 @@ public class OverlappVedtak extends BaseEntitet {
         return behandlingId;
     }
 
-    public ÅpenDatoIntervallEntitet getPeriode() {
+    public DatoIntervallEntitet getPeriode() {
         return periode;
     }
 
@@ -167,7 +169,7 @@ public class OverlappVedtak extends BaseEntitet {
             return this;
         }
 
-        public Builder medPeriode(ÅpenDatoIntervallEntitet periode) {
+        public Builder medPeriode(DatoIntervallEntitet periode) {
             this.kladd.periode = periode;
             return this;
         }

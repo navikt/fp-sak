@@ -59,6 +59,7 @@ import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagPeriode;
 import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagPrStatusOgAndel;
 import no.nav.foreldrepenger.domene.modell.kodeverk.AndelKilde;
 import no.nav.foreldrepenger.domene.modell.kodeverk.BeregningsgrunnlagTilstand;
+import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.tid.ÅpenDatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 import no.nav.foreldrepenger.mottak.vedtak.overlapp.HåndterOverlappPleiepengerTask;
@@ -144,7 +145,7 @@ class VedtaksHendelseHåndtererTest extends EntityManagerAwareTest {
         assertThat(behandlingOverlappInfotrygd.getFirst().getBehandlingId()).isEqualTo(svp.getId());
         assertThat(behandlingOverlappInfotrygd.getFirst().getUtbetalingsprosent()).isEqualTo(200);
         assertThat(behandlingOverlappInfotrygd.getFirst().getPeriode()).isEqualTo(
-                ÅpenDatoIntervallEntitet.fraOgMedTilOgMed(LocalDate.parse("2020-05-01"), LocalDate.parse("2020-05-04")));
+                DatoIntervallEntitet.fraOgMedTilOgMed(LocalDate.parse("2020-05-01"), LocalDate.parse("2020-05-04")));
     }
 
     @Test
@@ -191,7 +192,7 @@ class VedtaksHendelseHåndtererTest extends EntityManagerAwareTest {
         assertThat(behandlingOverlappInfotrygd.getFirst().getBehandlingId()).isEqualTo(svp.getId());
         assertThat(behandlingOverlappInfotrygd.getFirst().getUtbetalingsprosent()).isEqualTo(120);
         assertThat(behandlingOverlappInfotrygd.getFirst().getPeriode()).isEqualTo(
-            ÅpenDatoIntervallEntitet.fraOgMedTilOgMed(LocalDate.parse("2020-05-01"), LocalDate.parse("2020-05-04")));
+            DatoIntervallEntitet.fraOgMedTilOgMed(LocalDate.parse("2020-05-01"), LocalDate.parse("2020-05-04")));
     }
 
     @Test

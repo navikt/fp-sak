@@ -14,6 +14,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.Version;
+import jakarta.validation.constraints.NotNull;
 
 import no.nav.foreldrepenger.behandlingslager.BaseEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.Avslagsårsak;
@@ -28,6 +29,7 @@ public class VilkårMedlemskap extends BaseEntitet {
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "SEQ_VILKAR_MEDLEMSKAP")
     private Long id;
 
+    @NotNull
     @OneToOne(optional = false)
     @JoinColumn(name = "vilkar_resultat_id", nullable = false, updatable = false)
     private VilkårResultat vilkårResultat;
@@ -43,6 +45,7 @@ public class VilkårMedlemskap extends BaseEntitet {
     @Column(name = "opphor_fom")
     private LocalDate opphørFom;
 
+    @NotNull
     @Convert(converter = Avslagsårsak.KodeverdiConverter.class)
     @Column(name="opphor_arsak", nullable = false)
     private Avslagsårsak opphørsårsak = Avslagsårsak.UDEFINERT;

@@ -10,6 +10,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.NotNull;
 
 import no.nav.foreldrepenger.behandlingslager.BaseEntitet;
 
@@ -21,6 +22,7 @@ public class KlageResultatEntitet extends BaseEntitet {
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "SEQ_KLAGE_RESULTAT")
     private Long id;
 
+    @NotNull
     @Column(name = "klage_behandling_id", nullable = false)
     private Long klageBehandlingId;
 

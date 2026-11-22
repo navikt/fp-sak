@@ -12,6 +12,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import jakarta.persistence.Version;
+import jakarta.validation.constraints.NotNull;
 
 import no.nav.foreldrepenger.behandlingslager.BaseEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
@@ -25,6 +26,7 @@ class TilbakekrevingValgEntitet extends BaseEntitet {
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "SEQ_TILBAKEKREVING_VALG")
     private Long id;
 
+    @NotNull
     @Column(name = "behandling_id", nullable = false, updatable = false)
     private Long behandlingId;
 
@@ -34,7 +36,7 @@ class TilbakekrevingValgEntitet extends BaseEntitet {
 
     @Version
     @Column(name = "versjon", nullable = false)
-    private Long versjon;
+    private long versjon;
 
     @Convert(converter = BooleanToStringConverter.class)
     @Column(name = "tbk_vilkaar_oppfylt")
@@ -47,8 +49,9 @@ class TilbakekrevingValgEntitet extends BaseEntitet {
     @Column(name = "varseltekst")
     private String varseltekst;
 
+    @NotNull
     @Enumerated(EnumType.STRING)
-    @Column(name="videre_behandling")
+    @Column(name="videre_behandling", nullable = false)
     private TilbakekrevingVidereBehandling tilbakekrevningsVidereBehandling;
 
     protected TilbakekrevingValgEntitet() {

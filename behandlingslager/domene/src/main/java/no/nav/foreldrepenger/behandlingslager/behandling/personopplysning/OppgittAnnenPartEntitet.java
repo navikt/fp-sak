@@ -11,6 +11,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.NotNull;
 
 import no.nav.foreldrepenger.behandlingslager.BaseEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.søknad.SøknadAnnenPartType;
@@ -48,11 +49,13 @@ public class OppgittAnnenPartEntitet extends BaseEntitet implements HarAktørId 
     @Column(name = "utl_person_ident")
     private String utenlandskPersonident;
 
+    @NotNull
     @ChangeTracked
     @Convert(converter = Landkoder.KodeverdiConverter.class)
     @Column(name="utl_person_ident_land", nullable = false)
     private Landkoder utenlandskPersonidentLand = Landkoder.UDEFINERT;
 
+    @NotNull
     @Convert(converter = SøknadAnnenPartType.KodeverdiConverter.class)
     @Column(name = "type", nullable = false)
     private SøknadAnnenPartType type = SøknadAnnenPartType.UDEFINERT;

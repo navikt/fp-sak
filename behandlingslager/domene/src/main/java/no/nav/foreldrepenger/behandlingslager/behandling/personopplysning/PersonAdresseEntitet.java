@@ -17,6 +17,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.NotNull;
 
 import no.nav.foreldrepenger.behandlingslager.BaseEntitet;
 import no.nav.foreldrepenger.behandlingslager.aktør.AdresseType;
@@ -40,10 +41,12 @@ public class PersonAdresseEntitet extends BaseEntitet implements HarAktørId, In
     @AttributeOverride(name = "aktørId", column = @Column(name = "aktoer_id", updatable = false))
     private AktørId aktørId;
 
+    @NotNull
     @ChangeTracked
     @Embedded
     private DatoIntervallEntitet periode;
 
+    @NotNull
     @ChangeTracked
     @Enumerated(EnumType.STRING)
     @Column(name = "adresse_type", nullable = false)
@@ -82,6 +85,7 @@ public class PersonAdresseEntitet extends BaseEntitet implements HarAktørId, In
     @Column(name="land")
     private Landkoder land;
 
+    @NotNull
     @ManyToOne(optional = false)
     @JoinColumn(name = "po_informasjon_id", nullable = false, updatable = false)
     private PersonInformasjonEntitet personopplysningInformasjon;

@@ -10,6 +10,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.NotNull;
 
 import no.nav.foreldrepenger.behandlingslager.BaseEntitet;
 import no.nav.foreldrepenger.behandlingslager.diff.ChangeTracked;
@@ -56,6 +57,7 @@ public class VurdertMedlemskapEntitet extends BaseEntitet implements VurdertMedl
     @Column(name = "begrunnelse")
     private String begrunnelse;
 
+    @NotNull
     @Convert(converter = MedlemskapManuellVurderingType.KodeverdiConverter.class)
     @Column(name="medlemsperiode_manuell_vurd", nullable = false)
     private MedlemskapManuellVurderingType medlemsperiodeManuellVurdering = MedlemskapManuellVurderingType.UDEFINERT;

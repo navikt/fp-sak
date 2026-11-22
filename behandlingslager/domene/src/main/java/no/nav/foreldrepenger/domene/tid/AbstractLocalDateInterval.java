@@ -72,7 +72,7 @@ public abstract class AbstractLocalDateInterval implements Comparable<AbstractLo
     }
 
     public boolean erEtterEllerLikPeriodestart(ChronoLocalDate dato) {
-        return getFomDato().isBefore(dato) || getFomDato().isEqual(dato);
+        return getTomDato() == null || getFomDato().isBefore(dato) || getFomDato().isEqual(dato);
     }
 
     public boolean inkluderer(ChronoLocalDate dato) {

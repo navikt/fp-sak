@@ -39,8 +39,9 @@ public class Fagsak extends BaseEntitet {
     @Column(name = "id")
     private Long id;
 
+    // TODO (anyone): Denne burde være not null (og ikke UDEFINERT), men sjekk databaser
     @Convert(converter = FagsakYtelseType.KodeverdiConverter.class)
-    @Column(name = "ytelse_type", nullable = false, updatable = false)
+    @Column(name = "ytelse_type", updatable = false)
     private FagsakYtelseType ytelseType = FagsakYtelseType.UDEFINERT;
 
     @NotNull
@@ -48,10 +49,12 @@ public class Fagsak extends BaseEntitet {
     @JoinColumn(name = "bruker_id", nullable = false)
     private NavBruker navBruker;
 
+    @NotNull
     @Convert(converter = RelasjonsRolleType.KodeverdiConverter.class)
     @Column(name = "bruker_rolle", nullable = false)
     private RelasjonsRolleType brukerRolle = RelasjonsRolleType.UDEFINERT;
 
+    @NotNull
     @Enumerated(EnumType.STRING)
     @Column(name = "fagsak_status", nullable = false)
     private FagsakStatus fagsakStatus = FagsakStatus.DEFAULT;

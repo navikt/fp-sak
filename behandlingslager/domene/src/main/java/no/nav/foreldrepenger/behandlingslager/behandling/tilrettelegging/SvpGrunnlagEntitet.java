@@ -14,6 +14,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.NotNull;
 
 import no.nav.foreldrepenger.behandlingslager.BaseEntitet;
 import no.nav.vedtak.felles.jpa.converters.BooleanToStringConverter;
@@ -26,15 +27,16 @@ public class SvpGrunnlagEntitet extends BaseEntitet {
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "SEQ_SVP_GRUNNLAG")
     private Long id;
 
-    @Column(name = "behandling_id", nullable = false, updatable = false, unique = true)
+    @NotNull
+    @Column(name = "behandling_id", nullable = false, updatable = false)
     private Long behandlingId;
 
     @ManyToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "OPPRINNELINGE_TRLG_ID", updatable = false, unique = true)
+    @JoinColumn(name = "OPPRINNELINGE_TRLG_ID", updatable = false)
     private SvpTilretteleggingerEntitet opprinneligeTilrettelegginger;
 
     @ManyToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "OVERSTYRTE_TRLG_ID", updatable = false, unique = true)
+    @JoinColumn(name = "OVERSTYRTE_TRLG_ID", updatable = false)
     private SvpTilretteleggingerEntitet overstyrteTilrettelegginger;
 
     @Convert(converter = BooleanToStringConverter.class)

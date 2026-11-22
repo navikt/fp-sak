@@ -17,6 +17,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.NotNull;
 
 import org.hibernate.annotations.Immutable;
 
@@ -40,33 +41,39 @@ public class Oppdragslinje150 extends BaseCreateableEntitet {
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "SEQ_OKO_OPPDRAG_LINJE_150")
     private Long id;
 
+    @NotNull
     @Enumerated(EnumType.STRING)
     @Column(name = "kode_endring_linje", nullable = false)
     private KodeEndringLinje kodeEndringLinje;
 
+    @NotNull
     @Column(name = "vedtak_id", nullable = false)
     private String vedtakId;
 
-    @Column(name = "delytelse_id", nullable = false)
+    @Column(name = "delytelse_id")
     private Long delytelseId;
 
+    @NotNull
     @Enumerated(EnumType.STRING)
     @Column(name = "kode_klassifik", nullable = false)
     private KodeKlassifik kodeKlassifik;
 
+    @NotNull
     @Embedded
     @AttributeOverride(name = "fomDato", column = @Column(name = "dato_vedtak_fom", nullable = false))
     @AttributeOverride(name = "tomDato", column = @Column(name = "dato_vedtak_tom", nullable = false))
     private DatoIntervallEntitet vedtakPeriode;
 
+    @NotNull
     @Embedded
-    @AttributeOverride(name = "sats", column = @Column(name = "sats", nullable = false))
     private Sats sats;
 
+    @NotNull
     @Enumerated(EnumType.STRING)
     @Column(name = "type_sats", nullable = false)
     private TypeSats typeSats;
 
+    @NotNull
     @ManyToOne(optional = false)
     @JoinColumn(name = "oppdrag110_id", nullable = false)
     private Oppdrag110 oppdrag110;

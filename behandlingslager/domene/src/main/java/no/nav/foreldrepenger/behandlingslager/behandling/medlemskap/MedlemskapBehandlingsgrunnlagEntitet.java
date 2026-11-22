@@ -16,6 +16,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.Version;
+import jakarta.validation.constraints.NotNull;
 
 import no.nav.foreldrepenger.behandlingslager.BaseEntitet;
 import no.nav.foreldrepenger.behandlingslager.diff.ChangeTracked;
@@ -34,6 +35,7 @@ public class MedlemskapBehandlingsgrunnlagEntitet extends BaseEntitet {
     @Column(name = "aktiv", nullable = false)
     private boolean aktiv = true;
 
+    @NotNull
     @Column(name = "behandling_id", updatable = false, nullable = false)
     private Long behandlingId;
 
@@ -42,20 +44,20 @@ public class MedlemskapBehandlingsgrunnlagEntitet extends BaseEntitet {
     private Long id;
 
     @ManyToOne(cascade = { /* NONE - Aldri cascade til et selvstendig aggregat! */ }, fetch = FetchType.EAGER)
-    @JoinColumn(name = "OPPGITT_ID", nullable = true, unique = true)
+    @JoinColumn(name = "OPPGITT_ID", nullable = true)
     private MedlemskapOppgittTilknytningEntitet oppgittTilknytning;
 
     @ManyToOne(cascade = { /* NONE - Aldri cascade til et selvstendig aggregat! */ }, fetch = FetchType.EAGER)
-    @JoinColumn(name = "REGISTRERT_ID", nullable = true, unique = true)
+    @JoinColumn(name = "REGISTRERT_ID", nullable = true)
     @ChangeTracked
     private MedlemskapRegistrertEntitet registerMedlemskap;
 
     @ManyToOne(cascade = { /* NONE - Aldri cascade til et selvstendig aggregat! */ }, fetch = FetchType.EAGER)
-    @JoinColumn(name = "VURDERING_ID", nullable = true, unique = true)
+    @JoinColumn(name = "VURDERING_ID", nullable = true)
     private VurdertMedlemskapEntitet vurderingMedlemskapSkjæringstidspunktet;
 
     @ManyToOne(cascade = { /* NONE - Aldri cascade til et selvstendig aggregat! */ }, fetch = FetchType.EAGER)
-    @JoinColumn(name = "VURDERING_LOPENDE_ID", nullable = true, unique = true)
+    @JoinColumn(name = "VURDERING_LOPENDE_ID", nullable = true)
     private VurdertMedlemskapPeriodeEntitet vurderingLøpendeMedlemskap;
 
     @Version

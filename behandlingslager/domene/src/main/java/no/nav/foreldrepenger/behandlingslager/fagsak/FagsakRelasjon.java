@@ -3,7 +3,6 @@ package no.nav.foreldrepenger.behandlingslager.fagsak;
 import java.time.LocalDate;
 import java.util.Optional;
 
-import jakarta.persistence.AttributeOverride;
 import jakarta.persistence.Column;
 import jakarta.persistence.Convert;
 import jakarta.persistence.Embedded;
@@ -15,6 +14,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.Version;
+import jakarta.validation.constraints.NotNull;
 
 import no.nav.foreldrepenger.behandlingslager.BaseEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.Stønadskontoberegning;
@@ -28,6 +28,7 @@ public class FagsakRelasjon extends BaseEntitet {
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "SEQ_FAGSAK_RELASJON")
     private Long id;
 
+    @NotNull
     @ManyToOne
     @JoinColumn(name = "fagsak_en_id", nullable = false)
     private Fagsak fagsakNrEn;
@@ -44,7 +45,6 @@ public class FagsakRelasjon extends BaseEntitet {
     @JoinColumn(name = "overstyrt_konto_beregning_id")
     private Stønadskontoberegning overstyrtStønadskontoberegning;
 
-    @AttributeOverride(name = "verdi", column = @Column(name = "dekningsgrad"))
     @Embedded
     private Dekningsgrad dekningsgrad;
 

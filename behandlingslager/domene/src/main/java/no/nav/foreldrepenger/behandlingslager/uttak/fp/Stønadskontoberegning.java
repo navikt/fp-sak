@@ -15,6 +15,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Lob;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.NotNull;
 
 import no.nav.foreldrepenger.behandlingslager.BaseEntitet;
 import no.nav.foreldrepenger.behandlingslager.diff.ChangeTracked;
@@ -27,11 +28,13 @@ public class Stønadskontoberegning extends BaseEntitet {
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "SEQ_STOENADSKONTOBEREGNING")
     private Long id;
 
+    @NotNull
     @Lob
     @ChangeTracked
     @Column(name = "regel_input", nullable = false)
     private String regelInput;
 
+    @NotNull
     @Lob
     @Column(name = "regel_evaluering", nullable = false)
     private String regelEvaluering;

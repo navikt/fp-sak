@@ -13,6 +13,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.Version;
+import jakarta.validation.constraints.NotNull;
 
 import no.nav.foreldrepenger.behandlingslager.BaseEntitet;
 import no.nav.vedtak.felles.jpa.converters.BooleanToStringConverter;
@@ -30,23 +31,25 @@ public class BehandlingBeregningsresultatEntitet extends BaseEntitet {
     @Column(name = "versjon", nullable = false)
     private long versjon;
 
-    @Column(name = "behandling_id", nullable = false, updatable = false, unique = true)
+    @NotNull
+    @Column(name = "behandling_id", nullable = false, updatable = false)
     private Long behandlingId;
 
     @Convert(converter = BooleanToStringConverter.class)
     @Column(name = "aktiv", nullable = false)
     private boolean aktiv = true;
 
+    @NotNull
     @OneToOne(optional = false)
-    @JoinColumn(name = "bg_beregningsresultat_fp_id", nullable = false, updatable = false, unique = true)
+    @JoinColumn(name = "bg_beregningsresultat_fp_id", nullable = false, updatable = false)
     private BeregningsresultatEntitet bgBeregningsresultatFP;
 
     @OneToOne
-    @JoinColumn(name = "utbet_beregningsresultat_fp_id", updatable = false, unique = true)
+    @JoinColumn(name = "utbet_beregningsresultat_fp_id", updatable = false)
     private BeregningsresultatEntitet utbetBeregningsresultatFP;
 
     @OneToOne
-    @JoinColumn(name = "beregningsresultat_feriepenger_id", updatable = false, unique = true)
+    @JoinColumn(name = "beregningsresultat_feriepenger_id", updatable = false)
     private BeregningsresultatFeriepenger beregningsresultatFeriepenger;
 
     @Column(name = "hindre_tilbaketrekk")

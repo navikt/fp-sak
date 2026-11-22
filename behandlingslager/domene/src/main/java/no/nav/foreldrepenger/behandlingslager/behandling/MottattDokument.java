@@ -16,6 +16,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Lob;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.NotNull;
 
 import no.nav.foreldrepenger.behandlingslager.BaseEntitet;
 import no.nav.foreldrepenger.domene.typer.JournalpostId;
@@ -49,6 +50,7 @@ public class MottattDokument extends BaseEntitet {
     @Column(name = "journal_enhet")
     private String journalEnhet;
 
+    @NotNull
     @Convert(converter = DokumentTypeId.KodeverdiConverter.class)
     @Column(name="type", nullable = false)
     private DokumentTypeId dokumentTypeId = DokumentTypeId.UDEFINERT;
@@ -73,6 +75,7 @@ public class MottattDokument extends BaseEntitet {
     @Column(name = "elektronisk_registrert", nullable = false)
     private boolean elektroniskRegistrert;
 
+    @NotNull
     @Column(name = "fagsak_id", nullable = false)
     private Long fagsakId;
 

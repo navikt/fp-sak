@@ -40,7 +40,7 @@ import no.nav.foreldrepenger.behandling.RelatertBehandlingTjeneste;
 import no.nav.foreldrepenger.behandling.Skjæringstidspunkt;
 import no.nav.foreldrepenger.behandling.klage.KlageVurderingTjeneste;
 import no.nav.foreldrepenger.behandling.revurdering.ytelse.UttakInputTjeneste;
-import no.nav.foreldrepenger.behandlingslager.aktør.Aktør;
+import no.nav.foreldrepenger.behandlingslager.aktør.NavBruker;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingResultatType;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
@@ -503,7 +503,7 @@ class BrevGrunnlagTjeneste {
 
     private Optional<Verge> finnVerge(Behandling behandling) {
         return vergeRepository.hentAggregat(behandling.getId()).flatMap(vergeAggregat -> vergeAggregat.getVerge().map(verge -> {
-            var aktørId = verge.getBruker().map(Aktør::getAktørId).map(AktørId::getId).orElse(null);
+            var aktørId = verge.getBruker().map(NavBruker::getAktørId).map(AktørId::getId).orElse(null);
             return new Verge(aktørId, verge.getVergeOrganisasjon().map(VergeOrganisasjonEntitet::getNavn).orElse(null),
                 verge.getVergeOrganisasjon().map(VergeOrganisasjonEntitet::getOrganisasjonsnummer).orElse(null), verge.getGyldigFom(),
                 verge.getGyldigTom());

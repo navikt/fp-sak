@@ -4,6 +4,7 @@ import java.time.LocalDate;
 import java.util.Comparator;
 import java.util.Objects;
 
+import jakarta.persistence.AttributeOverride;
 import jakarta.persistence.Column;
 import jakarta.persistence.Convert;
 import jakarta.persistence.Embedded;
@@ -14,6 +15,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.NotNull;
 
 import no.nav.foreldrepenger.behandlingslager.BaseEntitet;
 import no.nav.foreldrepenger.behandlingslager.diff.ChangeTracked;
@@ -44,6 +46,8 @@ public class MedlemskapPerioderEntitet extends BaseEntitet implements IndexKey {
     private Long id;
 
     @Embedded
+    @AttributeOverride(name = "fomDato", column = @Column(name = "fom", nullable = true))
+    @AttributeOverride(name = "tomDato", column = @Column(name = "tom", nullable = true))
     @ChangeTracked
     private DatoIntervallEntitet periode;
 
@@ -56,26 +60,31 @@ public class MedlemskapPerioderEntitet extends BaseEntitet implements IndexKey {
     @Column(name = "er_medlem", nullable = false)
     private boolean erMedlem;
 
+    @NotNull
     @ChangeTracked
     @Convert(converter = Landkoder.KodeverdiConverter.class)
     @Column(name="lovvalg_land", nullable = false)
     private Landkoder lovvalgLand = Landkoder.UDEFINERT;
 
+    @NotNull
     @ChangeTracked
     @Convert(converter = Landkoder.KodeverdiConverter.class)
     @Column(name="studie_land", nullable = false)
     private Landkoder studieLand = Landkoder.UDEFINERT;
 
+    @NotNull
     @ChangeTracked
     @Enumerated(EnumType.STRING)
     @Column(name="medlemskap_type", nullable = false)
     private MedlemskapType medlemskapType;
 
+    @NotNull
     @ChangeTracked
     @Convert(converter = MedlemskapDekningType.KodeverdiConverter.class)
     @Column(name="dekning_type", nullable = false)
     private MedlemskapDekningType dekningType = MedlemskapDekningType.UDEFINERT;
 
+    @NotNull
     @ChangeTracked
     @Convert(converter = MedlemskapKildeType.KodeverdiConverter.class)
     @Column(name="kilde_type", nullable = false)

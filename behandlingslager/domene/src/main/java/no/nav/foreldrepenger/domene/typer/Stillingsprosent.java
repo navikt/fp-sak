@@ -8,6 +8,7 @@ import java.util.Optional;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
+import jakarta.validation.constraints.NotNull;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,6 +30,7 @@ public class Stillingsprosent implements Serializable, IndexKey, TraverseValue, 
 
     public static final Stillingsprosent HUNDRED = new Stillingsprosent(100);
 
+    @NotNull
     @Column(name = "verdi", scale = 2, nullable = false)
     @ChangeTracked
     private BigDecimal verdi;

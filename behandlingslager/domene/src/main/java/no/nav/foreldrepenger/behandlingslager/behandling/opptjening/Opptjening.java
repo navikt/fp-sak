@@ -21,6 +21,7 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.Version;
+import jakarta.validation.constraints.NotNull;
 
 import no.nav.foreldrepenger.behandlingslager.BaseEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.Vilkår;
@@ -45,6 +46,7 @@ public class Opptjening extends BaseEntitet {
     @Column(name = "aktiv", nullable = false)
     private boolean aktiv = true;
 
+    @NotNull
     @ChangeTracked
     @Embedded
     private DatoIntervallEntitet opptjeningPeriode;
@@ -66,6 +68,7 @@ public class Opptjening extends BaseEntitet {
     @Column(name = "versjon", nullable = false)
     private long versjon;
 
+    @NotNull
     @OneToOne(optional = false)
     @JoinColumn(name = "vilkar_resultat_id", nullable = false, updatable = false)
     private VilkårResultat vilkårResultat;

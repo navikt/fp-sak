@@ -17,6 +17,7 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.persistence.Version;
+import jakarta.validation.constraints.NotNull;
 
 import no.nav.foreldrepenger.behandlingslager.BaseEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
@@ -34,6 +35,7 @@ public class SvangerskapspengerUttakResultatEntitet extends BaseEntitet {
     @JoinColumn(name = "svp_uttak_resultat_id")
     private List<SvangerskapspengerUttakResultatArbeidsforholdEntitet> uttaksResultatArbeidsforhold = new ArrayList<>();
 
+    @NotNull
     @ManyToOne
     @JoinColumn(name = "behandling_resultat_id", nullable = false, updatable = false)
     private Behandlingsresultat behandlingsresultat;

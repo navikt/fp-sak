@@ -12,6 +12,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.NotNull;
 
 import no.nav.foreldrepenger.behandlingslager.BaseEntitet;
 import no.nav.foreldrepenger.behandlingslager.diff.ChangeTracked;
@@ -36,6 +37,7 @@ public class VurdertLøpendeMedlemskapEntitet extends BaseEntitet implements Vur
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "SEQ_MEDLEMSKAP_VL")
     private Long id;
 
+    @NotNull
     @ManyToOne(optional = false)
     @JoinColumn(name = "vurdert_periode_id", nullable = false, updatable = false)
     private VurdertMedlemskapPeriodeEntitet periodeHolder;
@@ -56,6 +58,7 @@ public class VurdertLøpendeMedlemskapEntitet extends BaseEntitet implements Vur
     @Column(name = "er_eos_borger")
     private Boolean erEøsBorger;
 
+    @NotNull
     @ChangeTracked
     @Column(name = "vurderingsdato", nullable = false, updatable = false)
     private LocalDate vurderingsdato;
@@ -65,7 +68,7 @@ public class VurdertLøpendeMedlemskapEntitet extends BaseEntitet implements Vur
     private String begrunnelse;
 
     @Convert(converter = MedlemskapManuellVurderingType.KodeverdiConverter.class)
-    @Column(name="manuell_vurd", nullable = false)
+    @Column(name="manuell_vurd")
     private MedlemskapManuellVurderingType medlemsperiodeManuellVurdering = MedlemskapManuellVurderingType.UDEFINERT;
 
     protected VurdertLøpendeMedlemskapEntitet() {

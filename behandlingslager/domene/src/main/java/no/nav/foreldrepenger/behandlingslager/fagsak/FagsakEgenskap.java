@@ -10,6 +10,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.NotNull;
 
 import no.nav.foreldrepenger.behandlingslager.BaseEntitet;
 import no.nav.vedtak.felles.jpa.converters.BooleanToStringConverter;
@@ -22,6 +23,7 @@ public class FagsakEgenskap extends BaseEntitet {
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "SEQ_FAGSAK_EGENSKAP")
     private Long id;
 
+    @NotNull
     @Column(name = "fagsak_id", nullable = false)
     private Long fagsakId;
 
@@ -29,6 +31,7 @@ public class FagsakEgenskap extends BaseEntitet {
     @Column(name = "aktiv", nullable = false)
     private boolean aktiv = true;
 
+    @NotNull
     @Convert(converter = EgenskapNøkkel.KodeverdiConverter.class)
     @Column(name="egenskap_key", nullable = false)
     private EgenskapNøkkel egenskapNøkkel;

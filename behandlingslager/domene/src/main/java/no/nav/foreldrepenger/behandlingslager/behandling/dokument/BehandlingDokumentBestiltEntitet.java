@@ -15,6 +15,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.NotNull;
 
 import no.nav.foreldrepenger.behandlingslager.BaseEntitet;
 import no.nav.foreldrepenger.domene.typer.JournalpostId;
@@ -27,10 +28,12 @@ public class BehandlingDokumentBestiltEntitet extends BaseEntitet {
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "SEQ_BEHANDLING_DOK_BESTILT")
     private Long id;
 
+    @NotNull
     @ManyToOne(optional = false)
     @JoinColumn(name = "BEHANDLING_DOKUMENT_ID", nullable = false, updatable = false)
     private BehandlingDokumentEntitet behandlingDokument;
 
+    @NotNull
     @Enumerated(EnumType.STRING)
     @Column(name = "DOKUMENT_MAL_TYPE", nullable = false)
     private DokumentMalType dokumentMalType;

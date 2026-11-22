@@ -8,6 +8,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Lob;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.NotNull;
 
 import no.nav.foreldrepenger.behandlingslager.BaseEntitet;
 
@@ -21,13 +22,16 @@ public abstract class UtgåendeHendelse extends BaseEntitet {
     @Column(name = "ID")
     private Long id;
 
+    @NotNull
     @Column(name = "TYPE", nullable = false)
     private String type;
 
+    @NotNull
     @Lob
     @Column(name = "PAYLOAD", nullable = false)
     private String payload;
 
+    @NotNull
     @Column(name = "AKTOER_ID", nullable = false)
     private Long aktørId;
 

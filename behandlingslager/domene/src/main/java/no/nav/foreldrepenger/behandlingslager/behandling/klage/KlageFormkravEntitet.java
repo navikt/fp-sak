@@ -16,6 +16,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.NotNull;
 
 import no.nav.foreldrepenger.behandlingslager.BaseEntitet;
 import no.nav.vedtak.felles.jpa.converters.BooleanToStringConverter;
@@ -28,10 +29,12 @@ public class KlageFormkravEntitet extends BaseEntitet {
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "SEQ_KLAGE_FORMKRAV")
     private Long id;
 
+    @NotNull
     @ManyToOne(optional = false)
     @JoinColumn(name = "klage_resultat_id", nullable = false, updatable = false)
     private KlageResultatEntitet klageResultat;
 
+    @NotNull
     @Enumerated(EnumType.STRING)
     @Column(name = "klage_vurdert_av", nullable = false)
     private KlageVurdertAv klageVurdertAv;
@@ -56,6 +59,7 @@ public class KlageFormkravEntitet extends BaseEntitet {
     @Column(name = "er_signert", nullable = false)
     private boolean erSignert;
 
+    @NotNull
     @Column(name = "begrunnelse", nullable = false)
     private String begrunnelse;
 

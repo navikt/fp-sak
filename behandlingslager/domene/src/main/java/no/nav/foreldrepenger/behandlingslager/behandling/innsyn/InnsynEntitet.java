@@ -17,6 +17,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.persistence.Version;
+import jakarta.validation.constraints.NotNull;
 
 import no.nav.foreldrepenger.behandlingslager.BaseEntitet;
 
@@ -32,15 +33,19 @@ public class InnsynEntitet extends BaseEntitet {
     @Column(name = "versjon", nullable = false)
     private long versjon;
 
+    @NotNull
     @Column(name = "mottatt_dato", nullable = false)
     private LocalDate mottattDato;
 
+    @NotNull
     @Column(name = "begrunnelse", nullable = false)
     private String begrunnelse;
 
-    @Column(name = "behandling_id", nullable = false, updatable = false)
+    @NotNull
+    @Column(name = "behandling_id", nullable = false, updatable = false, unique = true)
     private Long behandlingId;
 
+    @NotNull
     @Enumerated(EnumType.STRING)
     @Column(name = "innsyn_resultat_type", nullable = false)
     private InnsynResultatType innsynResultatType;

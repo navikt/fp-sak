@@ -12,6 +12,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.Version;
+import jakarta.validation.constraints.NotNull;
 
 import no.nav.foreldrepenger.behandlingslager.BaseEntitet;
 import no.nav.vedtak.felles.jpa.converters.BooleanToStringConverter;
@@ -24,11 +25,12 @@ public class VergeGrunnlagEntitet extends BaseEntitet {
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "SEQ_GR_VERGE")
     private Long id;
 
-    @Column(name = "behandling_id", nullable = false, updatable = false, unique = true)
+    @NotNull
+    @Column(name = "behandling_id", nullable = false, updatable = false)
     private Long behandlingId;
 
     @OneToOne
-    @JoinColumn(name = "verge_id", updatable = false, unique = true)
+    @JoinColumn(name = "verge_id", updatable = false)
     private VergeEntitet verge;
 
     @Convert(converter = BooleanToStringConverter.class)

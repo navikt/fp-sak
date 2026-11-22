@@ -43,10 +43,12 @@ public class Oppdrag110 extends BaseCreateableEntitet {
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "SEQ_OKO_OPPDRAG_110")
     private Long id;
 
+    @NotNull
     @Enumerated(EnumType.STRING)
     @Column(name = "kode_endring", nullable = false)
     private KodeEndring kodeEndring;
 
+    @NotNull
     @Enumerated(EnumType.STRING)
     @Column(name = "kode_fagomrade", nullable = false)
     private KodeFagområde kodeFagomrade;
@@ -54,9 +56,11 @@ public class Oppdrag110 extends BaseCreateableEntitet {
     @Column(name = "fagsystem_id", nullable = false)
     private long fagsystemId;
 
+    @NotNull
     @Column(name = "oppdrag_gjelder_id", nullable = false)
     private String oppdragGjelderId;
 
+    @NotNull
     @Column(name = "saksbeh_id", nullable = false)
     private String saksbehId;
 
@@ -64,6 +68,7 @@ public class Oppdrag110 extends BaseCreateableEntitet {
     @Embedded
     private Avstemming nøkkelAvstemming;
 
+    @NotNull
     @ManyToOne(optional = false)
     @JoinColumn(name = "oppdrags_kontroll_id", nullable = false, updatable = false)
     private Oppdragskontroll oppdragskontroll;

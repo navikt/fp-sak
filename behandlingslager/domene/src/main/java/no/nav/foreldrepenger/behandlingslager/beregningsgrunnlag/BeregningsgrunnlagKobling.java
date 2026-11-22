@@ -15,6 +15,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.NotNull;
 
 import no.nav.foreldrepenger.behandlingslager.BaseEntitet;
 import no.nav.foreldrepenger.behandlingslager.diff.ChangeTracked;
@@ -29,7 +30,8 @@ public class BeregningsgrunnlagKobling extends BaseEntitet {
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "SEQ_BG_EKSTERN_KOBLING")
     private Long id;
 
-    @Column(name = "behandling_id", nullable = false, updatable = false, unique = true)
+    @NotNull
+    @Column(name = "behandling_id", nullable = false, updatable = false)
     private Long behandlingId;
 
     @Embedded
@@ -40,7 +42,8 @@ public class BeregningsgrunnlagKobling extends BaseEntitet {
     @Column(name = "skjaeringstidspunkt")
     private LocalDate skjæringstidspunkt;
 
-    @Column(name = "kobling_uuid", nullable = false, updatable = false, unique = true)
+    @NotNull
+    @Column(name = "kobling_uuid", nullable = false, updatable = false)
     private UUID koblingUuid;
 
     @Convert(converter = BooleanToStringConverter.class)

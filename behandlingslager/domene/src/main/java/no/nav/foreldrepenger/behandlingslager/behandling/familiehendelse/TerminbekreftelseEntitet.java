@@ -12,6 +12,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.Version;
+import jakarta.validation.constraints.NotNull;
 
 import no.nav.foreldrepenger.behandlingslager.BaseEntitet;
 import no.nav.foreldrepenger.behandlingslager.diff.ChangeTracked;
@@ -33,6 +34,7 @@ public class TerminbekreftelseEntitet extends BaseEntitet {
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "SEQ_TERMINBEKREFTELSE")
     private Long id;
 
+    @NotNull
     @ChangeTracked
     @Column(name = "termindato", nullable = false)
     private LocalDate termindato;
@@ -44,8 +46,9 @@ public class TerminbekreftelseEntitet extends BaseEntitet {
     @Column(name = "navn")
     private String navn;
 
+    @NotNull
     @OneToOne(optional = false)
-    @JoinColumn(name = "familie_hendelse_id", nullable = false, updatable = false, unique = true)
+    @JoinColumn(name = "familie_hendelse_id", nullable = false, updatable = false)
     private FamilieHendelseEntitet familieHendelse;
 
     @Version

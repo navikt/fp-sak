@@ -13,6 +13,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.NotNull;
 
 import no.nav.foreldrepenger.behandlingslager.BaseCreateableEntitet;
 import no.nav.foreldrepenger.behandlingslager.økonomioppdrag.koder.Alvorlighetsgrad;
@@ -35,6 +36,7 @@ public class OppdragKvittering extends BaseCreateableEntitet {
     @Column(name = "melding_kode")
     private String meldingKode;
 
+    @NotNull
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "oppdrag_110_id", nullable = false)
     private Oppdrag110 oppdrag110;

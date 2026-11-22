@@ -13,6 +13,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import jakarta.persistence.Version;
+import jakarta.validation.constraints.NotNull;
 
 import no.nav.foreldrepenger.behandlingslager.BaseEntitet;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
@@ -34,6 +35,7 @@ public class BeregningSats extends BaseEntitet {
     @Embedded
     DatoIntervallEntitet periode;
 
+    @NotNull
     @Enumerated(EnumType.STRING)
     @Column(name="sats_type", nullable = false)
     private BeregningSatsType satsType;

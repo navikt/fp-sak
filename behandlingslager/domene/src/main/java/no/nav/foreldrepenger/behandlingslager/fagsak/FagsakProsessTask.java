@@ -28,6 +28,7 @@ public class FagsakProsessTask extends BaseEntitet {
     @Column(name = "saksnummer", updatable = false, nullable=false)
     private Saksnummer saksnummer;
 
+    @NotNull
     @Column(name = "prosess_task_id", nullable = false, updatable = false)
     private Long prosessTaskId;
 

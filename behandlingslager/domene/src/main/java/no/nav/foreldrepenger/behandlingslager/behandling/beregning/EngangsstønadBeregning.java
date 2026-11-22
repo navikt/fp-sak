@@ -11,6 +11,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import jakarta.persistence.Version;
+import jakarta.validation.constraints.NotNull;
 
 import no.nav.foreldrepenger.behandlingslager.BaseEntitet;
 import no.nav.vedtak.felles.jpa.converters.BooleanToStringConverter;
@@ -27,6 +28,7 @@ public class EngangsstønadBeregning extends BaseEntitet {
     @Column(name = "versjon", nullable = false)
     private long versjon;
 
+    @NotNull
     @Column(name = "behandling_id", nullable = false, updatable = false)
     private Long behandlingId;
 
@@ -46,6 +48,7 @@ public class EngangsstønadBeregning extends BaseEntitet {
     @Column(name = "oppr_beregnet_tilkjent_ytelse")
     private Long opprinneligBeregnetTilkjentYtelse;
 
+    @NotNull
     @Column(name = "beregnet_tidspunkt", nullable = false)
     private LocalDateTime beregnetTidspunkt;
 

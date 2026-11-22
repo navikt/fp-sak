@@ -18,6 +18,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.Version;
+import jakarta.validation.constraints.NotNull;
 
 import no.nav.foreldrepenger.behandlingslager.BaseEntitet;
 import no.nav.foreldrepenger.behandlingslager.diff.ChangeTracked;
@@ -38,6 +39,7 @@ public class BeregningsresultatFeriepengerPrÅr extends BaseEntitet {
     @Column(name = "versjon", nullable = false)
     private long versjon;
 
+    @NotNull
     @ManyToOne(optional = false)
     @JoinColumn(name = "br_feriepenger_id", nullable = false, updatable = false)
     private BeregningsresultatFeriepenger beregningsresultatFeriepenger;
@@ -56,9 +58,11 @@ public class BeregningsresultatFeriepengerPrÅr extends BaseEntitet {
     @Embedded
     private InternArbeidsforholdRef arbeidsforholdRef;
 
+    @NotNull
     @Column(name = "opptjeningsaar", nullable = false)
     private LocalDate opptjeningsår;
 
+    @NotNull
     @Embedded
     @AttributeOverride(name = "verdi", column = @Column(name = "aarsbeloep", nullable = false))
     @ChangeTracked

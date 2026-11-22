@@ -14,6 +14,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.Version;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 
@@ -30,31 +31,32 @@ public class YtelseFordelingGrunnlagEntitet extends BaseEntitet {
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "SEQ_GR_YTELSES_FORDELING")
     private Long id;
 
-    @Column(name = "behandling_id", nullable = false, updatable = false, unique = true)
+    @NotNull
+    @Column(name = "behandling_id", nullable = false, updatable = false)
     private Long behandlingId;
 
     @ManyToOne
-    @JoinColumn(name = "so_fordeling_id", updatable = false, unique = true)
+    @JoinColumn(name = "so_fordeling_id", updatable = false)
     @ChangeTracked
     private OppgittFordelingEntitet oppgittFordeling;
 
     @ManyToOne
-    @JoinColumn(name = "overstyrt_fordeling_id", updatable = false, unique = true)
+    @JoinColumn(name = "overstyrt_fordeling_id", updatable = false)
     @ChangeTracked
     private OppgittFordelingEntitet overstyrtFordeling;
 
     @ManyToOne
-    @JoinColumn(name = "justert_fordeling_id", updatable = false, unique = true)
+    @JoinColumn(name = "justert_fordeling_id", updatable = false)
     @ChangeTracked
     private OppgittFordelingEntitet justertFordeling;
 
     @ManyToOne
-    @JoinColumn(name = "so_rettighet_id", updatable = false, unique = true)
+    @JoinColumn(name = "so_rettighet_id", updatable = false)
     @ChangeTracked
     private OppgittRettighetEntitet oppgittRettighet;
 
     @ManyToOne
-    @JoinColumn(name = "overstyrt_rettighet_id", updatable = false, unique = true)
+    @JoinColumn(name = "overstyrt_rettighet_id", updatable = false)
     @ChangeTracked
     private OppgittRettighetEntitet overstyrtRettighet;
 
@@ -80,7 +82,7 @@ public class YtelseFordelingGrunnlagEntitet extends BaseEntitet {
     private Boolean overstyrtOmsorg;
 
     @ManyToOne
-    @JoinColumn(name = "yf_AVKLART_DATO_id", updatable = false, unique = true)
+    @JoinColumn(name = "yf_AVKLART_DATO_id", updatable = false)
     @ChangeTracked
     private AvklarteUttakDatoerEntitet avklarteUttakDatoerEntitet;
 

@@ -5,7 +5,7 @@ import java.util.Optional;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
-import no.nav.foreldrepenger.behandlingslager.aktør.Aktør;
+import no.nav.foreldrepenger.behandlingslager.aktør.NavBruker;
 import no.nav.foreldrepenger.behandlingslager.aktør.PersoninfoArbeidsgiver;
 import no.nav.foreldrepenger.behandlingslager.behandling.verge.VergeAggregat;
 import no.nav.foreldrepenger.behandlingslager.behandling.verge.VergeEntitet;
@@ -39,7 +39,7 @@ public class VergeDtoTjeneste {
                 verge.getVergeOrganisasjon().map(VergeOrganisasjonEntitet::getNavn).orElse(null),
                 verge.getVergeOrganisasjon().map(VergeOrganisasjonEntitet::getOrganisasjonsnummer).orElse(null));
         } else {
-            var vergeAktør = verge.getBruker().map(Aktør::getAktørId).flatMap(personinfoAdapter::hentBrukerVergeForAktør);
+            var vergeAktør = verge.getBruker().map(NavBruker::getAktørId).flatMap(personinfoAdapter::hentBrukerVergeForAktør);
             return VergeDto.person(verge.getVergeType(), verge.getGyldigFom(), verge.getGyldigTom(),
                 vergeAktør.map(PersoninfoArbeidsgiver::navn).orElse(null),
                 vergeAktør.map(PersoninfoArbeidsgiver::personIdent).map(PersonIdent::getIdent).orElse(null));

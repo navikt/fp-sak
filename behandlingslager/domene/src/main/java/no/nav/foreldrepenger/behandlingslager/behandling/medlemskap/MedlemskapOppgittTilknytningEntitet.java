@@ -18,6 +18,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.NotNull;
 
 import no.nav.foreldrepenger.behandlingslager.BaseEntitet;
 import no.nav.foreldrepenger.behandlingslager.geografisk.Landkoder;
@@ -45,6 +46,7 @@ public class MedlemskapOppgittTilknytningEntitet extends BaseEntitet {
     @Column(name = "opphold_naa", nullable = false)
     private boolean oppholdNå;
 
+    @NotNull
     @Column(name = "oppgitt_dato", nullable = false)
     private LocalDate oppgittDato;
 

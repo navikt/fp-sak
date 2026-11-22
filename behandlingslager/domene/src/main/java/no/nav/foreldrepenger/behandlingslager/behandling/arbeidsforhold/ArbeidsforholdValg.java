@@ -11,6 +11,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import jakarta.persistence.Version;
+import jakarta.validation.constraints.NotNull;
 
 import no.nav.foreldrepenger.behandlingslager.BaseEntitet;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
@@ -31,17 +32,20 @@ public class ArbeidsforholdValg extends BaseEntitet {
     @Column(name = "versjon", nullable = false)
     private long versjon;
 
+    @NotNull
     @Column(name = "behandling_id", nullable = false, updatable = false)
     private Long behandlingId;
 
+    @NotNull
     @Convert(converter = ArbeidsforholdKomplettVurderingType.KodeverdiConverter.class)
     @Column(name = "vurdering", nullable = false)
     private ArbeidsforholdKomplettVurderingType vurdering;
 
+    @NotNull
     @Column(name = "begrunnelse", nullable = false)
     private String begrunnelse;
 
-    @Column(name = "arbeidsgiver_ident", nullable = false)
+    @Column(name = "arbeidsgiver_ident")
     private String arbeidsgiverIdent;
 
     @Embedded

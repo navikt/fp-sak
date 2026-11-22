@@ -13,6 +13,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import jakarta.persistence.Version;
+import jakarta.validation.constraints.NotNull;
 
 import no.nav.foreldrepenger.behandlingslager.BaseEntitet;
 import no.nav.foreldrepenger.behandlingslager.diff.ChangeTracked;
@@ -39,6 +40,7 @@ public class UttakAktivitetEntitet extends BaseEntitet {
     @ChangeTracked
     private InternArbeidsforholdRef arbeidsforholdRef;
 
+    @NotNull
     @Enumerated(EnumType.STRING)
     @Column(name = "UTTAK_ARBEID_TYPE", nullable = false, updatable = false)
     private UttakArbeidType uttakArbeidType;

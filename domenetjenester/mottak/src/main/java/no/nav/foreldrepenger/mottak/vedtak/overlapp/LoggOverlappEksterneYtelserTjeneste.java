@@ -33,7 +33,7 @@ import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Fagsystem;
 import no.nav.foreldrepenger.domene.abakus.AbakusTjeneste;
 import no.nav.foreldrepenger.domene.person.PersoninfoAdapter;
-import no.nav.foreldrepenger.domene.tid.ÅpenDatoIntervallEntitet;
+import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.PersonIdent;
 import no.nav.foreldrepenger.mottak.vedtak.rest.DpsakKlient;
@@ -351,7 +351,7 @@ public class LoggOverlappEksterneYtelserTjeneste {
 
     private OverlappVedtak.Builder opprettOverlappBuilder(LocalDateInterval periode, BigDecimal utbetaling) {
         return OverlappVedtak.builder()
-            .medPeriode(ÅpenDatoIntervallEntitet.fraOgMedTilOgMed(periode.getFomDato(), periode.getTomDato()))
+            .medPeriode(DatoIntervallEntitet.fraOgMedTilOgMed(periode.getFomDato(), periode.getTomDato()))
             .medUtbetalingsprosent(utbetaling.longValue());
     }
 

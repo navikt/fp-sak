@@ -5,7 +5,7 @@ import java.time.LocalDateTime;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
-import no.nav.foreldrepenger.behandlingslager.aktør.Aktør;
+import no.nav.foreldrepenger.behandlingslager.aktør.NavBruker;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.FamilieHendelseGrunnlagEntitet;
@@ -136,7 +136,7 @@ public class TilbakeDtoTjeneste {
 
     private TilbakeDto.VergeDto mapTilVergeDto(VergeEntitet verge) {
         return new TilbakeDto.VergeDto(mapTilVergetype(verge.getVergeType()),
-                verge.getBruker().map(Aktør::getAktørId).map(AktørId::getId).orElse(null),
+                verge.getBruker().map(NavBruker::getAktørId).map(AktørId::getId).orElse(null),
                 verge.getVergeOrganisasjon().map(VergeOrganisasjonEntitet::getNavn).orElse(null),
                 verge.getVergeOrganisasjon().map(VergeOrganisasjonEntitet::getOrganisasjonsnummer).orElse(null),
                 verge.getGyldigFom(), verge.getGyldigTom());

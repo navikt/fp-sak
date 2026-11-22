@@ -12,6 +12,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.Version;
+import jakarta.validation.constraints.NotNull;
 
 import no.nav.foreldrepenger.behandlingslager.BaseEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
@@ -25,10 +26,12 @@ public class Uttaksperiodegrense extends BaseEntitet {
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "SEQ_UTTAKSPERIODEGRENSE")
     private Long id;
 
+    @NotNull
     @ManyToOne
     @JoinColumn(name = "behandling_resultat_id", nullable = false)
     private Behandlingsresultat behandlingsresultat;
 
+    @NotNull
     @Column(name = "MOTTATTDATO", nullable = false)
     private LocalDate mottattDato;
 

@@ -17,6 +17,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Lob;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.NotNull;
 
 import no.nav.foreldrepenger.behandlingslager.BaseEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.PeriodeResultatType;
@@ -31,27 +32,31 @@ public class SvangerskapspengerUttakResultatPeriodeEntitet extends BaseEntitet {
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "SEQ_SVP_UTTAK_PERIODE")
     private Long id;
 
+    @NotNull
     @Embedded
     @AttributeOverride(name = "verdi", column = @Column(name = "utbetalingsgrad", nullable = false))
     private Utbetalingsgrad utbetalingsgrad;
 
+    @NotNull
     @Enumerated(EnumType.STRING)
     @Column(name = "periode_resultat_type", nullable = false)
     private PeriodeResultatType periodeResultatType;
 
+    @NotNull
     @Convert(converter = PeriodeIkkeOppfyltÅrsak.KodeverdiConverter.class)
     @Column(name = "periode_resultat_aarsak", nullable = false)
     private PeriodeIkkeOppfyltÅrsak periodeIkkeOppfyltÅrsak = PeriodeIkkeOppfyltÅrsak.INGEN;
 
+    @NotNull
     @Embedded
-    @AttributeOverride(name = "fomDato", column = @Column(name = "fom", nullable = false))
-    @AttributeOverride(name = "tomDato", column = @Column(name = "tom", nullable = false))
     private DatoIntervallEntitet tidsperiode;
 
+    @NotNull
     @Lob
     @Column(name = "regel_input", nullable = false, updatable = false)
     private String regelInput;
 
+    @NotNull
     @Lob
     @Column(name = "regel_evaluering", nullable = false, updatable = false)
     private String regelEvaluering;

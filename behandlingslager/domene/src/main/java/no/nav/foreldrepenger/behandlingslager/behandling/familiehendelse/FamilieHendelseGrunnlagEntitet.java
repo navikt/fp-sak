@@ -17,6 +17,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.Version;
+import jakarta.validation.constraints.NotNull;
 
 import no.nav.foreldrepenger.behandlingslager.BaseEntitet;
 import no.nav.foreldrepenger.behandlingslager.diff.ChangeTracked;
@@ -42,21 +43,23 @@ public class FamilieHendelseGrunnlagEntitet extends BaseEntitet {
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "SEQ_GR_FAMILIE_HENDELSE")
     private Long id;
 
-    @Column(name = "behandling_id", nullable = false, updatable = false, unique = true)
+    @NotNull
+    @Column(name = "behandling_id", nullable = false, updatable = false)
     private Long behandlingId;
 
+    @NotNull
     @OneToOne(optional = false)
-    @JoinColumn(name = "soeknad_familie_hendelse_id", nullable = false, updatable = false, unique = true)
+    @JoinColumn(name = "soeknad_familie_hendelse_id", nullable = false, updatable = false)
     @ChangeTracked
     private FamilieHendelseEntitet søknadHendelse;
 
     @OneToOne
-    @JoinColumn(name = "bekreftet_familie_hendelse_id", updatable = false, unique = true)
+    @JoinColumn(name = "bekreftet_familie_hendelse_id", updatable = false)
     @ChangeTracked
     private FamilieHendelseEntitet bekreftetHendelse;
 
     @OneToOne
-    @JoinColumn(name = "overstyrt_familie_hendelse_id", updatable = false, unique = true)
+    @JoinColumn(name = "overstyrt_familie_hendelse_id", updatable = false)
     @ChangeTracked
     private FamilieHendelseEntitet overstyrtHendelse;
 

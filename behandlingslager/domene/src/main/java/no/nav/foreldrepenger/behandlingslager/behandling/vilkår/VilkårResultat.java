@@ -27,6 +27,7 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.persistence.Version;
+import jakarta.validation.constraints.NotNull;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -51,6 +52,7 @@ public class VilkårResultat extends BaseEntitet {
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "vilkårResultat")
     private Set<Vilkår> vilkårne = new LinkedHashSet<>();
 
+    @NotNull
     @ManyToOne(optional = false)
     @JoinColumn(name = "original_behandling_id", updatable = false
     /* , nullable=false // får ikke satt false pga binary relasjon mellom Behandling og VilkårResultat */

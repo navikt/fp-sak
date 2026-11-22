@@ -14,6 +14,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import jakarta.persistence.Version;
+import jakarta.validation.constraints.NotNull;
 
 import no.nav.foreldrepenger.behandlingslager.BaseEntitet;
 import no.nav.foreldrepenger.behandlingslager.diff.ChangeTracked;
@@ -32,10 +33,12 @@ public class OpptjeningAktivitet extends BaseEntitet implements IndexKey {
     @Column(name = "versjon", nullable = false)
     private long versjon;
 
+    @NotNull
     @ChangeTracked
     @Embedded
     private DatoIntervallEntitet periode;
 
+    @NotNull
     @ChangeTracked
     @Convert(converter = OpptjeningAktivitetType.KodeverdiConverter.class)
     @Column(name = "aktivitet_type", nullable = false)
@@ -51,6 +54,7 @@ public class OpptjeningAktivitet extends BaseEntitet implements IndexKey {
     @Column(name = "aktivitet_referanse")
     private String aktivitetReferanse;
 
+    @NotNull
     @ChangeTracked
     @Enumerated(EnumType.STRING)
     @Column(name = "klassifisering", nullable = false)

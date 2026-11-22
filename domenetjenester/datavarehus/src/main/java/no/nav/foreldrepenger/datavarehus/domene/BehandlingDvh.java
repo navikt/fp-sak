@@ -13,6 +13,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.NotNull;
 
 @Entity(name = "BehandlingDvh")
 @Table(name = "BEHANDLING_DVH", schema = "FPSAK_HIST")
@@ -26,6 +27,7 @@ public class BehandlingDvh implements Serializable {
     @Column(name="TRANS_ID")
     private Long id;
 
+    @NotNull
     @Column(name = "BEHANDLING_ID", nullable = false) // Brukes ikke lenger av DVH, men beholder her for å forenkle etterpopulering av nye felt.
     private Long behandlingId;
 
@@ -41,16 +43,18 @@ public class BehandlingDvh implements Serializable {
     @Column(name = "BEHANDLING_RESULTAT_TYPE")
     private String behandlingResultatType;
 
+    @NotNull
     @Column(name = "BEHANDLING_TYPE", nullable = false)
     private String behandlingType;
 
+    @NotNull
     @Column(name = "BEHANDLING_STATUS", nullable = false)
     private String behandlingStatus;
 
-    @Column(name = "BEHANDLENDE_ENHET", nullable = false)
+    @Column(name = "BEHANDLENDE_ENHET")
     private String behandlendeEnhet;
 
-    @Column(name = "UTLANDSTILSNITT", nullable = false)
+    @Column(name = "UTLANDSTILSNITT")
     private String utlandstilsnitt;
 
     @Column(name = "ANSVARLIG_SAKSBEHANDLER")
@@ -113,9 +117,11 @@ public class BehandlingDvh implements Serializable {
     @Column(name = "VILKAR_IKKE_OPPFYLT")
     private String vilkårIkkeOppfylt;
 
+    @NotNull
     @Column(name = "TRANS_TID", nullable = false)
     private LocalDateTime transTid;
 
+    @NotNull
     @Column(name = "FUNKSJONELL_TID", nullable = false)
     private LocalDateTime funksjonellTid;
 

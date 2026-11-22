@@ -14,6 +14,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.NotNull;
 
 import no.nav.foreldrepenger.behandlingslager.BaseEntitet;
 import no.nav.vedtak.felles.jpa.converters.BooleanToStringConverter;
@@ -26,20 +27,22 @@ public class AnkeVurderingResultatEntitet extends BaseEntitet {
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "SEQ_ANKE_VURDERING_RESULTAT")
     private Long id;
 
+    @NotNull
     @ManyToOne(optional = false)
     @JoinColumn(name = "anke_resultat_id", nullable = false, updatable = false)
     private AnkeResultatEntitet ankeResultat;
 
+    @NotNull
     @Convert(converter = AnkeVurdering.KodeverdiConverter.class)
     @Column(name="ankevurdering", nullable = false)
     private AnkeVurdering ankeVurdering = AnkeVurdering.UDEFINERT;
 
     @Convert(converter = AnkeOmgjørÅrsak.KodeverdiConverter.class)
-    @Column(name="anke_omgjoer_aarsak", nullable = false)
+    @Column(name="anke_omgjoer_aarsak")
     private AnkeOmgjørÅrsak ankeOmgjørÅrsak = AnkeOmgjørÅrsak.UDEFINERT;
 
     @Convert(converter = AnkeVurderingOmgjør.KodeverdiConverter.class)
-    @Column(name="anke_vurdering_omgjoer", nullable = false)
+    @Column(name="anke_vurdering_omgjoer")
     private AnkeVurderingOmgjør ankeVurderingOmgjør = AnkeVurderingOmgjør.UDEFINERT;
 
     @Column(name = "begrunnelse")
@@ -84,15 +87,15 @@ public class AnkeVurderingResultatEntitet extends BaseEntitet {
     private boolean erSubsidiartRealitetsbehandles;
 
     @Convert(converter = AnkeVurdering.KodeverdiConverter.class)
-    @Column(name="tr_vurdering", nullable = false)
+    @Column(name="tr_vurdering")
     private AnkeVurdering trygderettVurdering = AnkeVurdering.UDEFINERT;
 
     @Convert(converter = AnkeOmgjørÅrsak.KodeverdiConverter.class)
-    @Column(name="tr_omgjoer_aarsak", nullable = false)
+    @Column(name="tr_omgjoer_aarsak")
     private AnkeOmgjørÅrsak trygderettOmgjørÅrsak = AnkeOmgjørÅrsak.UDEFINERT;
 
     @Convert(converter = AnkeVurderingOmgjør.KodeverdiConverter.class)
-    @Column(name="tr_vurdering_omgjoer", nullable = false)
+    @Column(name="tr_vurdering_omgjoer")
     private AnkeVurderingOmgjør trygderettVurderingOmgjør = AnkeVurderingOmgjør.UDEFINERT;
 
     @Column(name = "sendt_trygderett_dato")

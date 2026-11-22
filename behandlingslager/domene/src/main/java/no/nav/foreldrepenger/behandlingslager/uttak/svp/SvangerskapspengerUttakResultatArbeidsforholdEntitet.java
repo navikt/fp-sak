@@ -17,6 +17,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.NotNull;
 
 import no.nav.foreldrepenger.behandlingslager.BaseEntitet;
 import no.nav.foreldrepenger.behandlingslager.uttak.UttakArbeidType;
@@ -30,6 +31,7 @@ public class SvangerskapspengerUttakResultatArbeidsforholdEntitet extends BaseEn
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "SEQ_SVP_UTTAK_ARBEIDSFORHOLD")
     private Long id;
 
+    @NotNull
     @Convert(converter = ArbeidsforholdIkkeOppfyltÅrsak.KodeverdiConverter.class)
     @Column(name="arbeidsforhold_resultat_aarsak", nullable=false)
     private ArbeidsforholdIkkeOppfyltÅrsak arbeidsforholdIkkeOppfyltÅrsak = ArbeidsforholdIkkeOppfyltÅrsak.INGEN;
@@ -44,8 +46,9 @@ public class SvangerskapspengerUttakResultatArbeidsforholdEntitet extends BaseEn
     @JoinColumn(name = "svp_uttak_arbeidsforhold_id")
     private List<SvangerskapspengerUttakResultatPeriodeEntitet> perioder = new ArrayList<>();
 
+    @NotNull
     @Enumerated(EnumType.STRING)
-    @Column(name = "UTTAK_ARBEID_TYPE")
+    @Column(name = "UTTAK_ARBEID_TYPE", nullable = false)
     private UttakArbeidType uttakArbeidType;
 
     public Long getId() {

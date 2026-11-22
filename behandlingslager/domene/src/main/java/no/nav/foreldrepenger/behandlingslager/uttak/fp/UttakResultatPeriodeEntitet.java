@@ -7,7 +7,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
-import jakarta.persistence.AttributeOverride;
 import jakarta.persistence.Column;
 import jakarta.persistence.Convert;
 import jakarta.persistence.Embedded;
@@ -22,6 +21,7 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.persistence.Version;
+import jakarta.validation.constraints.NotNull;
 
 import org.hibernate.annotations.BatchSize;
 
@@ -44,8 +44,9 @@ public class UttakResultatPeriodeEntitet extends BaseEntitet {
     @Column(name = "versjon", nullable = false)
     private long versjon;
 
+    @NotNull
     @ManyToOne(optional = false)
-    @JoinColumn(name = "uttak_resultat_perioder_id", nullable = false, updatable = false, unique = true)
+    @JoinColumn(name = "uttak_resultat_perioder_id", nullable = false, updatable = false)
     private UttakResultatPerioderEntitet perioder;
 
     @OneToMany(mappedBy = "periode")
@@ -58,9 +59,8 @@ public class UttakResultatPeriodeEntitet extends BaseEntitet {
     @OneToMany(mappedBy = "periode")
     private List<UttakResultatDokRegelEntitet> dokRegel = new ArrayList<>();
 
+    @NotNull
     @Embedded
-    @AttributeOverride(name = "fomDato", column = @Column(name = "fom", nullable = false))
-    @AttributeOverride(name = "tomDato", column = @Column(name = "tom", nullable = false))
     private DatoIntervallEntitet tidsperiode;
 
     @Column(name = "begrunnelse")
@@ -70,26 +70,32 @@ public class UttakResultatPeriodeEntitet extends BaseEntitet {
     @Column(name = "gradering_innvilget", nullable = false)
     private boolean graderingInnvilget;
 
+    @NotNull
     @Convert(converter = UttakUtsettelseType.KodeverdiConverter.class)
     @Column(name = "uttak_utsettelse_type", nullable = false, updatable = false)
     private UttakUtsettelseType utsettelseType = UttakUtsettelseType.UDEFINERT;
 
+    @NotNull
     @Convert(converter = OppholdÅrsak.KodeverdiConverter.class)
     @Column(name = "opphold_aarsak", nullable = false, updatable = false)
     private OppholdÅrsak oppholdÅrsak = OppholdÅrsak.UDEFINERT;
 
+    @NotNull
     @Convert(converter = OverføringÅrsak.KodeverdiConverter.class)
     @Column(name = "overfoering_aarsak", nullable = false, updatable = false)
     private OverføringÅrsak overføringÅrsak = OverføringÅrsak.UDEFINERT;
 
+    @NotNull
     @Enumerated(EnumType.STRING)
     @Column(name="periode_resultat_type", nullable = false)
     private PeriodeResultatType periodeResultatType;
 
+    @NotNull
     @Convert(converter = PeriodeResultatÅrsak.KodeverdiConverter.class)
     @Column(name="PERIODE_RESULTAT_AARSAK", nullable = false)
     private PeriodeResultatÅrsak periodeResultatÅrsak;
 
+    @NotNull
     @Convert(converter = GraderingAvslagÅrsak.KodeverdiConverter.class)
     @Column(name="gradering_avslag_aarsak", nullable = false)
     private GraderingAvslagÅrsak graderingAvslagÅrsak = GraderingAvslagÅrsak.UKJENT;
@@ -113,6 +119,7 @@ public class UttakResultatPeriodeEntitet extends BaseEntitet {
     @Column(name = "manuelt_behandlet", nullable = false, updatable = false)
     private boolean manueltBehandlet;
 
+    @NotNull
     @Column(name = "manuell_behandling_aarsak", updatable = false, nullable = false)
     @Convert(converter = ManuellBehandlingÅrsak.KodeverdiConverter.class)
     private ManuellBehandlingÅrsak manuellBehandlingÅrsak = ManuellBehandlingÅrsak.UKJENT;

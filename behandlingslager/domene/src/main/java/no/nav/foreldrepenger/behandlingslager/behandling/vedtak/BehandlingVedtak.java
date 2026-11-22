@@ -17,6 +17,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.Version;
+import jakarta.validation.constraints.NotNull;
 
 import no.nav.foreldrepenger.behandlingslager.BaseEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
@@ -34,16 +35,20 @@ public class BehandlingVedtak extends BaseEntitet {
     @Column(name = "versjon", nullable = false)
     private long versjon;
 
+    @NotNull
     @Column(name = "VEDTAK_DATO", nullable = false)
     private LocalDateTime vedtakstidspunkt;
 
+    @NotNull
     @Column(name = "ANSVARLIG_SAKSBEHANDLER", nullable = false)
     private String ansvarligSaksbehandler;
 
+    @NotNull
     @Enumerated(EnumType.STRING)
     @Column(name = "vedtak_resultat_type", nullable = false)
     private VedtakResultatType vedtakResultatType;
 
+    @NotNull
     @OneToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "BEHANDLING_RESULTAT_ID", nullable = false, updatable = false, unique = true)
     private Behandlingsresultat behandlingsresultat;
@@ -58,6 +63,7 @@ public class BehandlingVedtak extends BaseEntitet {
     @Column(name = "BESLUTNING", nullable = false)
     private boolean beslutningsvedtak;
 
+    @NotNull
     @Enumerated(EnumType.STRING)
     @Column(name = "iverksetting_status", nullable = false)
     private IverksettingStatus iverksettingStatus;

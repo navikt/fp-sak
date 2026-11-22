@@ -6,12 +6,14 @@ import java.util.Objects;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
+import jakarta.validation.constraints.NotNull;
 
 @Embeddable
 public class Trekkdager implements Comparable<Trekkdager> {
 
     public static final Trekkdager ZERO = new Trekkdager(BigDecimal.ZERO);
 
+    @NotNull
     @Column(name = "trekkdager_desimaler", nullable = false)
     private BigDecimal verdi;
 

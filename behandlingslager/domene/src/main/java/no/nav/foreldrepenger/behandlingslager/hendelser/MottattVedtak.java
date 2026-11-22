@@ -8,6 +8,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.NotNull;
 
 import no.nav.foreldrepenger.behandlingslager.BaseCreateableEntitet;
 
@@ -20,16 +21,19 @@ public class MottattVedtak extends BaseCreateableEntitet {
     private Long id;
 
     // Må kunne håndtere saksnummer fra eksterne system
+    @NotNull
     @Column(name = "SAKSNUMMER", nullable = false)
     private String saksnummer;
 
+    @NotNull
     @Column(name = "FAGSYSTEM", nullable = false)
     private String fagsystem;
 
+    @NotNull
     @Column(name = "YTELSE", nullable = false)
     private String ytelse;
 
-    @Column(name = "REFERANSE", nullable = false)
+    @Column(name = "REFERANSE")
     private String referanse;
 
     protected MottattVedtak() {
