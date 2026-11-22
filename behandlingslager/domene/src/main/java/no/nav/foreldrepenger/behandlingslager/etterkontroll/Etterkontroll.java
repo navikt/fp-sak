@@ -12,6 +12,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.NotNull;
 
 import no.nav.foreldrepenger.behandlingslager.BaseEntitet;
 import no.nav.foreldrepenger.behandlingslager.diff.DiffIgnore;
@@ -25,13 +26,16 @@ public class Etterkontroll extends BaseEntitet {
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "SEQ_ETTERKONTROLL")
     private Long id;
 
-    @Column(name = "fagsak_id", nullable = false, updatable = false)
+    @NotNull
+    @Column(name = "fagsak_id", nullable = false, updatable = false, unique = true)
     private Long fagsakId;
 
+    @NotNull
     @DiffIgnore
     @Column(name = "kontroll_tid", nullable = false)
     private LocalDateTime kontrollTidspunkt;
 
+    @NotNull
     @Enumerated(EnumType.STRING)
     @Column(name = "kontroll_type", nullable = false)
     private KontrollType kontrollType;

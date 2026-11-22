@@ -16,6 +16,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.persistence.Version;
+import jakarta.validation.constraints.NotNull;
 
 import no.nav.foreldrepenger.behandlingslager.BaseEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.RelasjonsRolleType;
@@ -30,6 +31,7 @@ public class SøknadEntitet extends BaseEntitet {
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "SEQ_SOEKNAD")
     private Long id;
 
+    @NotNull
     @Column(name = "soeknadsdato", nullable = false)
     private LocalDate søknadsdato;
 
@@ -37,6 +39,7 @@ public class SøknadEntitet extends BaseEntitet {
     @Column(name = "versjon", nullable = false)
     private long versjon;
 
+    @NotNull
     @Convert(converter = FarSøkerType.KodeverdiConverter.class)
     @Column(name="far_soeker_type", nullable = false)
     private FarSøkerType farSøkerType = FarSøkerType.UDEFINERT;
@@ -51,6 +54,7 @@ public class SøknadEntitet extends BaseEntitet {
     @Column(name = "tilleggsopplysninger")
     private String tilleggsopplysninger;
 
+    @NotNull
     @Convert(converter = Språkkode.KodeverdiConverter.class)
     @Column(name="sprak_kode", nullable = false)
     private Språkkode språkkode = Språkkode.NB;
@@ -66,6 +70,7 @@ public class SøknadEntitet extends BaseEntitet {
     private boolean erEndringssøknad;
 
 
+    @NotNull
     @Convert(converter = RelasjonsRolleType.KodeverdiConverter.class)
     @Column(name="bruker_rolle", nullable = false)
     private RelasjonsRolleType brukerRolle = RelasjonsRolleType.UDEFINERT;

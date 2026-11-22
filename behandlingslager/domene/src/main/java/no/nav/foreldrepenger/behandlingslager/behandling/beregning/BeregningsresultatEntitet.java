@@ -17,6 +17,7 @@ import jakarta.persistence.Lob;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.persistence.Version;
+import jakarta.validation.constraints.NotNull;
 
 import no.nav.foreldrepenger.behandlingslager.BaseEntitet;
 
@@ -35,10 +36,12 @@ public class BeregningsresultatEntitet extends BaseEntitet {
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "beregningsresultat", cascade = CascadeType.PERSIST, orphanRemoval = true)
     private List<BeregningsresultatPeriode> beregningsresultatPerioder = new ArrayList<>();
 
+    @NotNull
     @Lob
     @Column(name = "regel_input", nullable = false)
     private String regelInput;
 
+    @NotNull
     @Lob
     @Column(name = "regel_sporing", nullable = false)
     private String regelSporing;

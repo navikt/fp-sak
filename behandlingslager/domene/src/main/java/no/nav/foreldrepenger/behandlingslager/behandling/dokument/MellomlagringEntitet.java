@@ -13,6 +13,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Lob;
 import jakarta.persistence.Table;
 import jakarta.persistence.Version;
+import jakarta.validation.constraints.NotNull;
 
 import no.nav.foreldrepenger.behandlingslager.BaseEntitet;
 import no.nav.vedtak.felles.jpa.converters.BooleanToStringConverter;
@@ -25,13 +26,16 @@ public class MellomlagringEntitet extends BaseEntitet {
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "SEQ_MELLOMLAGRING")
     private Long id;
 
+    @NotNull
     @Column(name = "BEHANDLING_ID", nullable = false, updatable = false)
     private Long behandlingId;
 
+    @NotNull
     @Enumerated(EnumType.STRING)
     @Column(name = "TYPE", nullable = false, updatable = false)
     private MellomlagringType type;
 
+    @NotNull
     @Lob
     @Column(name = "INNHOLD", nullable = false)
     private String innhold;
@@ -42,7 +46,7 @@ public class MellomlagringEntitet extends BaseEntitet {
 
     @Version
     @Column(name = "versjon", nullable = false)
-    private Long versjon;
+    private long versjon;
 
     protected MellomlagringEntitet() {
         // for hibernate

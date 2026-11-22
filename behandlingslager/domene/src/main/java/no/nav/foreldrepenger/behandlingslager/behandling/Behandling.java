@@ -29,6 +29,7 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.persistence.Version;
+import jakarta.validation.constraints.NotNull;
 
 import org.hibernate.annotations.NaturalId;
 
@@ -81,14 +82,17 @@ public class Behandling extends BaseEntitet {
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "SEQ_BEHANDLING")
     private Long id;
 
+    @NotNull
     @NaturalId
-    @Column(name = "uuid", nullable = false)
+    @Column(name = "uuid", nullable = false, unique = true)
     private UUID uuid;
 
+    @NotNull
     @ManyToOne(optional = false)
     @JoinColumn(name = "fagsak_id", nullable = false, updatable = false)
     private Fagsak fagsak;
 
+    @NotNull
     @Enumerated(EnumType.STRING)
     @Column(name = "behandling_status", nullable = false)
     private BehandlingStatus status = BehandlingStatus.OPPRETTET;
@@ -96,6 +100,7 @@ public class Behandling extends BaseEntitet {
     @OneToMany(cascade = { CascadeType.ALL }, orphanRemoval = true, mappedBy = "behandling")
     private List<BehandlingStegTilstand> behandlingStegTilstander = new ArrayList<>(1);
 
+    @NotNull
     @Convert(converter = BehandlingType.KodeverdiConverter.class)
     @Column(name = "behandling_type", nullable = false)
     private BehandlingType behandlingType = BehandlingType.UDEFINERT;
@@ -119,6 +124,7 @@ public class Behandling extends BaseEntitet {
     @Column(name = "versjon", nullable = false)
     private long versjon;
 
+    @NotNull
     @Convert(converter = StartpunktType.KodeverdiConverter.class)
     @Column(name = "startpunkt_type", nullable = false)
     private StartpunktType startpunkt = StartpunktType.UDEFINERT;
@@ -128,6 +134,7 @@ public class Behandling extends BaseEntitet {
      * Produksjonstyringsinformasjon bør flyttes ut av Behandling klassen. Gjelder
      * feltene under --------------------------------------------------------------
      */
+    @NotNull
     @Column(name = "opprettet_dato", nullable = false, updatable = false)
     private LocalDateTime opprettetDato;
 
@@ -153,6 +160,7 @@ public class Behandling extends BaseEntitet {
     @Column(name = "behandlende_enhet_arsak")
     private String behandlendeEnhetÅrsak;
 
+    @NotNull
     @Column(name = "behandlingstid_frist", nullable = false)
     private LocalDate behandlingstidFrist;
 

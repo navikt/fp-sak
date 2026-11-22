@@ -35,6 +35,7 @@ public class NesteSakGrunnlagEntitet extends BaseEntitet {
     @Column(name = "aktiv", nullable = false)
     private boolean aktiv = true;
 
+    @NotNull
     @Column(name = "behandling_id", nullable = false, updatable = false)
     private Long behandlingId;
 
@@ -43,6 +44,7 @@ public class NesteSakGrunnlagEntitet extends BaseEntitet {
     @Column(name = "saksnummer", updatable = false, nullable=false)
     private Saksnummer saksnummer;
 
+    @NotNull
     @Column(name = "startdato", nullable = false)
     @ChangeTracked
     private LocalDate startdato;

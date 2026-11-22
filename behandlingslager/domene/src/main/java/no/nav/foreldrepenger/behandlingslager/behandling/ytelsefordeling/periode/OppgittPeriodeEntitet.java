@@ -18,6 +18,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.Version;
+import jakarta.validation.constraints.NotNull;
 
 import no.nav.foreldrepenger.behandlingslager.BaseEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.MorsAktivitet;
@@ -46,6 +47,7 @@ public class OppgittPeriodeEntitet extends BaseEntitet implements IndexKey {
     @Column(name = "versjon", nullable = false)
     private long versjon;
 
+    @NotNull
     @ChangeTracked
     @Column(name = "periode_type", updatable = false, nullable = false)
     @Convert(converter = UttakPeriodeType.KodeverdiConverter.class)
@@ -70,14 +72,17 @@ public class OppgittPeriodeEntitet extends BaseEntitet implements IndexKey {
     @ChangeTracked
     private Arbeidsgiver arbeidsgiver;
 
+    @NotNull
     @Column(name = "kl_aarsak_type", nullable = false)
     @ChangeTracked
     private String årsakType = Årsak.UKJENT.getDiskriminator();
 
+    @NotNull
     @ChangeTracked
     @Column(name = "aarsak_type", nullable = false, updatable = false)
     private String årsak = Årsak.UKJENT.getKode();
 
+    @NotNull
     @Embedded
     @ChangeTracked
     private DatoIntervallEntitet periode;
@@ -91,12 +96,13 @@ public class OppgittPeriodeEntitet extends BaseEntitet implements IndexKey {
     private String begrunnelse;
 
     @ChangeTracked
-    @Column(name = "MORS_AKTIVITET", updatable = false, nullable = false)
+    @Column(name = "MORS_AKTIVITET", updatable = false)
     @Convert(converter = MorsAktivitet.KodeverdiConverter.class)
     private MorsAktivitet morsAktivitet = MorsAktivitet.UDEFINERT;
 
+    @NotNull
     @ManyToOne(optional = false)
-    @JoinColumn(name = "fordeling_id", nullable = false, updatable = false, unique = true)
+    @JoinColumn(name = "fordeling_id", nullable = false, updatable = false)
     private OppgittFordelingEntitet oppgittFordeling;
 
     @Convert(converter = BooleanToStringConverter.class)
@@ -113,6 +119,7 @@ public class OppgittPeriodeEntitet extends BaseEntitet implements IndexKey {
     @ChangeTracked
     private SamtidigUttaksprosent samtidigUttaksprosent;
 
+    @NotNull
     @Enumerated(EnumType.STRING)
     @Column(name = "FORDELING_PERIODE_KILDE", nullable = false, updatable = false)
     private FordelingPeriodeKilde periodeKilde = FordelingPeriodeKilde.SØKNAD;

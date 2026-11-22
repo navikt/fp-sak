@@ -12,6 +12,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.NotNull;
 
 import no.nav.foreldrepenger.behandlingslager.BaseEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.VurderÅrsak;
@@ -29,10 +30,12 @@ public class VurderÅrsakTotrinnsvurdering extends BaseEntitet implements IndexK
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "SEQ_VURDER_AARSAK_TTVURDERING")
     private Long id;
 
+    @NotNull
     @Enumerated(EnumType.STRING)
     @Column(name="aarsak_type", nullable=false, updatable=false)
     private VurderÅrsak årsaksType;
 
+    @NotNull
     @ManyToOne(optional = false)
     @JoinColumn(name = "totrinnsvurdering_id", nullable = false, updatable=false)
     private Totrinnsvurdering totrinnsvurdering;

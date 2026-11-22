@@ -10,6 +10,7 @@ import jakarta.persistence.Lob;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.Version;
+import jakarta.validation.constraints.NotNull;
 
 import no.nav.foreldrepenger.behandlingslager.BaseEntitet;
 
@@ -28,6 +29,7 @@ public class UttakResultatDokRegelEntitet extends BaseEntitet {
     /**
      * Er egentlig en-til-en, men gjort om til onetomany for å force loading. Funket ikke med lazy og en-til-en
      */
+    @NotNull
     @ManyToOne
     @JoinColumn(name = "uttak_resultat_periode_id", updatable = false, nullable = false)
     private UttakResultatPeriodeEntitet periode;

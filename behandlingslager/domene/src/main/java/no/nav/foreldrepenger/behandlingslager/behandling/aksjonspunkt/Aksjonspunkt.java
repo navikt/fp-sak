@@ -15,6 +15,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.Version;
+import jakarta.validation.constraints.NotNull;
 
 import no.nav.foreldrepenger.behandlingslager.BaseEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
@@ -33,6 +34,7 @@ public class Aksjonspunkt extends BaseEntitet {
     @Column(name = "frist_tid")
     private LocalDateTime fristTid;
 
+    @NotNull
     @Enumerated(EnumType.STRING)
     @Column(name = "aksjonspunkt_def", nullable = false, updatable = false)
     private AksjonspunktDefinisjon aksjonspunktDefinisjon;
@@ -41,21 +43,24 @@ public class Aksjonspunkt extends BaseEntitet {
     @Column(name = "behandling_steg_funnet")
     private BehandlingStegType behandlingSteg;
 
+    @NotNull
     @ManyToOne(optional = false)
     @JoinColumn(name = "behandling_id", nullable = false, updatable = false)
     private Behandling behandling;
 
+    @NotNull
     @Enumerated(EnumType.STRING)
     @Column(name = "aksjonspunkt_status", nullable = false)
     private AksjonspunktStatus status;
 
+    @NotNull
     @Convert(converter = Venteårsak.KodeverdiConverter.class)
     @Column(name = "vent_aarsak", nullable = false)
     private Venteårsak venteårsak = Venteårsak.UDEFINERT;
 
     @Version
     @Column(name = "versjon", nullable = false)
-    private Long versjon;
+    private long versjon;
 
     /**
      * Saksbehandler begrunnelse som settes ifm at et aksjonspunkt settes til

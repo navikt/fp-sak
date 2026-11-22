@@ -20,6 +20,7 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.Version;
+import jakarta.validation.constraints.NotNull;
 
 import no.nav.foreldrepenger.behandlingslager.BaseEntitet;
 import no.nav.foreldrepenger.behandlingslager.diff.ChangeTracked;
@@ -60,6 +61,7 @@ public class FamilieHendelseEntitet extends BaseEntitet {
     @Column(name = "mor_for_syk_ved_fodsel")
     private Boolean morForSykVedFødsel;
 
+    @NotNull
     @ChangeTracked
     @Convert(converter = FamilieHendelseType.KodeverdiConverter.class)
     @Column(name="familie_hendelse_type", nullable = false)

@@ -6,6 +6,7 @@ import java.util.Objects;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Digits;
 import jakarta.validation.constraints.Min;
 
@@ -15,9 +16,10 @@ import jakarta.validation.constraints.Min;
 @Embeddable
 public class Sats {
 
+    @NotNull
     @Min(1)
     @Digits(integer = 9, fraction = 0)
-    @Column(name = "sats")
+    @Column(name = "sats", nullable = false)
     private Integer sats;
 
     protected Sats() {

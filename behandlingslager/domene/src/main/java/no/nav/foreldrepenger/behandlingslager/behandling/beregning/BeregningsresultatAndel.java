@@ -16,6 +16,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.Version;
+import jakarta.validation.constraints.NotNull;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 
@@ -39,6 +40,7 @@ public class BeregningsresultatAndel extends BaseEntitet {
     @Column(name = "versjon", nullable = false)
     private long versjon;
 
+    @NotNull
     @ManyToOne(optional = false)
     @JoinColumn(name = "br_periode_id", nullable = false, updatable = false)
     @JsonBackReference
@@ -54,26 +56,32 @@ public class BeregningsresultatAndel extends BaseEntitet {
     @Embedded
     private InternArbeidsforholdRef arbeidsforholdRef;
 
+    @NotNull
     @Convert(converter = OpptjeningAktivitetType.KodeverdiConverter.class)
     @Column(name="arbeidsforhold_type", nullable = false)
     private OpptjeningAktivitetType arbeidsforholdType;
 
+    @NotNull
     @Column(name = "dagsats", nullable = false)
     private Integer dagsats;
 
+    @NotNull
     @Column(name = "stillingsprosent", nullable = false)
     private BigDecimal stillingsprosent;
 
+    @NotNull
     @Column(name = "utbetalingsgrad", nullable = false)
     private BigDecimal utbetalingsgrad;
 
+    @NotNull
     @Column(name = "dagsats_fra_bg", nullable = false)
     private Integer dagsatsFraBg;
 
     @Convert(converter=AktivitetStatus.KodeverdiConverter.class)
-    @Column(name="aktivitet_status", nullable = false)
+    @Column(name="aktivitet_status")
     private AktivitetStatus aktivitetStatus;
 
+    @NotNull
     @Convert(converter=Inntektskategori.KodeverdiConverter.class)
     @Column(name="inntektskategori", nullable = false)
     private Inntektskategori inntektskategori;

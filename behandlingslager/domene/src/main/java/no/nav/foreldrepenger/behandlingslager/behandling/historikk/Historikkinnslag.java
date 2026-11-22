@@ -13,6 +13,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.NotNull;
 
 import no.nav.foreldrepenger.behandlingslager.BaseCreateableEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.skjermlenke.SkjermlenkeType;
@@ -27,12 +28,14 @@ public class Historikkinnslag extends BaseCreateableEntitet {
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "SEQ_HISTORIKKINNSLAG2")
     private Long id;
 
+    @NotNull
     @Column(name = "fagsak_id", nullable = false)
     private Long fagsakId;
 
     @Column(name = "behandling_id")
     private Long behandlingId;
 
+    @NotNull
     @Enumerated(EnumType.STRING)
     @Column(name = "aktoer", nullable = false)
     private HistorikkAktør aktør;

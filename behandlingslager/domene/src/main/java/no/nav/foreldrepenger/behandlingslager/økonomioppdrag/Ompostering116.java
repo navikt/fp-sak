@@ -12,6 +12,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.NotNull;
 
 import org.hibernate.annotations.Immutable;
 
@@ -27,6 +28,7 @@ public class Ompostering116 extends BaseCreateableEntitet {
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "SEQ_OKO_OMPOSTERING_116")
     private Long id;
 
+    @NotNull
     @OneToOne
     @JoinColumn(name = "oko_oppdrag_110_id", nullable = false)
     private Oppdrag110 oppdrag110;
@@ -38,6 +40,7 @@ public class Ompostering116 extends BaseCreateableEntitet {
     @Column(name = "dato_omposter_fom")
     private LocalDate datoOmposterFom;
 
+    @NotNull
     @Column(name = "tidspkt_reg", nullable = false)
     private String tidspktReg;
 

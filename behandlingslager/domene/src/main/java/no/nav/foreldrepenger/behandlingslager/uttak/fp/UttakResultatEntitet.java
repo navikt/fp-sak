@@ -12,6 +12,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.Version;
+import jakarta.validation.constraints.NotNull;
 
 import no.nav.foreldrepenger.behandlingslager.BaseEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandlingsresultat;
@@ -27,13 +28,14 @@ public class UttakResultatEntitet extends BaseEntitet {
     private Long id;
 
     @ManyToOne
-    @JoinColumn(name = "opprinnelig_perioder_id", updatable = false, unique = true)
+    @JoinColumn(name = "opprinnelig_perioder_id", updatable = false)
     private UttakResultatPerioderEntitet opprinneligPerioder;
 
     @ManyToOne
-    @JoinColumn(name = "overstyrt_perioder_id", updatable = false, unique = true)
+    @JoinColumn(name = "overstyrt_perioder_id", updatable = false)
     private UttakResultatPerioderEntitet overstyrtPerioder;
 
+    @NotNull
     @ManyToOne
     @JoinColumn(name = "behandling_resultat_id", nullable = false, updatable = false)
     private Behandlingsresultat behandlingsresultat;

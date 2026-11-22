@@ -16,10 +16,10 @@ import no.nav.vedtak.konfig.Tid;
 @Embeddable
 public class DatoIntervallEntitet extends AbstractLocalDateInterval {
 
-    @NotNull @Column(name = "fom")
+    @NotNull @Column(name = "fom", nullable = false)
     private LocalDate fomDato;
 
-    @NotNull @Column(name = "tom")
+    @NotNull @Column(name = "tom", nullable = false)
     private LocalDate tomDato;
 
     private DatoIntervallEntitet() {

@@ -27,6 +27,7 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.persistence.Version;
+import jakarta.validation.constraints.NotNull;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 
@@ -45,6 +46,7 @@ public class BeregningsresultatPeriode extends BaseEntitet {
     @Column(name = "versjon", nullable = false)
     private long versjon;
 
+    @NotNull
     @ManyToOne(optional = false)
     @JoinColumn(name = "BEREGNINGSRESULTAT_FP_ID", nullable = false, updatable = false)
     @JsonBackReference
@@ -53,9 +55,10 @@ public class BeregningsresultatPeriode extends BaseEntitet {
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "beregningsresultatPeriode", cascade = CascadeType.PERSIST, orphanRemoval = true)
     private List<BeregningsresultatAndel> beregningsresultatAndelList = new ArrayList<>();
 
+    @NotNull
     @Embedded
-    @AttributeOverride(name = "fomDato", column = @Column(name = "br_periode_fom"))
-    @AttributeOverride(name = "tomDato", column = @Column(name = "br_periode_tom"))
+    @AttributeOverride(name = "fomDato", column = @Column(name = "br_periode_fom", nullable = false))
+    @AttributeOverride(name = "tomDato", column = @Column(name = "br_periode_tom", nullable = false))
     private DatoIntervallEntitet periode;
 
     protected BeregningsresultatPeriode() {

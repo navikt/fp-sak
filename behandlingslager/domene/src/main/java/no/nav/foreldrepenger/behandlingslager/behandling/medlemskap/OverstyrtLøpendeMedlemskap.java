@@ -6,6 +6,7 @@ import java.util.Optional;
 import jakarta.persistence.Column;
 import jakarta.persistence.Convert;
 import jakarta.persistence.Embeddable;
+import jakarta.validation.constraints.NotNull;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.Avslagsårsak;
 import no.nav.foreldrepenger.behandlingslager.behandling.vilkår.VilkårUtfallType;
@@ -18,10 +19,12 @@ public class OverstyrtLøpendeMedlemskap {
     @Column(name = "overstyringsdato")
     private LocalDate overstyringsdato;
 
+    @NotNull
     @Convert(converter = VilkårUtfallType.KodeverdiConverter.class)
     @Column(name="overstyrt_utfall", nullable = false)
     private VilkårUtfallType vilkårUtfall = VilkårUtfallType.UDEFINERT;
 
+    @NotNull
     @ChangeTracked
     @Convert(converter = Avslagsårsak.KodeverdiConverter.class)
     @Column(name="avslagsarsak", nullable = false)

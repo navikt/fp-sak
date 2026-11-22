@@ -2,7 +2,9 @@ package no.nav.foreldrepenger.behandlingslager.fagsak;
 
 import java.util.Objects;
 
+import jakarta.persistence.AttributeOverride;
 import jakarta.persistence.Column;
+import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -10,6 +12,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.NotNull;
 
 import no.nav.foreldrepenger.behandlingslager.BaseEntitet;
 import no.nav.foreldrepenger.domene.typer.JournalpostId;
@@ -26,9 +29,12 @@ public class Journalpost extends BaseEntitet {
     @Column(name = "id")
     private Long id;
 
-    @Column(name = "journalpost_id", nullable = false)
+    @NotNull
+    @Embedded
+    @AttributeOverride(name = "journalpostId", column = @Column(name = "journalpost_id", nullable = false))
     private JournalpostId journalpostId;
 
+    @NotNull
     @ManyToOne(optional = false)
     @JoinColumn(name = "fagsak_id", nullable = false)
     private Fagsak fagsak;

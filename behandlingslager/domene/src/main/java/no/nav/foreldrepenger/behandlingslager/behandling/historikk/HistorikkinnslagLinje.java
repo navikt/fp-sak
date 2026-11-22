@@ -12,6 +12,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.NotNull;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,10 +35,12 @@ public class HistorikkinnslagLinje extends BaseCreateableEntitet implements Inde
     @Column(name = "SEKVENS_NR", nullable = false)
     private int sekvensNr;
 
+    @NotNull
     @Column(name = "type", nullable = false)
     @Enumerated(EnumType.STRING)
     private HistorikkinnslagLinjeType type;
 
+    @NotNull
     @ManyToOne(optional = false)
     @JoinColumn(name = "historikkinnslag_id", nullable = false)
     private Historikkinnslag historikkinnslag;

@@ -13,6 +13,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.NotNull;
 
 import no.nav.foreldrepenger.behandlingslager.BaseEntitet;
 import no.nav.vedtak.felles.jpa.converters.BooleanToStringConverter;
@@ -27,27 +28,29 @@ public class KlageVurderingResultat extends BaseEntitet {
 
     @ManyToOne(optional = false)
 
+    @NotNull
     @JoinColumn(name = "klage_resultat_id", nullable = false, updatable = false)
     private KlageResultatEntitet klageResultat;
 
+    @NotNull
     @Enumerated(EnumType.STRING)
     @Column(name = "klage_vurdert_av", nullable = false)
     private KlageVurdertAv klageVurdertAv;
 
     @Convert(converter = KlageVurdering.KodeverdiConverter.class)
-    @Column(name = "klagevurdering", nullable = false)
+    @Column(name = "klagevurdering")
     private KlageVurdering klageVurdering = KlageVurdering.UDEFINERT;
 
     @Convert(converter = KlageMedholdÅrsak.KodeverdiConverter.class)
-    @Column(name = "klage_medhold_aarsak", nullable = false)
+    @Column(name = "klage_medhold_aarsak")
     private KlageMedholdÅrsak klageMedholdÅrsak = KlageMedholdÅrsak.UDEFINERT;
 
     @Convert(converter = KlageVurderingOmgjør.KodeverdiConverter.class)
-    @Column(name = "klage_vurdering_omgjoer", nullable = false)
+    @Column(name = "klage_vurdering_omgjoer")
     private KlageVurderingOmgjør klageVurderingOmgjør = KlageVurderingOmgjør.UDEFINERT;
 
     @Convert(converter = KlageHjemmel.KodeverdiConverter.class)
-    @Column(name = "klage_hjemmel", nullable = false)
+    @Column(name = "klage_hjemmel")
     private KlageHjemmel klageHjemmel = KlageHjemmel.UDEFINERT;
 
     @Column(name = "begrunnelse")

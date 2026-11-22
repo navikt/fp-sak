@@ -10,6 +10,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.NotNull;
 
 @Entity(name = "LagretKodeverdiNavn")
 @Table(name = "KODEVERDI_NAVN")
@@ -26,6 +27,7 @@ public class LagretKodeverdiNavn implements Serializable {
     @Column(name = "NAVN")
     private String navn;
 
+    @NotNull
     @Column(name = "OPPRETTET_TID", nullable = false, updatable=false)
     private LocalDateTime opprettetTidspunkt;
 

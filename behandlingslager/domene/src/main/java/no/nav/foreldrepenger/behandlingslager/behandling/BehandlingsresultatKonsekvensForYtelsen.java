@@ -14,6 +14,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.Version;
+import jakarta.validation.constraints.NotNull;
 
 import no.nav.foreldrepenger.behandlingslager.BaseEntitet;
 
@@ -29,10 +30,12 @@ public class BehandlingsresultatKonsekvensForYtelsen extends BaseEntitet {
     @Column(name = "versjon", nullable = false)
     private long versjon;
 
+    @NotNull
     @OneToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "BEHANDLING_RESULTAT_ID", nullable = false, updatable = false, unique = true)
+    @JoinColumn(name = "BEHANDLING_RESULTAT_ID", nullable = false, updatable = false)
     private Behandlingsresultat behandlingsresultat;
 
+    @NotNull
     @Enumerated(EnumType.STRING)
     @Column(name = "konsekvens_ytelse", nullable = false)
     private KonsekvensForYtelsen konsekvensForYtelsen;

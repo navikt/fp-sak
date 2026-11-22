@@ -2,7 +2,7 @@ package no.nav.foreldrepenger.behandlingslager.behandling.verge;
 
 import java.util.Optional;
 
-import no.nav.foreldrepenger.behandlingslager.aktør.Aktør;
+import no.nav.foreldrepenger.behandlingslager.aktør.NavBruker;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 
 public class VergeAggregat {
@@ -18,6 +18,6 @@ public class VergeAggregat {
     }
 
     public Optional<AktørId> getAktørId() {
-        return verge.getBruker().map(Aktør::getAktørId);
+        return verge.getBruker().map(NavBruker::getAktørId);
     }
 }

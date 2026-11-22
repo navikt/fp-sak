@@ -12,6 +12,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.NotNull;
 
 import no.nav.foreldrepenger.behandlingslager.BaseEntitet;
 import no.nav.foreldrepenger.behandlingslager.diff.ChangeTracked;
@@ -25,15 +26,18 @@ public class Stønadskonto extends BaseEntitet implements IndexKey {
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "SEQ_STOENADSKONTO")
     private Long id;
 
+    @NotNull
     @ChangeTracked
     @Column(name = "max_dager", nullable = false)
     private Integer maxDager;
 
+    @NotNull
     @ChangeTracked
     @Enumerated(EnumType.STRING)
     @Column(name="stoenadskontotype", nullable = false)
     private StønadskontoType stønadskontoType;
 
+    @NotNull
     @ManyToOne
     @JoinColumn(name = "stoenadskontoberegning_id", nullable = false)
     private Stønadskontoberegning stønadskontoberegning;

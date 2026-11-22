@@ -2,8 +2,10 @@ package no.nav.foreldrepenger.behandlingslager.behandling.innsyn;
 
 import java.util.Objects;
 
+import jakarta.persistence.AttributeOverride;
 import jakarta.persistence.Column;
 import jakarta.persistence.Convert;
+import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -12,6 +14,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.Version;
+import jakarta.validation.constraints.NotNull;
 
 import no.nav.foreldrepenger.behandlingslager.BaseEntitet;
 import no.nav.foreldrepenger.behandlingslager.diff.IndexKey;
@@ -30,13 +33,17 @@ public class InnsynDokumentEntitet extends BaseEntitet implements IndexKey {
     @Column(name = "versjon", nullable = false)
     private long versjon;
 
+    @NotNull
     @ManyToOne(optional = false)
     @JoinColumn(name = "innsyn_id", nullable = false, updatable = false)
     private InnsynEntitet innsyn;
 
-    @Column(name = "journalpost_id", nullable = false)
+    @NotNull
+    @Embedded
+    @AttributeOverride(name = "journalpostId", column = @Column(name = "journalpost_id", nullable = false))
     private JournalpostId journalpostId;
 
+    @NotNull
     @Column(name = "dokument_id", nullable = false)
     private String dokumentId;
 

@@ -10,6 +10,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Lob;
 import jakarta.persistence.Table;
 import jakarta.persistence.Version;
+import jakarta.validation.constraints.NotNull;
 
 import no.nav.foreldrepenger.behandlingslager.BaseEntitet;
 
@@ -25,12 +26,15 @@ public class LagretVedtak extends BaseEntitet {
     @Column(name = "versjon", nullable = false)
     private long versjon;
 
+    @NotNull
     @Column(name = "FAGSAK_ID", nullable = false, updatable = false)
     private Long fagsakId;
 
+    @NotNull
     @Column(name = "BEHANDLING_ID", nullable = false, updatable = false)
     private Long behandlingId;
 
+    @NotNull
     @Lob
     @Column(name = "XML_CLOB", nullable = false)
     private String xmlClob;

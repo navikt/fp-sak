@@ -10,6 +10,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.Version;
+import jakarta.validation.constraints.NotNull;
 
 import no.nav.foreldrepenger.behandlingslager.BaseEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
@@ -23,12 +24,14 @@ class SøknadGrunnlagEntitet extends BaseEntitet {
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "SEQ_GR_SOEKNAD")
     private Long id;
 
+    @NotNull
     @OneToOne
-    @JoinColumn(name = "behandling_id", nullable = false, updatable = false, unique = true)
+    @JoinColumn(name = "behandling_id", nullable = false, updatable = false)
     private Behandling behandling;
 
+    @NotNull
     @OneToOne
-    @JoinColumn(name = "soeknad_id", nullable = false, updatable = false, unique = true)
+    @JoinColumn(name = "soeknad_id", nullable = false, updatable = false)
     private SøknadEntitet søknad;
 
     @Convert(converter = BooleanToStringConverter.class)

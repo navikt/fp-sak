@@ -15,6 +15,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.Version;
+import jakarta.validation.constraints.NotNull;
 
 import no.nav.foreldrepenger.behandlingslager.BaseEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.ytelsefordeling.periode.UttakPeriodeType;
@@ -37,21 +38,26 @@ public class UttakResultatPeriodeAktivitetEntitet extends BaseEntitet {
     @Column(name = "versjon", nullable = false)
     private long versjon;
 
+    @NotNull
     @ManyToOne(optional = false)
     @JoinColumn(name = "uttak_resultat_periode_id", nullable = false, updatable = false)
     private UttakResultatPeriodeEntitet periode;
 
+    @NotNull
     @ManyToOne(optional = false)
     @JoinColumn(name = "uttak_aktivitet_id", nullable = false, updatable = false)
     private UttakAktivitetEntitet uttakAktivitet;
 
+    @NotNull
     @Convert(converter = UttakPeriodeType.KodeverdiConverter.class)
     @Column(name="trekkonto", nullable = false)
     private UttakPeriodeType trekkonto = UttakPeriodeType.UDEFINERT;
 
+    @NotNull
     @Embedded
     private Trekkdager trekkdagerDesimal;
 
+    @NotNull
     @Column(name = "arbeidstidsprosent", nullable = false)
     private BigDecimal arbeidsprosent;
 

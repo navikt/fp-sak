@@ -12,6 +12,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.NotNull;
 
 import no.nav.foreldrepenger.behandlingslager.BaseEntitet;
 
@@ -23,10 +24,12 @@ public class TilretteleggingFOM extends BaseEntitet {
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "SEQ_TILRETTELEGGING_FOM")
     private Long id;
 
+    @NotNull
     @Enumerated(EnumType.STRING)
     @Column(name = "type", nullable = false)
     private TilretteleggingType type;
 
+    @NotNull
     @Column(name = "FOM_DATO", nullable = false)
     private LocalDate fomDato;
 

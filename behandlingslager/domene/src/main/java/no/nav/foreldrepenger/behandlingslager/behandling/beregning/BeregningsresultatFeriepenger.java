@@ -18,6 +18,7 @@ import jakarta.persistence.Lob;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.persistence.Version;
+import jakarta.validation.constraints.NotNull;
 
 import no.nav.foreldrepenger.behandlingslager.BaseEntitet;
 
@@ -42,10 +43,12 @@ public class BeregningsresultatFeriepenger extends BaseEntitet {
     @Column(name = "feriepenger_periode_tom")
     private LocalDate feriepengerPeriodeTom;
 
+    @NotNull
     @Lob
     @Column(name = "feriepenger_regel_input", nullable = false)
     private String feriepengerRegelInput;
 
+    @NotNull
     @Lob
     @Column(name = "feriepenger_regel_sporing", nullable = false)
     private String feriepengerRegelSporing;

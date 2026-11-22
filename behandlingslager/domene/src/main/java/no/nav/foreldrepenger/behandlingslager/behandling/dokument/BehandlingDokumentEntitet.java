@@ -14,6 +14,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Lob;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.NotNull;
 
 import no.nav.foreldrepenger.behandlingslager.BaseEntitet;
 
@@ -25,6 +26,7 @@ public class BehandlingDokumentEntitet extends BaseEntitet {
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "SEQ_BEHANDLING_DOKUMENT")
     private Long id;
 
+    @NotNull
     @Column(name = "behandling_id", nullable = false, updatable = false, unique = true)
     private Long behandlingId;
 

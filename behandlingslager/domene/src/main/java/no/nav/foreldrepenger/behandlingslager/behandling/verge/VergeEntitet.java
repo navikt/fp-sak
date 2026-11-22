@@ -18,6 +18,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.NotNull;
 
 import no.nav.foreldrepenger.behandlingslager.BaseCreateableEntitet;
 import no.nav.foreldrepenger.behandlingslager.aktør.NavBruker;
@@ -36,10 +37,11 @@ public class VergeEntitet extends BaseCreateableEntitet {
     private NavBruker bruker;
 
     @Embedded
-    @AttributeOverride(name = "fomDato", column = @Column(name = "gyldig_fom"))
-    @AttributeOverride(name = "tomDato", column = @Column(name = "gyldig_tom"))
+    @AttributeOverride(name = "fomDato", column = @Column(name = "gyldig_fom", nullable = true))
+    @AttributeOverride(name = "tomDato", column = @Column(name = "gyldig_tom", nullable = true))
     private DatoIntervallEntitet gyldigPeriode;
 
+    @NotNull
     @Enumerated(EnumType.STRING)
     @Column(name = "verge_type", nullable = false)
     private VergeType vergeType;

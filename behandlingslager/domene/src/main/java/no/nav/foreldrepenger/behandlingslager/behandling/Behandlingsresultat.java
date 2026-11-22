@@ -20,6 +20,7 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.persistence.Version;
+import jakarta.validation.constraints.NotNull;
 
 import no.nav.foreldrepenger.behandlingslager.BaseEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.Vedtaksbrev;
@@ -48,18 +49,21 @@ public class Behandlingsresultat extends BaseEntitet {
     private VilkårResultat vilkårResultat;
 
     /* bruker @ManyToOne siden JPA ikke støtter OneToOne join på non-PK column. */
+    @NotNull
     @ManyToOne(optional = false)
     @JoinColumn(name = "behandling_id", nullable = false, updatable = false)
     private Behandling behandling;
 
+    @NotNull
     @Enumerated(EnumType.STRING)
     @Column(name = "behandling_resultat_type", nullable = false)
     private BehandlingResultatType behandlingResultatType = BehandlingResultatType.IKKE_FASTSATT;
 
     @Convert(converter = Avslagsårsak.KodeverdiConverter.class)
-    @Column(name = "avslag_arsak", nullable = false)
+    @Column(name = "avslag_arsak")
     private Avslagsårsak avslagsårsak = Avslagsårsak.UDEFINERT;
 
+    @NotNull
     @Convert(converter = RettenTil.KodeverdiConverter.class)
     @Column(name = "retten_til", nullable = false)
     private RettenTil rettenTil = RettenTil.UDEFINERT;
@@ -67,6 +71,7 @@ public class Behandlingsresultat extends BaseEntitet {
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "behandlingsresultat", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<BehandlingsresultatKonsekvensForYtelsen> konsekvenserForYtelsen = new ArrayList<>();
 
+    @NotNull
     @Convert(converter = Vedtaksbrev.KodeverdiConverter.class)
     @Column(name = "vedtaksbrev", nullable = false)
     private Vedtaksbrev vedtaksbrev = Vedtaksbrev.UDEFINERT;

@@ -31,6 +31,7 @@ public class Oppdragskontroll extends BaseEntitet {
     @Column(name = "versjon", nullable = false)
     private long versjon;
 
+    @NotNull
     @Column(name = "behandling_id", nullable = false, updatable = false)
     private Long behandlingId;
 
@@ -43,6 +44,7 @@ public class Oppdragskontroll extends BaseEntitet {
     @Column(name = "venter_kvittering", nullable = false)
     private boolean venterKvittering = true;
 
+    @NotNull
     @Column(name = "prosess_task_id", nullable = false)
     private Long prosessTaskId;
 

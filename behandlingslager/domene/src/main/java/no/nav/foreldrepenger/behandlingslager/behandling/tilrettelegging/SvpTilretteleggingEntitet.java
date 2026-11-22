@@ -23,6 +23,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.NotNull;
 
 import org.hibernate.annotations.BatchSize;
 
@@ -40,10 +41,12 @@ public class SvpTilretteleggingEntitet extends BaseEntitet {
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "SEQ_SVP_TILRETTELEGGING")
     private Long id;
 
+    @NotNull
     @ManyToOne(optional = false)
-    @JoinColumn(name = "SVP_TILRETTELEGGINGER_ID", nullable = false, updatable = false, unique = true)
+    @JoinColumn(name = "SVP_TILRETTELEGGINGER_ID", nullable = false, updatable = false)
     private SvpTilretteleggingerEntitet tilrettelegginger;
 
+    @NotNull
     @Column(name = "BEHOV_FOM", nullable = false)
     private LocalDate behovForTilretteleggingFom;
 
@@ -53,7 +56,7 @@ public class SvpTilretteleggingEntitet extends BaseEntitet {
     private List<TilretteleggingFOM> tilretteleggingFOMListe = new ArrayList<>();
 
     @Enumerated(EnumType.STRING)
-    @Column(name="arbeid_type", nullable = false)
+    @Column(name="arbeid_type")
     private ArbeidType arbeidType;
 
     @Embedded
@@ -72,6 +75,7 @@ public class SvpTilretteleggingEntitet extends BaseEntitet {
     @Column(name = "KOPIERT_FRA_TDLG_BEH", nullable = false)
     private boolean kopiertFraTidligereBehandling;
 
+    @NotNull
     @Column(name = "MOTTATT_TIDSPUNKT", nullable = false)
     private LocalDateTime mottattTidspunkt;
 

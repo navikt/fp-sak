@@ -12,6 +12,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.NotNull;
 
 import no.nav.foreldrepenger.behandlingslager.BaseCreateableEntitet;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
@@ -25,9 +26,11 @@ public class SvpAvklartOpphold extends BaseCreateableEntitet {
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "SEQ_SVP_AVKLART_OPPHOLD")
     private Long id;
 
+    @NotNull
     @Embedded
     private DatoIntervallEntitet oppholdPeriode;
 
+    @NotNull
     @Column(name = "svp_opphold_arsak", nullable = false)
     @Enumerated(EnumType.ORDINAL) // OBS - ikke endre til STRING, databasen inneholder 0/1
     private SvpOppholdÅrsak svpOppholdÅrsak;
