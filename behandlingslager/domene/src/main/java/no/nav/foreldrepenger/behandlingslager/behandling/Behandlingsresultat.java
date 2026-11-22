@@ -41,7 +41,6 @@ public class Behandlingsresultat extends BaseEntitet {
     @Column(name = "versjon", nullable = false)
     private long versjon;
 
-    @NotNull
     @ManyToOne
     @JoinColumn(name = "inngangsvilkar_resultat_id"
     /* , updatable = false // får ikke satt denne til false, men skal aldri kunne endres dersom satt tidligere */
