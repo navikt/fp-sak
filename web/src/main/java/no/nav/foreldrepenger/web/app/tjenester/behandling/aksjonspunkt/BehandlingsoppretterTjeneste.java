@@ -234,7 +234,7 @@ public class BehandlingsoppretterTjeneste {
 
     private static FunksjonellException kanIkkeOppretteNyFørstegangsbehandlingEtterKlage(Long fagsakId) {
         return new FunksjonellException("FP-909862",
-            "Det eksisterer ingen avsluttede klagebehandlinger " + "for fagsakId " + fagsakId);
+            "Det eksisterer ingen klagebehandlinger " + "for fagsakId " + fagsakId);
     }
 
     private static FunksjonellException ingenSøknadEllerImÅOppretteNyFørstegangsbehandlingPå(Long fagsakId) {
