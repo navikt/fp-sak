@@ -214,11 +214,7 @@ public class BehandlingsoppretterTjeneste {
     }
 
     private boolean erEtterKlageGyldigValg(Long fagsakId) {
-        var klage = behandlingRepository.hentSisteBehandlingAvBehandlingTypeForFagsakId(fagsakId, BehandlingType.KLAGE)
-            .orElse(null);
-
-        // Vurdere å differensiere på KlageVurderingResultat (er tilstede) eller henlagt (resultat ikke tilstede)
-        return klage != null && klage.erAvsluttet();
+        return behandlingRepository.hentSisteBehandlingAvBehandlingTypeForFagsakId(fagsakId, BehandlingType.KLAGE).isPresent();
     }
 
     private static FunksjonellException kanIkkeOppretteRevurdering(Saksnummer saksnummer) {
@@ -238,7 +234,7 @@ public class BehandlingsoppretterTjeneste {
 
     private static FunksjonellException kanIkkeOppretteNyFørstegangsbehandlingEtterKlage(Long fagsakId) {
         return new FunksjonellException("FP-909862",
-            "Det eksisterer ingen avsluttede klagebehandlinger " + "for fagsakId " + fagsakId);
+            "Det eksisterer ingen klagebehandlinger " + "for fagsakId " + fagsakId);
     }
 
     private static FunksjonellException ingenSøknadEllerImÅOppretteNyFørstegangsbehandlingPå(Long fagsakId) {
