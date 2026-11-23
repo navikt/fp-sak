@@ -114,6 +114,9 @@ public class LosBehandlingDtoTjeneste {
         List<String> behandlingsegenskaper = new ArrayList<>(List.of(refusjonegenskap.name()));
         if (faresignaler) behandlingsegenskaper.add(BehandlingEgenskap.FARESIGNALER.name());
         if (farForeldrepengerUtenMorEllerMorRAV(behandling)) behandlingsegenskaper.add(BehandlingEgenskap.MOR_UKJENT_UTLAND.name());
+        if (behandling.harÅpentAksjonspunktMedType(AksjonspunktDefinisjon.VURDER_FEILUTBETALING)) {
+            behandlingsegenskaper.add(BehandlingEgenskap.FEILUTBETALING.name());
+        }
         var fpUttak = mapForeldrepengerUttak(behandling, behandlingsegenskaper);
 
 
@@ -379,7 +382,7 @@ public class LosBehandlingDtoTjeneste {
     }
 
     public enum BehandlingEgenskap {
-        SYKDOMSVURDERING, MOR_UKJENT_UTLAND, FARESIGNALER, DIREKTE_UTBETALING, REFUSJONSKRAV
+        SYKDOMSVURDERING, MOR_UKJENT_UTLAND, FARESIGNALER, DIREKTE_UTBETALING, REFUSJONSKRAV, FEILUTBETALING
     }
 
 }
