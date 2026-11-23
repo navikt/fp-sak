@@ -60,7 +60,6 @@ import no.nav.foreldrepenger.domene.modell.BeregningsgrunnlagPrStatusOgAndel;
 import no.nav.foreldrepenger.domene.modell.kodeverk.AndelKilde;
 import no.nav.foreldrepenger.domene.modell.kodeverk.BeregningsgrunnlagTilstand;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
-import no.nav.foreldrepenger.domene.tid.ÅpenDatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 import no.nav.foreldrepenger.mottak.vedtak.overlapp.HåndterOverlappPleiepengerTask;
 import no.nav.foreldrepenger.mottak.vedtak.overlapp.LoggOverlappEksterneYtelserTjeneste;
@@ -97,7 +96,7 @@ class VedtaksHendelseHåndtererTest extends EntityManagerAwareTest {
             new SøknadRepository(getEntityManager(), behandlingRepository));
         var overlappOppgaveTjeneste = new OverlappOppgaveTjeneste(oppgaveTjenesteMock);
         var overlappTjeneste = new LoggOverlappEksterneYtelserTjeneste(beregningsresultatRepository, null, null, null, null,
-            null, overlappInfotrygdRepository, behandlingRepository, overlappOppgaveTjeneste);
+            overlappInfotrygdRepository, behandlingRepository, overlappOppgaveTjeneste);
         lenient().when(mottakRepository.hendelseErNy(any())).thenReturn(true);
         vedtaksHendelseHåndterer = new VedtaksHendelseHåndterer("topic", fagsakTjeneste, beregningsresultatRepository, behandlingRepository, overlappTjeneste,
             taskTjeneste, mottakRepository);

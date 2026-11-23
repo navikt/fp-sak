@@ -50,7 +50,6 @@ import no.nav.foreldrepenger.domene.abakus.AbakusTjeneste;
 import no.nav.foreldrepenger.domene.person.PersoninfoAdapter;
 import no.nav.foreldrepenger.domene.tid.VirkedagUtil;
 import no.nav.foreldrepenger.domene.typer.PersonIdent;
-import no.nav.foreldrepenger.mottak.vedtak.rest.DpsakKlient;
 import no.nav.foreldrepenger.mottak.vedtak.rest.InfotrygdSPGrunnlag;
 import no.nav.foreldrepenger.produksjonsstyring.oppgavebehandling.OppgaveTjeneste;
 import no.nav.vedtak.felles.integrasjon.infotrygd.grunnlag.v1.respons.Grunnlag;
@@ -81,8 +80,6 @@ class LoggOverlappEksterneYtelserTjenesteTest extends EntityManagerAwareTest {
     @Mock
     private AbakusTjeneste abakusMock;
     @Mock
-    private DpsakKlient dpsakKlientMock;
-    @Mock
     private OppgaveTjeneste oppgaveTjenesteMock;
 
     private Behandling behandlingFP;
@@ -97,7 +94,7 @@ class LoggOverlappEksterneYtelserTjenesteTest extends EntityManagerAwareTest {
         var overlappOppgaveTjeneste = new OverlappOppgaveTjeneste(oppgaveTjenesteMock);
         overlappendeInfotrygdYtelseTjeneste = new LoggOverlappEksterneYtelserTjeneste(
             beregningsresultatRepository, personinfoAdapter, infotrygdSPGrTjenesteMock,
-            abakusMock, spøkelseMock, dpsakKlientMock, overlappRepository, behandlingRepository, overlappOppgaveTjeneste);
+            abakusMock, spøkelseMock, overlappRepository, behandlingRepository, overlappOppgaveTjeneste);
         førsteUttaksdatoFp = LocalDate.now().minusMonths(4).minusWeeks(2);
         førsteUttaksdatoFp = VirkedagUtil.fomVirkedag(førsteUttaksdatoFp);
 

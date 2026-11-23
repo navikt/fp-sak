@@ -214,11 +214,7 @@ public class BehandlingsoppretterTjeneste {
     }
 
     private boolean erEtterKlageGyldigValg(Long fagsakId) {
-        var klage = behandlingRepository.hentSisteBehandlingAvBehandlingTypeForFagsakId(fagsakId, BehandlingType.KLAGE)
-            .orElse(null);
-
-        // Vurdere å differensiere på KlageVurderingResultat (er tilstede) eller henlagt (resultat ikke tilstede)
-        return klage != null && klage.erAvsluttet();
+        return behandlingRepository.hentSisteBehandlingAvBehandlingTypeForFagsakId(fagsakId, BehandlingType.KLAGE).isPresent();
     }
 
     private static FunksjonellException kanIkkeOppretteRevurdering(Saksnummer saksnummer) {

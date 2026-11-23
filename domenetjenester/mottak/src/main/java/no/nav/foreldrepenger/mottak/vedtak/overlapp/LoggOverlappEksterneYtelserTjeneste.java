@@ -10,7 +10,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -36,7 +35,6 @@ import no.nav.foreldrepenger.domene.person.PersoninfoAdapter;
 import no.nav.foreldrepenger.domene.tid.DatoIntervallEntitet;
 import no.nav.foreldrepenger.domene.typer.AktørId;
 import no.nav.foreldrepenger.domene.typer.PersonIdent;
-import no.nav.foreldrepenger.mottak.vedtak.rest.DpsakKlient;
 import no.nav.foreldrepenger.mottak.vedtak.rest.InfotrygdSPGrunnlag;
 import no.nav.fpsak.tidsserie.LocalDateInterval;
 import no.nav.fpsak.tidsserie.LocalDateSegment;
@@ -69,7 +67,6 @@ public class LoggOverlappEksterneYtelserTjeneste {
     private InfotrygdSPGrunnlag infotrygdSPGrTjeneste;
     private AbakusTjeneste abakusTjeneste;
     private Spøkelse spøkelse;
-    private DpsakKlient dpsakKlient;
     private OverlappVedtakRepository overlappRepository;
     private OverlappOppgaveTjeneste oppgaveTjeneste;
 
@@ -80,7 +77,6 @@ public class LoggOverlappEksterneYtelserTjeneste {
                                                InfotrygdSPGrunnlag infotrygdSPGrTjeneste,
                                                AbakusTjeneste abakusTjeneste,
                                                Spøkelse spøkelse,
-                                               DpsakKlient dpsakKlient,
                                                OverlappVedtakRepository overlappRepository,
                                                BehandlingRepository behandlingRepository,
                                                OverlappOppgaveTjeneste oppgaveTjeneste) {
@@ -91,7 +87,6 @@ public class LoggOverlappEksterneYtelserTjeneste {
         this.abakusTjeneste = abakusTjeneste;
         this.spøkelse = spøkelse;
         this.overlappRepository = overlappRepository;
-        this.dpsakKlient = dpsakKlient;
         this.oppgaveTjeneste = oppgaveTjeneste;
     }
 
@@ -102,11 +97,6 @@ public class LoggOverlappEksterneYtelserTjeneste {
     public void loggOverlappForVedtakFPSAK(Behandling behandling) {
         var ref = BehandlingReferanse.fra(behandling);
         var tidslinjeFpsak = getTidslinjeForBehandling(ref);
-        try {
-            sjekkDagpenger(ref, tidslinjeFpsak);
-        } catch (Exception _) {
-            // Ignorer feil til etablert at dagpenger er stabil
-        }
 
         var overlappListe = loggOverlappendeYtelser(ref, tidslinjeFpsak).stream()
             .map(b -> b.medHendelse(OverlappVedtak.HENDELSE_VEDTAK_FOR).build())
@@ -115,42 +105,6 @@ public class LoggOverlappEksterneYtelserTjeneste {
         overlappListe.forEach(overlappRepository::lagre);
 
         oppgaveTjeneste.håndterOverlapp(overlappListe, ref, tidslinjeFpsak);
-    }
-
-    public void sjekkDagpenger(BehandlingReferanse ref, LocalDateTimeline<BigDecimal> perioderFpGradert) {
-        if (dpsakKlient == null || perioderFpGradert.isEmpty()) {
-            return;
-        }
-        var ident = getFnrFraAktørId(ref.aktørId());
-        var fom = perioderFpGradert.getMinLocalDate();
-        var tom = perioderFpGradert.getMaxLocalDate();
-        var dagpengeTidslinje = hentDagpengerRettighetsperioderFailSafe(ident, fom, tom);
-        if (dagpengeTidslinje.isEmpty()) {
-            return;
-        }
-        var loggresultat = perioderTilString(dagpengeTidslinje);
-        LOG.info("DP-DATADELING fant perioder {}", loggresultat);
-        var overlapp = perioderFpGradert.intersection(dagpengeTidslinje)
-            .filterValue(v -> v.compareTo(BigDecimal.ZERO) > 0);
-        if (!overlapp.isEmpty()) {
-            var loggperioder = perioderTilString(overlapp);
-            LOG.warn("Notabene! Sak {} har overlapp med dagpenger i DPSAK i periodene: {}", ref.saksnummer().getVerdi(), loggperioder);
-        }
-    }
-
-    private String perioderTilString(LocalDateTimeline<BigDecimal> dagpengeTidslinje) {
-        return dagpengeTidslinje.getLocalDateIntervals().stream()
-            .map(i -> i.getFomDato() + " - " + i.getTomDato())
-            .collect(Collectors.joining(", "));
-    }
-
-    private LocalDateTimeline<BigDecimal> hentDagpengerRettighetsperioderFailSafe(PersonIdent personIdent, LocalDate fom, LocalDate tom) {
-        try {
-            return dpsakKlient.hentRettighetsperioder(personIdent, fom, tom);
-        } catch (Exception e) {
-            LOG.info("DP-DATADELING feil ", e);
-            return LocalDateTimeline.empty();
-        }
     }
 
     public void loggOverlappForAvstemming(String hendelse, Behandling behandling) {
