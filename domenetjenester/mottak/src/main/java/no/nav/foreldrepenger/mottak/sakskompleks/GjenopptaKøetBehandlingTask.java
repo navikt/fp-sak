@@ -4,7 +4,6 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
-import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakProsesstaskRekkefølge;
 import no.nav.foreldrepenger.behandlingslager.task.FagsakProsessTask;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
@@ -12,7 +11,6 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 
 @ApplicationScoped
 @ProsessTask(value = "kompletthettjeneste.gjenopptaBehandling", prioritet = 2, maxFailedRuns = 1)
-@FagsakProsesstaskRekkefølge(gruppeSekvens = true)
 public class GjenopptaKøetBehandlingTask extends FagsakProsessTask {
 
     private KøKontroller køKontroller;

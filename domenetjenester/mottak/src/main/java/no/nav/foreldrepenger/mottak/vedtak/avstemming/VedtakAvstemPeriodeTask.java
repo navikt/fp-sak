@@ -11,7 +11,6 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.OverlappVedtak;
-import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakProsesstaskRekkefølge;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.task.GenerellProsessTask;
 import no.nav.foreldrepenger.dokumentbestiller.infobrev.InformasjonssakRepository;
@@ -25,7 +24,6 @@ import no.nav.vedtak.log.mdc.MDCOperations;
 
 @ApplicationScoped
 @ProsessTask(value = "vedtak.overlapp.periode", prioritet = 4, maxFailedRuns = 1)
-@FagsakProsesstaskRekkefølge(gruppeSekvens = false)
 public class VedtakAvstemPeriodeTask extends GenerellProsessTask {
 
     private static final Set<FagsakYtelseType> YTELSER = Set.of(FagsakYtelseType.FORELDREPENGER, FagsakYtelseType.SVANGERSKAPSPENGER);

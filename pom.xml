@@ -40,7 +40,7 @@
         <fpkalkulus.kontrakt.version>1.2.3</fpkalkulus.kontrakt.version>
         <!-- generelle verktøy -->
         <felles.version>7.10.1</felles.version>
-        <prosesstask.version>5.4.0</prosesstask.version>
+        <prosesstask.version>5.4.1</prosesstask.version>
         <!-- sonar -->
         <sonar.moduleKey>${project.artifactId}</sonar.moduleKey>
         <sonar.projectName>fp-sak</sonar.projectName>

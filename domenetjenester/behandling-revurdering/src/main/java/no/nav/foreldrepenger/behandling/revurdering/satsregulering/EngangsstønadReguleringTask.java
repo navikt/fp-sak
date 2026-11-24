@@ -22,7 +22,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.familiehendelse.Familie
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
-import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakProsesstaskRekkefølge;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.task.FagsakProsessTask;
@@ -36,7 +35,6 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 
 @Dependent
 @ProsessTask(value = "behandlingsprosess.esregulering.reguler", prioritet = 3)
-@FagsakProsesstaskRekkefølge(gruppeSekvens = false)
 public class EngangsstønadReguleringTask extends FagsakProsessTask {
 
     private static final Logger LOG = LoggerFactory.getLogger(EngangsstønadReguleringTask.class);

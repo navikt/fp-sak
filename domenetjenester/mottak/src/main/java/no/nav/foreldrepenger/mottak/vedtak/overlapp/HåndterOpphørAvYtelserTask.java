@@ -4,7 +4,6 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
-import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakProsesstaskRekkefølge;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.behandlingslager.task.GenerellProsessTask;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
@@ -16,7 +15,6 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
  */
 @ApplicationScoped
 @ProsessTask(value = "iverksetteVedtak.håndterOpphørAvYtelser", prioritet = 2, maxFailedRuns = 1)
-@FagsakProsesstaskRekkefølge(gruppeSekvens = false)
 public class HåndterOpphørAvYtelserTask extends GenerellProsessTask {
 
     public static final String BESKRIVELSE_KEY = "beskrivelse";

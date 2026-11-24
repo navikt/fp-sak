@@ -8,7 +8,6 @@ import jakarta.validation.Validator;
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingsresultatRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
-import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakProsesstaskRekkefølge;
 import no.nav.foreldrepenger.behandlingslager.task.GenerellProsessTask;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
@@ -19,7 +18,6 @@ import no.nav.vedtak.mapper.json.DefaultJsonMapper;
 
 @ApplicationScoped
 @ProsessTask(value = "iverksetteVedtak.stønadsstatistikk", prioritet = 2)
-@FagsakProsesstaskRekkefølge(gruppeSekvens = true)
 public class SendStønadsstatistikkForVedtakTask extends GenerellProsessTask {
 
     private final StønadsstatistikkTjeneste stønadsstatistikkTjeneste;

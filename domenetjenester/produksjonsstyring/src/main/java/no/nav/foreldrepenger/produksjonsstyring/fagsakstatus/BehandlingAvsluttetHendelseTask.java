@@ -4,7 +4,6 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
-import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakProsesstaskRekkefølge;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.behandlingslager.task.FagsakProsessTask;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
@@ -14,7 +13,6 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 
 @ApplicationScoped
 @ProsessTask(value = "behandlingskontroll.behandlingAvsluttetFagsak", prioritet = 2)
-@FagsakProsesstaskRekkefølge(gruppeSekvens = false)
 public class BehandlingAvsluttetHendelseTask extends FagsakProsessTask {
 
     private OppdaterFagsakStatusTjeneste oppdaterFagsakStatusTjeneste;

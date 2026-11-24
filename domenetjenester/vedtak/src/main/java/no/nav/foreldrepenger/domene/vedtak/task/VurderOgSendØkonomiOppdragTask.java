@@ -7,7 +7,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
-import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakProsesstaskRekkefølge;
 import no.nav.foreldrepenger.behandlingslager.task.BehandlingProsessTask;
 import no.nav.foreldrepenger.økonomistøtte.BehandleØkonomioppdragKvittering;
 import no.nav.foreldrepenger.økonomistøtte.OppdragInputTjeneste;
@@ -19,7 +18,6 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 
 @ApplicationScoped
 @ProsessTask(value = "iverksetteVedtak.oppdragTilØkonomi", prioritet = 2, maxFailedRuns = 1) // TODO BehandleNegativeKvitteringTjenesteTest deps on name
-@FagsakProsesstaskRekkefølge(gruppeSekvens = false)
 public class VurderOgSendØkonomiOppdragTask extends BehandlingProsessTask {
 
     private static final Logger LOG = LoggerFactory.getLogger(VurderOgSendØkonomiOppdragTask.class);

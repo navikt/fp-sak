@@ -10,7 +10,6 @@ import jakarta.persistence.EntityManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakProsesstaskRekkefølge;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjonRepository;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.Stønadskonto;
 import no.nav.foreldrepenger.behandlingslager.uttak.fp.StønadskontoType;
@@ -28,7 +27,6 @@ import no.nav.vedtak.mapper.json.DefaultJsonMapper;
  */
 @Dependent
 @ProsessTask(value = "stønadskonto.migrering", prioritet = 4, maxFailedRuns = 1)
-@FagsakProsesstaskRekkefølge(gruppeSekvens = false)
 class StønadskontoMigreringTask implements ProsessTaskHandler {
 
     private static final Logger LOG = LoggerFactory.getLogger(StønadskontoMigreringTask.class);

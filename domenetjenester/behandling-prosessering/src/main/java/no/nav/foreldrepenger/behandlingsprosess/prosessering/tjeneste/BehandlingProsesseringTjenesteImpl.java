@@ -4,7 +4,6 @@ import static no.nav.foreldrepenger.behandlingsprosess.prosessering.task.Fortset
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
@@ -279,16 +278,14 @@ public class BehandlingProsesseringTjenesteImpl implements BehandlingProsesserin
     }
 
     private Optional<String> erAlleredeOpprettetOppdateringFor(Behandling behandling) {
-        return taskTjeneste.finnAlleStatuser(List.of(ProsessTaskStatus.VENTER_SVAR, ProsessTaskStatus.KLAR)).stream()
-            .filter(it -> TASK_ABAKUS.equals(it.taskType()))
+        return taskTjeneste.finnAktive(TASK_ABAKUS, ProsessTaskStatus.VENTER_SVAR, ProsessTaskStatus.KLAR).stream()
             .filter(it -> it.getBehandlingIdAsLong().equals(behandling.getId()))
             .map(ProsessTaskData::getGruppe)
             .findFirst();
     }
 
     private Optional<String> finnesFeiletOppdateringFor(Behandling behandling) {
-        return taskTjeneste.finnAlle(ProsessTaskStatus.FEILET).stream()
-            .filter(it -> TASK_ABAKUS.equals(it.taskType()))
+        return taskTjeneste.finnAktive(TASK_ABAKUS, ProsessTaskStatus.FEILET).stream()
             .filter(it -> it.getBehandlingIdAsLong().equals(behandling.getId()))
             .map(ProsessTaskData::getGruppe)
             .findFirst();
@@ -296,7 +293,7 @@ public class BehandlingProsesseringTjenesteImpl implements BehandlingProsesserin
 
     @Override
     public Set<Long> behandlingerMedFeiletProsessTask() {
-        return taskTjeneste.finnAlle(ProsessTaskStatus.FEILET).stream()
+        return taskTjeneste.finnAktive(ProsessTaskStatus.FEILET).stream()
             .filter(it -> TASK_FORTSETT.equals(it.taskType()) || TASK_START.equals(it.taskType()))
             .map(ProsessTaskData::getBehandlingIdAsLong)
             .filter(Objects::nonNull)

@@ -10,7 +10,6 @@ import org.slf4j.LoggerFactory;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
-import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakProsesstaskRekkefølge;
 import no.nav.foreldrepenger.behandlingslager.task.GenerellProsessTask;
 import no.nav.foreldrepenger.domene.registerinnhenting.RegisterdataInnhenter;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
@@ -20,7 +19,6 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 
 @ApplicationScoped
 @ProsessTask("innhentsaksopplysninger.abakus")
-@FagsakProsesstaskRekkefølge(gruppeSekvens = true)
 public class InnhentIAYIAbakusTask extends GenerellProsessTask {
 
     public static final String OVERSTYR_KEY = "overstyrt";

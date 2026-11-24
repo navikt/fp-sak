@@ -9,7 +9,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.DokumentTypeId;
-import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakProsesstaskRekkefølge;
 import no.nav.foreldrepenger.behandlingslager.task.GenerellProsessTask;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.produksjonsstyring.oppgavebehandling.OppgaveTjeneste;
@@ -18,7 +17,6 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 
 @ApplicationScoped
 @ProsessTask(value = "oppgavebehandling.opprettOppgaveVurderDokument", prioritet = 2)
-@FagsakProsesstaskRekkefølge(gruppeSekvens = false)
 public class OpprettOppgaveVurderDokumentTask extends GenerellProsessTask {
 
     public static final String KEY_JOURNALPOST_ID = "journalpostId";

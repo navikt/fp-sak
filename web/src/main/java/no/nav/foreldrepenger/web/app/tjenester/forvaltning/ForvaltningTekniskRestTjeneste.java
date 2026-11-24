@@ -29,7 +29,6 @@ import no.nav.foreldrepenger.behandlingskontroll.BehandlingskontrollTjeneste;
 import no.nav.foreldrepenger.behandlingslager.behandling.SpesialBehandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
-import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakProsessTaskRepository;
 import no.nav.foreldrepenger.behandlingsprosess.prosessering.BehandlingProsesseringTjeneste;
 import no.nav.foreldrepenger.poststed.PostnummerSynkroniseringTjeneste;
 import no.nav.foreldrepenger.produksjonsstyring.oppgavebehandling.OppgaveTjeneste;
@@ -55,7 +54,6 @@ public class ForvaltningTekniskRestTjeneste {
     private BehandlingskontrollTjeneste behandlingskontrollTjeneste;
     private OppgaveTjeneste oppgaveTjeneste;
     private PostnummerSynkroniseringTjeneste postnummerTjeneste;
-    private FagsakProsessTaskRepository fagsakProsessTaskRepository;
     private AksjonspunktkontrollTjeneste aksjonspunktkontrollTjeneste;
     private BehandlingProsesseringTjeneste behandlingProsesseringTjeneste;
 
@@ -65,7 +63,6 @@ public class ForvaltningTekniskRestTjeneste {
 
     @Inject
     public ForvaltningTekniskRestTjeneste(BehandlingRepositoryProvider repositoryProvider,
-                                          FagsakProsessTaskRepository fagsakProsessTaskRepository,
                                           OppgaveTjeneste oppgaveTjeneste,
                                           PostnummerSynkroniseringTjeneste postnummerTjeneste,
                                           BehandlingskontrollTjeneste behandlingskontrollTjeneste,
@@ -75,7 +72,6 @@ public class ForvaltningTekniskRestTjeneste {
         this.behandlingskontrollTjeneste = behandlingskontrollTjeneste;
         this.oppgaveTjeneste = oppgaveTjeneste;
         this.postnummerTjeneste = postnummerTjeneste;
-        this.fagsakProsessTaskRepository = fagsakProsessTaskRepository;
         this.aksjonspunktkontrollTjeneste = aksjonspunktkontrollTjeneste;
         this.behandlingProsesseringTjeneste = behandlingProsesseringTjeneste;
     }
@@ -186,18 +182,6 @@ public class ForvaltningTekniskRestTjeneste {
     @SuppressWarnings("findsecbugs:JAXRS_ENDPOINT")
     public Response synkPostnummer() {
         postnummerTjeneste.synkroniserPostnummer();
-        return Response.ok().build();
-    }
-
-    @POST
-    @Path("/fjern-fagsak-prosesstask-avsluttet")
-    @Consumes(APPLICATION_JSON)
-    @Produces(APPLICATION_JSON)
-    @Operation(description = "Fjern fagsakprosesstask for avsluttede behandlinger", tags = "FORVALTNING-teknisk")
-    @BeskyttetRessurs(actionType = ActionType.CREATE, resourceType = ResourceType.DRIFT, sporingslogg = false)
-    @SuppressWarnings("findsecbugs:JAXRS_ENDPOINT")
-    public Response fjernFagsakProsesstaskAvsluttetBehandling() {
-        fagsakProsessTaskRepository.fjernForAvsluttedeBehandlinger();
         return Response.ok().build();
     }
 

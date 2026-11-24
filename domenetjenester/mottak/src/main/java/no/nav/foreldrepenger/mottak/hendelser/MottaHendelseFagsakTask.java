@@ -9,7 +9,6 @@ import jakarta.inject.Inject;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingÅrsakType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
-import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakProsesstaskRekkefølge;
 import no.nav.foreldrepenger.behandlingslager.hendelser.ForretningshendelseType;
 import no.nav.foreldrepenger.behandlingslager.task.FagsakProsessTask;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
@@ -18,7 +17,6 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 
 @ApplicationScoped
 @ProsessTask(value = "hendelser.håndterHendelsePåFagsak", prioritet = 2)
-@FagsakProsesstaskRekkefølge(gruppeSekvens = true)
 public class MottaHendelseFagsakTask extends FagsakProsessTask {
 
     static final String PROPERTY_HENDELSE_TYPE = "hendelseType";

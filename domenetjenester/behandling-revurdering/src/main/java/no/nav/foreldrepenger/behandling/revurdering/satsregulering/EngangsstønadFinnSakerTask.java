@@ -12,7 +12,6 @@ import org.slf4j.LoggerFactory;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningSatsType;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.SatsRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.SatsReguleringRepository;
-import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakProsesstaskRekkefølge;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
@@ -22,7 +21,6 @@ import no.nav.vedtak.log.mdc.MDCOperations;
 
 @ApplicationScoped
 @ProsessTask(value = "behandlingsprosess.esregulering.opprett", prioritet = 3)
-@FagsakProsesstaskRekkefølge(gruppeSekvens = false)
 public class EngangsstønadFinnSakerTask implements ProsessTaskHandler {
 
     private static final Logger LOG = LoggerFactory.getLogger(EngangsstønadFinnSakerTask.class);

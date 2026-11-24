@@ -6,7 +6,6 @@ import jakarta.enterprise.context.Dependent;
 import jakarta.inject.Inject;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
-import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakProsesstaskRekkefølge;
 import no.nav.foreldrepenger.behandlingslager.task.GenerellProsessTask;
 import no.nav.foreldrepenger.behandlingsprosess.prosessering.BehandlingProsesseringTjeneste;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
@@ -18,7 +17,6 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
  */
 @Dependent
 @ProsessTask(value = "batch.opprett.gjenoppta", prioritet = 3)
-@FagsakProsesstaskRekkefølge(gruppeSekvens = false)
 public class OpprettGjenopptaTask extends GenerellProsessTask {
 
     private final BehandlingRepository behandlingRepository;

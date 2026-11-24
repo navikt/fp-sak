@@ -20,7 +20,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRe
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.etterkontroll.EtterkontrollRepository;
 import no.nav.foreldrepenger.behandlingslager.etterkontroll.KontrollType;
-import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakProsesstaskRekkefølge;
 import no.nav.foreldrepenger.behandlingslager.task.FagsakProsessTask;
 import no.nav.foreldrepenger.domene.person.PersoninfoAdapter;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
@@ -32,7 +31,6 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 
 @ApplicationScoped
 @ProsessTask(value = "behandlingsprosess.etterkontroll", prioritet = 3)
-@FagsakProsesstaskRekkefølge(gruppeSekvens = false)
 public class AutomatiskEtterkontrollTask extends FagsakProsessTask {
 
     private static final Logger LOG = LoggerFactory.getLogger(AutomatiskEtterkontrollTask.class);

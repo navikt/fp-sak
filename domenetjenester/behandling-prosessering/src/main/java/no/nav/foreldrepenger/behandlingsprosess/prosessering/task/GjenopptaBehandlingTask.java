@@ -5,7 +5,6 @@ import jakarta.inject.Inject;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingLåsRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
-import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakProsesstaskRekkefølge;
 import no.nav.foreldrepenger.behandlingslager.task.BehandlingProsessTask;
 import no.nav.foreldrepenger.behandlingsprosess.prosessering.BehandlingProsesseringTjeneste;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
@@ -17,7 +16,6 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
  */
 @ApplicationScoped
 @ProsessTask("behandlingskontroll.gjenopptaBehandling")
-@FagsakProsesstaskRekkefølge(gruppeSekvens = true)
 public class GjenopptaBehandlingTask extends BehandlingProsessTask {
 
     private BehandlingRepository behandlingRepository;
