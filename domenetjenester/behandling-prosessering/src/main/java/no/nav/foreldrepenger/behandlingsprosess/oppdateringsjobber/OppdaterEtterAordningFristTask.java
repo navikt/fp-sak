@@ -23,7 +23,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAkt�
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.Historikkinnslag;
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkinnslagRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
-import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakProsesstaskRekkefølge;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.hendelser.StartpunktType;
 import no.nav.foreldrepenger.behandlingslager.kodeverk.Kodeverdi;
@@ -36,7 +35,6 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 
 @Dependent
 @ProsessTask(value = "batch.oppdater.aordningfrist", prioritet = 4, maxFailedRuns = 1)
-@FagsakProsesstaskRekkefølge(gruppeSekvens = false)
 class OppdaterEtterAordningFristTask implements ProsessTaskHandler {
 
     private static final int A_ORDNING_FRIST_DAG = 5;

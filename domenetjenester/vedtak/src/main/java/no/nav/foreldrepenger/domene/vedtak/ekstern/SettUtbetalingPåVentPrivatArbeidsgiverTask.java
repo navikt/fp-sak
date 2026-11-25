@@ -4,7 +4,6 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
-import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakProsesstaskRekkefølge;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.task.GenerellProsessTask;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
@@ -13,7 +12,6 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 
 @ApplicationScoped
 @ProsessTask(value = "iverksetteVedtak.oppgaveUtbetalingPåVent", prioritet = 2, maxFailedRuns = 1)
-@FagsakProsesstaskRekkefølge(gruppeSekvens = false)
 public class SettUtbetalingPåVentPrivatArbeidsgiverTask extends GenerellProsessTask {
 
 

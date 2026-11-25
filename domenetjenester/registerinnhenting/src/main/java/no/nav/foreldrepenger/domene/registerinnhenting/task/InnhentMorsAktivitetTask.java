@@ -8,7 +8,6 @@ import org.slf4j.LoggerFactory;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingLåsRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
-import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakProsesstaskRekkefølge;
 import no.nav.foreldrepenger.behandlingslager.task.BehandlingProsessTask;
 import no.nav.foreldrepenger.domene.registerinnhenting.MorsAktivitetInnhenter;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
@@ -16,7 +15,6 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 
 @ApplicationScoped
 @ProsessTask("innhentsaksopplysninger.morsAktivitet")
-@FagsakProsesstaskRekkefølge(gruppeSekvens = true)
 public class InnhentMorsAktivitetTask extends BehandlingProsessTask {
     private static final Logger LOG = LoggerFactory.getLogger(InnhentMorsAktivitetTask.class);
     private BehandlingRepository behandlingRepository;

@@ -16,7 +16,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.dokument.DokumentMalTyp
 import no.nav.foreldrepenger.behandlingslager.behandling.dokument.MellomlagringEntitet;
 import no.nav.foreldrepenger.behandlingslager.behandling.dokument.MellomlagringRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.dokument.MellomlagringType;
-import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakProsesstaskRekkefølge;
 import no.nav.foreldrepenger.kontrakter.formidling.kodeverk.Saksnummer;
 import no.nav.foreldrepenger.kontrakter.formidling.v3.DokumentBestillingDto;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
@@ -25,7 +24,6 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskHandler;
 
 @ApplicationScoped
 @ProsessTask("formidling.bestillDokument")
-@FagsakProsesstaskRekkefølge(gruppeSekvens = false)
 public class BestillDokumentTask implements ProsessTaskHandler {
 
     public static final String REVURDERING_ÅRSAK = "revurderingAarsak";

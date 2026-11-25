@@ -20,7 +20,6 @@ import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtak;
-import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakProsesstaskRekkefølge;
 import no.nav.foreldrepenger.datavarehus.v2.StønadsstatistikkKafkaProducer;
 import no.nav.foreldrepenger.datavarehus.v2.StønadsstatistikkTjeneste;
 import no.nav.foreldrepenger.datavarehus.v2.StønadsstatistikkVedtak;
@@ -34,7 +33,6 @@ import no.nav.vedtak.mapper.json.DefaultJsonMapper;
 
 @Dependent
 @ProsessTask(value = "stønadsstatisikk.migrering", prioritet = 4, maxFailedRuns = 1)
-@FagsakProsesstaskRekkefølge(gruppeSekvens = false)
 class StønadsstatistikkMigreringTask implements ProsessTaskHandler {
 
     private static final Logger LOG = LoggerFactory.getLogger(StønadsstatistikkMigreringTask.class);

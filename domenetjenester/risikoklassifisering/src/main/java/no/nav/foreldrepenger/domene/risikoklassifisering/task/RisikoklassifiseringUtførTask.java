@@ -8,7 +8,6 @@ import jakarta.inject.Inject;
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingslager.behandling.personopplysning.PersonopplysningRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
-import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakProsesstaskRekkefølge;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.task.GenerellProsessTask;
 import no.nav.foreldrepenger.domene.risikoklassifisering.tjeneste.RisikovurderingTjeneste;
@@ -24,7 +23,6 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 
 @ApplicationScoped
 @ProsessTask("risiko.klassifisering")
-@FagsakProsesstaskRekkefølge(gruppeSekvens = false)
 public class RisikoklassifiseringUtførTask extends GenerellProsessTask {
     private RisikovurderingTjeneste risikovurderingTjeneste;
     private BehandlingRepository behandlingRepository;

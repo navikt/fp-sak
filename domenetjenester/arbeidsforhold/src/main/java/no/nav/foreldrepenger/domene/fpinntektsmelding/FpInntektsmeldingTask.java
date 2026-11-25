@@ -10,7 +10,6 @@ import org.slf4j.LoggerFactory;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
-import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakProsesstaskRekkefølge;
 import no.nav.foreldrepenger.behandlingslager.task.GenerellProsessTask;
 import no.nav.foreldrepenger.behandlingslager.virksomhet.Arbeidsgiver;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
@@ -20,7 +19,6 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 
 @ApplicationScoped
 @ProsessTask("fpinntektsmelding.foresporsel")
-@FagsakProsesstaskRekkefølge(gruppeSekvens = true)
 public class FpInntektsmeldingTask extends GenerellProsessTask {
     private static final Logger LOG = LoggerFactory.getLogger(FpInntektsmeldingTask.class);
 

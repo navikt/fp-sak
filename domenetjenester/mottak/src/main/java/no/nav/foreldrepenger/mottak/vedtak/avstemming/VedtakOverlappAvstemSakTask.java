@@ -11,7 +11,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.beregning.Beregningsres
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.OverlappVedtak;
-import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakProsesstaskRekkefølge;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.task.GenerellProsessTask;
@@ -22,7 +21,6 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 
 @ApplicationScoped
 @ProsessTask(value = "vedtak.overlapp.avstem", prioritet = 4, maxFailedRuns = 1)
-@FagsakProsesstaskRekkefølge(gruppeSekvens = false)
 public class VedtakOverlappAvstemSakTask extends GenerellProsessTask {
     public static final String LOG_SAKSNUMMER_KEY = "logsaksnummer";
     public static final String LOG_HENDELSE_KEY = "hendelse";

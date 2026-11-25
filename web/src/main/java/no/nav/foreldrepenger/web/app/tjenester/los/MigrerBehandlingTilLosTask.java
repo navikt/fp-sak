@@ -1,5 +1,7 @@
 package no.nav.foreldrepenger.web.app.tjenester.los;
 
+import java.util.Optional;
+
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
@@ -7,16 +9,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
-import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakProsesstaskRekkefølge;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskHandler;
 
-import java.util.Optional;
-
 @ApplicationScoped
 @ProsessTask(value = "los.sendbehandling.behandling", prioritet = 4, maxFailedRuns = 1)
-@FagsakProsesstaskRekkefølge(gruppeSekvens = false)
 public class MigrerBehandlingTilLosTask implements ProsessTaskHandler {
 
     private static final Logger LOG = LoggerFactory.getLogger(MigrerBehandlingTilLosTask.class);

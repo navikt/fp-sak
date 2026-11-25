@@ -13,7 +13,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.AksjonspunktDefinisjon;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
-import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakProsesstaskRekkefølge;
 import no.nav.foreldrepenger.behandlingslager.task.GenerellProsessTask;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
@@ -27,7 +26,6 @@ import no.nav.vedtak.mapper.json.DefaultJsonMapper;
 
 @Dependent
 @ProsessTask(value = "oppgavebehandling.behandlingshendelse", prioritet = 2)
-@FagsakProsesstaskRekkefølge(gruppeSekvens = false)
 public class PubliserBehandlingHendelseTask extends GenerellProsessTask {
 
     public static final String HENDELSE_TYPE = "hendelseType";

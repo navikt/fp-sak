@@ -3,7 +3,6 @@ package no.nav.foreldrepenger.mottak.hendelser;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
-import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakProsesstaskRekkefølge;
 import no.nav.foreldrepenger.behandlingslager.hendelser.ForretningshendelseType;
 import no.nav.foreldrepenger.kontrakter.abonnent.v2.HendelseDto;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
@@ -13,7 +12,6 @@ import no.nav.vedtak.mapper.json.DefaultJsonMapper;
 
 @ApplicationScoped
 @ProsessTask(value = "hendelser.klargjoering", prioritet = 2)
-@FagsakProsesstaskRekkefølge(gruppeSekvens = false)
 public class KlargjørHendelseTask implements ProsessTaskHandler {
 
     public static final String PROPERTY_HENDELSE_TYPE = "hendelseType";

@@ -3,7 +3,6 @@ package no.nav.foreldrepenger.domene.vedtak.task;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
-import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakProsesstaskRekkefølge;
 import no.nav.foreldrepenger.behandlingslager.task.GenerellProsessTask;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.økonomistøtte.ØkonomiOppdragKøTjeneste;
@@ -12,7 +11,6 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 
 @ApplicationScoped
 @ProsessTask(value = "iverksetteVedtak.sendØkonomiOppdrag", prioritet = 2, maxFailedRuns = 1)
-@FagsakProsesstaskRekkefølge(gruppeSekvens = true)
 public class SendØkonomiOppdragTask extends GenerellProsessTask {
 
     private ØkonomiOppdragKøTjeneste køTjeneste;

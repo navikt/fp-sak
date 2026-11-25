@@ -8,7 +8,6 @@ import org.slf4j.LoggerFactory;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.behandling.vedtak.BehandlingVedtakRepository;
-import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakProsesstaskRekkefølge;
 import no.nav.foreldrepenger.behandlingslager.task.BehandlingProsessTask;
 import no.nav.foreldrepenger.dokumentbestiller.DokumentBestillerTjeneste;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
@@ -16,7 +15,6 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 
 @ApplicationScoped
 @ProsessTask(value = "iverksetteVedtak.sendVedtaksbrev", prioritet = 2)
-@FagsakProsesstaskRekkefølge(gruppeSekvens = false)
 public class SendVedtaksbrevTask extends BehandlingProsessTask {
 
     private static final Logger LOG = LoggerFactory.getLogger(SendVedtaksbrevTask.class);

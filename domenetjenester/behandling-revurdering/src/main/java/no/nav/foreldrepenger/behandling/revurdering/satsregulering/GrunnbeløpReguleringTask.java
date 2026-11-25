@@ -17,7 +17,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningSats
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.SatsRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
-import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakProsesstaskRekkefølge;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.behandlingslager.task.FagsakProsessTask;
 import no.nav.foreldrepenger.behandlingsprosess.prosessering.BehandlingProsesseringTjeneste;
@@ -33,7 +32,6 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 
 @Dependent
 @ProsessTask(value = "behandlingsprosess.gregulering.reguler", prioritet = 3)
-@FagsakProsesstaskRekkefølge(gruppeSekvens = false)
 public class GrunnbeløpReguleringTask extends FagsakProsessTask {
 
     public static final String MANUELL_KEY = "manuell";

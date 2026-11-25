@@ -17,7 +17,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.dokument.DokumentMalTyp
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
 import no.nav.foreldrepenger.behandlingslager.fagsak.Fagsak;
-import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakProsesstaskRekkefølge;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakYtelseType;
 import no.nav.foreldrepenger.behandlingslager.task.FagsakProsessTask;
@@ -36,7 +35,6 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 
 @ApplicationScoped
 @ProsessTask(value = "opprettsak.informasjonsbrevPåminnelse", prioritet = 3)
-@FagsakProsesstaskRekkefølge(gruppeSekvens = true)
 public class SendInformasjonsbrevPåminnelseTask extends FagsakProsessTask {
 
     private static final Logger LOG = LoggerFactory.getLogger(SendInformasjonsbrevPåminnelseTask.class);

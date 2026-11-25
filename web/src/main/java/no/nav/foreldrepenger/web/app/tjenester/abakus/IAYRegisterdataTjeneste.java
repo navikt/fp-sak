@@ -42,9 +42,8 @@ public class IAYRegisterdataTjeneste {
         LOG.info("Mottatt callback fra Abakus etter registerinnhenting for behandlingId={}, eksisterendeGrunnlag={}, nyttGrunnlag={}",
             callback.behandlingId(), callback.eksisterendeGrunnlagRef(), callback.oppdatertGrunnlagRef());
 
-        var tasksSomVenterPåSvar = taskTjeneste.finnAlle(ProsessTaskStatus.VENTER_SVAR)
+        var tasksSomVenterPåSvar = taskTjeneste.finnAktive(ABAKUS_TASK, ProsessTaskStatus.VENTER_SVAR)
             .stream()
-            .filter(it -> ABAKUS_TASK.equals(it.taskType()))
             .filter(it -> it.getBehandlingIdAsLong().equals(callback.behandlingId()))
             .toList();
 

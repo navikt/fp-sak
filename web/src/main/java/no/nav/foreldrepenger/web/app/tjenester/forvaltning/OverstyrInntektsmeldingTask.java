@@ -12,7 +12,6 @@ import jakarta.inject.Inject;
 
 import no.nav.foreldrepenger.behandling.BehandlingReferanse;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
-import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakProsesstaskRekkefølge;
 import no.nav.foreldrepenger.domene.arbeidsforhold.InntektArbeidYtelseTjeneste;
 import no.nav.foreldrepenger.domene.fpinntektsmelding.FpInntektsmeldingTjeneste;
 import no.nav.foreldrepenger.domene.iay.modell.InntektArbeidYtelseGrunnlag;
@@ -29,7 +28,6 @@ import no.nav.vedtak.mapper.json.DefaultJsonMapper;
  */
 @Dependent
 @ProsessTask(value = "fpinntektsmelding.overstyr.inntektsmelding", prioritet = 2)
-@FagsakProsesstaskRekkefølge(gruppeSekvens = false)
 class OverstyrInntektsmeldingTask implements ProsessTaskHandler {
 
     private final InntektArbeidYtelseTjeneste iayTjeneste;

@@ -11,7 +11,6 @@ import no.nav.abakus.vedtak.ytelse.Ytelse;
 import no.nav.foreldrepenger.behandlingslager.behandling.Behandling;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
-import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakProsesstaskRekkefølge;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskHandler;
@@ -19,7 +18,6 @@ import no.nav.vedtak.mapper.json.DefaultJsonMapper;
 
 @ApplicationScoped
 @ProsessTask(value = "vedtak.publiserHendelse", prioritet = 2)
-@FagsakProsesstaskRekkefølge(gruppeSekvens = false)
 public class PubliserVedtattYtelseHendelseTask implements ProsessTaskHandler {
 
     public static final String KEY = "vedtattBehandlingId";

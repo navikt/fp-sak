@@ -6,7 +6,6 @@ import jakarta.enterprise.context.Dependent;
 import jakarta.inject.Inject;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingKandidaterRepository;
-import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakProsesstaskRekkefølge;
 import no.nav.foreldrepenger.produksjonsstyring.behandlingenhet.task.OppdaterBehandlendeEnhetTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
@@ -15,7 +14,6 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 
 @Dependent
 @ProsessTask(value = "oppgavebehandling.flytt.enhet", prioritet = 2)
-@FagsakProsesstaskRekkefølge(gruppeSekvens = false)
 class FlyttEnhetTask implements ProsessTaskHandler {
 
     public static final String ENHET_ID = "enhetId";

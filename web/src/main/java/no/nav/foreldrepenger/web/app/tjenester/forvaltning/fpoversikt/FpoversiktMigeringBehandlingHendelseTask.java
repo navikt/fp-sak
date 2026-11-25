@@ -13,7 +13,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
-import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakProsesstaskRekkefølge;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskHandler;
@@ -23,7 +22,6 @@ import no.nav.vedtak.mapper.json.DefaultJsonMapper;
 
 @Dependent
 @ProsessTask(value = "fpoversikt.migrering", prioritet = 4, maxFailedRuns = 1)
-@FagsakProsesstaskRekkefølge(gruppeSekvens = false)
 class FpoversiktMigeringBehandlingHendelseTask implements ProsessTaskHandler {
 
     private static final Logger LOG = LoggerFactory.getLogger(FpoversiktMigeringBehandlingHendelseTask.class);

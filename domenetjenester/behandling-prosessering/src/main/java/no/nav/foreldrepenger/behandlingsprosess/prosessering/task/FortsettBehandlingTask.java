@@ -12,7 +12,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegStatus;
 import no.nav.foreldrepenger.behandlingslager.behandling.BehandlingStegType;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
-import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakProsesstaskRekkefølge;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTask;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 import no.nav.vedtak.felles.prosesstask.api.ProsessTaskHandler;
@@ -22,7 +21,6 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskHandler;
  */
 @ApplicationScoped
 @ProsessTask("behandlingskontroll.fortsettBehandling")
-@FagsakProsesstaskRekkefølge(gruppeSekvens = true)
 public class FortsettBehandlingTask implements ProsessTaskHandler {
 
     public static final String MANUELL_FORTSETTELSE = "manuellFortsettelse";

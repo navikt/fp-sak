@@ -13,7 +13,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageVurdering;
 import no.nav.foreldrepenger.behandlingslager.behandling.klage.KlageVurdertAv;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
-import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakProsesstaskRekkefølge;
 import no.nav.foreldrepenger.behandlingslager.task.GenerellProsessTask;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.produksjonsstyring.oppgavebehandling.task.OpprettOppgaveVurderKonsekvensTask;
@@ -23,7 +22,6 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskTjeneste;
 
 @ApplicationScoped
 @ProsessTask(value = "iverksetteVedtak.håndterKlageAnke", prioritet = 2, maxFailedRuns = 1)
-@FagsakProsesstaskRekkefølge(gruppeSekvens = false)
 public class MottaKlageAnkeVedtakTask extends GenerellProsessTask {
 
     private static final String VKY_KLAGE_BESKRIVELSE = "Vedtaket er opphevet eller omgjort i klagebehandling. Opprett en ny behandling.";

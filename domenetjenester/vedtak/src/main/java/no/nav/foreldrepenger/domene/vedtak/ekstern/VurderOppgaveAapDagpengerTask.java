@@ -14,7 +14,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.beregning.Beregningsres
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatPeriode;
 import no.nav.foreldrepenger.behandlingslager.behandling.beregning.BeregningsresultatRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
-import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakProsesstaskRekkefølge;
 import no.nav.foreldrepenger.behandlingslager.task.GenerellProsessTask;
 import no.nav.foreldrepenger.domene.typer.Saksnummer;
 import no.nav.foreldrepenger.skjæringstidspunkt.SkjæringstidspunktTjeneste;
@@ -24,7 +23,6 @@ import no.nav.vedtak.konfig.Tid;
 
 @ApplicationScoped
 @ProsessTask(value = "iverksetteVedtak.oppgaveArena", prioritet = 2)
-@FagsakProsesstaskRekkefølge(gruppeSekvens = false)
 public class VurderOppgaveAapDagpengerTask extends GenerellProsessTask {
 
     private static final Logger LOG = LoggerFactory.getLogger(VurderOppgaveAapDagpengerTask.class);

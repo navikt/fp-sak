@@ -7,7 +7,6 @@ import jakarta.inject.Inject;
 
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakLås;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakLåsRepository;
-import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakProsesstaskRekkefølge;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjon;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRelasjonRepository;
 import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakRepository;
@@ -20,7 +19,6 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 
 @ApplicationScoped
 @ProsessTask(value = "iverksetteVedtak.fagsakRelasjonAvsluttningsdato", prioritet = 2)
-@FagsakProsesstaskRekkefølge(gruppeSekvens = false)
 public class SettFagsakRelasjonAvslutningsdatoTask extends FagsakRelasjonProsessTask {
 
     private FagsakRepository fagsakRepository;

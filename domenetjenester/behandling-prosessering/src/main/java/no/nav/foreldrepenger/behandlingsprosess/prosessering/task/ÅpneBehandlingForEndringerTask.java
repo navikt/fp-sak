@@ -11,7 +11,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.aksjonspunkt.Aksjonspun
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingLås;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepositoryProvider;
-import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakProsesstaskRekkefølge;
 import no.nav.foreldrepenger.behandlingslager.hendelser.StartpunktType;
 import no.nav.foreldrepenger.behandlingslager.task.BehandlingProsessTask;
 import no.nav.foreldrepenger.behandlingsprosess.prosessering.BehandlingProsesseringTjeneste;
@@ -21,7 +20,6 @@ import no.nav.vedtak.felles.prosesstask.api.ProsessTaskData;
 
 @ApplicationScoped
 @ProsessTask("behandlingskontroll.åpneBehandlingForEndringer")
-@FagsakProsesstaskRekkefølge(gruppeSekvens = true)
 public class ÅpneBehandlingForEndringerTask extends BehandlingProsessTask {
 
     private BehandlingProsesseringTjeneste behandlingProsesseringTjeneste;

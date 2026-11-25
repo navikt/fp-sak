@@ -7,7 +7,6 @@ import no.nav.foreldrepenger.behandlingslager.behandling.EndringsresultatSnapsho
 import no.nav.foreldrepenger.behandlingslager.behandling.historikk.HistorikkAktør;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingLåsRepository;
 import no.nav.foreldrepenger.behandlingslager.behandling.repository.BehandlingRepository;
-import no.nav.foreldrepenger.behandlingslager.fagsak.FagsakProsesstaskRekkefølge;
 import no.nav.foreldrepenger.behandlingslager.task.BehandlingProsessTask;
 import no.nav.foreldrepenger.behandlingsprosess.prosessering.BehandlingProsesseringTjeneste;
 import no.nav.foreldrepenger.domene.registerinnhenting.RegisterdataEndringshåndterer;
@@ -21,7 +20,6 @@ import no.nav.vedtak.mapper.json.DefaultJsonMapper;
  */
 @ApplicationScoped
 @ProsessTask("behandlingskontroll.registerdataOppdaterBehandling")
-@FagsakProsesstaskRekkefølge(gruppeSekvens = true)
 public class RegisterdataOppdatererTask extends BehandlingProsessTask {
 
     private BehandlingProsesseringTjeneste behandlingProsesseringTjeneste;
