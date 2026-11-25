@@ -33,15 +33,9 @@ public class ProsesseringAsynkTjeneste {
     }
 
     public Map<String, ProsessTaskData> sjekkProsessTaskPågår(Saksnummer saksnummer, Long behandlingId, String gruppe) {
-        var statusProsessTasks = sjekkStatusProsessTasksGrouped(saksnummer, behandlingId, gruppe);
-
-        var nestePerGruppe = nesteProsessTaskPerGruppe(statusProsessTasks);
-
-        if (angittGruppeErFerdig(gruppe, nestePerGruppe)) {
-            nestePerGruppe = nesteProsessTaskPerGruppe(sjekkStatusProsessTasksGrouped(saksnummer, behandlingId, null));
-        }
-
-        return nestePerGruppe;
+        var statusProsessTasks = sjekkStatusProsessTasks(saksnummer, behandlingId, gruppe).stream()
+            .collect(Collectors.groupingBy(ProsessTaskData::getGruppe));
+        return nesteProsessTaskPerGruppe(statusProsessTasks);
     }
 
     /**
@@ -94,25 +88,13 @@ public class ProsesseringAsynkTjeneste {
         // velg top task per gruppe
 
         return tasks.values().stream()
-                .filter(prosessTaskData -> !prosessTaskData.isEmpty())
-                .map(/*
-                 * NB: avhenger av enum ordinal!
-                 */prosessTaskData -> prosessTaskData
-                        .stream().min(Comparator.comparing(ProsessTaskData::getSekvens)
-                                .thenComparing(Comparator.comparing(ProsessTaskData::getStatus).reversed())).get())
-                .collect(Collectors.toMap(ProsessTaskData::getGruppe, Function.identity()));
+            .filter(prosessTaskData -> !prosessTaskData.isEmpty())
+            .map(prosessTaskData -> prosessTaskData.stream()
+                .min(Comparator.comparing(ProsessTaskData::getSekvens) /* NB: neste avhenger av enum ordinal! */
+                    .thenComparing(Comparator.comparing(ProsessTaskData::getStatus).reversed()))
+                .orElseThrow())
+            .collect(Collectors.toMap(ProsessTaskData::getGruppe, Function.identity()));
     }
-
-    private boolean angittGruppeErFerdig(String gruppe, Map<String, ProsessTaskData> nestePerGruppe) {
-        return gruppe != null && (nestePerGruppe.isEmpty() || nestePerGruppe.size() == 1 && nestePerGruppe.containsKey(gruppe) && nestePerGruppe.get(
-            gruppe).getStatus().erKjørt());
-    }
-
-    private Map<String, List<ProsessTaskData>> sjekkStatusProsessTasksGrouped(Saksnummer saksnummer, Long behandlingId, String gruppe) {
-        var tasks = sjekkStatusProsessTasks(saksnummer, behandlingId, gruppe);
-        return tasks.stream().collect(Collectors.groupingBy(ProsessTaskData::getGruppe));
-    }
-
 
     private List<ProsessTaskData> sjekkStatusProsessTasks(Saksnummer saksnummer, Long behandlingId, String gruppe) {
         Objects.requireNonNull(saksnummer, "saksnummer");
