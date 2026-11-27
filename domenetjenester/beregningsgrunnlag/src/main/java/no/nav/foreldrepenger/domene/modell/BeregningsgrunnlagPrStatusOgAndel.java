@@ -2,6 +2,7 @@ package no.nav.foreldrepenger.domene.modell;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -16,6 +17,9 @@ import no.nav.foreldrepenger.domene.typer.Beløp;
 import no.nav.foreldrepenger.domene.typer.InternArbeidsforholdRef;
 
 public class BeregningsgrunnlagPrStatusOgAndel {
+
+    private static final EnumSet<AndelKilde> TILKOMNE_ANDELER = EnumSet.of(AndelKilde.PROSESS_OMFORDELING,
+        AndelKilde.PROSESS_PERIODISERING, AndelKilde.SAKSBEHANDLER_FORDELING);
 
     private Long andelsnr;
     private AktivitetStatus aktivitetStatus;
@@ -54,6 +58,10 @@ public class BeregningsgrunnlagPrStatusOgAndel {
 
     public AndelKilde getKilde() {
         return kilde;
+    }
+
+    public boolean erTilkommetAndel() {
+        return TILKOMNE_ANDELER.contains(kilde);
     }
 
     public BigDecimal getBesteberegnetPrÅr() {
